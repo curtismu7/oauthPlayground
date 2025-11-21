@@ -1,16 +1,16 @@
 // src/pages/flows/ExampleV7Flow.tsx
 /**
  * Example V7 Flow - Demonstrates V7 Flow Template Usage
- * 
+ *
  * This example shows how to create a new V7 flow using the standardized
  * V7 Flow Template with built-in compliance features.
  */
 
 import React, { useCallback, useState } from 'react';
-import { V7FlowTemplate } from '../../templates/V7FlowTemplate';
+import { FlowUIService } from '../../services/flowUIService';
 import { V7FlowTemplateService } from '../../services/v7FlowTemplateService';
 import { V7SharedService } from '../../services/v7SharedService';
-import { FlowUIService } from '../../services/flowUIService';
+import { V7FlowTemplate } from '../../templates/V7FlowTemplate';
 
 // Get shared UI components
 const {
@@ -33,37 +33,46 @@ const {
 const ExampleV7Flow: React.FC = () => {
 	// Get template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig('oauth-authorization-code-v7');
-	
+
 	// State for the flow
 	const [credentials, setCredentials] = useState({
 		clientId: '',
 		clientSecret: '',
 		redirectUri: 'https://localhost:3000/callback',
-		scope: 'read write'
+		scope: 'read write',
 	});
 	const [authUrl, setAuthUrl] = useState('');
 	const [authCode, setAuthCode] = useState('');
 	const [tokens, setTokens] = useState<any>(null);
 
 	// Step content renderer
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsStep();
-			case 1:
-				return renderAuthorizationStep();
-			case 2:
-				return renderCallbackStep();
-			case 3:
-				return renderTokenExchangeStep();
-			case 4:
-				return renderTokenManagementStep();
-			case 5:
-				return renderCompletionStep();
-			default:
-				return <div>Step not implemented</div>;
-		}
-	}, [credentials, authUrl, authCode, tokens]);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsStep();
+				case 1:
+					return renderAuthorizationStep();
+				case 2:
+					return renderCallbackStep();
+				case 3:
+					return renderTokenExchangeStep();
+				case 4:
+					return renderTokenManagementStep();
+				case 5:
+					return renderCompletionStep();
+				default:
+					return <div>Step not implemented</div>;
+			}
+		},
+		[
+			renderAuthorizationStep,
+			renderCallbackStep,
+			renderCredentialsStep,
+			renderTokenExchangeStep,
+			renderTokenManagementStep,
+		]
+	);
 
 	// Step 0: Application Configuration
 	const renderCredentialsStep = () => (
@@ -71,8 +80,8 @@ const ExampleV7Flow: React.FC = () => {
 			<InfoBox $variant="info">
 				<InfoTitle>Configure OAuth Application</InfoTitle>
 				<InfoText>
-					Enter your OAuth application credentials. These will be used to authenticate
-					with the authorization server.
+					Enter your OAuth application credentials. These will be used to authenticate with the
+					authorization server.
 				</InfoText>
 			</InfoBox>
 
@@ -81,7 +90,7 @@ const ExampleV7Flow: React.FC = () => {
 				<Input
 					type="text"
 					value={credentials.clientId}
-					onChange={(e) => setCredentials(prev => ({ ...prev, clientId: e.target.value }))}
+					onChange={(e) => setCredentials((prev) => ({ ...prev, clientId: e.target.value }))}
 					placeholder="Enter your client ID"
 				/>
 				<HelperText>Your OAuth application's client identifier</HelperText>
@@ -92,7 +101,7 @@ const ExampleV7Flow: React.FC = () => {
 				<Input
 					type="password"
 					value={credentials.clientSecret}
-					onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+					onChange={(e) => setCredentials((prev) => ({ ...prev, clientSecret: e.target.value }))}
 					placeholder="Enter your client secret"
 				/>
 				<HelperText>Your OAuth application's client secret</HelperText>
@@ -103,7 +112,7 @@ const ExampleV7Flow: React.FC = () => {
 				<Input
 					type="text"
 					value={credentials.redirectUri}
-					onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+					onChange={(e) => setCredentials((prev) => ({ ...prev, redirectUri: e.target.value }))}
 					placeholder="https://localhost:3000/callback"
 				/>
 				<HelperText>Where to redirect after authorization</HelperText>
@@ -114,7 +123,7 @@ const ExampleV7Flow: React.FC = () => {
 				<Input
 					type="text"
 					value={credentials.scope}
-					onChange={(e) => setCredentials(prev => ({ ...prev, scope: e.target.value }))}
+					onChange={(e) => setCredentials((prev) => ({ ...prev, scope: e.target.value }))}
 					placeholder="read write"
 				/>
 				<HelperText>Space-separated list of permissions</HelperText>
@@ -142,7 +151,7 @@ const ExampleV7Flow: React.FC = () => {
 				client_id: credentials.clientId,
 				redirect_uri: credentials.redirectUri,
 				scope: credentials.scope,
-				state: 'random-state-value'
+				state: 'random-state-value',
 			});
 
 			const url = `https://auth.pingone.com/oauth/authorize?${params.toString()}`;
@@ -154,22 +163,18 @@ const ExampleV7Flow: React.FC = () => {
 				<InfoBox $variant="info">
 					<InfoTitle>Generate Authorization URL</InfoTitle>
 					<InfoText>
-						Create the authorization URL that will redirect the user to the
-						authorization server for authentication.
+						Create the authorization URL that will redirect the user to the authorization server for
+						authentication.
 					</InfoText>
 				</InfoBox>
 
-				<Button onClick={generateAuthUrl}>
-					Generate Authorization URL
-				</Button>
+				<Button onClick={generateAuthUrl}>Generate Authorization URL</Button>
 
 				{authUrl && (
 					<GeneratedContentBox>
 						<InfoTitle>Authorization URL</InfoTitle>
 						<CodeBlock>{authUrl}</CodeBlock>
-						<Button onClick={() => window.open(authUrl, '_blank')}>
-							Open Authorization URL
-						</Button>
+						<Button onClick={() => window.open(authUrl, '_blank')}>Open Authorization URL</Button>
 					</GeneratedContentBox>
 				)}
 			</>
@@ -182,8 +187,8 @@ const ExampleV7Flow: React.FC = () => {
 			<InfoBox $variant="info">
 				<InfoTitle>Authorization Code Received</InfoTitle>
 				<InfoText>
-					The user has been redirected back to your application with an
-					authorization code. Enter the code below.
+					The user has been redirected back to your application with an authorization code. Enter
+					the code below.
 				</InfoText>
 			</InfoBox>
 
@@ -215,11 +220,11 @@ const ExampleV7Flow: React.FC = () => {
 					token_type: 'Bearer',
 					expires_in: 3600,
 					refresh_token: 'mock-refresh-token-67890',
-					scope: credentials.scope
+					scope: credentials.scope,
 				};
 
 				setTokens(mockTokens);
-			} catch (error) {
+			} catch (_error) {
 				alert('Token exchange failed');
 			}
 		};
@@ -229,14 +234,11 @@ const ExampleV7Flow: React.FC = () => {
 				<InfoBox $variant="info">
 					<InfoTitle>Exchange Authorization Code for Tokens</InfoTitle>
 					<InfoText>
-						Use the authorization code to obtain access and refresh tokens
-						from the token endpoint.
+						Use the authorization code to obtain access and refresh tokens from the token endpoint.
 					</InfoText>
 				</InfoBox>
 
-				<Button onClick={exchangeTokens}>
-					Exchange Code for Tokens
-				</Button>
+				<Button onClick={exchangeTokens}>Exchange Code for Tokens</Button>
 
 				{tokens && (
 					<GeneratedContentBox>
@@ -294,8 +296,8 @@ const ExampleV7Flow: React.FC = () => {
 			<InfoBox $variant="success">
 				<InfoTitle>OAuth Flow Completed Successfully</InfoTitle>
 				<InfoText>
-					You have successfully completed the OAuth 2.0 Authorization Code flow.
-					Your application now has the necessary tokens to access protected resources.
+					You have successfully completed the OAuth 2.0 Authorization Code flow. Your application
+					now has the necessary tokens to access protected resources.
 				</InfoText>
 			</InfoBox>
 
@@ -312,24 +314,27 @@ const ExampleV7Flow: React.FC = () => {
 	);
 
 	// Navigation validation
-	const canNavigateNext = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return credentials.clientId && credentials.clientSecret && credentials.redirectUri;
-			case 1:
-				return authUrl !== '';
-			case 2:
-				return authCode !== '';
-			case 3:
-				return tokens !== null;
-			case 4:
-				return true;
-			case 5:
-				return true;
-			default:
-				return false;
-		}
-	}, [credentials, authUrl, authCode, tokens]);
+	const canNavigateNext = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return credentials.clientId && credentials.clientSecret && credentials.redirectUri;
+				case 1:
+					return authUrl !== '';
+				case 2:
+					return authCode !== '';
+				case 3:
+					return tokens !== null;
+				case 4:
+					return true;
+				case 5:
+					return true;
+				default:
+					return false;
+			}
+		},
+		[credentials, authUrl, authCode, tokens]
+	);
 
 	// Reset handler
 	const handleReset = useCallback(() => {
@@ -337,7 +342,7 @@ const ExampleV7Flow: React.FC = () => {
 			clientId: '',
 			clientSecret: '',
 			redirectUri: 'https://localhost:3000/callback',
-			scope: 'read write'
+			scope: 'read write',
 		});
 		setAuthUrl('');
 		setAuthCode('');

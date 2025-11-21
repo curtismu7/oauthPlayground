@@ -1,11 +1,7 @@
 // src/services/credentialStorageManager.ts
 // Unified credential storage manager with 3-tier storage (memory, browser, file)
 
-import type {
-	FlowCredentials,
-	CredentialStorageConfig,
-	StorageResult,
-} from '../types/credentials';
+import type { CredentialStorageConfig, FlowCredentials, StorageResult } from '../types/credentials';
 import { FileStorageUtil } from '../utils/fileStorageUtil';
 
 /**
@@ -35,12 +31,12 @@ export interface WorkerTokenData {
 
 /**
  * Credential Storage Manager
- * 
+ *
  * Provides a unified interface for storing and retrieving credentials with:
  * - Memory cache (fastest, session-only)
  * - Browser localStorage (survives refresh)
  * - File storage (survives restart)
- * 
+ *
  * Key Features:
  * - Flow-specific isolation (no credential bleeding)
  * - Explicit loading (no fallback to other flows)
@@ -70,12 +66,12 @@ export class CredentialStorageManager {
 
 	/**
 	 * Load credentials with explicit flow key (no fallback)
-	 * 
+	 *
 	 * Priority order:
 	 * 1. Memory cache (fastest)
 	 * 2. Browser localStorage
 	 * 3. File storage
-	 * 
+	 *
 	 * @param flowKey - Unique identifier for the flow
 	 * @returns Storage result with credentials or null
 	 */
@@ -145,14 +141,14 @@ export class CredentialStorageManager {
 
 	/**
 	 * Save credentials to all storage layers
-	 * 
+	 *
 	 * Writes to:
 	 * 1. Memory cache
 	 * 2. Browser localStorage
 	 * 3. File storage (if enabled)
-	 * 
+	 *
 	 * Continues on partial failure (best-effort)
-	 * 
+	 *
 	 * @param flowKey - Unique identifier for the flow
 	 * @param credentials - Credentials to save
 	 * @returns Storage result indicating success/failure
@@ -220,7 +216,7 @@ export class CredentialStorageManager {
 
 	/**
 	 * Clear credentials from all storage layers
-	 * 
+	 *
 	 * @param flowKey - Unique identifier for the flow
 	 */
 	async clearFlowCredentials(flowKey: string): Promise<void> {
@@ -250,7 +246,7 @@ export class CredentialStorageManager {
 
 	/**
 	 * Get all flow keys that have stored credentials
-	 * 
+	 *
 	 * @returns Array of flow keys
 	 */
 	getAllFlowKeys(): string[] {
@@ -263,7 +259,7 @@ export class CredentialStorageManager {
 		try {
 			for (let i = 0; i < localStorage.length; i++) {
 				const key = localStorage.key(i);
-				if (key && key.startsWith('flow_credentials_')) {
+				if (key?.startsWith('flow_credentials_')) {
 					const flowKey = key.replace('flow_credentials_', '');
 					keys.add(flowKey);
 				}
@@ -396,10 +392,13 @@ export class CredentialStorageManager {
 	 * Save credentials to file storage
 	 */
 	private async saveToFile(flowKey: string, credentials: any): Promise<void> {
-		const result = await FileStorageUtil.save({
-			directory: 'credentials',
-			filename: `${flowKey}.json`,
-		}, credentials);
+		const result = await FileStorageUtil.save(
+			{
+				directory: 'credentials',
+				filename: `${flowKey}.json`,
+			},
+			credentials
+		);
 
 		if (!result.success) {
 			throw new Error(result.error || 'Failed to save to file storage');
@@ -455,8 +454,8 @@ export class CredentialStorageManager {
 		try {
 			localStorage.setItem(key, JSON.stringify(pkceCodes));
 			console.log(`✅ [CredentialStorageManager] Saved PKCE codes for ${flowKey}`, {
-				codeVerifier: pkceCodes.codeVerifier.substring(0, 10) + '...',
-				codeChallenge: pkceCodes.codeChallenge.substring(0, 10) + '...',
+				codeVerifier: `${pkceCodes.codeVerifier.substring(0, 10)}...`,
+				codeChallenge: `${pkceCodes.codeChallenge.substring(0, 10)}...`,
 			});
 		} catch (error) {
 			console.error(`❌ Failed to save PKCE codes:`, error);
@@ -476,8 +475,8 @@ export class CredentialStorageManager {
 			}
 			const codes = JSON.parse(stored) as PKCECodes;
 			console.log(`✅ [CredentialStorageManager] Loaded PKCE codes for ${flowKey}`, {
-				codeVerifier: codes.codeVerifier.substring(0, 10) + '...',
-				codeChallenge: codes.codeChallenge.substring(0, 10) + '...',
+				codeVerifier: `${codes.codeVerifier.substring(0, 10)}...`,
+				codeChallenge: `${codes.codeChallenge.substring(0, 10)}...`,
 			});
 			return codes;
 		} catch (error) {
@@ -557,13 +556,13 @@ export class CredentialStorageManager {
 	async loadWorkerToken(): Promise<WorkerTokenData | null> {
 		const flowKey = 'worker-token';
 		const result = await this.loadFlowCredentials(flowKey);
-		
+
 		if (!result.success || !result.data) {
 			return null;
 		}
 
 		const data = result.data as unknown as WorkerTokenData;
-		
+
 		// Check if token is expired
 		if (data.expiresAt && Date.now() > data.expiresAt) {
 			console.log(`⏰ [CredentialStorageManager] Worker token expired`);
@@ -596,7 +595,7 @@ export class CredentialStorageManager {
 	async loadFlowData<T>(flowKey: string, dataKey: string): Promise<T | null> {
 		const key = `${flowKey}_${dataKey}`;
 		const result = await this.loadFlowCredentials(key);
-		
+
 		if (!result.success || !result.data) {
 			return null;
 		}
@@ -617,16 +616,16 @@ export class CredentialStorageManager {
 	 */
 	async clearAllFlowData(flowKey: string): Promise<void> {
 		console.log(`🗑️ [CredentialStorageManager] Clearing all data for ${flowKey}`);
-		
+
 		// Clear credentials
 		await this.clearFlowCredentials(flowKey);
-		
+
 		// Clear PKCE codes
 		this.clearPKCECodes(flowKey);
-		
+
 		// Clear flow state
 		this.clearFlowState(flowKey);
-		
+
 		console.log(`✅ Cleared all data for ${flowKey}`);
 	}
 
@@ -691,13 +690,13 @@ export class CredentialStorageManager {
 			// Update memory cache
 			if (newValue) {
 				const data = JSON.parse(newValue);
-				
+
 				// Extract flow key from storage key
 				const flowKey = this.extractFlowKey(key);
 				if (flowKey) {
 					this.memoryCache.set(flowKey, data);
 					console.log(`✅ [CrossTabSync] Updated memory cache for ${flowKey}`);
-					
+
 					// Notify listeners
 					this.notifyListeners(flowKey, data);
 				}
@@ -707,7 +706,7 @@ export class CredentialStorageManager {
 				if (flowKey) {
 					this.memoryCache.delete(flowKey);
 					console.log(`🗑️ [CrossTabSync] Cleared memory cache for ${flowKey}`);
-					
+
 					// Notify listeners
 					this.notifyListeners(flowKey, null);
 				}
@@ -743,7 +742,7 @@ export class CredentialStorageManager {
 		if (!this.syncListeners.has(flowKey)) {
 			this.syncListeners.set(flowKey, new Set());
 		}
-		
+
 		this.syncListeners.get(flowKey)!.add(callback);
 		console.log(`📡 [CrossTabSync] Added listener for ${flowKey}`);
 
@@ -767,7 +766,7 @@ export class CredentialStorageManager {
 		const listeners = this.syncListeners.get(flowKey);
 		if (listeners && listeners.size > 0) {
 			console.log(`📢 [CrossTabSync] Notifying ${listeners.size} listeners for ${flowKey}`);
-			listeners.forEach(callback => {
+			listeners.forEach((callback) => {
 				try {
 					callback(data);
 				} catch (error) {
@@ -780,7 +779,7 @@ export class CredentialStorageManager {
 	/**
 	 * Broadcast a credential change to other tabs
 	 */
-	broadcastChange(flowKey: string, data: any): void {
+	broadcastChange(flowKey: string, _data: any): void {
 		// The storage event will automatically fire in other tabs when we write to localStorage
 		// This method is here for explicit broadcasting if needed
 		console.log(`📡 [CrossTabSync] Broadcasting change for ${flowKey}`);

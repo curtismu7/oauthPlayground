@@ -2,7 +2,7 @@
 // React component for displaying API calls with enhanced features
 
 import React, { useCallback, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiCode, FiCopy, FiExternalLink, FiInfo } from 'react-icons/fi';
+import { FiChevronDown, FiCode, FiCopy, FiExternalLink, FiInfo } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -100,12 +100,22 @@ const CollapsibleSection = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const SectionHeader = styled.div<{ $sectionType?: string }>`
+const SectionHeader = styled.div<{ $sectionType?: string; $statusCode?: number }>`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	padding: 0.75rem;
-	background: ${({ $sectionType }) => {
+	background: ${({ $sectionType, $statusCode }) => {
+		if ($sectionType === 'response' && $statusCode !== undefined) {
+			// Color based on status code
+			if ($statusCode >= 200 && $statusCode < 300) {
+				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient for success
+			} else if ($statusCode >= 400) {
+				return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'; // Red gradient for errors
+			} else {
+				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'; // Yellow gradient for other statuses
+			}
+		}
 		switch ($sectionType) {
 			case 'details':
 				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'; // Blue gradient
@@ -114,14 +124,24 @@ const SectionHeader = styled.div<{ $sectionType?: string }>`
 			case 'pingone':
 				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'; // Yellow gradient
 			case 'response':
-				return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient
+				return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient (fallback)
 			case 'notes':
 				return 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)'; // Purple gradient
 			default:
 				return '#f8fafc';
 		}
 	}};
-	border: 2px solid ${({ $sectionType }) => {
+	border: 2px solid ${({ $sectionType, $statusCode }) => {
+		if ($sectionType === 'response' && $statusCode !== undefined) {
+			// Color based on status code
+			if ($statusCode >= 200 && $statusCode < 300) {
+				return '#10b981'; // Green border for success
+			} else if ($statusCode >= 400) {
+				return '#ef4444'; // Red border for errors
+			} else {
+				return '#f59e0b'; // Yellow border for other statuses
+			}
+		}
 		switch ($sectionType) {
 			case 'details':
 				return '#3b82f6'; // Blue border
@@ -130,7 +150,7 @@ const SectionHeader = styled.div<{ $sectionType?: string }>`
 			case 'pingone':
 				return '#f59e0b'; // Yellow border
 			case 'response':
-				return '#ec4899'; // Pink border
+				return '#ec4899'; // Pink border (fallback)
 			case 'notes':
 				return '#8b5cf6'; // Purple border
 			default:
@@ -143,7 +163,17 @@ const SectionHeader = styled.div<{ $sectionType?: string }>`
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	
 	&:hover {
-		background: ${({ $sectionType }) => {
+		background: ${({ $sectionType, $statusCode }) => {
+			if ($sectionType === 'response' && $statusCode !== undefined) {
+				// Darker shades based on status code
+				if ($statusCode >= 200 && $statusCode < 300) {
+					return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+				} else if ($statusCode >= 400) {
+					return 'linear-gradient(135deg, #fecaca 0%, #fca5a5 100%)'; // Darker red
+				} else {
+					return 'linear-gradient(135deg, #fde68a 0%, #fcd34d 100%)'; // Darker yellow
+				}
+			}
 			switch ($sectionType) {
 				case 'details':
 					return 'linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%)'; // Darker blue
@@ -152,7 +182,7 @@ const SectionHeader = styled.div<{ $sectionType?: string }>`
 				case 'pingone':
 					return 'linear-gradient(135deg, #fde68a 0%, #fcd34d 100%)'; // Darker yellow
 				case 'response':
-					return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink
+					return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink (fallback)
 				case 'notes':
 					return 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%)'; // Darker purple
 				default:
@@ -162,6 +192,41 @@ const SectionHeader = styled.div<{ $sectionType?: string }>`
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}
+`;
+
+const StatusLine = styled.div<{ $statusCode: number }>`
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	padding: 0.75rem 1rem;
+	border-radius: 6px;
+	font-weight: 600;
+	color: ${({ $statusCode }) => {
+		if ($statusCode >= 200 && $statusCode < 300) {
+			return '#065f46'; // Green text for success
+		} else if ($statusCode >= 400) {
+			return '#991b1b'; // Red text for errors
+		} else {
+			return '#92400e'; // Yellow text for other statuses
+		}
+	}};
+	background: ${({ $statusCode }) => {
+		if ($statusCode >= 200 && $statusCode < 300) {
+			return '#d1fae5'; // Green background for success
+		} else if ($statusCode >= 400) {
+			return '#fee2e2'; // Red background for errors
+		} else {
+			return '#fef3c7'; // Yellow background for other statuses
+		}
+	}};
+	border: 1px solid ${({ $statusCode }) => {
+		if ($statusCode >= 200 && $statusCode < 300) {
+			return '#10b981'; // Green border for success
+		} else if ($statusCode >= 400) {
+			return '#ef4444'; // Red border for errors
+		} else {
+			return '#f59e0b'; // Yellow border for other statuses
+		}
+	}};
 `;
 
 const SectionTitle = styled.h4`
@@ -400,6 +465,7 @@ interface EnhancedApiCallDisplayProps {
 	onExecute?: () => Promise<void>;
 	showExecuteButton?: boolean;
 	className?: string;
+	initiallyCollapsed?: boolean;
 }
 
 export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
@@ -408,9 +474,10 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	onExecute,
 	showExecuteButton = false,
 	className,
+	initiallyCollapsed = false,
 }) => {
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(
-		new Set(['url', 'pingone']) // URL and PingOne section expanded by default to show new documentation links
+		initiallyCollapsed ? new Set() : new Set(['url', 'pingone']) // URL and PingOne section expanded by default to show new documentation links
 	);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
@@ -482,28 +549,28 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		(url: string) => {
 			if (!url) return null;
 
-		// Get highlighting rules from service
-		const rules =
-			options.urlHighlightRules ||
-			EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
+			// Get highlighting rules from service
+			const rules =
+				options.urlHighlightRules ||
+				EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
 
-		// Debug logging
-		console.log('[EnhancedApiCallDisplay] Debug info:', {
-			flowType: apiCall.flowType,
-			hasUrlHighlightRules: !!options.urlHighlightRules,
-			rulesType: Array.isArray(rules) ? 'array' : typeof rules,
-			rulesLength: Array.isArray(rules) ? rules.length : 'N/A',
-			rules: rules
-		});
+			// Debug logging
+			console.log('[EnhancedApiCallDisplay] Debug info:', {
+				flowType: apiCall.flowType,
+				hasUrlHighlightRules: !!options.urlHighlightRules,
+				rulesType: Array.isArray(rules) ? 'array' : typeof rules,
+				rulesLength: Array.isArray(rules) ? rules.length : 'N/A',
+				rules: rules,
+			});
 
-		// Ensure rules is always an array
-		if (!Array.isArray(rules)) {
-			console.warn('[EnhancedApiCallDisplay] rules is not an array:', rules);
-			// Return empty array as fallback
-			return null;
-		}
+			// Ensure rules is always an array
+			if (!Array.isArray(rules)) {
+				console.warn('[EnhancedApiCallDisplay] rules is not an array:', rules);
+				// Return empty array as fallback
+				return null;
+			}
 
-		if (rules.length === 0) return null;
+			if (rules.length === 0) return null;
 
 			// Use service to highlight URL
 			const highlightedParts = EnhancedApiCallDisplayService.highlightURL(url, rules);
@@ -514,13 +581,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 			return highlightedParts.map((part, index) => {
 				const props: {
-					key: number;
 					$isHighlighted: boolean;
 					$color?: string;
 					$backgroundColor?: string;
 					title?: string | undefined;
 				} = {
-					key: index,
 					$isHighlighted: part.isHighlighted,
 				};
 
@@ -530,7 +595,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				if (part.color) props.$color = part.color;
 				if (part.backgroundColor) props.$backgroundColor = part.backgroundColor;
 
-				return <URLPart {...props}>{part.content}</URLPart>;
+				return (
+					<URLPart key={index} {...props}>
+						{part.content}
+					</URLPart>
+				);
 			});
 		},
 		[apiCall.flowType, options.urlHighlightRules]
@@ -741,7 +810,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 						<p style={{ margin: '0 0 0.75rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
 							This shows the actual HTTP request that will be sent to PingOne's token endpoint:
 						</p>
-						
+
 						{/* Real PingOne URL */}
 						<div style={{ marginBottom: '1rem' }}>
 							<h5
@@ -823,8 +892,18 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 const response = await fetch('${apiCall.url}', {
   method: '${apiCall.method}',
   headers: {
-${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `    '${key}': '${value}'`).join(',\n') : '    // No headers'},${apiCall.body ? `
-  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})` : ''}
+${
+	apiCall.headers
+		? Object.entries(apiCall.headers)
+				.map(([key, value]) => `    '${key}': '${value}'`)
+				.join(',\n')
+		: '    // No headers'
+},${
+									apiCall.body
+										? `
+  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})`
+										: ''
+								}
 });
 
 const data = await response.json();
@@ -833,19 +912,31 @@ console.log('PingOne Response:', data);`}
 							<ActionButtons style={{ marginTop: '0.75rem' }}>
 								<ActionButton
 									$variant="primary"
-									onClick={() => handleCopy(
-										`// JavaScript fetch request to PingOne
+									onClick={() =>
+										handleCopy(
+											`// JavaScript fetch request to PingOne
 const response = await fetch('${apiCall.url}', {
   method: '${apiCall.method}',
   headers: {
-${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `    '${key}': '${value}'`).join(',\n') : '    // No headers'},${apiCall.body ? `
-  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})` : ''}
+${
+	apiCall.headers
+		? Object.entries(apiCall.headers)
+				.map(([key, value]) => `    '${key}': '${value}'`)
+				.join(',\n')
+		: '    // No headers'
+},${
+												apiCall.body
+													? `
+  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})`
+													: ''
+											}
 });
 
 const data = await response.json();
 console.log('PingOne Response:', data);`,
-										'JavaScript Fetch Example'
-									)}
+											'JavaScript Fetch Example'
+										)
+									}
 								>
 									<FiCopy size={14} />
 									Copy JavaScript
@@ -855,7 +946,14 @@ console.log('PingOne Response:', data);`,
 
 						{/* Postman Collection Example */}
 						<div style={{ marginBottom: '1.5rem' }}>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '0.5rem',
+								}}
+							>
 								<h5
 									style={{
 										margin: 0,
@@ -880,11 +978,21 @@ console.log('PingOne Response:', data);`,
       "request": {
         "method": "${apiCall.method}",
         "header": [
-${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+${
+	apiCall.headers
+		? Object.entries(apiCall.headers)
+				.map(
+					([key, value]) => `          {
             "key": "${key}",
             "value": "${value}",
             "type": "text"
-          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+          }`
+				)
+				.join(',\n')
+		: '          // No headers'
+},${
+											apiCall.body
+												? `
         ],
         "body": {
           "mode": "raw",
@@ -894,7 +1002,9 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
               "language": "json"
             }
           }
-        }` : ''}
+        }`
+												: ''
+										}
         ],
         "url": {
           "raw": "${apiCall.url}",
@@ -906,8 +1016,7 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
     }
   ]
 }`;
-										navigator.clipboard.writeText(postmanCollection);
-										onCopy?.('Postman Collection copied to clipboard!');
+										handleCopy(postmanCollection, 'Postman Collection');
 									}}
 								>
 									<FiCopy size={14} />
@@ -927,11 +1036,21 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
       "request": {
         "method": "${apiCall.method}",
         "header": [
-${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+${
+	apiCall.headers
+		? Object.entries(apiCall.headers)
+				.map(
+					([key, value]) => `          {
             "key": "${key}",
             "value": "${value}",
             "type": "text"
-          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+          }`
+				)
+				.join(',\n')
+		: '          // No headers'
+},${
+									apiCall.body
+										? `
         ],
         "body": {
           "mode": "raw",
@@ -941,7 +1060,9 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
               "language": "json"
             }
           }
-        }` : ''}
+        }`
+										: ''
+								}
         ],
         "url": {
           "raw": "${apiCall.url}",
@@ -957,8 +1078,9 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 							<ActionButtons style={{ marginTop: '0.75rem' }}>
 								<ActionButton
 									$variant="primary"
-									onClick={() => handleCopy(
-										`{
+									onClick={() =>
+										handleCopy(
+											`{
   "info": {
     "name": "PingOne Token Exchange Request",
     "description": "OAuth 2.0 Token Exchange request to PingOne",
@@ -970,11 +1092,21 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
       "request": {
         "method": "${apiCall.method}",
         "header": [
-${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+${
+	apiCall.headers
+		? Object.entries(apiCall.headers)
+				.map(
+					([key, value]) => `          {
             "key": "${key}",
             "value": "${value}",
             "type": "text"
-          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+          }`
+				)
+				.join(',\n')
+		: '          // No headers'
+},${
+												apiCall.body
+													? `
         ],
         "body": {
           "mode": "raw",
@@ -984,7 +1116,9 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
               "language": "json"
             }
           }
-        }` : ''}
+        }`
+													: ''
+											}
         ],
         "url": {
           "raw": "${apiCall.url}",
@@ -996,8 +1130,9 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
     }
   ]
 }`,
-										'Postman Collection JSON'
-									)}
+											'Postman Collection JSON'
+										)
+									}
 								>
 									<FiCopy size={14} />
 									Copy Postman Collection
@@ -1020,7 +1155,12 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 								<ActionButton
 									$variant="secondary"
-									onClick={() => window.open('https://apidocs.pingidentity.com/pingone/platform/v1/api/', '_blank')}
+									onClick={() =>
+										window.open(
+											'https://apidocs.pingidentity.com/pingone/platform/v1/api/',
+											'_blank'
+										)
+									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
 									<FiExternalLink size={16} />
@@ -1028,23 +1168,31 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 								</ActionButton>
 								<ActionButton
 									$variant="secondary"
-									onClick={() => window.open('https://www.postman.com/ping-identity/pingone/documentation/ps5gedp/pingone-platform-apis-with-documentation', '_blank')}
+									onClick={() =>
+										window.open(
+											'https://www.postman.com/ping-identity/pingone/documentation/ps5gedp/pingone-platform-apis-with-documentation',
+											'_blank'
+										)
+									}
 									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
 								>
 									<FiExternalLink size={16} />
 									PingOne Postman Collection
 								</ActionButton>
 							</div>
-							<div style={{ 
-								marginTop: '0.75rem', 
-								padding: '0.75rem', 
-								background: '#f8fafc', 
-								border: '1px solid #e2e8f0', 
-								borderRadius: '0.5rem',
-								fontSize: '0.8rem',
-								color: '#64748b'
-							}}>
-								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into Postman, or use the official PingOne Postman collection for ready-to-use examples.
+							<div
+								style={{
+									marginTop: '0.75rem',
+									padding: '0.75rem',
+									background: '#f8fafc',
+									border: '1px solid #e2e8f0',
+									borderRadius: '0.5rem',
+									fontSize: '0.8rem',
+									color: '#64748b',
+								}}
+							>
+								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into
+								Postman, or use the official PingOne Postman collection for ready-to-use examples.
 							</div>
 						</div>
 
@@ -1071,22 +1219,23 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 							<ActionButtons style={{ marginTop: '0.75rem' }}>
 								<ActionButton
 									$variant="primary"
-									onClick={() => handleCopy(
-										EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
-											...options,
-											verbose: true,
-											includeHeaders: true,
-											includeBody: true,
-										}),
-										'Real PingOne cURL Command'
-									)}
+									onClick={() =>
+										handleCopy(
+											EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
+												...options,
+												verbose: true,
+												includeHeaders: true,
+												includeBody: true,
+											}),
+											'Real PingOne cURL Command'
+										)
+									}
 								>
 									<FiCopy size={14} />
 									Copy Real cURL
 								</ActionButton>
 							</ActionButtons>
 						</div>
-
 					</div>
 				</SectionContent>
 			</CollapsibleSection>
@@ -1094,7 +1243,11 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 			{/* Response */}
 			{apiCall.response && (
 				<CollapsibleSection>
-					<SectionHeader $sectionType="response" onClick={() => toggleSection('response')}>
+					<SectionHeader
+						$sectionType="response"
+						onClick={() => toggleSection('response')}
+						$statusCode={apiCall.response.status}
+					>
 						<SectionTitle>Response</SectionTitle>
 						<FiChevronDown
 							style={{
@@ -1104,15 +1257,69 @@ ${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `     
 						/>
 					</SectionHeader>
 					<SectionContent $isExpanded={expandedSections.has('response')}>
-						<CodeBlock $theme={theme}>
-							{apiCall.response.error
-								? `Error: ${apiCall.response.error}`
-								: `HTTP ${apiCall.response.status} ${apiCall.response.statusText}\n\n${
-										apiCall.response.data
-											? JSON.stringify(apiCall.response.data, null, 2)
-											: 'No response body'
-									}`}
-						</CodeBlock>
+						{/* Response Headers */}
+						{apiCall.response.headers && Object.keys(apiCall.response.headers).length > 0 && (
+							<div style={{ marginBottom: '1rem' }}>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									Response Headers
+								</h5>
+								<ParameterList>
+									{Object.entries(apiCall.response.headers).map(([key, value]) => (
+										<ParameterItem key={key}>
+											<span>
+												<strong>{key}:</strong>
+											</span>
+											<ParameterValue>{value}</ParameterValue>
+										</ParameterItem>
+									))}
+								</ParameterList>
+							</div>
+						)}
+
+						{/* Status Line */}
+						<div style={{ marginBottom: '1rem' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								Status
+							</h5>
+							<StatusLine $statusCode={apiCall.response.status}>
+								HTTP {apiCall.response.status} {apiCall.response.statusText}
+							</StatusLine>
+						</div>
+
+						{/* Response Body */}
+						<div>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								Response Body
+							</h5>
+							<CodeBlock $theme={theme}>
+								{apiCall.response.error
+									? `Error: ${apiCall.response.error}`
+									: apiCall.response.data
+										? JSON.stringify(apiCall.response.data, null, 2)
+										: 'No response body'}
+							</CodeBlock>
+						</div>
 					</SectionContent>
 				</CollapsibleSection>
 			)}

@@ -1,12 +1,16 @@
 // src/components/ExportImportPanel.tsx
 // Export/Import UI components for the Application Generator
 
-import React, { useState, useRef, useCallback } from 'react';
-import { FiDownload, FiUpload, FiFile, FiCheck, FiX, FiAlertTriangle, FiInfo } from 'react-icons/fi';
+import React, { useCallback, useRef, useState } from 'react';
+import { FiAlertTriangle, FiCheck, FiDownload, FiFile, FiUpload, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { exportImportService, exportUtils, type ImportValidationResult } from '../services/exportImportService';
-import { FileDropHandler, validateFile, formatFileSize } from '../utils/fileHandling';
-import type { FormDataState, BuilderAppType } from '../services/presetManagerService';
+import {
+	exportImportService,
+	exportUtils,
+	type ImportValidationResult,
+} from '../services/exportImportService';
+import type { BuilderAppType, FormDataState } from '../services/presetManagerService';
+import { FileDropHandler, validateFile } from '../utils/fileHandling';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
@@ -88,9 +92,9 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
   justify-content: center;
 
   ${({ variant, theme }) => {
-    switch (variant) {
-      case 'primary':
-        return `
+		switch (variant) {
+			case 'primary':
+				return `
           background: linear-gradient(135deg, ${theme.colors.primary} 0%, ${theme.colors.primaryDark} 100%);
           color: white;
           &:hover:not(:disabled) {
@@ -99,8 +103,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
             box-shadow: 0 15px 35px -20px rgba(79, 70, 229, 0.6);
           }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
           color: white;
           &:hover:not(:disabled) {
@@ -108,8 +112,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
             transform: translateY(-1px);
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
           color: white;
           &:hover:not(:disabled) {
@@ -117,8 +121,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
             transform: translateY(-1px);
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           color: ${theme.colors.gray700};
           border-color: #d1d5db;
@@ -127,8 +131,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
             border-color: ${theme.colors.primary};
           }
         `;
-    }
-  }}
+		}
+	}}
 
   &:disabled {
     opacity: 0.5;
@@ -139,24 +143,22 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' | '
 `;
 
 const DropZone = styled.div.withConfig({
-  shouldForwardProp: (prop) => !['isDragOver', 'hasError'].includes(prop),
+	shouldForwardProp: (prop) => !['isDragOver', 'hasError'].includes(prop),
 })<{ isDragOver: boolean; hasError: boolean }>`
-  border: 2px dashed ${({ isDragOver, hasError }) => 
-    hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#d1d5db'
-  };
+  border: 2px dashed ${({ isDragOver, hasError }) =>
+		hasError ? '#ef4444' : isDragOver ? '#3b82f6' : '#d1d5db'};
   border-radius: 0.75rem;
   padding: 2rem;
   text-align: center;
-  background: ${({ isDragOver, hasError }) => 
-    hasError ? '#fef2f2' : isDragOver ? '#eff6ff' : '#f9fafb'
-  };
+  background: ${({ isDragOver, hasError }) =>
+		hasError ? '#fef2f2' : isDragOver ? '#eff6ff' : '#f9fafb'};
   transition: all 0.2s;
   cursor: pointer;
   margin-bottom: 1rem;
 
   &:hover {
-    border-color: ${({ hasError }) => hasError ? '#ef4444' : '#3b82f6'};
-    background: ${({ hasError }) => hasError ? '#fef2f2' : '#eff6ff'};
+    border-color: ${({ hasError }) => (hasError ? '#ef4444' : '#3b82f6')};
+    background: ${({ hasError }) => (hasError ? '#fef2f2' : '#eff6ff')};
   }
 
   &.drag-over {
@@ -167,10 +169,10 @@ const DropZone = styled.div.withConfig({
 `;
 
 const DropZoneIcon = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'hasError',
+	shouldForwardProp: (prop) => prop !== 'hasError',
 })<{ hasError: boolean }>`
   font-size: 2rem;
-  color: ${({ hasError }) => hasError ? '#ef4444' : '#6b7280'};
+  color: ${({ hasError }) => (hasError ? '#ef4444' : '#6b7280')};
   margin-bottom: 1rem;
 `;
 
@@ -191,27 +193,27 @@ const ValidationResult = styled.div<{ type: 'success' | 'error' | 'warning' }>`
   margin-top: 1rem;
   
   ${({ type }) => {
-    switch (type) {
-      case 'success':
-        return `
+		switch (type) {
+			case 'success':
+				return `
           background: #f0fdf4;
           border: 1px solid #bbf7d0;
           color: #166534;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #991b1b;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background: #fffbeb;
           border: 1px solid #fed7aa;
           color: #92400e;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ValidationTitle = styled.div`
@@ -256,269 +258,272 @@ const HiddenInput = styled.input`
 `;
 
 interface ExportImportPanelProps {
-  formData: FormDataState;
-  appType: BuilderAppType | null;
-  onImport: (config: FormDataState, metadata: any) => void;
-  disabled?: boolean;
+	formData: FormDataState;
+	appType: BuilderAppType | null;
+	onImport: (config: FormDataState, metadata: any) => void;
+	disabled?: boolean;
 }
 
 export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
-  formData,
-  appType,
-  onImport,
-  disabled = false
+	formData,
+	appType,
+	onImport,
+	disabled = false,
 }) => {
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [importResult, setImportResult] = useState<ImportValidationResult | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [dropError, setDropError] = useState<string | null>(null);
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const dropZoneRef = useRef<HTMLDivElement>(null);
-  const dropHandlerRef = useRef<FileDropHandler | null>(null);
+	const [isDragOver, _setIsDragOver] = useState(false);
+	const [importResult, setImportResult] = useState<ImportValidationResult | null>(null);
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [dropError, setDropError] = useState<string | null>(null);
 
-  // Initialize drop handler
-  React.useEffect(() => {
-    if (dropZoneRef.current && !disabled) {
-      dropHandlerRef.current = new FileDropHandler(
-        dropZoneRef.current,
-        {
-          accept: ['.json'],
-          maxSize: 1024 * 1024, // 1MB
-          multiple: false
-        },
-        {
-          onFiles: handleFilesDropped,
-          onError: (error) => setDropError(error)
-        }
-      );
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const dropZoneRef = useRef<HTMLDivElement>(null);
+	const dropHandlerRef = useRef<FileDropHandler | null>(null);
 
-      return () => {
-        dropHandlerRef.current?.destroy();
-      };
-    }
-  }, [disabled]);
+	// Initialize drop handler
+	React.useEffect(() => {
+		if (dropZoneRef.current && !disabled) {
+			dropHandlerRef.current = new FileDropHandler(
+				dropZoneRef.current,
+				{
+					accept: ['.json'],
+					maxSize: 1024 * 1024, // 1MB
+					multiple: false,
+				},
+				{
+					onFiles: handleFilesDropped,
+					onError: (error) => setDropError(error),
+				}
+			);
 
-  const handleExport = useCallback(() => {
-    if (!appType) {
-      v4ToastManager.showError('Please select an application type first');
-      return;
-    }
+			return () => {
+				dropHandlerRef.current?.destroy();
+			};
+		}
+	}, [disabled, handleFilesDropped]);
 
-    try {
-      exportUtils.quickExport(formData, appType, formData.name || 'app-config');
-      v4ToastManager.showSuccess('Configuration exported successfully!');
-    } catch (error) {
-      console.error('[ExportImport] Export failed:', error);
-      v4ToastManager.showError('Failed to export configuration');
-    }
-  }, [formData, appType]);
+	const handleExport = useCallback(() => {
+		if (!appType) {
+			v4ToastManager.showError('Please select an application type first');
+			return;
+		}
 
-  const handleFilesDropped = useCallback(async (files: File[]) => {
-    if (files.length === 0) return;
-    
-    const file = files[0];
-    setDropError(null);
-    await processImportFile(file);
-  }, []);
+		try {
+			exportUtils.quickExport(formData, appType, formData.name || 'app-config');
+			v4ToastManager.showSuccess('Configuration exported successfully!');
+		} catch (error) {
+			console.error('[ExportImport] Export failed:', error);
+			v4ToastManager.showError('Failed to export configuration');
+		}
+	}, [formData, appType]);
 
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      setDropError(null);
-      await processImportFile(files[0]);
-    }
-  }, []);
+	const handleFilesDropped = useCallback(
+		async (files: File[]) => {
+			if (files.length === 0) return;
 
-  const processImportFile = async (file: File) => {
-    setIsProcessing(true);
-    setImportResult(null);
+			const file = files[0];
+			setDropError(null);
+			await processImportFile(file);
+		},
+		[processImportFile]
+	);
 
-    try {
-      // Validate file first
-      const fileValidation = validateFile(file, {
-        accept: ['.json'],
-        maxSize: 1024 * 1024
-      });
+	const handleFileSelect = useCallback(
+		async (event: React.ChangeEvent<HTMLInputElement>) => {
+			const files = event.target.files;
+			if (files && files.length > 0) {
+				setDropError(null);
+				await processImportFile(files[0]);
+			}
+		},
+		[processImportFile]
+	);
 
-      if (!fileValidation.isValid) {
-        setDropError(fileValidation.error || 'File validation failed');
-        return;
-      }
+	const processImportFile = async (file: File) => {
+		setIsProcessing(true);
+		setImportResult(null);
 
-      // Import and validate configuration
-      const result = await exportImportService.importConfiguration(file);
-      setImportResult(result);
+		try {
+			// Validate file first
+			const fileValidation = validateFile(file, {
+				accept: ['.json'],
+				maxSize: 1024 * 1024,
+			});
 
-      if (result.isValid && result.configuration) {
-        // Auto-apply if valid
-        onImport(result.configuration, result.metadata);
-        v4ToastManager.showSuccess('Configuration imported and applied successfully!');
-      } else {
-        v4ToastManager.showError('Configuration import failed. Please check the validation errors.');
-      }
+			if (!fileValidation.isValid) {
+				setDropError(fileValidation.error || 'File validation failed');
+				return;
+			}
 
-    } catch (error) {
-      console.error('[ExportImport] Import failed:', error);
-      setDropError(error instanceof Error ? error.message : 'Import failed');
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+			// Import and validate configuration
+			const result = await exportImportService.importConfiguration(file);
+			setImportResult(result);
 
-  const handleDropZoneClick = () => {
-    if (!disabled) {
-      fileInputRef.current?.click();
-    }
-  };
+			if (result.isValid && result.configuration) {
+				// Auto-apply if valid
+				onImport(result.configuration, result.metadata);
+				v4ToastManager.showSuccess('Configuration imported and applied successfully!');
+			} else {
+				v4ToastManager.showError(
+					'Configuration import failed. Please check the validation errors.'
+				);
+			}
+		} catch (error) {
+			console.error('[ExportImport] Import failed:', error);
+			setDropError(error instanceof Error ? error.message : 'Import failed');
+		} finally {
+			setIsProcessing(false);
+		}
+	};
 
-  const canExport = !disabled && appType && (formData.name?.trim() || formData.description?.trim());
+	const handleDropZoneClick = () => {
+		if (!disabled) {
+			fileInputRef.current?.click();
+		}
+	};
 
-  return (
-    <Container>
-      <Header>
-        <FiFile />
-        <Title>Export & Import Configuration</Title>
-      </Header>
-      
-      <Description>
-        Export your current application configuration to share with others, or import a previously saved configuration.
-      </Description>
+	const canExport = !disabled && appType && (formData.name?.trim() || formData.description?.trim());
 
-      <ActionGrid>
-        {/* Export Section */}
-        <ActionSection>
-          <ActionTitle>
-            <FiDownload />
-            Export Configuration
-          </ActionTitle>
-          <ActionDescription>
-            Download your current application configuration as a JSON file. This includes all settings, scopes, and advanced parameters.
-          </ActionDescription>
-          
-          <Button
-            variant="primary"
-            onClick={handleExport}
-            disabled={!canExport}
-          >
-            <FiDownload />
-            Export as JSON
-          </Button>
-          
-          {!canExport && (
-            <div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
-              {!appType && 'Select an application type to enable export'}
-              {appType && !formData.name?.trim() && !formData.description?.trim() && 'Add a name or description to enable export'}
-            </div>
-          )}
-        </ActionSection>
+	return (
+		<Container>
+			<Header>
+				<FiFile />
+				<Title>Export & Import Configuration</Title>
+			</Header>
 
-        {/* Import Section */}
-        <ActionSection>
-          <ActionTitle>
-            <FiUpload />
-            Import Configuration
-          </ActionTitle>
-          <ActionDescription>
-            Upload a previously exported configuration file to populate the form with saved settings.
-          </ActionDescription>
-          
-          <DropZone
-            ref={dropZoneRef}
-            isDragOver={isDragOver}
-            hasError={!!dropError}
-            onClick={handleDropZoneClick}
-          >
-            <DropZoneIcon hasError={!!dropError}>
-              {isProcessing ? (
-                <div className="spinner" />
-              ) : dropError ? (
-                <FiX />
-              ) : (
-                <FiUpload />
-              )}
-            </DropZoneIcon>
-            
-            <DropZoneText>
-              {isProcessing ? 'Processing file...' : 
-               dropError ? 'Upload failed' :
-               'Drop JSON file here or click to browse'}
-            </DropZoneText>
-            
-            <DropZoneSubtext>
-              {dropError || 'Supports .json files up to 1MB'}
-            </DropZoneSubtext>
-          </DropZone>
+			<Description>
+				Export your current application configuration to share with others, or import a previously
+				saved configuration.
+			</Description>
 
-          <HiddenInput
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleFileSelect}
-            disabled={disabled}
-          />
+			<ActionGrid>
+				{/* Export Section */}
+				<ActionSection>
+					<ActionTitle>
+						<FiDownload />
+						Export Configuration
+					</ActionTitle>
+					<ActionDescription>
+						Download your current application configuration as a JSON file. This includes all
+						settings, scopes, and advanced parameters.
+					</ActionDescription>
 
-          {/* Validation Results */}
-          {importResult && (
-            <>
-              {importResult.isValid ? (
-                <ValidationResult type="success">
-                  <ValidationTitle>
-                    <FiCheck />
-                    Configuration Valid
-                  </ValidationTitle>
-                  <div>Configuration imported successfully and applied to the form.</div>
-                  
-                  {importResult.metadata && (
-                    <FileInfo>
-                      <FileInfoRow>
-                        <strong>Name:</strong>
-                        <span>{importResult.metadata.name}</span>
-                      </FileInfoRow>
-                      <FileInfoRow>
-                        <strong>Description:</strong>
-                        <span>{importResult.metadata.description}</span>
-                      </FileInfoRow>
-                      <FileInfoRow>
-                        <strong>Source:</strong>
-                        <span>{importResult.metadata.source}</span>
-                      </FileInfoRow>
-                    </FileInfo>
-                  )}
-                </ValidationResult>
-              ) : (
-                <ValidationResult type="error">
-                  <ValidationTitle>
-                    <FiX />
-                    Configuration Invalid
-                  </ValidationTitle>
-                  {importResult.errors.length > 0 && (
-                    <ValidationList>
-                      {importResult.errors.map((error, index) => (
-                        <li key={index}>{error}</li>
-                      ))}
-                    </ValidationList>
-                  )}
-                </ValidationResult>
-              )}
+					<Button variant="primary" onClick={handleExport} disabled={!canExport}>
+						<FiDownload />
+						Export as JSON
+					</Button>
 
-              {importResult.warnings && importResult.warnings.length > 0 && (
-                <ValidationResult type="warning">
-                  <ValidationTitle>
-                    <FiAlertTriangle />
-                    Warnings
-                  </ValidationTitle>
-                  <ValidationList>
-                    {importResult.warnings.map((warning, index) => (
-                      <li key={index}>{warning}</li>
-                    ))}
-                  </ValidationList>
-                </ValidationResult>
-              )}
-            </>
-          )}
-        </ActionSection>
-      </ActionGrid>
-    </Container>
-  );
+					{!canExport && (
+						<div style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: '#6b7280' }}>
+							{!appType && 'Select an application type to enable export'}
+							{appType &&
+								!formData.name?.trim() &&
+								!formData.description?.trim() &&
+								'Add a name or description to enable export'}
+						</div>
+					)}
+				</ActionSection>
+
+				{/* Import Section */}
+				<ActionSection>
+					<ActionTitle>
+						<FiUpload />
+						Import Configuration
+					</ActionTitle>
+					<ActionDescription>
+						Upload a previously exported configuration file to populate the form with saved
+						settings.
+					</ActionDescription>
+
+					<DropZone
+						ref={dropZoneRef}
+						isDragOver={isDragOver}
+						hasError={!!dropError}
+						onClick={handleDropZoneClick}
+					>
+						<DropZoneIcon hasError={!!dropError}>
+							{isProcessing ? <div className="spinner" /> : dropError ? <FiX /> : <FiUpload />}
+						</DropZoneIcon>
+
+						<DropZoneText>
+							{isProcessing
+								? 'Processing file...'
+								: dropError
+									? 'Upload failed'
+									: 'Drop JSON file here or click to browse'}
+						</DropZoneText>
+
+						<DropZoneSubtext>{dropError || 'Supports .json files up to 1MB'}</DropZoneSubtext>
+					</DropZone>
+
+					<HiddenInput
+						ref={fileInputRef}
+						type="file"
+						accept=".json"
+						onChange={handleFileSelect}
+						disabled={disabled}
+					/>
+
+					{/* Validation Results */}
+					{importResult && (
+						<>
+							{importResult.isValid ? (
+								<ValidationResult type="success">
+									<ValidationTitle>
+										<FiCheck />
+										Configuration Valid
+									</ValidationTitle>
+									<div>Configuration imported successfully and applied to the form.</div>
+
+									{importResult.metadata && (
+										<FileInfo>
+											<FileInfoRow>
+												<strong>Name:</strong>
+												<span>{importResult.metadata.name}</span>
+											</FileInfoRow>
+											<FileInfoRow>
+												<strong>Description:</strong>
+												<span>{importResult.metadata.description}</span>
+											</FileInfoRow>
+											<FileInfoRow>
+												<strong>Source:</strong>
+												<span>{importResult.metadata.source}</span>
+											</FileInfoRow>
+										</FileInfo>
+									)}
+								</ValidationResult>
+							) : (
+								<ValidationResult type="error">
+									<ValidationTitle>
+										<FiX />
+										Configuration Invalid
+									</ValidationTitle>
+									{importResult.errors.length > 0 && (
+										<ValidationList>
+											{importResult.errors.map((error, index) => (
+												<li key={index}>{error}</li>
+											))}
+										</ValidationList>
+									)}
+								</ValidationResult>
+							)}
+
+							{importResult.warnings && importResult.warnings.length > 0 && (
+								<ValidationResult type="warning">
+									<ValidationTitle>
+										<FiAlertTriangle />
+										Warnings
+									</ValidationTitle>
+									<ValidationList>
+										{importResult.warnings.map((warning, index) => (
+											<li key={index}>{warning}</li>
+										))}
+									</ValidationList>
+								</ValidationResult>
+							)}
+						</>
+					)}
+				</ActionSection>
+			</ActionGrid>
+		</Container>
+	);
 };

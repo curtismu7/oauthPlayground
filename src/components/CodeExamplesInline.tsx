@@ -3,7 +3,12 @@
 import React, { useMemo, useState } from 'react';
 import { FiCheck, FiChevronDown, FiCode, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { CodeExample, CodeExamplesConfig, CodeExamplesService, SupportedLanguage } from '../services/codeExamplesService';
+import {
+	CodeExample,
+	CodeExamplesConfig,
+	CodeExamplesService,
+	SupportedLanguage,
+} from '../services/codeExamplesService';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 interface CodeExamplesInlineProps {
@@ -244,7 +249,7 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 							onClick={() =>
 								handleCopyCode(
 									currentExample?.code ||
-									'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
+										'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
 								)
 							}
 						>
@@ -255,8 +260,8 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 							{currentExample
 								? getQuickPreview(currentExample.code)
 								: getQuickPreview(
-									'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
-								)}
+										'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
+									)}
 						</pre>
 					</QuickCodePreview>
 				</ToggleContent>

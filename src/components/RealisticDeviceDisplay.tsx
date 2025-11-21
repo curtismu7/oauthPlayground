@@ -3,7 +3,6 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { deviceTypeService } from '../services/deviceTypeService';
 
 // ============================================================================
 // SMART TV - Vizio/Roku-Style Interface
@@ -24,7 +23,7 @@ const VizioLogo = styled.div<{ $color: string }>`
 	font-size: 1.25rem;
 	font-weight: 700;
 	letter-spacing: 0.15em;
-	color: ${props => props.$color};
+	color: ${(props) => props.$color};
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 `;
 
@@ -147,7 +146,7 @@ const GasPumpContainer = styled.div<{ $color: string }>`
 `;
 
 const PumpHeader = styled.div<{ $color: string }>`
-	background: ${props => props.$color};
+	background: ${(props) => props.$color};
 	color: white;
 	padding: 1rem;
 	margin: -1.5rem -1.5rem 1rem -1.5rem;
@@ -195,9 +194,9 @@ const GradeButtons = styled.div`
 `;
 
 const GradeButton = styled.div<{ $color: string; $active?: boolean }>`
-	background: ${props => props.$active ? props.$color : 'rgba(255, 255, 255, 0.1)'};
-	border: 2px solid ${props => props.$color};
-	color: ${props => props.$active ? 'white' : props.$color};
+	background: ${(props) => (props.$active ? props.$color : 'rgba(255, 255, 255, 0.1)')};
+	border: 2px solid ${(props) => props.$color};
+	color: ${(props) => (props.$active ? 'white' : props.$color)};
 	padding: 1rem;
 	border-radius: 0.5rem;
 	text-align: center;
@@ -206,7 +205,7 @@ const GradeButton = styled.div<{ $color: string; $active?: boolean }>`
 	transition: all 0.2s ease;
 	
 	&:hover {
-		background: ${props => props.$color};
+		background: ${(props) => props.$color};
 		color: white;
 		transform: scale(1.02);
 	}
@@ -249,7 +248,7 @@ export const SmartTVDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 	deviceName,
 	color,
 	apps = [],
-	children
+	children,
 }) => {
 	return (
 		<>
@@ -264,14 +263,10 @@ export const SmartTVDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					<span>👤</span>
 				</VizioStatusBar>
 			</VizioTVBrand>
-			
+
 			{children}
-			
-			{isSuccess && (
-				<VizioBottomHint>
-					Press OK to select • Home for menu
-				</VizioBottomHint>
-			)}
+
+			{isSuccess && <VizioBottomHint>Press OK to select • Home for menu</VizioBottomHint>}
 		</>
 	);
 };
@@ -284,7 +279,7 @@ export const GamingConsoleDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 	isSuccess,
 	brandName,
 	color,
-	children
+	children,
 }) => {
 	return (
 		<>
@@ -299,9 +294,9 @@ export const GamingConsoleDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					<span style={{ color: '#00a7e1', fontSize: '0.75rem' }}>⭐ Level 24</span>
 				</PSUserProfile>
 			</PlayStationBrand>
-			
+
 			{children}
-			
+
 			{isSuccess && (
 				<PSBottomBar>
 					<div>Storage: 625 GB available</div>
@@ -321,7 +316,7 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 	isSuccess,
 	isWaiting,
 	brandName,
-	color
+	color,
 }) => {
 	return (
 		<GasPumpContainer $color={color}>
@@ -329,34 +324,58 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 				<PumpLogo>{brandName}</PumpLogo>
 				<PumpNumber>PUMP 07</PumpNumber>
 			</PumpHeader>
-			
+
 			{isSuccess ? (
 				<>
 					<LEDDisplay>$25.00</LEDDisplay>
 					<div style={{ textAlign: 'center', color: '#94a3b8', marginBottom: '1rem' }}>
-						<div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#00ff00' }}>7.142 GAL</div>
+						<div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#00ff00' }}>
+							7.142 GAL
+						</div>
 						<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>@ $3.499/gal</div>
 					</div>
 					<GradeButtons>
-						<GradeButton $color="#fbbf24">Regular<br/><small>$3.49</small></GradeButton>
-						<GradeButton $color="#3b82f6" $active>Premium<br/><small>$3.99</small></GradeButton>
+						<GradeButton $color="#fbbf24">
+							Regular
+							<br />
+							<small>$3.49</small>
+						</GradeButton>
+						<GradeButton $color="#3b82f6" $active>
+							Premium
+							<br />
+							<small>$3.99</small>
+						</GradeButton>
 					</GradeButtons>
-					<PumpInstruction>
-						✓ AUTHORIZED • Ready to pump
-					</PumpInstruction>
+					<PumpInstruction>✓ AUTHORIZED • Ready to pump</PumpInstruction>
 				</>
 			) : isWaiting ? (
 				<>
 					<LEDDisplay>$0.00</LEDDisplay>
 					<div style={{ textAlign: 'center', color: '#94a3b8', marginBottom: '1rem' }}>
 						<div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>0.000 GAL</div>
-						<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Awaiting authorization...</div>
+						<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+							Awaiting authorization...
+						</div>
 					</div>
 					<GradeButtons>
-						<GradeButton $color="#fbbf24">Regular<br/><small>$3.49</small></GradeButton>
-						<GradeButton $color="#3b82f6">Premium<br/><small>$3.99</small></GradeButton>
+						<GradeButton $color="#fbbf24">
+							Regular
+							<br />
+							<small>$3.49</small>
+						</GradeButton>
+						<GradeButton $color="#3b82f6">
+							Premium
+							<br />
+							<small>$3.99</small>
+						</GradeButton>
 					</GradeButtons>
-					<PumpInstruction style={{ color: '#fbbf24', background: 'rgba(251, 191, 36, 0.1)', borderColor: 'rgba(251, 191, 36, 0.3)' }}>
+					<PumpInstruction
+						style={{
+							color: '#fbbf24',
+							background: 'rgba(251, 191, 36, 0.1)',
+							borderColor: 'rgba(251, 191, 36, 0.3)',
+						}}
+					>
 						⏳ Scan QR code to authorize payment
 					</PumpInstruction>
 				</>
@@ -368,23 +387,39 @@ export const GasPumpDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 						<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>Select payment method</div>
 					</div>
 					<GradeButtons>
-						<GradeButton $color="#fbbf24">Regular<br/><small>$3.49</small></GradeButton>
-						<GradeButton $color="#3b82f6">Premium<br/><small>$3.99</small></GradeButton>
+						<GradeButton $color="#fbbf24">
+							Regular
+							<br />
+							<small>$3.49</small>
+						</GradeButton>
+						<GradeButton $color="#3b82f6">
+							Premium
+							<br />
+							<small>$3.99</small>
+						</GradeButton>
 					</GradeButtons>
-					<PumpInstruction style={{ color: '#3b82f6', background: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)' }}>
+					<PumpInstruction
+						style={{
+							color: '#3b82f6',
+							background: 'rgba(59, 130, 246, 0.1)',
+							borderColor: 'rgba(59, 130, 246, 0.3)',
+						}}
+					>
 						📱 Tap here to pay with mobile app
 					</PumpInstruction>
 				</>
 			)}
-			
-			<div style={{ 
-				marginTop: '1rem', 
-				paddingTop: '1rem', 
-				borderTop: '1px solid #334155', 
-				textAlign: 'center',
-				fontSize: '0.75rem',
-				color: '#64748b'
-			}}>
+
+			<div
+				style={{
+					marginTop: '1rem',
+					paddingTop: '1rem',
+					borderTop: '1px solid #334155',
+					textAlign: 'center',
+					fontSize: '0.75rem',
+					color: '#64748b',
+				}}
+			>
 				Fuel Rewards: 250 points • Station #4215
 			</div>
 		</GasPumpContainer>
@@ -408,7 +443,7 @@ const IndustrialDisplay = styled.div<{ $color: string }>`
 `;
 
 const IndustrialHeader = styled.div<{ $color: string }>`
-	background: ${props => props.$color};
+	background: ${(props) => props.$color};
 	color: white;
 	padding: 0.75rem 1rem;
 	display: flex;
@@ -434,11 +469,8 @@ const StatusGrid = styled.div`
 
 const StatusItem = styled.div<{ $status: string }>`
 	background: rgba(255, 255, 255, 0.05);
-	border: 1px solid ${props => 
-		props.$status === 'ok' ? '#22c55e' : 
-		props.$status === 'warning' ? '#fbbf24' : 
-		'#ef4444'
-	};
+	border: 1px solid ${(props) =>
+		props.$status === 'ok' ? '#22c55e' : props.$status === 'warning' ? '#fbbf24' : '#ef4444'};
 	padding: 0.75rem;
 	border-radius: 0.25rem;
 	font-size: 0.875rem;
@@ -450,7 +482,7 @@ const StatusItem = styled.div<{ $status: string }>`
 
 const AIAgentDisplay = styled.div<{ $color: string }>`
 	background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-	border: 2px solid ${props => props.$color};
+	border: 2px solid ${(props) => props.$color};
 	border-radius: 1rem;
 	padding: 0;
 	width: 100%;
@@ -460,7 +492,7 @@ const AIAgentDisplay = styled.div<{ $color: string }>`
 `;
 
 const AIHeader = styled.div<{ $color: string }>`
-	background: linear-gradient(135deg, ${props => props.$color} 0%, ${props => props.$color}dd 100%);
+	background: linear-gradient(135deg, ${(props) => props.$color} 0%, ${(props) => props.$color}dd 100%);
 	color: white;
 	padding: 1rem 1.5rem;
 	display: flex;
@@ -480,14 +512,14 @@ const AIChatArea = styled.div`
 `;
 
 const ChatMessage = styled.div<{ $isAgent?: boolean; $color?: string }>`
-	background: ${props => props.$isAgent ? 
-		`linear-gradient(135deg, ${props.$color || '#a855f7'} 0%, ${props.$color || '#9333ea'} 100%)` : 
-		'rgba(255, 255, 255, 0.1)'
-	};
+	background: ${(props) =>
+		props.$isAgent
+			? `linear-gradient(135deg, ${props.$color || '#a855f7'} 0%, ${props.$color || '#9333ea'} 100%)`
+			: 'rgba(255, 255, 255, 0.1)'};
 	color: white;
 	padding: 0.75rem 1rem;
-	border-radius: ${props => props.$isAgent ? '1rem 1rem 1rem 0.25rem' : '1rem 1rem 0.25rem 1rem'};
-	align-self: ${props => props.$isAgent ? 'flex-start' : 'flex-end'};
+	border-radius: ${(props) => (props.$isAgent ? '1rem 1rem 1rem 0.25rem' : '1rem 1rem 0.25rem 1rem')};
+	align-self: ${(props) => (props.$isAgent ? 'flex-start' : 'flex-end')};
 	max-width: 80%;
 	font-size: 0.875rem;
 	line-height: 1.5;
@@ -509,7 +541,7 @@ const AITypingIndicator = styled.div`
 
 const SpeakerDisplay = styled.div<{ $color: string; $isActive: boolean }>`
 	background: linear-gradient(180deg, #2d3748 0%, #1a202c 100%);
-	border: 3px solid ${props => props.$isActive ? props.$color : '#4a5568'};
+	border: 3px solid ${(props) => (props.$isActive ? props.$color : '#4a5568')};
 	border-radius: 50%;
 	width: 300px;
 	height: 300px;
@@ -519,7 +551,7 @@ const SpeakerDisplay = styled.div<{ $color: string; $isActive: boolean }>`
 	align-items: center;
 	justify-content: center;
 	box-shadow: 
-		0 0 ${props => props.$isActive ? '30px' : '10px'} ${props => props.$isActive ? props.$color : 'rgba(0,0,0,0.3)'},
+		0 0 ${(props) => (props.$isActive ? '30px' : '10px')} ${(props) => (props.$isActive ? props.$color : 'rgba(0,0,0,0.3)')},
 		inset 0 0 50px rgba(0, 0, 0, 0.5);
 	transition: all 0.3s ease;
 	position: relative;
@@ -529,15 +561,13 @@ const SpeakerLight = styled.div<{ $color: string; $isActive: boolean }>`
 	width: 80px;
 	height: 80px;
 	border-radius: 50%;
-	background: ${props => props.$isActive ? 
-		`radial-gradient(circle, ${props.$color} 0%, transparent 70%)` : 
-		'#1a202c'
-	};
+	background: ${(props) =>
+		props.$isActive ? `radial-gradient(circle, ${props.$color} 0%, transparent 70%)` : '#1a202c'};
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	font-size: 2rem;
-	animation: ${props => props.$isActive ? 'pulse 2s infinite' : 'none'};
+	animation: ${(props) => (props.$isActive ? 'pulse 2s infinite' : 'none')};
 `;
 
 const SpeakerText = styled.div`
@@ -557,7 +587,7 @@ export const IndustrialIoTDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 	isWaiting,
 	brandName,
 	deviceName,
-	color
+	color,
 }) => {
 	return (
 		<IndustrialDisplay $color={color}>
@@ -566,14 +596,19 @@ export const IndustrialIoTDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 				<div style={{ fontSize: '0.875rem' }}>{deviceName}</div>
 			</IndustrialHeader>
 			<IndustrialScreen>
-				<div style={{ fontSize: '1.25rem', marginBottom: '1rem', borderBottom: '1px solid #00ff00', paddingBottom: '0.5rem' }}>
+				<div
+					style={{
+						fontSize: '1.25rem',
+						marginBottom: '1rem',
+						borderBottom: '1px solid #00ff00',
+						paddingBottom: '0.5rem',
+					}}
+				>
 					SYSTEM STATUS
 				</div>
 				{isSuccess ? (
 					<>
-						<div style={{ marginBottom: '1rem', color: '#22c55e' }}>
-							✓ AUTHORIZATION: GRANTED
-						</div>
+						<div style={{ marginBottom: '1rem', color: '#22c55e' }}>✓ AUTHORIZATION: GRANTED</div>
 						<StatusGrid>
 							<StatusItem $status="ok">
 								<div style={{ fontWeight: 'bold' }}>VALVE A-01</div>
@@ -617,9 +652,7 @@ export const IndustrialIoTDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					</>
 				) : (
 					<>
-						<div style={{ marginBottom: '1rem', color: '#64748b' }}>
-							■ SYSTEM OFFLINE
-						</div>
+						<div style={{ marginBottom: '1rem', color: '#64748b' }}>■ SYSTEM OFFLINE</div>
 						<div style={{ fontSize: '0.875rem', color: '#64748b' }}>
 							Authorize controller to begin operations
 						</div>
@@ -638,7 +671,7 @@ export const AIAgentDisplayComponent: React.FC<RealisticDeviceDisplayProps> = ({
 	isSuccess,
 	isWaiting,
 	brandName,
-	color
+	color,
 }) => {
 	return (
 		<AIAgentDisplay $color={color}>
@@ -650,7 +683,14 @@ export const AIAgentDisplayComponent: React.FC<RealisticDeviceDisplayProps> = ({
 						<div style={{ fontSize: '0.75rem', opacity: 0.9 }}>AI Assistant v3.2</div>
 					</div>
 				</div>
-				<div style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.2)', padding: '0.25rem 0.75rem', borderRadius: '1rem' }}>
+				<div
+					style={{
+						fontSize: '0.75rem',
+						background: 'rgba(255,255,255,0.2)',
+						padding: '0.25rem 0.75rem',
+						borderRadius: '1rem',
+					}}
+				>
 					{isSuccess ? '● Online' : isWaiting ? '○ Connecting' : '○ Offline'}
 				</div>
 			</AIHeader>
@@ -658,23 +698,20 @@ export const AIAgentDisplayComponent: React.FC<RealisticDeviceDisplayProps> = ({
 				{isSuccess ? (
 					<>
 						<ChatMessage $isAgent $color={color}>
-							Hello! I'm authorized and ready to assist you. I have access to your enterprise data and can help with complex queries, data analysis, and automated workflows.
+							Hello! I'm authorized and ready to assist you. I have access to your enterprise data
+							and can help with complex queries, data analysis, and automated workflows.
 						</ChatMessage>
-						<ChatMessage $isAgent={false}>
-							What can you help me with?
-						</ChatMessage>
+						<ChatMessage $isAgent={false}>What can you help me with?</ChatMessage>
 						<ChatMessage $isAgent $color={color}>
-							I can help you with:
-							• Document analysis and summarization
-							• Data retrieval from authorized systems
-							• Workflow automation
-							• Real-time analytics and reporting
+							I can help you with: • Document analysis and summarization • Data retrieval from
+							authorized systems • Workflow automation • Real-time analytics and reporting
 						</ChatMessage>
 					</>
 				) : isWaiting ? (
 					<>
 						<ChatMessage $isAgent $color={color}>
-							I need authorization to access your enterprise resources. Please scan the QR code to grant me access.
+							I need authorization to access your enterprise resources. Please scan the QR code to
+							grant me access.
 						</ChatMessage>
 						<AITypingIndicator>
 							<span>●</span>
@@ -701,7 +738,7 @@ export const SmartSpeakerDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 	isSuccess,
 	isWaiting,
 	brandName,
-	color
+	color,
 }) => {
 	return (
 		<div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -710,22 +747,28 @@ export const SmartSpeakerDisplay: React.FC<RealisticDeviceDisplayProps> = ({
 					{isSuccess ? '✓' : isWaiting ? '●' : '○'}
 				</SpeakerLight>
 				<SpeakerText>
-					<div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>{brandName}</div>
+					<div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.5rem' }}>
+						{brandName}
+					</div>
 					{isSuccess && <div style={{ color: '#22c55e' }}>Ready for voice commands</div>}
 					{isWaiting && <div style={{ color: '#fbbf24' }}>Waiting for authorization...</div>}
-					{!isSuccess && !isWaiting && <div style={{ color: '#64748b' }}>Say "Hey {brandName}" to start</div>}
+					{!isSuccess && !isWaiting && (
+						<div style={{ color: '#64748b' }}>Say "Hey {brandName}" to start</div>
+					)}
 				</SpeakerText>
 			</SpeakerDisplay>
 			{isSuccess && (
-				<div style={{ 
-					marginTop: '1.5rem', 
-					padding: '1rem', 
-					background: 'rgba(34, 197, 94, 0.1)', 
-					border: '1px solid rgba(34, 197, 94, 0.3)',
-					borderRadius: '0.5rem',
-					color: '#22c55e',
-					fontSize: '0.875rem'
-				}}>
+				<div
+					style={{
+						marginTop: '1.5rem',
+						padding: '1rem',
+						background: 'rgba(34, 197, 94, 0.1)',
+						border: '1px solid rgba(34, 197, 94, 0.3)',
+						borderRadius: '0.5rem',
+						color: '#22c55e',
+						fontSize: '0.875rem',
+					}}
+				>
 					✓ Voice assistant is now authorized and listening
 				</div>
 			)}
@@ -755,4 +798,3 @@ export const getRealisticDeviceComponent = (deviceType: string) => {
 			return null;
 	}
 };
-

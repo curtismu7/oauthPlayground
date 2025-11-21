@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FiUser, FiLock, FiEye, FiEyeOff, FiX, FiShield, FiLoader } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiEye, FiEyeOff, FiLoader, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
 interface RedirectlessLoginModalProps {
@@ -437,7 +437,8 @@ const RedirectlessLoginModal: React.FC<RedirectlessLoginModalProps> = ({
 						<SecurityNote>
 							<FiShield size={14} />
 							<span>
-								Your credentials are sent securely to PingOne via HTTPS. This app does not store your password.
+								Your credentials are sent securely to PingOne via HTTPS. This app does not store
+								your password.
 							</span>
 						</SecurityNote>
 					</ModalBody>

@@ -4,8 +4,8 @@
  */
 
 export class VueTemplates {
-  static authorization(config: any): string {
-    return `// Vue.js - Authorization Composable
+	static authorization(config: any): string {
+		return `// Vue.js - Authorization Composable
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
@@ -116,10 +116,10 @@ export const useAuthStore = defineStore('auth', () => {
 
   return { isAuthenticated, user, login, logout };
 });`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// Vue.js - Worker Token Composable
+	static workerToken(config: any): string {
+		return `// Vue.js - Worker Token Composable
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
@@ -201,10 +201,10 @@ export function useWorkerToken() {
 
   return { token, loading, error, fetchToken };
 }`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// Vue.js - MFA Device Selection
+	static deviceSelection(config: any): string {
+		return `// Vue.js - MFA Device Selection
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
@@ -294,10 +294,10 @@ onMounted(() => {
     </div>
   </div>
 </template>`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// Vue.js - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// Vue.js - MFA Challenge
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -375,10 +375,10 @@ const sendChallenge = async () => {
     <div v-if="error" class="error">{{ error }}</div>
   </div>
 </template>`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// Vue.js - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// Vue.js - MFA Verification
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -469,10 +469,10 @@ const verifyCode = async () => {
     <div v-if="error" class="error">{{ error }}</div>
   </div>
 </template>`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// Vue.js - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// Vue.js - Device Registration
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -600,5 +600,5 @@ const registerDevice = async () => {
     <div v-if="error" class="error">{{ error }}</div>
   </div>
 </template>`;
-  }
+	}
 }

@@ -2,9 +2,9 @@
 // Demo page to showcase the Advanced Security Settings service
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiArrowLeft, FiExternalLink } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import AdvancedSecuritySettingsMock from '../components/AdvancedSecuritySettingsMock';
 
 const PageContainer = styled.div`
@@ -81,35 +81,36 @@ const InfoText = styled.p`
 `;
 
 const AdvancedSecuritySettingsDemo: React.FC = () => {
-  return (
-    <PageContainer>
-      <Header>
-        <BackButton to="/">
-          <FiArrowLeft size={16} />
-          Back to Dashboard
-        </BackButton>
-        <div>
-          <Title>Advanced Security Settings</Title>
-          <Subtitle>Service Demo & Mock Interface</Subtitle>
-        </div>
-      </Header>
+	return (
+		<PageContainer>
+			<Header>
+				<BackButton to="/">
+					<FiArrowLeft size={16} />
+					Back to Dashboard
+				</BackButton>
+				<div>
+					<Title>Advanced Security Settings</Title>
+					<Subtitle>Service Demo & Mock Interface</Subtitle>
+				</div>
+			</Header>
 
-      <InfoCard>
-        <InfoTitle>
-          <FiExternalLink size={18} />
-          Service Implementation Complete
-        </InfoTitle>
-        <InfoText>
-          This is a demonstration of the new <strong>AdvancedSecuritySettingsService</strong> that was created to manage 
-          advanced security configurations for OAuth/OIDC applications. The service provides comprehensive security 
-          settings management, assessment, and recommendations. You can interact with the settings below to see how 
-          the service works in practice.
-        </InfoText>
-      </InfoCard>
+			<InfoCard>
+				<InfoTitle>
+					<FiExternalLink size={18} />
+					Service Implementation Complete
+				</InfoTitle>
+				<InfoText>
+					This is a demonstration of the new <strong>AdvancedSecuritySettingsService</strong> that
+					was created to manage advanced security configurations for OAuth/OIDC applications. The
+					service provides comprehensive security settings management, assessment, and
+					recommendations. You can interact with the settings below to see how the service works in
+					practice.
+				</InfoText>
+			</InfoCard>
 
-      <AdvancedSecuritySettingsMock />
-    </PageContainer>
-  );
+			<AdvancedSecuritySettingsMock />
+		</PageContainer>
+	);
 };
 
 export default AdvancedSecuritySettingsDemo;

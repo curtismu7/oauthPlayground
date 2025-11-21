@@ -2,27 +2,30 @@
 // DPoP (Demonstration of Proof-of-Possession) Flow - Educational/Mock Implementation
 // RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertTriangle,
+	FiBook,
 	FiCheckCircle,
 	FiCopy,
+	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiShield,
-	FiAlertTriangle,
-	FiCode,
-	FiGlobe,
 	FiSend,
-	FiBook,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardBody, CardHeader } from '../../components/Card';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import DPoPService, { DPoPStatus, type DPoPKeyPair, type DPoPProof } from '../../services/dpopService';
-import { copyToClipboard } from '../../utils/clipboard';
+import { Card, CardBody } from '../../components/Card';
 import { showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import DPoPService, {
+	type DPoPKeyPair,
+	type DPoPProof,
+	DPoPStatus,
+} from '../../services/dpopService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { copyToClipboard } from '../../utils/clipboard';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -298,7 +301,7 @@ const DPoPFlow: React.FC = () => {
 		try {
 			const newKeyPair = await DPoPService.generateKeyPair({
 				algorithm: 'ES256',
-				namedCurve: 'P-256'
+				namedCurve: 'P-256',
 			});
 			setKeyPair(newKeyPair);
 			setProof(null); // Clear previous proof
@@ -319,11 +322,7 @@ const DPoPFlow: React.FC = () => {
 
 		setIsCreatingProof(true);
 		try {
-			const newProof = await DPoPService.createProof(
-				httpMethod,
-				httpUri,
-				accessToken || undefined
-			);
+			const newProof = await DPoPService.createProof(httpMethod, httpUri, accessToken || undefined);
 			setProof(newProof);
 			showFlowSuccess('DPoP proof created successfully');
 		} catch (error) {
@@ -349,9 +348,10 @@ const DPoPFlow: React.FC = () => {
 				<WarningContent>
 					<h4>Educational/Mock Implementation</h4>
 					<p>
-						This is an educational demonstration of DPoP (RFC 9449) concepts. PingOne does not currently support DPoP. 
-						This implementation shows how DPoP works, its security benefits, and proper implementation patterns. 
-						All DPoP proofs generated here are for educational purposes only and cannot be used with real OAuth servers.
+						This is an educational demonstration of DPoP (RFC 9449) concepts. PingOne does not
+						currently support DPoP. This implementation shows how DPoP works, its security benefits,
+						and proper implementation patterns. All DPoP proofs generated here are for educational
+						purposes only and cannot be used with real OAuth servers.
 					</p>
 				</WarningContent>
 			</WarningBox>
@@ -365,18 +365,34 @@ const DPoPFlow: React.FC = () => {
 				<MainCard>
 					<CardBody>
 						<p>
-							<strong>DPoP (Demonstration of Proof-of-Possession)</strong> is an OAuth 2.0 extension (RFC 9449) that provides 
-							proof that the client presenting an access token actually possesses the private key associated with that token. 
-							This prevents token replay attacks and provides binding between the token and the HTTP request.
+							<strong>DPoP (Demonstration of Proof-of-Possession)</strong> is an OAuth 2.0 extension
+							(RFC 9449) that provides proof that the client presenting an access token actually
+							possesses the private key associated with that token. This prevents token replay
+							attacks and provides binding between the token and the HTTP request.
 						</p>
 
 						<h3>Key Benefits:</h3>
 						<ul>
-							<li>🛡️ <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and methods</li>
-							<li>🚫 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID) preventing replay attacks</li>
-							<li>🔗 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring token is used for intended request</li>
-							<li>⏱️ <strong>Freshness:</strong> Includes iat (issued at) timestamp for freshness validation</li>
-							<li>🔐 <strong>Key Possession:</strong> Proves client controls the private key, not just the token</li>
+							<li>
+								🛡️ <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and
+								methods
+							</li>
+							<li>
+								🚫 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID)
+								preventing replay attacks
+							</li>
+							<li>
+								🔗 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring
+								token is used for intended request
+							</li>
+							<li>
+								⏱️ <strong>Freshness:</strong> Includes iat (issued at) timestamp for freshness
+								validation
+							</li>
+							<li>
+								🔐 <strong>Key Possession:</strong> Proves client controls the private key, not just
+								the token
+							</li>
 						</ul>
 
 						<InfoBox>
@@ -386,9 +402,10 @@ const DPoPFlow: React.FC = () => {
 							<InfoContent>
 								<h4>How DPoP Works</h4>
 								<p>
-									DPoP uses JWTs (JSON Web Tokens) with a special type "dpop+jwt" that contain the public key (JWK) 
-									in the header and HTTP method/URI in the payload. The proof is signed with the client's private key, 
-									demonstrating that the client possesses the key and can use it for this specific request.
+									DPoP uses JWTs (JSON Web Tokens) with a special type "dpop+jwt" that contain the
+									public key (JWK) in the header and HTTP method/URI in the payload. The proof is
+									signed with the client's private key, demonstrating that the client possesses the
+									key and can use it for this specific request.
 								</p>
 							</InfoContent>
 						</InfoBox>
@@ -405,8 +422,9 @@ const DPoPFlow: React.FC = () => {
 				<MainCard>
 					<CardBody>
 						<p>
-							The first step is to generate an asymmetric key pair. The client generates a key pair (typically ES256 or RS256) 
-							and keeps the private key secret. The public key will be included in DPoP proofs.
+							The first step is to generate an asymmetric key pair. The client generates a key pair
+							(typically ES256 or RS256) and keeps the private key secret. The public key will be
+							included in DPoP proofs.
 						</p>
 
 						<ActionButton onClick={handleGenerateKeyPair} disabled={isGenerating}>
@@ -431,7 +449,11 @@ const DPoPFlow: React.FC = () => {
 									<strong>Public Key (JWK):</strong>
 									<CodeBlockHeader>
 										<span>Public Key JWK</span>
-										<CopyButton onClick={() => handleCopyCode(JSON.stringify(keyPair.jwk, null, 2), 'Public Key JWK')}>
+										<CopyButton
+											onClick={() =>
+												handleCopyCode(JSON.stringify(keyPair.jwk, null, 2), 'Public Key JWK')
+											}
+										>
 											<FiCopy size={12} />
 											Copy
 										</CopyButton>
@@ -444,8 +466,9 @@ const DPoPFlow: React.FC = () => {
 									</InfoIcon>
 									<InfoContent>
 										<p>
-											<strong>Note:</strong> The private key is kept secret and never shared. Only the public key (JWK) 
-											is included in DPoP proofs. The authorization server uses the public key to verify the proof signature.
+											<strong>Note:</strong> The private key is kept secret and never shared. Only
+											the public key (JWK) is included in DPoP proofs. The authorization server uses
+											the public key to verify the proof signature.
 										</p>
 									</InfoContent>
 								</InfoBox>
@@ -454,7 +477,10 @@ const DPoPFlow: React.FC = () => {
 
 						<CodeBlockHeader>
 							<span>Code Example: Generate Key Pair</span>
-							<CopyButton onClick={() => handleCopyCode(`// Generate DPoP key pair
+							<CopyButton
+								onClick={() =>
+									handleCopyCode(
+										`// Generate DPoP key pair
 const keyPair = await crypto.subtle.generateKey(
   {
     name: 'ECDSA',
@@ -465,7 +491,11 @@ const keyPair = await crypto.subtle.generateKey(
 );
 
 // Export public key as JWK
-const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`, 'Key generation code')}>
+const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`,
+										'Key generation code'
+									)
+								}
+							>
 								<FiCopy size={12} />
 								Copy
 							</CopyButton>
@@ -495,8 +525,8 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 				<MainCard>
 					<CardBody>
 						<p>
-							Create a DPoP proof JWT for a specific HTTP request. The proof includes the HTTP method, URI, timestamp, 
-							and optionally the access token hash.
+							Create a DPoP proof JWT for a specific HTTP request. The proof includes the HTTP
+							method, URI, timestamp, and optionally the access token hash.
 						</p>
 
 						<FormGroup>
@@ -529,7 +559,8 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 								placeholder="Enter access token to include ath claim"
 							/>
 							<small style={{ color: '#6b7280', marginTop: '0.25rem', display: 'block' }}>
-								If provided, the access token will be hashed and included in the proof as the "ath" claim
+								If provided, the access token will be hashed and included in the proof as the "ath"
+								claim
 							</small>
 						</FormGroup>
 
@@ -549,7 +580,9 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 							<ProofDisplay>
 								<ProofInfo>
 									<strong>DPoP Proof JWT:</strong>
-									<code style={{ display: 'block', marginTop: '0.5rem', wordBreak: 'break-all' }}>{proof.jwt}</code>
+									<code style={{ display: 'block', marginTop: '0.5rem', wordBreak: 'break-all' }}>
+										{proof.jwt}
+									</code>
 								</ProofInfo>
 								<ProofInfo>
 									<strong>JWT ID (jti):</strong>
@@ -569,41 +602,51 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 								</ProofInfo>
 								<CodeBlockHeader style={{ marginTop: '1rem' }}>
 									<span>Decoded Proof Structure</span>
-									<CopyButton onClick={() => {
-										const decoded = {
+									<CopyButton
+										onClick={() => {
+											const decoded = {
+												header: {
+													typ: 'dpop+jwt',
+													alg: 'ES256',
+													jwk: keyPair?.jwk,
+												},
+												payload: {
+													jti: proof.jti,
+													htm: proof.htm,
+													htu: proof.htu,
+													iat: proof.iat,
+													...(accessToken && { ath: 'base64url-encoded-sha256-hash' }),
+												},
+											};
+											handleCopyCode(JSON.stringify(decoded, null, 2), 'Decoded proof');
+										}}
+									>
+										<FiCopy size={12} />
+										Copy
+									</CopyButton>
+								</CodeBlockHeader>
+								<CodeBlock>
+									{JSON.stringify(
+										{
 											header: {
 												typ: 'dpop+jwt',
 												alg: 'ES256',
-												jwk: keyPair?.jwk
+												jwk: keyPair?.jwk,
 											},
 											payload: {
 												jti: proof.jti,
 												htm: proof.htm,
 												htu: proof.htu,
 												iat: proof.iat,
-												...(accessToken && { ath: 'base64url-encoded-sha256-hash' })
-											}
-										};
-										handleCopyCode(JSON.stringify(decoded, null, 2), 'Decoded proof');
-									}}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
-								</CodeBlockHeader>
-								<CodeBlock>{JSON.stringify({
-									header: {
-										typ: 'dpop+jwt',
-										alg: 'ES256',
-										jwk: keyPair?.jwk
-									},
-									payload: {
-										jti: proof.jti,
-										htm: proof.htm,
-										htu: proof.htu,
-										iat: proof.iat,
-										...(accessToken && { ath: 'base64url-encoded-sha256-hash-of-access-token' })
-									}
-								}, null, 2)}</CodeBlock>
+												...(accessToken && {
+													ath: 'base64url-encoded-sha256-hash-of-access-token',
+												}),
+											},
+										},
+										null,
+										2
+									)}
+								</CodeBlock>
 							</ProofDisplay>
 						)}
 					</CardBody>
@@ -619,33 +662,41 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 				<MainCard>
 					<CardBody>
 						<p>
-							Include the DPoP proof in the <code>DPoP</code> header when making API requests with the access token.
+							Include the DPoP proof in the <code>DPoP</code> header when making API requests with
+							the access token.
 						</p>
 
 						{proof && (
 							<CodeBlockHeader>
 								<span>Example API Request with DPoP</span>
-								<CopyButton onClick={() => {
-									const request = `${httpMethod} ${httpUri}
+								<CopyButton
+									onClick={() => {
+										const request = `${httpMethod} ${httpUri}
 Authorization: Bearer ${accessToken || 'your_access_token_here'}
 DPoP: ${proof.jwt}`;
-									handleCopyCode(request, 'API request');
-								}}>
+										handleCopyCode(request, 'API request');
+									}}
+								>
 									<FiCopy size={12} />
 									Copy
 								</CopyButton>
 							</CodeBlockHeader>
 						)}
-						<CodeBlock>{proof ? `${httpMethod} ${httpUri}
+						<CodeBlock>
+							{proof
+								? `${httpMethod} ${httpUri}
 Authorization: Bearer ${accessToken || 'your_access_token_here'}
-DPoP: ${proof.jwt}` : `POST https://api.example.com/resource
+DPoP: ${proof.jwt}`
+								: `POST https://api.example.com/resource
 Authorization: Bearer your_access_token_here
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</CodeBlock>
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}
+						</CodeBlock>
 
 						<CodeBlockHeader>
 							<span>JavaScript Fetch Example</span>
-							<CopyButton onClick={() => {
-								const code = `// Make API request with DPoP proof
+							<CopyButton
+								onClick={() => {
+									const code = `// Make API request with DPoP proof
 const response = await fetch('${httpUri}', {
   method: '${httpMethod}',
   headers: {
@@ -654,8 +705,9 @@ const response = await fetch('${httpUri}', {
   },
   body: JSON.stringify({ /* your request body */ })
 });`;
-								handleCopyCode(code, 'Fetch example');
-							}}>
+									handleCopyCode(code, 'Fetch example');
+								}}
+							>
 								<FiCopy size={12} />
 								Copy
 							</CopyButton>
@@ -682,7 +734,8 @@ const response = await fetch('${httpUri}', {
 				<MainCard>
 					<CardBody>
 						<p>
-							DPoP can be integrated with any OAuth 2.0 flow. Here's how it works with different flows:
+							DPoP can be integrated with any OAuth 2.0 flow. Here's how it works with different
+							flows:
 						</p>
 
 						<h3>Authorization Code Flow with DPoP</h3>
@@ -695,8 +748,9 @@ const response = await fetch('${httpUri}', {
 
 						<CodeBlockHeader>
 							<span>Token Request with DPoP</span>
-							<CopyButton onClick={() => {
-								const code = `POST https://auth.pingone.com/{environmentId}/as/token
+							<CopyButton
+								onClick={() => {
+									const code = `POST https://auth.pingone.com/{environmentId}/as/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code&
@@ -705,8 +759,9 @@ redirect_uri=https://app.example.com/callback&
 client_id=your_client_id&
 client_secret=your_client_secret&
 dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`;
-								handleCopyCode(code, 'Token request with DPoP');
-							}}>
+									handleCopyCode(code, 'Token request with DPoP');
+								}}
+							>
 								<FiCopy size={12} />
 								Copy
 							</CopyButton>
@@ -723,8 +778,8 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 
 						<h3>Client Credentials Flow with DPoP</h3>
 						<p>
-							DPoP is particularly useful for Client Credentials flow where the client is also the resource owner, 
-							preventing token theft and replay attacks.
+							DPoP is particularly useful for Client Credentials flow where the client is also the
+							resource owner, preventing token theft and replay attacks.
 						</p>
 
 						<InfoBox>
@@ -734,8 +789,9 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 							<InfoContent>
 								<h4>PingOne Support</h4>
 								<p>
-									PingOne does not currently support DPoP. This page provides educational demonstrations of DPoP concepts 
-									and security benefits. For production use, consider mTLS or other token binding mechanisms supported by PingOne.
+									PingOne does not currently support DPoP. This page provides educational
+									demonstrations of DPoP concepts and security benefits. For production use,
+									consider mTLS or other token binding mechanisms supported by PingOne.
 								</p>
 							</InfoContent>
 						</InfoBox>
@@ -754,19 +810,24 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 						<h3>Why Use DPoP?</h3>
 						<ul>
 							<li>
-								<strong>Prevents Token Replay:</strong> Even if an access token is stolen, it cannot be used without the private key
+								<strong>Prevents Token Replay:</strong> Even if an access token is stolen, it cannot
+								be used without the private key
 							</li>
 							<li>
-								<strong>Request Binding:</strong> Each proof is tied to a specific HTTP method and URI, preventing token reuse in different contexts
+								<strong>Request Binding:</strong> Each proof is tied to a specific HTTP method and
+								URI, preventing token reuse in different contexts
 							</li>
 							<li>
-								<strong>Proof of Possession:</strong> Demonstrates that the client controls the private key, not just the token
+								<strong>Proof of Possession:</strong> Demonstrates that the client controls the
+								private key, not just the token
 							</li>
 							<li>
-								<strong>Freshness:</strong> Timestamps in proofs help detect stale or replayed requests
+								<strong>Freshness:</strong> Timestamps in proofs help detect stale or replayed
+								requests
 							</li>
 							<li>
-								<strong>No Shared Secrets:</strong> Works with public/private key cryptography, eliminating the need for shared secrets
+								<strong>No Shared Secrets:</strong> Works with public/private key cryptography,
+								eliminating the need for shared secrets
 							</li>
 						</ul>
 
@@ -786,4 +847,3 @@ dpop_jkt=base64url-encoded-thumbprint-of-dpop-public-key`}</CodeBlock>
 };
 
 export default DPoPFlow;
-

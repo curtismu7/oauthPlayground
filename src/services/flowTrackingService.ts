@@ -1,7 +1,7 @@
 // src/services/flowTrackingService.ts
 /**
  * Flow Tracking Service
- * 
+ *
  * Tracks the current active flow for error handling and navigation purposes.
  * This ensures we know which flow to return to when errors occur.
  */
@@ -9,7 +9,16 @@
 export interface FlowContext {
 	flowKey: string;
 	flowName: string;
-	flowType: 'oauth' | 'oidc' | 'implicit' | 'hybrid' | 'device' | 'client-credentials' | 'ciba' | 'par' | 'rar';
+	flowType:
+		| 'oauth'
+		| 'oidc'
+		| 'implicit'
+		| 'hybrid'
+		| 'device'
+		| 'client-credentials'
+		| 'ciba'
+		| 'par'
+		| 'rar';
 	currentStep?: number;
 	timestamp: number;
 	userAgent?: string;
@@ -17,7 +26,13 @@ export interface FlowContext {
 }
 
 export interface FlowErrorContext extends FlowContext {
-	errorType: 'authorization' | 'token-exchange' | 'user-info' | 'logout' | 'discovery' | 'validation';
+	errorType:
+		| 'authorization'
+		| 'token-exchange'
+		| 'user-info'
+		| 'logout'
+		| 'discovery'
+		| 'validation';
 	errorMessage: string;
 	errorCode?: string;
 	redirectUri?: string;
@@ -35,16 +50,16 @@ class FlowTrackingService {
 		try {
 			console.group(`🔄 [FlowTracking] Setting current flow`);
 			console.log(`📋 Flow Context:`, context);
-			
+
 			// Store current flow
 			sessionStorage.setItem(this.CURRENT_FLOW_KEY, JSON.stringify(context));
-			
+
 			// Add to history
 			this.addToHistory(context);
-			
+
 			console.log(`✅ Current flow set: ${context.flowKey} (${context.flowName})`);
 			console.groupEnd();
-			
+
 			return true;
 		} catch (error) {
 			console.error(`❌ Failed to set current flow:`, error);
@@ -59,7 +74,7 @@ class FlowTrackingService {
 		try {
 			const stored = sessionStorage.getItem(this.CURRENT_FLOW_KEY);
 			if (!stored) return null;
-			
+
 			const context = JSON.parse(stored);
 			console.log(`🔍 [FlowTracking] Current flow:`, context);
 			return context;
@@ -90,25 +105,25 @@ class FlowTrackingService {
 		try {
 			console.group(`🚨 [FlowTracking] Tracking flow error`);
 			console.log(`📋 Error Context:`, errorContext);
-			
+
 			// Store error context
 			const errorKey = `pingone_flow_error_${Date.now()}`;
 			sessionStorage.setItem(errorKey, JSON.stringify(errorContext));
-			
+
 			// Also store in current flow context for easy access
 			const currentFlow = this.getCurrentFlow();
 			if (currentFlow) {
 				const enhancedFlow = {
 					...currentFlow,
 					lastError: errorContext,
-					lastErrorTime: Date.now()
+					lastErrorTime: Date.now(),
 				};
 				sessionStorage.setItem(this.CURRENT_FLOW_KEY, JSON.stringify(enhancedFlow));
 			}
-			
+
 			console.log(`✅ Flow error tracked: ${errorContext.errorType} in ${errorContext.flowKey}`);
 			console.groupEnd();
-			
+
 			return true;
 		} catch (error) {
 			console.error(`❌ Failed to track flow error:`, error);
@@ -123,16 +138,16 @@ class FlowTrackingService {
 		try {
 			const currentFlow = this.getCurrentFlow();
 			if (!currentFlow) return null;
-			
+
 			// Generate return URL based on flow type and current step
 			const baseUrl = window.location.origin;
 			let returnUrl = `${baseUrl}/flows/${currentFlow.flowKey}`;
-			
+
 			// Add step parameter if available
 			if (currentFlow.currentStep !== undefined) {
 				returnUrl += `?step=${currentFlow.currentStep}`;
 			}
-			
+
 			console.log(`🔗 [FlowTracking] Return URL: ${returnUrl}`);
 			return returnUrl;
 		} catch (error) {
@@ -151,7 +166,7 @@ class FlowTrackingService {
 				console.warn(`⚠️ [FlowTracking] No return URL available`);
 				return false;
 			}
-			
+
 			console.log(`🔄 [FlowTracking] Returning to flow: ${returnUrl}`);
 			window.location.href = returnUrl;
 			return true;
@@ -181,7 +196,7 @@ class FlowTrackingService {
 		try {
 			const stored = sessionStorage.getItem(this.FLOW_HISTORY_KEY);
 			if (!stored) return [];
-			
+
 			return JSON.parse(stored);
 		} catch (error) {
 			console.error(`❌ Failed to get flow history:`, error);
@@ -206,21 +221,25 @@ class FlowTrackingService {
 	/**
 	 * Get flow statistics
 	 */
-	getFlowStats(): { totalFlows: number; currentFlow: FlowContext | null; lastError: FlowErrorContext | null } {
+	getFlowStats(): {
+		totalFlows: number;
+		currentFlow: FlowContext | null;
+		lastError: FlowErrorContext | null;
+	} {
 		try {
 			const history = this.getFlowHistory();
 			const currentFlow = this.getCurrentFlow();
-			
+
 			// Find last error
 			let lastError: FlowErrorContext | null = null;
 			if (currentFlow && (currentFlow as any).lastError) {
 				lastError = (currentFlow as any).lastError;
 			}
-			
+
 			return {
 				totalFlows: history.length,
 				currentFlow,
-				lastError
+				lastError,
 			};
 		} catch (error) {
 			console.error(`❌ Failed to get flow stats:`, error);

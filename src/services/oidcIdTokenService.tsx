@@ -131,8 +131,8 @@ export class OIDCIdTokenServiceClass {
 		// Validate expiration
 		const now = Math.floor(Date.now() / 1000);
 		const clockTolerance = options.clockTolerance || 60;
-		
-		if (claims.exp && claims.exp < (now - clockTolerance)) {
+
+		if (claims.exp && claims.exp < now - clockTolerance) {
 			throw new Error('ID token has expired');
 		}
 
@@ -169,30 +169,57 @@ export class OIDCIdTokenServiceClass {
 }
 
 // React component for displaying ID token claims
-const OIDCIdTokenService: React.FC<{ 
-	claims: IdTokenClaims; 
+const OIDCIdTokenService: React.FC<{
+	claims: IdTokenClaims;
 	collapsed?: boolean;
 }> = ({ claims, collapsed = false }) => {
-	const [isCollapsed, setIsCollapsed] = React.useState(collapsed);
+	const [_isCollapsed, _setIsCollapsed] = React.useState(collapsed);
 
 	const standardClaims = [
-		'iss', 'sub', 'aud', 'exp', 'iat', 'auth_time', 'nonce',
-		'acr', 'amr', 'azp'
+		'iss',
+		'sub',
+		'aud',
+		'exp',
+		'iat',
+		'auth_time',
+		'nonce',
+		'acr',
+		'amr',
+		'azp',
 	];
 
 	const profileClaims = [
-		'name', 'given_name', 'family_name', 'middle_name', 'nickname',
-		'preferred_username', 'profile', 'picture', 'website',
-		'email', 'email_verified', 'gender', 'birthdate', 'zoneinfo',
-		'locale', 'phone_number', 'phone_number_verified', 'address', 'updated_at'
+		'name',
+		'given_name',
+		'family_name',
+		'middle_name',
+		'nickname',
+		'preferred_username',
+		'profile',
+		'picture',
+		'website',
+		'email',
+		'email_verified',
+		'gender',
+		'birthdate',
+		'zoneinfo',
+		'locale',
+		'phone_number',
+		'phone_number_verified',
+		'address',
+		'updated_at',
 	];
 
 	return React.createElement(ClaimsContainer, {}, [
-		React.createElement('h4', { 
-			key: 'title',
-			style: { margin: '0 0 1rem 0', color: '#1f2937' }
-		}, 'ID Token Claims'),
-		
+		React.createElement(
+			'h4',
+			{
+				key: 'title',
+				style: { margin: '0 0 1rem 0', color: '#1f2937' },
+			},
+			'ID Token Claims'
+		),
+
 		...Object.entries(claims).map(([key, value]) => {
 			const isStandard = standardClaims.includes(key);
 			const isProfile = profileClaims.includes(key);
@@ -200,14 +227,15 @@ const OIDCIdTokenService: React.FC<{
 
 			return React.createElement(ClaimRow, { key }, [
 				React.createElement(ClaimLabel, { key: 'label' }, `${category} ${key}:`),
-				React.createElement(ClaimValue, { key: 'value' }, 
+				React.createElement(
+					ClaimValue,
+					{ key: 'value' },
 					OIDCIdTokenServiceClass.formatClaimValue(value)
-				)
+				),
 			]);
-		})
+		}),
 	]);
 };
 
 export default OIDCIdTokenService;
 export { OIDCIdTokenService };
-

@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
+import dotenv from 'dotenv';
 // Test script for credential service functionality
 import fetch from 'node-fetch';
-import dotenv from 'dotenv';
 
 dotenv.config();
 

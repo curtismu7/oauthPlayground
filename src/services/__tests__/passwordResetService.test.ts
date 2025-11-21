@@ -1,14 +1,14 @@
 // src/services/__tests__/passwordResetService.test.ts
 // Unit tests for password reset service
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-	sendRecoveryCode,
-	recoverPassword,
-	forcePasswordChange,
-	changePassword,
-} from '../passwordResetService';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { trackedFetch } from '../../utils/trackedFetch';
+import {
+	changePassword,
+	forcePasswordChange,
+	recoverPassword,
+	sendRecoveryCode,
+} from '../passwordResetService';
 
 // Mock trackedFetch
 vi.mock('../../utils/trackedFetch', () => ({
@@ -264,11 +264,7 @@ describe('PasswordResetService', () => {
 
 			mockTrackedFetch.mockResolvedValueOnce(mockResponse);
 
-			const result = await forcePasswordChange(
-				mockEnvironmentId,
-				mockUserId,
-				mockWorkerToken
-			);
+			const result = await forcePasswordChange(mockEnvironmentId, mockUserId, mockWorkerToken);
 
 			expect(result.success).toBe(true);
 			expect(result.message).toBe('User will be required to change password on next sign-on');
@@ -302,11 +298,7 @@ describe('PasswordResetService', () => {
 
 			mockTrackedFetch.mockResolvedValueOnce(mockResponse);
 
-			const result = await forcePasswordChange(
-				mockEnvironmentId,
-				mockUserId,
-				mockWorkerToken
-			);
+			const result = await forcePasswordChange(mockEnvironmentId, mockUserId, mockWorkerToken);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toBe('insufficient_privileges');
@@ -325,11 +317,7 @@ describe('PasswordResetService', () => {
 
 			mockTrackedFetch.mockResolvedValueOnce(mockResponse);
 
-			const result = await forcePasswordChange(
-				mockEnvironmentId,
-				mockUserId,
-				mockWorkerToken
-			);
+			const result = await forcePasswordChange(mockEnvironmentId, mockUserId, mockWorkerToken);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toBe('user_not_found');
@@ -340,11 +328,7 @@ describe('PasswordResetService', () => {
 			const networkError = new Error('Failed to connect');
 			mockTrackedFetch.mockRejectedValueOnce(networkError);
 
-			const result = await forcePasswordChange(
-				mockEnvironmentId,
-				mockUserId,
-				mockWorkerToken
-			);
+			const result = await forcePasswordChange(mockEnvironmentId, mockUserId, mockWorkerToken);
 
 			expect(result.success).toBe(false);
 			expect(result.error).toBe('network_error');
@@ -516,4 +500,3 @@ describe('PasswordResetService', () => {
 		});
 	});
 });
-

@@ -191,23 +191,6 @@ export class PARService {
 	}
 
 	/**
-	 * Build headers for PAR request based on authentication method
-	 */
-	private buildPARHeaders(authMethod: PARAuthMethod): HeadersInit {
-		const headers: HeadersInit = {
-			'Content-Type': 'application/x-www-form-urlencoded',
-			Accept: 'application/json',
-		};
-
-		if (authMethod.type === 'CLIENT_SECRET_BASIC' && authMethod.clientSecret) {
-			const credentials = btoa(`${authMethod.clientId}:${authMethod.clientSecret}`);
-			headers['Authorization'] = `Basic ${credentials}`;
-		}
-
-		return headers;
-	}
-
-	/**
 	 * Generate client secret JWT for authentication
 	 */
 	private generateClientSecretJWT(request: PARRequest, _authMethod: PARAuthMethod): string {
@@ -341,7 +324,9 @@ export class PARService {
 
 		if (!requestUri) {
 			console.error('PAR Response Debug:', response);
-			throw new Error('Invalid PAR response: missing request_uri. Response: ' + JSON.stringify(response));
+			throw new Error(
+				`Invalid PAR response: missing request_uri. Response: ${JSON.stringify(response)}`
+			);
 		}
 
 		return {

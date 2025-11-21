@@ -69,4 +69,3 @@ ${JSON.stringify(decoded.payload, null, 2)}
 
 Signature: ${decoded.signature}`;
 }
-

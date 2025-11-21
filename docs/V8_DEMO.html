@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V8 Step Navigation Demo - Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .progress-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .step-navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .step-indicator {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step-indicator.completed:not(:last-child)::after {
+            background: #4caf50;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #9e9e9e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.active .step-number {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .step-indicator.completed .step-number {
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-indicator.locked .step-number {
+            background: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .step-indicator.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .step-content {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .step-content h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .step-content p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-icon {
+            cursor: help;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            width: 250px;
+            margin-bottom: 8px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .info-icon:hover .tooltip {
+            opacity: 1;
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+        }
+
+        .tooltip-header {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="text"].valid {
+            border-color: #4caf50;
+        }
+
+        input[type="text"].invalid {
+            border-color: #f44336;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .validation-feedback {
+            margin-top: 30px;
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .validation-feedback.error {
+            background: #ffebee;
+            border-color: #f44336;
+        }
+
+        .validation-feedback.warning {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .validation-feedback.success {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .validation-feedback h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .validation-feedback ul {
+            margin-left: 20px;
+        }
+
+        .validation-feedback li {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .previous-button {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .previous-button:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        .next-button {
+            background: #667eea;
+            color: white;
+        }
+
+        .next-button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #e0e0e0;
+            color: #9e9e9e;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .quick-start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-top: 20px;
+        }
+
+        .quick-start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .reset-button {
+            background: #ff9800;
+            color: white;
+            margin: 0 10px;
+        }
+
+        .reset-button:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+        }
+
+        .status-icon {
+            margin-left: 8px;
+            font-size: 16px;
+        }
+
+        .code-display {
+            background: #f5f5f5;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #4caf50;
+        }
+
+        @media (max-width: 768px) {
+            .step-navigation {
+                flex-wrap: wrap;
+            }
+
+            .step-indicator {
+                flex-basis: 50%;
+                margin-bottom: 20px;
+            }
+
+            .step-indicator:not(:last-child)::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 V8 Step Navigation Demo</h1>
+            <p>Interactive demonstration of validation-driven step progression</p>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-text" id="progressText">Progress: 0% (0 of 4)</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="step-navigation">
+            <div class="step-indicator active" data-step="0">
+                <div class="step-number">0</div>
+                <div class="step-label">Config</div>
+            </div>
+            <div class="step-indicator locked" data-step="1">
+                <div class="step-number">1</div>
+                <div class="step-label">Auth URL</div>
+            </div>
+            <div class="step-indicator locked" data-step="2">
+                <div class="step-number">2</div>
+                <div class="step-label">Callback</div>
+            </div>
+            <div class="step-indicator locked" data-step="3">
+                <div class="step-number">3</div>
+                <div class="step-label">Tokens</div>
+            </div>
+        </div>
+
+        <div class="step-content" id="stepContent">
+            <!-- Step content will be dynamically inserted here -->
+        </div>
+
+        <div class="action-buttons">
+            <button class="previous-button" id="previousButton" disabled>◀ Previous</button>
+            <div style="flex: 1; text-align: center;">
+                <button class="reset-button" id="resetButton">🔄 Reset Flow</button>
+            </div>
+            <button class="next-button" id="nextButton" disabled>Next Step ▶</button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 0;
+        const credentials = {
+            environmentId: '',
+            clientId: '',
+            redirectUri: '',
+            scopes: []
+        };
+
+        // Step definitions
+        const steps = [
+            {
+                id: 0,
+                title: 'Step 0: Configure Credentials',
+                description: 'Set up your OAuth/OIDC application credentials',
+                render: renderStep0,
+                validate: validateStep0
+            },
+            {
+                id: 1,
+                title: 'Step 1: Generate Authorization URL',
+                description: 'Create the URL to redirect users for authentication',
+                render: renderStep1,
+                validate: validateStep1
+            },
+            {
+                id: 2,
+                title: 'Step 2: Handle Callback',
+                description: 'Process the authorization code from the callback',
+                render: renderStep2,
+                validate: validateStep2
+            },
+            {
+                id: 3,
+                title: 'Step 3: Exchange for Tokens',
+                description: 'Exchange authorization code for access tokens',
+                render: renderStep3,
+                validate: validateStep3
+            }
+        ];
+
+        // Initialize
+        renderCurrentStep();
+        updateNavigation();
+
+        // Step 0: Configure Credentials
+        function renderStep0() {
+            return `
+                <h2>Step 0: Configure Credentials</h2>
+                <p>Set up your OAuth/OIDC application credentials</p>
+
+                <div class="form-group">
+                    <label>
+                        Environment ID
+                        <span class="info-icon">ℹ️
+                            <div class="tooltip">
+                                <div class="tooltip-header">🌍 Environment ID</div>
+                                Your PingOne environment identifier (UUID format). Find this in your PingOne admin console.
+                            </div>
+                        </span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="environmentId" 
+                        placeholder="12345678-1234-1234-1234-123456789012"
+                        value="${credentials.environmentId}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Client ID
+                        <span class="info-icon">ℹ️
+                            <div class="tooltip">
+                                <div class="tooltip-header">🔑 Client ID</div>
+                                Public identifier for your application. This is safe to include in client-side code.
+                            </div>
+                        </span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="clientId" 
+                        placeholder="my-client-id"
+                        value="${credentials.clientId}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Redirect URI
+                        <span class="info-icon">ℹ️
+                            <div class="tooltip">
+                                <div class="tooltip-header">↩️ Redirect URI</div>
+                                Where users are sent after authentication. Must be registered in your OAuth application.
+                            </div>
+                        </span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="redirectUri" 
+                        placeholder="http://localhost:3000/callback"
+                        value="${credentials.redirectUri}"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Scopes
+                        <span class="info-icon">ℹ️
+                            <div class="tooltip">
+                                <div class="tooltip-header">🔑 Scopes</div>
+                                Permissions your application is requesting. OIDC flows require 'openid' scope.
+                            </div>
+                        </span>
+                    </label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scope-openid" value="openid" ${credentials.scopes.includes('openid') ? 'checked' : ''}>
+                            <label for="scope-openid">openid (Required for OIDC)</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scope-profile" value="profile" ${credentials.scopes.includes('profile') ? 'checked' : ''}>
+                            <label for="scope-profile">profile</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scope-email" value="email" ${credentials.scopes.includes('email') ? 'checked' : ''}>
+                            <label for="scope-email">email</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="scope-offline" value="offline_access" ${credentials.scopes.includes('offline_access') ? 'checked' : ''}>
+                            <label for="scope-offline">offline_access (Refresh Token)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="quick-start-button" onclick="applyQuickStart()">⚡ Quick Start - PingOne OIDC</button>
+            `;
+        }
+
+        function validateStep0() {
+            const errors = [];
+            const warnings = [];
+
+            // Validate Environment ID (UUID format)
+            if (!credentials.environmentId) {
+                errors.push('Environment ID is required');
+            } else if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(credentials.environmentId)) {
+                errors.push('Environment ID must be a valid UUID');
+            }
+
+            // Validate Client ID
+            if (!credentials.clientId) {
+                errors.push('Client ID is required');
+            }
+
+            // Validate Redirect URI
+            if (!credentials.redirectUri) {
+                errors.push('Redirect URI is required');
+            } else if (!/^https?:\/\/.+/.test(credentials.redirectUri)) {
+                errors.push('Redirect URI must be a valid URL');
+            }
+
+            // Validate Scopes
+            if (credentials.scopes.length === 0) {
+                errors.push('At least one scope is required');
+            }
+
+            // OIDC requires openid scope
+            if (!credentials.scopes.includes('openid')) {
+                errors.push('OIDC flows require the "openid" scope');
+            }
+
+            // Warning for HTTP
+            if (credentials.redirectUri && credentials.redirectUri.startsWith('http://') && !credentials.redirectUri.includes('localhost')) {
+                warnings.push('Using HTTP (not HTTPS) for non-localhost URLs is insecure');
+            }
+
+            return { valid: errors.length === 0, errors, warnings };
+        }
+
+        // Step 1: Generate Authorization URL
+        function renderStep1() {
+            return `
+                <h2>Step 1: Generate Authorization URL</h2>
+                <p>Create the URL to redirect users for authentication</p>
+
+                <div class="success-message">
+                    ✅ Credentials validated successfully!
+                </div>
+
+                <div class="code-display">
+                    <strong>Authorization URL:</strong><br>
+                    https://auth.pingone.com/${credentials.environmentId}/as/authorize?<br>
+                    &nbsp;&nbsp;client_id=${credentials.clientId}<br>
+                    &nbsp;&nbsp;&redirect_uri=${encodeURIComponent(credentials.redirectUri)}<br>
+                    &nbsp;&nbsp;&scope=${credentials.scopes.join('+')}<br>
+                    &nbsp;&nbsp;&response_type=code<br>
+                    &nbsp;&nbsp;&state=random-state-123<br>
+                    &nbsp;&nbsp;&code_challenge=abc123...<br>
+                    &nbsp;&nbsp;&code_challenge_method=S256
+                </div>
+
+                <div class="success-message" style="margin-top: 20px;">
+                    ✅ Authorization URL generated successfully!<br>
+                    🔒 PKCE codes generated<br>
+                    🛡️ State parameter generated
+                </div>
+            `;
+        }
+
+        function validateStep1() {
+            return { valid: true, errors: [], warnings: [] };
+        }
+
+        // Step 2: Handle Callback
+        function renderStep2() {
+            return `
+                <h2>Step 2: Handle Callback</h2>
+                <p>Process the authorization code from the callback</p>
+
+                <div class="success-message">
+                    ✅ Authorization code received!<br>
+                    Code: abc123def456...<br>
+                    State: validated ✓
+                </div>
+
+                <div class="code-display">
+                    <strong>Callback URL:</strong><br>
+                    ${credentials.redirectUri}?<br>
+                    &nbsp;&nbsp;code=abc123def456...<br>
+                    &nbsp;&nbsp;&state=random-state-123
+                </div>
+            `;
+        }
+
+        function validateStep2() {
+            return { valid: true, errors: [], warnings: [] };
+        }
+
+        // Step 3: Exchange for Tokens
+        function renderStep3() {
+            return `
+                <h2>Step 3: Tokens Received</h2>
+                <p>Successfully exchanged authorization code for tokens</p>
+
+                <div class="success-message">
+                    🎉 Flow completed successfully!
+                </div>
+
+                <div class="form-group">
+                    <label>🎫 Access Token</label>
+                    <div class="code-display">
+                        eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ...
+                    </div>
+                    <small>Expires in: 59:45</small>
+                </div>
+
+                <div class="form-group">
+                    <label>🆔 ID Token (OIDC)</label>
+                    <div class="code-display">
+                        eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIn0...
+                    </div>
+                </div>
+
+                ${credentials.scopes.includes('offline_access') ? `
+                <div class="form-group">
+                    <label>🔄 Refresh Token</label>
+                    <div class="code-display">
+                        rt_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz...
+                    </div>
+                    <small>⚠️ Store securely - this is a long-lived credential</small>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function validateStep3() {
+            return { valid: true, errors: [], warnings: [] };
+        }
+
+        // Render current step
+        function renderCurrentStep() {
+            const step = steps[currentStep];
+            document.getElementById('stepContent').innerHTML = step.render();
+
+            // Attach event listeners for Step 0
+            if (currentStep === 0) {
+                document.getElementById('environmentId').addEventListener('input', (e) => {
+                    credentials.environmentId = e.target.value;
+                    updateValidation();
+                });
+                document.getElementById('clientId').addEventListener('input', (e) => {
+                    credentials.clientId = e.target.value;
+                    updateValidation();
+                });
+                document.getElementById('redirectUri').addEventListener('input', (e) => {
+                    credentials.redirectUri = e.target.value;
+                    updateValidation();
+                });
+
+                // Scope checkboxes
+                ['openid', 'profile', 'email', 'offline_access'].forEach(scope => {
+                    const checkbox = document.getElementById(`scope-${scope.replace('_', '-')}`);
+                    if (checkbox) {
+                        checkbox.addEventListener('change', (e) => {
+                            if (e.target.checked) {
+                                if (!credentials.scopes.includes(scope)) {
+                                    credentials.scopes.push(scope);
+                                }
+                            } else {
+                                credentials.scopes = credentials.scopes.filter(s => s !== scope);
+                            }
+                            updateValidation();
+                        });
+                    }
+                });
+            }
+
+            updateValidation();
+        }
+
+        // Update validation feedback
+        function updateValidation() {
+            const step = steps[currentStep];
+            const validation = step.validate();
+
+            // Update input field styles
+            if (currentStep === 0) {
+                const envInput = document.getElementById('environmentId');
+                const clientInput = document.getElementById('clientId');
+                const redirectInput = document.getElementById('redirectUri');
+
+                if (envInput) {
+                    envInput.className = credentials.environmentId ? 
+                        (validation.errors.some(e => e.includes('Environment ID')) ? 'invalid' : 'valid') : '';
+                }
+                if (clientInput) {
+                    clientInput.className = credentials.clientId ? 'valid' : '';
+                }
+                if (redirectInput) {
+                    redirectInput.className = credentials.redirectUri ? 
+                        (validation.errors.some(e => e.includes('Redirect URI')) ? 'invalid' : 'valid') : '';
+                }
+            }
+
+            // Show validation feedback
+            let feedbackHTML = '';
+            if (!validation.valid) {
+                feedbackHTML = `
+                    <div class="validation-feedback error">
+                        <h4>⚠️ Cannot proceed to next step</h4>
+                        <p>Please fix the following issues:</p>
+                        <ul>
+                            ${validation.errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (validation.warnings.length > 0) {
+                feedbackHTML = `
+                    <div class="validation-feedback warning">
+                        <h4>⚠️ Warnings:</h4>
+                        <ul>
+                            ${validation.warnings.map(warning => `<li>${warning}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else if (currentStep === 0) {
+                feedbackHTML = `
+                    <div class="validation-feedback success">
+                        <h4>✅ All required fields complete</h4>
+                        <p>You can proceed to the next step!</p>
+                    </div>
+                `;
+            }
+
+            // Append feedback to step content
+            const existingFeedback = document.querySelector('.validation-feedback');
+            if (existingFeedback) {
+                existingFeedback.remove();
+            }
+            if (feedbackHTML) {
+                document.getElementById('stepContent').insertAdjacentHTML('beforeend', feedbackHTML);
+            }
+
+            // Update next button
+            const nextButton = document.getElementById('nextButton');
+            nextButton.disabled = !validation.valid;
+            nextButton.title = validation.valid ? 'Proceed to next step' : 
+                `Cannot proceed:\n${validation.errors.join('\n')}`;
+        }
+
+        // Update navigation
+        function updateNavigation() {
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                indicator.className = 'step-indicator';
+                const stepNumber = indicator.querySelector('.step-number');
+
+                if (index < currentStep) {
+                    indicator.classList.add('completed');
+                    stepNumber.textContent = '✓';
+                } else if (index === currentStep) {
+                    indicator.classList.add('active');
+                    stepNumber.textContent = index;
+                } else {
+                    indicator.classList.add('locked');
+                    stepNumber.textContent = index;
+                }
+
+                // Click handler
+                indicator.onclick = () => {
+                    if (index <= currentStep) {
+                        currentStep = index;
+                        renderCurrentStep();
+                        updateNavigation();
+                    }
+                };
+            });
+
+            // Update progress bar
+            const progress = (currentStep / steps.length) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = 
+                `Progress: ${Math.round(progress)}% (${currentStep} of ${steps.length})`;
+
+            // Update buttons
+            document.getElementById('previousButton').disabled = currentStep === 0;
+            document.getElementById('nextButton').textContent = 
+                currentStep === steps.length - 1 ? 'Finish' : 'Next Step ▶';
+        }
+
+        // Button handlers
+        document.getElementById('previousButton').onclick = () => {
+            if (currentStep > 0) {
+                currentStep--;
+                renderCurrentStep();
+                updateNavigation();
+            }
+        };
+
+        document.getElementById('nextButton').onclick = () => {
+            const validation = steps[currentStep].validate();
+            if (validation.valid && currentStep < steps.length - 1) {
+                currentStep++;
+                renderCurrentStep();
+                updateNavigation();
+            }
+        };
+
+        document.getElementById('resetButton').onclick = () => {
+            if (confirm('🔄 Reset Flow?\n\nThis will:\n✓ Clear all tokens\n✓ Clear PingOne session\n✓ Return to Step 0\n✓ Keep credentials\n\nContinue?')) {
+                // Clear tokens and session
+                credentials.authCode = '';
+                credentials.tokens = {};
+                
+                // Reset to step 0
+                currentStep = 0;
+                
+                // Re-render
+                renderCurrentStep();
+                updateNavigation();
+                
+                // Show confirmation
+                const feedback = document.querySelector('.validation-feedback');
+                if (feedback) feedback.remove();
+                
+                const confirmMsg = document.createElement('div');
+                confirmMsg.className = 'validation-feedback success';
+                confirmMsg.innerHTML = '<h4>✅ Flow Reset</h4><p>Tokens and session cleared. Ready to start again!</p>';
+                document.getElementById('stepContent').insertAdjacentElement('beforeend', confirmMsg);
+                
+                setTimeout(() => confirmMsg.remove(), 3000);
+            }
+        };
+
+        // Quick Start
+        function applyQuickStart() {
+            credentials.environmentId = '12345678-1234-1234-1234-123456789012';
+            credentials.clientId = 'my-client-id';
+            credentials.redirectUri = 'http://localhost:3000/callback';
+            credentials.scopes = ['openid', 'profile', 'email'];
+            renderCurrentStep();
+            updateNavigation();
+        }
+    </script>
+</body>
+</html>

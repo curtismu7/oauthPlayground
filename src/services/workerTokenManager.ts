@@ -1,18 +1,18 @@
 // src/services/workerTokenManager.ts
 // Worker Token Manager - Manages Worker Token credentials and access tokens with automatic lifecycle
 
-import { CredentialStorageManager } from './credentialStorageManager';
 import type {
-	WorkerTokenCredentials,
 	WorkerAccessToken,
+	WorkerTokenCredentials,
 	WorkerTokenStatus,
 } from '../types/credentials';
+import { CredentialStorageManager } from './credentialStorageManager';
 
 /**
  * Worker Token Manager
- * 
+ *
  * Manages Worker Token credentials AND access tokens as shared resources across the app.
- * 
+ *
  * Key Features:
  * - Singleton pattern ensures single source of truth
  * - Automatic token lifecycle management (fetch, refresh, expire)
@@ -20,7 +20,7 @@ import type {
  * - Retry logic with exponential backoff
  * - Prevents concurrent token fetches
  * - Broadcasts token refresh events to all tabs
- * 
+ *
  * Usage:
  * ```typescript
  * const token = await workerTokenManager.getWorkerToken();
@@ -50,10 +50,10 @@ export class WorkerTokenManager {
 
 	/**
 	 * Get a valid Worker Access Token (auto-fetch if needed)
-	 * 
+	 *
 	 * This is the primary method that all features should use.
 	 * It guarantees to return a valid token or throw an error.
-	 * 
+	 *
 	 * @returns Valid access token string
 	 * @throws Error if credentials not configured or fetch fails
 	 */
@@ -83,7 +83,7 @@ export class WorkerTokenManager {
 
 	/**
 	 * Get Worker Token status
-	 * 
+	 *
 	 * @returns Status information about credentials and token
 	 */
 	async getStatus(): Promise<WorkerTokenStatus> {
@@ -101,16 +101,13 @@ export class WorkerTokenManager {
 
 	/**
 	 * Save Worker Token credentials
-	 * 
+	 *
 	 * @param credentials - Worker Token credentials to save
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
 		console.log(`💾 [WorkerTokenManager] Saving Worker Token credentials`);
 
-		await this.credentialStorage.saveFlowCredentials(
-			'worker-token-credentials',
-			credentials
-		);
+		await this.credentialStorage.saveFlowCredentials('worker-token-credentials', credentials);
 
 		// Invalidate cached token when credentials change
 		this.tokenCache = null;
@@ -121,19 +118,17 @@ export class WorkerTokenManager {
 
 	/**
 	 * Load Worker Token credentials
-	 * 
+	 *
 	 * @returns Worker Token credentials or null if not found
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
-		const result = await this.credentialStorage.loadFlowCredentials(
-			'worker-token-credentials'
-		);
+		const result = await this.credentialStorage.loadFlowCredentials('worker-token-credentials');
 		return result.data as WorkerTokenCredentials | null;
 	}
 
 	/**
 	 * Manually refresh the Worker Token
-	 * 
+	 *
 	 * @returns New access token string
 	 */
 	async refreshToken(): Promise<string> {
@@ -233,9 +228,7 @@ export class WorkerTokenManager {
 				this.tokenCache = token;
 				await this.saveToken(token);
 
-				console.log(
-					`✅ Token fetched successfully (expires in ${tokenData.expires_in}s)`
-				);
+				console.log(`✅ Token fetched successfully (expires in ${tokenData.expires_in}s)`);
 
 				// Broadcast token refresh event
 				this.broadcastTokenRefresh(token);
@@ -247,7 +240,7 @@ export class WorkerTokenManager {
 
 				if (attempt < maxRetries) {
 					// Exponential backoff: 1s, 2s, 4s
-					const delay = Math.pow(2, attempt - 1) * 1000;
+					const delay = 2 ** (attempt - 1) * 1000;
 					console.log(`⏳ Retrying in ${delay}ms...`);
 					await new Promise((resolve) => setTimeout(resolve, delay));
 				}
@@ -279,19 +272,14 @@ export class WorkerTokenManager {
 	 * Save token to storage
 	 */
 	private async saveToken(token: WorkerAccessToken): Promise<void> {
-		await this.credentialStorage.saveFlowCredentials(
-			'worker-access-token',
-			token
-		);
+		await this.credentialStorage.saveFlowCredentials('worker-access-token', token);
 	}
 
 	/**
 	 * Load stored token
 	 */
 	private async loadStoredToken(): Promise<WorkerAccessToken | null> {
-		const result = await this.credentialStorage.loadFlowCredentials(
-			'worker-access-token'
-		);
+		const result = await this.credentialStorage.loadFlowCredentials('worker-access-token');
 		return result.data as WorkerAccessToken | null;
 	}
 

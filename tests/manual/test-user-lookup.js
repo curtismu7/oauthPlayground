@@ -1,7 +1,7 @@
 // Test script for user lookup functionality
 // Usage: node test-user-lookup.js <environmentId> <workerToken> <identifier>
 
-const [,, environmentId, workerToken, identifier] = process.argv;
+const [, , environmentId, workerToken, identifier] = process.argv;
 
 if (!environmentId || !workerToken || !identifier) {
 	console.error('Usage: node test-user-lookup.js <environmentId> <workerToken> <identifier>');
@@ -34,7 +34,7 @@ async function testUserLookup() {
 
 		const responseText = await response.text();
 		let data;
-		
+
 		try {
 			data = JSON.parse(responseText);
 		} catch (e) {
@@ -52,7 +52,9 @@ async function testUserLookup() {
 			console.log(`User ID: ${data.user.id}`);
 			console.log(`Username: ${data.user.username || data.user.userName || 'N/A'}`);
 			console.log(`Email: ${data.user.email || data.user.emails?.[0]?.value || 'N/A'}`);
-			console.log(`Name: ${data.user.name?.given || ''} ${data.user.name?.family || ''}`.trim() || 'N/A');
+			console.log(
+				`Name: ${data.user.name?.given || ''} ${data.user.name?.family || ''}`.trim() || 'N/A'
+			);
 			console.log(`Match Type: ${data.matchType || 'unknown'}`);
 			if (data.filterUsed) {
 				console.log(`Filter Used: ${data.filterUsed}`);
@@ -81,4 +83,3 @@ async function testUserLookup() {
 }
 
 testUserLookup();
-

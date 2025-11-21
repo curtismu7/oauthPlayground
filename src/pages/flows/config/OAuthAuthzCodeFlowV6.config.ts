@@ -1,4 +1,4 @@
-// src/pages/flows/config/OAuthAuthzCodeFlow.config.ts
+// src/pages/flows/config/OAuthAuthzCodeFlowV6.config.ts
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import FlowStateService from '../../../services/flowStateService';
 
@@ -7,10 +7,16 @@ export const FLOW_TYPE = 'authorization-code';
 
 // Step configuration with 1-based numbering
 export const STEP_CONFIGS = [
-	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand the OAuth Authorization Code Flow' },
+	{
+		title: 'Step 1: Introduction & Setup',
+		subtitle: 'Understand the OAuth Authorization Code Flow',
+	},
 	{ title: 'Step 2: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
 	{ title: 'Step 3: Authorization Request', subtitle: 'Build and launch the authorization URL' },
-	{ title: 'Step 4: Authorization Response', subtitle: 'Receive the authorization code from PingOne' },
+	{
+		title: 'Step 4: Authorization Response',
+		subtitle: 'Receive the authorization code from PingOne',
+	},
 	{ title: 'Step 5: Token Exchange', subtitle: 'Exchange authorization code for access token' },
 	{ title: 'Step 6: Token Introspection', subtitle: 'Validate and inspect tokens' },
 	{ title: 'Step 7: Security Features', subtitle: 'Advanced security demonstrations' },
@@ -62,14 +68,14 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: false,
+	pushedAuthorizationRequestTimeout: 60,
 	enableDPoP: false,
 	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,
 	includeX5tParameter: false,
 	oidcSessionManagement: false,
 	requestScopesForMultipleResources: false,
- 	terminateUserSessionByIdToken: false,
+	terminateUserSessionByIdToken: false,
 	corsOrigins: [],
 	corsAllowAnyOrigin: false,
 };
-

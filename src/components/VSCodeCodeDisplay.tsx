@@ -1,9 +1,9 @@
 // src/components/VSCodeCodeDisplay.tsx
 
+import Prism from 'prismjs';
 import React, { useEffect, useMemo, useState } from 'react';
 import { FiCheck, FiCopy, FiDownload } from 'react-icons/fi';
 import styled from 'styled-components';
-import Prism from 'prismjs';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-typescript';
@@ -292,18 +292,17 @@ const getLanguageIcon = (language: SupportedLanguage): string => {
 // Basic syntax highlighting function using Prism.js
 const highlightCode = (code: string, language: SupportedLanguage): JSX.Element => {
 	let prismLanguage = language;
-	
+
 	// Map ping-sdk to typescript for highlighting
 	if (language === 'ping-sdk') {
 		prismLanguage = 'typescript';
 	}
-	
+
 	// Use Prism.js to highlight the code
 	const highlighted = Prism.highlight(code, Prism.languages[prismLanguage], prismLanguage);
-	
+
 	return <span dangerouslySetInnerHTML={{ __html: highlighted }} />;
 };
-
 
 interface VSCodeCodeDisplayProps {
 	flowType: string;
@@ -416,14 +415,14 @@ export const VSCodeCodeDisplay: React.FC<VSCodeCodeDisplayProps> = ({
 					{codeExamplesService.getSupportedLanguages().map((language) => {
 						const isAvailable = availableLanguages.includes(language);
 						return (
-						<LanguageButton
-							key={language}
-							$active={selectedLanguage === language}
-							onClick={() => isAvailable && setSelectedLanguage(language)}
-							disabled={!isAvailable}
-						>
-							{getLanguageIcon(language)} {getLanguageDisplayName(language)}
-						</LanguageButton>
+							<LanguageButton
+								key={language}
+								$active={selectedLanguage === language}
+								onClick={() => isAvailable && setSelectedLanguage(language)}
+								disabled={!isAvailable}
+							>
+								{getLanguageIcon(language)} {getLanguageDisplayName(language)}
+							</LanguageButton>
 						);
 					})}
 				</LanguageSelector>

@@ -72,7 +72,7 @@ export async function makeApiRequest<T = any>(
 	});
 
 	// Debug: Log token info (first/last 10 chars only for security)
-	const tokenPreview = client.token 
+	const tokenPreview = client.token
 		? `${client.token.substring(0, 10)}...${client.token.substring(client.token.length - 10)}`
 		: 'NO TOKEN';
 	console.log('[API-CLIENT] Authorization token preview:', tokenPreview);
@@ -91,17 +91,17 @@ export async function makeApiRequest<T = any>(
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			
+
 			// Log full error details for debugging
 			console.error('[API-CLIENT] Full error response:', {
 				status: response.status,
 				statusText: response.statusText,
 				errorData: errorData,
 			});
-			
+
 			// Extract detailed error message
 			let errorMessage = errorData.detail || errorData.message || 'Unknown error';
-			
+
 			// If there are validation details, include them
 			if (errorData.details && Array.isArray(errorData.details)) {
 				const validationErrors = errorData.details

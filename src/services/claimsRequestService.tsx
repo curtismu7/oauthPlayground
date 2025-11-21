@@ -1,23 +1,26 @@
 // src/services/claimsRequestService.tsx
 // Service wrapper for Claims Request Builder - Works for both OAuth and OIDC
 import React from 'react';
-import ClaimsRequestBuilder, { ClaimsRequestStructure, ClaimRequest } from '../components/ClaimsRequestBuilder';
+import ClaimsRequestBuilder, {
+	ClaimRequest,
+	ClaimsRequestStructure,
+} from '../components/ClaimsRequestBuilder';
 
 export type { ClaimsRequestStructure, ClaimRequest };
 
 /**
  * Claims Request Service
- * 
+ *
  * Provides a service layer for advanced claims requests.
  * Allows requesting specific claims to be returned in ID tokens
  * or from the UserInfo endpoint.
- * 
+ *
  * **OIDC Core 1.0 Section 5.5 - Claims Parameter**
- * 
- * @applicability 
+ *
+ * @applicability
  * - OIDC flows: Full support (ID token + UserInfo)
  * - OAuth flows: Limited (UserInfo-like endpoints if supported by provider)
- * 
+ *
  * @educational
  * - Shows the power of OIDC's claim request mechanism
  * - Demonstrates essential vs voluntary claims
@@ -41,12 +44,12 @@ export class ClaimsRequestService {
 	 */
 	static isValidClaimsRequest(claims: unknown): claims is ClaimsRequestStructure {
 		if (!claims || typeof claims !== 'object') return false;
-		
+
 		const claimsObj = claims as Record<string, unknown>;
-		
+
 		// Must have at least one of: userinfo or id_token
 		if (!claimsObj.userinfo && !claimsObj.id_token) return false;
-		
+
 		return true;
 	}
 
@@ -55,7 +58,7 @@ export class ClaimsRequestService {
 	 */
 	static toUrlParameter(claims: ClaimsRequestStructure | null): string | null {
 		if (!claims || !ClaimsRequestService.isValidClaimsRequest(claims)) return null;
-		
+
 		try {
 			return JSON.stringify(claims);
 		} catch {
@@ -86,8 +89,8 @@ export class ClaimsRequestService {
 			'oidc-hybrid',
 			'oauth-authorization-code', // Can use for UserInfo-like endpoints
 		];
-		
-		return supportedFlows.some(flow => flowType.includes(flow));
+
+		return supportedFlows.some((flow) => flowType.includes(flow));
 	}
 
 	/**
@@ -134,7 +137,7 @@ export class ClaimsRequestService {
 	static createEmpty(): ClaimsRequestStructure {
 		return {
 			userinfo: {},
-			id_token: {}
+			id_token: {},
 		};
 	}
 
@@ -148,16 +151,15 @@ export class ClaimsRequestService {
 		essential: boolean = false
 	): ClaimsRequestStructure {
 		const current = claims || ClaimsRequestService.createEmpty();
-		
+
 		return {
 			...current,
 			[location]: {
 				...(current[location] || {}),
-				[claimName]: essential ? { essential: true } : null
-			}
+				[claimName]: essential ? { essential: true } : null,
+			},
 		};
 	}
 }
 
 export default ClaimsRequestService;
-

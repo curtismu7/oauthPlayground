@@ -12,37 +12,34 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from 'react-icons/fi';
-
-import { usePageScroll } from '../../hooks/usePageScroll';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import TokenIntrospect from '../../components/TokenIntrospect';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { useHybridFlowControllerV7 } from '../../hooks/useHybridFlowControllerV7';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { CopyButtonService } from '../../services/copyButtonService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import TokenIntrospect from '../../components/TokenIntrospect';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { LearningTooltip } from '../../components/LearningTooltip';
-
 import {
+	HybridFlowCollapsibleSectionsManager,
 	HybridFlowDefaults,
 	HybridFlowEducationalContent,
 	HybridFlowResponseTypeManager,
-	HybridFlowCollapsibleSectionsManager,
 	HybridFlowTokenProcessor,
 	log,
 } from '../../services/hybridFlowSharedService';
-
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import type { V7FlowName } from '../../services/v7SharedService';
 // Import V7 Shared Service for compliance features
 import { V7SharedService } from '../../services/v7SharedService';
-import type { V7FlowName } from '../../services/v7SharedService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 import { STEP_METADATA } from './config/OIDCHybridFlowV7.config';
 
@@ -83,7 +80,9 @@ const VariantButton = FlowUIService.getVariantButton?.();
 const VariantTitle = FlowUIService.getVariantTitle?.();
 const VariantDescription = FlowUIService.getVariantDescription?.();
 
-type CredentialsUpdater = Parameters<ReturnType<typeof useHybridFlowControllerV7>['setCredentials']>[0];
+type CredentialsUpdater = Parameters<
+	ReturnType<typeof useHybridFlowControllerV7>['setCredentials']
+>[0];
 
 const HYBRID_VARIANTS: Array<{
 	id: 'code-id-token' | 'code-token' | 'code-id-token-token';
@@ -94,17 +93,46 @@ const HYBRID_VARIANTS: Array<{
 		id: 'code-id-token',
 		title: (
 			<>
-				<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived credential returned in URL fragment for OIDC Hybrid flows" placement="top">Code</LearningTooltip>
+				<LearningTooltip
+					variant="learning"
+					title="Authorization Code"
+					content="Short-lived credential returned in URL fragment for OIDC Hybrid flows"
+					placement="top"
+				>
+					Code
+				</LearningTooltip>
 				{' + '}
-				<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity, returned immediately in URL fragment" placement="top">ID Token</LearningTooltip>
+				<LearningTooltip
+					variant="learning"
+					title="ID Token"
+					content="OIDC JWT with user identity, returned immediately in URL fragment"
+					placement="top"
+				>
+					ID Token
+				</LearningTooltip>
 			</>
 		),
 		description: (
-			<>Immediate{' '}
-			<LearningTooltip variant="learning" title="ID Token" content="JWT containing user identity - returned in URL fragment" placement="top">ID token</LearningTooltip>
-			{' '}for authentication and a{' '}
-			<LearningTooltip variant="learning" title="Authorization Code" content="Code exchanged for full token set including refresh token" placement="top">code</LearningTooltip>
-			{' '}for full token exchange.
+			<>
+				Immediate{' '}
+				<LearningTooltip
+					variant="learning"
+					title="ID Token"
+					content="JWT containing user identity - returned in URL fragment"
+					placement="top"
+				>
+					ID token
+				</LearningTooltip>{' '}
+				for authentication and a{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Authorization Code"
+					content="Code exchanged for full token set including refresh token"
+					placement="top"
+				>
+					code
+				</LearningTooltip>{' '}
+				for full token exchange.
 			</>
 		),
 	},
@@ -112,19 +140,55 @@ const HYBRID_VARIANTS: Array<{
 		id: 'code-token',
 		title: (
 			<>
-				<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived credential for token exchange" placement="top">Code</LearningTooltip>
+				<LearningTooltip
+					variant="learning"
+					title="Authorization Code"
+					content="Short-lived credential for token exchange"
+					placement="top"
+				>
+					Code
+				</LearningTooltip>
 				{' + '}
-				<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access, returned immediately in fragment" placement="top">Access Token</LearningTooltip>
+				<LearningTooltip
+					variant="learning"
+					title="Access Token"
+					content="Bearer token for API access, returned immediately in fragment"
+					placement="top"
+				>
+					Access Token
+				</LearningTooltip>
 			</>
 		),
 		description: (
-			<>Immediate{' '}
-			<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip>
-			{' '}plus{' '}
-			<LearningTooltip variant="learning" title="Authorization Code" content="Code used to get refresh token" placement="top">authorization code</LearningTooltip>
-			{' '}for{' '}
-			<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token to get new access tokens" placement="top">refresh token</LearningTooltip>
-			{' '}delivery.
+			<>
+				Immediate{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Access Token"
+					content="Bearer token for API authentication"
+					placement="top"
+				>
+					access token
+				</LearningTooltip>{' '}
+				plus{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Authorization Code"
+					content="Code used to get refresh token"
+					placement="top"
+				>
+					authorization code
+				</LearningTooltip>{' '}
+				for{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Refresh Token"
+					content="Long-lived token to get new access tokens"
+					placement="top"
+				>
+					refresh token
+				</LearningTooltip>{' '}
+				delivery.
 			</>
 		),
 	},
@@ -132,12 +196,35 @@ const HYBRID_VARIANTS: Array<{
 		id: 'code-id-token-token',
 		title: 'Complete Hybrid',
 		description: (
-			<>Returns{' '}
-			<LearningTooltip variant="learning" title="ID Token" content="JWT with user identity" placement="top">ID token</LearningTooltip>
-			{' '}and{' '}
-			<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>
-			{' '}alongside the{' '}
-			<LearningTooltip variant="learning" title="Authorization Code" content="Code for full token exchange" placement="top">authorization code</LearningTooltip>.
+			<>
+				Returns{' '}
+				<LearningTooltip
+					variant="learning"
+					title="ID Token"
+					content="JWT with user identity"
+					placement="top"
+				>
+					ID token
+				</LearningTooltip>{' '}
+				and{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Access Token"
+					content="Bearer token for API access"
+					placement="top"
+				>
+					access token
+				</LearningTooltip>{' '}
+				alongside the{' '}
+				<LearningTooltip
+					variant="learning"
+					title="Authorization Code"
+					content="Code for full token exchange"
+					placement="top"
+				>
+					authorization code
+				</LearningTooltip>
+				.
 			</>
 		),
 	},
@@ -149,8 +236,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 	useEffect(() => {
 		checkCredentialsAndWarn(controller.credentials, {
 			flowName: 'OIDC Hybrid Flow',
-			requiredFields: ["environmentId","clientId","clientSecret"],
-			showToast: true
+			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+			showToast: true,
 		});
 	}, []); // Only run once on mount
 
@@ -160,7 +247,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		enableIDTokenValidation: true,
 		enableParameterValidation: true,
 		enableErrorHandling: true,
-		enableSecurityHeaders: true
+		enableSecurityHeaders: true,
 	});
 
 	const controller = useHybridFlowControllerV7({
@@ -186,60 +273,74 @@ const OIDCHybridFlowV7: React.FC = () => {
 	);
 
 	// V7 compliance functions
-	const validateHybridParameters = useCallback((parameters: Record<string, any>) => {
-		const validation = V7SharedService.ParameterValidation.validateFlowParameters(flowName, parameters);
-		setValidationResults(validation);
-		
-		if (!validation.isValid) {
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+	const validateHybridParameters = useCallback(
+		(parameters: Record<string, any>) => {
+			const validation = V7SharedService.ParameterValidation.validateFlowParameters(
 				flowName,
-				step: 'hybrid_authorization_request',
-				operation: 'parameter_validation',
-				timestamp: Date.now()
-			});
-			v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
-			return { success: false, error: errorResponse };
-		}
-		
-		v4ToastManager.showSuccess('Parameter validation successful');
-		return { success: true, validation };
-	}, [flowName]);
-
-	const validateIDToken = useCallback(async (idToken: string, expectedIssuer: string, expectedAudience: string, expectedNonce?: string) => {
-		try {
-			const validation = await V7SharedService.IDTokenValidation.validateIDToken(
-				idToken,
-				expectedIssuer,
-				expectedAudience,
-				expectedNonce,
-				undefined, // jwksUri - would be provided in real implementation
-				flowName
+				parameters
 			);
+			setValidationResults(validation);
 
 			if (!validation.isValid) {
-				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+					flowName,
+					step: 'hybrid_authorization_request',
+					operation: 'parameter_validation',
+					timestamp: Date.now(),
+				});
+				v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
+				return { success: false, error: errorResponse };
+			}
+
+			v4ToastManager.showSuccess('Parameter validation successful');
+			return { success: true, validation };
+		},
+		[flowName]
+	);
+
+	const validateIDToken = useCallback(
+		async (
+			idToken: string,
+			expectedIssuer: string,
+			expectedAudience: string,
+			expectedNonce?: string
+		) => {
+			try {
+				const validation = await V7SharedService.IDTokenValidation.validateIDToken(
+					idToken,
+					expectedIssuer,
+					expectedAudience,
+					expectedNonce,
+					undefined, // jwksUri - would be provided in real implementation
+					flowName
+				);
+
+				if (!validation.isValid) {
+					const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+						flowName,
+						step: 'id_token_validation',
+						operation: 'token_validation',
+						timestamp: Date.now(),
+					});
+					v4ToastManager.showError(`ID token validation failed: ${validation.errors.join(', ')}`);
+					return { success: false, error: errorResponse, validation };
+				}
+
+				v4ToastManager.showSuccess('ID token validation successful');
+				return { success: true, validation };
+			} catch (error) {
+				const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
 					flowName,
 					step: 'id_token_validation',
 					operation: 'token_validation',
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				});
-				v4ToastManager.showError(`ID token validation failed: ${validation.errors.join(', ')}`);
-				return { success: false, error: errorResponse, validation };
+				v4ToastManager.showError(`ID token validation error: ${errorResponse.error_description}`);
+				return { success: false, error: errorResponse };
 			}
-
-			v4ToastManager.showSuccess('ID token validation successful');
-			return { success: true, validation };
-		} catch (error) {
-			const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
-				flowName,
-				step: 'id_token_validation',
-				operation: 'token_validation',
-				timestamp: Date.now()
-			});
-			v4ToastManager.showError(`ID token validation error: ${errorResponse.error_description}`);
-			return { success: false, error: errorResponse };
-		}
-	}, [flowName]);
+		},
+		[flowName]
+	);
 
 	const getSecurityHeaders = useCallback(() => {
 		return V7SharedService.SecurityHeaders.getSecurityHeaders(flowName);
@@ -257,7 +358,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 	useEffect(() => {
 		const savedToken = localStorage.getItem('worker-token');
 		const savedEnv = localStorage.getItem('worker-token-env');
-		
+
 		if (savedToken && savedEnv === controller.credentials?.environmentId) {
 			setWorkerToken(savedToken);
 			console.log('[OIDCHybridFlowV7] Worker token loaded from localStorage');
@@ -267,17 +368,20 @@ const OIDCHybridFlowV7: React.FC = () => {
 	// Ensure OIDC Hybrid Flow V7 uses its own credential storage
 	useEffect(() => {
 		// Save current credentials to flow-specific storage
-		if (controller.credentials && (controller.credentials.environmentId || controller.credentials.clientId)) {
+		if (
+			controller.credentials &&
+			(controller.credentials.environmentId || controller.credentials.clientId)
+		) {
 			console.log('🔧 [OIDC Hybrid V7] Saving credentials to flow-specific storage:', {
 				flowKey: 'hybrid-flow-v7',
 				environmentId: controller.credentials.environmentId,
 				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
-				redirectUri: controller.credentials.redirectUri
+				redirectUri: controller.credentials.redirectUri,
 			});
-			
+
 			// Save to flow-specific storage with enhanced error handling
 			FlowCredentialService.saveFlowCredentials('hybrid-flow-v7', controller.credentials, {
-				showToast: false
+				showToast: false,
 			}).catch((error) => {
 				console.error('[OIDC Hybrid V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
@@ -291,7 +395,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		flowKey: 'hybrid-flow-v7',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
-		enabled: true
+		enabled: true,
 	});
 
 	useEffect(() => {
@@ -302,14 +406,17 @@ const OIDCHybridFlowV7: React.FC = () => {
 		controller.setCredentials(((prev) => ({
 			...prev,
 			...HybridFlowDefaults.getDefaultCredentials(controller.flowVariant),
-			responseType:
-				HybridFlowDefaults.getFlowConfig(controller.flowVariant).responseType,
+			responseType: HybridFlowDefaults.getFlowConfig(controller.flowVariant).responseType,
 			scope:
-				prev?.scope || HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope || 'openid profile email',
+				prev?.scope ||
+				HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope ||
+				'openid profile email',
 			scopes:
-				prev?.scopes || HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope || 'openid profile email',
+				prev?.scopes ||
+				HybridFlowDefaults.getDefaultCredentials(controller.flowVariant).scope ||
+				'openid profile email',
 		})) as CredentialsUpdater);
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	const handleVariantChange = useCallback(
@@ -354,7 +461,9 @@ const OIDCHybridFlowV7: React.FC = () => {
 
 			const url = controller.generateAuthorizationUrl();
 			if (!url) {
-				v4ToastManager.showError('Unable to generate authorization URL. Check required parameters.');
+				v4ToastManager.showError(
+					'Unable to generate authorization URL. Check required parameters.'
+				);
 				return;
 			}
 
@@ -385,7 +494,11 @@ const OIDCHybridFlowV7: React.FC = () => {
 		}
 
 		const fragment = hash.startsWith('#') ? hash.substring(1) : hash;
-		if (fragment.includes('id_token') || fragment.includes('access_token') || fragment.includes('code=')) {
+		if (
+			fragment.includes('id_token') ||
+			fragment.includes('access_token') ||
+			fragment.includes('code=')
+		) {
 			const fragmentTokens = HybridFlowTokenProcessor.processFragmentTokens(fragment);
 			controller.setTokens(fragmentTokens);
 			setCurrentStep(3);
@@ -396,7 +509,9 @@ const OIDCHybridFlowV7: React.FC = () => {
 	const handleExchangeCode = useCallback(async () => {
 		const code = controller.tokens?.code;
 		if (!code) {
-			v4ToastManager.showError('No authorization code available. Complete the authorization step first.');
+			v4ToastManager.showError(
+				'No authorization code available. Complete the authorization step first.'
+			);
 			return;
 		}
 
@@ -418,7 +533,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		setCurrentStep(0);
 		setCollapsedSections(HybridFlowCollapsibleSectionsManager.getDefaultState());
 		setSelectedVariant('code-id-token');
-		
+
 		// Clear OIDC Hybrid Flow V7-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('hybrid-flow-v7');
@@ -427,7 +542,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 			console.error('[OIDC Hybrid V7] Failed to clear flow state:', error);
 			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
 		}
-		
+
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
@@ -444,8 +559,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 					// Step 0: Must have valid credentials
 					return Boolean(
 						controller.credentials?.environmentId &&
-						controller.credentials?.clientId &&
-						controller.credentials?.redirectUri
+							controller.credentials?.clientId &&
+							controller.credentials?.redirectUri
 					);
 				case 1:
 					// Step 1: Must have selected flow variant
@@ -470,32 +585,37 @@ const OIDCHybridFlowV7: React.FC = () => {
 	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback((stepIndex: number): string => {
-		switch (stepIndex) {
-			case 0:
-				if (!controller.credentials?.environmentId) return 'Environment ID is required';
-				if (!controller.credentials?.clientId) return 'Client ID is required';
-				if (!controller.credentials?.redirectUri) return 'Redirect URI is required';
-				return '';
-			case 1:
-				if (!controller.flowVariant) return 'Flow variant must be selected';
-				return '';
-			case 2:
-				if (!controller.authorizationUrl) return 'Authorization URL must be generated';
-				return '';
-			case 3:
-				if (!controller.tokens?.code) return 'Authorization code is required. Complete the authorization step first.';
-				return '';
-			case 4:
-				if (!controller.tokens?.access_token) return 'Access token is required. Complete the token exchange step first.';
-				return '';
-			case 5:
-				if (!controller.tokens) return 'Tokens are required for completion';
-				return '';
-			default:
-				return '';
-		}
-	}, [controller]);
+	const getStepValidationMessage = useCallback(
+		(stepIndex: number): string => {
+			switch (stepIndex) {
+				case 0:
+					if (!controller.credentials?.environmentId) return 'Environment ID is required';
+					if (!controller.credentials?.clientId) return 'Client ID is required';
+					if (!controller.credentials?.redirectUri) return 'Redirect URI is required';
+					return '';
+				case 1:
+					if (!controller.flowVariant) return 'Flow variant must be selected';
+					return '';
+				case 2:
+					if (!controller.authorizationUrl) return 'Authorization URL must be generated';
+					return '';
+				case 3:
+					if (!controller.tokens?.code)
+						return 'Authorization code is required. Complete the authorization step first.';
+					return '';
+				case 4:
+					if (!controller.tokens?.access_token)
+						return 'Access token is required. Complete the token exchange step first.';
+					return '';
+				case 5:
+					if (!controller.tokens) return 'Tokens are required for completion';
+					return '';
+				default:
+					return '';
+			}
+		},
+		[controller]
+	);
 
 	const canNavigateNext = useCallback(() => {
 		return currentStep < STEP_METADATA.length - 1 && isStepValid(currentStep);
@@ -506,12 +626,12 @@ const OIDCHybridFlowV7: React.FC = () => {
 			v4ToastManager.showError('Complete the required actions before continuing to the next step.');
 			return;
 		}
-		setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1));
+		setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1));
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, [canNavigateNext]);
 
 	const handlePreviousStep = useCallback(() => {
-		setCurrentStep(prev => Math.max(prev - 1, 0));
+		setCurrentStep((prev) => Math.max(prev - 1, 0));
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
 
@@ -520,20 +640,15 @@ const OIDCHybridFlowV7: React.FC = () => {
 			return null;
 		}
 
-		return UnifiedTokenDisplayService.showTokens(
-			controller.tokens,
-			'oidc',
-			'oidc-hybrid-v7',
-			{
-				showCopyButtons: true,
-				showDecodeButtons: true,
-			}
-		);
+		return UnifiedTokenDisplayService.showTokens(controller.tokens, 'oidc', 'oidc-hybrid-v7', {
+			showCopyButtons: true,
+			showDecodeButtons: true,
+		});
 	}, [controller.tokens]);
 
 	const renderVariantSelector = () => (
 		<VariantSelector>
-			{HYBRID_VARIANTS.map(variant => (
+			{HYBRID_VARIANTS.map((variant) => (
 				<VariantButton
 					key={variant.id}
 					$selected={selectedVariant === variant.id}
@@ -567,15 +682,44 @@ const OIDCHybridFlowV7: React.FC = () => {
 								<FiInfo size={20} />
 								<div>
 									<InfoTitle>
-										<LearningTooltip variant="learning" title="OIDC Hybrid Flow" content="OIDC flow (OIDC Core 1.0) that combines Authorization Code and Implicit flows. Returns tokens in URL fragment AND allows code exchange for refresh tokens." placement="top">
+										<LearningTooltip
+											variant="learning"
+											title="OIDC Hybrid Flow"
+											content="OIDC flow (OIDC Core 1.0) that combines Authorization Code and Implicit flows. Returns tokens in URL fragment AND allows code exchange for refresh tokens."
+											placement="top"
+										>
 											Hybrid Flow
-										</LearningTooltip> Overview
+										</LearningTooltip>{' '}
+										Overview
 									</InfoTitle>
 									<InfoText>
-										<LearningTooltip variant="info" title="OIDC Hybrid Flow" content="OIDC flow returning tokens in URL fragment AND authorization code for exchange" placement="top">OIDC Hybrid Flow</LearningTooltip> combines elements of{' '}
-										<LearningTooltip variant="info" title="Authorization Code Flow" content="OAuth 2.0 flow using authorization code" placement="top">Authorization Code</LearningTooltip> and{' '}
-										<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow - tokens returned in URL fragment" placement="top">Implicit</LearningTooltip> flows.{' '}
-										{educationalContent.description}
+										<LearningTooltip
+											variant="info"
+											title="OIDC Hybrid Flow"
+											content="OIDC flow returning tokens in URL fragment AND authorization code for exchange"
+											placement="top"
+										>
+											OIDC Hybrid Flow
+										</LearningTooltip>{' '}
+										combines elements of{' '}
+										<LearningTooltip
+											variant="info"
+											title="Authorization Code Flow"
+											content="OAuth 2.0 flow using authorization code"
+											placement="top"
+										>
+											Authorization Code
+										</LearningTooltip>{' '}
+										and{' '}
+										<LearningTooltip
+											variant="warning"
+											title="Implicit Flow"
+											content="Deprecated OAuth flow - tokens returned in URL fragment"
+											placement="top"
+										>
+											Implicit
+										</LearningTooltip>{' '}
+										flows. {educationalContent.description}
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -627,16 +771,25 @@ const OIDCHybridFlowV7: React.FC = () => {
 					redirectUri={controller.credentials?.redirectUri ?? ''}
 					scopes={controller.credentials?.scopes ?? 'openid profile email'}
 					postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri ?? ''}
-					onEnvironmentIdChange={value => controller.setCredentials({ ...controller.credentials, environmentId: value })}
-					onClientIdChange={value => controller.setCredentials({ ...controller.credentials, clientId: value })}
-					onClientSecretChange={value => controller.setCredentials({ ...controller.credentials, clientSecret: value })}
-					onRedirectUriChange={value => controller.setCredentials({ ...controller.credentials, redirectUri: value })}
-					onScopesChange={value => controller.setCredentials({ ...controller.credentials, scope: value, scopes: value })}
+					onEnvironmentIdChange={(value) =>
+						controller.setCredentials({ ...controller.credentials, environmentId: value })
+					}
+					onClientIdChange={(value) =>
+						controller.setCredentials({ ...controller.credentials, clientId: value })
+					}
+					onClientSecretChange={(value) =>
+						controller.setCredentials({ ...controller.credentials, clientSecret: value })
+					}
+					onRedirectUriChange={(value) =>
+						controller.setCredentials({ ...controller.credentials, redirectUri: value })
+					}
+					onScopesChange={(value) =>
+						controller.setCredentials({ ...controller.credentials, scope: value, scopes: value })
+					}
 					onSave={controller.saveCredentials}
 					requireClientSecret
 					showAdvancedConfig
 					defaultCollapsed={false}
-
 					// Config Checker
 					showConfigChecker={true}
 					workerToken={workerToken}
@@ -667,16 +820,45 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<FiInfo size={20} />
 							<div>
 								<InfoTitle>
-									<LearningTooltip variant="learning" title="Hybrid Variant" content="OIDC Hybrid flow variant (response_type) that determines which tokens are returned immediately in URL fragment" placement="top">
+									<LearningTooltip
+										variant="learning"
+										title="Hybrid Variant"
+										content="OIDC Hybrid flow variant (response_type) that determines which tokens are returned immediately in URL fragment"
+										placement="top"
+									>
 										Hybrid Variant
-									</LearningTooltip> Selection
+									</LearningTooltip>{' '}
+									Selection
 								</InfoTitle>
 								<InfoText>
 									Choose the{' '}
-									<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying which tokens to return. Hybrid uses combinations like 'code id_token', 'code token', 'code id_token token'." placement="top">hybrid response type</LearningTooltip>
-									{' '}that best fits your application's{' '}
-									<LearningTooltip variant="info" title="Authentication" content="Verifying user identity" placement="top">authentication</LearningTooltip> and{' '}
-									<LearningTooltip variant="info" title="Authorization" content="Granting access to resources" placement="top">authorization</LearningTooltip> needs.
+									<LearningTooltip
+										variant="learning"
+										title="response_type"
+										content="OAuth parameter specifying which tokens to return. Hybrid uses combinations like 'code id_token', 'code token', 'code id_token token'."
+										placement="top"
+									>
+										hybrid response type
+									</LearningTooltip>{' '}
+									that best fits your application's{' '}
+									<LearningTooltip
+										variant="info"
+										title="Authentication"
+										content="Verifying user identity"
+										placement="top"
+									>
+										authentication
+									</LearningTooltip>{' '}
+									and{' '}
+									<LearningTooltip
+										variant="info"
+										title="Authorization"
+										content="Granting access to resources"
+										placement="top"
+									>
+										authorization
+									</LearningTooltip>{' '}
+									needs.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -686,7 +868,12 @@ const OIDCHybridFlowV7: React.FC = () => {
 						<ParameterGrid>
 							<div>
 								<ParameterLabel>
-									<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying requested tokens. Hybrid uses: 'code id_token', 'code token', or 'code id_token token'." placement="top">
+									<LearningTooltip
+										variant="learning"
+										title="response_type"
+										content="OAuth parameter specifying requested tokens. Hybrid uses: 'code id_token', 'code token', or 'code id_token token'."
+										placement="top"
+									>
 										Response Type
 									</LearningTooltip>
 								</ParameterLabel>
@@ -696,7 +883,12 @@ const OIDCHybridFlowV7: React.FC = () => {
 							</div>
 							<div>
 								<ParameterLabel>
-									<LearningTooltip variant="security" title="Nonce" content="Number used once - random value for replay protection. Required when ID token is returned in fragment." placement="top">
+									<LearningTooltip
+										variant="security"
+										title="Nonce"
+										content="Number used once - random value for replay protection. Required when ID token is returned in fragment."
+										placement="top"
+									>
 										Requires Nonce
 									</LearningTooltip>
 								</ParameterLabel>
@@ -787,13 +979,32 @@ const OIDCHybridFlowV7: React.FC = () => {
 
 							<HelperText>
 								Generate{' '}
-								<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Proof Key for Code Exchange, security extension for OAuth flows" placement="top">PKCE</LearningTooltip>
-								{' '}parameters, then build and launch the{' '}
-								<LearningTooltip variant="learning" title="Authorization Request" content="OAuth request redirecting user to authorize app" placement="top">authorization request</LearningTooltip>.
+								<LearningTooltip
+									variant="learning"
+									title="PKCE"
+									content="RFC 7636 - Proof Key for Code Exchange, security extension for OAuth flows"
+									placement="top"
+								>
+									PKCE
+								</LearningTooltip>{' '}
+								parameters, then build and launch the{' '}
+								<LearningTooltip
+									variant="learning"
+									title="Authorization Request"
+									content="OAuth request redirecting user to authorize app"
+									placement="top"
+								>
+									authorization request
+								</LearningTooltip>
+								.
 							</HelperText>
 
 							<ActionRow>
-								<Button variant="secondary" onClick={controller.generatePKCE} loading={controller.isLoading}>
+								<Button
+									variant="secondary"
+									onClick={controller.generatePKCE}
+									loading={controller.isLoading}
+								>
 									<FiKey /> Generate PKCE
 								</Button>
 								<HighlightedActionButton
@@ -863,9 +1074,11 @@ const OIDCHybridFlowV7: React.FC = () => {
 								<div>
 									<InfoTitle>Implementation Guidelines</InfoTitle>
 									<InfoList>
-										{HybridFlowEducationalContent.bestPractices.implementation.map((guideline, index) => (
-											<li key={index}>{guideline}</li>
-										))}
+										{HybridFlowEducationalContent.bestPractices.implementation.map(
+											(guideline, index) => (
+												<li key={index}>{guideline}</li>
+											)
+										)}
 									</InfoList>
 								</div>
 							</InfoBox>
@@ -894,23 +1107,89 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<FiCheckCircle size={20} />
 							<div>
 								<InfoTitle>
-									<LearningTooltip variant="learning" title="Hybrid Authorization Response" content="OIDC Hybrid response with tokens in URL fragment (#) and authorization code for exchange" placement="top">
+									<LearningTooltip
+										variant="learning"
+										title="Hybrid Authorization Response"
+										content="OIDC Hybrid response with tokens in URL fragment (#) and authorization code for exchange"
+										placement="top"
+									>
 										Hybrid Authorization Response
 									</LearningTooltip>
 								</InfoTitle>
 								<InfoText>
 									The{' '}
-									<LearningTooltip variant="learning" title="Hybrid Flow" content="OIDC flow combining Authorization Code and Implicit patterns" placement="top">hybrid flow</LearningTooltip> delivers immediate{' '}
-									<LearningTooltip variant="learning" title="Tokens" content="ID token and/or access token returned in URL fragment" placement="top">tokens</LearningTooltip> ({' '}
-									<LearningTooltip variant="learning" title="ID Token" content="JWT with user identity" placement="top">ID token</LearningTooltip>,{' '}
-									<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>
-									{' '}) in the{' '}
-									<LearningTooltip variant="info" title="URL Fragment" content="Part of URL after # symbol - not sent to server, processed client-side. Used in OIDC Hybrid and Implicit flows." placement="top">URL fragment</LearningTooltip>
-									{' '}alongside the{' '}
-									<LearningTooltip variant="learning" title="Authorization Code" content="Code exchanged for full token set including refresh token" placement="top">authorization code</LearningTooltip>, providing both immediate{' '}
-									<LearningTooltip variant="info" title="Authentication" content="User identity verification" placement="top">authentication</LearningTooltip> and
-									{' '}secure{' '}
-									<LearningTooltip variant="learning" title="Token Exchange" content="Exchanging authorization code for tokens server-side" placement="top">token exchange</LearningTooltip> capabilities.
+									<LearningTooltip
+										variant="learning"
+										title="Hybrid Flow"
+										content="OIDC flow combining Authorization Code and Implicit patterns"
+										placement="top"
+									>
+										hybrid flow
+									</LearningTooltip>{' '}
+									delivers immediate{' '}
+									<LearningTooltip
+										variant="learning"
+										title="Tokens"
+										content="ID token and/or access token returned in URL fragment"
+										placement="top"
+									>
+										tokens
+									</LearningTooltip>{' '}
+									({' '}
+									<LearningTooltip
+										variant="learning"
+										title="ID Token"
+										content="JWT with user identity"
+										placement="top"
+									>
+										ID token
+									</LearningTooltip>
+									,{' '}
+									<LearningTooltip
+										variant="learning"
+										title="Access Token"
+										content="Bearer token for API access"
+										placement="top"
+									>
+										access token
+									</LearningTooltip>{' '}
+									) in the{' '}
+									<LearningTooltip
+										variant="info"
+										title="URL Fragment"
+										content="Part of URL after # symbol - not sent to server, processed client-side. Used in OIDC Hybrid and Implicit flows."
+										placement="top"
+									>
+										URL fragment
+									</LearningTooltip>{' '}
+									alongside the{' '}
+									<LearningTooltip
+										variant="learning"
+										title="Authorization Code"
+										content="Code exchanged for full token set including refresh token"
+										placement="top"
+									>
+										authorization code
+									</LearningTooltip>
+									, providing both immediate{' '}
+									<LearningTooltip
+										variant="info"
+										title="Authentication"
+										content="User identity verification"
+										placement="top"
+									>
+										authentication
+									</LearningTooltip>{' '}
+									and secure{' '}
+									<LearningTooltip
+										variant="learning"
+										title="Token Exchange"
+										content="Exchanging authorization code for tokens server-side"
+										placement="top"
+									>
+										token exchange
+									</LearningTooltip>{' '}
+									capabilities.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -920,8 +1199,9 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>Response Processing</InfoTitle>
 								<InfoText>
-									After authorization, PingOne returns tokens in the URL fragment. The hybrid flow 
-									processes both immediate tokens and the authorization code for secure token exchange.
+									After authorization, PingOne returns tokens in the URL fragment. The hybrid flow
+									processes both immediate tokens and the authorization code for secure token
+									exchange.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -942,7 +1222,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 				{!collapsedSections.responseDetails && (
 					<CollapsibleContent>
 						<HelperText>
-							Process the hybrid response tokens and authorization code returned from PingOne authorization.
+							Process the hybrid response tokens and authorization code returned from PingOne
+							authorization.
 						</HelperText>
 
 						{controller.tokens ? (
@@ -952,7 +1233,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 									<div>
 										<InfoTitle>Hybrid Response Received</InfoTitle>
 										<InfoText>
-											Successfully captured immediate tokens and authorization code from the hybrid response.
+											Successfully captured immediate tokens and authorization code from the hybrid
+											response.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -989,7 +1271,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 									<div>
 										<InfoTitle>No Response Data</InfoTitle>
 										<InfoText>
-											Complete the authorization step and return to this page to process the hybrid response.
+											Complete the authorization step and return to this page to process the hybrid
+											response.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1026,7 +1309,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>Why Use Hybrid Flow?</InfoTitle>
 								<InfoText>
-									The hybrid flow combines the security of authorization code flow with the 
+									The hybrid flow combines the security of authorization code flow with the
 									immediate token delivery of implicit flow, providing:
 								</InfoText>
 								<InfoList>
@@ -1044,7 +1327,8 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>Security Considerations</InfoTitle>
 								<InfoText>
-									Hybrid flow requires careful handling of both immediate tokens and authorization codes:
+									Hybrid flow requires careful handling of both immediate tokens and authorization
+									codes:
 								</InfoText>
 								<InfoList>
 									<li>Validate ID token signature and claims</li>
@@ -1171,7 +1455,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 					isFirstStep={currentStep === 0}
 					nextButtonText="Next"
 					disabledMessage={getStepValidationMessage(currentStep)}
-					stepRequirements={STEP_METADATA.map(s => s.description ?? '')}
+					stepRequirements={STEP_METADATA.map((s) => s.description ?? '')}
 				/>
 			</ContentWrapper>
 		</Container>

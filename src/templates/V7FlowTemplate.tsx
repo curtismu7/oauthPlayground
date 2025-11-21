@@ -1,21 +1,21 @@
 // src/templates/V7FlowTemplate.tsx
 /**
  * V7 Flow Template - Standardized V7 Flow with Compliance Architecture
- * 
+ *
  * This template provides a standardized structure for all V7 flows with
  * built-in compliance features, error handling, and validation.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import { FlowUIService } from '../services/flowUIService';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import type { V7FlowName } from '../services/v7SharedService';
 
 // Import V7 Shared Service
 import { V7SharedService } from '../services/v7SharedService';
-import type { V7FlowName } from '../services/v7SharedService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Get shared UI components
 const {
@@ -89,15 +89,15 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 		enableIDTokenValidation: true,
 		enableParameterValidation: true,
 		enableErrorHandling: true,
-		enableSecurityHeaders: true
-	}
+		enableSecurityHeaders: true,
+	},
 }) => {
 	// Initialize V7 compliance features
 	const v7FlowConfig = V7SharedService.initializeFlow(flowName, complianceFeatures);
 
 	// State management
 	const [currentStep, setCurrentStep] = useState(0);
-	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+	const [_collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 	const [complianceStatus, setComplianceStatus] = useState(v7FlowConfig.compliance);
 	const [validationResults, setValidationResults] = useState<any>(null);
 	const [errorStats, setErrorStats] = useState(V7SharedService.ErrorHandling.getErrorStatistics());
@@ -106,73 +106,90 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 	usePageScroll({ pageName: flowTitle, force: true });
 
 	// V7 compliance functions
-	const validateParameters = useCallback((parameters: Record<string, any>) => {
-		const validation = V7SharedService.ParameterValidation.validateFlowParameters(flowName, parameters);
-		setValidationResults(validation);
-		
-		if (!validation.isValid) {
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+	const _validateParameters = useCallback(
+		(parameters: Record<string, any>) => {
+			const validation = V7SharedService.ParameterValidation.validateFlowParameters(
 				flowName,
-				step: 'parameter_validation',
-				operation: 'validation',
-				timestamp: Date.now()
-			});
-			v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
-			return { success: false, error: errorResponse };
-		}
-		
-		v4ToastManager.showSuccess('Parameter validation successful');
-		return { success: true, validation };
-	}, [flowName]);
-
-	const validateIDToken = useCallback(async (idToken: string, expectedIssuer: string, expectedAudience: string, expectedNonce?: string) => {
-		try {
-			const validation = await V7SharedService.IDTokenValidation.validateIDToken(
-				idToken,
-				expectedIssuer,
-				expectedAudience,
-				expectedNonce,
-				undefined, // jwksUri - would be provided in real implementation
-				flowName
+				parameters
 			);
+			setValidationResults(validation);
 
 			if (!validation.isValid) {
-				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+					flowName,
+					step: 'parameter_validation',
+					operation: 'validation',
+					timestamp: Date.now(),
+				});
+				v4ToastManager.showError(`Parameter validation failed: ${validation.errors.join(', ')}`);
+				return { success: false, error: errorResponse };
+			}
+
+			v4ToastManager.showSuccess('Parameter validation successful');
+			return { success: true, validation };
+		},
+		[flowName]
+	);
+
+	const _validateIDToken = useCallback(
+		async (
+			idToken: string,
+			expectedIssuer: string,
+			expectedAudience: string,
+			expectedNonce?: string
+		) => {
+			try {
+				const validation = await V7SharedService.IDTokenValidation.validateIDToken(
+					idToken,
+					expectedIssuer,
+					expectedAudience,
+					expectedNonce,
+					undefined, // jwksUri - would be provided in real implementation
+					flowName
+				);
+
+				if (!validation.isValid) {
+					const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+						flowName,
+						step: 'id_token_validation',
+						operation: 'token_validation',
+						timestamp: Date.now(),
+					});
+					v4ToastManager.showError(`ID token validation failed: ${validation.errors.join(', ')}`);
+					return { success: false, error: errorResponse, validation };
+				}
+
+				v4ToastManager.showSuccess('ID token validation successful');
+				return { success: true, validation };
+			} catch (error) {
+				const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
 					flowName,
 					step: 'id_token_validation',
 					operation: 'token_validation',
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				});
-				v4ToastManager.showError(`ID token validation failed: ${validation.errors.join(', ')}`);
-				return { success: false, error: errorResponse, validation };
+				v4ToastManager.showError(`ID token validation error: ${errorResponse.error_description}`);
+				return { success: false, error: errorResponse };
 			}
+		},
+		[flowName]
+	);
 
-			v4ToastManager.showSuccess('ID token validation successful');
-			return { success: true, validation };
-		} catch (error) {
-			const errorResponse = V7SharedService.ErrorHandling.handleOIDCError(error, {
+	const _handleError = useCallback(
+		(error: any, context?: any) => {
+			const errorResponse = V7SharedService.ErrorHandling.handleOAuthError(error, {
 				flowName,
-				step: 'id_token_validation',
-				operation: 'token_validation',
-				timestamp: Date.now()
+				step: context?.step || 'unknown',
+				operation: context?.operation || 'unknown',
+				timestamp: Date.now(),
 			});
-			v4ToastManager.showError(`ID token validation error: ${errorResponse.error_description}`);
-			return { success: false, error: errorResponse };
-		}
-	}, [flowName]);
+			v4ToastManager.showError(`Error: ${errorResponse.error_description}`);
+			return errorResponse;
+		},
+		[flowName]
+	);
 
-	const handleError = useCallback((error: any, context?: any) => {
-		const errorResponse = V7SharedService.ErrorHandling.handleOAuthError(error, {
-			flowName,
-			step: context?.step || 'unknown',
-			operation: context?.operation || 'unknown',
-			timestamp: Date.now()
-		});
-		v4ToastManager.showError(`Error: ${errorResponse.error_description}`);
-		return errorResponse;
-	}, [flowName]);
-
-	const getSecurityHeaders = useCallback(() => {
+	const _getSecurityHeaders = useCallback(() => {
 		return V7SharedService.SecurityHeaders.getSecurityHeaders(flowName);
 	}, [flowName]);
 
@@ -207,9 +224,9 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 
 	// Section toggle handler
 	const toggleSection = useCallback((sectionId: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[sectionId]: !prev[sectionId]
+			[sectionId]: !prev[sectionId],
 		}));
 	}, []);
 
@@ -229,9 +246,7 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 	const renderComplianceStatus = () => (
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('compliance')}>
-				<CollapsibleTitle>
-					🔧 V7 Compliance Status
-				</CollapsibleTitle>
+				<CollapsibleTitle>🔧 V7 Compliance Status</CollapsibleTitle>
 				<CollapsibleContent>
 					<InfoBox $variant={complianceStatus.isCompliant ? 'success' : 'warning'}>
 						<InfoTitle>Compliance Score: {complianceStatus.complianceScore}%</InfoTitle>
@@ -267,9 +282,7 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 		return (
 			<CollapsibleSection>
 				<CollapsibleHeaderButton onClick={() => toggleSection('validation')}>
-					<CollapsibleTitle>
-						✅ Parameter Validation Results
-					</CollapsibleTitle>
+					<CollapsibleTitle>✅ Parameter Validation Results</CollapsibleTitle>
 					<CollapsibleContent>
 						<InfoBox $variant={validationResults.isValid ? 'success' : 'error'}>
 							<InfoTitle>
@@ -308,16 +321,16 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 		return (
 			<CollapsibleSection>
 				<CollapsibleHeaderButton onClick={() => toggleSection('errors')}>
-					<CollapsibleTitle>
-						📊 Error Statistics
-					</CollapsibleTitle>
+					<CollapsibleTitle>📊 Error Statistics</CollapsibleTitle>
 					<CollapsibleContent>
 						<InfoBox $variant="info">
 							<InfoTitle>Total Errors: {errorStats.totalErrors}</InfoTitle>
 							<InfoText>Errors by Code:</InfoText>
 							<InfoList>
 								{Object.entries(errorStats.errorsByCode).map(([code, count]) => (
-									<li key={code}>{code}: {count}</li>
+									<li key={code}>
+										{code}: {count}
+									</li>
 								))}
 							</InfoList>
 						</InfoBox>
@@ -365,7 +378,7 @@ export const V7FlowTemplate: React.FC<V7FlowTemplateProps> = ({
 					canNavigateNext={canNavigateNext?.(currentStep) ?? true}
 					isFirstStep={currentStep === 0}
 					nextButtonText="Next"
-					stepRequirements={stepMetadata.map(s => s.description ?? '')}
+					stepRequirements={stepMetadata.map((s) => s.description ?? '')}
 				/>
 			</ContentWrapper>
 		</Container>

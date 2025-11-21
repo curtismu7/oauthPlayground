@@ -20,34 +20,34 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import { DeviceTypeSelector } from '../../components/DeviceTypeSelector';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
-import { useDeviceAuthorizationFlow, type DeviceAuthCredentials } from '../../hooks/useDeviceAuthorizationFlow';
-import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import { UISettingsService } from '../../services/uiSettingsService';
+import { type DeviceAuthCredentials, useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { DeviceTypeSelector } from '../../components/DeviceTypeSelector';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { deviceTypeService } from '../../services/deviceTypeService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -75,20 +75,20 @@ const FlowHeader = styled.div`
 	margin: 0 auto;
 `;
 
-const FlowTitle = styled.h2`
+const _FlowTitle = styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	margin: 0;
 	color: #ffffff;
 `;
 
-const FlowSubtitle = styled.p`
+const _FlowSubtitle = styled.p`
 	font-size: 1rem;
 	color: rgba(255, 255, 255, 0.9);
 	margin: 0.5rem 0 0 0;
 `;
 
-const StepBadge = styled.span`
+const _StepBadge = styled.span`
 	background: rgba(22, 163, 74, 0.2);
 	border: 1px solid #4ade80;
 	color: #bbf7d0;
@@ -896,7 +896,7 @@ const QRSection = styled.div`
 
 const DeviceAuthorizationFlowV7: React.FC = () => {
 	const deviceFlow = useDeviceAuthorizationFlow();
-	const [flowMode, setFlowMode] = useState<'oauth' | 'oidc'>('oauth');
+	const [_flowMode, _setFlowMode] = useState<'oauth' | 'oidc'>('oauth');
 
 	const ensureCredentials = useCallback(
 		(updates: Partial<DeviceAuthCredentials>) => {
@@ -2164,7 +2164,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		</>
 	);
 
-	const renderDeviceSuccessContent = () => {
+	const _renderDeviceSuccessContent = () => {
 		switch (selectedDevice) {
 			case 'gaming-console':
 				return (
@@ -2268,7 +2268,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 	};
 
-	const renderDevicePendingContent = () => {
+	const _renderDevicePendingContent = () => {
 		const isPolling = deviceFlow.pollingStatus.isPolling;
 		switch (selectedDevice) {
 			case 'gaming-console':
@@ -2773,8 +2773,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					)}
 				</CollapsibleSection>
 			</FlowContent>
-
-			{/* Polling Prompt Modal */}
 			<ModalOverlay $isOpen={showPollingModal}>
 				<ModalContent>
 					<ModalHeader>

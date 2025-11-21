@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useRef, useState } from 'react';
 import { FiAlertTriangle, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface ModalActionDescriptor {
 	label: string;
@@ -40,9 +40,9 @@ const Dialog = styled.div<{ $isDragging?: boolean; $position?: { x: number; y: n
 	box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
 	width: min(520px, 90vw);
 	padding: 0;
-	position: ${props => props.$position ? 'fixed' : 'relative'};
-	top: ${props => props.$position ? `${props.$position.y}px` : 'auto'};
-	left: ${props => props.$position ? `${props.$position.x}px` : 'auto'};
+	position: ${(props) => (props.$position ? 'fixed' : 'relative')};
+	top: ${(props) => (props.$position ? `${props.$position.y}px` : 'auto')};
+	left: ${(props) => (props.$position ? `${props.$position.x}px` : 'auto')};
 	text-align: left;
 	cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'default')};
 	user-select: ${({ $isDragging }) => ($isDragging ? 'none' : 'auto')};
@@ -152,7 +152,7 @@ const ModalHeader = styled.div<{ $isDragging?: boolean }>`
 	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 	color: white;
 	border-radius: 1rem 1rem 0 0;
-	cursor: ${props => props.$isDragging ? 'grabbing' : 'grab'};
+	cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'grab')};
 	user-select: none;
 	margin: 0;
 	
@@ -175,7 +175,7 @@ const HeaderTitleText = styled.h2`
 	margin: 0;
 `;
 
-const DragHandle = styled.div`
+const _DragHandle = styled.div`
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -197,7 +197,7 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 	title,
 	description,
 	actions,
- 	children,
+	children,
 	style,
 	draggable = true,
 	showCloseButton = true,
@@ -207,44 +207,50 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 	const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
 	const dialogRef = useRef<HTMLDivElement>(null);
 
-	const handleDragStart = useCallback((e: React.MouseEvent) => {
-		if (!draggable || !dialogRef.current) return;
-		// Don't start drag if clicking on buttons
-		if ((e.target as HTMLElement).closest('button')) return;
-		
-		e.preventDefault();
-		setIsDragging(true);
-		
-		const rect = dialogRef.current.getBoundingClientRect();
-		setDragOffset({
-			x: e.clientX - rect.left,
-			y: e.clientY - rect.top,
-		});
-		
-		// Initialize position if not set
-		if (!position) {
-			const centerX = (window.innerWidth - rect.width) / 2;
-			const centerY = (window.innerHeight - rect.height) / 2;
-			setPosition({ x: centerX, y: centerY });
-		}
-	}, [draggable, position]);
+	const handleDragStart = useCallback(
+		(e: React.MouseEvent) => {
+			if (!draggable || !dialogRef.current) return;
+			// Don't start drag if clicking on buttons
+			if ((e.target as HTMLElement).closest('button')) return;
 
-	const handleDragMove = useCallback((e: MouseEvent) => {
-		if (!isDragging || !draggable || !position) return;
-		
-		e.preventDefault();
-		const newX = e.clientX - dragOffset.x;
-		const newY = e.clientY - dragOffset.y;
-		
-		// Keep modal within viewport bounds
-		const maxX = window.innerWidth - (dialogRef.current?.offsetWidth || 520);
-		const maxY = window.innerHeight - (dialogRef.current?.offsetHeight || 400);
-		
-		setPosition({
-			x: Math.max(0, Math.min(newX, maxX)),
-			y: Math.max(0, Math.min(newY, maxY))
-		});
-	}, [isDragging, draggable, dragOffset, position]);
+			e.preventDefault();
+			setIsDragging(true);
+
+			const rect = dialogRef.current.getBoundingClientRect();
+			setDragOffset({
+				x: e.clientX - rect.left,
+				y: e.clientY - rect.top,
+			});
+
+			// Initialize position if not set
+			if (!position) {
+				const centerX = (window.innerWidth - rect.width) / 2;
+				const centerY = (window.innerHeight - rect.height) / 2;
+				setPosition({ x: centerX, y: centerY });
+			}
+		},
+		[draggable, position]
+	);
+
+	const handleDragMove = useCallback(
+		(e: MouseEvent) => {
+			if (!isDragging || !draggable || !position) return;
+
+			e.preventDefault();
+			const newX = e.clientX - dragOffset.x;
+			const newY = e.clientY - dragOffset.y;
+
+			// Keep modal within viewport bounds
+			const maxX = window.innerWidth - (dialogRef.current?.offsetWidth || 520);
+			const maxY = window.innerHeight - (dialogRef.current?.offsetHeight || 400);
+
+			setPosition({
+				x: Math.max(0, Math.min(newX, maxX)),
+				y: Math.max(0, Math.min(newY, maxY)),
+			});
+		},
+		[isDragging, draggable, dragOffset, position]
+	);
 
 	const handleDragEnd = useCallback(() => {
 		setIsDragging(false);
@@ -279,58 +285,64 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 		return null;
 	}
 
-	const modalActions = actions && actions.length > 0
-		? actions
-		: [
-			{
-				label: 'Close',
-				onClick: onClose,
-				variant: 'primary' as const,
-			},
-		];
+	const modalActions =
+		actions && actions.length > 0
+			? actions
+			: [
+					{
+						label: 'Close',
+						onClick: onClose,
+						variant: 'primary' as const,
+					},
+				];
 
 	return (
-		<Overlay role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
-			<Dialog 
+		<Overlay
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-title"
+			aria-describedby="modal-description"
+		>
+			<Dialog
 				ref={dialogRef}
 				$isDragging={isDragging}
 				$position={position || undefined}
 				style={{
 					...style,
-					...(draggable && position && {
-						position: 'fixed',
-						left: `${position.x}px`,
-						top: `${position.y}px`,
-					}),
+					...(draggable &&
+						position && {
+							position: 'fixed',
+							left: `${position.x}px`,
+							top: `${position.y}px`,
+						}),
 				}}
 			>
 				{draggable && (
-					<ModalHeader 
-						$isDragging={isDragging}
-						onMouseDown={handleDragStart}
-					>
+					<ModalHeader $isDragging={isDragging} onMouseDown={handleDragStart}>
 						<HeaderTitle>
-							<WarningIcon style={{ 
-								width: '32px', 
-								height: '32px', 
-								margin: 0,
-								background: 'rgba(255, 255, 255, 0.2)',
-								color: 'white'
-							}}>
+							<WarningIcon
+								style={{
+									width: '32px',
+									height: '32px',
+									margin: 0,
+									background: 'rgba(255, 255, 255, 0.2)',
+									color: 'white',
+								}}
+							>
 								<FiAlertTriangle size={20} />
 							</WarningIcon>
 							<HeaderTitleText id="modal-title">{title}</HeaderTitleText>
 						</HeaderTitle>
 						{showCloseButton && (
-							<CloseButton 
-								onClick={onClose} 
+							<CloseButton
+								onClick={onClose}
 								title="Close modal"
-								style={{ 
+								style={{
 									position: 'relative',
 									top: 'auto',
 									right: 'auto',
 									background: 'rgba(255, 255, 255, 0.2)',
-									color: 'white'
+									color: 'white',
 								}}
 							>
 								<FiX size={18} />
@@ -338,13 +350,13 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 						)}
 					</ModalHeader>
 				)}
-				
+
 				{!draggable && showCloseButton && (
 					<CloseButton onClick={onClose} title="Close modal">
 						<FiX size={16} />
 					</CloseButton>
 				)}
-				
+
 				<ModalBody>
 					{!draggable && (
 						<>
@@ -357,14 +369,10 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 					<Description id="modal-description">{description}</Description>
 					{children}
 				</ModalBody>
-				
+
 				<Actions style={{ padding: '0 2.25rem 2.25rem 2.25rem', margin: 0 }}>
 					{modalActions.map(({ label, onClick, variant = 'secondary' }, index) => (
-						<ActionButton
-							key={`${label}-${index}`}
-							onClick={onClick}
-							$variant={variant}
-						>
+						<ActionButton key={`${label}-${index}`} onClick={onClick} $variant={variant}>
 							{label}
 						</ActionButton>
 					))}
