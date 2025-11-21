@@ -1,8 +1,8 @@
 // src/components/DisplayParameterSelector.tsx
 // OIDC Display Parameter Selector - Controls UI presentation mode
 import React from 'react';
+import { FiInfo, FiLayout, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiMonitor, FiLayout, FiSmartphone, FiInfo } from 'react-icons/fi';
 
 export type DisplayMode = 'page' | 'popup' | 'touch' | 'wap';
 
@@ -37,15 +37,15 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem;
-	border: 2px solid ${props => props.$selected ? '#10b981' : '#e5e7eb'};
+	border: 2px solid ${(props) => (props.$selected ? '#10b981' : '#e5e7eb')};
 	border-radius: 0.5rem;
-	background: ${props => props.$selected ? '#f0fdf4' : '#ffffff'};
+	background: ${(props) => (props.$selected ? '#f0fdf4' : '#ffffff')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		border-color: ${props => props.$selected ? '#10b981' : '#d1d5db'};
-		background: ${props => props.$selected ? '#f0fdf4' : '#f9fafb'};
+		border-color: ${(props) => (props.$selected ? '#10b981' : '#d1d5db')};
+		background: ${(props) => (props.$selected ? '#f0fdf4' : '#f9fafb')};
 	}
 
 	&:disabled {
@@ -56,13 +56,13 @@ const DisplayOption = styled.button<{ $selected: boolean }>`
 
 const DisplayIcon = styled.div<{ $selected: boolean }>`
 	font-size: 2rem;
-	color: ${props => props.$selected ? '#10b981' : '#6b7280'};
+	color: ${(props) => (props.$selected ? '#10b981' : '#6b7280')};
 `;
 
 const DisplayTitle = styled.div<{ $selected: boolean }>`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${props => props.$selected ? '#065f46' : '#374151'};
+	color: ${(props) => (props.$selected ? '#065f46' : '#374151')};
 `;
 
 const DisplayDescription = styled.div`
@@ -100,42 +100,42 @@ const displayModes: Array<{
 		value: 'page',
 		icon: FiMonitor,
 		title: 'Page (Default)',
-		description: 'Full page user agent - Standard desktop/mobile browser'
+		description: 'Full page user agent - Standard desktop/mobile browser',
 	},
 	{
 		value: 'popup',
 		icon: FiLayout,
 		title: 'Popup',
-		description: 'Popup window - Smaller browser window for authentication'
+		description: 'Popup window - Smaller browser window for authentication',
 	},
 	{
 		value: 'touch',
 		icon: FiSmartphone,
 		title: 'Touch',
-		description: 'Touch-based device - Optimized for touchscreens and tablets'
+		description: 'Touch-based device - Optimized for touchscreens and tablets',
 	},
 	{
 		value: 'wap',
 		icon: FiSmartphone,
 		title: 'WAP',
-		description: 'WAP-based mobile - Legacy mobile devices (rarely used today)'
-	}
+		description: 'WAP-based mobile - Legacy mobile devices (rarely used today)',
+	},
 ];
 
 export const DisplayParameterSelector: React.FC<DisplayParameterSelectorProps> = ({
 	value,
 	onChange,
-	disabled = false
+	disabled = false,
 }) => {
 	return (
 		<Container>
 			<Label>Display Mode (OIDC UI Adaptation)</Label>
-			
+
 			<DisplayGrid>
 				{displayModes.map((mode) => {
 					const Icon = mode.icon;
 					const isSelected = value === mode.value;
-					
+
 					return (
 						<DisplayOption
 							key={mode.value}
@@ -147,12 +147,8 @@ export const DisplayParameterSelector: React.FC<DisplayParameterSelectorProps> =
 							<DisplayIcon $selected={isSelected}>
 								<Icon />
 							</DisplayIcon>
-							<DisplayTitle $selected={isSelected}>
-								{mode.title}
-							</DisplayTitle>
-							<DisplayDescription>
-								{mode.description}
-							</DisplayDescription>
+							<DisplayTitle $selected={isSelected}>{mode.title}</DisplayTitle>
+							<DisplayDescription>{mode.description}</DisplayDescription>
 						</DisplayOption>
 					);
 				})}
@@ -163,11 +159,13 @@ export const DisplayParameterSelector: React.FC<DisplayParameterSelectorProps> =
 					<FiInfo />
 				</InfoIcon>
 				<div>
-					<strong>About Display Parameter:</strong> The <code>display</code> parameter tells the Authorization 
-					Server how to present the authentication UI. Different display modes optimize the experience for 
-					different device types and contexts. Most applications use <code>page</code> (default) or <code>popup</code>.
+					<strong>About Display Parameter:</strong> The <code>display</code> parameter tells the
+					Authorization Server how to present the authentication UI. Different display modes
+					optimize the experience for different device types and contexts. Most applications use{' '}
+					<code>page</code> (default) or <code>popup</code>.
 					<div style={{ marginTop: '0.5rem' }}>
-						<strong>Note:</strong> Not all providers support all display modes. PingOne primarily supports 
+						<strong>Note:</strong> Not all providers support all display modes. PingOne primarily
+						supports
 						<code>page</code> and <code>popup</code> modes.
 					</div>
 				</div>
@@ -177,4 +175,3 @@ export const DisplayParameterSelector: React.FC<DisplayParameterSelectorProps> =
 };
 
 export default DisplayParameterSelector;
-

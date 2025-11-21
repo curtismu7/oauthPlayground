@@ -1674,7 +1674,8 @@ export const FLOW_STEPS = {
 		step1: {
 			id: 'step1',
 			name: 'Get Worker Token',
-			description: 'Request worker token using client credentials for machine-to-machine authentication',
+			description:
+				'Request worker token using client credentials for machine-to-machine authentication',
 		},
 		step2: {
 			id: 'step2',
@@ -1775,7 +1776,9 @@ export class CodeExamplesService {
 	getExamplesForStep(flowType: string, stepId: string): FlowStepCodeExamples | null {
 		const flowSteps = FLOW_STEPS[flowType as keyof typeof FLOW_STEPS];
 		if (!flowSteps || !flowSteps[stepId as keyof typeof flowSteps]) {
-			console.warn(`[CodeExamplesService] No step found for flowType: ${flowType}, stepId: ${stepId}`);
+			console.warn(
+				`[CodeExamplesService] No step found for flowType: ${flowType}, stepId: ${stepId}`
+			);
 			return null;
 		}
 
@@ -2010,7 +2013,9 @@ curl -X POST \\
 			examples = [...examples, ...getPARExamples(this.config)];
 		}
 
-		console.log(`[CodeExamplesService] Found ${examples.length} examples for ${flowType}/${stepId}`);
+		console.log(
+			`[CodeExamplesService] Found ${examples.length} examples for ${flowType}/${stepId}`
+		);
 		return {
 			stepId: step.id,
 			stepName: step.name,

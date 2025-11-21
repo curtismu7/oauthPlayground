@@ -1,11 +1,13 @@
 // src/pages/flows/KrogerGroceryStoreMFA_New.tsx
 // 🛒 CLEAN KROGER MFA FLOW - Simplified working version
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
-import { MFAProvider } from '../../contexts/MFAContext';
-import KrogerGroceryStoreMFA from './KrogerGroceryStoreMFA';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import RogerGroceryLogo from '../../components/RogerGroceryLogo';
+import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { MFAProvider } from '../../contexts/MFAContext';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { buildAuthorizationRequest } from '../../services/authorizationRequestService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
 	FiArrowLeft,
@@ -20,78 +22,76 @@ import {
 	FiShoppingCart,
 	FiUser,
 } from '../../services/commonImportsService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import V7StepperService, { StepMetadata } from '../../services/v7StepperService';
-import { v4ToastManager } from '../../utils/v4ToastManager';
-import FlowUIComponentsService from '../../services/flowUIComponentsService';
-import { RedirectlessAuthService } from '../../services/redirectlessAuthService';
-import { RedirectStateManager } from '../../services/redirectStateManager';
-import { buildAuthorizationRequest } from '../../services/authorizationRequestService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { credentialStorageManager } from '../../services/credentialStorageManager';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowUIComponentsService from '../../services/flowUIComponentsService';
 import {
-	getValidWorkerToken,
-	formatTimeRemaining,
-	type TokenExpirationInfo,
-} from '../../services/tokenExpirationService';
-import { TokenManagementService, type TokenRequest } from '../../services/tokenManagementService';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
-import {
-	Container,
-	ContentWrapper,
-	HeroWrapper,
-	HeroBadge,
-	HeroTitle,
-	HeroSubtitle,
-	HeroFooter,
-	HeroLogoRow,
-	StepSection,
-	AuthSection,
-	RadioGroup,
-	RadioLabel,
-	KrogerLoginOverlay,
-	KrogerHeader,
-	KrogerLogo,
-	KrogerNav,
-	SearchBox,
-	NavItem,
-	LoginContainer,
-	LoginCard,
-	LoginTitle,
-	FormGroup,
-	Label,
-	InputWrapper,
-	Input,
-	PasswordToggle,
-	HelperText,
-	LoginButton,
-	SignUpLink,
-	CloseButton,
-	ErrorMessage,
-	SuccessMessage,
-	MissingConfigCard,
-} from './kroger/krogerFlowStyles';
-import {
-	FLOW_KEY,
-	WORKER_TOKEN_STORAGE_KEY,
-	WORKER_TOKEN_EXPIRY_KEY,
-	KROGER_DEFAULT_USERNAME,
-	KROGER_DEFAULT_PASSWORD,
-	DEFAULT_SCOPE,
-	DEFAULT_REDIRECT_PATH,
-	SUCCESS_MESSAGES,
-	ERROR_MESSAGES,
-} from './kroger/krogerFlowConstants';
-import {
+	type GuidanceVariant,
 	OfflineAccessService,
 	OfflineAccessSettingsPanel,
 	useOfflineAccessSettings,
-	type GuidanceVariant,
 } from '../../services/offlineAccessService';
-import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { RedirectlessAuthService } from '../../services/redirectlessAuthService';
+import { RedirectStateManager } from '../../services/redirectStateManager';
+import {
+	formatTimeRemaining,
+	getValidWorkerToken,
+	type TokenExpirationInfo,
+} from '../../services/tokenExpirationService';
+import { TokenManagementService, type TokenRequest } from '../../services/tokenManagementService';
+import V7StepperService, { StepMetadata } from '../../services/v7StepperService';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import { v4ToastManager } from '../../utils/v4ToastManager';
+import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
+import KrogerGroceryStoreMFA from './KrogerGroceryStoreMFA';
+import {
+	DEFAULT_REDIRECT_PATH,
+	DEFAULT_SCOPE,
+	ERROR_MESSAGES,
+	FLOW_KEY,
+	KROGER_DEFAULT_PASSWORD,
+	KROGER_DEFAULT_USERNAME,
+	SUCCESS_MESSAGES,
+	WORKER_TOKEN_EXPIRY_KEY,
+	WORKER_TOKEN_STORAGE_KEY,
+} from './kroger/krogerFlowConstants';
+import {
+	AuthSection,
+	CloseButton,
+	Container,
+	ContentWrapper,
+	ErrorMessage,
+	FormGroup,
+	HelperText,
+	HeroBadge,
+	HeroFooter,
+	HeroLogoRow,
+	HeroSubtitle,
+	HeroTitle,
+	HeroWrapper,
+	Input,
+	InputWrapper,
+	KrogerHeader,
+	KrogerLoginOverlay,
+	KrogerLogo,
+	KrogerNav,
+	Label,
+	LoginButton,
+	LoginCard,
+	LoginContainer,
+	LoginTitle,
+	MissingConfigCard,
+	NavItem,
+	PasswordToggle,
+	RadioGroup,
+	RadioLabel,
+	SearchBox,
+	SignUpLink,
+	StepSection,
+	SuccessMessage,
+} from './kroger/krogerFlowStyles';
 
 const {
 	StepContainer,
@@ -178,7 +178,7 @@ const offlineGuidanceVariantStyles: Record<
 };
 const KrogerGroceryStoreMFA_New: React.FC = () => {
 	usePageScroll();
-	
+
 	// Step metadata
 	const steps: StepMetadata[] = [
 		{
@@ -219,15 +219,19 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 	const [showPassword, setShowPassword] = useState(false);
-	const [selectedMfaMethod, setSelectedMfaMethod] = useState<'SMS' | 'EMAIL' | 'AUTH_APP' | null>(null);
+	const [selectedMfaMethod, setSelectedMfaMethod] = useState<'SMS' | 'EMAIL' | 'AUTH_APP' | null>(
+		null
+	);
 	const [mfaStatusMessage, setMfaStatusMessage] = useState<string | null>(null);
 	const [showAuthConfigModal, setShowAuthConfigModal] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [offlineAccessSettings, updateOfflineAccessSettings] = useOfflineAccessSettings(
-		'pingone-offline-access'
-	);
+	const [offlineAccessSettings, updateOfflineAccessSettings] =
+		useOfflineAccessSettings('pingone-offline-access');
 	const authScopes = useMemo(
-		() => (authConfig.scopes && authConfig.scopes.trim().length > 0 ? authConfig.scopes.trim() : DEFAULT_SCOPE),
+		() =>
+			authConfig.scopes && authConfig.scopes.trim().length > 0
+				? authConfig.scopes.trim()
+				: DEFAULT_SCOPE,
 		[authConfig.scopes]
 	);
 	const offlineAccessEvaluation = useMemo(
@@ -316,9 +320,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	 */
 	const hydrateAuthConfig = useCallback(() => {
 		try {
-			const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated?.(
-				FLOW_KEY
-			);
+			const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated?.(FLOW_KEY);
 
 			if (saved) {
 				const normalizedScopes = Array.isArray(saved.scopes)
@@ -350,21 +352,17 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	const hydrateWorkerToken = useCallback(() => {
 		// First try to get any worker token from any source
 		const anyToken = getAnyWorkerToken();
-		
+
 		if (anyToken) {
 			// If we found a token from any source, use it
 			setWorkerToken(anyToken);
-			
+
 			// Try to get expiration info from the flow-specific storage
-			const tokenResult = getValidWorkerToken(
-				WORKER_TOKEN_STORAGE_KEY,
-				WORKER_TOKEN_EXPIRY_KEY,
-				{
-					clearExpired: false,
-					showToast: false,
-				}
-			);
-			
+			const tokenResult = getValidWorkerToken(WORKER_TOKEN_STORAGE_KEY, WORKER_TOKEN_EXPIRY_KEY, {
+				clearExpired: false,
+				showToast: false,
+			});
+
 			setWorkerTokenInfo(tokenResult.expirationInfo ?? null);
 			if (tokenResult.expirationInfo?.expiresAt) {
 				setWorkerTokenTimeRemaining(formatTimeRemaining(tokenResult.expirationInfo.expiresAt));
@@ -449,9 +447,11 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 				identifier,
 			});
 
-			const rawUser = (result?.user ?? null) as
-				| { id?: string; username?: string; email?: string | null }
-				| null;
+			const rawUser = (result?.user ?? null) as {
+				id?: string;
+				username?: string;
+				email?: string | null;
+			} | null;
 
 			if (!rawUser?.id) {
 				throw new Error(ERROR_MESSAGES.userLookupFailed);
@@ -486,7 +486,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			// Validate we have client credentials
 			const trimmedClientId = authConfig.clientId?.trim();
 			const trimmedClientSecret = authConfig.clientSecret?.trim();
-			
+
 			if (!trimmedClientId || !trimmedClientSecret) {
 				console.error('[Kroger] Token exchange validation failed:', {
 					hasClientId: !!trimmedClientId,
@@ -531,14 +531,11 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 				hasClientSecret: !!tokenExchangePayload.clientSecret,
 			});
 
-			const tokenResponse = await tokenService.exchangeAuthorizationCode(
-				tokenExchangePayload,
-				{
-					type: 'CLIENT_SECRET_POST',
-					clientId: trimmedClientId,
-					clientSecret: trimmedClientSecret,
-				}
-			);
+			const tokenResponse = await tokenService.exchangeAuthorizationCode(tokenExchangePayload, {
+				type: 'CLIENT_SECRET_POST',
+				clientId: trimmedClientId,
+				clientSecret: trimmedClientSecret,
+			});
 
 			// Clear PKCE codes after successful exchange (security best practice)
 			credentialStorageManager.clearPKCECodes(FLOW_KEY);
@@ -597,9 +594,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						await fetchUserProfile(storedUsername);
 					} catch (lookupError) {
 						const message =
-							lookupError instanceof Error
-								? lookupError.message
-								: ERROR_MESSAGES.userLookupFailed;
+							lookupError instanceof Error ? lookupError.message : ERROR_MESSAGES.userLookupFailed;
 						v4ToastManager.showWarning(message);
 					}
 				}
@@ -612,10 +607,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 				RedirectStateManager.clearFlowState(FLOW_KEY);
 				await RedirectlessAuthService.clearFlowData(FLOW_KEY);
 			} catch (error) {
-				const message =
-					error instanceof Error
-						? error.message
-						: ERROR_MESSAGES.tokenExchangeFailed;
+				const message = error instanceof Error ? error.message : ERROR_MESSAGES.tokenExchangeFailed;
 				displayAuthError(message);
 			} finally {
 				setIsAuthenticating(false);
@@ -655,11 +647,14 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			credentialStorageManager.savePKCECodes(FLOW_KEY, {
 				codeVerifier: verifier,
 				codeChallenge: challenge,
-				codeChallengeMethod: 'S256'
+				codeChallengeMethod: 'S256',
 			});
-			
+
 			// Save state in flow state
-			credentialStorageManager.saveFlowState(FLOW_KEY, { state, username: loginCredentials.username });
+			credentialStorageManager.saveFlowState(FLOW_KEY, {
+				state,
+				username: loginCredentials.username,
+			});
 			rememberUsername(loginCredentials.username);
 
 			RedirectStateManager.preserveFlowState(FLOW_KEY, {
@@ -694,9 +689,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			window.location.href = url;
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: 'Unable to start redirect authentication.';
+				error instanceof Error ? error.message : 'Unable to start redirect authentication.';
 			displayAuthError(message);
 		}
 	}, [
@@ -717,27 +710,33 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	/**
 	 * Handles when an MFA setup button is pressed by surfacing contextual guidance.
 	 */
-	const handleMfaSetup = useCallback((method: 'SMS' | 'EMAIL' | 'AUTH_APP') => {
-		if (!isReadyForMfa) {
-			v4ToastManager.showWarning(ERROR_MESSAGES.missingWorkerToken);
-			return;
-		}
+	const handleMfaSetup = useCallback(
+		(method: 'SMS' | 'EMAIL' | 'AUTH_APP') => {
+			if (!isReadyForMfa) {
+				v4ToastManager.showWarning(ERROR_MESSAGES.missingWorkerToken);
+				return;
+			}
 
-		setSelectedMfaMethod(method);
-		let message = '';
+			setSelectedMfaMethod(method);
+			let message = '';
 
-		if (method === 'SMS') {
-			message = 'SMS setup workflow initiated. Complete enrollment in the Kroger MFA panel below.';
-		} else if (method === 'EMAIL') {
-			message = 'Email verification selected. Check your inbox and confirm the security code when prompted.';
-		} else {
-			message = 'Authenticator app selected. Scan the QR code that appears in the Kroger MFA panel.';
-		}
+			if (method === 'SMS') {
+				message =
+					'SMS setup workflow initiated. Complete enrollment in the Kroger MFA panel below.';
+			} else if (method === 'EMAIL') {
+				message =
+					'Email verification selected. Check your inbox and confirm the security code when prompted.';
+			} else {
+				message =
+					'Authenticator app selected. Scan the QR code that appears in the Kroger MFA panel.';
+			}
 
-		setMfaStatusMessage(message);
-		v4ToastManager.showSuccess(message);
-		setCurrentStep(2);
-	}, [isReadyForMfa]);
+			setMfaStatusMessage(message);
+			v4ToastManager.showSuccess(message);
+			setCurrentStep(2);
+		},
+		[isReadyForMfa]
+	);
 
 	// Authentication handlers
 	const handleStartAuth = useCallback(() => {
@@ -812,8 +811,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 			setSuccessMessage(SUCCESS_MESSAGES.redirectlessComplete);
 			await finalizeAuthorization(authCode, username);
 		} catch (error: unknown) {
-			const message =
-				error instanceof Error ? error.message : ERROR_MESSAGES.redirectlessFailed;
+			const message = error instanceof Error ? error.message : ERROR_MESSAGES.redirectlessFailed;
 			setError(message);
 			displayAuthError(message);
 		} finally {
@@ -855,7 +853,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 
 		window.addEventListener('focus', onFocus);
 		window.addEventListener('workerTokenUpdated', onWorkerTokenUpdated);
-		
+
 		return () => {
 			window.removeEventListener('focus', onFocus);
 			window.removeEventListener('workerTokenUpdated', onWorkerTokenUpdated);
@@ -961,9 +959,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 					}
 				} catch (resumeError) {
 					const message =
-						resumeError instanceof Error
-							? resumeError.message
-							: ERROR_MESSAGES.redirectlessFailed;
+						resumeError instanceof Error ? resumeError.message : ERROR_MESSAGES.redirectlessFailed;
 					displayAuthError(message);
 				}
 			}
@@ -1033,12 +1029,16 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 	const renderKrogerHeader = () => (
 		<HeroWrapper>
 			<HeroBadge>
-				<span role="img" aria-label="shopping cart">🛒</span> PingOne V7
+				<span role="img" aria-label="shopping cart">
+					🛒
+				</span>{' '}
+				PingOne V7
 			</HeroBadge>
 			<HeroTitle>Kroger Grocery Store MFA Experience</HeroTitle>
 			<HeroSubtitle>
-				Guided PingOne MFA walkthrough embedded in a realistic Kroger storefront. Configure worker tokens,
-				step through redirectless authentication, and manage MFA devices in a production-style UX.
+				Guided PingOne MFA walkthrough embedded in a realistic Kroger storefront. Configure worker
+				tokens, step through redirectless authentication, and manage MFA devices in a
+				production-style UX.
 			</HeroSubtitle>
 			<HeroFooter>PingOne OAuth/OIDC Playground v7.4.0</HeroFooter>
 			<HeroLogoRow>
@@ -1154,7 +1154,15 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									width: '100%',
 								}}
 							>
-								<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem', fontWeight: 600 }}>
+								<span
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										fontSize: '0.95rem',
+										fontWeight: 600,
+									}}
+								>
 									{workerToken ? <FiCheckCircle size={18} /> : <FiKey size={18} />}
 									{workerToken ? 'Worker Token Ready ✓' : 'Worker Token Required for MFA'}
 								</span>
@@ -1163,9 +1171,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 										Expires {workerTokenTimeRemaining}
 									</span>
 								) : (
-									<span style={{ fontSize: '0.75rem', opacity: 0.9 }}>
-										Click to generate token
-									</span>
+									<span style={{ fontSize: '0.75rem', opacity: 0.9 }}>Click to generate token</span>
 								)}
 							</div>
 						</FlowButton>
@@ -1205,7 +1211,8 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 					<MissingConfigCard>
 						<strong>Authorization Code client not configured.</strong>
 						<p style={{ margin: '0.75rem 0 0' }}>
-							Open the configuration panel and provide Environment ID, Client ID, and Client Secret to continue.
+							Open the configuration panel and provide Environment ID, Client ID, and Client Secret
+							to continue.
 						</p>
 						<div style={{ marginTop: '0.75rem' }}>
 							<FlowButton
@@ -1220,8 +1227,6 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						</div>
 					</MissingConfigCard>
 				)}
-
-
 
 				<OfflineAccessSettingsPanel
 					settings={offlineAccessSettings}
@@ -1253,8 +1258,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									fontSize: '0.9rem',
 								}}
 							>
-								{offlineAccessEvaluation.guidance.description}
-								{' '}
+								{offlineAccessEvaluation.guidance.description}{' '}
 								<a
 									href="https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#post-step-7-assign-the-mfa-sign-on-policy-to-the-web-application"
 									target="_blank"
@@ -1284,12 +1288,12 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						<FiShoppingCart size={28} />
 						Kroger
 					</KrogerLogo>
-					
+
 					<SearchBox>
 						<FiSearch size={18} color="#6b7280" />
 						<input placeholder="Search products, deals, recipes..." />
 					</SearchBox>
-					
+
 					<KrogerNav>
 						<NavItem>
 							<FiHeart size={20} />
@@ -1301,16 +1305,19 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						</NavItem>
 					</KrogerNav>
 				</KrogerHeader>
-				
+
 				<LoginContainer>
 					<LoginCard>
-						<CloseButton onClick={() => setShowLoginForm(false)}>
-							×
-						</CloseButton>
-						
+						<CloseButton onClick={() => setShowLoginForm(false)}>×</CloseButton>
+
 						<LoginTitle>Welcome to Kroger</LoginTitle>
-						
-						<form onSubmit={(e) => { e.preventDefault(); handleRedirectlessLogin(); }}>
+
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								handleRedirectlessLogin();
+							}}
+						>
 							<FormGroup>
 								<Label htmlFor="username">Email or Phone Number</Label>
 								<Input
@@ -1318,27 +1325,33 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									type="text"
 									placeholder="your.email@example.com or (555) 123-4567"
 									value={loginCredentials.username}
-									onChange={(e) => setLoginCredentials(prev => ({ ...prev, username: e.target.value }))}
+									onChange={(e) =>
+										setLoginCredentials((prev) => ({ ...prev, username: e.target.value }))
+									}
 									disabled={isAuthenticating}
 								/>
-								<HelperText>Enter the email or phone number associated with your Kroger account</HelperText>
+								<HelperText>
+									Enter the email or phone number associated with your Kroger account
+								</HelperText>
 							</FormGroup>
-							
+
 							<FormGroup>
 								<Label htmlFor="password">Password</Label>
 								<InputWrapper>
 									<Input
 										id="password"
-										type={showPassword ? "text" : "password"}
+										type={showPassword ? 'text' : 'password'}
 										placeholder="••••••••••••"
 										value={loginCredentials.password}
-										onChange={(e) => setLoginCredentials(prev => ({ ...prev, password: e.target.value }))}
+										onChange={(e) =>
+											setLoginCredentials((prev) => ({ ...prev, password: e.target.value }))
+										}
 										disabled={isAuthenticating}
 									/>
 									<PasswordToggle
 										type="button"
 										onClick={() => setShowPassword(!showPassword)}
-										title={showPassword ? "Hide password" : "Show password"}
+										title={showPassword ? 'Hide password' : 'Show password'}
 									>
 										{showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
 									</PasswordToggle>
@@ -1346,18 +1359,25 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 								<HelperText>
 									Password must be at least 8 characters long
 									{loginCredentials.password && (
-										<span style={{ color: loginCredentials.password.length >= 8 ? '#16a34a' : '#dc2626', marginLeft: '0.5rem' }}>
+										<span
+											style={{
+												color: loginCredentials.password.length >= 8 ? '#16a34a' : '#dc2626',
+												marginLeft: '0.5rem',
+											}}
+										>
 											({loginCredentials.password.length}/8 minimum)
 										</span>
 									)}
 								</HelperText>
 							</FormGroup>
-							
+
 							{error && <ErrorMessage>{error}</ErrorMessage>}
-							
-							<LoginButton 
+
+							<LoginButton
 								type="submit"
-								disabled={isAuthenticating || !loginCredentials.username || !loginCredentials.password}
+								disabled={
+									isAuthenticating || !loginCredentials.username || !loginCredentials.password
+								}
 							>
 								{isAuthenticating ? (
 									<>
@@ -1368,11 +1388,27 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									'Sign In to Your Account'
 								)}
 							</LoginButton>
-							
+
 							<SignUpLink>
-								New to Kroger? <a href="#" onClick={(e) => { e.preventDefault(); v4ToastManager.showInfo('🚀 Create account feature coming soon!'); }}>Create an account</a>
+								New to Kroger?{' '}
+								<a
+									href="#"
+									onClick={(e) => {
+										e.preventDefault();
+										v4ToastManager.showInfo('🚀 Create account feature coming soon!');
+									}}
+								>
+									Create an account
+								</a>
 								<br />
-								<a href="#" onClick={(e) => { e.preventDefault(); v4ToastManager.showInfo('🔒 Password reset coming soon!'); }} style={{ fontSize: '0.85rem', marginTop: '0.5rem', display: 'inline-block' }}>
+								<a
+									href="#"
+									onClick={(e) => {
+										e.preventDefault();
+										v4ToastManager.showInfo('🔒 Password reset coming soon!');
+									}}
+									style={{ fontSize: '0.85rem', marginTop: '0.5rem', display: 'inline-block' }}
+								>
 									Forgot your password?
 								</a>
 							</SignUpLink>
@@ -1398,12 +1434,14 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						</p>
 
 						{renderAuthModeSelection()}
-						
+
 						{successMessage && <SuccessMessage>{successMessage}</SuccessMessage>}
-						
+
 						{isAuthenticated && (
 							<div style={{ margin: '1rem 0' }}>
-								<p style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<p
+									style={{ color: '#16a34a', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+								>
 									<FiCheckCircle /> Authentication complete — preparing MFA configuration page.
 								</p>
 								<FlowButton variant="primary" onClick={handleNavigateToMfa} className="mt-3">
@@ -1426,58 +1464,89 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 					</div>
 
 					<StepSection>
-					<CollapsibleHeader
-						title="🛡️ Choose Your MFA Method"
-						theme="blue"
-						icon={<FiSend />}
-						defaultCollapsed={false}
-					>
+						<CollapsibleHeader
+							title="🛡️ Choose Your MFA Method"
+							theme="blue"
+							icon={<FiSend />}
+							defaultCollapsed={false}
+						>
 							<div style={{ padding: '0.5rem 0' }}>
-								<div style={{ background: '#f0f9ff', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid #0ea5e9' }}>
+								<div
+									style={{
+										background: '#f0f9ff',
+										padding: '1rem',
+										borderRadius: '8px',
+										marginBottom: '1.5rem',
+										border: '1px solid #0ea5e9',
+									}}
+								>
 									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#0c4a6e' }}>
-									👋 Welcome, {displayName}!
+										👋 Welcome, {displayName}!
 									</p>
 									<p style={{ margin: 0, color: '#0c4a6e', fontSize: '14px' }}>
-										You're authenticated. Select an MFA method to continue configuring device enrollment.
+										You're authenticated. Select an MFA method to continue configuring device
+										enrollment.
 									</p>
 								</div>
 
-							{!isReadyForMfa && (
-								<MissingConfigCard>
-									<strong>Worker token required for MFA enrollment.</strong>
-									<p style={{ margin: '0.75rem 0 0' }}>
-										Generate a PingOne worker token with device scopes, then return to finish MFA setup.
-									</p>
-								</MissingConfigCard>
-							)}
+								{!isReadyForMfa && (
+									<MissingConfigCard>
+										<strong>Worker token required for MFA enrollment.</strong>
+										<p style={{ margin: '0.75rem 0 0' }}>
+											Generate a PingOne worker token with device scopes, then return to finish MFA
+											setup.
+										</p>
+									</MissingConfigCard>
+								)}
 
 								<h4 style={{ margin: '0 0 1rem 0', color: '#374151' }}>Available MFA Methods</h4>
 
-								<div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+								<div
+									style={{
+										display: 'grid',
+										gap: '1rem',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+									}}
+								>
 									<div
 										style={{
 											background: 'white',
-											border: selectedMfaMethod === 'SMS' ? '2px solid #2563eb' : '1px solid #e5e7eb',
+											border:
+												selectedMfaMethod === 'SMS' ? '2px solid #2563eb' : '1px solid #e5e7eb',
 											borderRadius: '12px',
 											padding: '1.5rem',
 										}}
 									>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.75rem',
+												marginBottom: '1rem',
+											}}
+										>
 											<span style={{ fontSize: '2rem' }}>📱</span>
 											<div>
 												<div style={{ fontWeight: 600, fontSize: '16px' }}>SMS Authentication</div>
 												<div style={{ fontSize: '12px', color: '#6b7280' }}>Most popular</div>
 											</div>
 										</div>
-										<p style={{ margin: '0 0 1rem 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+										<p
+											style={{
+												margin: '0 0 1rem 0',
+												fontSize: '14px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
 											Receive verification codes via text message to your mobile phone.
 										</p>
-									<FlowButton
-										variant="primary"
-										className="w-full"
-										onClick={() => handleMfaSetup('SMS')}
-										disabled={!isReadyForMfa}
-									>
+										<FlowButton
+											variant="primary"
+											className="w-full"
+											onClick={() => handleMfaSetup('SMS')}
+											disabled={!isReadyForMfa}
+										>
 											Setup SMS Verification
 										</FlowButton>
 									</div>
@@ -1485,27 +1554,42 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									<div
 										style={{
 											background: 'white',
-											border: selectedMfaMethod === 'EMAIL' ? '2px solid #2563eb' : '1px solid #e5e7eb',
+											border:
+												selectedMfaMethod === 'EMAIL' ? '2px solid #2563eb' : '1px solid #e5e7eb',
 											borderRadius: '12px',
 											padding: '1.5rem',
 										}}
 									>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.75rem',
+												marginBottom: '1rem',
+											}}
+										>
 											<span style={{ fontSize: '2rem' }}>📧</span>
 											<div>
 												<div style={{ fontWeight: 600, fontSize: '16px' }}>Email Verification</div>
 												<div style={{ fontSize: '12px', color: '#6b7280' }}>Quick setup</div>
 											</div>
 										</div>
-										<p style={{ margin: '0 0 1rem 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+										<p
+											style={{
+												margin: '0 0 1rem 0',
+												fontSize: '14px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
 											Receive verification codes via email to your registered address.
 										</p>
-									<FlowButton
-										variant="primary"
-										className="w-full"
-										onClick={() => handleMfaSetup('EMAIL')}
-										disabled={!isReadyForMfa}
-									>
+										<FlowButton
+											variant="primary"
+											className="w-full"
+											onClick={() => handleMfaSetup('EMAIL')}
+											disabled={!isReadyForMfa}
+										>
 											Setup Email Verification
 										</FlowButton>
 									</div>
@@ -1513,35 +1597,61 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									<div
 										style={{
 											background: 'white',
-											border: selectedMfaMethod === 'AUTH_APP' ? '2px solid #2563eb' : '1px solid #e5e7eb',
+											border:
+												selectedMfaMethod === 'AUTH_APP'
+													? '2px solid #2563eb'
+													: '1px solid #e5e7eb',
 											borderRadius: '12px',
 											padding: '1.5rem',
 										}}
 									>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.75rem',
+												marginBottom: '1rem',
+											}}
+										>
 											<span style={{ fontSize: '2rem' }}>🔐</span>
 											<div>
 												<div style={{ fontWeight: 600, fontSize: '16px' }}>Authenticator App</div>
 												<div style={{ fontSize: '12px', color: '#6b7280' }}>Most secure</div>
 											</div>
 										</div>
-										<p style={{ margin: '0 0 1rem 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.5' }}>
+										<p
+											style={{
+												margin: '0 0 1rem 0',
+												fontSize: '14px',
+												color: '#6b7280',
+												lineHeight: '1.5',
+											}}
+										>
 											Use TOTP apps like Google Authenticator or Microsoft Authenticator.
 										</p>
-									<FlowButton
-										variant="primary"
-										className="w-full"
-										onClick={() => handleMfaSetup('AUTH_APP')}
-										disabled={!isReadyForMfa}
-									>
+										<FlowButton
+											variant="primary"
+											className="w-full"
+											onClick={() => handleMfaSetup('AUTH_APP')}
+											disabled={!isReadyForMfa}
+										>
 											Setup Authenticator App
 										</FlowButton>
 									</div>
 								</div>
 
-								<div style={{ marginTop: '2rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: '8px' }}>
+								<div
+									style={{
+										marginTop: '2rem',
+										padding: '1rem',
+										background: '#f0f9ff',
+										border: '1px solid #0ea5e9',
+										borderRadius: '8px',
+									}}
+								>
 									<p style={{ margin: 0, color: '#0c4a6e', fontSize: '14px' }}>
-										💡 <strong>Demo Mode:</strong> This is a guided simulation. Once you choose a method, we’ll walk through the full PingOne MFA device manager on the next page.
+										💡 <strong>Demo Mode:</strong> This is a guided simulation. Once you choose a
+										method, we’ll walk through the full PingOne MFA device manager on the next page.
 									</p>
 								</div>
 							</div>
@@ -1567,25 +1677,51 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 						defaultCollapsed={false}
 					>
 						<div style={{ padding: '0.5rem 0' }}>
-							<div style={{ background: '#f0f9ff', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid #0ea5e9' }}>
+							<div
+								style={{
+									background: '#f0f9ff',
+									padding: '1rem',
+									borderRadius: '8px',
+									marginBottom: '1.5rem',
+									border: '1px solid #0ea5e9',
+								}}
+							>
 								<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#0c4a6e' }}>
-									👋 Welcome, {displayName}!
-									👋 Welcome, {displayName}!
+									👋 Welcome, {displayName}! 👋 Welcome, {displayName}!
 								</p>
 								<p style={{ margin: 0, color: '#0c4a6e', fontSize: '14px' }}>
-									You're now in the full PingOne MFA experience. Follow the prompts below to enroll and manage your devices.
+									You're now in the full PingOne MFA experience. Follow the prompts below to enroll
+									and manage your devices.
 								</p>
 							</div>
-							
+
 							{mfaStatusMessage && (
-								<div style={{ marginBottom: '1.5rem', padding: '1rem', borderRadius: '8px', border: '1px solid #c4b5fd', background: '#e0f2fe', color: '#4338ca' }}>
+								<div
+									style={{
+										marginBottom: '1.5rem',
+										padding: '1rem',
+										borderRadius: '8px',
+										border: '1px solid #c4b5fd',
+										background: '#e0f2fe',
+										color: '#4338ca',
+									}}
+								>
 									<strong>Selected method:</strong> {mfaStatusMessage}
 								</div>
 							)}
 
-							<div style={{ marginTop: '1.5rem', padding: '1rem', background: '#fef7ff', border: '1px solid #d946ef', borderRadius: '8px' }}>
+							<div
+								style={{
+									marginTop: '1.5rem',
+									padding: '1rem',
+									background: '#fef7ff',
+									border: '1px solid #d946ef',
+									borderRadius: '8px',
+								}}
+							>
 								<p style={{ margin: '0 0 1rem 0', fontSize: '14px' }}>
-									Below is the full PingOne MFA Device Manager. Use this to enroll and manage your MFA devices directly with PingOne.
+									Below is the full PingOne MFA Device Manager. Use this to enroll and manage your
+									MFA devices directly with PingOne.
 								</p>
 								{isReadyForMfa ? (
 									<MFAProvider
@@ -1599,7 +1735,8 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 									<MissingConfigCard>
 										<strong>Missing worker token or user context.</strong>
 										<p style={{ margin: '0.75rem 0 0' }}>
-											Complete authentication and ensure a valid worker token is generated before managing MFA devices.
+											Complete authentication and ensure a valid worker token is generated before
+											managing MFA devices.
 										</p>
 									</MissingConfigCard>
 								)}
@@ -1671,7 +1808,7 @@ const KrogerGroceryStoreMFA_New: React.FC = () => {
 							showToast: false,
 						}
 					);
-					setWorkerToken(tokenResult.isValid ? tokenResult.token ?? null : null);
+					setWorkerToken(tokenResult.isValid ? (tokenResult.token ?? null) : null);
 					setShowWorkerTokenModal(false);
 					if (tokenResult.isValid) {
 						v4ToastManager.showSuccess('Worker token loaded successfully!');

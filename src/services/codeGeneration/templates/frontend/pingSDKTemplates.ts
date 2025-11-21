@@ -4,8 +4,8 @@
  */
 
 export class PingSDKJavaScriptTemplates {
-  static authorization(config: any): string {
-    return `// PingOne SDK - Authorization Flow
+	static authorization(config: any): string {
+		return `// PingOne SDK - Authorization Flow
 import { PingOneClient } from '@pingidentity/pingone-js-sdk';
 
 /**
@@ -49,10 +49,10 @@ function generateRandomState(): string {
 }
 
 startAuthorization();`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// PingOne SDK - Worker Token (Client Credentials)
+	static workerToken(config: any): string {
+		return `// PingOne SDK - Worker Token (Client Credentials)
 /**
  * Worker tokens are used for server-to-server API calls
  * to manage MFA devices and challenges.
@@ -98,10 +98,10 @@ async function getWorkerToken() {
 }
 
 getWorkerToken();`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// PingOne SDK - MFA Device Selection
+	static deviceSelection(config: any): string {
+		return `// PingOne SDK - MFA Device Selection
 /**
  * List and select MFA devices for a user
  */
@@ -147,10 +147,10 @@ async function listMfaDevices() {
 }
 
 listMfaDevices();`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// PingOne SDK - Send MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// PingOne SDK - Send MFA Challenge
 /**
  * Send an MFA challenge to a selected device
  */
@@ -192,10 +192,10 @@ async function sendMfaChallenge() {
 }
 
 sendMfaChallenge();`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// PingOne SDK - Verify MFA Code
+	static mfaVerification(config: any): string {
+		return `// PingOne SDK - Verify MFA Code
 /**
  * Verify the MFA code entered by the user
  */
@@ -248,10 +248,10 @@ async function verifyMfaCode() {
 }
 
 verifyMfaCode();`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// PingOne SDK - Register New MFA Device
+	static deviceRegistration(config: any): string {
+		return `// PingOne SDK - Register New MFA Device
 /**
  * Register a new MFA device for a user
  */
@@ -362,5 +362,5 @@ async function registerTotpDevice(name: string = 'Authenticator App') {
 
 // Example usage
 registerSmsDevice('+1234567890');`;
-  }
+	}
 }

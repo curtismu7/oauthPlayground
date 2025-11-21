@@ -1,26 +1,17 @@
 // src/pages/flows/ClientCredentialsFlowV7_Simple.tsx
 // V7.0.0 OAuth 2.0 Client Credentials Flow - Simple V7 Implementation with Step Numbers
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { ClientAuthMethod } from '../../services/clientCredentialsSharedService';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { ClientAuthMethod } from '../../services/clientCredentialsSharedService';
+import { FlowUIService } from '../../services/flowUIService';
 
-// V7 Step Header Components
-const Container = styled.div`
-	min-height: 100vh;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Get UI components from FlowUIService
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
 
 const MainCard = styled.div`
 	background: white;
@@ -116,23 +107,24 @@ const STEP_METADATA = [
 	{
 		title: 'Flow Complete',
 		subtitle: 'Review the completed flow',
-	}
+	},
 ];
 
 const ClientCredentialsFlowV7Simple: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
-	
+
 	// Initialize page scroll management
 	usePageScroll({ pageName: 'Client Credentials V7', force: true });
-	
+
 	// Initialize client credentials flow controller with V7 settings
 	const controller = useClientCredentialsFlowController({
 		flowKey: 'client-credentials-v7',
 	});
-	
+
 	// Set default auth method
-	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
-	
+	const [selectedAuthMethod, setSelectedAuthMethod] =
+		useState<ClientAuthMethod>('client_secret_post');
+
 	// Update local storage when auth method changes
 	useEffect(() => {
 		localStorage.setItem('client_credentials_v7_auth_method', selectedAuthMethod);
@@ -140,13 +132,13 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 
 	const handleNext = () => {
 		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	};
 
 	const handlePrevious = () => {
 		if (currentStep > 0) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	};
 
@@ -187,10 +179,24 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 					<div>
 						<h3>Credentials & Configuration</h3>
 						<p>Set up your client credentials and authentication method.</p>
-						<div style={{ padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem', margin: '1rem 0' }}>
-							<p><strong>Environment ID:</strong> {controller.credentials.environmentId || 'Not set'}</p>
-							<p><strong>Client ID:</strong> {controller.credentials.clientId || 'Not set'}</p>
-							<p><strong>Client Secret:</strong> {controller.credentials.clientSecret ? '***' : 'Not set'}</p>
+						<div
+							style={{
+								padding: '1rem',
+								background: '#f9fafb',
+								borderRadius: '0.5rem',
+								margin: '1rem 0',
+							}}
+						>
+							<p>
+								<strong>Environment ID:</strong> {controller.credentials.environmentId || 'Not set'}
+							</p>
+							<p>
+								<strong>Client ID:</strong> {controller.credentials.clientId || 'Not set'}
+							</p>
+							<p>
+								<strong>Client Secret:</strong>{' '}
+								{controller.credentials.clientSecret ? '***' : 'Not set'}
+							</p>
 						</div>
 					</div>
 				);
@@ -208,7 +214,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 									color: selectedAuthMethod === 'client_secret_post' ? 'white' : '#374151',
 									border: 'none',
 									borderRadius: '0.25rem',
-									cursor: 'pointer'
+									cursor: 'pointer',
 								}}
 							>
 								Client Secret POST
@@ -221,7 +227,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 									color: selectedAuthMethod === 'client_secret_basic' ? 'white' : '#374151',
 									border: 'none',
 									borderRadius: '0.25rem',
-									cursor: 'pointer'
+									cursor: 'pointer',
 								}}
 							>
 								Client Secret Basic
@@ -244,7 +250,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 								border: 'none',
 								borderRadius: '0.5rem',
 								cursor: 'pointer',
-								marginTop: '1rem'
+								marginTop: '1rem',
 							}}
 						>
 							{controller.isLoading ? 'Requesting...' : 'Request Access Token'}
@@ -257,13 +263,33 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						<h3>Token Response</h3>
 						<p>Receive and validate the access token.</p>
 						{controller.tokens ? (
-							<div style={{ padding: '1rem', background: '#dcfce7', borderRadius: '0.5rem', margin: '1rem 0' }}>
-								<p><strong>Access Token:</strong> {controller.tokens.access_token}</p>
-								<p><strong>Token Type:</strong> {controller.tokens.token_type}</p>
-								<p><strong>Expires In:</strong> {controller.tokens.expires_in} seconds</p>
+							<div
+								style={{
+									padding: '1rem',
+									background: '#dcfce7',
+									borderRadius: '0.5rem',
+									margin: '1rem 0',
+								}}
+							>
+								<p>
+									<strong>Access Token:</strong> {controller.tokens.access_token}
+								</p>
+								<p>
+									<strong>Token Type:</strong> {controller.tokens.token_type}
+								</p>
+								<p>
+									<strong>Expires In:</strong> {controller.tokens.expires_in} seconds
+								</p>
 							</div>
 						) : (
-							<div style={{ padding: '1rem', background: '#fef3c7', borderRadius: '0.5rem', margin: '1rem 0' }}>
+							<div
+								style={{
+									padding: '1rem',
+									background: '#fef3c7',
+									borderRadius: '0.5rem',
+									margin: '1rem 0',
+								}}
+							>
 								<p>No token received. Complete the token request in step 2.</p>
 							</div>
 						)}
@@ -275,8 +301,22 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						<h3>API Call</h3>
 						<p>Use the access token to call protected APIs.</p>
 						{controller.tokens?.access_token && (
-							<div style={{ padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem', margin: '1rem 0' }}>
-								<pre style={{ background: '#1f2937', color: '#f9fafb', padding: '1rem', borderRadius: '0.25rem' }}>
+							<div
+								style={{
+									padding: '1rem',
+									background: '#f9fafb',
+									borderRadius: '0.5rem',
+									margin: '1rem 0',
+								}}
+							>
+								<pre
+									style={{
+										background: '#1f2937',
+										color: '#f9fafb',
+										padding: '1rem',
+										borderRadius: '0.25rem',
+									}}
+								>
 									{`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\
   https://api.example.com/protected-resource`}
 								</pre>
@@ -299,14 +339,28 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 								border: 'none',
 								borderRadius: '0.5rem',
 								cursor: 'pointer',
-								marginTop: '1rem'
+								marginTop: '1rem',
 							}}
 						>
 							{controller.isLoading ? 'Introspecting...' : 'Introspect Token'}
 						</button>
 						{controller.introspectionResult && (
-							<div style={{ padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem', margin: '1rem 0' }}>
-								<pre style={{ background: '#1f2937', color: '#f9fafb', padding: '1rem', borderRadius: '0.25rem' }}>
+							<div
+								style={{
+									padding: '1rem',
+									background: '#f9fafb',
+									borderRadius: '0.5rem',
+									margin: '1rem 0',
+								}}
+							>
+								<pre
+									style={{
+										background: '#1f2937',
+										color: '#f9fafb',
+										padding: '1rem',
+										borderRadius: '0.25rem',
+									}}
+								>
 									{JSON.stringify(controller.introspectionResult, null, 2)}
 								</pre>
 							</div>
@@ -318,7 +372,14 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 					<div>
 						<h3>Flow Complete</h3>
 						<p>Review the completed flow.</p>
-						<div style={{ padding: '1rem', background: '#dcfce7', borderRadius: '0.5rem', margin: '1rem 0' }}>
+						<div
+							style={{
+								padding: '1rem',
+								background: '#dcfce7',
+								borderRadius: '0.5rem',
+								margin: '1rem 0',
+							}}
+						>
 							<p>✅ Client credentials configured</p>
 							<p>✅ Authentication method selected</p>
 							<p>✅ Access token obtained</p>
@@ -352,9 +413,7 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 						</StepHeaderRight>
 					</StepHeader>
 
-					<StepContent>
-						{renderStepContent()}
-					</StepContent>
+					<StepContent>{renderStepContent()}</StepContent>
 
 					<StepNavigationButtons
 						onNext={handleNext}
@@ -372,5 +431,3 @@ const ClientCredentialsFlowV7Simple: React.FC = () => {
 };
 
 export default ClientCredentialsFlowV7Simple;
-
-

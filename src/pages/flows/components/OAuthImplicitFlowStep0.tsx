@@ -3,11 +3,11 @@ import React from 'react';
 import { FiAlertCircle, FiInfo, FiSettings, FiShield } from 'react-icons/fi';
 import { CredentialsInput } from '../../../components/CredentialsInput';
 import EnvironmentIdInput from '../../../components/EnvironmentIdInput';
-import { oidcDiscoveryService } from '../../../services/oidcDiscoveryService';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../../../components/steps/CommonSteps';
+import type { IntroSectionKey } from '../config/OAuthImplicitFlow.config';
 import {
 	ActionRow,
 	Button,
@@ -32,7 +32,6 @@ import {
 	ParameterValue,
 	StrongText,
 } from '../styles/OAuthImplicitFlow.styles';
-import type { IntroSectionKey } from '../config/OAuthImplicitFlow.config';
 
 interface Step0Props {
 	collapsedSections: Record<string, boolean>;
@@ -192,8 +191,8 @@ export const OAuthImplicitFlowStep0: React.FC<Step0Props> = ({
 							showClientSecret={false}
 						/>
 
-						<PingOneApplicationConfig 
-							value={pingOneConfig} 
+						<PingOneApplicationConfig
+							value={pingOneConfig}
 							onChange={savePingOneConfig}
 							flowType="oauth-implicit"
 						/>

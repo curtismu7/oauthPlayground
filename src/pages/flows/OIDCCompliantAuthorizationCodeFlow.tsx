@@ -1,10 +1,10 @@
 // src/pages/flows/OIDCCompliantAuthorizationCodeFlow.tsx
 /**
  * OIDC Core 1.0 Compliant Authorization Code Flow
- * 
+ *
  * This component implements a fully OIDC Core 1.0 compliant Authorization Code Flow
  * with proper ID token validation, claims processing, and UserInfo integration.
- * 
+ *
  * Key Features:
  * - OIDC Core 1.0 compliant parameter validation
  * - ID token validation with nonce verification
@@ -14,26 +14,26 @@
  */
 
 import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
 import {
-  FiAlertCircle,
-  FiCheckCircle,
-  FiCopy,
-  FiExternalLink,
-  FiEye,
-  FiEyeOff,
-  FiInfo,
-  FiKey,
-  FiLock,
-  FiRefreshCw,
-  FiShield,
-  FiArrowRight,
-  FiAlertTriangle,
-  FiUser,
+	FiAlertCircle,
+	FiAlertTriangle,
+	FiArrowRight,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useOIDCCompliantAuthorizationCodeFlow } from '../../hooks/useOIDCCompliantAuthorizationCodeFlow';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import type { ClaimsRequest } from '../../services/oidcComplianceService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (reusing from OAuth2 compliant flow)
 const Container = styled.div`
@@ -86,29 +86,29 @@ const ComplianceBadge = styled.div`
 `;
 
 export default function OIDCCompliantAuthorizationCodeFlow() {
-  const [flowState, flowActions] = useOIDCCompliantAuthorizationCodeFlow();
-  const [showTokens, setShowTokens] = useState(false);
-  const [showIdToken, setShowIdToken] = useState(false);
-  const [showUserInfo, setShowUserInfo] = useState(false);
+	const [flowState, flowActions] = useOIDCCompliantAuthorizationCodeFlow();
+	const [showTokens, setShowTokens] = useState(false);
+	const [showIdToken, setShowIdToken] = useState(false);
+	const [showUserInfo, setShowUserInfo] = useState(false);
 
-  return (
-    <Container>
-      <ContentWrapper>
-        <Header>
-          <HeaderTitle>
-            <FiShield />
-            OpenID Connect Authorization Code Flow
-          </HeaderTitle>
-          <HeaderSubtitle>
-            OIDC Core 1.0 compliant implementation with ID token validation and UserInfo integration
-          </HeaderSubtitle>
-          <ComplianceBadge>
-            <FiCheckCircle />
-            OIDC Core 1.0 Compliant
-          </ComplianceBadge>
-        </Header>
-        {/* Component content will be added in next part */}
-      </ContentWrapper>
-    </Container>
-  );
+	return (
+		<Container>
+			<ContentWrapper>
+				<Header>
+					<HeaderTitle>
+						<FiShield />
+						OpenID Connect Authorization Code Flow
+					</HeaderTitle>
+					<HeaderSubtitle>
+						OIDC Core 1.0 compliant implementation with ID token validation and UserInfo integration
+					</HeaderSubtitle>
+					<ComplianceBadge>
+						<FiCheckCircle />
+						OIDC Core 1.0 Compliant
+					</ComplianceBadge>
+				</Header>
+				{/* Component content will be added in next part */}
+			</ContentWrapper>
+		</Container>
+	);
 }

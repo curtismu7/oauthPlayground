@@ -25,14 +25,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'OAuth 2.0 Authorization Code Flow with PKCE',
-		specification: 'RFC 6749, Section 4.1'
+		specification: 'RFC 6749, Section 4.1',
 	},
 	{
 		flowType: 'oauth-authorization-code-v5',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'OAuth 2.0 Authorization Code Flow with PKCE (V5)',
-		specification: 'RFC 6749, Section 4.1'
+		specification: 'RFC 6749, Section 4.1',
 	},
 
 	// OpenID Connect Authorization Code Flows
@@ -41,14 +41,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'OpenID Connect Authorization Code Flow',
-		specification: 'OIDC Core 1.0, Section 3.1.2'
+		specification: 'OIDC Core 1.0, Section 3.1.2',
 	},
 	{
 		flowType: 'oidc-authorization-code-v5',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'OpenID Connect Authorization Code Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.1.2'
+		specification: 'OIDC Core 1.0, Section 3.1.2',
 	},
 
 	// OAuth 2.0 Implicit Flows
@@ -57,14 +57,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'oauth-implicit-callback',
 		description: 'OAuth 2.0 Implicit Grant Flow',
-		specification: 'RFC 6749, Section 4.2'
+		specification: 'RFC 6749, Section 4.2',
 	},
 	{
 		flowType: 'oauth-implicit-v5',
 		requiresRedirectUri: true,
 		callbackPath: 'oauth-implicit-callback',
 		description: 'OAuth 2.0 Implicit Grant Flow (V5)',
-		specification: 'RFC 6749, Section 4.2'
+		specification: 'RFC 6749, Section 4.2',
 	},
 
 	// OpenID Connect Implicit Flows
@@ -73,14 +73,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'oidc-implicit-callback',
 		description: 'OpenID Connect Implicit Flow',
-		specification: 'OIDC Core 1.0, Section 3.2.2'
+		specification: 'OIDC Core 1.0, Section 3.2.2',
 	},
 	{
 		flowType: 'oidc-implicit-v5',
 		requiresRedirectUri: true,
 		callbackPath: 'oidc-implicit-callback',
 		description: 'OpenID Connect Implicit Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.2.2'
+		specification: 'OIDC Core 1.0, Section 3.2.2',
 	},
 
 	// Unified OAuth/OIDC Implicit Flow V7
@@ -89,7 +89,7 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',
 		description: 'Unified OAuth/OIDC Implicit Flow V7',
-		specification: 'RFC 6749, Section 4.2 / OIDC Core 1.0, Section 3.2.2'
+		specification: 'RFC 6749, Section 4.2 / OIDC Core 1.0, Section 3.2.2',
 	},
 
 	// OpenID Connect Hybrid Flows
@@ -98,14 +98,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'hybrid-callback',
 		description: 'OpenID Connect Hybrid Flow',
-		specification: 'OIDC Core 1.0, Section 3.3'
+		specification: 'OIDC Core 1.0, Section 3.3',
 	},
 	{
 		flowType: 'oidc-hybrid-v5',
 		requiresRedirectUri: true,
 		callbackPath: 'hybrid-callback',
 		description: 'OpenID Connect Hybrid Flow (V5)',
-		specification: 'OIDC Core 1.0, Section 3.3'
+		specification: 'OIDC Core 1.0, Section 3.3',
 	},
 
 	// Device Authorization Flows
@@ -114,14 +114,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: false,
 		callbackPath: 'device-callback',
 		description: 'OAuth 2.0 Device Authorization Grant',
-		specification: 'RFC 8628, Section 3.4'
+		specification: 'RFC 8628, Section 3.4',
 	},
 	{
 		flowType: 'oidc-device-authorization-v6',
 		requiresRedirectUri: false,
 		callbackPath: 'device-callback',
 		description: 'OpenID Connect Device Authorization Grant',
-		specification: 'OIDC Device Flow 1.0'
+		specification: 'OIDC Device Flow 1.0',
 	},
 
 	// Client Credentials Flow
@@ -130,7 +130,23 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
 		description: 'OAuth 2.0 Client Credentials Grant',
-		specification: 'RFC 6749, Section 4.4'
+		specification: 'RFC 6749, Section 4.4',
+	},
+	{
+		flowType: 'client-credentials',
+		requiresRedirectUri: false,
+		callbackPath: 'client-credentials-callback',
+		description: 'OAuth 2.0 Client Credentials Grant',
+		specification: 'RFC 6749, Section 4.4',
+	},
+
+	// Worker Token Flow (PingOne Management API)
+	{
+		flowType: 'worker-token',
+		requiresRedirectUri: false,
+		callbackPath: 'worker-token-callback',
+		description: 'PingOne Worker Token (Management API)',
+		specification: 'PingOne Management API',
 	},
 
 	// PingOne PAR (Pushed Authorization Requests)
@@ -139,14 +155,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'PingOne Pushed Authorization Requests',
-		specification: 'RFC 9126 (PAR)'
+		specification: 'RFC 9126 (PAR)',
 	},
 	{
 		flowType: 'pingone-par-v6-new',
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'PingOne Pushed Authorization Requests (New)',
-		specification: 'RFC 9126 (PAR)'
+		specification: 'RFC 9126 (PAR)',
 	},
 
 	// RAR (Rich Authorization Requests)
@@ -155,7 +171,7 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'Rich Authorization Requests',
-		specification: 'RFC 9396 (RAR)'
+		specification: 'RFC 9396 (RAR)',
 	},
 
 	// Mock/Educational Flows
@@ -164,14 +180,14 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
 		description: 'OAuth 2.0 JWT Bearer Token Flow (Mock)',
-		specification: 'RFC 7523'
+		specification: 'RFC 7523',
 	},
 	{
 		flowType: 'saml-bearer-assertion-v6',
 		requiresRedirectUri: false,
 		callbackPath: 'N/A',
 		description: 'OAuth 2.0 SAML Bearer Assertion Flow (Mock)',
-		specification: 'RFC 7522'
+		specification: 'RFC 7522',
 	},
 
 	// Legacy/V3 Flows (for backward compatibility)
@@ -180,21 +196,65 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'Authorization Code Flow (V3)',
-		specification: 'RFC 6749, Section 4.1'
+		specification: 'RFC 6749, Section 4.1',
 	},
 	{
 		flowType: 'implicit-v3',
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',
 		description: 'Implicit Flow (V3)',
-		specification: 'RFC 6749, Section 4.2'
+		specification: 'RFC 6749, Section 4.2',
 	},
 	{
 		flowType: 'hybrid-v3',
 		requiresRedirectUri: true,
 		callbackPath: 'hybrid-callback',
 		description: 'Hybrid Flow (V3)',
-		specification: 'OIDC Core 1.0, Section 3.3'
+		specification: 'OIDC Core 1.0, Section 3.3',
+	},
+
+	// V8U Unified Flows
+	{
+		flowType: 'oauth-authz-v8u',
+		requiresRedirectUri: true,
+		callbackPath: 'unified-callback',
+		description: 'V8U Authorization Code Flow',
+		specification: 'RFC 6749, Section 4.1',
+	},
+	{
+		flowType: 'implicit-v8u',
+		requiresRedirectUri: true,
+		callbackPath: 'unified-callback',
+		description: 'V8U Implicit Flow',
+		specification: 'RFC 6749, Section 4.2',
+	},
+	{
+		flowType: 'hybrid-v8u',
+		requiresRedirectUri: true,
+		callbackPath: 'unified-callback',
+		description: 'V8U Hybrid Flow',
+		specification: 'OIDC Core 1.0, Section 3.3',
+	},
+	{
+		flowType: 'device-code-v8u',
+		requiresRedirectUri: false,
+		callbackPath: 'device-code-status',
+		description: 'V8U Device Code Flow',
+		specification: 'RFC 8628',
+	},
+	{
+		flowType: 'client-credentials-v8u',
+		requiresRedirectUri: false,
+		callbackPath: 'client-credentials-callback',
+		description: 'V8U Client Credentials Flow',
+		specification: 'RFC 6749, Section 4.4',
+	},
+	{
+		flowType: 'ropc-v8u',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'V8U Resource Owner Password Credentials',
+		specification: 'RFC 6749, Section 4.3',
 	},
 
 	// Generic fallbacks
@@ -203,22 +263,36 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		requiresRedirectUri: true,
 		callbackPath: 'authz-callback',
 		description: 'Generic Authorization Code Flow',
-		specification: 'RFC 6749, Section 4.1'
+		specification: 'RFC 6749, Section 4.1',
 	},
 	{
 		flowType: 'implicit',
 		requiresRedirectUri: true,
 		callbackPath: 'implicit-callback',
 		description: 'Generic Implicit Flow',
-		specification: 'RFC 6749, Section 4.2'
+		specification: 'RFC 6749, Section 4.2',
 	},
 	{
 		flowType: 'hybrid',
 		requiresRedirectUri: true,
 		callbackPath: 'hybrid-callback',
 		description: 'Generic Hybrid Flow',
-		specification: 'OIDC Core 1.0, Section 3.3'
-	}
+		specification: 'OIDC Core 1.0, Section 3.3',
+	},
+	{
+		flowType: 'device-code',
+		requiresRedirectUri: false,
+		callbackPath: 'device-code-status',
+		description: 'Generic Device Code Flow',
+		specification: 'RFC 8628',
+	},
+	{
+		flowType: 'ropc',
+		requiresRedirectUri: false,
+		callbackPath: 'N/A',
+		description: 'Generic Resource Owner Password Credentials',
+		specification: 'RFC 6749, Section 4.3',
+	},
 ];
 
 /**
@@ -227,7 +301,7 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
  * @returns The redirect URI configuration or null if not found
  */
 export function getFlowRedirectUriConfig(flowType: string): FlowRedirectUriConfig | null {
-	return FLOW_REDIRECT_URI_MAPPING.find(config => config.flowType === flowType) || null;
+	return FLOW_REDIRECT_URI_MAPPING.find((config) => config.flowType === flowType) || null;
 }
 
 /**
@@ -238,12 +312,13 @@ export function getFlowRedirectUriConfig(flowType: string): FlowRedirectUriConfi
  */
 export function generateRedirectUriForFlow(flowType: string, baseUrl?: string): string | null {
 	const config = getFlowRedirectUriConfig(flowType);
-	
+
 	if (!config || !config.requiresRedirectUri) {
 		return null;
 	}
 
-	const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000');
+	const base =
+		baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000');
 	return `${base}/${config.callbackPath}`;
 }
 
@@ -252,9 +327,9 @@ export function generateRedirectUriForFlow(flowType: string, baseUrl?: string): 
  * @returns Array of flow types that require redirect URIs
  */
 export function getFlowsRequiringRedirectUri(): string[] {
-	return FLOW_REDIRECT_URI_MAPPING
-		.filter(config => config.requiresRedirectUri)
-		.map(config => config.flowType);
+	return FLOW_REDIRECT_URI_MAPPING.filter((config) => config.requiresRedirectUri).map(
+		(config) => config.flowType
+	);
 }
 
 /**
@@ -262,9 +337,9 @@ export function getFlowsRequiringRedirectUri(): string[] {
  * @returns Array of flow types that don't require redirect URIs
  */
 export function getFlowsNotRequiringRedirectUri(): string[] {
-	return FLOW_REDIRECT_URI_MAPPING
-		.filter(config => !config.requiresRedirectUri)
-		.map(config => config.flowType);
+	return FLOW_REDIRECT_URI_MAPPING.filter((config) => !config.requiresRedirectUri).map(
+		(config) => config.flowType
+	);
 }
 
 /**

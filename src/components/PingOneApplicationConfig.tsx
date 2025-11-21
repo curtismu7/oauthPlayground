@@ -1,9 +1,9 @@
 // src/components/PingOneApplicationConfig.tsx
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { FiGlobe, FiKey, FiSettings, FiShield, FiSave, FiCheck, FiInfo } from 'react-icons/fi';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FiCheck, FiGlobe, FiInfo, FiKey, FiSave, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 import { DPoPStatus } from '../services/dpopService';
+import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
 export interface PingOneApplicationState {
 	clientAuthMethod:
@@ -43,6 +43,7 @@ export interface PingOneApplicationState {
 
 	// Pushed Authorization Request (PAR)
 	requirePushedAuthorizationRequest: boolean;
+	pushedAuthorizationRequestTimeout: number; // in seconds
 
 	// DPoP (Demonstration of Proof of Possession)
 	enableDPoP: boolean;
@@ -314,17 +315,17 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 	}
 `;
 
-const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ 
-	value, 
-	onChange, 
-	onSave, 
-	isSaving = false, 
+const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
+	value,
+	onChange,
+	onSave,
+	isSaving = false,
 	hasUnsavedChanges = false,
-	flowType
+	flowType,
 }) => {
 	// Track initial values to detect changes
 	const [initialValues, setInitialValues] = useState(value);
-	
+
 	// Reset initial values when save is successful (when isSaving goes from true to false)
 	const [wasSaving, setWasSaving] = useState(false);
 	useEffect(() => {
@@ -334,14 +335,14 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 		}
 		setWasSaving(isSaving);
 	}, [isSaving, value, wasSaving]);
-	
+
 	// Calculate if there are unsaved changes
 	const hasActualUnsavedChanges = useMemo(() => {
 		// If parent explicitly provides hasUnsavedChanges, use that
 		if (hasUnsavedChanges !== false) {
 			return hasUnsavedChanges;
 		}
-		
+
 		// Otherwise, compare current values with initial values
 		return JSON.stringify(value) !== JSON.stringify(initialValues);
 	}, [value, initialValues, hasUnsavedChanges]);
@@ -356,238 +357,346 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 				<FiSettings /> PingOne Advanced Configuration
 			</SectionTitle>
 			{/* Hide PAR for flows that don't use authorization endpoints */}
-			{!flowType?.includes('client-credentials') && 
-			 !flowType?.includes('jwt-bearer') && 
-			 !flowType?.includes('worker-token') && 
-			 !flowType?.includes('device-authorization') && (
-				<Section>
-					<SectionTitle>
-						<FiShield /> Pushed Authorization Request (PAR)
-					</SectionTitle>
-					<Grid>
-						<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
-							<CheckboxLabel>
-								<Checkbox
-									type="checkbox"
-									checked={value.requirePushedAuthorizationRequest}
-									onChange={(e) => onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })}
-								/>
-								Require Pushed Authorization Request
-							</CheckboxLabel>
-							<Helper>
-								Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
-							</Helper>
-							
-							<div style={{ 
-								marginTop: '1rem', 
-								padding: '1rem', 
-								background: '#f0f9ff', 
-								border: '1px solid #0ea5e9', 
-								borderRadius: '6px',
-								fontSize: '0.85rem'
-							}}>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e', fontSize: '0.9rem', fontWeight: '600' }}>
-									🔄 PAR Flow Process
-								</h4>
-								<ol style={{ margin: 0, paddingLeft: '1.5rem', color: '#0c4a6e', lineHeight: '1.5' }}>
-									<li><strong>Step 1:</strong> Client sends POST request to <code>/as/par</code> with all authorization parameters</li>
-									<li><strong>Step 2:</strong> PingOne validates the request and returns a <code>request_uri</code></li>
-									<li><strong>Step 3:</strong> Client redirects user to <code>/as/authorize</code> with only the <code>request_uri</code></li>
-									<li><strong>Step 4:</strong> PingOne retrieves the original parameters using the <code>request_uri</code></li>
-									<li><strong>Step 5:</strong> Normal OAuth flow continues with user authentication</li>
-								</ol>
-								<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#0369a1' }}>
-									<strong>Benefits:</strong> Keeps sensitive parameters off the browser URL, prevents tampering, and provides better security for SPAs.
-								</div>
-							</div>
-							
-							{/* PingOne PAR Compatibility */}
-							<div style={{ 
-								marginTop: '1rem', 
-								padding: '1rem', 
-								background: '#f0fdf4', 
-								border: '1px solid #16a34a', 
-								borderRadius: '6px',
-								fontSize: '0.85rem'
-							}}>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#15803d', fontSize: '0.9rem', fontWeight: '600' }}>
-									✅ PingOne PAR Compatibility
-								</h4>
-								<div style={{ color: '#15803d', lineHeight: '1.5', marginBottom: '0.5rem' }}>
-									<strong>Supported Application Types:</strong>
-								</div>
-								<ul style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', color: '#15803d', lineHeight: '1.5' }}>
-									<li><strong>OIDC Web App:</strong> Authorization Code grant type ✅</li>
-									<li><strong>Native App:</strong> Authorization Code or Implicit grant types ✅</li>
-									<li><strong>Single-page App:</strong> Implicit grant type ✅</li>
-									<li><strong>Worker App:</strong> Only if configured for user-based grant types ✅</li>
-								</ul>
-								<div style={{ fontSize: '0.8rem', color: '#16a34a' }}>
-									<strong>PingOne Limits:</strong> Max 1MB request size, 60-second default lifetime, HTTP POST only, request_uri can only be used once.
-								</div>
-							</div>
-							
-							<UrlExampleContainer style={{ width: '100%' }}>
-								<UrlExample style={{ width: '100%' }}>
-									<UrlLabel>Without PAR (Traditional Flow):</UrlLabel>
-									<ColoredUrlDisplay
-										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?response_type=code&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback&scope=openid%20profile%20email&state=af0ifjsldkj&code_challenge=4Ey6Qpryp0Z_5BEDPVQf&code_challenge_method=S256&nonce=n-0S6_WzA2Mj"
-										title="Authorization URL without PAR"
-										showCopyButton={true}
-										showExplanationButton={true}
+			{!flowType?.includes('client-credentials') &&
+				!flowType?.includes('jwt-bearer') &&
+				!flowType?.includes('worker-token') &&
+				!flowType?.includes('device-authorization') && (
+					<Section>
+						<SectionTitle>
+							<FiShield /> Pushed Authorization Request (PAR)
+						</SectionTitle>
+						<Grid>
+							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
+								<CheckboxLabel>
+									<Checkbox
+										type="checkbox"
+										checked={value.requirePushedAuthorizationRequest}
+										onChange={(e) =>
+											onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })
+										}
 									/>
-								</UrlExample>
-								
-								<UrlExample style={{ width: '100%' }}>
-									<UrlLabel>With PAR (Step 1 - PAR Request):</UrlLabel>
-									<ColoredUrlDisplay
-										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/par"
-										title="PAR Endpoint URL"
-										showCopyButton={true}
-										showExplanationButton={true}
-									/>
-									<details style={{ marginTop: '0.5rem' }}>
-										<summary style={{ fontSize: '0.8rem', color: '#374151', cursor: 'pointer', fontWeight: '600' }}>
-											📋 Show Complete PAR Request Body
-										</summary>
-										<div style={{ 
-											marginTop: '0.5rem', 
-											padding: '0.75rem', 
-											background: '#f8fafc', 
-											border: '1px solid #e2e8f0', 
-											borderRadius: '4px',
-											fontSize: '0.75rem',
-											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace'
-										}}>
-											<strong>POST /as/par</strong><br/>
-											<strong>Content-Type:</strong> application/x-www-form-urlencoded<br/><br/>
-											<strong>Request Body:</strong><br/>
-											client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f<br/>
-											client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a<br/>
-											response_type=code<br/>
-											redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback<br/>
-											scope=openid%20profile%20email<br/>
-											state=af0ifjsldkj<br/>
-											code_challenge=4Ey6Qpryp0Z_5BEDPVQf<br/>
-											code_challenge_method=S256<br/>
-											nonce=n-0S6_WzA2Mj<br/><br/>
-											<strong>Response:</strong><br/>
-											{'{'}<br/>
-											&nbsp;&nbsp;"request_uri": "urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",<br/>
-											&nbsp;&nbsp;"expires_in": 600<br/>
-											{'}'}
-										</div>
-									</details>
-								</UrlExample>
-								
-								<UrlExample style={{ width: '100%' }}>
-									<UrlLabel>With PAR (Step 2 - Authorization URL):</UrlLabel>
-									<ColoredUrlDisplay
-										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f"
-										title="Authorization URL with PAR"
-										showCopyButton={true}
-										showExplanationButton={true}
-									/>
-									<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
-										<strong>Response from Step 1:</strong> request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
-									</div>
-								</UrlExample>
-							</UrlExampleContainer>
-						</Field>
+									Require Pushed Authorization Request
+								</CheckboxLabel>
+								<Helper>
+									Requires authorization requests to be pushed via PAR endpoint before the
+									authorization flow begins, providing better security for SPA applications
+								</Helper>
 
-					</Grid>
-				</Section>
-			)}
+								<div
+									style={{
+										marginTop: '1rem',
+										padding: '1rem',
+										background: '#f0f9ff',
+										border: '1px solid #0ea5e9',
+										borderRadius: '6px',
+										fontSize: '0.85rem',
+									}}
+								>
+									<h4
+										style={{
+											margin: '0 0 0.5rem 0',
+											color: '#0c4a6e',
+											fontSize: '0.9rem',
+											fontWeight: '600',
+										}}
+									>
+										🔄 PAR Flow Process
+									</h4>
+									<ol
+										style={{
+											margin: 0,
+											paddingLeft: '1.5rem',
+											color: '#0c4a6e',
+											lineHeight: '1.5',
+										}}
+									>
+										<li>
+											<strong>Step 1:</strong> Client sends POST request to <code>/as/par</code>{' '}
+											with all authorization parameters
+										</li>
+										<li>
+											<strong>Step 2:</strong> PingOne validates the request and returns a{' '}
+											<code>request_uri</code>
+										</li>
+										<li>
+											<strong>Step 3:</strong> Client redirects user to <code>/as/authorize</code>{' '}
+											with only the <code>request_uri</code>
+										</li>
+										<li>
+											<strong>Step 4:</strong> PingOne retrieves the original parameters using the{' '}
+											<code>request_uri</code>
+										</li>
+										<li>
+											<strong>Step 5:</strong> Normal OAuth flow continues with user authentication
+										</li>
+									</ol>
+									<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#0369a1' }}>
+										<strong>Benefits:</strong> Keeps sensitive parameters off the browser URL,
+										prevents tampering, and provides better security for SPAs.
+									</div>
+								</div>
+
+								{/* PingOne PAR Compatibility */}
+								<div
+									style={{
+										marginTop: '1rem',
+										padding: '1rem',
+										background: '#f0fdf4',
+										border: '1px solid #16a34a',
+										borderRadius: '6px',
+										fontSize: '0.85rem',
+									}}
+								>
+									<h4
+										style={{
+											margin: '0 0 0.5rem 0',
+											color: '#15803d',
+											fontSize: '0.9rem',
+											fontWeight: '600',
+										}}
+									>
+										✅ PingOne PAR Compatibility
+									</h4>
+									<div style={{ color: '#15803d', lineHeight: '1.5', marginBottom: '0.5rem' }}>
+										<strong>Supported Application Types:</strong>
+									</div>
+									<ul
+										style={{
+											margin: '0 0 0.5rem 0',
+											paddingLeft: '1.5rem',
+											color: '#15803d',
+											lineHeight: '1.5',
+										}}
+									>
+										<li>
+											<strong>OIDC Web App:</strong> Authorization Code grant type ✅
+										</li>
+										<li>
+											<strong>Native App:</strong> Authorization Code or Implicit grant types ✅
+										</li>
+										<li>
+											<strong>Single-page App:</strong> Implicit grant type ✅
+										</li>
+										<li>
+											<strong>Worker App:</strong> Only if configured for user-based grant types ✅
+										</li>
+									</ul>
+									<div style={{ fontSize: '0.8rem', color: '#16a34a' }}>
+										<strong>PingOne Limits:</strong> Max 1MB request size, 60-second default
+										lifetime, HTTP POST only, request_uri can only be used once.
+									</div>
+								</div>
+
+								<UrlExampleContainer style={{ width: '100%' }}>
+									<UrlExample style={{ width: '100%' }}>
+										<UrlLabel>Without PAR (Traditional Flow):</UrlLabel>
+										<ColoredUrlDisplay
+											url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?response_type=code&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback&scope=openid%20profile%20email&state=af0ifjsldkj&code_challenge=4Ey6Qpryp0Z_5BEDPVQf&code_challenge_method=S256&nonce=n-0S6_WzA2Mj"
+											title="Authorization URL without PAR"
+											showCopyButton={true}
+											showExplanationButton={true}
+										/>
+									</UrlExample>
+
+									<UrlExample style={{ width: '100%' }}>
+										<UrlLabel>With PAR (Step 1 - PAR Request):</UrlLabel>
+										<ColoredUrlDisplay
+											url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/par"
+											title="PAR Endpoint URL"
+											showCopyButton={true}
+											showExplanationButton={true}
+										/>
+										<details style={{ marginTop: '0.5rem' }}>
+											<summary
+												style={{
+													fontSize: '0.8rem',
+													color: '#374151',
+													cursor: 'pointer',
+													fontWeight: '600',
+												}}
+											>
+												📋 Show Complete PAR Request Body
+											</summary>
+											<div
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.75rem',
+													background: '#f8fafc',
+													border: '1px solid #e2e8f0',
+													borderRadius: '4px',
+													fontSize: '0.75rem',
+													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+												}}
+											>
+												<strong>POST /as/par</strong>
+												<br />
+												<strong>Content-Type:</strong> application/x-www-form-urlencoded
+												<br />
+												<br />
+												<strong>Request Body:</strong>
+												<br />
+												client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f
+												<br />
+												client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a
+												<br />
+												response_type=code
+												<br />
+												redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback
+												<br />
+												scope=openid%20profile%20email
+												<br />
+												state=af0ifjsldkj
+												<br />
+												code_challenge=4Ey6Qpryp0Z_5BEDPVQf
+												<br />
+												code_challenge_method=S256
+												<br />
+												nonce=n-0S6_WzA2Mj
+												<br />
+												<br />
+												<strong>Response:</strong>
+												<br />
+												{'{'}
+												<br />
+												&nbsp;&nbsp;"request_uri":
+												"urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
+												<br />
+												&nbsp;&nbsp;"expires_in": 600
+												<br />
+												{'}'}
+											</div>
+										</details>
+									</UrlExample>
+
+									<UrlExample style={{ width: '100%' }}>
+										<UrlLabel>With PAR (Step 2 - Authorization URL):</UrlLabel>
+										<ColoredUrlDisplay
+											url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f"
+											title="Authorization URL with PAR"
+											showCopyButton={true}
+											showExplanationButton={true}
+										/>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+											<strong>Response from Step 1:</strong>{' '}
+											request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+										</div>
+									</UrlExample>
+								</UrlExampleContainer>
+							</Field>
+						</Grid>
+					</Section>
+				)}
 
 			{/* DPoP Section - Only show for mock/demo flows since PingOne doesn't support DPoP yet */}
-			{DPoPStatus.isSupported() && (
-				flowType?.includes('mock') || 
-				flowType?.includes('demo') || 
-				flowType?.includes('jwt-bearer') // JWT Bearer flows are mock implementations
-			) && (
-				<Section>
-					<SectionTitle>
-						<FiShield /> DPoP (Demonstration of Proof of Possession)
-					</SectionTitle>
-					<Grid>
-						<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
-							<CheckboxLabel>
-								<Checkbox
-									type="checkbox"
-									checked={value.enableDPoP}
-									onChange={(e) => onChange({ ...value, enableDPoP: e.target.checked })}
-								/>
-								Enable DPoP for enhanced token security
-							</CheckboxLabel>
-							<Helper>
-								<strong>Demo Feature:</strong> Demonstrates DPoP (RFC 9449) implementation for educational purposes. PingOne does not currently support DPoP validation, so this provides client-side proof generation only.
-							</Helper>
+			{DPoPStatus.isSupported() &&
+				(flowType?.includes('mock') ||
+					flowType?.includes('demo') ||
+					flowType?.includes('jwt-bearer')) && ( // JWT Bearer flows are mock implementations
+					<Section>
+						<SectionTitle>
+							<FiShield /> DPoP (Demonstration of Proof of Possession)
+						</SectionTitle>
+						<Grid>
+							<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
+								<CheckboxLabel>
+									<Checkbox
+										type="checkbox"
+										checked={value.enableDPoP}
+										onChange={(e) => onChange({ ...value, enableDPoP: e.target.checked })}
+									/>
+									Enable DPoP for enhanced token security
+								</CheckboxLabel>
+								<Helper>
+									<strong>Demo Feature:</strong> Demonstrates DPoP (RFC 9449) implementation for
+									educational purposes. PingOne does not currently support DPoP validation, so this
+									provides client-side proof generation only.
+								</Helper>
 
-							{value.enableDPoP && (
-								<div style={{ marginTop: '1rem' }}>
-									<Field>
-										<Label htmlFor="dpop-algorithm">Signature Algorithm</Label>
-										<Select
-											id="dpop-algorithm"
-											value={value.dpopAlgorithm}
-											onChange={(e) => onChange({ ...value, dpopAlgorithm: e.target.value as 'ES256' | 'RS256' })}
+								{value.enableDPoP && (
+									<div style={{ marginTop: '1rem' }}>
+										<Field>
+											<Label htmlFor="dpop-algorithm">Signature Algorithm</Label>
+											<Select
+												id="dpop-algorithm"
+												value={value.dpopAlgorithm}
+												onChange={(e) =>
+													onChange({ ...value, dpopAlgorithm: e.target.value as 'ES256' | 'RS256' })
+												}
+											>
+												<option value="ES256">ES256 (Elliptic Curve - Recommended)</option>
+												<option value="RS256">RS256 (RSA)</option>
+											</Select>
+											<Helper>Cryptographic algorithm used for DPoP proof signatures</Helper>
+										</Field>
+
+										<div
+											style={{
+												marginTop: '1rem',
+												padding: '1rem',
+												background: '#f8fafc',
+												border: '1px solid #e2e8f0',
+												borderRadius: '6px',
+											}}
 										>
-											<option value="ES256">ES256 (Elliptic Curve - Recommended)</option>
-											<option value="RS256">RS256 (RSA)</option>
-										</Select>
-										<Helper>Cryptographic algorithm used for DPoP proof signatures</Helper>
-									</Field>
-
-									<div style={{ 
-										marginTop: '1rem', 
-										padding: '1rem', 
-										background: '#f8fafc', 
-										border: '1px solid #e2e8f0', 
-										borderRadius: '6px' 
-									}}>
-										<div style={{ marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
-											DPoP Status
-										</div>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem' }}>
-											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-												<span style={{ fontWeight: '500' }}>Browser Support:</span>
-												<span style={{ color: '#10b981' }}>✓ Supported</span>
+											<div style={{ marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+												DPoP Status
 											</div>
-											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-												<span style={{ fontWeight: '500' }}>Algorithm:</span>
-												<span style={{ color: '#6b7280' }}>{value.dpopAlgorithm}</span>
+											<div
+												style={{
+													display: 'flex',
+													flexDirection: 'column',
+													gap: '0.25rem',
+													fontSize: '0.875rem',
+												}}
+											>
+												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+													<span style={{ fontWeight: '500' }}>Browser Support:</span>
+													<span style={{ color: '#10b981' }}>✓ Supported</span>
+												</div>
+												<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+													<span style={{ fontWeight: '500' }}>Algorithm:</span>
+													<span style={{ color: '#6b7280' }}>{value.dpopAlgorithm}</span>
+												</div>
+											</div>
+										</div>
+
+										<div
+											style={{
+												marginTop: '1rem',
+												display: 'flex',
+												gap: '0.75rem',
+												padding: '1rem',
+												background: '#eff6ff',
+												border: '1px solid #bfdbfe',
+												borderRadius: '6px',
+											}}
+										>
+											<FiInfo
+												color="#1e40af"
+												size={20}
+												style={{ flexShrink: 0, marginTop: '0.125rem' }}
+											/>
+											<div>
+												<div
+													style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.25rem' }}
+												>
+													How DPoP Works
+												</div>
+												<div style={{ color: '#1e40af', fontSize: '0.875rem', lineHeight: '1.4' }}>
+													DPoP creates a cryptographic proof for each HTTP request using a private
+													key. The authorization server can verify this proof to ensure the request
+													comes from the legitimate client, preventing token theft and replay
+													attacks.
+												</div>
 											</div>
 										</div>
 									</div>
+								)}
+							</Field>
+						</Grid>
+					</Section>
+				)}
 
-									<div style={{ 
-										marginTop: '1rem',
-										display: 'flex',
-										gap: '0.75rem',
-										padding: '1rem',
-										background: '#eff6ff',
-										border: '1px solid #bfdbfe',
-										borderRadius: '6px'
-									}}>
-										<FiInfo color="#1e40af" size={20} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
-										<div>
-											<div style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.25rem' }}>
-												How DPoP Works
-											</div>
-											<div style={{ color: '#1e40af', fontSize: '0.875rem', lineHeight: '1.4' }}>
-												DPoP creates a cryptographic proof for each HTTP request using a private key.
-												The authorization server can verify this proof to ensure the request comes from
-												the legitimate client, preventing token theft and replay attacks.
-											</div>
-										</div>
-									</div>
-								</div>
-							)}
-						</Field>
-					</Grid>
-				</Section>
-			)}
-			
 			<Section>
 				<SectionTitle>
 					<FiSettings /> Client Authentication
@@ -598,7 +707,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						<Select
 							id="client-auth-method"
 							value={value.clientAuthMethod}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'] })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								update({
+									clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'],
+								})
+							}
 						>
 							<option value="client_secret_post">Client Secret Post</option>
 							<option value="client_secret_basic">Client Secret Basic</option>
@@ -622,7 +735,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings to see this feature in the flow
+							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
+							to see this feature in the flow
 						</Helper>
 					</Field>
 				</Grid>
@@ -634,7 +748,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Textarea
 								id="private-key"
 								value={value.privateKey || ''}
-								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ privateKey: e.target.value })}
+								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+									update({ privateKey: e.target.value })
+								}
 								placeholder="-----BEGIN PRIVATE KEY-----&#10;MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...&#10;-----END PRIVATE KEY-----"
 								rows={8}
 								style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
@@ -760,16 +876,28 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							onChange={(e) => onChange({ ...value, requestParameterSignatureRequirement: e.target.value as 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED' })}
+							onChange={(e) =>
+								onChange({
+									...value,
+									requestParameterSignatureRequirement: e.target.value as
+										| 'DEFAULT'
+										| 'REQUIRE_SIGNED'
+										| 'ALLOW_UNSIGNED',
+								})
+							}
 						>
 							<option value="DEFAULT">Default</option>
 							<option value="REQUIRE_SIGNED">Require Signed</option>
 							<option value="ALLOW_UNSIGNED">Allow Unsigned</option>
 						</Select>
 						<Helper>
-							Controls whether request parameters must be cryptographically signed for enhanced security and integrity<br/>
-							<strong>Default:</strong> Uses PingOne's default signature requirements<br/>
-							<strong>Require Signed:</strong> All requests must include valid signatures<br/>
+							Controls whether request parameters must be cryptographically signed for enhanced
+							security and integrity
+							<br />
+							<strong>Default:</strong> Uses PingOne's default signature requirements
+							<br />
+							<strong>Require Signed:</strong> All requests must include valid signatures
+							<br />
 							<strong>Allow Unsigned:</strong> Permits requests without signatures (less secure)
 						</Helper>
 					</Field>
@@ -779,13 +907,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.additionalRefreshTokenReplayProtection}
-								onChange={(e) => onChange({ ...value, additionalRefreshTokenReplayProtection: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, additionalRefreshTokenReplayProtection: e.target.checked })
+								}
 							/>
 							Additional Refresh Token Replay Protection
 						</CheckboxLabel>
 						<Helper>
-							Prevents refresh tokens from being used multiple times, enhancing security by ensuring each token can only be used once<br/>
-							<strong>Benefit:</strong> Prevents token replay attacks where stolen refresh tokens could be reused
+							Prevents refresh tokens from being used multiple times, enhancing security by ensuring
+							each token can only be used once
+							<br />
+							<strong>Benefit:</strong> Prevents token replay attacks where stolen refresh tokens
+							could be reused
 						</Helper>
 					</Field>
 
@@ -799,8 +932,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							Include x5t Parameter
 						</CheckboxLabel>
 						<Helper>
-							Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for certificate-based authentication validation<br/>
-							<strong>Purpose:</strong> Allows clients to validate that JWTs were signed with the expected certificate
+							Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for
+							certificate-based authentication validation
+							<br />
+							<strong>Purpose:</strong> Allows clients to validate that JWTs were signed with the
+							expected certificate
 						</Helper>
 					</Field>
 
@@ -814,8 +950,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							OpenID Connect Session Management
 						</CheckboxLabel>
 						<Helper>
-							Enables OIDC session management features including session state and logout functionality for better user session handling<br/>
-							<strong>Features:</strong> Session state tracking, logout redirection, and improved session lifecycle management
+							Enables OIDC session management features including session state and logout
+							functionality for better user session handling
+							<br />
+							<strong>Features:</strong> Session state tracking, logout redirection, and improved
+							session lifecycle management
 						</Helper>
 					</Field>
 
@@ -824,13 +963,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.requestScopesForMultipleResources}
-								onChange={(e) => onChange({ ...value, requestScopesForMultipleResources: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, requestScopesForMultipleResources: e.target.checked })
+								}
 							/>
 							Request Scopes for Multiple Resources
 						</CheckboxLabel>
 						<Helper>
-							Allows requesting permissions across multiple resource servers in a single authorization request, useful for microservices architectures<br/>
-							<strong>Use Case:</strong> Applications that need access to multiple APIs/services can request all permissions in one authorization flow
+							Allows requesting permissions across multiple resource servers in a single
+							authorization request, useful for microservices architectures
+							<br />
+							<strong>Use Case:</strong> Applications that need access to multiple APIs/services can
+							request all permissions in one authorization flow
 						</Helper>
 					</Field>
 
@@ -839,13 +983,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.terminateUserSessionByIdToken}
-								onChange={(e) => onChange({ ...value, terminateUserSessionByIdToken: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, terminateUserSessionByIdToken: e.target.checked })
+								}
 							/>
 							Terminate User Session by ID Token
 						</CheckboxLabel>
 						<Helper>
-							Allows terminating user sessions using the ID token, providing a way to logout users across all applications<br/>
-							<strong>Benefit:</strong> Enables single logout (SLO) functionality where logging out from one application logs the user out from all related applications
+							Allows terminating user sessions using the ID token, providing a way to logout users
+							across all applications
+							<br />
+							<strong>Benefit:</strong> Enables single logout (SLO) functionality where logging out
+							from one application logs the user out from all related applications
 						</Helper>
 					</Field>
 				</Grid>
@@ -890,12 +1039,10 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 	);
 };
 
-
-
 // Default DPoP configuration
 export const getDefaultDPoPConfig = () => ({
 	enableDPoP: false,
-	dpopAlgorithm: 'ES256' as const
+	dpopAlgorithm: 'ES256' as const,
 });
 
 export default PingOneApplicationConfig;

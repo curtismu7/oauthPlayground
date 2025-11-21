@@ -4,20 +4,20 @@
  * Interactive OAuth/OIDC specification browser with real examples
  */
 
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useState } from 'react';
 import {
 	FiBook,
-	FiSearch,
-	FiExternalLink,
-	FiCode,
 	FiCheckCircle,
+	FiCode,
+	FiCompass,
 	FiCopy,
+	FiExternalLink,
 	FiGitBranch,
 	FiLayers,
-	FiCompass,
+	FiSearch,
 	FiTool,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const ExplorerContainer = styled.div`
@@ -62,7 +62,9 @@ const DeepDiveToggle = styled.button<{ $active: boolean }>`
 	border-radius: 999px;
 	border: 2px solid ${({ $active }) => ($active ? '#1d4ed8' : '#bfdbfe')};
 	background: ${({ $active }) =>
-		$active ? 'linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(37, 99, 235, 0.15))' : '#ffffff'};
+		$active
+			? 'linear-gradient(135deg, rgba(29, 78, 216, 0.15), rgba(37, 99, 235, 0.15))'
+			: '#ffffff'};
 	color: #1e3a8a;
 	font-weight: 600;
 	cursor: pointer;
@@ -124,9 +126,7 @@ const RFCCard = styled.button<{ $selected: boolean }>`
 	transition: all 0.2s;
 	text-align: left;
 	box-shadow: ${({ $selected }) =>
-		$selected
-			? '0 6px 20px rgba(37, 99, 235, 0.3)'
-			: '0 2px 6px rgba(0, 0, 0, 0.08)'};
+		$selected ? '0 6px 20px rgba(37, 99, 235, 0.3)' : '0 2px 6px rgba(0, 0, 0, 0.08)'};
 
 	&:hover {
 		transform: translateY(-3px);
@@ -776,7 +776,8 @@ const userInfo = await userInfoResponse.json();
 		relatedTools: [
 			{
 				name: 'Advanced OAuth Parameters Demo',
-				description: 'Experiment with acr_values, max_age, and claims requests before hitting production.',
+				description:
+					'Experiment with acr_values, max_age, and claims requests before hitting production.',
 				route: '/flows/advanced-oauth-params-demo',
 			},
 			{
@@ -1102,4 +1103,3 @@ const LiveRFCExplorer: React.FC = () => {
 };
 
 export default LiveRFCExplorer;
-

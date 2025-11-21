@@ -1,9 +1,8 @@
 // src/pages/flows/DeviceAuthorizationFlowV7_New.tsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
-import { QRCodeSVG } from 'qrcode.react';
+import { BarChart3, Play } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -21,80 +20,77 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import { BarChart3, Play } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import AnalyticsDashboard from '../../components/AnalyticsDashboard';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector';
 import DynamicDeviceFlow from '../../components/DynamicDeviceFlow';
-import { themeService } from '../../services/themeService';
-import styled from 'styled-components';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import InteractiveTutorial from '../../components/InteractiveTutorial';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
+import PerformanceMonitor from '../../components/PerformanceMonitor';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
+import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
-import { useDeviceAuthorizationFlow, type DeviceAuthCredentials } from '../../hooks/useDeviceAuthorizationFlow';
-import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import {
-	TokenIntrospectionService,
+	type DeviceAuthCredentials,
+	useDeviceAuthorizationFlow,
+} from '../../hooks/useDeviceAuthorizationFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { deviceTypeService } from '../../services/deviceTypeService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import { FlowUIService } from '../../services/flowUIService';
+import {
+	OAuthErrorDetails,
+	OAuthErrorHandlingService,
+} from '../../services/oauthErrorHandlingService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { themeService } from '../../services/themeService';
+import {
 	IntrospectionApiCallData,
+	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { logger } from '../../utils/logger';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
-import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
-import { deviceTypeService } from '../../services/deviceTypeService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import PerformanceMonitor from '../../components/PerformanceMonitor';
-import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
-import InteractiveTutorial from '../../components/InteractiveTutorial';
-import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
-import { LearningTooltip } from '../../components/LearningTooltip';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-// Styled Components (V5 Parity)
-const FlowContainer = styled.div`
-	min-height: 100vh;
-	background-color: var(--color-background, #f9fafb);
-	padding: 2rem 0 6rem;
-`;
-
-const FlowContent = styled.div`
-	max-width: 80rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Get UI components from FlowUIService
+const FlowContainer = FlowUIService.getContainer();
+const FlowContent = FlowUIService.getContentWrapper();
 
 const FlowHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1rem 1rem 0 0;
-	box-shadow: ${props => props.$variant === 'oidc' 
-		? '0 10px 25px rgba(59, 130, 246, 0.2)' 
-		: '0 10px 25px rgba(22, 163, 74, 0.2)'
-	};
-	max-width: 80rem;
+	box-shadow: ${(props) =>
+		props.$variant === 'oidc'
+			? '0 10px 25px rgba(59, 130, 246, 0.2)'
+			: '0 10px 25px rgba(22, 163, 74, 0.2)'};
+	max-width: 90rem;
 	margin: 0 auto;
 `;
 
@@ -112,18 +108,10 @@ const FlowSubtitle = styled.p`
 `;
 
 const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(22, 163, 74, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#4ade80'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#bbf7d0'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -387,7 +375,10 @@ const STEP_METADATA = [
 	{ title: 'Step 2: User Authorization & Polling', subtitle: 'Scan QR code and watch TV update' },
 	{ title: 'Step 3: Tokens Received', subtitle: 'View and analyze tokens' },
 	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 5: Analytics & Monitoring', subtitle: 'View flow analytics and performance metrics' },
+	{
+		title: 'Step 5: Analytics & Monitoring',
+		subtitle: 'View flow analytics and performance metrics',
+	},
 	{ title: 'Step 6: Flow Complete', subtitle: 'Summary and next steps' },
 ] as const;
 
@@ -428,14 +419,14 @@ const CountdownTimer = styled.div`
 	margin: 1rem 0;
 `;
 
-const SmartTVContainer = styled.div`
+const _SmartTVContainer = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 2rem;
 	margin: 2rem 0;
 `;
 
-const SmartTV = styled.div<{
+const _SmartTV = styled.div<{
 	$isWaiting: boolean;
 	$accentStart: string;
 	$accentEnd: string;
@@ -484,7 +475,7 @@ const SmartTV = styled.div<{
 	}
 `;
 
-const TVScreen = styled.div<{ $showContent?: boolean }>`
+const _TVScreen = styled.div<{ $showContent?: boolean }>`
 	background: ${({ $showContent }) =>
 		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
 	border: 2px solid #1e293b;
@@ -509,7 +500,7 @@ const TVDisplay = styled.div<{ $primaryColor: string }>`
 	line-height: 1.8;
 `;
 
-const TVStatusIndicator = styled.div<{
+const _TVStatusIndicator = styled.div<{
 	$active?: boolean;
 	$activeColor: string;
 	$inactiveColor: string;
@@ -808,7 +799,7 @@ const KioskActionRow = styled.div`
 	color: #475569;
 `;
 
-const ScrollIndicator = styled.div`
+const _ScrollIndicator = styled.div`
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -831,14 +822,14 @@ const ScrollIndicator = styled.div`
 	}
 `;
 
-const ScrollText = styled.div`
+const _ScrollText = styled.div`
 	font-size: 1rem;
 	font-weight: 600;
 	color: #1e40af;
 	margin-bottom: 0.5rem;
 `;
 
-const ScrollArrow = styled.div`
+const _ScrollArrow = styled.div`
 	font-size: 2rem;
 	color: #3b82f6;
 	animation: bounce 1.5s ease-in-out infinite;
@@ -881,11 +872,11 @@ const ModalContent = styled.div<{ $position?: { x: number; y: number }; $isDragg
 	width: 100%;
 	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	animation: slideUp 0.3s ease;
-	position: ${props => props.$position ? 'fixed' : 'relative'};
-	top: ${props => props.$position ? `${props.$position.y}px` : 'auto'};
-	left: ${props => props.$position ? `${props.$position.x}px` : 'auto'};
-	cursor: ${props => props.$isDragging ? 'grabbing' : 'default'};
-	transition: ${props => props.$isDragging ? 'none' : 'all 0.2s ease'};
+	position: ${(props) => (props.$position ? 'fixed' : 'relative')};
+	top: ${(props) => (props.$position ? `${props.$position.y}px` : 'auto')};
+	left: ${(props) => (props.$position ? `${props.$position.x}px` : 'auto')};
+	cursor: ${(props) => (props.$isDragging ? 'grabbing' : 'default')};
+	transition: ${(props) => (props.$isDragging ? 'none' : 'all 0.2s ease')};
 
 	@keyframes slideUp {
 		from {
@@ -937,7 +928,7 @@ const ModalActions = styled.div`
 	padding: 0 2rem 2rem 2rem;
 `;
 
-const QRSection = styled.div`
+const _QRSection = styled.div`
 	width: 100%;
 	max-width: 500px;
 	margin: 0 auto;
@@ -963,10 +954,10 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
@@ -988,7 +979,7 @@ const VariantDescription = styled.div`
 
 const DeviceAuthorizationFlowV7: React.FC = () => {
 	const location = useLocation();
-	
+
 	// Detect default variant based on navigation context
 	const getDefaultVariant = (): 'oauth' | 'oidc' => {
 		// Check if there's a variant specified in the URL params
@@ -997,20 +988,20 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
 			return urlVariant as 'oauth' | 'oidc';
 		}
-		
+
 		// Check navigation state for context
 		const state = location.state as any;
 		if (state?.fromSection === 'oidc') {
 			return 'oidc';
 		}
-		
+
 		// Default to OAuth (base protocol for Device Authorization Grant)
 		return 'oauth';
 	};
-	
+
 	// V7 Variant State
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
-	
+
 	const deviceFlow = useDeviceAuthorizationFlow();
 
 	const ensureCredentials = useCallback(
@@ -1024,14 +1015,15 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			const next: DeviceAuthCredentials = {
 				environmentId: updates.environmentId ?? current.environmentId ?? '',
 				clientId: updates.clientId ?? current.clientId ?? '',
-				scopes: updates.scopes ?? current.scopes ?? (selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
+				scopes:
+					updates.scopes ??
+					current.scopes ??
+					(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 			};
 
-			const optionalFields: Array<keyof Pick<DeviceAuthCredentials, 'clientSecret' | 'loginHint' | 'postLogoutRedirectUri'>> = [
-				'clientSecret',
-				'loginHint',
-				'postLogoutRedirectUri',
-			];
+			const optionalFields: Array<
+				keyof Pick<DeviceAuthCredentials, 'clientSecret' | 'loginHint' | 'postLogoutRedirectUri'>
+			> = ['clientSecret', 'loginHint', 'postLogoutRedirectUri'];
 
 			optionalFields.forEach((field) => {
 				const updatedValue = updates[field];
@@ -1045,26 +1037,36 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 			deviceFlow.setCredentials(next);
 		},
-		[deviceFlow.credentials, selectedVariant]
+		[deviceFlow.credentials, selectedVariant, deviceFlow.setCredentials]
 	);
 
 	// V7 Variant Change Handler
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		
-		// Update scopes based on variant to meet PingOne requirements
-		const currentCredentials = deviceFlow.credentials || { environmentId: '', clientId: '', scopes: '' };
-		const updatedScopes = variant === 'oidc' 
-			? 'openid profile email' // OIDC MUST include 'openid' scope per spec
-			: 'openid'; // PingOne requires 'openid' scope even for OAuth 2.0
-			
-		ensureCredentials({
-			...currentCredentials,
-			scopes: updatedScopes
-		});
-		
-		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Device Authorization variant`);
-	}, [deviceFlow.credentials, ensureCredentials]);
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+
+			// Update scopes based on variant to meet PingOne requirements
+			const currentCredentials = deviceFlow.credentials || {
+				environmentId: '',
+				clientId: '',
+				scopes: '',
+			};
+			const updatedScopes =
+				variant === 'oidc'
+					? 'openid profile email' // OIDC MUST include 'openid' scope per spec
+					: 'openid'; // PingOne requires 'openid' scope even for OAuth 2.0
+
+			ensureCredentials({
+				...currentCredentials,
+				scopes: updatedScopes,
+			});
+
+			v4ToastManager.showSuccess(
+				`Switched to ${variant.toUpperCase()} Device Authorization variant`
+			);
+		},
+		[deviceFlow.credentials, ensureCredentials]
+	);
 
 	// V7 Variant Selector Component
 	const renderVariantSelector = () => (
@@ -1081,7 +1083,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				onClick={() => handleVariantChange('oidc')}
 			>
 				<VariantTitle>OpenID Connect Device Authorization</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				<VariantDescription>
+					ID token + Access token - Authentication + Authorization
+				</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
 	);
@@ -1114,7 +1118,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		corsOrigins: [],
 		corsAllowAnyOrigin: false,
 	});
-	
+
 	const [currentStep, setCurrentStep] = useState(() => {
 		// Check for restore_step from token management navigation
 		const restoreStep = sessionStorage.getItem('restore_step');
@@ -1151,7 +1155,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		completionDetails: false,
 		analytics: false,
 		tutorial: false,
-		uiSettings: true,  // Collapsed by default
+		uiSettings: true, // Collapsed by default
 		deviceSelection: false,
 	});
 	const [_copiedField, setCopiedField] = useState<string | null>(null);
@@ -1172,14 +1176,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 		return 'streaming-tv';
 	});
-	
+
 	// Error handling state
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const deviceConfig = useMemo(
 		() => deviceTypeService.getDeviceType(selectedDevice),
 		[selectedDevice]
 	);
-	const instructionMessage = useMemo(
+	const _instructionMessage = useMemo(
 		() => deviceTypeService.getInstructionMessage(selectedDevice),
 		[selectedDevice]
 	);
@@ -1191,9 +1195,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		() => deviceTypeService.getWelcomeMessage(selectedDevice),
 		[selectedDevice]
 	);
-	const deviceApps = useMemo(() => deviceTypeService.getDeviceApps(selectedDevice), [selectedDevice]);
+	const deviceApps = useMemo(
+		() => deviceTypeService.getDeviceApps(selectedDevice),
+		[selectedDevice]
+	);
 	const lastParsedErrorSignatureRef = useRef<string | null>(null);
-	
+
 	// Modal drag state
 	const [modalPosition, setModalPosition] = useState<{ x: number; y: number } | null>(null);
 	const [isDragging, setIsDragging] = useState(false);
@@ -1215,13 +1222,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						hasClientSecret: !!deviceFlow.credentials.clientSecret,
 						hasEnvironmentId: !!deviceFlow.credentials.environmentId,
 						hasRedirectUri: !!deviceFlow.credentials.redirectUri,
-						hasScope: !!deviceFlow.credentials.scopes
+						hasScope: !!deviceFlow.credentials.scopes,
 					},
 					metadata: {
 						deviceCode: deviceFlow.deviceCodeData?.device_code ? 'present' : 'missing',
 						flowVariant: selectedVariant,
-						grantType: 'urn:ietf:params:oauth:grant-type:device_code'
-					}
+						grantType: 'urn:ietf:params:oauth:grant-type:device_code',
+					},
 				}
 			);
 			const signature = JSON.stringify(parsedError);
@@ -1239,11 +1246,16 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		deviceFlow.pollingStatus.error,
 		deviceFlow.deviceCodeData?.device_code,
 		selectedVariant,
+		deviceFlow.credentials.clientId,
+		deviceFlow.credentials.clientSecret,
+		deviceFlow.credentials.environmentId,
+		deviceFlow.credentials.redirectUri,
+		deviceFlow.credentials.scopes,
 		// Note: Removed credential dependencies to prevent infinite loop
 		// The credentials are only used for hasXXX checks in parsedError metadata
 		// and don't affect the core error parsing logic
 	]);
-	const deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
+	const _deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
 
 	React.useEffect(() => {
 		localStorage.setItem('device_flow_selected_device', selectedDevice);
@@ -1260,9 +1272,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		checkCredentialsAndWarn(deviceFlow.credentials, {
 			flowName: 'Device Authorization Flow',
 			requiredFields: ['environmentId', 'clientId'],
-			showToast: true
+			showToast: true,
 		});
-	}, []); // Only run once on mount
+	}, [deviceFlow.credentials]); // Only run once on mount
 
 	// Explicit scroll to top for step 2 (User Authorization)
 	React.useEffect(() => {
@@ -1278,11 +1290,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	useEffect(() => {
 		const loadCredentials = async () => {
 			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
-			
+
 			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: 'device-authorization-v7',
 				useSharedEnvironment: true,
-				useSharedDiscovery: true
+				useSharedDiscovery: true,
 			});
 
 			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
@@ -1307,7 +1319,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, []); // Empty dependency array - only run once on mount
+	}, [ensureCredentials]); // Empty dependency array - only run once on mount
 
 	// Show polling prompt modal when device code is received
 	React.useEffect(() => {
@@ -1347,30 +1359,37 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	useEffect(() => {
 		const loadCredentials = async () => {
 			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
-			
+
 			try {
 				const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 					flowKey: 'device-authorization-v7',
 					useSharedEnvironment: true,
-					useSharedDiscovery: true
+					useSharedDiscovery: true,
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
 					console.log('✅ [DeviceAuth-V7] Found flow-specific credentials:', {
 						hasClientId: !!flowData.flowCredentials.clientId,
 						hasEnvironmentId: !!flowData.sharedEnvironment?.environmentId,
-						clientIdLength: flowData.flowCredentials.clientId?.length || 0
+						clientIdLength: flowData.flowCredentials.clientId?.length || 0,
 					});
 					const updatedCredentials = {
-						environmentId: flowData.sharedEnvironment?.environmentId || flowData.flowCredentials.environmentId || '',
+						environmentId:
+							flowData.sharedEnvironment?.environmentId ||
+							flowData.flowCredentials.environmentId ||
+							'',
 						clientId: flowData.flowCredentials.clientId || '',
 						clientSecret: flowData.flowCredentials.clientSecret || '',
 						redirectUri: flowData.flowCredentials.redirectUri || '',
-						scopes: flowData.flowCredentials.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
+						scopes:
+							flowData.flowCredentials.scopes ||
+							(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 					};
 					console.log('🔧 [DeviceAuth-V7] Setting loaded credentials:', {
 						environmentId: updatedCredentials.environmentId ? '***' : '',
-						clientId: updatedCredentials.clientId ? updatedCredentials.clientId.substring(0, 8) + '...' : 'MISSING',
+						clientId: updatedCredentials.clientId
+							? `${updatedCredentials.clientId.substring(0, 8)}...`
+							: 'MISSING',
 					});
 					deviceFlow.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
@@ -1388,56 +1407,66 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, [deviceFlow.setCredentials]);
+	}, [deviceFlow.setCredentials, selectedVariant]);
 
 	// Ensure Device Authorization Flow V7 uses its own credential storage
 	// Use JSON.stringify to track actual credential changes, not object reference changes
 	useEffect(() => {
 		// Save current credentials to flow-specific storage using comprehensiveFlowDataService
-		if (deviceFlow.credentials && (deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)) {
+		if (
+			deviceFlow.credentials &&
+			(deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)
+		) {
 			console.log('🔧 [Device Authorization V7] Saving credentials to comprehensive service:', {
 				flowKey: 'device-authorization-v7',
 				environmentId: deviceFlow.credentials.environmentId,
-				clientId: deviceFlow.credentials.clientId?.substring(0, 8) + '...',
-				scopes: deviceFlow.credentials.scopes
+				clientId: `${deviceFlow.credentials.clientId?.substring(0, 8)}...`,
+				scopes: deviceFlow.credentials.scopes,
 			});
-			
+
 			// Save to comprehensive service with complete isolation (same pattern as other V7 flows)
 			try {
-				const success = comprehensiveFlowDataService.saveFlowDataComprehensive('device-authorization-v7', {
-					...(deviceFlow.credentials.environmentId && {
-					sharedEnvironment: {
-						environmentId: deviceFlow.credentials.environmentId,
-						region: deviceFlow.credentials.region || 'us',
-						issuerUrl: (() => {
-							const regionDomains: Record<string, string> = {
-								us: 'auth.pingone.com',
-								eu: 'auth.pingone.eu',
-								ap: 'auth.pingone.asia',
-								ca: 'auth.pingone.ca',
-								na: 'auth.pingone.com'
-							};
-							const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
-							return `https://${domain}/${deviceFlow.credentials.environmentId}`;
-						})()
-					}
-					}),
-					flowCredentials: {
-						clientId: deviceFlow.credentials.clientId,
-						clientSecret: deviceFlow.credentials.clientSecret,
-						redirectUri: deviceFlow.credentials.redirectUri,
-						scopes: Array.isArray(deviceFlow.credentials.scopes) 
-							? deviceFlow.credentials.scopes 
-							: (typeof deviceFlow.credentials.scopes === 'string' 
-								? deviceFlow.credentials.scopes.split(/\s+/).filter(Boolean)
-								: []),
-						tokenEndpointAuthMethod: 'client_secret_basic',
-						lastUpdated: Date.now()
-					}
-				}, { showToast: false });
+				const success = comprehensiveFlowDataService.saveFlowDataComprehensive(
+					'device-authorization-v7',
+					{
+						...(deviceFlow.credentials.environmentId && {
+							sharedEnvironment: {
+								environmentId: deviceFlow.credentials.environmentId,
+								region: deviceFlow.credentials.region || 'us',
+								issuerUrl: (() => {
+									const regionDomains: Record<string, string> = {
+										us: 'auth.pingone.com',
+										eu: 'auth.pingone.eu',
+										ap: 'auth.pingone.asia',
+										ca: 'auth.pingone.ca',
+										na: 'auth.pingone.com',
+									};
+									const domain =
+										regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+									return `https://${domain}/${deviceFlow.credentials.environmentId}`;
+								})(),
+							},
+						}),
+						flowCredentials: {
+							clientId: deviceFlow.credentials.clientId,
+							clientSecret: deviceFlow.credentials.clientSecret,
+							redirectUri: deviceFlow.credentials.redirectUri,
+							scopes: Array.isArray(deviceFlow.credentials.scopes)
+								? deviceFlow.credentials.scopes
+								: typeof deviceFlow.credentials.scopes === 'string'
+									? deviceFlow.credentials.scopes.split(/\s+/).filter(Boolean)
+									: [],
+							tokenEndpointAuthMethod: 'client_secret_basic',
+							lastUpdated: Date.now(),
+						},
+					},
+					{ showToast: false }
+				);
 
 				if (!success) {
-					console.error('[Device Authorization V7] Failed to save credentials to comprehensive service');
+					console.error(
+						'[Device Authorization V7] Failed to save credentials to comprehensive service'
+					);
 					v4ToastManager.showError('Failed to save credentials. Please try again.');
 				} else {
 					console.log('✅ [Device Authorization V7] Credentials saved successfully');
@@ -1447,13 +1476,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				v4ToastManager.showError('Failed to save credentials. Please try again.');
 			}
 		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
 		deviceFlow.credentials?.environmentId,
 		deviceFlow.credentials?.clientId,
 		deviceFlow.credentials?.clientSecret,
 		deviceFlow.credentials?.scopes,
 		deviceFlow.credentials?.redirectUri,
+		deviceFlow.credentials,
 	]);
 
 	const { clearBackup } = useCredentialBackup({
@@ -1556,43 +1586,49 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	}, []);
 
 	// Modal drag handlers
-	const handleModalMouseDown = useCallback((e: React.MouseEvent) => {
-		// Only start drag if clicking on the header, not on buttons or interactive elements
-		if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('select')) {
-			return;
-		}
-		
-		if (!modalRef.current) return;
-		
-		const rect = modalRef.current.getBoundingClientRect();
-		setDragOffset({
-			x: e.clientX - rect.left,
-			y: e.clientY - rect.top
-		});
-		setIsDragging(true);
-		
-		// Initialize position if not set
-		if (!modalPosition) {
-			const centerX = (window.innerWidth - rect.width) / 2;
-			const centerY = (window.innerHeight - rect.height) / 2;
-			setModalPosition({ x: centerX, y: centerY });
-		}
-	}, [modalPosition]);
+	const handleModalMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			// Only start drag if clicking on the header, not on buttons or interactive elements
+			if (
+				(e.target as HTMLElement).closest('button') ||
+				(e.target as HTMLElement).closest('select')
+			) {
+				return;
+			}
+
+			if (!modalRef.current) return;
+
+			const rect = modalRef.current.getBoundingClientRect();
+			setDragOffset({
+				x: e.clientX - rect.left,
+				y: e.clientY - rect.top,
+			});
+			setIsDragging(true);
+
+			// Initialize position if not set
+			if (!modalPosition) {
+				const centerX = (window.innerWidth - rect.width) / 2;
+				const centerY = (window.innerHeight - rect.height) / 2;
+				setModalPosition({ x: centerX, y: centerY });
+			}
+		},
+		[modalPosition]
+	);
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
 			if (!isDragging || !modalPosition) return;
-			
+
 			const newX = e.clientX - dragOffset.x;
 			const newY = e.clientY - dragOffset.y;
-			
+
 			// Keep modal within viewport bounds
 			const maxX = window.innerWidth - (modalRef.current?.offsetWidth || 500);
 			const maxY = window.innerHeight - (modalRef.current?.offsetHeight || 400);
-			
+
 			setModalPosition({
 				x: Math.max(0, Math.min(newX, maxX)),
-				y: Math.max(0, Math.min(newY, maxY))
+				y: Math.max(0, Math.min(newY, maxY)),
 			});
 		};
 
@@ -1627,7 +1663,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		setUserInfo(null);
 		setIntrospectionResult(null);
 		setHasScrolledToTV(false);
-		
+
 		// Clear Device Authorization Flow V7-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v7');
@@ -1636,7 +1672,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			console.error('[Device Authorization V7] Failed to clear flow state:', error);
 			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
 		}
-		
+
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
@@ -1653,13 +1689,18 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				case 0:
 					// Step 0: Introduction is always valid
 					return true;
-				case 1:
+				case 1: {
 					// Step 1: Must have valid credentials with required fields
 					if (!deviceFlow.credentials) return false;
 					const creds = deviceFlow.credentials;
 					// Check for required fields: environmentId and clientId
-					return !!(creds.environmentId && creds.environmentId.trim() !== '' && 
-					          creds.clientId && creds.clientId.trim() !== '');
+					return !!(
+						creds.environmentId &&
+						creds.environmentId.trim() !== '' &&
+						creds.clientId &&
+						creds.clientId.trim() !== ''
+					);
+				}
 				case 2:
 					// Step 2: Must have device code data
 					return !!deviceFlow.deviceCodeData;
@@ -1683,22 +1724,28 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback((stepIndex: number): string => {
-		switch (stepIndex) {
-			case 1:
-				if (!deviceFlow.credentials) return 'Credentials are required. Please configure your environment and client settings.';
-				return '';
-			case 2:
-				if (!deviceFlow.deviceCodeData) return 'Device code is required. Please request a device code first.';
-				return '';
-			case 3:
-			case 4:
-				if (!deviceFlow.tokens) return 'Tokens are required. Please complete the device authorization process first.';
-				return '';
-			default:
-				return '';
-		}
-	}, [deviceFlow]);
+	const getStepValidationMessage = useCallback(
+		(stepIndex: number): string => {
+			switch (stepIndex) {
+				case 1:
+					if (!deviceFlow.credentials)
+						return 'Credentials are required. Please configure your environment and client settings.';
+					return '';
+				case 2:
+					if (!deviceFlow.deviceCodeData)
+						return 'Device code is required. Please request a device code first.';
+					return '';
+				case 3:
+				case 4:
+					if (!deviceFlow.tokens)
+						return 'Tokens are required. Please complete the device authorization process first.';
+					return '';
+				default:
+					return '';
+			}
+		},
+		[deviceFlow]
+	);
 
 	// Don't auto-advance - let user see the TV update and click Next manually
 	// This provides better educational experience to see the full authorization flow
@@ -1785,7 +1832,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>Authorization Complete!</InfoTitle>
 								<InfoText>
-									The user authorized on their secondary device. Tokens have been issued to this device.
+									The user authorized on their secondary device. Tokens have been issued to this
+									device.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1794,50 +1842,65 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<>
 								{/* Enhanced API Call Display for Token Exchange */}
 								<div style={{ marginTop: '1.5rem' }}>
-								<EnhancedApiCallDisplay
-									apiCall={{
-										method: 'POST',
-										url: (() => {
-											const regionDomains: Record<string, string> = {
-												us: 'auth.pingone.com',
-												eu: 'auth.pingone.eu',
-												ap: 'auth.pingone.asia',
-												ca: 'auth.pingone.ca',
-												na: 'auth.pingone.com'
-											};
-											const domain = regionDomains[deviceFlow.credentials?.region || 'us'] || 'auth.pingone.com';
-											return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`;
-										})(),
-										headers: {
-											'Content-Type': 'application/x-www-form-urlencoded'
-										},
-										body: {
-											grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-											device_code: '[device_code_from_step_1]',
-											client_id: deviceFlow.credentials?.clientId || '[clientId]'
-										},
+									<EnhancedApiCallDisplay
+										apiCall={{
+											method: 'POST',
+											url: (() => {
+												const regionDomains: Record<string, string> = {
+													us: 'auth.pingone.com',
+													eu: 'auth.pingone.eu',
+													ap: 'auth.pingone.asia',
+													ca: 'auth.pingone.ca',
+													na: 'auth.pingone.com',
+												};
+												const domain =
+													regionDomains[deviceFlow.credentials?.region || 'us'] ||
+													'auth.pingone.com';
+												return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`;
+											})(),
+											headers: {
+												'Content-Type': 'application/x-www-form-urlencoded',
+											},
+											body: {
+												grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+												device_code: '[device_code_from_step_1]',
+												client_id: deviceFlow.credentials?.clientId || '[clientId]',
+											},
 											response: {
 												status: 200,
 												statusText: 'OK',
 												headers: {
 													'Content-Type': 'application/json',
 													'Cache-Control': 'no-store',
-													'Pragma': 'no-cache'
+													Pragma: 'no-cache',
 												},
-												data: selectedVariant === 'oidc' ? {
-													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													id_token: deviceFlow.tokens?.id_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													token_type: 'Bearer',
-													expires_in: 3600,
-													scope: deviceFlow.tokens?.scope || 'openid profile email'
-												} : {
-													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													token_type: 'Bearer',
-													expires_in: 3600,
-													scope: deviceFlow.tokens?.scope || 'read write'
-												}
+												data:
+													selectedVariant === 'oidc'
+														? {
+																access_token:
+																	deviceFlow.tokens?.access_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																id_token:
+																	deviceFlow.tokens?.id_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																refresh_token:
+																	deviceFlow.tokens?.refresh_token ||
+																	'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																token_type: 'Bearer',
+																expires_in: 3600,
+																scope: deviceFlow.tokens?.scope || 'openid profile email',
+															}
+														: {
+																access_token:
+																	deviceFlow.tokens?.access_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																refresh_token:
+																	deviceFlow.tokens?.refresh_token ||
+																	'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																token_type: 'Bearer',
+																expires_in: 3600,
+																scope: deviceFlow.tokens?.scope || 'read write',
+															},
 											},
 											flowType: 'device-code',
 											stepName: 'token-exchange',
@@ -1846,13 +1909,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												'This request exchanges the device_code for access tokens',
 												'The device polls this endpoint until the user completes authorization',
 												`${selectedVariant === 'oidc' ? 'OIDC response includes ID token for user identity' : 'OAuth response includes access token for API access'}`,
-												'Polling continues until success, error, or timeout'
-											]
+												'Polling continues until success, error, or timeout',
+											],
 										}}
 										options={{
 											showEducationalNotes: true,
 											showFlowContext: true,
-											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+											urlHighlightRules:
+												EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 										}}
 									/>
 								</div>
@@ -1872,7 +1936,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>
-										<FiKey size={18} /> {selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
+										<FiKey size={18} />{' '}
+										{selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
 									</ResultsHeading>
 									<GeneratedContentBox>
 										<ParameterGrid>
@@ -1888,7 +1953,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													{deviceFlow.tokens.access_token}
 												</ParameterValue>
 											</div>
-											
+
 											{/* ID Token - Only for OIDC flows */}
 											{selectedVariant === 'oidc' && deviceFlow.tokens.id_token && (
 												<div style={{ gridColumn: '1 / -1' }}>
@@ -1904,7 +1969,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													</ParameterValue>
 												</div>
 											)}
-											
+
 											{/* Refresh Token - If present */}
 											{deviceFlow.tokens.refresh_token && (
 												<div style={{ gridColumn: '1 / -1' }}>
@@ -1919,7 +1984,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													</ParameterValue>
 												</div>
 											)}
-											
+
 											{deviceFlow.tokens.token_type && (
 												<div>
 													<ParameterLabel>Token Type</ParameterLabel>
@@ -1939,7 +2004,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												</div>
 											)}
 										</ParameterGrid>
-										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+										<ActionRow
+											style={{ justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}
+										>
 											<Button onClick={navigateToTokenManagement} $variant="primary">
 												<FiExternalLink /> Open Token Management
 											</Button>
@@ -1960,7 +2027,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											)}
 											{deviceFlow.tokens.refresh_token && (
 												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													onClick={() =>
+														handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')
+													}
 													$variant="outline"
 												>
 													<FiCopy /> Copy Refresh Token
@@ -1973,12 +2042,26 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 									<FiInfo size={20} />
 									<div>
-										<InfoTitle>{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response (PingOne)</InfoTitle>
+										<InfoTitle>
+											{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response
+											(PingOne)
+										</InfoTitle>
 										<InfoText>
-											{selectedVariant === 'oidc' 
-												? <><strong>OpenID Connect Device Flow</strong> returns an <code>access_token</code>, <code>id_token</code> (for user identity), and optionally a <code>refresh_token</code>. The <code>openid</code> scope is mandatory per OIDC Core 1.0 specification.</>
-												: <><strong>OAuth 2.0 Device Flow (PingOne)</strong> returns an <code>access_token</code> and optionally a <code>refresh_token</code>. No ID tokens or identity information, but PingOne still requires the <code>openid</code> scope (non-standard requirement).</>
-											}
+											{selectedVariant === 'oidc' ? (
+												<>
+													<strong>OpenID Connect Device Flow</strong> returns an{' '}
+													<code>access_token</code>, <code>id_token</code> (for user identity), and
+													optionally a <code>refresh_token</code>. The <code>openid</code> scope is
+													mandatory per OIDC Core 1.0 specification.
+												</>
+											) : (
+												<>
+													<strong>OAuth 2.0 Device Flow (PingOne)</strong> returns an{' '}
+													<code>access_token</code> and optionally a <code>refresh_token</code>. No
+													ID tokens or identity information, but PingOne still requires the{' '}
+													<code>openid</code> scope (non-standard requirement).
+												</>
+											)}
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -2018,7 +2101,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													<FiRefreshCw /> Decode Refresh Token
 												</Button>
 												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													onClick={() =>
+														handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')
+													}
 													$variant="outline"
 												>
 													<FiCopy /> Copy Refresh Token
@@ -2057,20 +2142,90 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						<ExplanationSection>
 							<ExplanationHeading>
 								<FiInfo /> What is{' '}
-								<LearningTooltip variant="learning" title="Device Authorization Flow" content="OAuth 2.0 grant type (RFC 8628) for devices without browsers. Uses device_code and user_code for authorization." placement="top">
+								<LearningTooltip
+									variant="learning"
+									title="Device Authorization Flow"
+									content="OAuth 2.0 grant type (RFC 8628) for devices without browsers. Uses device_code and user_code for authorization."
+									placement="top"
+								>
 									Device Authorization Flow
-								</LearningTooltip>?
+								</LearningTooltip>
+								?
 							</ExplanationHeading>
 							<InfoText>
 								The{' '}
-								<LearningTooltip variant="learning" title="Device Authorization Grant" content="RFC 8628 - OAuth 2.0 extension for input-constrained devices. No browser required." placement="top">Device Authorization Grant (RFC 8628)</LearningTooltip> enables{' '}
-								<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access" placement="top">OAuth clients</LearningTooltip> on{' '}
-								<LearningTooltip variant="info" title="Input-Constrained Devices" content="Devices without keyboards or browsers (smart TVs, IoT, gaming consoles)" placement="top">input-constrained devices</LearningTooltip> to obtain{' '}
-								<LearningTooltip variant="info" title="User Authorization" content="User grants permission for app to access resources" placement="top">user authorization</LearningTooltip> without a browser. Perfect for{' '}
-								<LearningTooltip variant="info" title="Smart TVs" content="TVs with limited input capabilities" placement="top">smart TVs</LearningTooltip>,{' '}
-								<LearningTooltip variant="info" title="IoT Devices" content="Internet of Things devices without keyboards" placement="top">IoT devices</LearningTooltip>,{' '}
-								<LearningTooltip variant="info" title="CLI Tools" content="Command-line interface applications" placement="top">CLI tools</LearningTooltip>, and{' '}
-								<LearningTooltip variant="info" title="Gaming Consoles" content="Game consoles with limited input" placement="top">gaming consoles</LearningTooltip>.
+								<LearningTooltip
+									variant="learning"
+									title="Device Authorization Grant"
+									content="RFC 8628 - OAuth 2.0 extension for input-constrained devices. No browser required."
+									placement="top"
+								>
+									Device Authorization Grant (RFC 8628)
+								</LearningTooltip>{' '}
+								enables{' '}
+								<LearningTooltip
+									variant="info"
+									title="OAuth Client"
+									content="Application requesting access"
+									placement="top"
+								>
+									OAuth clients
+								</LearningTooltip>{' '}
+								on{' '}
+								<LearningTooltip
+									variant="info"
+									title="Input-Constrained Devices"
+									content="Devices without keyboards or browsers (smart TVs, IoT, gaming consoles)"
+									placement="top"
+								>
+									input-constrained devices
+								</LearningTooltip>{' '}
+								to obtain{' '}
+								<LearningTooltip
+									variant="info"
+									title="User Authorization"
+									content="User grants permission for app to access resources"
+									placement="top"
+								>
+									user authorization
+								</LearningTooltip>{' '}
+								without a browser. Perfect for{' '}
+								<LearningTooltip
+									variant="info"
+									title="Smart TVs"
+									content="TVs with limited input capabilities"
+									placement="top"
+								>
+									smart TVs
+								</LearningTooltip>
+								,{' '}
+								<LearningTooltip
+									variant="info"
+									title="IoT Devices"
+									content="Internet of Things devices without keyboards"
+									placement="top"
+								>
+									IoT devices
+								</LearningTooltip>
+								,{' '}
+								<LearningTooltip
+									variant="info"
+									title="CLI Tools"
+									content="Command-line interface applications"
+									placement="top"
+								>
+									CLI tools
+								</LearningTooltip>
+								, and{' '}
+								<LearningTooltip
+									variant="info"
+									title="Gaming Consoles"
+									content="Game consoles with limited input"
+									placement="top"
+								>
+									gaming consoles
+								</LearningTooltip>
+								.
 							</InfoText>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
@@ -2091,40 +2246,141 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<FiShield size={20} />
 								<div>
 									<InfoTitle>
-										<LearningTooltip variant="info" title="RFC 8628" content="OAuth 2.0 Device Authorization Grant specification - defines device flow for input-constrained devices" placement="top">RFC 8628</LearningTooltip> Specification:
+										<LearningTooltip
+											variant="info"
+											title="RFC 8628"
+											content="OAuth 2.0 Device Authorization Grant specification - defines device flow for input-constrained devices"
+											placement="top"
+										>
+											RFC 8628
+										</LearningTooltip>{' '}
+										Specification:
 									</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
 											<strong>
-												<LearningTooltip variant="learning" title="Device Code" content="Long secret code used by device to poll token endpoint. Not shown to user." placement="top">Device Code</LearningTooltip>
-											</strong>: Short-lived code used for{' '}
-											<LearningTooltip variant="info" title="Polling" content="Device repeatedly requests tokens until user authorizes" placement="top">polling</LearningTooltip> token endpoint
+												<LearningTooltip
+													variant="learning"
+													title="Device Code"
+													content="Long secret code used by device to poll token endpoint. Not shown to user."
+													placement="top"
+												>
+													Device Code
+												</LearningTooltip>
+											</strong>
+											: Short-lived code used for{' '}
+											<LearningTooltip
+												variant="info"
+												title="Polling"
+												content="Device repeatedly requests tokens until user authorizes"
+												placement="top"
+											>
+												polling
+											</LearningTooltip>{' '}
+											token endpoint
 										</li>
 										<li>
 											<strong>
-												<LearningTooltip variant="learning" title="User Code" content="Short, human-readable code displayed to user (e.g., 'WDJB-MJHT'). User enters this on verification URL." placement="top">User Code</LearningTooltip>
-											</strong>: Human-readable code for{' '}
-											<LearningTooltip variant="info" title="User Verification" content="User enters code on verification URL to authorize device" placement="top">user verification</LearningTooltip>
+												<LearningTooltip
+													variant="learning"
+													title="User Code"
+													content="Short, human-readable code displayed to user (e.g., 'WDJB-MJHT'). User enters this on verification URL."
+													placement="top"
+												>
+													User Code
+												</LearningTooltip>
+											</strong>
+											: Human-readable code for{' '}
+											<LearningTooltip
+												variant="info"
+												title="User Verification"
+												content="User enters code on verification URL to authorize device"
+												placement="top"
+											>
+												user verification
+											</LearningTooltip>
 										</li>
 										<li>
 											<strong>
-												<LearningTooltip variant="learning" title="Verification URI" content="URL where user visits and enters user_code to authorize the device" placement="top">Verification URI</LearningTooltip>
-											</strong>: URL where user completes{' '}
-											<LearningTooltip variant="info" title="Authorization" content="User grants permission" placement="top">authorization</LearningTooltip>
+												<LearningTooltip
+													variant="learning"
+													title="Verification URI"
+													content="URL where user visits and enters user_code to authorize the device"
+													placement="top"
+												>
+													Verification URI
+												</LearningTooltip>
+											</strong>
+											: URL where user completes{' '}
+											<LearningTooltip
+												variant="info"
+												title="Authorization"
+												content="User grants permission"
+												placement="top"
+											>
+												authorization
+											</LearningTooltip>
 										</li>
 										<li>
 											<strong>
-												<LearningTooltip variant="info" title="Polling" content="Device repeatedly requests tokens from token endpoint until user authorizes or codes expire" placement="top">Polling</LearningTooltip>
-											</strong>:{' '}
-											<LearningTooltip variant="info" title="OAuth Client" content="Device application" placement="top">Client</LearningTooltip> polls{' '}
-											<LearningTooltip variant="info" title="Token Endpoint" content="OAuth endpoint where tokens are requested" placement="top">token endpoint</LearningTooltip> until{' '}
-											<LearningTooltip variant="info" title="Authorized" content="User completes authorization on verification URL" placement="top">authorized</LearningTooltip>
+												<LearningTooltip
+													variant="info"
+													title="Polling"
+													content="Device repeatedly requests tokens from token endpoint until user authorizes or codes expire"
+													placement="top"
+												>
+													Polling
+												</LearningTooltip>
+											</strong>
+											:{' '}
+											<LearningTooltip
+												variant="info"
+												title="OAuth Client"
+												content="Device application"
+												placement="top"
+											>
+												Client
+											</LearningTooltip>{' '}
+											polls{' '}
+											<LearningTooltip
+												variant="info"
+												title="Token Endpoint"
+												content="OAuth endpoint where tokens are requested"
+												placement="top"
+											>
+												token endpoint
+											</LearningTooltip>{' '}
+											until{' '}
+											<LearningTooltip
+												variant="info"
+												title="Authorized"
+												content="User completes authorization on verification URL"
+												placement="top"
+											>
+												authorized
+											</LearningTooltip>
 										</li>
 										<li>
 											<strong>
-												<LearningTooltip variant="info" title="Timeout" content="Device and user codes expire after specified time (typically 10-15 minutes)" placement="top">Timeout</LearningTooltip>
-											</strong>:{' '}
-											<LearningTooltip variant="learning" title="Codes Expire" content="Device and user codes have limited lifetime - typically 10-15 minutes" placement="top">Codes expire</LearningTooltip> after 10-15 minutes
+												<LearningTooltip
+													variant="info"
+													title="Timeout"
+													content="Device and user codes expire after specified time (typically 10-15 minutes)"
+													placement="top"
+												>
+													Timeout
+												</LearningTooltip>
+											</strong>
+											:{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Codes Expire"
+												content="Device and user codes have limited lifetime - typically 10-15 minutes"
+												placement="top"
+											>
+												Codes expire
+											</LearningTooltip>{' '}
+											after 10-15 minutes
 										</li>
 									</ul>
 								</div>
@@ -2156,55 +2412,240 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<FiShield size={20} />
 								<div>
 									<InfoTitle>
-										<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework" placement="top">OAuth</LearningTooltip> vs{' '}
-										<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - authentication layer" placement="top">OIDC</LearningTooltip> Device Flow (PingOne Implementation):
+										<LearningTooltip
+											variant="info"
+											title="OAuth 2.0"
+											content="RFC 6749 - Authorization framework"
+											placement="top"
+										>
+											OAuth
+										</LearningTooltip>{' '}
+										vs{' '}
+										<LearningTooltip
+											variant="info"
+											title="OIDC"
+											content="OpenID Connect - authentication layer"
+											placement="top"
+										>
+											OIDC
+										</LearningTooltip>{' '}
+										Device Flow (PingOne Implementation):
 									</InfoTitle>
 									<InfoText style={{ marginTop: '0.5rem' }}>
 										<strong>Important:</strong>{' '}
-										<LearningTooltip variant="info" title="OIDC" content="OpenID Connect specification" placement="top">OIDC</LearningTooltip> doesn't define a separate "Device Flow"
-										specification. It reuses the{' '}
-										<LearningTooltip variant="learning" title="OAuth 2.0 Device Authorization Grant" content="RFC 8628 - Device flow specification" placement="top">OAuth 2.0 Device Authorization Grant (RFC 8628)</LearningTooltip> and
-										adds the usual{' '}
-										<LearningTooltip variant="info" title="OIDC Semantics" content="OIDC adds ID token, userinfo endpoint, and openid scope requirements" placement="top">OIDC semantics</LearningTooltip>. <strong>
-											<LearningTooltip variant="info" title="PingOne" content="Identity platform" placement="top">PingOne</LearningTooltip> requires the{' '}
-											<LearningTooltip variant="info" title="openid scope" content="OIDC scope required by PingOne even for OAuth flows" placement="top">openid scope</LearningTooltip> for both variants:
+										<LearningTooltip
+											variant="info"
+											title="OIDC"
+											content="OpenID Connect specification"
+											placement="top"
+										>
+											OIDC
+										</LearningTooltip>{' '}
+										doesn't define a separate "Device Flow" specification. It reuses the{' '}
+										<LearningTooltip
+											variant="learning"
+											title="OAuth 2.0 Device Authorization Grant"
+											content="RFC 8628 - Device flow specification"
+											placement="top"
+										>
+											OAuth 2.0 Device Authorization Grant (RFC 8628)
+										</LearningTooltip>{' '}
+										and adds the usual{' '}
+										<LearningTooltip
+											variant="info"
+											title="OIDC Semantics"
+											content="OIDC adds ID token, userinfo endpoint, and openid scope requirements"
+											placement="top"
+										>
+											OIDC semantics
+										</LearningTooltip>
+										.{' '}
+										<strong>
+											<LearningTooltip
+												variant="info"
+												title="PingOne"
+												content="Identity platform"
+												placement="top"
+											>
+												PingOne
+											</LearningTooltip>{' '}
+											requires the{' '}
+											<LearningTooltip
+												variant="info"
+												title="openid scope"
+												content="OIDC scope required by PingOne even for OAuth flows"
+												placement="top"
+											>
+												openid scope
+											</LearningTooltip>{' '}
+											for both variants:
 										</strong>
 									</InfoText>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
 											<strong>
-												<LearningTooltip variant="info" title="OAuth 2.0" content="Authorization framework" placement="top">OAuth</LearningTooltip> Device Flow (PingOne)
-											</strong>: Returns{' '}
-											<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access_token</LearningTooltip> and{' '}
-											<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token for token refresh" placement="top">refresh_token</LearningTooltip>
-											{' '}only, but still requires{' '}
+												<LearningTooltip
+													variant="info"
+													title="OAuth 2.0"
+													content="Authorization framework"
+													placement="top"
+												>
+													OAuth
+												</LearningTooltip>{' '}
+												Device Flow (PingOne)
+											</strong>
+											: Returns{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Access Token"
+												content="Bearer token for API access"
+												placement="top"
+											>
+												access_token
+											</LearningTooltip>{' '}
+											and{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Refresh Token"
+												content="Long-lived token for token refresh"
+												placement="top"
+											>
+												refresh_token
+											</LearningTooltip>{' '}
+											only, but still requires{' '}
 											<code>
-												<LearningTooltip variant="info" title="openid scope" content="Required by PingOne even for OAuth flows" placement="top">openid</LearningTooltip>
-											</code> scope
+												<LearningTooltip
+													variant="info"
+													title="openid scope"
+													content="Required by PingOne even for OAuth flows"
+													placement="top"
+												>
+													openid
+												</LearningTooltip>
+											</code>{' '}
+											scope
 										</li>
 										<li>
 											<strong>
-												<LearningTooltip variant="info" title="OIDC Device Flow" content="Device flow with OIDC identity layer" placement="top">OIDC Device Flow</LearningTooltip>
-											</strong>: Adds{' '}
-											<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity" placement="top">ID Token</LearningTooltip>,{' '}
-											<LearningTooltip variant="info" title="UserInfo Endpoint" content="OIDC endpoint returning user profile" placement="top">UserInfo endpoint</LearningTooltip>, and
-											requires{' '}
+												<LearningTooltip
+													variant="info"
+													title="OIDC Device Flow"
+													content="Device flow with OIDC identity layer"
+													placement="top"
+												>
+													OIDC Device Flow
+												</LearningTooltip>
+											</strong>
+											: Adds{' '}
+											<LearningTooltip
+												variant="learning"
+												title="ID Token"
+												content="OIDC JWT with user identity"
+												placement="top"
+											>
+												ID Token
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="info"
+												title="UserInfo Endpoint"
+												content="OIDC endpoint returning user profile"
+												placement="top"
+											>
+												UserInfo endpoint
+											</LearningTooltip>
+											, and requires{' '}
 											<code>
-												<LearningTooltip variant="info" title="openid scope" content="Mandatory for OIDC flows" placement="top">openid</LearningTooltip>
-											</code> scope (standard{' '}
-											<LearningTooltip variant="info" title="OIDC Requirement" content="OIDC requires openid scope to receive ID token" placement="top">OIDC requirement</LearningTooltip>)
+												<LearningTooltip
+													variant="info"
+													title="openid scope"
+													content="Mandatory for OIDC flows"
+													placement="top"
+												>
+													openid
+												</LearningTooltip>
+											</code>{' '}
+											scope (standard{' '}
+											<LearningTooltip
+												variant="info"
+												title="OIDC Requirement"
+												content="OIDC requires openid scope to receive ID token"
+												placement="top"
+											>
+												OIDC requirement
+											</LearningTooltip>
+											)
 										</li>
-										<li>Both flows use the same{' '}
-											<LearningTooltip variant="info" title="RFC 8628" content="Device Authorization Grant specification" placement="top">RFC 8628</LearningTooltip> device authorization mechanism</li>
 										<li>
-											<LearningTooltip variant="info" title="OIDC" content="OpenID Connect" placement="top">OIDC</LearningTooltip> adds{' '}
-											<LearningTooltip variant="info" title="Identity Layer" content="Authentication and user identity on top of OAuth authorization" placement="top">identity layer</LearningTooltip> on top of{' '}
-											<LearningTooltip variant="info" title="OAuth Authorization Framework" content="OAuth 2.0 provides authorization only" placement="top">OAuth's authorization framework</LearningTooltip>
+											Both flows use the same{' '}
+											<LearningTooltip
+												variant="info"
+												title="RFC 8628"
+												content="Device Authorization Grant specification"
+												placement="top"
+											>
+												RFC 8628
+											</LearningTooltip>{' '}
+											device authorization mechanism
 										</li>
-										<li><strong>PingOne Specific:</strong> Unlike standard{' '}
-											<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749" placement="top">OAuth 2.0</LearningTooltip>,{' '}
-											<LearningTooltip variant="info" title="PingOne" content="Identity platform" placement="top">PingOne</LearningTooltip> requires{' '}
-											<LearningTooltip variant="info" title="openid scope" content="OIDC scope" placement="top">openid scope</LearningTooltip> for all flows</li>
+										<li>
+											<LearningTooltip
+												variant="info"
+												title="OIDC"
+												content="OpenID Connect"
+												placement="top"
+											>
+												OIDC
+											</LearningTooltip>{' '}
+											adds{' '}
+											<LearningTooltip
+												variant="info"
+												title="Identity Layer"
+												content="Authentication and user identity on top of OAuth authorization"
+												placement="top"
+											>
+												identity layer
+											</LearningTooltip>{' '}
+											on top of{' '}
+											<LearningTooltip
+												variant="info"
+												title="OAuth Authorization Framework"
+												content="OAuth 2.0 provides authorization only"
+												placement="top"
+											>
+												OAuth's authorization framework
+											</LearningTooltip>
+										</li>
+										<li>
+											<strong>PingOne Specific:</strong> Unlike standard{' '}
+											<LearningTooltip
+												variant="info"
+												title="OAuth 2.0"
+												content="RFC 6749"
+												placement="top"
+											>
+												OAuth 2.0
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="info"
+												title="PingOne"
+												content="Identity platform"
+												placement="top"
+											>
+												PingOne
+											</LearningTooltip>{' '}
+											requires{' '}
+											<LearningTooltip
+												variant="info"
+												title="openid scope"
+												content="OIDC scope"
+												placement="top"
+											>
+												openid scope
+											</LearningTooltip>{' '}
+											for all flows
+										</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -2242,13 +2683,53 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>1. Device requests{' '}
-											<LearningTooltip variant="learning" title="Device Code" content="Secret code used for polling token endpoint" placement="top">device code</LearningTooltip>
-										</strong> -{' '}
-										<LearningTooltip variant="info" title="Device" content="Input-constrained device (TV, IoT, etc.)" placement="top">Device</LearningTooltip> calls the{' '}
-										<LearningTooltip variant="info" title="Device Authorization Endpoint" content="OAuth endpoint that issues device_code and user_code" placement="top">device authorization endpoint</LearningTooltip> with{' '}
-										<LearningTooltip variant="learning" title="client_id" content="Application identifier" placement="top">client_id</LearningTooltip> and{' '}
-										<LearningTooltip variant="learning" title="Scopes" content="Requested permissions" placement="top">scopes</LearningTooltip>
+										<strong>
+											1. Device requests{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Device Code"
+												content="Secret code used for polling token endpoint"
+												placement="top"
+											>
+												device code
+											</LearningTooltip>
+										</strong>{' '}
+										-{' '}
+										<LearningTooltip
+											variant="info"
+											title="Device"
+											content="Input-constrained device (TV, IoT, etc.)"
+											placement="top"
+										>
+											Device
+										</LearningTooltip>{' '}
+										calls the{' '}
+										<LearningTooltip
+											variant="info"
+											title="Device Authorization Endpoint"
+											content="OAuth endpoint that issues device_code and user_code"
+											placement="top"
+										>
+											device authorization endpoint
+										</LearningTooltip>{' '}
+										with{' '}
+										<LearningTooltip
+											variant="learning"
+											title="client_id"
+											content="Application identifier"
+											placement="top"
+										>
+											client_id
+										</LearningTooltip>{' '}
+										and{' '}
+										<LearningTooltip
+											variant="learning"
+											title="Scopes"
+											content="Requested permissions"
+											placement="top"
+										>
+											scopes
+										</LearningTooltip>
 										<br />
 										<code
 											style={{
@@ -2259,26 +2740,95 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											}}
 										>
 											POST{' '}
-											<LearningTooltip variant="info" title="Device Authorization Endpoint" content="Endpoint that issues device and user codes" placement="top">/device_authorization</LearningTooltip>
+											<LearningTooltip
+												variant="info"
+												title="Device Authorization Endpoint"
+												content="Endpoint that issues device and user codes"
+												placement="top"
+											>
+												/device_authorization
+											</LearningTooltip>
 										</code>
 										<br />
 										<small style={{ color: '#64748b' }}>
 											Server responds with:{' '}
-											<LearningTooltip variant="learning" title="device_code" content="Secret code for polling" placement="top">device_code</LearningTooltip>,{' '}
-											<LearningTooltip variant="learning" title="user_code" content="Human-readable code for user" placement="top">user_code</LearningTooltip>,{' '}
-											<LearningTooltip variant="info" title="verification_uri" content="URL for user to visit" placement="top">verification_uri</LearningTooltip>,{' '}
-											<LearningTooltip variant="info" title="expires_in" content="How long codes are valid (seconds)" placement="top">expires_in</LearningTooltip>,
-											{' '}
-											<LearningTooltip variant="info" title="interval" content="Polling interval in seconds" placement="top">interval</LearningTooltip>
+											<LearningTooltip
+												variant="learning"
+												title="device_code"
+												content="Secret code for polling"
+												placement="top"
+											>
+												device_code
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="learning"
+												title="user_code"
+												content="Human-readable code for user"
+												placement="top"
+											>
+												user_code
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="info"
+												title="verification_uri"
+												content="URL for user to visit"
+												placement="top"
+											>
+												verification_uri
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="info"
+												title="expires_in"
+												content="How long codes are valid (seconds)"
+												placement="top"
+											>
+												expires_in
+											</LearningTooltip>
+											,{' '}
+											<LearningTooltip
+												variant="info"
+												title="interval"
+												content="Polling interval in seconds"
+												placement="top"
+											>
+												interval
+											</LearningTooltip>
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>2. Display{' '}
-											<LearningTooltip variant="learning" title="User Code" content="Human-readable code shown to user" placement="top">user code</LearningTooltip>
-										</strong> - Device shows{' '}
-										<LearningTooltip variant="learning" title="User Code" content="Short code user enters on verification URL" placement="top">user_code</LearningTooltip> and{' '}
-										<LearningTooltip variant="info" title="Verification URI" content="URL where user enters code" placement="top">verification_uri</LearningTooltip> to user on screen (e.g., "Visit example.com and enter code:
-										ABCD-1234")
+										<strong>
+											2. Display{' '}
+											<LearningTooltip
+												variant="learning"
+												title="User Code"
+												content="Human-readable code shown to user"
+												placement="top"
+											>
+												user code
+											</LearningTooltip>
+										</strong>{' '}
+										- Device shows{' '}
+										<LearningTooltip
+											variant="learning"
+											title="User Code"
+											content="Short code user enters on verification URL"
+											placement="top"
+										>
+											user_code
+										</LearningTooltip>{' '}
+										and{' '}
+										<LearningTooltip
+											variant="info"
+											title="Verification URI"
+											content="URL where user enters code"
+											placement="top"
+										>
+											verification_uri
+										</LearningTooltip>{' '}
+										to user on screen (e.g., "Visit example.com and enter code: ABCD-1234")
 										<br />
 										<small style={{ color: '#64748b' }}>
 											Example display: "Go to https://auth.pingone.com/activate and enter:
@@ -2286,14 +2836,53 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>3. User authorizes on{' '}
-											<LearningTooltip variant="info" title="Secondary Device" content="Phone, computer, or tablet with browser" placement="top">secondary device</LearningTooltip>
-										</strong> - User visits{' '}
-										<LearningTooltip variant="info" title="Verification URI" content="URL where user completes authorization" placement="top">URL</LearningTooltip> on
-										phone/computer, enters{' '}
-										<LearningTooltip variant="learning" title="User Code" content="Code displayed on device" placement="top">code</LearningTooltip>, and{' '}
-										<LearningTooltip variant="info" title="Authorizes" content="Grants permission for app to access resources" placement="top">authorizes</LearningTooltip> the{' '}
-										<LearningTooltip variant="info" title="Application" content="OAuth client requesting access" placement="top">application</LearningTooltip>
+										<strong>
+											3. User authorizes on{' '}
+											<LearningTooltip
+												variant="info"
+												title="Secondary Device"
+												content="Phone, computer, or tablet with browser"
+												placement="top"
+											>
+												secondary device
+											</LearningTooltip>
+										</strong>{' '}
+										- User visits{' '}
+										<LearningTooltip
+											variant="info"
+											title="Verification URI"
+											content="URL where user completes authorization"
+											placement="top"
+										>
+											URL
+										</LearningTooltip>{' '}
+										on phone/computer, enters{' '}
+										<LearningTooltip
+											variant="learning"
+											title="User Code"
+											content="Code displayed on device"
+											placement="top"
+										>
+											code
+										</LearningTooltip>
+										, and{' '}
+										<LearningTooltip
+											variant="info"
+											title="Authorizes"
+											content="Grants permission for app to access resources"
+											placement="top"
+										>
+											authorizes
+										</LearningTooltip>{' '}
+										the{' '}
+										<LearningTooltip
+											variant="info"
+											title="Application"
+											content="OAuth client requesting access"
+											placement="top"
+										>
+											application
+										</LearningTooltip>
 										<br />
 										<small style={{ color: '#64748b' }}>
 											User sees: "Authorize 'Smart TV App' to access your account?"
@@ -2301,21 +2890,89 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
 										<strong>
-											<LearningTooltip variant="info" title="Device" content="Input-constrained device" placement="top">Device</LearningTooltip> polls for{' '}
-											<LearningTooltip variant="learning" title="Tokens" content="Access token, ID token, refresh token" placement="top">tokens</LearningTooltip>
-										</strong> - Device{' '}
-										<LearningTooltip variant="info" title="Continuously Polls" content="Repeatedly requests tokens at specified interval" placement="top">continuously polls</LearningTooltip>{' '}
-										<LearningTooltip variant="info" title="Token Endpoint" content="OAuth endpoint where tokens are requested" placement="top">token endpoint</LearningTooltip> until user{' '}
-										<LearningTooltip variant="info" title="Completes Authorization" content="User authorizes on verification URL" placement="top">completes authorization</LearningTooltip>
+											<LearningTooltip
+												variant="info"
+												title="Device"
+												content="Input-constrained device"
+												placement="top"
+											>
+												Device
+											</LearningTooltip>{' '}
+											polls for{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Tokens"
+												content="Access token, ID token, refresh token"
+												placement="top"
+											>
+												tokens
+											</LearningTooltip>
+										</strong>{' '}
+										- Device{' '}
+										<LearningTooltip
+											variant="info"
+											title="Continuously Polls"
+											content="Repeatedly requests tokens at specified interval"
+											placement="top"
+										>
+											continuously polls
+										</LearningTooltip>{' '}
+										<LearningTooltip
+											variant="info"
+											title="Token Endpoint"
+											content="OAuth endpoint where tokens are requested"
+											placement="top"
+										>
+											token endpoint
+										</LearningTooltip>{' '}
+										until user{' '}
+										<LearningTooltip
+											variant="info"
+											title="Completes Authorization"
+											content="User authorizes on verification URL"
+											placement="top"
+										>
+											completes authorization
+										</LearningTooltip>
 									</li>
 									<li>
 										<strong>
-											<LearningTooltip variant="learning" title="Tokens Received" content="Access token, ID token (OIDC), and optionally refresh token" placement="top">Tokens received</LearningTooltip>
-										</strong> - Device receives{' '}
-										<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>,{' '}
-										<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity (if OIDC flow)" placement="top">ID token</LearningTooltip>, and
-										optionally{' '}
-										<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token for getting new access tokens" placement="top">refresh token</LearningTooltip>
+											<LearningTooltip
+												variant="learning"
+												title="Tokens Received"
+												content="Access token, ID token (OIDC), and optionally refresh token"
+												placement="top"
+											>
+												Tokens received
+											</LearningTooltip>
+										</strong>{' '}
+										- Device receives{' '}
+										<LearningTooltip
+											variant="learning"
+											title="Access Token"
+											content="Bearer token for API access"
+											placement="top"
+										>
+											access token
+										</LearningTooltip>
+										,{' '}
+										<LearningTooltip
+											variant="learning"
+											title="ID Token"
+											content="OIDC JWT with user identity (if OIDC flow)"
+											placement="top"
+										>
+											ID token
+										</LearningTooltip>
+										, and optionally{' '}
+										<LearningTooltip
+											variant="learning"
+											title="Refresh Token"
+											content="Long-lived token for getting new access tokens"
+											placement="top"
+										>
+											refresh token
+										</LearningTooltip>
 									</li>
 								</ol>
 							</div>
@@ -2340,8 +2997,16 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			<FlowConfigurationRequirements flowType="device-authorization" variant={selectedVariant} />
 
 			{/* Flow Walkthrough */}
-			<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
-			<FlowSequenceDisplay flowType={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
+			<EnhancedFlowWalkthrough
+				flowId={
+					selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'
+				}
+			/>
+			<FlowSequenceDisplay
+				flowType={
+					selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'
+				}
+			/>
 
 			{/* V6 Comprehensive Credentials Service */}
 			<ComprehensiveCredentialsService
@@ -2363,13 +3028,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
 				showProviderInfo={true}
-				
 				// Credentials props
 				environmentId={deviceFlow.credentials?.environmentId || ''}
 				clientId={deviceFlow.credentials?.clientId || ''}
 				clientSecret={deviceFlow.credentials?.clientSecret || ''}
-				scopes={deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')}
-				
+				scopes={
+					deviceFlow.credentials?.scopes ||
+					(selectedVariant === 'oidc' ? 'openid profile email' : 'openid')
+				}
 				// Change handlers
 				onEnvironmentIdChange={(newEnvId) => {
 					ensureCredentials({ environmentId: newEnvId });
@@ -2388,24 +3054,27 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				onScopesChange={(newScopes) => {
 					let finalScopes = newScopes;
-					
+
 					if (selectedVariant === 'oidc') {
 						// OIDC MUST include 'openid' scope per OpenID Connect Core 1.0 spec
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							v4ToastManager.showWarning('Added "openid" scope (required by OpenID Connect specification)');
+							v4ToastManager.showWarning(
+								'Added "openid" scope (required by OpenID Connect specification)'
+							);
 						}
 					} else {
 						// PingOne requires 'openid' scope even for OAuth 2.0 flows (non-standard)
 						if (!newScopes.includes('openid')) {
 							finalScopes = `openid ${newScopes}`.trim();
-							v4ToastManager.showInfo('Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)');
+							v4ToastManager.showInfo(
+								'Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)'
+							);
 						}
 					}
-					
+
 					ensureCredentials({ scopes: finalScopes });
 				}}
-				
 				// Save handler - save to V7 standardized storage only
 				onSave={async () => {
 					try {
@@ -2428,7 +3097,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							}
 
 							if (deviceFlow.credentials.postLogoutRedirectUri) {
-								credentialsForStorage.postLogoutRedirectUri = deviceFlow.credentials.postLogoutRedirectUri;
+								credentialsForStorage.postLogoutRedirectUri =
+									deviceFlow.credentials.postLogoutRedirectUri;
 							}
 
 							const success = await FlowCredentialService.saveFlowCredentials(
@@ -2450,13 +3120,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedChanges={false}
 				isSaving={false}
-				requireClientSecret={false}  // Device flows don't need client secret
-				
+				requireClientSecret={false} // Device flows don't need client secret
 				// Hide redirect URI fields (not needed for device flows)
 				showRedirectUri={false}
 				showPostLogoutRedirectUri={false}
 				showLoginHint={false}
-				
 				// PingOne Advanced Configuration
 				pingOneAppState={pingOneConfig}
 				onPingOneAppStateChange={setPingOneConfig}
@@ -2466,7 +3134,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
-				
 				// Config Checker props
 				showConfigChecker={true}
 				workerToken={localStorage.getItem('worker_token') || ''}
@@ -2481,7 +3148,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					<InfoText>
 						<strong>Redirect URI:</strong>{' '}
 						<span>
-							Not required for Device Authorization Flow (designed for devices that cannot handle browser redirects like smart TVs, IoT devices, or CLI tools).
+							Not required for Device Authorization Flow (designed for devices that cannot handle
+							browser redirects like smart TVs, IoT devices, or CLI tools).
 						</span>
 					</InfoText>
 					<InfoText as="div" style={{ marginTop: '0.75rem' }}>
@@ -2489,13 +3157,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						<span>
 							{selectedVariant === 'oidc'
 								? 'OpenID Connect REQUIRES the openid scope per OIDC Core 1.0 specification. Additional scopes like profile, email, offline_access are optional.'
-								: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'
-							}
+								: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'}
 						</span>
 					</InfoText>
 				</div>
 			</InfoBox>
-
 		</>
 	);
 
@@ -2554,43 +3220,50 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									1
 								</div>
 								<div style={{ width: '100%' }}>
-								<EnhancedApiCallDisplay
-									apiCall={{
-										method: 'POST',
-										url: (() => {
-											const regionDomains: Record<string, string> = {
-												us: 'auth.pingone.com',
-												eu: 'auth.pingone.eu',
-												ap: 'auth.pingone.asia',
-												ca: 'auth.pingone.ca',
-												na: 'auth.pingone.com'
-											};
-											const domain = regionDomains[deviceFlow.credentials?.region || 'us'] || 'auth.pingone.com';
-											return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`;
-										})(),
-										headers: {
-											'Content-Type': 'application/x-www-form-urlencoded'
-										},
-										body: {
-											client_id: deviceFlow.credentials?.clientId || '[clientId]',
-											scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')
-										},
-											response: deviceFlow.deviceCodeData ? {
-												status: 200,
-												statusText: 'OK',
-												headers: {
-													'Content-Type': 'application/json',
-													'Cache-Control': 'no-store'
-												},
-												data: {
-													device_code: deviceFlow.deviceCodeData.device_code,
-													user_code: deviceFlow.deviceCodeData.user_code,
-													verification_uri: deviceFlow.deviceCodeData.verification_uri,
-													verification_uri_complete: deviceFlow.deviceCodeData.verification_uri_complete,
-													expires_in: deviceFlow.deviceCodeData.expires_in,
-													interval: deviceFlow.deviceCodeData.interval
-												}
-											} : undefined,
+									<EnhancedApiCallDisplay
+										apiCall={{
+											method: 'POST',
+											url: (() => {
+												const regionDomains: Record<string, string> = {
+													us: 'auth.pingone.com',
+													eu: 'auth.pingone.eu',
+													ap: 'auth.pingone.asia',
+													ca: 'auth.pingone.ca',
+													na: 'auth.pingone.com',
+												};
+												const domain =
+													regionDomains[deviceFlow.credentials?.region || 'us'] ||
+													'auth.pingone.com';
+												return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`;
+											})(),
+											headers: {
+												'Content-Type': 'application/x-www-form-urlencoded',
+											},
+											body: {
+												client_id: deviceFlow.credentials?.clientId || '[clientId]',
+												scope:
+													deviceFlow.credentials?.scopes ||
+													(selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
+											},
+											response: deviceFlow.deviceCodeData
+												? {
+														status: 200,
+														statusText: 'OK',
+														headers: {
+															'Content-Type': 'application/json',
+															'Cache-Control': 'no-store',
+														},
+														data: {
+															device_code: deviceFlow.deviceCodeData.device_code,
+															user_code: deviceFlow.deviceCodeData.user_code,
+															verification_uri: deviceFlow.deviceCodeData.verification_uri,
+															verification_uri_complete:
+																deviceFlow.deviceCodeData.verification_uri_complete,
+															expires_in: deviceFlow.deviceCodeData.expires_in,
+															interval: deviceFlow.deviceCodeData.interval,
+														},
+													}
+												: undefined,
 											flowType: 'device-code',
 											stepName: 'device-authorization-request',
 											description: `${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Authorization Request`,
@@ -2598,13 +3271,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												'This endpoint initiates the device authorization flow',
 												`For ${selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'}: Returns device_code, user_code, and verification_uri`,
 												'The device will poll the token endpoint using the device_code',
-												'The user will enter the user_code at the verification_uri'
-											]
+												'The user will enter the user_code at the verification_uri',
+											],
 										}}
 										options={{
 											showEducationalNotes: true,
 											showFlowContext: true,
-											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+											urlHighlightRules:
+												EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 										}}
 									/>
 								</div>
@@ -2631,8 +3305,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<div>
 									<InfoTitle>Choose Your Device Type</InfoTitle>
 									<InfoText>
-										Select the type of device you want to simulate for the authorization flow.
-										This will determine the visual interface and user experience.
+										Select the type of device you want to simulate for the authorization flow. This
+										will determine the visual interface and user experience.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -2696,8 +3370,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									</Button>
 									{deviceFlow.deviceCodeData && (
 										<Button onClick={handleReset} $variant="danger">
-										<FiRefreshCw /> Start Over
-									</Button>
+											<FiRefreshCw /> Start Over
+										</Button>
 									)}
 								</div>
 
@@ -2795,7 +3469,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		</>
 	);
 
-	const handleOpenOnThisDevice = useCallback(() => {
+	const _handleOpenOnThisDevice = useCallback(() => {
 		if (!deviceFlow.deviceCodeData) {
 			return;
 		}
@@ -2811,7 +3485,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}, 150);
 
 		const targetUrl =
-			deviceFlow.deviceCodeData.verification_uri_complete || deviceFlow.deviceCodeData.verification_uri;
+			deviceFlow.deviceCodeData.verification_uri_complete ||
+			deviceFlow.deviceCodeData.verification_uri;
 		window.open(targetUrl, '_blank');
 	}, [deviceFlow.deviceCodeData]);
 
@@ -2842,10 +3517,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			>
 				✅
 			</div>
-			<WelcomeMessage style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: deviceConfig.color }}>
+			<WelcomeMessage
+				style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: deviceConfig.color }}
+			>
 				{welcomeMessage}
 			</WelcomeMessage>
-			<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>Welcome Back, Demo User 👋</div>
+			<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+				Welcome Back, Demo User 👋
+			</div>
 			<AppGrid>
 				{deviceApps.map((app) => (
 					<AppIcon key={app.label} $color={app.color}>
@@ -2889,7 +3568,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			</div>
 			<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
 			<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{waitingMessage}</div>
-			<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>AUTHORIZATION...</div>
+			<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+				AUTHORIZATION...
+			</div>
 			<div
 				style={{
 					fontSize: '0.875rem',
@@ -2964,7 +3645,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		</>
 	);
 
-	const renderDeviceSuccessContent = () => {
+	const _renderDeviceSuccessContent = () => {
 		switch (selectedDevice) {
 			case 'gaming-console':
 				return (
@@ -3068,14 +3749,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 	};
 
-	const renderDeviceDisplay = (tokens: any) => {
+	const _renderDeviceDisplay = (tokens: any) => {
 		if (tokens) {
 			return renderGenericSuccessContent();
 		}
 		return renderGenericPreAuthContent();
 	};
 
-	const renderDevicePendingContent = () => {
+	const _renderDevicePendingContent = () => {
 		const isPolling = deviceFlow.pollingStatus.isPolling;
 		switch (selectedDevice) {
 			case 'gaming-console':
@@ -3094,7 +3775,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								On your phone, open {deviceFlow.deviceCodeData?.verification_uri}
 							</ConsoleHeroSubtitle>
 							<ConsoleHintRow>
-								<span>Enter code • <strong>{deviceFlow.deviceCodeData?.user_code}</strong></span>
+								<span>
+									Enter code • <strong>{deviceFlow.deviceCodeData?.user_code}</strong>
+								</span>
 								<span>Keep this screen open while we verify your account.</span>
 							</ConsoleHintRow>
 						</ConsoleHero>
@@ -3123,7 +3806,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<KioskForm>
 								<KioskRow>
 									<KioskLabel>Instructions</KioskLabel>
-									<KioskValue>Scan QR or visit {deviceFlow.deviceCodeData?.verification_uri}</KioskValue>
+									<KioskValue>
+										Scan QR or visit {deviceFlow.deviceCodeData?.verification_uri}
+									</KioskValue>
 								</KioskRow>
 								<KioskRow>
 									<KioskLabel>Authorization Code</KioskLabel>
@@ -3201,11 +3886,16 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									deviceCode: deviceFlow.deviceCodeData?.device_code || '',
 									userCode: deviceFlow.deviceCodeData?.user_code || '',
 									verificationUri: deviceFlow.deviceCodeData?.verification_uri || '',
-									verificationUriComplete: deviceFlow.deviceCodeData?.verification_uri_complete || '',
+									verificationUriComplete:
+										deviceFlow.deviceCodeData?.verification_uri_complete || '',
 									expiresIn: deviceFlow.deviceCodeData?.expires_in || 0,
 									interval: deviceFlow.deviceCodeData?.interval || 5,
 									expiresAt: deviceFlow.deviceCodeData?.expires_at || new Date(),
-									status: deviceFlow.tokens ? 'authorized' : (deviceFlow.pollingStatus.isPolling ? 'pending' : 'pending'),
+									status: deviceFlow.tokens
+										? 'authorized'
+										: deviceFlow.pollingStatus.isPolling
+											? 'pending'
+											: 'pending',
 									tokens: deviceFlow.tokens,
 									lastPolled: deviceFlow.pollingStatus.lastPolled,
 									pollCount: deviceFlow.pollingStatus.pollCount || 0,
@@ -3262,51 +3952,51 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 		try {
 			// Use the reusable service to create API call data and execute introspection
-		// Construct region-aware introspection endpoint
-		const regionDomains: Record<string, string> = {
-			us: 'auth.pingone.com',
-			eu: 'auth.pingone.eu',
-			ap: 'auth.pingone.asia',
-			ca: 'auth.pingone.ca',
-			na: 'auth.pingone.com'
-		};
-		const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
-		const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
+			// Construct region-aware introspection endpoint
+			const regionDomains: Record<string, string> = {
+				us: 'auth.pingone.com',
+				eu: 'auth.pingone.eu',
+				ap: 'auth.pingone.asia',
+				ca: 'auth.pingone.ca',
+				na: 'auth.pingone.com',
+			};
+			const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+			const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
 
-		const result = await TokenIntrospectionService.introspectToken(
-			request,
-			'device-code',
-			introspectionEndpoint
-		);
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'device-code',
+				introspectionEndpoint
+			);
 
-		// Set the API call data for display
-		setIntrospectionApiCall(result.apiCall);
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
 
-		return result.response;
-	} catch (error) {
-		// Construct region-aware introspection endpoint for error
-		const regionDomains: Record<string, string> = {
-			us: 'auth.pingone.com',
-			eu: 'auth.pingone.eu',
-			ap: 'auth.pingone.asia',
-			ca: 'auth.pingone.ca',
-			na: 'auth.pingone.com'
-		};
-		const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
-		const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
+			return result.response;
+		} catch (error) {
+			// Construct region-aware introspection endpoint for error
+			const regionDomains: Record<string, string> = {
+				us: 'auth.pingone.com',
+				eu: 'auth.pingone.eu',
+				ap: 'auth.pingone.asia',
+				ca: 'auth.pingone.ca',
+				na: 'auth.pingone.com',
+			};
+			const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+			const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
 
-		// Create error API call using reusable service
-		const errorApiCall = TokenIntrospectionService.createErrorApiCall(
-			request,
-			'device-code',
-			error instanceof Error ? error.message : 'Unknown error',
-			500,
-			introspectionEndpoint
-		);
+			// Create error API call using reusable service
+			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+				request,
+				'device-code',
+				error instanceof Error ? error.message : 'Unknown error',
+				500,
+				introspectionEndpoint
+			);
 
-		setIntrospectionApiCall(errorApiCall);
-		throw error;
-	}
+			setIntrospectionApiCall(errorApiCall);
+			throw error;
+		}
 	};
 
 	const renderIntrospection = () => (
@@ -3372,8 +4062,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<BarChart3 size={16} /> Flow Analytics & Performance Monitoring
 							</ExplanationHeading>
 							<InfoText>
-								Monitor the performance and analytics of your device authorization flow.
-								Track completion rates, device usage patterns, and security metrics.
+								Monitor the performance and analytics of your device authorization flow. Track
+								completion rates, device usage patterns, and security metrics.
 							</InfoText>
 
 							{/* Analytics Dashboard */}
@@ -3396,11 +4086,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<div>
 									<InfoTitle>Analytics Features:</InfoTitle>
 									<InfoText>
-										• Flow completion tracking and success rates<br />
-										• Device usage patterns and preferences<br />
-										• Performance metrics and response times<br />
-										• Security analytics and threat detection<br />
-										• User behavior insights and learning progress
+										• Flow completion tracking and success rates
+										<br />• Device usage patterns and preferences
+										<br />• Performance metrics and response times
+										<br />• Security analytics and threat detection
+										<br />• User behavior insights and learning progress
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -3429,8 +4119,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<Play size={16} /> Learn More About Device Authorization
 							</ExplanationHeading>
 							<InfoText>
-								Take an interactive tutorial to deepen your understanding of device authorization flows,
-								security considerations, and best practices.
+								Take an interactive tutorial to deepen your understanding of device authorization
+								flows, security considerations, and best practices.
 							</InfoText>
 
 							<div style={{ marginTop: '1.5rem' }}>
@@ -3522,7 +4212,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		<FlowContainer>
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v7" />
-				
+
 				<EnhancedFlowInfoCard
 					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
 					showAdditionalInfo={true}
@@ -3534,16 +4224,17 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				<FlowHeader $variant={selectedVariant}>
 					<div>
 						<StepBadge $variant={selectedVariant}>
-							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION • V7 UNIFIED
+							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION •
+							V7 UNIFIED
 						</StepBadge>
 						<FlowTitle>
-							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
+							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
+							{STEP_METADATA[currentStep].title}
 						</FlowTitle>
 						<FlowSubtitle>
-							{selectedVariant === 'oidc' 
+							{selectedVariant === 'oidc'
 								? 'Authentication + Authorization with ID token and Access token'
-								: 'API Authorization with Access token only'
-							}
+								: 'API Authorization with Access token only'}
 						</FlowSubtitle>
 					</div>
 					<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
@@ -3575,7 +4266,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					canNavigateNext={isStepValid(currentStep + 1)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-					disabledMessage={getStepValidationMessage(currentStep + 1) || 'Complete the action above to continue'}
+					disabledMessage={
+						getStepValidationMessage(currentStep + 1) || 'Complete the action above to continue'
+					}
 				/>
 
 				<CollapsibleSection>
@@ -3599,7 +4292,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										🎮 Device Selection
 									</InfoTitle>
 									<InfoText style={{ marginTop: '0.75rem', color: '#0c4a6e' }}>
-										Device selection is available in the main flow area above. Choose your device type to see the appropriate authorization interface.
+										Device selection is available in the main flow area above. Choose your device
+										type to see the appropriate authorization interface.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -3621,8 +4315,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					</ModalHeader>
 					<ModalBody>
 						<p>
-							The device code has been generated and displayed on the {deviceConfig.displayName}. The user
-							can now scan the QR code or enter the code on their phone.
+							The device code has been generated and displayed on the {deviceConfig.displayName}.
+							The user can now scan the QR code or enter the code on their phone.
 						</p>
 						<p style={{ marginTop: '1rem' }}>
 							<strong>Next step:</strong> Start polling the authorization server to check if the
@@ -3650,8 +4344,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							</div>
 							<p style={{ margin: 0 }}>
 								{deviceConfig.emoji}{' '}
-								<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the user
-								authorizes on their phone!
+								<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the
+								user authorizes on their phone!
 							</p>
 						</div>
 						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>

@@ -1,13 +1,13 @@
 // src/services/v7ServiceIntegrationExample.ts
 /**
  * V7 Service Integration Examples
- * 
+ *
  * Demonstrates how to integrate V7SharedService into existing V7 flows
  * for comprehensive OAuth/OIDC specification compliance.
  */
 
-import { V7SharedService } from './v7SharedService';
 import type { V7FlowName } from './v7SharedService';
+import { V7SharedService } from './v7SharedService';
 
 /**
  * Example: Integrating V7SharedService into OIDC Authorization Code Flow V7
@@ -24,10 +24,13 @@ export class OIDCAuthorizationCodeFlowV7Integration {
 			enableIDTokenValidation: true,
 			enableParameterValidation: true,
 			enableErrorHandling: true,
-			enableSecurityHeaders: true
+			enableSecurityHeaders: true,
 		});
 
-		console.log('OIDC Authorization Code Flow V7 initialized with compliance features:', flowConfig);
+		console.log(
+			'OIDC Authorization Code Flow V7 initialized with compliance features:',
+			flowConfig
+		);
 		return flowConfig;
 	}
 
@@ -43,21 +46,21 @@ export class OIDCAuthorizationCodeFlowV7Integration {
 
 		if (!validation.isValid) {
 			// Handle validation errors
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError(
-				'invalid_request',
-				{
-					flowName: this.flowName,
-					step: 'authorization_request',
-					operation: 'parameter_validation',
-					timestamp: Date.now()
-				}
-			);
+			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+				flowName: this.flowName,
+				step: 'authorization_request',
+				operation: 'parameter_validation',
+				timestamp: Date.now(),
+			});
 
 			console.error('Parameter validation failed:', validation.errors);
 			return { success: false, error: errorResponse };
 		}
 
-		console.log('Parameter validation successful:', V7SharedService.ParameterValidation.getValidationSummary(validation));
+		console.log(
+			'Parameter validation successful:',
+			V7SharedService.ParameterValidation.getValidationSummary(validation)
+		);
 		return { success: true, validation };
 	}
 
@@ -83,21 +86,21 @@ export class OIDCAuthorizationCodeFlowV7Integration {
 
 			if (!validation.isValid) {
 				// Handle ID token validation errors
-				const errorResponse = V7SharedService.ErrorHandling.createScenarioError(
-					'invalid_token',
-					{
-						flowName: this.flowName,
-						step: 'id_token_validation',
-						operation: 'token_validation',
-						timestamp: Date.now()
-					}
-				);
+				const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+					flowName: this.flowName,
+					step: 'id_token_validation',
+					operation: 'token_validation',
+					timestamp: Date.now(),
+				});
 
 				console.error('ID token validation failed:', validation.errors);
 				return { success: false, error: errorResponse, validation };
 			}
 
-			console.log('ID token validation successful:', V7SharedService.IDTokenValidation.getValidationSummary(validation));
+			console.log(
+				'ID token validation successful:',
+				V7SharedService.IDTokenValidation.getValidationSummary(validation)
+			);
 			return { success: true, validation };
 		} catch (error) {
 			// Handle validation errors
@@ -105,7 +108,7 @@ export class OIDCAuthorizationCodeFlowV7Integration {
 				flowName: this.flowName,
 				step: 'id_token_validation',
 				operation: 'token_validation',
-				timestamp: Date.now()
+				timestamp: Date.now(),
 			});
 
 			console.error('ID token validation error:', error);
@@ -143,10 +146,13 @@ export class OAuthClientCredentialsFlowV7Integration {
 			enableIDTokenValidation: false, // Not needed for client credentials
 			enableParameterValidation: true,
 			enableErrorHandling: true,
-			enableSecurityHeaders: true
+			enableSecurityHeaders: true,
 		});
 
-		console.log('OAuth Client Credentials Flow V7 initialized with compliance features:', flowConfig);
+		console.log(
+			'OAuth Client Credentials Flow V7 initialized with compliance features:',
+			flowConfig
+		);
 		return flowConfig;
 	}
 
@@ -162,21 +168,21 @@ export class OAuthClientCredentialsFlowV7Integration {
 
 		if (!validation.isValid) {
 			// Handle validation errors
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError(
-				'invalid_request',
-				{
-					flowName: this.flowName,
-					step: 'client_credentials_request',
-					operation: 'parameter_validation',
-					timestamp: Date.now()
-				}
-			);
+			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+				flowName: this.flowName,
+				step: 'client_credentials_request',
+				operation: 'parameter_validation',
+				timestamp: Date.now(),
+			});
 
 			console.error('Parameter validation failed:', validation.errors);
 			return { success: false, error: errorResponse };
 		}
 
-		console.log('Parameter validation successful:', V7SharedService.ParameterValidation.getValidationSummary(validation));
+		console.log(
+			'Parameter validation successful:',
+			V7SharedService.ParameterValidation.getValidationSummary(validation)
+		);
 		return { success: true, validation };
 	}
 
@@ -188,7 +194,7 @@ export class OAuthClientCredentialsFlowV7Integration {
 			flowName: this.flowName,
 			step: 'client_credentials_exchange',
 			operation: 'token_request',
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -215,7 +221,7 @@ export class OIDCHybridFlowV7Integration {
 			enableIDTokenValidation: true, // Required for hybrid flow
 			enableParameterValidation: true,
 			enableErrorHandling: true,
-			enableSecurityHeaders: true
+			enableSecurityHeaders: true,
 		});
 
 		console.log('OIDC Hybrid Flow V7 initialized with compliance features:', flowConfig);
@@ -234,21 +240,21 @@ export class OIDCHybridFlowV7Integration {
 
 		if (!validation.isValid) {
 			// Handle validation errors
-			const errorResponse = V7SharedService.ErrorHandling.createScenarioError(
-				'invalid_request',
-				{
-					flowName: this.flowName,
-					step: 'hybrid_authorization_request',
-					operation: 'parameter_validation',
-					timestamp: Date.now()
-				}
-			);
+			const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_request', {
+				flowName: this.flowName,
+				step: 'hybrid_authorization_request',
+				operation: 'parameter_validation',
+				timestamp: Date.now(),
+			});
 
 			console.error('Parameter validation failed:', validation.errors);
 			return { success: false, error: errorResponse };
 		}
 
-		console.log('Parameter validation successful:', V7SharedService.ParameterValidation.getValidationSummary(validation));
+		console.log(
+			'Parameter validation successful:',
+			V7SharedService.ParameterValidation.getValidationSummary(validation)
+		);
 		return { success: true, validation };
 	}
 
@@ -275,15 +281,12 @@ export class OIDCHybridFlowV7Integration {
 				);
 
 				if (!idTokenValidation.isValid) {
-					const errorResponse = V7SharedService.ErrorHandling.createScenarioError(
-						'invalid_token',
-						{
-							flowName: this.flowName,
-							step: 'hybrid_response_processing',
-							operation: 'id_token_validation',
-							timestamp: Date.now()
-						}
-					);
+					const errorResponse = V7SharedService.ErrorHandling.createScenarioError('invalid_token', {
+						flowName: this.flowName,
+						step: 'hybrid_response_processing',
+						operation: 'id_token_validation',
+						timestamp: Date.now(),
+					});
 
 					console.error('ID token validation failed:', idTokenValidation.errors);
 					return { success: false, error: errorResponse };
@@ -304,7 +307,7 @@ export class OIDCHybridFlowV7Integration {
 				flowName: this.flowName,
 				step: 'hybrid_response_processing',
 				operation: 'response_processing',
-				timestamp: Date.now()
+				timestamp: Date.now(),
 			});
 
 			console.error('Hybrid response processing error:', error);
@@ -341,25 +344,32 @@ export const useV7FlowIntegration = (flowName: V7FlowName) => {
 		flowStatus,
 		securityHeaders,
 		errorStats,
-		
+
 		// Validation functions
-		validateParameters: (parameters: Record<string, any>) => 
+		validateParameters: (parameters: Record<string, any>) =>
 			V7SharedService.ParameterValidation.validateFlowParameters(flowName, parameters),
-		
+
 		validateIDToken: (idToken: string, issuer: string, audience: string, nonce?: string) =>
-			V7SharedService.IDTokenValidation.validateIDToken(idToken, issuer, audience, nonce, undefined, flowName),
-		
+			V7SharedService.IDTokenValidation.validateIDToken(
+				idToken,
+				issuer,
+				audience,
+				nonce,
+				undefined,
+				flowName
+			),
+
 		handleError: (error: any, context?: any) =>
 			V7SharedService.ErrorHandling.handleOAuthError(error, context),
-		
+
 		// Utility functions
 		getComplianceScore: () => {
 			const compliance = V7SharedService.SpecificationCompliance.checkFlowCompliance(flowName);
 			return compliance.complianceScore;
 		},
-		
+
 		getSecurityScore: (headers: Record<string, string>) =>
-			V7SharedService.SecurityHeaders.getSecurityScore(headers)
+			V7SharedService.SecurityHeaders.getSecurityScore(headers),
 	};
 };
 
@@ -367,5 +377,5 @@ export default {
 	OIDCAuthorizationCodeFlowV7Integration,
 	OAuthClientCredentialsFlowV7Integration,
 	OIDCHybridFlowV7Integration,
-	useV7FlowIntegration
+	useV7FlowIntegration,
 };

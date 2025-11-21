@@ -2,8 +2,8 @@
 // V7 Credential Backup Hook - Provides backup functionality for all V7 flows
 
 import { useEffect } from 'react';
-import { credentialBackupService } from '../services/credentialBackupService';
 import { StepCredentials } from '../components/steps/CommonSteps';
+import { credentialBackupService } from '../services/credentialBackupService';
 
 interface UseCredentialBackupProps {
 	flowKey: string;
@@ -20,13 +20,12 @@ export const useCredentialBackup = ({
 	flowKey,
 	credentials,
 	setCredentials,
-	enabled = true
+	enabled = true,
 }: UseCredentialBackupProps) => {
-	
 	// Backup credentials whenever they change
 	useEffect(() => {
 		if (!enabled) return;
-		
+
 		// Only backup if we have meaningful credentials
 		if (credentials && (credentials.environmentId || credentials.clientId)) {
 			console.log(`🔧 [CredentialBackup] Saving backup for flow: ${flowKey}`, {
@@ -34,9 +33,9 @@ export const useCredentialBackup = ({
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasRedirectUri: !!credentials.redirectUri,
-				scopes: credentials.scopes?.length || 0
+				scopes: credentials.scopes?.length || 0,
 			});
-			
+
 			credentialBackupService.saveCredentialBackup(flowKey, credentials);
 		}
 	}, [flowKey, credentials, enabled]);
@@ -44,28 +43,36 @@ export const useCredentialBackup = ({
 	// Restore credentials from backup on mount if needed
 	useEffect(() => {
 		if (!enabled) return;
-		
+
 		// Check if we need to restore from backup (when storage is cleared)
 		const normalizedCredentials = credentials ?? ({} as StepCredentials);
 		if (!normalizedCredentials.environmentId && !normalizedCredentials.clientId) {
 			const backupCredentials = credentialBackupService.restoreFromBackup(flowKey);
 			if (backupCredentials.environmentId || backupCredentials.clientId) {
-				console.log(`🔧 [CredentialBackup] Restoring credentials from backup for flow: ${flowKey}`, {
-					flowKey,
-					hasEnvironmentId: !!backupCredentials.environmentId,
-					hasClientId: !!backupCredentials.clientId,
-					hasRedirectUri: !!backupCredentials.redirectUri,
-					scopes: backupCredentials.scopes?.length || 0
-				});
-				
+				console.log(
+					`🔧 [CredentialBackup] Restoring credentials from backup for flow: ${flowKey}`,
+					{
+						flowKey,
+						hasEnvironmentId: !!backupCredentials.environmentId,
+						hasClientId: !!backupCredentials.clientId,
+						hasRedirectUri: !!backupCredentials.redirectUri,
+						scopes: backupCredentials.scopes?.length || 0,
+					}
+				);
+
 				// Update credentials with restored data
 				setCredentials({
 					...normalizedCredentials,
-					...backupCredentials
+					...backupCredentials,
 				});
 			}
 		}
-	}, [flowKey, enabled, credentials]); // Only run when flowKey/enabled change or credentials reset
+	}, [
+		flowKey,
+		enabled,
+		credentials, // Update credentials with restored data
+		setCredentials,
+	]); // Only run when flowKey/enabled change or credentials reset
 
 	// Clear backup when flow is reset
 	const clearBackup = () => {
@@ -88,7 +95,7 @@ export const useCredentialBackup = ({
 	return {
 		clearBackup,
 		getBackupStats,
-		downloadEnvFile
+		downloadEnvFile,
 	};
 };
 

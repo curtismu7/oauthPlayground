@@ -2,7 +2,7 @@
 // Utility function to fix environment ID in localStorage
 
 const CORRECT_ENV_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
-const FLOW_KEY = 'heb-grocery-store-mfa';
+const _FLOW_KEY = 'heb-grocery-store-mfa';
 
 /**
  * Fix environment ID in all storage locations for HEB Grocery Store flow
@@ -45,23 +45,33 @@ export function fixEnvironmentIdInStorage(): void {
 		if (flowData) {
 			const parsed = JSON.parse(flowData);
 			let updated = false;
-			
+
 			// Check credentials
-			if (parsed.credentials?.environmentId && parsed.credentials.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${flowDataKey}.credentials: ${parsed.credentials.environmentId}`);
+			if (
+				parsed.credentials?.environmentId &&
+				parsed.credentials.environmentId !== CORRECT_ENV_ID
+			) {
+				console.log(
+					`❌ Found wrong Environment ID in ${flowDataKey}.credentials: ${parsed.credentials.environmentId}`
+				);
 				parsed.credentials.environmentId = CORRECT_ENV_ID;
 				parsed.credentials.lastUpdated = Date.now();
 				updated = true;
 			}
-			
+
 			// Check shared environment reference
-			if (parsed.sharedEnvironment?.environmentId && parsed.sharedEnvironment.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${flowDataKey}.sharedEnvironment: ${parsed.sharedEnvironment.environmentId}`);
+			if (
+				parsed.sharedEnvironment?.environmentId &&
+				parsed.sharedEnvironment.environmentId !== CORRECT_ENV_ID
+			) {
+				console.log(
+					`❌ Found wrong Environment ID in ${flowDataKey}.sharedEnvironment: ${parsed.sharedEnvironment.environmentId}`
+				);
 				parsed.sharedEnvironment.environmentId = CORRECT_ENV_ID;
 				parsed.sharedEnvironment.lastUpdated = Date.now();
 				updated = true;
 			}
-			
+
 			if (updated) {
 				localStorage.setItem(flowDataKey, JSON.stringify(parsed));
 				console.log(`✅ Fixed ${flowDataKey}`);
@@ -84,7 +94,10 @@ export function fixEnvironmentIdInStorage(): void {
 				parsed.lastUpdated = Date.now();
 				// Update issuer URL if it contains the old environment ID
 				if (parsed.issuerUrl) {
-					parsed.issuerUrl = parsed.issuerUrl.replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\//i, `/${CORRECT_ENV_ID}/`);
+					parsed.issuerUrl = parsed.issuerUrl.replace(
+						/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\//i,
+						`/${CORRECT_ENV_ID}/`
+					);
 				}
 				localStorage.setItem(sharedEnvKey, JSON.stringify(parsed));
 				console.log(`✅ Fixed ${sharedEnvKey}`);
@@ -102,12 +115,17 @@ export function fixEnvironmentIdInStorage(): void {
 		if (sharedDiscovery) {
 			const parsed = JSON.parse(sharedDiscovery);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${sharedDiscoveryKey}: ${parsed.environmentId}`);
+				console.log(
+					`❌ Found wrong Environment ID in ${sharedDiscoveryKey}: ${parsed.environmentId}`
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.timestamp = Date.now();
 				// Update discovery document issuer if it contains the old environment ID
 				if (parsed.discoveryDocument?.issuer) {
-					parsed.discoveryDocument.issuer = parsed.discoveryDocument.issuer.replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\//i, `/${CORRECT_ENV_ID}/`);
+					parsed.discoveryDocument.issuer = parsed.discoveryDocument.issuer.replace(
+						/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\//i,
+						`/${CORRECT_ENV_ID}/`
+					);
 				}
 				localStorage.setItem(sharedDiscoveryKey, JSON.stringify(parsed));
 				console.log(`✅ Fixed ${sharedDiscoveryKey}`);
@@ -125,7 +143,9 @@ export function fixEnvironmentIdInStorage(): void {
 		if (envPersistence) {
 			const parsed = JSON.parse(envPersistence);
 			if (parsed.environmentId && parsed.environmentId !== CORRECT_ENV_ID) {
-				console.log(`❌ Found wrong Environment ID in ${envPersistenceKey}: ${parsed.environmentId}`);
+				console.log(
+					`❌ Found wrong Environment ID in ${envPersistenceKey}: ${parsed.environmentId}`
+				);
 				parsed.environmentId = CORRECT_ENV_ID;
 				parsed.lastUpdated = Date.now();
 				localStorage.setItem(envPersistenceKey, JSON.stringify(parsed));
@@ -150,18 +170,26 @@ export function fixEnvironmentIdInStorage(): void {
 
 	for (let i = 0; i < localStorage.length; i++) {
 		const key = localStorage.key(i);
-		if (key && (key.includes('pingone') || key.includes('heb') || key.includes('worker') || key.includes('flow'))) {
+		if (
+			key &&
+			(key.includes('pingone') ||
+				key.includes('heb') ||
+				key.includes('worker') ||
+				key.includes('flow'))
+		) {
 			if (keysToCheck.includes(key)) continue; // Already checked
-			
+
 			try {
 				const value = localStorage.getItem(key);
 				if (value) {
 					const parsed = JSON.parse(value);
 					const jsonString = JSON.stringify(parsed);
 					const matches = jsonString.match(uuidPattern);
-					
+
 					if (matches) {
-						const wrongIds = matches.filter(id => id.toLowerCase() !== CORRECT_ENV_ID.toLowerCase());
+						const wrongIds = matches.filter(
+							(id) => id.toLowerCase() !== CORRECT_ENV_ID.toLowerCase()
+						);
 						if (wrongIds.length > 0) {
 							console.log(`⚠️ Found potential wrong Environment ID in ${key}:`, wrongIds);
 							// Try to fix if it's a simple structure
@@ -177,7 +205,7 @@ export function fixEnvironmentIdInStorage(): void {
 						}
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				// Not JSON, skip
 			}
 		}
@@ -185,10 +213,9 @@ export function fixEnvironmentIdInStorage(): void {
 
 	console.log(`\n✅ Fixed ${fixedCount} storage location(s)`);
 	console.log(`✅ Environment ID fix complete!`);
-	
+
 	// Also make it available globally for manual execution
 	if (typeof window !== 'undefined') {
 		(window as any).fixEnvironmentId = fixEnvironmentIdInStorage;
 	}
 }
-

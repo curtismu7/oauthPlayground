@@ -266,9 +266,9 @@ const TokenIntrospectionFlow: React.FC<TokenIntrospectionFlowProps> = ({ credent
 	const [activeAuthMethod, setActiveAuthMethod] =
 		useState<TokenAuthMethod['type']>('CLIENT_SECRET_BASIC');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || 'mock_introspection_client_id_demo_12345',
-		clientSecret: credentials?.clientSecret || 'mock_introspection_client_secret_demo_67890',
-		environmentId: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		environmentId: credentials?.environmentId || '',
 		tokenToIntrospect: 'mock_access_token_to_introspect_example_abcdef123456',
 		tokenTypeHint: 'access_token' as 'access_token' | 'id_token' | 'refresh_token',
 		resourceId: '',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -73,8 +73,8 @@ const SearchResultItem = styled.div<{ $isActive?: boolean }>`
 	border-radius: 0.375rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	background: ${props => props.$isActive ? '#dbeafe' : 'white'};
-	border: 1px solid ${props => props.$isActive ? '#3b82f6' : '#e5e7eb'};
+	background: ${(props) => (props.$isActive ? '#dbeafe' : 'white')};
+	border: 1px solid ${(props) => (props.$isActive ? '#3b82f6' : '#e5e7eb')};
 	margin-bottom: 0.25rem;
 
 	&:hover {
@@ -135,11 +135,14 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 		}
 
 		const query = searchQuery.toLowerCase();
-		return menuItems.filter(item => 
-			item.label.toLowerCase().includes(query) ||
-			item.path.toLowerCase().includes(query) ||
-			item.category.toLowerCase().includes(query)
-		).slice(0, 10); // Limit to 10 results for performance
+		return menuItems
+			.filter(
+				(item) =>
+					item.label.toLowerCase().includes(query) ||
+					item.path.toLowerCase().includes(query) ||
+					item.category.toLowerCase().includes(query)
+			)
+			.slice(0, 10); // Limit to 10 results for performance
 	}, [searchQuery, menuItems]);
 
 	// Clear search when clicking outside
@@ -147,8 +150,7 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as HTMLElement;
 			// Don't close if clicking on search results or search container
-			if (!target.closest('[data-search-container]') && 
-				!target.closest('[data-search-results]')) {
+			if (!target.closest('[data-search-container]') && !target.closest('[data-search-results]')) {
 				setIsSearchFocused(false);
 			}
 		};
@@ -230,9 +232,7 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 							</SearchResultItem>
 						))
 					) : (
-						<NoResults>
-							No results found for "{searchQuery}"
-						</NoResults>
+						<NoResults>No results found for "{searchQuery}"</NoResults>
 					)}
 				</SearchResults>
 			)}

@@ -1,9 +1,15 @@
 // src/components/EnhancedAuthContextDemo.tsx
 // Demo showing how flows can use the enhanced NewAuthContext
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiArrowRight,
+	FiCheckCircle,
+	FiRefreshCw,
+	FiSettings,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiArrowRight, FiCheckCircle, FiRefreshCw, FiSettings, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 
 const Container = styled.div`
@@ -64,29 +70,29 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           &:hover { background: #2563eb; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background: #10b981;
           color: white;
           &:hover { background: #059669; }
         `;
-      default:
-        return `
+			default:
+				return `
           background: #f3f4f6;
           color: #374151;
           border: 1px solid #d1d5db;
           &:hover { background: #e5e7eb; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
@@ -98,28 +104,28 @@ const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
   font-size: 0.875rem;
   margin-bottom: 1rem;
 
-  ${props => {
-    switch (props.status) {
-      case 'success':
-        return `
+  ${(props) => {
+		switch (props.status) {
+			case 'success':
+				return `
           background: #f0fdf4;
           border: 1px solid #bbf7d0;
           color: #166534;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background: #eff6ff;
           border: 1px solid #bfdbfe;
           color: #1e40af;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -139,10 +145,10 @@ const FlowStep = styled.div<{ active: boolean }>`
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  border: 1px solid ${props => props.active ? '#3b82f6' : '#e5e7eb'};
+  border: 1px solid ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 6px;
   margin-bottom: 0.5rem;
-  background: ${props => props.active ? '#eff6ff' : 'white'};
+  background: ${(props) => (props.active ? '#eff6ff' : 'white')};
 `;
 
 const StepNumber = styled.div<{ active: boolean }>`
@@ -152,8 +158,8 @@ const StepNumber = styled.div<{ active: boolean }>`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: ${props => props.active ? '#3b82f6' : '#e5e7eb'};
-  color: ${props => props.active ? 'white' : '#6b7280'};
+  background: ${(props) => (props.active ? '#3b82f6' : '#e5e7eb')};
+  color: ${(props) => (props.active ? 'white' : '#6b7280')};
   font-weight: 600;
   font-size: 0.875rem;
 `;
@@ -174,260 +180,255 @@ const StepDescription = styled.div`
 `;
 
 export const EnhancedAuthContextDemo: React.FC = () => {
-  const auth = useAuth();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [flowId, setFlowId] = useState<string | null>(null);
-  const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-  const [currentFlow, setCurrentFlow] = useState<any>(null);
+	const auth = useAuth();
+	const [currentStep, setCurrentStep] = useState(0);
+	const [flowId, setFlowId] = useState<string | null>(null);
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
+	const [currentFlow, setCurrentFlow] = useState<any>(null);
 
-  // Check current flow status
-  useEffect(() => {
-    const flow = auth.getCurrentFlow();
-    setCurrentFlow(flow);
-  }, [auth, currentStep]);
+	// Check current flow status
+	useEffect(() => {
+		const flow = auth.getCurrentFlow();
+		setCurrentFlow(flow);
+	}, [auth]);
 
-  const steps = [
-    {
-      title: 'Initialize Flow Context',
-      description: 'Set up flow context for OAuth redirect handling'
-    },
-    {
-      title: 'Simulate OAuth Redirect',
-      description: 'Demonstrate how flow context preserves state during redirects'
-    },
-    {
-      title: 'Update Flow Step',
-      description: 'Show how to update flow progress and state'
-    },
-    {
-      title: 'Complete Flow',
-      description: 'Clean up flow context and complete the process'
-    }
-  ];
+	const steps = [
+		{
+			title: 'Initialize Flow Context',
+			description: 'Set up flow context for OAuth redirect handling',
+		},
+		{
+			title: 'Simulate OAuth Redirect',
+			description: 'Demonstrate how flow context preserves state during redirects',
+		},
+		{
+			title: 'Update Flow Step',
+			description: 'Show how to update flow progress and state',
+		},
+		{
+			title: 'Complete Flow',
+			description: 'Clean up flow context and complete the process',
+		},
+	];
 
-  const handleInitializeFlow = () => {
-    try {
-      const flowState = {
-        currentStep: 1,
-        credentials: {
-          environmentId: 'demo-env',
-          clientId: 'demo-client',
-          clientSecret: 'demo-secret'
-        },
-        formData: {
-          selectedScopes: ['openid', 'profile', 'email'],
-          customParam: 'demo-value'
-        }
-      };
+	const handleInitializeFlow = () => {
+		try {
+			const flowState = {
+				currentStep: 1,
+				credentials: {
+					environmentId: 'demo-env',
+					clientId: 'demo-client',
+					clientSecret: 'demo-secret',
+				},
+				formData: {
+					selectedScopes: ['openid', 'profile', 'email'],
+					customParam: 'demo-value',
+				},
+			};
 
-      const newFlowId = auth.initializeFlowContext('demo-flow', 1, flowState);
-      setFlowId(newFlowId);
-      setCurrentStep(1);
-      setStatus({ 
-        type: 'success', 
-        message: `Flow initialized successfully! Flow ID: ${newFlowId}` 
-      });
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Failed to initialize flow: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+			const newFlowId = auth.initializeFlowContext('demo-flow', 1, flowState);
+			setFlowId(newFlowId);
+			setCurrentStep(1);
+			setStatus({
+				type: 'success',
+				message: `Flow initialized successfully! Flow ID: ${newFlowId}`,
+			});
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Failed to initialize flow: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-  const handleSimulateRedirect = () => {
-    if (!flowId) {
-      setStatus({ type: 'error', message: 'No active flow to simulate redirect' });
-      return;
-    }
+	const handleSimulateRedirect = () => {
+		if (!flowId) {
+			setStatus({ type: 'error', message: 'No active flow to simulate redirect' });
+			return;
+		}
 
-    try {
-      // Simulate what happens during OAuth redirect
-      setStatus({ 
-        type: 'info', 
-        message: 'Simulating OAuth redirect... Flow context is preserved in session storage' 
-      });
-      
-      setTimeout(() => {
-        setCurrentStep(2);
-        setStatus({ 
-          type: 'success', 
-          message: 'OAuth redirect simulated! Flow context would be restored on callback' 
-        });
-      }, 1000);
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Redirect simulation failed: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+		try {
+			// Simulate what happens during OAuth redirect
+			setStatus({
+				type: 'info',
+				message: 'Simulating OAuth redirect... Flow context is preserved in session storage',
+			});
 
-  const handleUpdateStep = () => {
-    if (!flowId) {
-      setStatus({ type: 'error', message: 'No active flow to update' });
-      return;
-    }
+			setTimeout(() => {
+				setCurrentStep(2);
+				setStatus({
+					type: 'success',
+					message: 'OAuth redirect simulated! Flow context would be restored on callback',
+				});
+			}, 1000);
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Redirect simulation failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-    try {
-      const newStepData = {
-        tokens: {
-          access_token: 'demo-access-token',
-          id_token: 'demo-id-token',
-          refresh_token: 'demo-refresh-token'
-        },
-        completedAt: new Date().toISOString()
-      };
+	const handleUpdateStep = () => {
+		if (!flowId) {
+			setStatus({ type: 'error', message: 'No active flow to update' });
+			return;
+		}
 
-      const success = auth.updateFlowStep(flowId, 3, newStepData);
-      
-      if (success) {
-        setCurrentStep(3);
-        setStatus({ 
-          type: 'success', 
-          message: 'Flow step updated successfully with token data!' 
-        });
-      } else {
-        setStatus({ type: 'error', message: 'Failed to update flow step' });
-      }
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Failed to update step: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+		try {
+			const newStepData = {
+				tokens: {
+					access_token: 'demo-access-token',
+					id_token: 'demo-id-token',
+					refresh_token: 'demo-refresh-token',
+				},
+				completedAt: new Date().toISOString(),
+			};
 
-  const handleCompleteFlow = () => {
-    if (!flowId) {
-      setStatus({ type: 'error', message: 'No active flow to complete' });
-      return;
-    }
+			const success = auth.updateFlowStep(flowId, 3, newStepData);
 
-    try {
-      auth.completeFlow(flowId);
-      setFlowId(null);
-      setCurrentStep(0);
-      setCurrentFlow(null);
-      setStatus({ 
-        type: 'success', 
-        message: 'Flow completed and cleaned up successfully!' 
-      });
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Failed to complete flow: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+			if (success) {
+				setCurrentStep(3);
+				setStatus({
+					type: 'success',
+					message: 'Flow step updated successfully with token data!',
+				});
+			} else {
+				setStatus({ type: 'error', message: 'Failed to update flow step' });
+			}
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Failed to update step: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-  const handleReset = () => {
-    if (flowId) {
-      auth.completeFlow(flowId);
-    }
-    setFlowId(null);
-    setCurrentStep(0);
-    setCurrentFlow(null);
-    setStatus(null);
-  };
+	const handleCompleteFlow = () => {
+		if (!flowId) {
+			setStatus({ type: 'error', message: 'No active flow to complete' });
+			return;
+		}
 
-  return (
-    <Container>
-      <Header>
-        <Title>Enhanced Auth Context Demo</Title>
-        <Subtitle>
-          Demonstration of enhanced NewAuthContext with FlowContextService integration
-        </Subtitle>
-      </Header>
+		try {
+			auth.completeFlow(flowId);
+			setFlowId(null);
+			setCurrentStep(0);
+			setCurrentFlow(null);
+			setStatus({
+				type: 'success',
+				message: 'Flow completed and cleaned up successfully!',
+			});
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Failed to complete flow: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-      {status && (
-        <StatusDisplay status={status.type}>
-          {status.type === 'success' && <FiCheckCircle size={16} />}
-          {status.type === 'error' && <FiAlertCircle size={16} />}
-          {status.type === 'info' && <FiSettings size={16} />}
-          {status.message}
-        </StatusDisplay>
-      )}
+	const handleReset = () => {
+		if (flowId) {
+			auth.completeFlow(flowId);
+		}
+		setFlowId(null);
+		setCurrentStep(0);
+		setCurrentFlow(null);
+		setStatus(null);
+	};
 
-      <Section>
-        <SectionTitle>
-          <FiSettings size={20} />
-          Flow Simulation Steps
-        </SectionTitle>
-        
-        {steps.map((step, index) => (
-          <FlowStep key={index} active={currentStep === index + 1}>
-            <StepNumber active={currentStep >= index + 1}>
-              {currentStep > index + 1 ? <FiCheckCircle size={16} /> : index + 1}
-            </StepNumber>
-            <StepContent>
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-            </StepContent>
-          </FlowStep>
-        ))}
+	return (
+		<Container>
+			<Header>
+				<Title>Enhanced Auth Context Demo</Title>
+				<Subtitle>
+					Demonstration of enhanced NewAuthContext with FlowContextService integration
+				</Subtitle>
+			</Header>
 
-        <div style={{ marginTop: '1.5rem' }}>
-          <Button 
-            variant="primary" 
-            onClick={handleInitializeFlow}
-            disabled={currentStep > 0}
-          >
-            <FiSettings size={14} />
-            Initialize Flow
-          </Button>
-          
-          <Button 
-            onClick={handleSimulateRedirect}
-            disabled={currentStep !== 1}
-          >
-            <FiArrowRight size={14} />
-            Simulate Redirect
-          </Button>
-          
-          <Button 
-            onClick={handleUpdateStep}
-            disabled={currentStep !== 2}
-          >
-            <FiRefreshCw size={14} />
-            Update Step
-          </Button>
-          
-          <Button 
-            variant="success"
-            onClick={handleCompleteFlow}
-            disabled={currentStep !== 3}
-          >
-            <FiCheckCircle size={14} />
-            Complete Flow
-          </Button>
-          
-          <Button onClick={handleReset}>
-            Reset Demo
-          </Button>
-        </div>
-      </Section>
+			{status && (
+				<StatusDisplay status={status.type}>
+					{status.type === 'success' && <FiCheckCircle size={16} />}
+					{status.type === 'error' && <FiAlertCircle size={16} />}
+					{status.type === 'info' && <FiSettings size={16} />}
+					{status.message}
+				</StatusDisplay>
+			)}
 
-      <Section>
-        <SectionTitle>Current Flow Status</SectionTitle>
-        {currentFlow ? (
-          <div>
-            <p><strong>Flow Type:</strong> {currentFlow.flowType}</p>
-            <p><strong>Current Step:</strong> {currentFlow.currentStep}</p>
-            <p><strong>Return Path:</strong> {currentFlow.returnPath}</p>
-            <p><strong>Age:</strong> {Math.round(currentFlow.age / 1000)}s</p>
-          </div>
-        ) : (
-          <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No active flow</p>
-        )}
-      </Section>
+			<Section>
+				<SectionTitle>
+					<FiSettings size={20} />
+					Flow Simulation Steps
+				</SectionTitle>
 
-      <Section>
-        <SectionTitle>Integration Example</SectionTitle>
-        <p style={{ marginBottom: '1rem', color: '#6b7280' }}>
-          Here's how flows can use the enhanced AuthContext:
-        </p>
-        <CodeBlock>{`// In your OAuth flow component
+				{steps.map((step, index) => (
+					<FlowStep key={index} active={currentStep === index + 1}>
+						<StepNumber active={currentStep >= index + 1}>
+							{currentStep > index + 1 ? <FiCheckCircle size={16} /> : index + 1}
+						</StepNumber>
+						<StepContent>
+							<StepTitle>{step.title}</StepTitle>
+							<StepDescription>{step.description}</StepDescription>
+						</StepContent>
+					</FlowStep>
+				))}
+
+				<div style={{ marginTop: '1.5rem' }}>
+					<Button variant="primary" onClick={handleInitializeFlow} disabled={currentStep > 0}>
+						<FiSettings size={14} />
+						Initialize Flow
+					</Button>
+
+					<Button onClick={handleSimulateRedirect} disabled={currentStep !== 1}>
+						<FiArrowRight size={14} />
+						Simulate Redirect
+					</Button>
+
+					<Button onClick={handleUpdateStep} disabled={currentStep !== 2}>
+						<FiRefreshCw size={14} />
+						Update Step
+					</Button>
+
+					<Button variant="success" onClick={handleCompleteFlow} disabled={currentStep !== 3}>
+						<FiCheckCircle size={14} />
+						Complete Flow
+					</Button>
+
+					<Button onClick={handleReset}>Reset Demo</Button>
+				</div>
+			</Section>
+
+			<Section>
+				<SectionTitle>Current Flow Status</SectionTitle>
+				{currentFlow ? (
+					<div>
+						<p>
+							<strong>Flow Type:</strong> {currentFlow.flowType}
+						</p>
+						<p>
+							<strong>Current Step:</strong> {currentFlow.currentStep}
+						</p>
+						<p>
+							<strong>Return Path:</strong> {currentFlow.returnPath}
+						</p>
+						<p>
+							<strong>Age:</strong> {Math.round(currentFlow.age / 1000)}s
+						</p>
+					</div>
+				) : (
+					<p style={{ color: '#6b7280', fontStyle: 'italic' }}>No active flow</p>
+				)}
+			</Section>
+
+			<Section>
+				<SectionTitle>Integration Example</SectionTitle>
+				<p style={{ marginBottom: '1rem', color: '#6b7280' }}>
+					Here's how flows can use the enhanced AuthContext:
+				</p>
+				<CodeBlock>{`// In your OAuth flow component
 import { useAuth } from '../contexts/NewAuthContext';
 
 const MyOAuthFlow = () => {
@@ -461,9 +462,9 @@ const MyOAuthFlow = () => {
     auth.completeFlow(flowId);
   };
 };`}</CodeBlock>
-      </Section>
-    </Container>
-  );
+			</Section>
+		</Container>
+	);
 };
 
 export default EnhancedAuthContextDemo;
