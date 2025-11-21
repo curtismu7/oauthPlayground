@@ -85,9 +85,9 @@ class MFARetryService {
     context: MFAOperationContext,
     config?: Partial<RetryConfig>
   ): RetryStatus {
-    const retryConfig = { ...this.DEFAULT_RETRY_CONFIG, ...config };
-    const key = this.getRetryKey(context);
-    const attempts = this.retryAttempts.get(key) || [];
+    const retryConfig = { ...MFARetryService.DEFAULT_RETRY_CONFIG, ...config };
+    const key = MFARetryService.getRetryKey(context);
+    const attempts = MFARetryService.retryAttempts.get(key) || [];
     
     // Filter recent attempts within reset window
     const cutoff = new Date(Date.now() - retryConfig.resetWindow * 60 * 1000);
@@ -118,9 +118,9 @@ class MFARetryService {
     context: MFAOperationContext,
     config?: Partial<RateLimitConfig>
   ): RateLimitStatus {
-    const rateLimitConfig = { ...this.DEFAULT_RATE_LIMIT_CONFIG, ...config };
-    const key = this.getRateLimitKey(context);
-    const data = this.rateLimitData.get(key) || { requests: [], violations: 0 };
+    const rateLimitConfig = { ...MFARetryService.DEFAULT_RATE_LIMIT_CONFIG, ...config };
+    const key = MFARetryService.getRateLimitKey(context);
+    const data = MFARetryService.rateLimitData.get(key) || { requests: [], violations: 0 };
     
     const now = new Date();
     const windowStart = new Date(now.getTime() - rateLimitConfig.windowSize * 60 * 1000);
@@ -133,7 +133,7 @@ class MFARetryService {
     let blockUntil: Date | undefined;
     if (data.lastViolation) {
       const blockDuration = rateLimitConfig.progressiveBlocking
-        ? rateLimitConfig.blockDuration * Math.pow(2, Math.min(data.violations - 1, 5)) // Cap at 2^5
+        ? rateLimitConfig.blockDuration * 2 ** Math.min(data.violations - 1, 5) // Cap at 2^5
         : rateLimitConfig.blockDuration;
       
       blockUntil = new Date(data.lastViolation.getTime() + blockDuration * 60 * 1000);
@@ -171,12 +171,12 @@ class MFARetryService {
     success: boolean,
     errorCode?: string,
     errorMessage?: string,
-    responseTime?: number,
+    _responseTime?: number,
     config?: Partial<RetryConfig>
   ): RetryAttempt {
-    const retryConfig = { ...this.DEFAULT_RETRY_CONFIG, ...config };
-    const key = this.getRetryKey(context);
-    const attempts = this.retryAttempts.get(key) || [];
+    const retryConfig = { ...MFARetryService.DEFAULT_RETRY_CONFIG, ...config };
+    const key = MFARetryService.getRetryKey(context);
+    const attempts = MFARetryService.retryAttempts.get(key) || [];
     
     // Calculate retry number
     const cutoff = new Date(Date.now() - retryConfig.resetWindow * 60 * 1000);
@@ -187,7 +187,7 @@ class MFARetryService {
     let nextRetryAt: Date | undefined;
     if (!success && retryNumber < retryConfig.maxAttempts) {
       const delay = Math.min(
-        retryConfig.baseDelay * Math.pow(retryConfig.backoffMultiplier, retryNumber - 1),
+        retryConfig.baseDelay * retryConfig.backoffMultiplier ** (retryNumber - 1),
         retryConfig.maxDelay
       );
       
@@ -212,7 +212,7 @@ class MFARetryService {
     };
 
     attempts.push(attempt);
-    this.retryAttempts.set(key, attempts);
+    MFARetryService.retryAttempts.set(key, attempts);
 
     logger.info('MFARetryService', 'Recorded retry attempt', {
       userId: context.userId,
@@ -233,9 +233,9 @@ class MFARetryService {
     context: MFAOperationContext,
     config?: Partial<RateLimitConfig>
   ): RateLimitStatus {
-    const rateLimitConfig = { ...this.DEFAULT_RATE_LIMIT_CONFIG, ...config };
-    const key = this.getRateLimitKey(context);
-    const data = this.rateLimitData.get(key) || { requests: [], violations: 0 };
+    const rateLimitConfig = { ...MFARetryService.DEFAULT_RATE_LIMIT_CONFIG, ...config };
+    const key = MFARetryService.getRateLimitKey(context);
+    const data = MFARetryService.rateLimitData.get(key) || { requests: [], violations: 0 };
     
     const now = new Date();
     const windowStart = new Date(now.getTime() - rateLimitConfig.windowSize * 60 * 1000);
@@ -261,17 +261,17 @@ class MFARetryService {
       data.requests.push(now);
     }
     
-    this.rateLimitData.set(key, data);
+    MFARetryService.rateLimitData.set(key, data);
     
-    return this.checkRateLimit(context, config);
+    return MFARetryService.checkRateLimit(context, config);
   }
 
   /**
    * Reset retry attempts for successful operation
    */
   static resetRetryAttempts(context: MFAOperationContext): void {
-    const key = this.getRetryKey(context);
-    this.retryAttempts.delete(key);
+    const key = MFARetryService.getRetryKey(context);
+    MFARetryService.retryAttempts.delete(key);
     
     logger.info('MFARetryService', 'Reset retry attempts', {
       userId: context.userId,
@@ -287,7 +287,7 @@ class MFARetryService {
     context: MFAOperationContext,
     config?: Partial<RetryConfig>
   ): number | null {
-    const retryStatus = this.canRetry(context, config);
+    const retryStatus = MFARetryService.canRetry(context, config);
     
     if (!retryStatus.nextRetryAt) {
       return null;
@@ -304,7 +304,7 @@ class MFARetryService {
     context: MFAOperationContext,
     config?: Partial<RateLimitConfig>
   ): Date | null {
-    const rateLimitStatus = this.checkRateLimit(context, config);
+    const rateLimitStatus = MFARetryService.checkRateLimit(context, config);
     
     if (rateLimitStatus.blockUntil) {
       return rateLimitStatus.blockUntil;
@@ -321,25 +321,25 @@ class MFARetryService {
     let cleanedCount = 0;
 
     // Clean retry attempts
-    for (const [key, attempts] of this.retryAttempts.entries()) {
+    for (const [key, attempts] of MFARetryService.retryAttempts.entries()) {
       const recentAttempts = attempts.filter(attempt => attempt.timestamp > cutoff);
       if (recentAttempts.length === 0) {
-        this.retryAttempts.delete(key);
+        MFARetryService.retryAttempts.delete(key);
         cleanedCount++;
       } else if (recentAttempts.length < attempts.length) {
-        this.retryAttempts.set(key, recentAttempts);
+        MFARetryService.retryAttempts.set(key, recentAttempts);
       }
     }
 
     // Clean rate limit data
-    for (const [key, data] of this.rateLimitData.entries()) {
+    for (const [key, data] of MFARetryService.rateLimitData.entries()) {
       const recentRequests = data.requests.filter(req => req > cutoff);
       if (recentRequests.length === 0 && (!data.lastViolation || data.lastViolation < cutoff)) {
-        this.rateLimitData.delete(key);
+        MFARetryService.rateLimitData.delete(key);
         cleanedCount++;
       } else {
         data.requests = recentRequests;
-        this.rateLimitData.set(key, data);
+        MFARetryService.rateLimitData.set(key, data);
       }
     }
 
@@ -364,7 +364,7 @@ class MFARetryService {
     operationStats: Record<string, { attempts: number; successRate: number }>;
     rateLimitViolations: number;
   } {
-    const allAttempts = Array.from(this.retryAttempts.values()).flat();
+    const allAttempts = Array.from(MFARetryService.retryAttempts.values()).flat();
     const totalAttempts = allAttempts.length;
     const successfulAttempts = allAttempts.filter(a => a.success).length;
     const failedAttempts = totalAttempts - successfulAttempts;
@@ -393,7 +393,7 @@ class MFARetryService {
       };
     });
 
-    const rateLimitViolations = Array.from(this.rateLimitData.values())
+    const rateLimitViolations = Array.from(MFARetryService.rateLimitData.values())
       .reduce((sum, data) => sum + data.violations, 0);
 
     return {
@@ -690,7 +690,7 @@ export default MFARetryService;At?:
     attemptNumber: number,
     config: RetryConfig
   ): number {
-    let delay = config.baseDelay * Math.pow(config.backoffMultiplier, attemptNumber - 1);
+    let delay = config.baseDelay * config.backoffMultiplier ** (attemptNumber - 1);
     delay = Math.min(delay, config.maxDelay);
     
     if (config.jitter) {

@@ -1,21 +1,21 @@
 // src/utils/flowRedirectUriMapping.test.ts
 // Test file to demonstrate the centralized redirect URI mapping system
 
-import { 
-	generateRedirectUriForFlow, 
-	getFlowRedirectUriConfig, 
+import {
+	FLOW_REDIRECT_URI_MAPPING,
 	flowRequiresRedirectUri,
-	getFlowsRequiringRedirectUri,
+	generateRedirectUriForFlow,
+	getFlowRedirectUriConfig,
 	getFlowsNotRequiringRedirectUri,
-	FLOW_REDIRECT_URI_MAPPING
+	getFlowsRequiringRedirectUri,
 } from './flowRedirectUriMapping';
 
 // Mock window.location.origin for testing
 Object.defineProperty(window, 'location', {
 	value: {
-		origin: 'https://localhost:3001'
+		origin: 'https://localhost:3001',
 	},
-	writable: true
+	writable: true,
 });
 
 console.log('🧪 Testing Flow Redirect URI Mapping System');
@@ -38,9 +38,18 @@ console.log('3. Client Credentials V6:', clientCredsUri);
 
 // Test 4: Check if flows require redirect URI
 console.log('4. Flow Requirements:');
-console.log('   - OAuth Authz V6 requires redirect URI:', flowRequiresRedirectUri('oauth-authorization-code-v6'));
-console.log('   - Client Creds V6 requires redirect URI:', flowRequiresRedirectUri('client-credentials-v6'));
-console.log('   - Device Auth V6 requires redirect URI:', flowRequiresRedirectUri('device-authorization-v6'));
+console.log(
+	'   - OAuth Authz V6 requires redirect URI:',
+	flowRequiresRedirectUri('oauth-authorization-code-v6')
+);
+console.log(
+	'   - Client Creds V6 requires redirect URI:',
+	flowRequiresRedirectUri('client-credentials-v6')
+);
+console.log(
+	'   - Device Auth V6 requires redirect URI:',
+	flowRequiresRedirectUri('device-authorization-v6')
+);
 
 // Test 5: Get flow configurations
 const oauthAuthzConfig = getFlowRedirectUriConfig('oauth-authorization-code-v6');
@@ -57,9 +66,9 @@ console.log('   - Flows requiring redirect URI:', flowsRequiringRedirect.length,
 console.log('   - Flows NOT requiring redirect URI:', flowsNotRequiringRedirect.length, 'flows');
 
 // Test 7: Show all V6 flows
-const v6Flows = FLOW_REDIRECT_URI_MAPPING.filter(config => config.flowType.includes('v6'));
+const v6Flows = FLOW_REDIRECT_URI_MAPPING.filter((config) => config.flowType.includes('v6'));
 console.log('7. All V6 Flows:');
-v6Flows.forEach(flow => {
+v6Flows.forEach((flow) => {
 	const uri = generateRedirectUriForFlow(flow.flowType);
 	console.log(`   - ${flow.flowType}: ${uri || 'No redirect URI needed'}`);
 });

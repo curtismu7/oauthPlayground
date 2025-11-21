@@ -2,12 +2,12 @@
 // Demo component showcasing the new RAR UI components
 
 import React, { useState } from 'react';
+import { FiCheckCircle, FiEye, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSettings, FiEye, FiCheckCircle } from 'react-icons/fi';
+import RARService, { type AuthorizationDetail } from '../services/rarService';
 import AuthorizationDetailsEditor from './AuthorizationDetailsEditor';
 import RARExampleSelector from './RARExampleSelector';
 import RARValidationDisplay from './RARValidationDisplay';
-import RARService, { type AuthorizationDetail } from '../services/rarService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -162,118 +162,128 @@ const StatLabel = styled.div`
 `;
 
 export const RARComponentsDemo: React.FC = () => {
-  const [authorizationDetails, setAuthorizationDetails] = useState<AuthorizationDetail[]>(() => 
-    RARService.getExampleAuthorizationDetails()
-  );
-  const [showScopeValidation, setShowScopeValidation] = useState(false);
-  const [grantedScopes, setGrantedScopes] = useState('openid profile email');
+	const [authorizationDetails, setAuthorizationDetails] = useState<AuthorizationDetail[]>(() =>
+		RARService.getExampleAuthorizationDetails()
+	);
+	const [showScopeValidation, setShowScopeValidation] = useState(false);
+	const [grantedScopes, setGrantedScopes] = useState('openid profile email');
 
-  const scopesArray = grantedScopes.split(' ').filter(Boolean);
-  const validation = RARService.validateAuthorizationDetails(authorizationDetails);
+	const scopesArray = grantedScopes.split(' ').filter(Boolean);
+	const validation = RARService.validateAuthorizationDetails(authorizationDetails);
 
-  return (
-    <Container>
-      <Header>
-        <Title>RAR UI Components Demo</Title>
-        <Subtitle>
-          Interactive demonstration of the new Rich Authorization Requests UI components
-        </Subtitle>
-      </Header>
+	return (
+		<Container>
+			<Header>
+				<Title>RAR UI Components Demo</Title>
+				<Subtitle>
+					Interactive demonstration of the new Rich Authorization Requests UI components
+				</Subtitle>
+			</Header>
 
-      <TwoColumnLayout>
-        <MainColumn>
-          <Section>
-            <SectionHeader>
-              <FiCheckCircle size={20} color="#059669" />
-              <SectionTitle>Example Selector</SectionTitle>
-            </SectionHeader>
-            <SectionDescription>
-              Choose from pre-built authorization detail templates including the new customer_information type.
-              Click "Use Example" to load the template into the editor below.
-            </SectionDescription>
-            <RARExampleSelector onSelectExample={setAuthorizationDetails} />
-          </Section>
+			<TwoColumnLayout>
+				<MainColumn>
+					<Section>
+						<SectionHeader>
+							<FiCheckCircle size={20} color="#059669" />
+							<SectionTitle>Example Selector</SectionTitle>
+						</SectionHeader>
+						<SectionDescription>
+							Choose from pre-built authorization detail templates including the new
+							customer_information type. Click "Use Example" to load the template into the editor
+							below.
+						</SectionDescription>
+						<RARExampleSelector onSelectExample={setAuthorizationDetails} />
+					</Section>
 
-          <Section>
-            <SectionHeader>
-              <FiSettings size={20} color="#3b82f6" />
-              <SectionTitle>Authorization Details Editor</SectionTitle>
-            </SectionHeader>
-            <SectionDescription>
-              Edit authorization details using either the visual editor or JSON editor. 
-              The editor provides real-time validation and supports all RAR authorization detail types.
-            </SectionDescription>
-            <AuthorizationDetailsEditor
-              authorizationDetails={authorizationDetails}
-              onUpdate={setAuthorizationDetails}
-            />
-          </Section>
-        </MainColumn>
+					<Section>
+						<SectionHeader>
+							<FiSettings size={20} color="#3b82f6" />
+							<SectionTitle>Authorization Details Editor</SectionTitle>
+						</SectionHeader>
+						<SectionDescription>
+							Edit authorization details using either the visual editor or JSON editor. The editor
+							provides real-time validation and supports all RAR authorization detail types.
+						</SectionDescription>
+						<AuthorizationDetailsEditor
+							authorizationDetails={authorizationDetails}
+							onUpdate={setAuthorizationDetails}
+						/>
+					</Section>
+				</MainColumn>
 
-        <SideColumn>
-          <ConfigPanel>
-            <ConfigTitle>
-              <FiSettings size={16} />
-              Configuration
-            </ConfigTitle>
-            
-            <ConfigOption>
-              <ConfigCheckbox
-                type="checkbox"
-                checked={showScopeValidation}
-                onChange={(e) => setShowScopeValidation(e.target.checked)}
-              />
-              Enable scope validation
-            </ConfigOption>
+				<SideColumn>
+					<ConfigPanel>
+						<ConfigTitle>
+							<FiSettings size={16} />
+							Configuration
+						</ConfigTitle>
 
-            {showScopeValidation && (
-              <div>
-                <label style={{ fontSize: '0.875rem', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
-                  Granted Scopes:
-                </label>
-                <ScopeInput
-                  value={grantedScopes}
-                  onChange={(e) => setGrantedScopes(e.target.value)}
-                  placeholder="openid profile email"
-                />
-              </div>
-            )}
-          </ConfigPanel>
+						<ConfigOption>
+							<ConfigCheckbox
+								type="checkbox"
+								checked={showScopeValidation}
+								onChange={(e) => setShowScopeValidation(e.target.checked)}
+							/>
+							Enable scope validation
+						</ConfigOption>
 
-          <StatsPanel>
-            <ConfigTitle>
-              <FiEye size={16} />
-              Statistics
-            </ConfigTitle>
-            <StatsGrid>
-              <StatItem>
-                <StatValue>{authorizationDetails.length}</StatValue>
-                <StatLabel>Total Details</StatLabel>
-              </StatItem>
-              <StatItem>
-                <StatValue>{validation.valid ? 'Valid' : 'Invalid'}</StatValue>
-                <StatLabel>Status</StatLabel>
-              </StatItem>
-              <StatItem>
-                <StatValue>{validation.errors.length}</StatValue>
-                <StatLabel>Errors</StatLabel>
-              </StatItem>
-              <StatItem>
-                <StatValue>{[...new Set(authorizationDetails.map(d => d.type).filter(Boolean))].length}</StatValue>
-                <StatLabel>Types</StatLabel>
-              </StatItem>
-            </StatsGrid>
-          </StatsPanel>
+						{showScopeValidation && (
+							<div>
+								<label
+									style={{
+										fontSize: '0.875rem',
+										color: '#374151',
+										display: 'block',
+										marginBottom: '0.5rem',
+									}}
+								>
+									Granted Scopes:
+								</label>
+								<ScopeInput
+									value={grantedScopes}
+									onChange={(e) => setGrantedScopes(e.target.value)}
+									placeholder="openid profile email"
+								/>
+							</div>
+						)}
+					</ConfigPanel>
 
-          <RARValidationDisplay
-            authorizationDetails={authorizationDetails}
-            grantedScopes={scopesArray}
-            showScopeValidation={showScopeValidation}
-          />
-        </SideColumn>
-      </TwoColumnLayout>
-    </Container>
-  );
+					<StatsPanel>
+						<ConfigTitle>
+							<FiEye size={16} />
+							Statistics
+						</ConfigTitle>
+						<StatsGrid>
+							<StatItem>
+								<StatValue>{authorizationDetails.length}</StatValue>
+								<StatLabel>Total Details</StatLabel>
+							</StatItem>
+							<StatItem>
+								<StatValue>{validation.valid ? 'Valid' : 'Invalid'}</StatValue>
+								<StatLabel>Status</StatLabel>
+							</StatItem>
+							<StatItem>
+								<StatValue>{validation.errors.length}</StatValue>
+								<StatLabel>Errors</StatLabel>
+							</StatItem>
+							<StatItem>
+								<StatValue>
+									{[...new Set(authorizationDetails.map((d) => d.type).filter(Boolean))].length}
+								</StatValue>
+								<StatLabel>Types</StatLabel>
+							</StatItem>
+						</StatsGrid>
+					</StatsPanel>
+
+					<RARValidationDisplay
+						authorizationDetails={authorizationDetails}
+						grantedScopes={scopesArray}
+						showScopeValidation={showScopeValidation}
+					/>
+				</SideColumn>
+			</TwoColumnLayout>
+		</Container>
+	);
 };
 
 export default RARComponentsDemo;

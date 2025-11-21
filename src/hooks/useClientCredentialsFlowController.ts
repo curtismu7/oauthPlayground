@@ -3,14 +3,13 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { FlowCredentialService } from '../services/flowCredentialService';
 import { trackTokenOperation } from '../utils/activityTracker';
-import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { safeJsonParse, safeLocalStorageParse } from '../utils/secureJson';
+import { safeLocalStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { FlowCredentialService } from '../services/flowCredentialService';
 
 export type FlowVariant = 'oauth' | 'oidc';
 
@@ -195,26 +194,23 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 const generateRandomString = (length: number = 32): string => {
 	const array = new Uint8Array(length);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 // Helper: Base64 URL encode
 const base64UrlEncode = (str: string): string => {
-	return btoa(str)
-		.replace(/\+/g, '-')
-		.replace(/\//g, '_')
-		.replace(/=/g, '');
+	return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 };
 
 // Helper: Generate JWT assertion
 const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<string> => {
 	const now = Math.floor(Date.now() / 1000);
 	const jti = generateRandomString(16);
-	
+
 	const header = {
 		alg: config.jwtSigningAlg || 'HS256',
 		typ: 'JWT',
-		...(config.jwtSigningKid && { kid: config.jwtSigningKid })
+		...(config.jwtSigningKid && { kid: config.jwtSigningKid }),
 	};
 
 	const payload = {
@@ -224,7 +220,7 @@ const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<st
 		exp: now + 300, // 5 minutes from now
 		iat: now,
 		nbf: now,
-		jti: jti
+		jti: jti,
 	};
 
 	const encodedHeader = base64UrlEncode(JSON.stringify(header));
@@ -232,7 +228,7 @@ const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<st
 	const signatureInput = `${encodedHeader}.${encodedPayload}`;
 
 	let signature: string;
-	
+
 	if (config.authMethod === 'client_secret_jwt') {
 		// HMAC-SHA256 with client secret
 		const encoder = new TextEncoder();
@@ -251,25 +247,25 @@ const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<st
 		if (!config.jwtPrivateKey) {
 			throw new Error('Private key is required for private_key_jwt authentication');
 		}
-		
+
 		// Parse PEM private key
 		const privateKeyPem = config.jwtPrivateKey
 			.replace(/-----BEGIN PRIVATE KEY-----/, '')
 			.replace(/-----END PRIVATE KEY-----/, '')
 			.replace(/\s/g, '');
-		
-		const privateKeyBuffer = Uint8Array.from(atob(privateKeyPem), c => c.charCodeAt(0));
+
+		const privateKeyBuffer = Uint8Array.from(atob(privateKeyPem), (c) => c.charCodeAt(0));
 		const privateKey = await crypto.subtle.importKey(
 			'pkcs8',
 			privateKeyBuffer,
 			{
 				name: 'RSASSA-PKCS1-v1_5',
-				hash: 'SHA-256'
+				hash: 'SHA-256',
 			},
 			false,
 			['sign']
 		);
-		
+
 		const encoder = new TextEncoder();
 		const signatureBuffer = await crypto.subtle.sign(
 			'RSASSA-PKCS1-v1_5',
@@ -285,7 +281,9 @@ const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<st
 };
 
 // Helper: Apply mTLS authentication
-const applyMtlsAuthentication = async (config: ClientCredentialsConfig): Promise<{ headers: Record<string, string>; body: string }> => {
+const applyMtlsAuthentication = async (
+	config: ClientCredentialsConfig
+): Promise<{ headers: Record<string, string>; body: string }> => {
 	if (!config.mtlsCert || !config.mtlsKey) {
 		throw new Error('mTLS certificate and key are required for tls_client_auth');
 	}
@@ -333,25 +331,29 @@ const applyClientAuthentication = async (
 				'client_assertion_type',
 				'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 			);
-			
+
 			try {
 				const assertion = await generateJWTAssertion(config);
 				requestBody.append('client_assertion', assertion);
 				body = requestBody.toString();
 			} catch (error) {
-				throw new Error(`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				throw new Error(
+					`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
 			}
 			break;
 		}
 		case 'tls_client_auth': {
 			requestBody.append('client_id', config.clientId);
-			
+
 			try {
 				const mtlsResult = await applyMtlsAuthentication(config);
 				Object.assign(headers, mtlsResult.headers);
 				body = requestBody.toString();
 			} catch (error) {
-				throw new Error(`Failed to apply mTLS authentication: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				throw new Error(
+					`Failed to apply mTLS authentication: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
 			}
 			break;
 		}
@@ -398,44 +400,58 @@ export const useClientCredentialsFlowController = (
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				const { credentials: loadedCreds, flowState, hasSharedCredentials } = 
-					await FlowCredentialService.loadFlowCredentials<ClientCredentialsConfig>({
-						flowKey: persistKey,
-						defaultCredentials: {
-							...createEmptyCredentials(),
-							grantType: 'client_credentials',
-						},
-					});
+				const {
+					credentials: loadedCreds,
+					flowState,
+					hasSharedCredentials,
+				} = await FlowCredentialService.loadFlowCredentials<ClientCredentialsConfig>({
+					flowKey: persistKey,
+					defaultCredentials: {
+						...createEmptyCredentials(),
+						grantType: 'client_credentials',
+					},
+				});
 
 				// Load credentials
 				if (loadedCreds) {
 					// Check if we need to migrate from old admin scopes to new openid scope
 					const normalizedScope = loadedCreds.scope?.trim() || '';
-					const needsScopeMigration = normalizedScope !== '' && /^p1:read:user p1:update:user p1:read:device p1:update:device$/i.test(normalizedScope);
+					const needsScopeMigration =
+						normalizedScope !== '' &&
+						/^p1:read:user p1:update:user p1:read:device p1:update:device$/i.test(normalizedScope);
 					const updatedCredentials = {
 						...loadedCreds,
-						scope: needsScopeMigration ? DEFAULT_ADMIN_SCOPES : (loadedCreds.scope || DEFAULT_ADMIN_SCOPES),
-						scopes: needsScopeMigration ? DEFAULT_ADMIN_SCOPES : (loadedCreds.scopes || loadedCreds.scope || DEFAULT_ADMIN_SCOPES),
+						scope: needsScopeMigration
+							? DEFAULT_ADMIN_SCOPES
+							: loadedCreds.scope || DEFAULT_ADMIN_SCOPES,
+						scopes: needsScopeMigration
+							? DEFAULT_ADMIN_SCOPES
+							: loadedCreds.scopes || loadedCreds.scope || DEFAULT_ADMIN_SCOPES,
 					};
 
 					setCredentials(loadedCreds);
 
 					if (needsScopeMigration || !loadedCreds.scope) {
 						setCredentials(updatedCredentials);
-						setFlowConfig(prev => ({
+						setFlowConfig((prev) => ({
 							...prev,
 							scopes: DEFAULT_ADMIN_SCOPES,
 						}));
-						localStorage.setItem(persistKey, JSON.stringify({
-							credentials: updatedCredentials,
-							flowConfig: {
-								...(flowState?.flowConfig || createEmptyConfig()),
-								scopes: DEFAULT_ADMIN_SCOPES,
-							},
-							tokens: flowState?.tokens,
-							flowVariant: flowState?.flowVariant || defaultFlowVariant,
-						}));
-						console.log('[ClientCredsController] Migrated legacy admin scopes to openid scope for client credentials');
+						localStorage.setItem(
+							persistKey,
+							JSON.stringify({
+								credentials: updatedCredentials,
+								flowConfig: {
+									...(flowState?.flowConfig || createEmptyConfig()),
+									scopes: DEFAULT_ADMIN_SCOPES,
+								},
+								tokens: flowState?.tokens,
+								flowVariant: flowState?.flowVariant || defaultFlowVariant,
+							})
+						);
+						console.log(
+							'[ClientCredsController] Migrated legacy admin scopes to openid scope for client credentials'
+						);
 					}
 
 					setHasCredentialsSaved(true);
@@ -447,7 +463,7 @@ export const useClientCredentialsFlowController = (
 					if (flowState.tokens) setTokens(flowState.tokens as ClientCredentialsTokens);
 					if (flowState.flowVariant) setFlowVariant(flowState.flowVariant as FlowVariant);
 				}
-				
+
 				console.log('[ClientCredsController] Loaded data:', {
 					hasSharedCredentials,
 					hasFlowState: !!flowState,
@@ -460,7 +476,7 @@ export const useClientCredentialsFlowController = (
 		};
 
 		loadData();
-	}, [persistKey]);
+	}, [persistKey, defaultFlowVariant]);
 
 	// Save state when it changes (debounced)
 	useEffect(() => {
@@ -473,7 +489,7 @@ export const useClientCredentialsFlowController = (
 			};
 			localStorage.setItem(persistKey, JSON.stringify(state));
 		}, 500); // Debounce by 500ms
-		
+
 		return () => clearTimeout(debounceTimer);
 	}, [credentials, flowConfig, tokens, flowVariant, persistKey]);
 
@@ -746,12 +762,14 @@ export const useClientCredentialsFlowController = (
 		const trimmedPrivateKey = flowConfig.jwtPrivateKey?.trim();
 		const trimmedMtlsCert = flowConfig.mtlsCert?.trim();
 		const trimmedMtlsKey = flowConfig.mtlsKey?.trim();
-		const authMethod = (credentials.clientAuthMethod || flowConfig.authMethod || 'client_secret_post') as ClientAuthMethod;
+		const authMethod = (credentials.clientAuthMethod ||
+			flowConfig.authMethod ||
+			'client_secret_post') as ClientAuthMethod;
 
 		const baseRequirementsMet = Boolean(trimmedEnv && trimmedClientId);
 
 		let authRequirementsMet = false;
-		let missingRequirements: string[] = [];
+		const missingRequirements: string[] = [];
 
 		switch (authMethod) {
 			case 'client_secret_post':
@@ -775,7 +793,6 @@ export const useClientCredentialsFlowController = (
 					if (!trimmedMtlsKey) missingRequirements.push('mTLS Private Key');
 				}
 				break;
-			case 'none':
 			default:
 				authRequirementsMet = true;
 		}

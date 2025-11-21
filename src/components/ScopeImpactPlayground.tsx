@@ -4,17 +4,17 @@
  * Interactive explorer showing how OAuth/OIDC scopes translate to real permissions and APIs
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-	FiTarget,
-	FiShield,
-	FiServer,
-	FiUserCheck,
 	FiAlertTriangle,
 	FiChevronRight,
 	FiInfo,
+	FiServer,
+	FiShield,
+	FiTarget,
+	FiUserCheck,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 type ProviderId = 'pingone' | 'microsoft' | 'google';
@@ -51,160 +51,153 @@ const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 		id: 'pingone',
 		label: 'PingOne',
 		tagline: 'Identity-first platform with fine-grained governance scopes',
-	scopePrefix: 'p1:',
-	scopeLibrary: [
-		{
-			name: 'p1:read:user',
-			category: 'identity',
-			description: 'Read PingOne user profiles (non-sensitive attributes).',
-			riskLevel: 'medium',
-			apiExamples: [
-				{
-					method: 'GET',
-					path: '/environments/{envId}/users',
-					description: 'List users in the environment.',
-				},
-				{
-					method: 'GET',
-					path: '/environments/{envId}/users/{userId}',
-					description: 'Retrieve a single user including profile attributes.',
-				},
-			],
-			bestPractice: 'Pair with population filters or environment roles to restrict who you can see.',
-		},
-		{
-			name: 'p1:update:user',
-			category: 'identity',
-			description: 'Update user attributes and password states.',
-			riskLevel: 'high',
-			apiExamples: [
-				{
-					method: 'PATCH',
-					path: '/environments/{envId}/users/{userId}',
-					description: 'Modify identity attributes or lifecycle state.',
-				},
-			],
-			bestPractice:
-				'Require just-in-time elevation. Use dedicated worker apps with audit logging.',
-			dependsOn: ['p1:read:user'],
-		},
-		{
-			name: 'p1:read:device',
-			category: 'profile',
-			description: 'Read MFA device registrations for users.',
-			riskLevel: 'medium',
-			apiExamples: [
-				{
-					method: 'GET',
-					path: '/environments/{envId}/users/{userId}/devices',
-					description: 'List a user’s registered MFA devices.',
-				},
-			],
-			bestPractice: 'Limit to support tooling; never expose directly to end-user browsers.',
-			dependsOn: ['p1:read:user'],
-		},
-		{
-			name: 'p1:update:device',
-			category: 'profile',
-			description: 'Enroll, remove, or reset MFA devices.',
-			riskLevel: 'high',
-			apiExamples: [
-				{
-					method: 'POST',
-					path: '/environments/{envId}/users/{userId}/devices',
-					description: 'Create new device registration (MFA enrollment).',
-				},
-				{
-					method: 'DELETE',
-					path: '/environments/{envId}/users/{userId}/devices/{deviceId}',
-					description: 'Remove an existing MFA device.',
-				},
-			],
-			bestPractice:
-				'Add workflow approvals (PingOne DaVinci) before destructive operations.',
-			dependsOn: ['p1:read:user', 'p1:read:device'],
-		},
-		{
-			name: 'p1:read:population',
-			category: 'governance',
-			description: 'Read user population metadata for tenancy segmentation.',
-			riskLevel: 'low',
-			apiExamples: [
-				{
-					method: 'GET',
-					path: '/environments/{envId}/populations',
-					description: 'List populations and their policies.',
-				},
-			],
-			bestPractice:
-				'Combine with scoped worker tokens per population to isolate automation.',
-		},
-		{
-			name: 'p1:read:role',
-			category: 'governance',
-			description: 'Inspect administrative role assignments.',
-			riskLevel: 'medium',
-			apiExamples: [
-				{
-					method: 'GET',
-					path: '/environments/{envId}/roles',
-					description: 'List defined admin roles within the tenant.',
-				},
-				{
-					method: 'GET',
-					path: '/environments/{envId}/roleAssignments',
-					description: 'View which identities hold elevated access.',
-				},
-			],
-			bestPractice: 'Schedule periodic entitlement reviews; export assignments to GRC.',
-		},
-		{
-			name: 'offline_access',
-			category: 'identity',
-			description: 'Request refresh tokens so the client can operate when the user is offline.',
-			riskLevel: 'high',
-			apiExamples: [
-				{
-					method: 'POST',
-					path: '/oauth2/v1/token',
-					description: 'Token response includes a refresh_token when `offline_access` is granted.',
-				},
-			],
-			bestPractice: 'Treat refresh tokens as secrets. Store encrypted and rotate on consent changes.',
-			dependsOn: [],
-		},
-	],
-	recommendedBundles: [
-		{
-			name: 'Support Read-Only',
-			description:
-				'Customer support staff investigating user issues without making changes.',
-			scopes: ['p1:read:user', 'p1:read:device', 'p1:read:population'],
-		},
-		{
-			name: 'MFA Operations',
-			description:
-				'Automation that onboards or resets MFA devices with approvals in place.',
-			scopes: ['p1:read:user', 'p1:read:device', 'p1:update:device'],
-		},
-		{
-			name: 'Identity Lifecycle Admin',
-			description:
-				'Privileged automation performing lifecycle operations with governance.',
-			scopes: [
-				'p1:read:user',
-				'p1:update:user',
-				'p1:read:population',
-				'p1:read:role',
-			],
-		},
-		{
-			name: 'Remember Me Session',
-			description:
-				'Allows background token refresh while the user is away, paired with least privilege data access.',
-			scopes: ['p1:read:user', 'p1:read:device', 'p1:update:device', 'offline_access'],
-		},
-	],
+		scopePrefix: 'p1:',
+		scopeLibrary: [
+			{
+				name: 'p1:read:user',
+				category: 'identity',
+				description: 'Read PingOne user profiles (non-sensitive attributes).',
+				riskLevel: 'medium',
+				apiExamples: [
+					{
+						method: 'GET',
+						path: '/environments/{envId}/users',
+						description: 'List users in the environment.',
+					},
+					{
+						method: 'GET',
+						path: '/environments/{envId}/users/{userId}',
+						description: 'Retrieve a single user including profile attributes.',
+					},
+				],
+				bestPractice:
+					'Pair with population filters or environment roles to restrict who you can see.',
+			},
+			{
+				name: 'p1:update:user',
+				category: 'identity',
+				description: 'Update user attributes and password states.',
+				riskLevel: 'high',
+				apiExamples: [
+					{
+						method: 'PATCH',
+						path: '/environments/{envId}/users/{userId}',
+						description: 'Modify identity attributes or lifecycle state.',
+					},
+				],
+				bestPractice:
+					'Require just-in-time elevation. Use dedicated worker apps with audit logging.',
+				dependsOn: ['p1:read:user'],
+			},
+			{
+				name: 'p1:read:device',
+				category: 'profile',
+				description: 'Read MFA device registrations for users.',
+				riskLevel: 'medium',
+				apiExamples: [
+					{
+						method: 'GET',
+						path: '/environments/{envId}/users/{userId}/devices',
+						description: 'List a user’s registered MFA devices.',
+					},
+				],
+				bestPractice: 'Limit to support tooling; never expose directly to end-user browsers.',
+				dependsOn: ['p1:read:user'],
+			},
+			{
+				name: 'p1:update:device',
+				category: 'profile',
+				description: 'Enroll, remove, or reset MFA devices.',
+				riskLevel: 'high',
+				apiExamples: [
+					{
+						method: 'POST',
+						path: '/environments/{envId}/users/{userId}/devices',
+						description: 'Create new device registration (MFA enrollment).',
+					},
+					{
+						method: 'DELETE',
+						path: '/environments/{envId}/users/{userId}/devices/{deviceId}',
+						description: 'Remove an existing MFA device.',
+					},
+				],
+				bestPractice: 'Add workflow approvals (PingOne DaVinci) before destructive operations.',
+				dependsOn: ['p1:read:user', 'p1:read:device'],
+			},
+			{
+				name: 'p1:read:population',
+				category: 'governance',
+				description: 'Read user population metadata for tenancy segmentation.',
+				riskLevel: 'low',
+				apiExamples: [
+					{
+						method: 'GET',
+						path: '/environments/{envId}/populations',
+						description: 'List populations and their policies.',
+					},
+				],
+				bestPractice: 'Combine with scoped worker tokens per population to isolate automation.',
+			},
+			{
+				name: 'p1:read:role',
+				category: 'governance',
+				description: 'Inspect administrative role assignments.',
+				riskLevel: 'medium',
+				apiExamples: [
+					{
+						method: 'GET',
+						path: '/environments/{envId}/roles',
+						description: 'List defined admin roles within the tenant.',
+					},
+					{
+						method: 'GET',
+						path: '/environments/{envId}/roleAssignments',
+						description: 'View which identities hold elevated access.',
+					},
+				],
+				bestPractice: 'Schedule periodic entitlement reviews; export assignments to GRC.',
+			},
+			{
+				name: 'offline_access',
+				category: 'identity',
+				description: 'Request refresh tokens so the client can operate when the user is offline.',
+				riskLevel: 'high',
+				apiExamples: [
+					{
+						method: 'POST',
+						path: '/oauth2/v1/token',
+						description:
+							'Token response includes a refresh_token when `offline_access` is granted.',
+					},
+				],
+				bestPractice:
+					'Treat refresh tokens as secrets. Store encrypted and rotate on consent changes.',
+				dependsOn: [],
+			},
+		],
+		recommendedBundles: [
+			{
+				name: 'Support Read-Only',
+				description: 'Customer support staff investigating user issues without making changes.',
+				scopes: ['p1:read:user', 'p1:read:device', 'p1:read:population'],
+			},
+			{
+				name: 'MFA Operations',
+				description: 'Automation that onboards or resets MFA devices with approvals in place.',
+				scopes: ['p1:read:user', 'p1:read:device', 'p1:update:device'],
+			},
+			{
+				name: 'Identity Lifecycle Admin',
+				description: 'Privileged automation performing lifecycle operations with governance.',
+				scopes: ['p1:read:user', 'p1:update:user', 'p1:read:population', 'p1:read:role'],
+			},
+			{
+				name: 'Remember Me Session',
+				description:
+					'Allows background token refresh while the user is away, paired with least privilege data access.',
+				scopes: ['p1:read:user', 'p1:read:device', 'p1:update:device', 'offline_access'],
+			},
+		],
 	},
 	microsoft: {
 		id: 'microsoft',
@@ -228,8 +221,7 @@ const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 			{
 				name: 'User.ReadWrite.All',
 				category: 'admin',
-				description:
-					'Create, read, update, and delete any user without admin consent limits.',
+				description: 'Create, read, update, and delete any user without admin consent limits.',
 				riskLevel: 'high',
 				apiExamples: [
 					{
@@ -327,8 +319,7 @@ const PROVIDERS: Record<ProviderId, ProviderConfig> = {
 						description: 'List calendars available to the authenticated user.',
 					},
 				],
-				bestPractice:
-					'Use incremental authorization; request write scope only when required.',
+				bestPractice: 'Use incremental authorization; request write scope only when required.',
 			},
 			{
 				name: 'profile',
@@ -692,9 +683,7 @@ const ScopeImpactPlayground: React.FC = () => {
 				if (definition?.dependsOn) {
 					const missing = definition.dependsOn.filter((dep) => !prev.includes(dep));
 					if (missing.length) {
-						v4ToastManager.showInfo(
-							`Added required scopes: ${missing.join(', ')} for ${scope}.`
-						);
+						v4ToastManager.showInfo(`Added required scopes: ${missing.join(', ')} for ${scope}.`);
 						return [...prev, ...missing, scope];
 					}
 				}
@@ -743,9 +732,9 @@ const ScopeImpactPlayground: React.FC = () => {
 					Scope Impact Playground
 				</Title>
 				<Intro>
-					Choose your identity provider, toggle scopes, and instantly understand the
-					permissions, API surface area, and risk posture you are granting. Use this to
-					refine least-privilege strategies and scope \"bundles\" before deploying your app.
+					Choose your identity provider, toggle scopes, and instantly understand the permissions,
+					API surface area, and risk posture you are granting. Use this to refine least-privilege
+					strategies and scope \"bundles\" before deploying your app.
 				</Intro>
 			</Header>
 
@@ -892,4 +881,3 @@ const ScopeImpactPlayground: React.FC = () => {
 };
 
 export default ScopeImpactPlayground;
-

@@ -189,7 +189,7 @@ export const CodeGenerator: React.FC<CodeGeneratorProps> = ({ code, onGenerate }
 	};
 
 	const toggleCollapse = () => {
-		setIsCollapsed(prev => !prev);
+		setIsCollapsed((prev) => !prev);
 	};
 
 	if (!showCode) {

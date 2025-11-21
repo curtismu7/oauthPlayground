@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'vitest';
 import { render } from '@testing-library/react';
+import { describe, expect, test } from 'vitest';
 
 import FlowUIService from '../flowUIService';
 
@@ -20,9 +20,7 @@ describe('FlowUIService button components', () => {
 	test('HighlightedActionButton renders with required priority prop', () => {
 		const HighlightedActionButton = FlowUIService.getHighlightedActionButton();
 		const { getByRole } = render(
-			<HighlightedActionButton $priority="primary">
-				Call to Action
-			</HighlightedActionButton>
+			<HighlightedActionButton $priority="primary">Call to Action</HighlightedActionButton>
 		);
 
 		const buttonElement = getByRole('button');

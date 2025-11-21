@@ -1,17 +1,16 @@
 // src/templates/V7FlowVariants.tsx
 /**
  * V7 Flow Variants - OAuth vs OIDC Variants using Templates
- * 
+ *
  * Provides standardized OAuth and OIDC variants for V7 flows
  * with built-in compliance architecture and educational content.
  */
 
 import React, { useCallback, useState } from 'react';
-import { V7FlowTemplate } from './V7FlowTemplate';
-import { V7FlowTemplateService } from '../services/v7FlowTemplateService';
-import { V7SharedService } from '../services/v7SharedService';
 import { FlowUIService } from '../services/flowUIService';
+import { V7FlowTemplateService } from '../services/v7FlowTemplateService';
 import type { V7FlowName } from '../services/v7SharedService';
+import { V7FlowTemplate } from './V7FlowTemplate';
 
 // Get shared UI components
 const {
@@ -49,13 +48,13 @@ export interface V7FlowVariantProps {
 export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 	baseFlowName,
 	showVariantSelector = true,
-	onVariantChange
+	onVariantChange,
 }) => {
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oauth');
-	
+	const [_selectedVariant, _setSelectedVariant] = useState<'oauth' | 'oidc'>('oauth');
+
 	// Get OAuth template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
-	
+
 	// OAuth-specific configuration
 	const oauthConfig = {
 		...templateConfig,
@@ -67,10 +66,10 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 		educationalContent: {
 			...templateConfig.educationalContent,
 			overview: templateConfig.educationalContent.overview.replace('OpenID Connect', 'OAuth 2.0'),
-			useCases: templateConfig.educationalContent.useCases.map(useCase => 
+			useCases: templateConfig.educationalContent.useCases.map((useCase) =>
 				useCase.replace('identity', 'authorization').replace('authentication', 'authorization')
-			)
-		}
+			),
+		},
 	};
 
 	// Step content renderer for OAuth variant
@@ -99,8 +98,8 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OAuth 2.0 Application Configuration</InfoTitle>
 				<InfoText>
-					Configure your OAuth 2.0 application credentials. OAuth 2.0 focuses on
-					authorization rather than authentication, providing access tokens for API access.
+					Configure your OAuth 2.0 application credentials. OAuth 2.0 focuses on authorization
+					rather than authentication, providing access tokens for API access.
 				</InfoText>
 			</InfoBox>
 
@@ -111,11 +110,21 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 						<InfoBox $variant="info">
 							<InfoTitle>OAuth 2.0 Characteristics</InfoTitle>
 							<InfoList>
-								<li><strong>Purpose:</strong> Authorization framework for API access</li>
-								<li><strong>Tokens:</strong> Access token and refresh token only</li>
-								<li><strong>Identity:</strong> No user identity information</li>
-								<li><strong>Use Cases:</strong> API authorization, resource access</li>
-								<li><strong>Scopes:</strong> API-specific permissions (read, write, admin)</li>
+								<li>
+									<strong>Purpose:</strong> Authorization framework for API access
+								</li>
+								<li>
+									<strong>Tokens:</strong> Access token and refresh token only
+								</li>
+								<li>
+									<strong>Identity:</strong> No user identity information
+								</li>
+								<li>
+									<strong>Use Cases:</strong> API authorization, resource access
+								</li>
+								<li>
+									<strong>Scopes:</strong> API-specific permissions (read, write, admin)
+								</li>
 							</InfoList>
 						</InfoBox>
 					</CollapsibleContent>
@@ -124,37 +133,25 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 
 			<FormGroup>
 				<Label>Client ID</Label>
-				<Input
-					type="text"
-					placeholder="Enter your OAuth client ID"
-				/>
+				<Input type="text" placeholder="Enter your OAuth client ID" />
 				<HelperText>Your OAuth application's client identifier</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Client Secret</Label>
-				<Input
-					type="password"
-					placeholder="Enter your OAuth client secret"
-				/>
+				<Input type="password" placeholder="Enter your OAuth client secret" />
 				<HelperText>Your OAuth application's client secret</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Redirect URI</Label>
-				<Input
-					type="text"
-					placeholder="https://localhost:3000/callback"
-				/>
+				<Input type="text" placeholder="https://localhost:3000/callback" />
 				<HelperText>Where to redirect after authorization</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Scope</Label>
-				<Input
-					type="text"
-					placeholder="read write admin"
-				/>
+				<Input type="text" placeholder="read write admin" />
 				<HelperText>OAuth 2.0 scopes for API permissions</HelperText>
 			</FormGroup>
 		</>
@@ -166,14 +163,12 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OAuth 2.0 Authorization Request</InfoTitle>
 				<InfoText>
-					Generate the OAuth 2.0 authorization URL. This will redirect the user
-					to the authorization server to grant permissions for API access.
+					Generate the OAuth 2.0 authorization URL. This will redirect the user to the authorization
+					server to grant permissions for API access.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Generate OAuth 2.0 Authorization URL
-			</Button>
+			<Button>Generate OAuth 2.0 Authorization URL</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>OAuth 2.0 Authorization URL</InfoTitle>
@@ -195,17 +190,14 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OAuth 2.0 Authorization Code</InfoTitle>
 				<InfoText>
-					The user has been redirected back with an authorization code.
-					This code will be exchanged for an access token.
+					The user has been redirected back with an authorization code. This code will be exchanged
+					for an access token.
 				</InfoText>
 			</InfoBox>
 
 			<FormGroup>
 				<Label>Authorization Code</Label>
-				<Input
-					type="text"
-					placeholder="Enter the authorization code"
-				/>
+				<Input type="text" placeholder="Enter the authorization code" />
 				<HelperText>The authorization code returned from the authorization server</HelperText>
 			</FormGroup>
 		</>
@@ -217,14 +209,12 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OAuth 2.0 Token Exchange</InfoTitle>
 				<InfoText>
-					Exchange the authorization code for an access token and refresh token.
-					The access token will be used to access protected APIs.
+					Exchange the authorization code for an access token and refresh token. The access token
+					will be used to access protected APIs.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Exchange Code for Access Token
-			</Button>
+			<Button>Exchange Code for Access Token</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>OAuth 2.0 Token Response</InfoTitle>
@@ -247,8 +237,8 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="success">
 				<InfoTitle>OAuth 2.0 Access Token</InfoTitle>
 				<InfoText>
-					Your application now has an access token for API authorization.
-					Use this token to make authenticated requests to protected resources.
+					Your application now has an access token for API authorization. Use this token to make
+					authenticated requests to protected resources.
 				</InfoText>
 			</InfoBox>
 
@@ -269,8 +259,8 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="success">
 				<InfoTitle>OAuth 2.0 Flow Completed</InfoTitle>
 				<InfoText>
-					You have successfully completed the OAuth 2.0 Authorization Code flow.
-					Your application now has access to protected APIs.
+					You have successfully completed the OAuth 2.0 Authorization Code flow. Your application
+					now has access to protected APIs.
 				</InfoText>
 			</InfoBox>
 
@@ -287,7 +277,7 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 	);
 
 	// Navigation validation
-	const canNavigateNext = useCallback((step: number) => {
+	const canNavigateNext = useCallback((_step: number) => {
 		// OAuth-specific validation logic
 		return true;
 	}, []);
@@ -318,13 +308,13 @@ export const V7OAuthFlowVariant: React.FC<V7FlowVariantProps> = ({
 export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 	baseFlowName,
 	showVariantSelector = true,
-	onVariantChange
+	onVariantChange,
 }) => {
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
-	
+	const [_selectedVariant, _setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
+
 	// Get OIDC template configuration
 	const templateConfig = V7FlowTemplateService.getTemplateConfig(baseFlowName);
-	
+
 	// OIDC-specific configuration
 	const oidcConfig = {
 		...templateConfig,
@@ -336,10 +326,10 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 		educationalContent: {
 			...templateConfig.educationalContent,
 			overview: templateConfig.educationalContent.overview.replace('OAuth 2.0', 'OpenID Connect'),
-			useCases: templateConfig.educationalContent.useCases.map(useCase => 
+			useCases: templateConfig.educationalContent.useCases.map((useCase) =>
 				useCase.replace('authorization', 'authentication').replace('API access', 'user identity')
-			)
-		}
+			),
+		},
 	};
 
 	// Step content renderer for OIDC variant
@@ -370,8 +360,8 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OpenID Connect Application Configuration</InfoTitle>
 				<InfoText>
-					Configure your OpenID Connect application credentials. OIDC extends OAuth 2.0
-					to provide identity information through ID tokens and user information.
+					Configure your OpenID Connect application credentials. OIDC extends OAuth 2.0 to provide
+					identity information through ID tokens and user information.
 				</InfoText>
 			</InfoBox>
 
@@ -382,11 +372,21 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 						<InfoBox $variant="info">
 							<InfoTitle>OIDC Features</InfoTitle>
 							<InfoList>
-								<li><strong>Purpose:</strong> Authentication and authorization framework</li>
-								<li><strong>Tokens:</strong> ID token, access token, and refresh token</li>
-								<li><strong>Identity:</strong> User identity information via ID token</li>
-								<li><strong>Use Cases:</strong> User authentication, SSO, identity federation</li>
-								<li><strong>Scopes:</strong> Identity scopes (openid, profile, email)</li>
+								<li>
+									<strong>Purpose:</strong> Authentication and authorization framework
+								</li>
+								<li>
+									<strong>Tokens:</strong> ID token, access token, and refresh token
+								</li>
+								<li>
+									<strong>Identity:</strong> User identity information via ID token
+								</li>
+								<li>
+									<strong>Use Cases:</strong> User authentication, SSO, identity federation
+								</li>
+								<li>
+									<strong>Scopes:</strong> Identity scopes (openid, profile, email)
+								</li>
 							</InfoList>
 						</InfoBox>
 					</CollapsibleContent>
@@ -395,37 +395,25 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 
 			<FormGroup>
 				<Label>Client ID</Label>
-				<Input
-					type="text"
-					placeholder="Enter your OIDC client ID"
-				/>
+				<Input type="text" placeholder="Enter your OIDC client ID" />
 				<HelperText>Your OpenID Connect application's client identifier</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Client Secret</Label>
-				<Input
-					type="password"
-					placeholder="Enter your OIDC client secret"
-				/>
+				<Input type="password" placeholder="Enter your OIDC client secret" />
 				<HelperText>Your OpenID Connect application's client secret</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Redirect URI</Label>
-				<Input
-					type="text"
-					placeholder="https://localhost:3000/callback"
-				/>
+				<Input type="text" placeholder="https://localhost:3000/callback" />
 				<HelperText>Where to redirect after authentication</HelperText>
 			</FormGroup>
 
 			<FormGroup>
 				<Label>Scope</Label>
-				<Input
-					type="text"
-					placeholder="openid profile email"
-				/>
+				<Input type="text" placeholder="openid profile email" />
 				<HelperText>OIDC scopes for identity information</HelperText>
 			</FormGroup>
 		</>
@@ -437,14 +425,12 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OpenID Connect Authorization Request</InfoTitle>
 				<InfoText>
-					Generate the OpenID Connect authorization URL. This will redirect the user
-					to the authorization server for authentication and consent.
+					Generate the OpenID Connect authorization URL. This will redirect the user to the
+					authorization server for authentication and consent.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Generate OIDC Authorization URL
-			</Button>
+			<Button>Generate OIDC Authorization URL</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>OpenID Connect Authorization URL</InfoTitle>
@@ -467,17 +453,14 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OpenID Connect Authorization Code</InfoTitle>
 				<InfoText>
-					The user has been redirected back with an authorization code.
-					This code will be exchanged for ID token, access token, and refresh token.
+					The user has been redirected back with an authorization code. This code will be exchanged
+					for ID token, access token, and refresh token.
 				</InfoText>
 			</InfoBox>
 
 			<FormGroup>
 				<Label>Authorization Code</Label>
-				<Input
-					type="text"
-					placeholder="Enter the authorization code"
-				/>
+				<Input type="text" placeholder="Enter the authorization code" />
 				<HelperText>The authorization code returned from the authorization server</HelperText>
 			</FormGroup>
 		</>
@@ -489,14 +472,12 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>OpenID Connect Token Exchange</InfoTitle>
 				<InfoText>
-					Exchange the authorization code for ID token, access token, and refresh token.
-					The ID token contains user identity information.
+					Exchange the authorization code for ID token, access token, and refresh token. The ID
+					token contains user identity information.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Exchange Code for Tokens
-			</Button>
+			<Button>Exchange Code for Tokens</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>OpenID Connect Token Response</InfoTitle>
@@ -520,14 +501,12 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>ID Token Validation</InfoTitle>
 				<InfoText>
-					Validate the ID token according to OpenID Connect Core 1.0 specification.
-					This ensures the token is authentic and contains valid user information.
+					Validate the ID token according to OpenID Connect Core 1.0 specification. This ensures the
+					token is authentic and contains valid user information.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Validate ID Token
-			</Button>
+			<Button>Validate ID Token</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>ID Token Validation Results</InfoTitle>
@@ -549,14 +528,12 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="info">
 				<InfoTitle>User Information</InfoTitle>
 				<InfoText>
-					Retrieve user information from the UserInfo endpoint using the access token.
-					This provides additional user profile information.
+					Retrieve user information from the UserInfo endpoint using the access token. This provides
+					additional user profile information.
 				</InfoText>
 			</InfoBox>
 
-			<Button>
-				Get User Information
-			</Button>
+			<Button>Get User Information</Button>
 
 			<GeneratedContentBox>
 				<InfoTitle>User Information Response</InfoTitle>
@@ -579,8 +556,8 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 			<InfoBox $variant="success">
 				<InfoTitle>OpenID Connect Flow Completed</InfoTitle>
 				<InfoText>
-					You have successfully completed the OpenID Connect Authorization Code flow.
-					Your application now has user identity information and API access.
+					You have successfully completed the OpenID Connect Authorization Code flow. Your
+					application now has user identity information and API access.
 				</InfoText>
 			</InfoBox>
 
@@ -598,7 +575,7 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
 	);
 
 	// Navigation validation
-	const canNavigateNext = useCallback((step: number) => {
+	const canNavigateNext = useCallback((_step: number) => {
 		// OIDC-specific validation logic
 		return true;
 	}, []);
@@ -628,22 +605,25 @@ export const V7OIDCFlowVariant: React.FC<V7FlowVariantProps> = ({
  */
 export const V7FlowVariantSelector: React.FC<V7FlowVariantProps> = ({
 	baseFlowName,
-	onVariantChange
+	onVariantChange,
 }) => {
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oauth');
 
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		onVariantChange?.(variant);
-	}, [onVariantChange]);
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+			onVariantChange?.(variant);
+		},
+		[onVariantChange]
+	);
 
 	return (
 		<>
 			<InfoBox $variant="info">
 				<InfoTitle>Choose Flow Variant</InfoTitle>
 				<InfoText>
-					Select whether you want to use OAuth 2.0 (authorization only) or
-					OpenID Connect (authentication + authorization).
+					Select whether you want to use OAuth 2.0 (authorization only) or OpenID Connect
+					(authentication + authorization).
 				</InfoText>
 			</InfoBox>
 
@@ -654,7 +634,7 @@ export const V7FlowVariantSelector: React.FC<V7FlowVariantProps> = ({
 						onClick={() => handleVariantChange('oauth')}
 						style={{
 							backgroundColor: selectedVariant === 'oauth' ? '#16a34a' : '#e5e7eb',
-							color: selectedVariant === 'oauth' ? 'white' : 'black'
+							color: selectedVariant === 'oauth' ? 'white' : 'black',
 						}}
 					>
 						OAuth 2.0 (Authorization)
@@ -666,7 +646,7 @@ export const V7FlowVariantSelector: React.FC<V7FlowVariantProps> = ({
 						onClick={() => handleVariantChange('oidc')}
 						style={{
 							backgroundColor: selectedVariant === 'oidc' ? '#3b82f6' : '#e5e7eb',
-							color: selectedVariant === 'oidc' ? 'white' : 'black'
+							color: selectedVariant === 'oidc' ? 'white' : 'black',
 						}}
 					>
 						OpenID Connect (Authentication + Authorization)
@@ -696,5 +676,5 @@ export const V7FlowVariantSelector: React.FC<V7FlowVariantProps> = ({
 export default {
 	V7OAuthFlowVariant,
 	V7OIDCFlowVariant,
-	V7FlowVariantSelector
+	V7FlowVariantSelector,
 };

@@ -93,4 +93,3 @@ const RogerGroceryLogo: React.FC = () => (
 );
 
 export default RogerGroceryLogo;
-

@@ -1,7 +1,6 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_Complete.tsx
 // V7 Complete OAuth Authorization Code Flow - Based on V6 with V7 enhancements
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -19,17 +18,16 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
 import ConfigurationBackup from '../../components/ConfigurationBackup';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService.tsx';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -37,33 +35,41 @@ import {
 	SectionDivider,
 } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import FlowCredentialService from '../../services/flowCredentialService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowStorageService from '../../services/flowStorageService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { PKCEGenerationService } from '../../services/pkceGenerationService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { PKCEGenerationService } from '../../services/pkceGenerationService';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
-import { CopyButtonService } from '../../services/copyButtonService';
-import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import FlowStorageService from '../../services/flowStorageService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
+	STEP_METADATA,
 } from './config/OAuthAuthzCodeFlowV6.config';
-import FlowCredentialService from '../../services/flowCredentialService';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -88,10 +94,10 @@ const MainCard = styled.div`
 `;
 
 const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
@@ -107,18 +113,10 @@ const StepHeaderLeft = styled.div`
 
 const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	align-self: flex-start;
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(22, 163, 74, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#4ade80'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#bbf7d0'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -176,10 +174,10 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
@@ -682,7 +680,6 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-
 const GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
 	border: 1px solid #bbf7d0;
@@ -694,7 +691,6 @@ const GeneratedUrlDisplay = styled.div`
 	word-break: break-all;
 	position: relative;
 `;
-
 
 const EmptyState = styled.div`
 	text-align: center;
@@ -805,7 +801,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		(nextVariant: 'oauth' | 'oidc') => {
 			// Preserve current PKCE codes and auth state
 			const currentPkceCodes = controller.pkceCodes;
-			
+
 			setFlowVariant(nextVariant);
 			controller.setFlowVariant(nextVariant);
 
@@ -813,7 +809,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			FlowCredentialService.loadSharedCredentials(`oauth-authorization-code-v7-${nextVariant}`)
 				.then((reloadedCredentials) => {
 					if (reloadedCredentials && Object.keys(reloadedCredentials).length > 0) {
-						console.log(`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`, reloadedCredentials);
+						console.log(
+							`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`,
+							reloadedCredentials
+						);
 						controller.setCredentials({
 							...controller.credentials,
 							...reloadedCredentials,
@@ -825,13 +824,15 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				});
 
 			// PingOne requires openid scope for both OAuth and OIDC variants
-			const updatedScope = ensureOidcScopes(controller.credentials.scope || controller.credentials.scopes);
+			const updatedScope = ensureOidcScopes(
+				controller.credentials.scope || controller.credentials.scopes
+			);
 			controller.setCredentials({
 				...controller.credentials,
 				scope: updatedScope,
 				scopes: updatedScope,
 			});
-			
+
 			if (nextVariant === 'oidc') {
 				controller.setFlowConfig({
 					...controller.flowConfig,
@@ -843,13 +844,13 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					enableOIDC: false,
 				});
 			}
-			
+
 			// Restore PKCE codes and auth state to prevent mismatch errors
 			if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge) {
 				console.log(`[V7 AuthZ] Preserving PKCE codes during variant switch`);
 				controller.setPkceCodes(currentPkceCodes);
 			}
-			
+
 			// Show success message
 			v4ToastManager.showSuccess(`Switched to ${nextVariant.toUpperCase()} variant`);
 		},
@@ -871,16 +872,22 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				onClick={() => handleFlowVariantChange('oidc')}
 			>
 				<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				<VariantDescription>
+					ID token + Access token - Authentication + Authorization
+				</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
 	);
-	
+
 	// API call tracking for display
-	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
+	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(
+		null
+	);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
-	
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
+
 	// Advanced OAuth parameters
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
@@ -921,13 +928,13 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		if (audience || promptValues.length > 0) {
 			console.log('[OAuth AuthZ V6] Updating flow config with advanced parameters:', {
 				audience,
-				promptValues
+				promptValues,
 			});
 			// Note: Resources are not sent for PingOne flows as they're not reliably supported
 			controller.setFlowConfig({
 				...controller.flowConfig,
 				audience,
-				prompt: promptValues.join(' ')
+				prompt: promptValues.join(' '),
 			});
 		}
 	}, [audience, promptValues]);
@@ -939,7 +946,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			resources,
 			promptValues,
 		});
-		
+
 		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v7') ?? 'oauth-authz-v7';
 		FlowStorageService.AdvancedParameters.set(flowId, {
 			audience,
@@ -948,14 +955,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		});
 		setIsSavedAdvancedParams(true);
 		v4ToastManager.showSuccess('Advanced parameters saved! Regenerating authorization URL...');
-		
+
 		// Regenerate authorization URL with new parameters
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
 			flowVariant,
 			controller.credentials,
 			controller
 		);
-		
+
 		// Log what will actually be sent to PingOne
 		if (controller.authUrl) {
 			const urlParams = new URLSearchParams(controller.authUrl.split('?')[1] || '');
@@ -975,7 +982,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			console.log('🌐 Resources:', 'Not included (PingOne does not support RFC 8707)');
 			console.log('🌐 =============================================');
 		}
-		
+
 		// Hide the saved indicator after 3 seconds
 		setTimeout(() => {
 			setIsSavedAdvancedParams(false);
@@ -989,7 +996,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	// Response type selector state
 	const [selectedResponseType, setSelectedResponseType] = useState<string>('code id_token');
-	
+
 	// Update controller credentials when response type changes
 	useEffect(() => {
 		controller.setCredentials({
@@ -1181,9 +1188,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		]
 	);
 
-	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
@@ -1193,9 +1199,15 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			};
 			controller.setCredentials(updatedCredentials);
 			// Save credentials with variant-specific key for better isolation
-			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
+			FlowCredentialService.saveSharedCredentials(
+				`oauth-authorization-code-v7-${flowVariant}`,
+				updatedCredentials
+			);
 			// Also save to the main key for backward compatibility
-			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
+			FlowCredentialService.saveSharedCredentials(
+				'oauth-authorization-code-v7',
+				updatedCredentials
+			);
 			if (typeof value === 'string' && value.trim()) {
 				setEmptyRequiredFields((prevMissing) => {
 					const next = new Set(prevMissing);
@@ -1212,7 +1224,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleSaveConfiguration = useCallback(async () => {
 		console.log('🔧 [handleSaveConfiguration] Starting save process...');
 		console.log('🔧 [handleSaveConfiguration] Current credentials:', controller.credentials);
-		
+
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
 			'clientId',
@@ -1223,9 +1235,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			const value = controller.credentials[field];
 			return !value || (typeof value === 'string' && !value.trim());
 		});
-		
+
 		console.log('🔧 [handleSaveConfiguration] Missing fields:', missing);
-		
+
 		if (missing.length > 0) {
 			setEmptyRequiredFields(new Set(missing.map((field) => field as string)));
 			v4ToastManager.showError(
@@ -1233,7 +1245,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			);
 			return;
 		}
-		
+
 		try {
 			console.log('🔧 [handleSaveConfiguration] Calling controller.saveCredentials()...');
 			await controller.saveCredentials();
@@ -1303,23 +1315,27 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		console.log('[OAuth AuthZ V6] Generating PKCE codes...', {
 			clientId: controller.credentials.clientId,
 			environmentId: controller.credentials.environmentId,
-			flowKey: 'oauth-authorization-code-v7'
+			flowKey: 'oauth-authorization-code-v7',
 		});
-		
+
 		const success = await AuthorizationCodeSharedService.PKCE.generatePKCE(
 			'oauth',
 			controller.credentials,
 			controller
 		);
-		
+
 		console.log('[OAuth AuthZ V6] PKCE generation result:', success);
-		
+
 		if (success) {
 			console.log('[OAuth AuthZ V7] PKCE codes after generation:', {
-				codeVerifier: controller.pkceCodes.codeVerifier ? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...` : 'none',
-				codeChallenge: controller.pkceCodes.codeChallenge ? `${controller.pkceCodes.codeChallenge.substring(0, 10)}...` : 'none',
+				codeVerifier: controller.pkceCodes.codeVerifier
+					? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...`
+					: 'none',
+				codeChallenge: controller.pkceCodes.codeChallenge
+					? `${controller.pkceCodes.codeChallenge.substring(0, 10)}...`
+					: 'none',
 				persistKey: controller.persistKey,
-				flowVariant: flowVariant
+				flowVariant: flowVariant,
 			});
 		}
 	}, [controller]);
@@ -1362,7 +1378,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			method: 'POST' as const,
 			headers: {
 				'Content-Type': 'application/json',
-				'Accept': 'application/json'
+				Accept: 'application/json',
 			},
 			body: {
 				grant_type: 'authorization_code',
@@ -1373,15 +1389,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				code_verifier: controller.pkceCodes.codeVerifier,
 				client_auth_method: controller.credentials.clientAuthMethod || 'client_secret_post',
 				client_secret: '***REDACTED***',
-				...(controller.credentials.includeX5tParameter && { includeX5tParameter: controller.credentials.includeX5tParameter })
+				...(controller.credentials.includeX5tParameter && {
+					includeX5tParameter: controller.credentials.includeX5tParameter,
+				}),
 			},
 			timestamp: new Date(),
-			description: 'Exchange authorization code for access token and refresh token'
+			description: 'Exchange authorization code for access token and refresh token',
 		};
 
 		try {
 			await controller.exchangeTokens();
-			
+
 			// Update API call with success response
 			const updatedTokenExchangeApiCall: EnhancedApiCallData = {
 				...tokenExchangeApiCallData,
@@ -1389,10 +1407,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.tokens
-				}
+					data: controller.tokens,
+				},
 			};
-			
+
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
@@ -1405,10 +1423,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					status: 400,
 					statusText: 'Bad Request',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
-			
+
 			setTokenExchangeApiCall(errorApiCall);
 
 			// Parse error message for better user feedback
@@ -1447,29 +1465,34 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		// Check if user has appropriate scopes for user info
 		const currentScopes = controller.credentials.scopes || controller.credentials.scope || '';
 		const hasProfileScope = currentScopes.includes('profile') || currentScopes.includes('openid');
-		
+
 		if (!hasProfileScope) {
-			v4ToastManager.showWarning('For user info to work, include "profile" scope in your configuration. Current scopes: ' + currentScopes);
+			v4ToastManager.showWarning(
+				'For user info to work, include "profile" scope in your configuration. Current scopes: ' +
+					currentScopes
+			);
 		}
 
 		// Create API call display for UserInfo request
 		const userInfoApiCallData: EnhancedApiCallData = {
 			flowType: 'authorization-code',
 			stepName: 'Fetch User Information',
-			url: controller.credentials.userInfoEndpoint || `https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
+			url:
+				controller.credentials.userInfoEndpoint ||
+				`https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
 			method: 'GET' as const,
 			headers: {
-				'Authorization': `Bearer ${controller.tokens.access_token}`,
-				'Accept': 'application/json'
+				Authorization: `Bearer ${controller.tokens.access_token}`,
+				Accept: 'application/json',
 			},
 			body: null,
 			timestamp: new Date(),
-			description: 'Fetch user information using the access token'
+			description: 'Fetch user information using the access token',
 		};
 
 		try {
 			await controller.fetchUserInfo();
-			
+
 			// Update API call with success response
 			const updatedUserInfoApiCall: EnhancedApiCallData = {
 				...userInfoApiCallData,
@@ -1477,24 +1500,27 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.userInfo
-				}
+					data: controller.userInfo,
+				},
 			};
-			
+
 			setUserInfoApiCall(updatedUserInfoApiCall);
 			v4ToastManager.showSuccess('User info fetched successfully!');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			let userFriendlyMessage = 'Failed to fetch user info';
-			
+
 			if (errorMessage.includes('401')) {
-				userFriendlyMessage = 'Access token expired or invalid. Try refreshing the token or re-running the flow.';
+				userFriendlyMessage =
+					'Access token expired or invalid. Try refreshing the token or re-running the flow.';
 			} else if (errorMessage.includes('403')) {
-				userFriendlyMessage = 'Access token lacks required scopes. Ensure "profile" or "openid" scope is included.';
+				userFriendlyMessage =
+					'Access token lacks required scopes. Ensure "profile" or "openid" scope is included.';
 			} else if (errorMessage.includes('404')) {
-				userFriendlyMessage = 'User info endpoint not found. Check your Environment ID configuration.';
+				userFriendlyMessage =
+					'User info endpoint not found. Check your Environment ID configuration.';
 			}
-			
+
 			// Update API call with error response
 			const errorApiCall: EnhancedApiCallData = {
 				...userInfoApiCallData,
@@ -1502,10 +1528,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					status: 401,
 					statusText: 'Unauthorized',
 					headers: { 'Content-Type': 'application/json' },
-					error: errorMessage
-				}
+					error: errorMessage,
+				},
 			};
-			
+
 			setUserInfoApiCall(errorApiCall);
 			v4ToastManager.showError(userFriendlyMessage);
 		}
@@ -1535,7 +1561,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for access token
 		if (controller.tokens?.access_token) {
 			// Use localStorage for cross-tab communication
@@ -1560,7 +1586,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for refresh token
 		if (controller.tokens?.refresh_token) {
 			// Use localStorage for cross-tab communication
@@ -1586,8 +1612,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
 			// Wait 500ms for PingOne to register token
-			await new Promise(resolve => setTimeout(resolve, 500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
 			// Use credentials from the controller (same as the flow uses for token exchange)
 			const credentials = controller.credentials;
 
@@ -1602,15 +1628,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				if (!credentials.environmentId) missing.push('Environment ID');
 				if (!credentials.clientId) missing.push('Client ID');
 				if (!credentials.clientSecret) missing.push('Client Secret');
-				
-				throw new Error(`Missing required credentials for token introspection: ${missing.join(', ')}. Please configure all credentials in the Configuration & Setup section.`);
+
+				throw new Error(
+					`Missing required credentials for token introspection: ${missing.join(', ')}. Please configure all credentials in the Configuration & Setup section.`
+				);
 			}
 
 			const request = {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -1622,10 +1650,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
 					'client_secret_post'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -1636,7 +1664,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -1648,9 +1676,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			// Enhanced validation - checks both controller state and session storage for PKCE codes
-			const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
-							   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
-			
+			const hasPkceCodes =
+				!!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) ||
+				!!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
@@ -1772,7 +1801,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		if (!controller.tokens?.access_token) {
 			return false;
 		}
-		
+
 		// Don't show tokens if we have an auth code but haven't exchanged it yet
 		// (This prevents showing stale tokens from a previous run)
 		if (controller.authCode || localAuthCode) {
@@ -1780,7 +1809,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			const hasExchangedThisSession = controller.hasStepResult('exchange-tokens');
 			return hasExchangedThisSession;
 		}
-		
+
 		// If no auth code, we can show tokens (user might be on a later step)
 		return true;
 	}, [controller.tokens, controller.authCode, localAuthCode, controller.hasStepResult]);
@@ -1792,222 +1821,276 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-		case 0:
-			return (
-				<>
-					{/* CONDENSED V7: Quick Start & Overview - Collapsible */}
-						
-				{/* 1. QUICK START & OVERVIEW - Collapsible */}
-				<CollapsibleHeader
-					title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
-					subtitle="Learn the fundamentals of this flow"
-					defaultCollapsed={false}
-					icon={<FiBook />}
-					theme="green"
-				>
-					<div style={{ padding: '0' }}>
-						{/* Compact Overview */}
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-							<InfoBox $variant="info">
-								<FiInfo size={20} />
-								<div>
-									<InfoTitle>What You'll Get</InfoTitle>
-									<InfoText>
-										{flowVariant === 'oidc' 
-											? '🎯 User authentication + API authorization with ID token and access token'
-											: '🔑 API authorization with access token (PingOne requires openid scope)'
+			case 0:
+				return (
+					<>
+						{/* CONDENSED V7: Quick Start & Overview - Collapsible */}
+
+						{/* 1. QUICK START & OVERVIEW - Collapsible */}
+						<CollapsibleHeader
+							title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
+							subtitle="Learn the fundamentals of this flow"
+							defaultCollapsed={false}
+							icon={<FiBook />}
+							theme="green"
+						>
+							<div style={{ padding: '0' }}>
+								{/* Compact Overview */}
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+										gap: '1rem',
+										marginBottom: '1.5rem',
+									}}
+								>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>What You'll Get</InfoTitle>
+											<InfoText>
+												{flowVariant === 'oidc'
+													? '🎯 User authentication + API authorization with ID token and access token'
+													: '🔑 API authorization with access token (PingOne requires openid scope)'}
+											</InfoText>
+										</div>
+									</InfoBox>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Perfect For</InfoTitle>
+											<InfoText>
+												• Web apps with secure backends
+												<br />• SPAs using PKCE
+												<br />• Apps needing refresh tokens
+											</InfoText>
+										</div>
+									</InfoBox>
+								</div>
+
+								{/* Requirements Notice */}
+								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
+										<InfoText>
+											<strong>Client Secret:</strong> Required for token introspection and refresh
+											<br />
+											<strong>Scopes:</strong> Include "profile" scope for user info endpoint
+											<br />
+											<strong>Environment ID:</strong> Must match your PingOne environment
+										</InfoText>
+									</div>
+								</InfoBox>
+
+								{/* Compact Comparison */}
+								<GeneratedContentBox>
+									<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+											gap: '1rem',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: flowVariant === 'oauth' ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OAuth 2.0 Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> API access only
+											</p>
+											<p>
+												<strong>PingOne:</strong> Requires openid scope
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: flowVariant === 'oidc' ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OpenID Connect Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + ID + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> Authentication + API access
+											</p>
+											<p>
+												<strong>Standard:</strong> Requires openid scope
+											</p>
+										</div>
+									</div>
+								</GeneratedContentBox>
+							</div>
+						</CollapsibleHeader>
+
+						{/* 2. CONFIGURATION & SETUP - Collapsible */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('configuration')}
+								aria-expanded={!collapsedSections.configuration}
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
+								<CollapsibleTitle>
+									<FiSettings />
+									<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
+										🔧 Configuration & Setup - All Settings in One Place
+									</span>
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.configuration && (
+								<CollapsibleContent>
+									<ComprehensiveCredentialsService
+										// Discovery props
+										onDiscoveryComplete={(result) => {
+											console.log('[OAuth Authz V6] Discovery completed:', result);
+											if (result.issuerUrl) {
+												const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
+													result.issuerUrl
+												);
+												if (extractedEnvId) {
+													handleFieldChange('environmentId', extractedEnvId);
+													console.log(
+														'[OAuth Authz V6] Auto-extracted Environment ID:',
+														extractedEnvId
+													);
+												}
+											}
+										}}
+										discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+										showProviderInfo={true}
+										// Credentials props
+										environmentId={credentials.environmentId || ''}
+										clientId={credentials.clientId || ''}
+										clientSecret={credentials.clientSecret || ''}
+										redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
+										scopes={credentials.scopes || credentials.scope || ''}
+										loginHint={credentials.loginHint || ''}
+										postLogoutRedirectUri={
+											credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'
 										}
-									</InfoText>
-								</div>
-							</InfoBox>
-							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
-								<div>
-									<InfoTitle>Perfect For</InfoTitle>
-									<InfoText>
-										• Web apps with secure backends<br/>
-										• SPAs using PKCE<br/>
-										• Apps needing refresh tokens
-									</InfoText>
-								</div>
-							</InfoBox>
-						</div>
+										// Change handlers
+										onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
+										onClientIdChange={(value) => handleFieldChange('clientId', value)}
+										onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
+										onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
+										onScopesChange={(value) => {
+											// Convert comma-separated to space-separated if needed
+											let normalizedValue = value;
+											if (value.includes(',') && !value.includes(' ')) {
+												// Convert comma-separated to space-separated
+												normalizedValue = value
+													.split(',')
+													.map((s) => s.trim())
+													.join(' ');
+											}
 
-						{/* Requirements Notice */}
-						<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle size={20} />
-							<div>
-								<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
-								<InfoText>
-									<strong>Client Secret:</strong> Required for token introspection and refresh<br/>
-									<strong>Scopes:</strong> Include "profile" scope for user info endpoint<br/>
-									<strong>Environment ID:</strong> Must match your PingOne environment
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						{/* Compact Comparison */}
-						<GeneratedContentBox>
-							<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
-							<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-								<div style={{ 
-									padding: '1rem', 
-									border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e2e8f0'}`,
-									borderRadius: '0.5rem',
-									background: flowVariant === 'oauth' ? '#eff6ff' : 'white'
-								}}>
-									<h4>OAuth 2.0 Mode</h4>
-									<p><strong>Tokens:</strong> Access + Refresh</p>
-									<p><strong>Purpose:</strong> API access only</p>
-									<p><strong>PingOne:</strong> Requires openid scope</p>
-								</div>
-								<div style={{ 
-									padding: '1rem', 
-									border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e2e8f0'}`,
-									borderRadius: '0.5rem',
-									background: flowVariant === 'oidc' ? '#eff6ff' : 'white'
-								}}>
-									<h4>OpenID Connect Mode</h4>
-									<p><strong>Tokens:</strong> Access + ID + Refresh</p>
-									<p><strong>Purpose:</strong> Authentication + API access</p>
-									<p><strong>Standard:</strong> Requires openid scope</p>
-								</div>
-							</div>
-						</GeneratedContentBox>
-					</div>
-				</CollapsibleHeader>
-
-				{/* 2. CONFIGURATION & SETUP - Collapsible */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => toggleSection('configuration')}
-						aria-expanded={!collapsedSections.configuration}
-						style={{ background: '#3b82f6', color: 'white' }}
-					>
-						<CollapsibleTitle>
-							<FiSettings />
-							<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
-								🔧 Configuration & Setup - All Settings in One Place
-							</span>
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!collapsedSections.configuration && (
-						<CollapsibleContent>
-							<ComprehensiveCredentialsService
-								// Discovery props
-								onDiscoveryComplete={(result) => {
-									console.log('[OAuth Authz V6] Discovery completed:', result);
-									if (result.issuerUrl) {
-										const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
-										if (extractedEnvId) {
-											handleFieldChange('environmentId', extractedEnvId);
-											console.log('[OAuth Authz V6] Auto-extracted Environment ID:', extractedEnvId);
+											// Ensure openid is always included (PingOne requirement)
+											const scopes = normalizedValue.split(/\s+/).filter((s) => s.length > 0);
+											if (!scopes.includes('openid')) {
+												scopes.unshift('openid');
+												const finalScopes = scopes.join(' ');
+												handleFieldChange('scopes', finalScopes);
+												v4ToastManager.showWarning(
+													'Added required "openid" scope for PingOne compatibility'
+												);
+											} else {
+												handleFieldChange('scopes', normalizedValue);
+											}
+										}}
+										onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
+										onPostLogoutRedirectUriChange={(value) =>
+											handleFieldChange('postLogoutRedirectUri', value)
 										}
-									}
-								}}
-								discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
-								showProviderInfo={true}
-								
-								// Credentials props
-								environmentId={credentials.environmentId || ''}
-								clientId={credentials.clientId || ''}
-								clientSecret={credentials.clientSecret || ''}
-								redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
-								scopes={credentials.scopes || credentials.scope || ''}
-								loginHint={credentials.loginHint || ''}
-								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
-								
-								// Change handlers
-								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
-								onClientIdChange={(value) => handleFieldChange('clientId', value)}
-								onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
-								onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
-								onScopesChange={(value) => {
-									// Convert comma-separated to space-separated if needed
-									let normalizedValue = value;
-									if (value.includes(',') && !value.includes(' ')) {
-										// Convert comma-separated to space-separated
-										normalizedValue = value.split(',').map(s => s.trim()).join(' ');
-									}
-									
-									// Ensure openid is always included (PingOne requirement)
-									const scopes = normalizedValue.split(/\s+/).filter(s => s.length > 0);
-									if (!scopes.includes('openid')) {
-										scopes.unshift('openid');
-										const finalScopes = scopes.join(' ');
-										handleFieldChange('scopes', finalScopes);
-										v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
-									} else {
-										handleFieldChange('scopes', normalizedValue);
-									}
-								}}
-								onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
-								onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
-								
-								// Save handler
-								onSave={handleSaveConfiguration}
-								hasUnsavedChanges={false}
-								isSaving={false}
-								requireClientSecret={true}
-								
-								// PingOne Advanced Configuration
-								pingOneAppState={pingOneConfig}
-								onPingOneAppStateChange={setPingOneConfig}
-								onPingOneSave={() => savePingOneConfig(pingOneConfig)}
-								hasUnsavedPingOneChanges={false}
-								isSavingPingOne={false}
-								
-								// UI config
-								title="Application Configuration & Credentials"
-								subtitle="Configure your application settings and credentials"
-								showAdvancedConfig={true}
-								defaultCollapsed={false}
-							/>
+										// Save handler
+										onSave={handleSaveConfiguration}
+										hasUnsavedChanges={false}
+										isSaving={false}
+										requireClientSecret={true}
+										// PingOne Advanced Configuration
+										pingOneAppState={pingOneConfig}
+										onPingOneAppStateChange={setPingOneConfig}
+										onPingOneSave={() => savePingOneConfig(pingOneConfig)}
+										hasUnsavedPingOneChanges={false}
+										isSavingPingOne={false}
+										// UI config
+										title="Application Configuration & Credentials"
+										subtitle="Configure your application settings and credentials"
+										showAdvancedConfig={true}
+										defaultCollapsed={false}
+									/>
 
-							{/* Inline Advanced Options */}
-							<div style={{ marginTop: '1rem', padding: '1rem', background: '#fffbeb', border: '1px solid #fbbf24', borderRadius: '0.5rem' }}>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>💡 Advanced Options</h4>
-								<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
-									PKCE, custom parameters, and response modes are auto-configured based on your variant selection. 
-									Advanced OAuth parameters (audience, resources) can be configured in the flow execution steps.
-								</p>
-							</div>
+									{/* Inline Advanced Options */}
+									<div
+										style={{
+											marginTop: '1rem',
+											padding: '1rem',
+											background: '#fffbeb',
+											border: '1px solid #fbbf24',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>
+											💡 Advanced Options
+										</h4>
+										<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
+											PKCE, custom parameters, and response modes are auto-configured based on your
+											variant selection. Advanced OAuth parameters (audience, resources) can be
+											configured in the flow execution steps.
+										</p>
+									</div>
 
-							<ActionRow style={{ marginTop: '1rem' }}>
-								<Button onClick={handleSaveConfiguration} $variant="success">
-									<FiSettings /> Save Configuration
-								</Button>
-								<Button onClick={handleClearConfiguration} $variant="danger">
-									<FiRefreshCw /> Clear Configuration
-								</Button>
-							</ActionRow>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+									<ActionRow style={{ marginTop: '1rem' }}>
+										<Button onClick={handleSaveConfiguration} $variant="success">
+											<FiSettings /> Save Configuration
+										</Button>
+										<Button onClick={handleClearConfiguration} $variant="danger">
+											<FiRefreshCw /> Clear Configuration
+										</Button>
+									</ActionRow>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
 
 						{/* Condensed Educational Footer */}
 
-					<EnhancedFlowInfoCard flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
+						<EnhancedFlowInfoCard
+							flowType={
+								flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+							}
+						/>
 					</>
 				);
 			case 1:
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('pkceOverview')}
-							aria-expanded={!collapsedSections.pkceOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> What is PKCE?
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('pkceOverview')}
+								aria-expanded={!collapsedSections.pkceOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> What is PKCE?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.pkceOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -2039,17 +2122,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<YellowHeaderButton
-							onClick={() => toggleSection('pkceDetails')}
-							aria-expanded={!collapsedSections.pkceDetails}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Understanding Code Verifier & Code Challenge
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</YellowHeaderButton>
+							<YellowHeaderButton
+								onClick={() => toggleSection('pkceDetails')}
+								aria-expanded={!collapsedSections.pkceDetails}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Understanding Code Verifier & Code Challenge
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</YellowHeaderButton>
 							{!collapsedSections.pkceDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
@@ -2143,17 +2226,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('authRequestOverview')}
-							aria-expanded={!collapsedSections.authRequestOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Understanding Authorization Requests
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('authRequestOverview')}
+								aria-expanded={!collapsedSections.authRequestOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Understanding Authorization Requests
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.authRequestOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -2197,17 +2280,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<YellowHeaderButton
-							onClick={() => toggleSection('authRequestDetails')}
-							aria-expanded={!collapsedSections.authRequestDetails}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Authorization URL Parameters Deep Dive
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</YellowHeaderButton>
+							<YellowHeaderButton
+								onClick={() => toggleSection('authRequestDetails')}
+								aria-expanded={!collapsedSections.authRequestDetails}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Authorization URL Parameters Deep Dive
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</YellowHeaderButton>
 							{!collapsedSections.authRequestDetails && (
 								<CollapsibleContent>
 									{/* Response Type Configuration */}
@@ -2216,7 +2299,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Response Type Configuration</InfoTitle>
 											<div style={{ marginTop: '0.5rem' }}>
-												<label htmlFor="response-type-select" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+												<label
+													htmlFor="response-type-select"
+													style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+												>
 													Choose Response Type:
 												</label>
 												<select
@@ -2229,15 +2315,21 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 														border: '1px solid #d1d5db',
 														borderRadius: '0.375rem',
 														fontSize: '0.875rem',
-														backgroundColor: 'white'
+														backgroundColor: 'white',
 													}}
 												>
-													<option value="code">code - Authorization Code only (OAuth 2.0 style)</option>
-													<option value="code id_token">code id_token - Authorization Code + ID Token (OIDC hybrid)</option>
+													<option value="code">
+														code - Authorization Code only (OAuth 2.0 style)
+													</option>
+													<option value="code id_token">
+														code id_token - Authorization Code + ID Token (OIDC hybrid)
+													</option>
 												</select>
 												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-													{selectedResponseType === 'code' && 'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
-													{selectedResponseType === 'code id_token' && 'OIDC hybrid flow - get authorization code + ID token immediately'}
+													{selectedResponseType === 'code' &&
+														'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
+													{selectedResponseType === 'code id_token' &&
+														'OIDC hybrid flow - get authorization code + ID token immediately'}
 												</div>
 											</div>
 										</div>
@@ -2250,7 +2342,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 												<InfoTitle>Required Parameters</InfoTitle>
 												<InfoList>
 													<li>
-														<strong>response_type={selectedResponseType}:</strong> {selectedResponseType === 'code' ? 'Tells PingOne you want an authorization code (not tokens)' : 'Tells PingOne you want an authorization code + ID token immediately'}
+														<strong>response_type={selectedResponseType}:</strong>{' '}
+														{selectedResponseType === 'code'
+															? 'Tells PingOne you want an authorization code (not tokens)'
+															: 'Tells PingOne you want an authorization code + ID token immediately'}
 													</li>
 													<li>
 														<strong>client_id:</strong> Your application's unique identifier in
@@ -2324,7 +2419,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 											<InfoText>The authorization URL includes these key parameters:</InfoText>
 											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 												<li>
-													<strong>response_type={selectedResponseType}</strong> - {selectedResponseType === 'code' ? 'Authorization Code flow' : 'OIDC Hybrid flow (Code + ID Token)'}
+													<strong>response_type={selectedResponseType}</strong> -{' '}
+													{selectedResponseType === 'code'
+														? 'Authorization Code flow'
+														: 'OIDC Hybrid flow (Code + ID Token)'}
 												</li>
 												<li>
 													<strong>client_id</strong> - Your PingOne application ID
@@ -2365,22 +2463,25 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								<HighlightedActionButton
 									onClick={handleGenerateAuthUrl}
 									$priority="primary"
-								disabled={
-									!!controller.authUrl ||
-									(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
-								}
-								title={
-									(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
-										? 'Generate PKCE parameters first'
-										: controller.authUrl
-											? 'Authorization URL already generated'
-											: 'Generate authorization URL'
-								}
+									disabled={
+										!!controller.authUrl ||
+										(!controller.pkceCodes.codeVerifier &&
+											!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+									}
+									title={
+										!controller.pkceCodes.codeVerifier &&
+										!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
+											? 'Generate PKCE parameters first'
+											: controller.authUrl
+												? 'Authorization URL already generated'
+												: 'Generate authorization URL'
+									}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
-										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+										: !controller.pkceCodes.codeVerifier &&
+												!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
 											? 'Complete above action'
 											: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
@@ -2422,17 +2523,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('authResponseOverview')}
-							aria-expanded={!collapsedSections.authResponseOverview}
-						>
-							<CollapsibleTitle>
-								<FiCheckCircle /> Authorization Response Overview
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('authResponseOverview')}
+								aria-expanded={!collapsedSections.authResponseOverview}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Authorization Response Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
@@ -2450,17 +2551,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<HighlightHeaderButton
-							onClick={() => toggleSection('authResponseDetails')}
-							aria-expanded={!collapsedSections.authResponseDetails}
-						>
-							<CollapsibleTitle>
-								<FiPackage /> Authorization Code Details
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</HighlightHeaderButton>
+							<HighlightHeaderButton
+								onClick={() => toggleSection('authResponseDetails')}
+								aria-expanded={!collapsedSections.authResponseDetails}
+							>
+								<CollapsibleTitle>
+									<FiPackage /> Authorization Code Details
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</HighlightHeaderButton>
 							{!collapsedSections.authResponseDetails && (
 								<CollapsibleContent>
 									<ResultsSection>
@@ -2562,17 +2663,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('tokenExchangeOverview')}
-							aria-expanded={!collapsedSections.tokenExchangeOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Token Exchange Overview
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('tokenExchangeOverview')}
+								aria-expanded={!collapsedSections.tokenExchangeOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Token Exchange Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.tokenExchangeOverview && (
 								<CollapsibleContent>
 									<ExplanationSection>
@@ -2589,17 +2690,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<BlueHeaderButton
-							onClick={() => toggleSection('tokenExchangeDetails')}
-							aria-expanded={!collapsedSections.tokenExchangeDetails}
-						>
-							<CollapsibleTitle>
-								<FiSend /> Token Exchange Details
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</BlueHeaderButton>
+							<BlueHeaderButton
+								onClick={() => toggleSection('tokenExchangeDetails')}
+								aria-expanded={!collapsedSections.tokenExchangeDetails}
+							>
+								<CollapsibleTitle>
+									<FiSend /> Token Exchange Details
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</BlueHeaderButton>
 							{!collapsedSections.tokenExchangeDetails && (
 								<CollapsibleContent>
 									{/* Display Authorization Code if available */}
@@ -2651,21 +2752,26 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 											options={{
 												showEducationalNotes: true,
 												showFlowContext: true,
-												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+												urlHighlightRules:
+													EnhancedApiCallDisplayService.getDefaultHighlightRules(
+														'authorization-code'
+													),
 											}}
 										/>
 									)}
 
-								{/* Only show tokens if they were exchanged in this session */}
-								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
-									controller.tokens,
-									flowVariant,
-									'oauth-authorization-code-v7',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
+									{/* Only show tokens if they were exchanged in this session */}
+									{tokenExchangeApiCall &&
+										controller.tokens &&
+										UnifiedTokenDisplayService.showTokens(
+											controller.tokens,
+											flowVariant,
+											'oauth-authorization-code-v7',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2676,8 +2782,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-						flowName="OAuth 2.0 Authorization Code Flow"
-						flowVersion="V6"
+							flowName="OAuth 2.0 Authorization Code Flow"
+							flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2693,7 +2799,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionDetails'
+								) {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2712,7 +2822,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2724,43 +2835,45 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
 					</>
 				);
 
-		case 6:
-			return (
-				<EnhancedSecurityFeaturesDemo
-					tokens={controller.tokens as unknown as Record<string, unknown> | null}
-					credentials={controller.credentials as unknown as Record<string, unknown>}
-					pingOneConfig={pingOneConfig}
-					onTerminateSession={() => {
-						console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
-						v4ToastManager.showSuccess('Session termination completed.');
-					}}
-					onRevokeTokens={() => {
-						console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
-						v4ToastManager.showSuccess('Token revocation completed.');
-					}}
-					flowType="oauth-authorization-code-v7"
-				/>
-			);
+			case 6:
+				return (
+					<EnhancedSecurityFeaturesDemo
+						tokens={controller.tokens as unknown as Record<string, unknown> | null}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
+						pingOneConfig={pingOneConfig}
+						onTerminateSession={() => {
+							console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Session termination completed.');
+						}}
+						onRevokeTokens={() => {
+							console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Token revocation completed.');
+						}}
+						flowType="oauth-authorization-code-v7"
+					/>
+				);
 
-		case 7:
-			return (
-				<InfoBox $variant="success">
-					<FiCheckCircle size={20} />
-					<div>
-						<InfoTitle>Flow Complete</InfoTitle>
-						<InfoText>
-							You've completed the Authorization Code flow. Tokens are available above and you can restart the flow anytime.
-						</InfoText>
-					</div>
-				</InfoBox>
-			);
+			case 7:
+				return (
+					<InfoBox $variant="success">
+						<FiCheckCircle size={20} />
+						<div>
+							<InfoTitle>Flow Complete</InfoTitle>
+							<InfoText>
+								You've completed the Authorization Code flow. Tokens are available above and you can
+								restart the flow anytime.
+							</InfoText>
+						</div>
+					</InfoBox>
+				);
 
 			default:
 				return null;
@@ -2824,15 +2937,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				<MainCard>
 					<StepHeader $variant={flowVariant}>
 						<StepHeaderLeft>
-							<VersionBadge $variant={flowVariant}>Authorization Code Flow · V7 Unified</VersionBadge>
+							<VersionBadge $variant={flowVariant}>
+								Authorization Code Flow · V7 Unified
+							</VersionBadge>
 							<StepHeaderTitle>
-								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
+								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
+								{STEP_METADATA[currentStep].title}
 							</StepHeaderTitle>
 							<StepHeaderSubtitle>
-								{flowVariant === 'oidc' 
+								{flowVariant === 'oidc'
 									? 'Authentication + Authorization with ID token and Access token'
-									: 'API Authorization with Access token only'
-								}
+									: 'API Authorization with Access token only'}
 							</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
@@ -2876,29 +2991,32 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-		{AuthenticationModalService.showModal(
-			showRedirectModal,
-			() => {
-				console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
-				setShowRedirectModal(false);
-			},
-			() => {
-				console.log('🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication');
-				setShowRedirectModal(false);
-				controller.handleRedirectAuthorization();
-				// Open in new window (redirect mode)
-				if (controller.authUrl) {
-					window.location.href = controller.authUrl;
+			{AuthenticationModalService.showModal(
+				showRedirectModal,
+				() => {
+					console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
+					setShowRedirectModal(false);
+				},
+				() => {
+					console.log(
+						'🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication'
+					);
+					setShowRedirectModal(false);
+					controller.handleRedirectAuthorization();
+					// Open in new window (redirect mode)
+					if (controller.authUrl) {
+						window.location.href = controller.authUrl;
+					}
+				},
+				controller.authUrl || '',
+				'oauth',
+				'OAuth 2.0 Authorization Code',
+				{
+					description:
+						"You're about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.",
+					redirectMode: 'redirect',
 				}
-			},
-			controller.authUrl || '',
-			'oauth',
-			'OAuth 2.0 Authorization Code',
-			{
-				description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.',
-				redirectMode: 'redirect'
-			}
-		)}
+			)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}

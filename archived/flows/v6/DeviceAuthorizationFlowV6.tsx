@@ -1034,9 +1034,11 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 
 	React.useEffect(() => {
 		// Use credentialStorageManager for device selection
-		credentialStorageManager.saveFlowData('device-authorization-v6', 'selected-device', selectedDevice).catch(err => {
-			console.error('Failed to save selected device:', err);
-		});
+		credentialStorageManager
+			.saveFlowData('device-authorization-v6', 'selected-device', selectedDevice)
+			.catch((err) => {
+				console.error('Failed to save selected device:', err);
+			});
 	}, [selectedDevice]);
 	const brandGradient = useMemo(
 		() => `linear-gradient(135deg, ${deviceConfig.color} 0%, ${deviceConfig.secondaryColor} 100%)`,
@@ -1105,13 +1107,15 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 
 		// If we have tokens, pass them to Token Management using credentialStorageManager
 		if (deviceFlow.tokens?.access_token) {
-			credentialStorageManager.saveFlowData('device-authorization-v6', 'token-to-analyze', {
-				token: deviceFlow.tokens.access_token,
-				type: 'access',
-				source: 'device-authorization-v6'
-			}).catch(err => {
-				console.error('Failed to save token for analysis:', err);
-			});
+			credentialStorageManager
+				.saveFlowData('device-authorization-v6', 'token-to-analyze', {
+					token: deviceFlow.tokens.access_token,
+					type: 'access',
+					source: 'device-authorization-v6',
+				})
+				.catch((err) => {
+					console.error('Failed to save token for analysis:', err);
+				});
 			console.log(
 				'🔍 [DeviceAuthorizationFlowV6] Passing access token to Token Management via credentialStorageManager'
 			);

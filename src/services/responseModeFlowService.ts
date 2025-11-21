@@ -35,9 +35,5 @@ const RESPONSE_MODE_DEFAULTS: Record<ResponseModeFlowKey, ResponseModeFlowDefaul
 	},
 };
 
-export const getResponseModeDefaults = (
-	flowKey: ResponseModeFlowKey
-): ResponseModeFlowDefaults => RESPONSE_MODE_DEFAULTS[flowKey];
-
-
-
+export const getResponseModeDefaults = (flowKey: ResponseModeFlowKey): ResponseModeFlowDefaults =>
+	RESPONSE_MODE_DEFAULTS[flowKey];

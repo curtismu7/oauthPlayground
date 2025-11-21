@@ -1,7 +1,7 @@
 // src/services/v6FlowCardsService.tsx
 /**
  * V6 Flow Cards Service
- * 
+ *
  * Provides specialized card components for flows
  * - Suitability cards (Great Fit, Consider Alternatives, Avoid When)
  * - Parameter grids (showing OAuth/OIDC parameters)
@@ -9,7 +9,6 @@
  * - Consistent styling and responsive design
  */
 
-import React from 'react';
 import styled from 'styled-components';
 import { type ThemeColor, V6FlowLayoutService } from './v6FlowLayoutService';
 
@@ -239,5 +238,3 @@ export class V6FlowCardsService {
 }
 
 export default V6FlowCardsService;
-
-

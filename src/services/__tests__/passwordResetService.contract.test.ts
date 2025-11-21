@@ -1,14 +1,14 @@
 // src/services/__tests__/passwordResetService.contract.test.ts
 // Contract tests to ensure API compatibility
 
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
+	PasswordChangeRequest,
+	PasswordForceChangeRequest,
 	PasswordOperationResponse,
+	PasswordRecoverRequest,
 	SendRecoveryCodeRequest,
 	SendRecoveryCodeResponse,
-	PasswordRecoverRequest,
-	PasswordForceChangeRequest,
-	PasswordChangeRequest,
 } from '../passwordResetService';
 
 /**

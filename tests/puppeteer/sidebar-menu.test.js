@@ -3,11 +3,11 @@ import puppeteer from 'puppeteer';
 const baseUrl = process.env.PUPPETEER_BASE_URL ?? 'http://localhost:5173';
 const log = (...messages) => console.log('[Puppeteer]', ...messages);
 
-const waitForMenuToRender = async page => {
+const waitForMenuToRender = async (page) => {
 	await page.waitForSelector('.ps-menu-button', { timeout: 15000 });
 };
 
-const computeKey = button => {
+const computeKey = (button) => {
 	const text = (button.textContent ?? '').replace(/\s+/g, ' ').trim();
 	const indices = [];
 	let current = button;
@@ -23,44 +23,47 @@ const computeKey = button => {
 };
 
 const selectNextMenuButton = (page, visitedKeys) => {
-	return page.evaluate(({ visited }) => {
-		const makeKey = el => {
-			const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
-			const indices = [];
-			let current = el;
-			while (current && current !== document.body) {
-				const parent = current.parentElement;
-				if (!parent) break;
-				const siblings = Array.from(parent.children);
-				indices.push(siblings.indexOf(current));
-				if (parent.classList.contains('ps-sidebar-root')) break;
-				current = parent;
+	return page.evaluate(
+		({ visited }) => {
+			const makeKey = (el) => {
+				const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim();
+				const indices = [];
+				let current = el;
+				while (current && current !== document.body) {
+					const parent = current.parentElement;
+					if (!parent) break;
+					const siblings = Array.from(parent.children);
+					indices.push(siblings.indexOf(current));
+					if (parent.classList.contains('ps-sidebar-root')) break;
+					current = parent;
+				}
+				return `${indices.reverse().join('.')}:${text}`;
+			};
+			const visitedSet = new Set(visited);
+			const buttons = Array.from(document.querySelectorAll('.ps-menu-button'));
+			for (const button of buttons) {
+				const key = makeKey(button);
+				if (visitedSet.has(key)) continue;
+				const id = `visit-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
+				button.setAttribute('data-auto-visit-id', id);
+				return { id, key, label: (button.textContent ?? '').replace(/\s+/g, ' ').trim() };
 			}
-			return `${indices.reverse().join('.')}:${text}`;
-		};
-		const visitedSet = new Set(visited);
-		const buttons = Array.from(document.querySelectorAll('.ps-menu-button'));
-		for (const button of buttons) {
-			const key = makeKey(button);
-			if (visitedSet.has(key)) continue;
-			const id = `visit-${crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`}`;
-			button.setAttribute('data-auto-visit-id', id);
-			return { id, key, label: (button.textContent ?? '').replace(/\s+/g, ' ').trim() };
-		}
-		return null;
-	}, { visited: Array.from(visitedKeys) });
+			return null;
+		},
+		{ visited: Array.from(visitedKeys) }
+	);
 };
 
 const clearVisitMarker = (page, id) => {
-	return page.evaluate(value => {
+	return page.evaluate((value) => {
 		const element = document.querySelector(`.ps-menu-button[data-auto-visit-id="${value}"]`);
 		if (element) element.removeAttribute('data-auto-visit-id');
 	}, id);
 };
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const clickAllMenuButtons = async page => {
+const clickAllMenuButtons = async (page) => {
 	const visited = new Set();
 	let index = 0;
 	for (;;) {
@@ -73,7 +76,9 @@ const clickAllMenuButtons = async page => {
 			visited.add(next.key);
 			continue;
 		}
-		const navigation = page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 8000 }).catch(() => null);
+		const navigation = page
+			.waitForNavigation({ waitUntil: 'networkidle0', timeout: 8000 })
+			.catch(() => null);
 		await elementHandle.click({ delay: 20 });
 		log(`Clicked ${next.label || next.key}, waiting for navigation...`);
 		await navigation;
@@ -97,10 +102,10 @@ const main = async () => {
 	log('New page opened');
 	const consoleErrors = [];
 	const pageErrors = [];
-	page.on('console', message => {
+	page.on('console', (message) => {
 		if (message.type() === 'error') consoleErrors.push(message.text());
 	});
-	page.on('pageerror', error => {
+	page.on('pageerror', (error) => {
 		pageErrors.push(error?.message ?? String(error));
 	});
 	try {
@@ -112,10 +117,10 @@ const main = async () => {
 		await clickAllMenuButtons(page);
 		if (consoleErrors.length || pageErrors.length) {
 			const formatted = [
-				...consoleErrors.map(value => `Console error: ${value}`),
-				...pageErrors.map(value => `Page error: ${value}`),
+				...consoleErrors.map((value) => `Console error: ${value}`),
+				...pageErrors.map((value) => `Page error: ${value}`),
 			];
-			formatted.forEach(message => log(message));
+			formatted.forEach((message) => log(message));
 			throw new Error(`Encountered browser errors\n${formatted.join('\n')}`);
 		}
 		log('Completed traversal without runtime errors');
@@ -125,7 +130,7 @@ const main = async () => {
 	}
 };
 
-main().catch(error => {
+main().catch((error) => {
 	log('Test failed');
 	console.error(error);
 	process.exit(1);

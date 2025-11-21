@@ -1,7 +1,7 @@
 // src/components/FlowTrackingDisplay.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { flowTrackingService, FlowContext, FlowErrorContext } from '../services/flowTrackingService';
+import { FlowContext, flowTrackingService } from '../services/flowTrackingService';
 
 const Container = styled.div`
 	background: #f8fafc;
@@ -77,14 +77,15 @@ const FlowTrackingDisplay: React.FC = () => {
 			const stats = flowTrackingService.getFlowStats();
 			setCurrentFlow(flow);
 			setFlowStats(stats);
-			
+
 			// Check for logout URL in localStorage
 			const keys = Object.keys(localStorage);
-			const logoutKeys = keys.filter(key => 
-				key.toLowerCase().includes('logout') || 
-				localStorage.getItem(key)?.includes('authz-logout-callback')
+			const logoutKeys = keys.filter(
+				(key) =>
+					key.toLowerCase().includes('logout') ||
+					localStorage.getItem(key)?.includes('authz-logout-callback')
 			);
-			
+
 			if (logoutKeys.length > 0) {
 				const logoutValue = localStorage.getItem(logoutKeys[0]);
 				setLogoutUrl(logoutValue);
@@ -92,10 +93,10 @@ const FlowTrackingDisplay: React.FC = () => {
 		};
 
 		updateDisplay();
-		
+
 		// Update every 2 seconds
 		const interval = setInterval(updateDisplay, 2000);
-		
+
 		return () => clearInterval(interval);
 	}, []);
 
@@ -110,23 +111,37 @@ const FlowTrackingDisplay: React.FC = () => {
 
 	const handleClearHistory = () => {
 		flowTrackingService.clearFlowHistory();
-		setFlowStats(prev => ({ ...prev, totalFlows: 0 }));
+		setFlowStats((prev) => ({ ...prev, totalFlows: 0 }));
 	};
 
 	return (
 		<Container>
 			<Title>🔄 Flow Tracking Status</Title>
-			
+
 			<Section>
 				<SectionTitle>Current Flow:</SectionTitle>
 				{currentFlow ? (
 					<Info>
-						<div><strong>Flow:</strong> {currentFlow.flowKey}</div>
-						<div><strong>Name:</strong> {currentFlow.flowName}</div>
-						<div><strong>Type:</strong> {currentFlow.flowType}</div>
-						<div><strong>Step:</strong> {currentFlow.currentStep || 0}</div>
-						<div><strong>Started:</strong> {new Date(currentFlow.timestamp).toLocaleTimeString()}</div>
-						{currentFlow.sessionId && <div><strong>Session:</strong> {currentFlow.sessionId}</div>}
+						<div>
+							<strong>Flow:</strong> {currentFlow.flowKey}
+						</div>
+						<div>
+							<strong>Name:</strong> {currentFlow.flowName}
+						</div>
+						<div>
+							<strong>Type:</strong> {currentFlow.flowType}
+						</div>
+						<div>
+							<strong>Step:</strong> {currentFlow.currentStep || 0}
+						</div>
+						<div>
+							<strong>Started:</strong> {new Date(currentFlow.timestamp).toLocaleTimeString()}
+						</div>
+						{currentFlow.sessionId && (
+							<div>
+								<strong>Session:</strong> {currentFlow.sessionId}
+							</div>
+						)}
 					</Info>
 				) : (
 					<Info>No active flow</Info>
@@ -137,10 +152,18 @@ const FlowTrackingDisplay: React.FC = () => {
 				<Section>
 					<SectionTitle>Last Error:</SectionTitle>
 					<ErrorInfo>
-						<div><strong>Type:</strong> {flowStats.lastError.errorType}</div>
-						<div><strong>Message:</strong> {flowStats.lastError.errorMessage}</div>
-						<div><strong>Flow:</strong> {flowStats.lastError.flowKey}</div>
-						<div><strong>Time:</strong> {new Date(flowStats.lastError.timestamp).toLocaleTimeString()}</div>
+						<div>
+							<strong>Type:</strong> {flowStats.lastError.errorType}
+						</div>
+						<div>
+							<strong>Message:</strong> {flowStats.lastError.errorMessage}
+						</div>
+						<div>
+							<strong>Flow:</strong> {flowStats.lastError.flowKey}
+						</div>
+						<div>
+							<strong>Time:</strong> {new Date(flowStats.lastError.timestamp).toLocaleTimeString()}
+						</div>
 					</ErrorInfo>
 				</Section>
 			)}
@@ -166,9 +189,7 @@ const FlowTrackingDisplay: React.FC = () => {
 				<Button onClick={handleClearFlow} disabled={!currentFlow}>
 					Clear Current Flow
 				</Button>
-				<Button onClick={handleClearHistory}>
-					Clear History
-				</Button>
+				<Button onClick={handleClearHistory}>Clear History</Button>
 			</div>
 		</Container>
 	);
