@@ -43,13 +43,13 @@ export const DEFAULT_SAFEGUARD_CONFIG: SafeguardConfig = {
 		'hybrid-v7',
 		'client-credentials-v7',
 		'implicit-v7',
-		'device-authorization-v7'
+		'device-authorization-v7',
 	],
 	alertThresholds: {
 		errorRate: 0.05, // 5% error rate threshold
 		responseTime: 5000, // 5 second response time threshold
-		successRate: 0.95 // 95% success rate threshold
-	}
+		successRate: 0.95, // 95% success rate threshold
+	},
 };
 
 /**
@@ -89,7 +89,7 @@ export class RegressionSafeguards {
 				filename: event.filename,
 				lineno: event.lineno,
 				colno: event.colno,
-				error: event.error
+				error: event.error,
 			});
 		});
 
@@ -97,7 +97,7 @@ export class RegressionSafeguards {
 		window.addEventListener('unhandledrejection', (event) => {
 			this.logError('Unhandled Promise Rejection', {
 				reason: event.reason,
-				promise: event.promise
+				promise: event.promise,
 			});
 		});
 	}
@@ -113,7 +113,7 @@ export class RegressionSafeguards {
 				this.logPerformance('Page Load', {
 					loadTime: perfData.loadEventEnd - perfData.loadEventStart,
 					domContentLoaded: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
-					totalTime: perfData.loadEventEnd - perfData.fetchStart
+					totalTime: perfData.loadEventEnd - perfData.fetchStart,
 				});
 			}
 		});
@@ -126,10 +126,10 @@ export class RegressionSafeguards {
 		const errorEntry = {
 			timestamp: Date.now(),
 			error: message,
-			context
+			context,
 		};
 		this.errorLog.push(errorEntry);
-		
+
 		// Keep only last 100 errors
 		if (this.errorLog.length > 100) {
 			this.errorLog = this.errorLog.slice(-100);
@@ -148,10 +148,14 @@ export class RegressionSafeguards {
 	/**
 	 * Validate OAuth 2.0 specification compliance
 	 */
-	validateOAuth2Compliance(flowName: string, credentials: StepCredentials, tokens: any): FlowTestResult {
+	validateOAuth2Compliance(
+		flowName: string,
+		credentials: StepCredentials,
+		tokens: any
+	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'oauth2-compliance';
-		
+
 		try {
 			const errors: string[] = [];
 
@@ -166,7 +170,7 @@ export class RegressionSafeguards {
 			}
 
 			// Validate token type
-			if (tokens && tokens.token_type && tokens.token_type !== 'Bearer') {
+			if (tokens?.token_type && tokens.token_type !== 'Bearer') {
 				errors.push('Token type should be Bearer');
 			}
 
@@ -184,12 +188,11 @@ export class RegressionSafeguards {
 				passed,
 				error: errors.length > 0 ? errors.join('; ') : undefined,
 				timestamp: Date.now(),
-				duration
+				duration,
 			};
 
 			this.recordTestResult(flowName, result);
 			return result;
-
 		} catch (error) {
 			const result: FlowTestResult = {
 				flowName,
@@ -197,7 +200,7 @@ export class RegressionSafeguards {
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
 				timestamp: Date.now(),
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 
 			this.recordTestResult(flowName, result);
@@ -208,10 +211,14 @@ export class RegressionSafeguards {
 	/**
 	 * Validate OIDC specification compliance
 	 */
-	validateOIDCCompliance(flowName: string, credentials: StepCredentials, tokens: any): FlowTestResult {
+	validateOIDCCompliance(
+		flowName: string,
+		credentials: StepCredentials,
+		tokens: any
+	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'oidc-compliance';
-		
+
 		try {
 			const errors: string[] = [];
 
@@ -233,7 +240,7 @@ export class RegressionSafeguards {
 					if (!decoded.payload.aud) {
 						errors.push('ID token missing audience claim');
 					}
-				} catch (e) {
+				} catch (_e) {
 					errors.push('Invalid ID token format');
 				}
 			}
@@ -247,12 +254,11 @@ export class RegressionSafeguards {
 				passed,
 				error: errors.length > 0 ? errors.join('; ') : undefined,
 				timestamp: Date.now(),
-				duration
+				duration,
 			};
 
 			this.recordTestResult(flowName, result);
 			return result;
-
 		} catch (error) {
 			const result: FlowTestResult = {
 				flowName,
@@ -260,7 +266,7 @@ export class RegressionSafeguards {
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
 				timestamp: Date.now(),
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 
 			this.recordTestResult(flowName, result);
@@ -271,10 +277,14 @@ export class RegressionSafeguards {
 	/**
 	 * Validate flow-specific requirements
 	 */
-	validateFlowSpecific(flowName: string, credentials: StepCredentials, tokens: any): FlowTestResult {
+	validateFlowSpecific(
+		flowName: string,
+		credentials: StepCredentials,
+		_tokens: any
+	): FlowTestResult {
 		const startTime = Date.now();
 		const step = 'flow-specific';
-		
+
 		try {
 			const errors: string[] = [];
 
@@ -285,7 +295,7 @@ export class RegressionSafeguards {
 						errors.push('Authorization Code flow requires redirect URI');
 					}
 					break;
-				
+
 				case 'hybrid-v7':
 					if (!credentials.redirectUri) {
 						errors.push('Hybrid flow requires redirect URI');
@@ -294,7 +304,7 @@ export class RegressionSafeguards {
 						errors.push('Hybrid flow requires code in response type');
 					}
 					break;
-				
+
 				case 'implicit-v7':
 					if (!credentials.redirectUri) {
 						errors.push('Implicit flow requires redirect URI');
@@ -303,7 +313,7 @@ export class RegressionSafeguards {
 						errors.push('Implicit flow requires token in response type');
 					}
 					break;
-				
+
 				case 'client-credentials-v7':
 					if (!credentials.clientSecret && credentials.clientAuthMethod !== 'none') {
 						errors.push('Client Credentials flow requires client secret or none auth method');
@@ -320,12 +330,11 @@ export class RegressionSafeguards {
 				passed,
 				error: errors.length > 0 ? errors.join('; ') : undefined,
 				timestamp: Date.now(),
-				duration
+				duration,
 			};
 
 			this.recordTestResult(flowName, result);
 			return result;
-
 		} catch (error) {
 			const result: FlowTestResult = {
 				flowName,
@@ -333,7 +342,7 @@ export class RegressionSafeguards {
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
 				timestamp: Date.now(),
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 
 			this.recordTestResult(flowName, result);
@@ -344,28 +353,32 @@ export class RegressionSafeguards {
 	/**
 	 * Run comprehensive validation suite
 	 */
-	async runValidationSuite(flowName: string, credentials: StepCredentials, tokens: any): Promise<RegressionTestSuite> {
+	async runValidationSuite(
+		flowName: string,
+		credentials: StepCredentials,
+		tokens: any
+	): Promise<RegressionTestSuite> {
 		console.log(`[Regression Safeguards] Running validation suite for ${flowName}`);
-		
+
 		const tests: FlowTestResult[] = [];
-		
+
 		// Run all validation tests
 		tests.push(this.validateOAuth2Compliance(flowName, credentials, tokens));
 		tests.push(this.validateOIDCCompliance(flowName, credentials, tokens));
 		tests.push(this.validateFlowSpecific(flowName, credentials, tokens));
-		
+
 		// Calculate overall result
-		const overallPassed = tests.every(test => test.passed);
-		
+		const overallPassed = tests.every((test) => test.passed);
+
 		const testSuite: RegressionTestSuite = {
 			flowName,
 			tests,
 			overallPassed,
-			lastRun: Date.now()
+			lastRun: Date.now(),
 		};
 
 		this.testResults.set(flowName, testSuite);
-		
+
 		// Alert if critical flow failed
 		if (!overallPassed && this.config.criticalFlows.includes(flowName)) {
 			this.alertCriticalFailure(flowName, testSuite);
@@ -387,7 +400,7 @@ export class RegressionSafeguards {
 				flowName,
 				tests: [result],
 				overallPassed: result.passed,
-				lastRun: Date.now()
+				lastRun: Date.now(),
 			});
 		}
 	}
@@ -396,12 +409,12 @@ export class RegressionSafeguards {
 	 * Alert on critical failure
 	 */
 	private alertCriticalFailure(flowName: string, testSuite: RegressionTestSuite): void {
-		const failedTests = testSuite.tests.filter(test => !test.passed);
+		const failedTests = testSuite.tests.filter((test) => !test.passed);
 		console.error(`[CRITICAL] Flow ${flowName} failed validation:`, failedTests);
-		
+
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll log to console and potentially show user notification
-		if (typeof window !== 'undefined' && window.alert) {
+		if (window?.alert) {
 			window.alert(`Critical flow ${flowName} failed validation. Check console for details.`);
 		}
 	}
@@ -467,11 +480,12 @@ export class RegressionSafeguards {
 		lastErrors: number;
 	} {
 		const flows = Array.from(this.testResults.values());
-		const criticalFlows = flows.filter(flow => this.config.criticalFlows.includes(flow.flowName));
-		
-		const failedCriticalFlows = criticalFlows.filter(flow => !flow.overallPassed);
-		const errorRate = this.errorLog.length / Math.max(1, Date.now() - (this.errorLog[0]?.timestamp || Date.now()));
-		
+		const criticalFlows = flows.filter((flow) => this.config.criticalFlows.includes(flow.flowName));
+
+		const failedCriticalFlows = criticalFlows.filter((flow) => !flow.overallPassed);
+		const errorRate =
+			this.errorLog.length / Math.max(1, Date.now() - (this.errorLog[0]?.timestamp || Date.now()));
+
 		let overall: 'healthy' | 'warning' | 'critical' = 'healthy';
 		if (failedCriticalFlows.length > 0) {
 			overall = 'critical';
@@ -481,12 +495,12 @@ export class RegressionSafeguards {
 
 		return {
 			overall,
-			flows: flows.map(flow => ({
+			flows: flows.map((flow) => ({
 				name: flow.flowName,
-				status: flow.overallPassed ? 'healthy' : 'critical'
+				status: flow.overallPassed ? 'healthy' : 'critical',
 			})),
 			errorRate,
-			lastErrors: this.errorLog.length
+			lastErrors: this.errorLog.length,
 		};
 	}
 }

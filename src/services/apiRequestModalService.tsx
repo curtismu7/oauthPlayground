@@ -1,12 +1,21 @@
 // src/services/apiRequestModalService.tsx
 // Unified educational modal service for all API requests (OAuth, PingOne Management API, etc.)
 
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { 
-	FiSend, FiX, FiInfo, FiCopy, FiCheck, FiDatabase, 
-	FiKey, FiShield, FiCode, FiEye, FiEyeOff 
+import React, { useCallback, useState } from 'react';
+import {
+	FiCheck,
+	FiCode,
+	FiCopy,
+	FiDatabase,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiSend,
+	FiShield,
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -14,13 +23,13 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 // TYPES
 // ============================================================================
 
-export type ApiRequestType = 
-	| 'oauth_token'           // OAuth 2.0 Token Endpoint
-	| 'oauth_authorize'       // OAuth 2.0 Authorization Endpoint
-	| 'data_api_get'          // PingOne Management API GET
-	| 'data_api_post'         // PingOne Management API POST
-	| 'data_api_put'          // PingOne Management API PUT
-	| 'data_api_delete';      // PingOne Management API DELETE
+export type ApiRequestType =
+	| 'oauth_token' // OAuth 2.0 Token Endpoint
+	| 'oauth_authorize' // OAuth 2.0 Authorization Endpoint
+	| 'data_api_get' // PingOne Management API GET
+	| 'data_api_post' // PingOne Management API POST
+	| 'data_api_put' // PingOne Management API PUT
+	| 'data_api_delete'; // PingOne Management API DELETE
 
 export interface ApiRequestConfig {
 	type: ApiRequestType;
@@ -234,11 +243,16 @@ const MethodBadge = styled.span<{ $method: string }>`
 	font-family: 'Monaco', 'Courier New', monospace;
 	background: ${({ $method }) => {
 		switch ($method) {
-			case 'GET': return '#10b981';
-			case 'POST': return '#6366f1';
-			case 'PUT': return '#ec4899';
-			case 'DELETE': return '#ef4444';
-			default: return '#6b7280';
+			case 'GET':
+				return '#10b981';
+			case 'POST':
+				return '#6366f1';
+			case 'PUT':
+				return '#ec4899';
+			case 'DELETE':
+				return '#ef4444';
+			default:
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -402,26 +416,40 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 	// Get icon based on request type
 	const getIcon = () => {
 		switch (config.type) {
-			case 'oauth_token': return <FiKey size={20} />;
-			case 'oauth_authorize': return <FiShield size={20} />;
-			case 'data_api_get': return <FiDatabase size={20} />;
-			case 'data_api_post': return <FiSend size={20} />;
-			case 'data_api_put': return <FiCode size={20} />;
-			case 'data_api_delete': return <FiX size={20} />;
-			default: return <FiSend size={20} />;
+			case 'oauth_token':
+				return <FiKey size={20} />;
+			case 'oauth_authorize':
+				return <FiShield size={20} />;
+			case 'data_api_get':
+				return <FiDatabase size={20} />;
+			case 'data_api_post':
+				return <FiSend size={20} />;
+			case 'data_api_put':
+				return <FiCode size={20} />;
+			case 'data_api_delete':
+				return <FiX size={20} />;
+			default:
+				return <FiSend size={20} />;
 		}
 	};
 
 	// Get title based on request type
 	const getTitle = () => {
 		switch (config.type) {
-			case 'oauth_token': return 'OAuth 2.0 Token Request';
-			case 'oauth_authorize': return 'OAuth 2.0 Authorization Request';
-			case 'data_api_get': return 'PingOne API GET Request';
-			case 'data_api_post': return 'PingOne API POST Request';
-			case 'data_api_put': return 'PingOne API PUT Request';
-			case 'data_api_delete': return 'PingOne API DELETE Request';
-			default: return 'API Request';
+			case 'oauth_token':
+				return 'OAuth 2.0 Token Request';
+			case 'oauth_authorize':
+				return 'OAuth 2.0 Authorization Request';
+			case 'data_api_get':
+				return 'PingOne API GET Request';
+			case 'data_api_post':
+				return 'PingOne API POST Request';
+			case 'data_api_put':
+				return 'PingOne API PUT Request';
+			case 'data_api_delete':
+				return 'PingOne API DELETE Request';
+			default:
+				return 'API Request';
 		}
 	};
 
@@ -432,17 +460,17 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 		if (config.headers) {
 			Object.entries(config.headers).forEach(([key, value]) => {
 				// Mask sensitive headers
-				const displayValue = key.toLowerCase() === 'authorization' && !showSecrets
-					? `Bearer ${value.split(' ')[1]?.substring(0, 20)}...`
-					: value;
+				const displayValue =
+					key.toLowerCase() === 'authorization' && !showSecrets
+						? `Bearer ${value.split(' ')[1]?.substring(0, 20)}...`
+						: value;
 				curl += ` \\\n  -H '${key}: ${displayValue}'`;
 			});
 		}
 
 		if (config.body) {
-			const bodyStr = typeof config.body === 'string' 
-				? config.body 
-				: JSON.stringify(config.body, null, 2);
+			const bodyStr =
+				typeof config.body === 'string' ? config.body : JSON.stringify(config.body, null, 2);
 			curl += ` \\\n  -d '${bodyStr}'`;
 		}
 
@@ -474,9 +502,7 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
 				<ModalHeader $type={config.type}>
 					<HeaderContent>
-						<HeaderIcon $type={config.type}>
-							{getIcon()}
-						</HeaderIcon>
+						<HeaderIcon $type={config.type}>{getIcon()}</HeaderIcon>
 						<HeaderText>
 							<ModalTitle>{getTitle()}</ModalTitle>
 							<ModalSubtitle>Review request details before sending</ModalSubtitle>
@@ -534,8 +560,10 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 										<ParameterValue>
 											{key.toLowerCase() === 'authorization' && !showSecrets ? (
 												<>
-													<span>{value.split(' ')[0]} {value.split(' ')[1]?.substring(0, 20)}...</span>
-													<ToggleSecretButton 
+													<span>
+														{value.split(' ')[0]} {value.split(' ')[1]?.substring(0, 20)}...
+													</span>
+													<ToggleSecretButton
 														onClick={() => setShowSecrets(!showSecrets)}
 														title={showSecrets ? 'Hide token' : 'Show token'}
 													>
@@ -559,8 +587,8 @@ const ApiRequestModal: React.FC<ApiRequestModalProps> = ({ isOpen, config, onClo
 								Request Body
 							</SectionTitle>
 							<CodeBlock>
-								{typeof config.body === 'string' 
-									? config.body 
+								{typeof config.body === 'string'
+									? config.body
 									: JSON.stringify(config.body, null, 2)}
 							</CodeBlock>
 						</Section>
@@ -640,11 +668,15 @@ class ApiRequestModalService {
 	}
 
 	private notifyListeners(config: ApiRequestConfig | null) {
-		this.listeners.forEach((listener) => listener(config));
+		this.listeners.forEach((listener) => {
+			listener(config);
+		});
 	}
 
 	private notifyIsOpenListeners(isOpen: boolean) {
-		this.isOpenListeners.forEach((listener) => listener(isOpen));
+		this.isOpenListeners.forEach((listener) => {
+			listener(isOpen);
+		});
 	}
 }
 
@@ -674,6 +706,3 @@ export const ApiRequestModalProvider: React.FC = () => {
 };
 
 export default apiRequestModalService;
-
-
-

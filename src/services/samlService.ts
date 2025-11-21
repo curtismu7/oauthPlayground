@@ -62,7 +62,10 @@ class SAMLService {
 	/**
 	 * Process and validate a SAML AuthnRequest
 	 */
-	async processAuthnRequest(authnRequestXml: string, spConfig: SAMLApplicationConfig): Promise<AuthnRequestProcessingResult> {
+	async processAuthnRequest(
+		authnRequestXml: string,
+		spConfig: SAMLApplicationConfig
+	): Promise<AuthnRequestProcessingResult> {
 		try {
 			// Parse the AuthnRequest XML
 			const parsedRequest = this.parseAuthnRequestXml(authnRequestXml);
@@ -75,24 +78,29 @@ class SAMLService {
 
 			return {
 				parsedRequest,
-				validation
+				validation,
 			};
 		} catch (error) {
-			throw new Error(`Failed to process AuthnRequest: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Failed to process AuthnRequest: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 
 	/**
 	 * Validate ACS URL based on PingOne's dynamic ACS URL feature
 	 */
-	private validateAcsUrl(authnRequest: SAMLAuthnRequest, spConfig: SAMLApplicationConfig): ACSValidationResult {
+	private validateAcsUrl(
+		authnRequest: SAMLAuthnRequest,
+		spConfig: SAMLApplicationConfig
+	): ACSValidationResult {
 		const requestedAcsUrl = authnRequest.assertionConsumerServiceURL;
 
 		// If no ACS URL is specified in the request, that's acceptable
 		if (!requestedAcsUrl) {
 			return {
 				isValid: true,
-				explanation: 'No ACS URL specified in AuthnRequest. Will use default SP ACS URL.'
+				explanation: 'No ACS URL specified in AuthnRequest. Will use default SP ACS URL.',
 			};
 		}
 
@@ -104,7 +112,7 @@ class SAMLService {
 			return {
 				isValid: true,
 				acceptedAcsUrl: requestedAcsUrl,
-				explanation: `ACS URL ${requestedAcsUrl} is in the configured ACS URLs list.`
+				explanation: `ACS URL ${requestedAcsUrl} is in the configured ACS URLs list.`,
 			};
 		}
 
@@ -118,13 +126,13 @@ class SAMLService {
 				return {
 					isValid: true,
 					acceptedAcsUrl: requestedAcsUrl,
-					explanation: `Dynamic ACS URL ${requestedAcsUrl} accepted because "Always accept ACS URL in signed SAML 2.0 AuthnRequest" is enabled and the request is signed.`
+					explanation: `Dynamic ACS URL ${requestedAcsUrl} accepted because "Always accept ACS URL in signed SAML 2.0 AuthnRequest" is enabled and the request is signed.`,
 				};
 			} else {
 				return {
 					isValid: false,
 					explanation: `"Always accept ACS URL in signed SAML 2.0 AuthnRequest" is enabled, but the AuthnRequest is not signed.`,
-					errors: ['AuthnRequest must be signed to use dynamic ACS URLs']
+					errors: ['AuthnRequest must be signed to use dynamic ACS URLs'],
 				};
 			}
 		} else {
@@ -132,7 +140,9 @@ class SAMLService {
 			return {
 				isValid: false,
 				explanation: `ACS URL ${requestedAcsUrl} is not in the configured ACS URLs list, and dynamic ACS URL acceptance is disabled.`,
-				errors: [`ACS URL ${requestedAcsUrl} not in configured list: ${spConfig.acsUrls.join(', ')}`]
+				errors: [
+					`ACS URL ${requestedAcsUrl} not in configured list: ${spConfig.acsUrls.join(', ')}`,
+				],
 			};
 		}
 	}
@@ -140,7 +150,7 @@ class SAMLService {
 	/**
 	 * Check if AuthnRequest is signed (simplified for demo)
 	 */
-	private isAuthnRequestSigned(authnRequest: SAMLAuthnRequest): boolean {
+	private isAuthnRequestSigned(_authnRequest: SAMLAuthnRequest): boolean {
 		// In a real implementation, this would check for XML signatures
 		// For demo purposes, we'll consider it signed if it has certain properties
 		// or if it's from a "trusted" issuer
@@ -181,12 +191,17 @@ class SAMLService {
 		const forceAuthn = authnRequestElement.getAttribute('ForceAuthn') === 'true';
 		const isPassive = authnRequestElement.getAttribute('IsPassive') === 'true';
 		const protocolBinding = authnRequestElement.getAttribute('ProtocolBinding') || undefined;
-		const assertionConsumerServiceURL = authnRequestElement.getAttribute('AssertionConsumerServiceURL') || undefined;
-		const assertionConsumerServiceIndex = authnRequestElement.getAttribute('AssertionConsumerServiceIndex')
-			? parseInt(authnRequestElement.getAttribute('AssertionConsumerServiceIndex')!)
+		const assertionConsumerServiceURL =
+			authnRequestElement.getAttribute('AssertionConsumerServiceURL') || undefined;
+		const assertionConsumerServiceIndex = authnRequestElement.getAttribute(
+			'AssertionConsumerServiceIndex'
+		)
+			? parseInt(authnRequestElement.getAttribute('AssertionConsumerServiceIndex')!, 10)
 			: undefined;
-		const attributeConsumingServiceIndex = authnRequestElement.getAttribute('AttributeConsumingServiceIndex')
-			? parseInt(authnRequestElement.getAttribute('AttributeConsumingServiceIndex')!)
+		const attributeConsumingServiceIndex = authnRequestElement.getAttribute(
+			'AttributeConsumingServiceIndex'
+		)
+			? parseInt(authnRequestElement.getAttribute('AttributeConsumingServiceIndex')!, 10)
 			: undefined;
 
 		// Parse Issuer
@@ -217,7 +232,7 @@ class SAMLService {
 			const authnContextClassRefs = Array.from(
 				requestedAuthnContextElement.querySelectorAll('AuthnContextClassRef')
 			)
-				.map(el => el.textContent?.trim())
+				.map((el) => el.textContent?.trim())
 				.filter((value): value is string => !!value);
 
 			if (comparisonAttr || authnContextClassRefs.length > 0) {
@@ -240,7 +255,7 @@ class SAMLService {
 			attributeConsumingServiceIndex,
 			forceAuthn,
 			isPassive,
-			protocolBinding
+			protocolBinding,
 		};
 
 		if (nameIdPolicy) {
@@ -292,7 +307,7 @@ class SAMLService {
 			spEntityId,
 			nameIdPolicyFormat = 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress',
 			forceAuthn = false,
-			isPassive = false
+			isPassive = false,
 		} = params;
 
 		const requestId = `_${Math.random().toString(36).substr(2, 16)}`;
@@ -399,9 +414,9 @@ class SAMLService {
                 <saml:AttributeValue>${userAttributes.lastName}</saml:AttributeValue>
             </saml:Attribute>
             <saml:Attribute Name="groups" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
-                ${userAttributes.groups.map((group: string) =>
-                    `<saml:AttributeValue>${group}</saml:AttributeValue>`
-                ).join('')}
+                ${userAttributes.groups
+									.map((group: string) => `<saml:AttributeValue>${group}</saml:AttributeValue>`)
+									.join('')}
             </saml:Attribute>
         </saml:AttributeStatement>
     </saml:Assertion>
@@ -421,11 +436,15 @@ class SAMLService {
         protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol"
         AuthnRequestsSigned="false"
         WantAssertionsSigned="true">
-        ${spConfig.acsUrls.map((acsUrl, index) => `
+        ${spConfig.acsUrls
+					.map(
+						(acsUrl, index) => `
         <AssertionConsumerService
             index="${index}"
             Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-            Location="${acsUrl}"/>`).join('')}
+            Location="${acsUrl}"/>`
+					)
+					.join('')}
         <SingleLogoutService
             Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
             Location="${spConfig.ssoUrl.replace('/saml/sso', '/saml/slo')}"/>

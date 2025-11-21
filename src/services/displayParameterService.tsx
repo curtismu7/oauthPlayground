@@ -8,13 +8,13 @@ export type { DisplayMode as DisplayModeType };
 
 /**
  * Display Parameter Service
- * 
+ *
  * Provides a service layer for the OIDC display parameter.
  * The display parameter specifies how the Authorization Server should
  * present the authentication UI to the end-user.
- * 
+ *
  * **OIDC Core 1.0 Section 3.1.2.1**
- * 
+ *
  * @applicability OIDC flows only (Authorization Code, Implicit, Hybrid)
  * @notApplicable OAuth-only flows, Device flows (no redirect UI)
  */
@@ -49,13 +49,9 @@ export class DisplayParameterService {
 	 */
 	static shouldShowForFlow(flowType: string): boolean {
 		// Only show for OIDC flows with browser redirects
-		const oidcFlows = [
-			'oidc-authorization-code',
-			'oidc-implicit',
-			'oidc-hybrid'
-		];
-		
-		return oidcFlows.some(flow => flowType.includes(flow));
+		const oidcFlows = ['oidc-authorization-code', 'oidc-implicit', 'oidc-hybrid'];
+
+		return oidcFlows.some((flow) => flowType.includes(flow));
 	}
 
 	/**
@@ -69,4 +65,3 @@ export class DisplayParameterService {
 }
 
 export default DisplayParameterService;
-

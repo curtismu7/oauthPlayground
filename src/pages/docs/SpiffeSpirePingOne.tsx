@@ -1,20 +1,20 @@
 // src/pages/docs/SpiffeSpirePingOne.tsx
 // SPIFFE/SPIRE Education Page - Integration with PingOne SSO
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
-	FiShield,
-	FiKey,
-	FiServer,
-	FiLock,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiInfo,
 	FiArrowRight,
+	FiCheckCircle,
 	FiExternalLink,
-	FiZap,
-	FiUsers,
 	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiServer,
+	FiShield,
+	FiUsers,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
@@ -74,7 +74,7 @@ const SectionTitle = styled.h2`
 
 const InfoCard = styled(Card)`
 	margin-bottom: 1.5rem;
-	border-left: 4px solid ${props => props.$color || '#3b82f6'};
+	border-left: 4px solid ${(props) => props.$color || '#3b82f6'};
 `;
 
 const FeatureGrid = styled.div`
@@ -97,8 +97,8 @@ const FeatureIcon = styled.div<{ $color: string }>`
 	width: 48px;
 	height: 48px;
 	border-radius: 0.5rem;
-	background: ${props => props.$color}15;
-	color: ${props => props.$color};
+	background: ${(props) => props.$color}15;
+	color: ${(props) => props.$color};
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -191,17 +191,17 @@ const Alert = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
 	display: flex;
 	align-items: flex-start;
 	gap: 1rem;
-	background: ${props => {
+	background: ${(props) => {
 		if (props.$type === 'warning') return '#fef3c7';
 		if (props.$type === 'success') return '#d1fae5';
 		return '#dbeafe';
 	}};
-	border-left: 4px solid ${props => {
+	border-left: 4px solid ${(props) => {
 		if (props.$type === 'warning') return '#f59e0b';
 		if (props.$type === 'success') return '#22c55e';
 		return '#3b82f6';
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		if (props.$type === 'warning') return '#92400e';
 		if (props.$type === 'success') return '#065f46';
 		return '#1e40af';
@@ -232,8 +232,9 @@ const SpiffeSpirePingOne: React.FC = () => {
 					SPIFFE & SPIRE with PingOne SSO
 				</h1>
 				<p>
-					Learn how to integrate SPIFFE (Secure Production Identity Framework for Everyone) and SPIRE 
-					(SPIFFE Runtime Environment) with PingOne for secure workload authentication and Single Sign-On.
+					Learn how to integrate SPIFFE (Secure Production Identity Framework for Everyone) and
+					SPIRE (SPIFFE Runtime Environment) with PingOne for secure workload authentication and
+					Single Sign-On.
 				</p>
 			</Header>
 
@@ -245,10 +246,10 @@ const SpiffeSpirePingOne: React.FC = () => {
 				<InfoCard $color="#3b82f6">
 					<CardBody>
 						<p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#4b5563' }}>
-							<strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is an open-source 
-							framework that provides a standardized way to identify and authenticate workloads across 
-							heterogeneous environments. It defines a set of standards for issuing and managing 
-							cryptographic identities for services, enabling zero-trust architectures.
+							<strong>SPIFFE</strong> (Secure Production Identity Framework for Everyone) is an
+							open-source framework that provides a standardized way to identify and authenticate
+							workloads across heterogeneous environments. It defines a set of standards for issuing
+							and managing cryptographic identities for services, enabling zero-trust architectures.
 						</p>
 					</CardBody>
 				</InfoCard>
@@ -259,12 +260,27 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#3b82f6">
 								<FiKey />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								SPIFFE ID
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								A unique, cryptographically verifiable identifier for each workload, following the format: 
-								<code style={{ background: '#f3f4f6', padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>
+								A unique, cryptographically verifiable identifier for each workload, following the
+								format:
+								<code
+									style={{
+										background: '#f3f4f6',
+										padding: '0.125rem 0.375rem',
+										borderRadius: '0.25rem',
+										fontSize: '0.875rem',
+									}}
+								>
 									spiffe://trust-domain/path
 								</code>
 							</p>
@@ -276,11 +292,18 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#22c55e">
 								<FiShield />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								SVID (SPIFFE Verifiable Identity Document)
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								A short-lived, cryptographically signed document that proves a workload's identity. 
+								A short-lived, cryptographically signed document that proves a workload's identity.
 								Common formats include X.509 certificates and JWT tokens.
 							</p>
 						</CardBody>
@@ -291,11 +314,18 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#f59e0b">
 								<FiGlobe />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Trust Domain
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								A logical grouping of workloads that share the same trust root. All workloads within 
+								A logical grouping of workloads that share the same trust root. All workloads within
 								a trust domain can verify each other's identities.
 							</p>
 						</CardBody>
@@ -311,10 +341,10 @@ const SpiffeSpirePingOne: React.FC = () => {
 				<InfoCard $color="#22c55e">
 					<CardBody>
 						<p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#4b5563' }}>
-							<strong>SPIRE</strong> (SPIFFE Runtime Environment) is the reference implementation of the 
-							SPIFFE standards. It provides the infrastructure needed to issue and manage SVIDs, enabling 
-							workloads to authenticate each other securely without relying on traditional secrets like 
-							API keys or passwords.
+							<strong>SPIRE</strong> (SPIFFE Runtime Environment) is the reference implementation of
+							the SPIFFE standards. It provides the infrastructure needed to issue and manage SVIDs,
+							enabling workloads to authenticate each other securely without relying on traditional
+							secrets like API keys or passwords.
 						</p>
 					</CardBody>
 				</InfoCard>
@@ -325,11 +355,18 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#3b82f6">
 								<FiZap />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								SPIRE Server
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								The central component that manages the trust domain, issues SVIDs, and maintains the 
+								The central component that manages the trust domain, issues SVIDs, and maintains the
 								registration entries that define which workloads receive which identities.
 							</p>
 						</CardBody>
@@ -340,13 +377,20 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#22c55e">
 								<FiServer />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								SPIRE Agent
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								Runs on each node and communicates with the SPIRE server to obtain SVIDs for workloads 
-								running on that node. It also provides the Workload API that workloads use to retrieve 
-								their identities.
+								Runs on each node and communicates with the SPIRE server to obtain SVIDs for
+								workloads running on that node. It also provides the Workload API that workloads use
+								to retrieve their identities.
 							</p>
 						</CardBody>
 					</FeatureCard>
@@ -356,12 +400,19 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<FeatureIcon $color="#f59e0b">
 								<FiLock />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Workload API
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								A local API provided by the SPIRE agent that workloads use to retrieve their SVIDs and 
-								trust bundles. This API is accessed via Unix domain sockets for security.
+								A local API provided by the SPIRE agent that workloads use to retrieve their SVIDs
+								and trust bundles. This API is accessed via Unix domain sockets for security.
 							</p>
 						</CardBody>
 					</FeatureCard>
@@ -376,36 +427,39 @@ const SpiffeSpirePingOne: React.FC = () => {
 				<Alert $type="info">
 					<FiInfo style={{ fontSize: '1.5rem', flexShrink: 0 }} />
 					<div>
-						<strong>Zero-Trust Architecture:</strong> SPIFFE/SPIRE enables zero-trust authentication where 
-						workloads authenticate each other based on verifiable identities rather than network location 
-						or static credentials. Integrating with PingOne extends this to user authentication and SSO.
+						<strong>Zero-Trust Architecture:</strong> SPIFFE/SPIRE enables zero-trust authentication
+						where workloads authenticate each other based on verifiable identities rather than
+						network location or static credentials. Integrating with PingOne extends this to user
+						authentication and SSO.
 					</div>
 				</Alert>
 
 				<BenefitList>
 					<li>
-						<strong>Enhanced Security:</strong> Workloads authenticate using short-lived, cryptographically 
-						verifiable identities (SVIDs) instead of static API keys or passwords, reducing the attack surface.
+						<strong>Enhanced Security:</strong> Workloads authenticate using short-lived,
+						cryptographically verifiable identities (SVIDs) instead of static API keys or passwords,
+						reducing the attack surface.
 					</li>
 					<li>
-						<strong>Unified Identity Management:</strong> Combine workload identity (SPIFFE) with user identity 
-						(PingOne) for a comprehensive identity and access management solution.
+						<strong>Unified Identity Management:</strong> Combine workload identity (SPIFFE) with
+						user identity (PingOne) for a comprehensive identity and access management solution.
 					</li>
 					<li>
-						<strong>Simplified Authentication:</strong> Automated issuance and rotation of workload identities 
-						eliminates the need for manual secret management.
+						<strong>Simplified Authentication:</strong> Automated issuance and rotation of workload
+						identities eliminates the need for manual secret management.
 					</li>
 					<li>
-						<strong>Cross-Environment Support:</strong> SPIFFE works across Kubernetes, VMs, containers, and 
-						cloud environments, providing consistent identity management.
+						<strong>Cross-Environment Support:</strong> SPIFFE works across Kubernetes, VMs,
+						containers, and cloud environments, providing consistent identity management.
 					</li>
 					<li>
-						<strong>Audit and Compliance:</strong> All authentication events are logged and traceable, supporting 
-						compliance requirements and security audits.
+						<strong>Audit and Compliance:</strong> All authentication events are logged and
+						traceable, supporting compliance requirements and security audits.
 					</li>
 					<li>
-						<strong>Federation Support:</strong> SPIFFE Federation enables trust relationships between different 
-						trust domains, allowing secure communication across organizational boundaries.
+						<strong>Federation Support:</strong> SPIFFE Federation enables trust relationships
+						between different trust domains, allowing secure communication across organizational
+						boundaries.
 					</li>
 				</BenefitList>
 			</Section>
@@ -426,40 +480,40 @@ const SpiffeSpirePingOne: React.FC = () => {
 							<StepItem>
 								<h3>1. Workload Identity Establishment</h3>
 								<p>
-									SPIRE issues SPIFFE IDs and SVIDs to workloads based on attestation data (e.g., 
-									process attributes, container labels, Kubernetes service accounts). Each workload 
+									SPIRE issues SPIFFE IDs and SVIDs to workloads based on attestation data (e.g.,
+									process attributes, container labels, Kubernetes service accounts). Each workload
 									receives a unique identity that can be cryptographically verified.
 								</p>
 							</StepItem>
 							<StepItem>
 								<h3>2. SPIFFE Federation Setup</h3>
 								<p>
-									Configure SPIFFE Federation to establish trust between your SPIRE trust domain and 
-									PingOne. This involves exchanging trust bundles and configuring federation endpoints 
-									to enable mutual trust.
+									Configure SPIFFE Federation to establish trust between your SPIRE trust domain and
+									PingOne. This involves exchanging trust bundles and configuring federation
+									endpoints to enable mutual trust.
 								</p>
 							</StepItem>
 							<StepItem>
 								<h3>3. SVID-to-User Mapping</h3>
 								<p>
-									Configure PingOne to accept SVIDs as valid credentials and map SPIFFE identities to 
-									PingOne user or service accounts. This mapping enables workloads authenticated by SPIRE 
-									to be recognized by PingOne.
+									Configure PingOne to accept SVIDs as valid credentials and map SPIFFE identities
+									to PingOne user or service accounts. This mapping enables workloads authenticated
+									by SPIRE to be recognized by PingOne.
 								</p>
 							</StepItem>
 							<StepItem>
 								<h3>4. SSO Token Exchange</h3>
 								<p>
-									When a workload needs to access PingOne-protected resources, it presents its SVID to 
-									PingOne. PingOne validates the SVID, maps it to a user/service account, and issues an 
-									OAuth 2.0 or OIDC token for SSO.
+									When a workload needs to access PingOne-protected resources, it presents its SVID
+									to PingOne. PingOne validates the SVID, maps it to a user/service account, and
+									issues an OAuth 2.0 or OIDC token for SSO.
 								</p>
 							</StepItem>
 							<StepItem>
 								<h3>5. Resource Access</h3>
 								<p>
-									The workload uses the OAuth/OIDC token from PingOne to access protected resources, 
-									enabling seamless SSO across services while maintaining the security benefits of 
+									The workload uses the OAuth/OIDC token from PingOne to access protected resources,
+									enabling seamless SSO across services while maintaining the security benefits of
 									SPIFFE workload identity.
 								</p>
 							</StepItem>
@@ -477,11 +531,12 @@ const SpiffeSpirePingOne: React.FC = () => {
 					<StepItem>
 						<h3>Step 1: Deploy SPIRE</h3>
 						<p>
-							Deploy SPIRE server and agents in your environment. The SPIRE server manages the trust domain 
-							and issues SVIDs, while SPIRE agents run on each node to provide identities to workloads.
+							Deploy SPIRE server and agents in your environment. The SPIRE server manages the trust
+							domain and issues SVIDs, while SPIRE agents run on each node to provide identities to
+							workloads.
 						</p>
 						<CodeBlock>
-{`# Example: Deploy SPIRE in Kubernetes
+							{`# Example: Deploy SPIRE in Kubernetes
 kubectl apply -f spire-server.yaml
 kubectl apply -f spire-agent.yaml`}
 						</CodeBlock>
@@ -489,12 +544,12 @@ kubectl apply -f spire-agent.yaml`}
 					<StepItem>
 						<h3>Step 2: Configure Workload Registration</h3>
 						<p>
-							Create registration entries in SPIRE that define which workloads receive which SPIFFE IDs. 
-							This is based on attestation data such as process attributes, container labels, or Kubernetes 
-							service accounts.
+							Create registration entries in SPIRE that define which workloads receive which SPIFFE
+							IDs. This is based on attestation data such as process attributes, container labels,
+							or Kubernetes service accounts.
 						</p>
 						<CodeBlock>
-{`# Example: Register a workload in SPIRE
+							{`# Example: Register a workload in SPIRE
 spire-server entry create \\
   -spiffeID spiffe://example.org/frontend \\
   -parentID spiffe://example.org/spire/agent/k8s_psat/production \\
@@ -505,25 +560,27 @@ spire-server entry create \\
 					<StepItem>
 						<h3>Step 3: Set Up SPIFFE Federation</h3>
 						<p>
-							Configure SPIFFE Federation to establish trust between your SPIRE trust domain and PingOne. 
-							This involves configuring federation endpoints and exchanging trust bundles.
+							Configure SPIFFE Federation to establish trust between your SPIRE trust domain and
+							PingOne. This involves configuring federation endpoints and exchanging trust bundles.
 						</p>
 						<Alert $type="warning">
 							<FiAlertTriangle style={{ fontSize: '1.5rem', flexShrink: 0 }} />
 							<div>
-								<strong>Important:</strong> Federation requires careful configuration of trust bundles and 
-								endpoints. Ensure proper network connectivity and security policies are in place.
+								<strong>Important:</strong> Federation requires careful configuration of trust
+								bundles and endpoints. Ensure proper network connectivity and security policies are
+								in place.
 							</div>
 						</Alert>
 					</StepItem>
 					<StepItem>
 						<h3>Step 4: Configure PingOne Integration</h3>
 						<p>
-							In PingOne, configure a custom authentication flow or connector that accepts SVIDs. Map SPIFFE 
-							identities to PingOne user or service accounts, and configure OAuth 2.0/OIDC token issuance.
+							In PingOne, configure a custom authentication flow or connector that accepts SVIDs.
+							Map SPIFFE identities to PingOne user or service accounts, and configure OAuth
+							2.0/OIDC token issuance.
 						</p>
 						<CodeBlock>
-{`# Example: PingOne API call to create a service account
+							{`# Example: PingOne API call to create a service account
 POST /v1/environments/{envId}/serviceAccounts
 {
   "name": "spiffe-workload",
@@ -535,12 +592,12 @@ POST /v1/environments/{envId}/serviceAccounts
 					<StepItem>
 						<h3>Step 5: Implement Token Exchange</h3>
 						<p>
-							Implement a token exchange service that accepts SVIDs from workloads, validates them with SPIRE, 
-							and exchanges them for PingOne OAuth/OIDC tokens. This service acts as a bridge between SPIFFE 
-							and PingOne.
+							Implement a token exchange service that accepts SVIDs from workloads, validates them
+							with SPIRE, and exchanges them for PingOne OAuth/OIDC tokens. This service acts as a
+							bridge between SPIFFE and PingOne.
 						</p>
 						<CodeBlock>
-{`# Example: Token exchange flow
+							{`# Example: Token exchange flow
 1. Workload presents SVID to token exchange service
 2. Service validates SVID with SPIRE trust bundle
 3. Service maps SPIFFE ID to PingOne user/service account
@@ -551,9 +608,9 @@ POST /v1/environments/{envId}/serviceAccounts
 					<StepItem>
 						<h3>Step 6: Test and Validate</h3>
 						<p>
-							Test the integration by having workloads authenticate using their SVIDs, exchange them for 
-							PingOne tokens, and access protected resources. Monitor logs and metrics to ensure proper 
-							authentication and token issuance.
+							Test the integration by having workloads authenticate using their SVIDs, exchange them
+							for PingOne tokens, and access protected resources. Monitor logs and metrics to ensure
+							proper authentication and token issuance.
 						</p>
 					</StepItem>
 				</StepList>
@@ -570,12 +627,19 @@ POST /v1/environments/{envId}/serviceAccounts
 							<FeatureIcon $color="#22c55e">
 								<FiLock />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Short-Lived SVIDs
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								Configure SPIRE to issue short-lived SVIDs (e.g., 1 hour) and enable automatic rotation. 
-								This minimizes the impact of compromised credentials.
+								Configure SPIRE to issue short-lived SVIDs (e.g., 1 hour) and enable automatic
+								rotation. This minimizes the impact of compromised credentials.
 							</p>
 						</CardBody>
 					</FeatureCard>
@@ -585,11 +649,18 @@ POST /v1/environments/{envId}/serviceAccounts
 							<FeatureIcon $color="#3b82f6">
 								<FiShield />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Principle of Least Privilege
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								Assign SPIFFE IDs and PingOne permissions based on the principle of least privilege. 
+								Assign SPIFFE IDs and PingOne permissions based on the principle of least privilege.
 								Workloads should only receive the minimum permissions necessary for their function.
 							</p>
 						</CardBody>
@@ -600,12 +671,19 @@ POST /v1/environments/{envId}/serviceAccounts
 							<FeatureIcon $color="#f59e0b">
 								<FiServer />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Monitor and Audit
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								Enable comprehensive logging and monitoring for both SPIRE and PingOne authentication events. 
-								This supports security audits and incident response.
+								Enable comprehensive logging and monitoring for both SPIRE and PingOne
+								authentication events. This supports security audits and incident response.
 							</p>
 						</CardBody>
 					</FeatureCard>
@@ -615,12 +693,19 @@ POST /v1/environments/{envId}/serviceAccounts
 							<FeatureIcon $color="#8b5cf6">
 								<FiGlobe />
 							</FeatureIcon>
-							<h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.25rem',
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
 								Federation Security
 							</h3>
 							<p style={{ color: '#4b5563', lineHeight: '1.6' }}>
-								When setting up SPIFFE Federation, use secure channels (TLS) for trust bundle exchange and 
-								implement proper access controls on federation endpoints.
+								When setting up SPIFFE Federation, use secure channels (TLS) for trust bundle
+								exchange and implement proper access controls on federation endpoints.
 							</p>
 						</CardBody>
 					</FeatureCard>
@@ -635,33 +720,84 @@ POST /v1/environments/{envId}/serviceAccounts
 				<InfoCard $color="#3b82f6">
 					<CardBody>
 						<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-							<li style={{ padding: '0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<li
+								style={{
+									padding: '0.5rem 0',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
 								<Link href="https://spiffe.io/" target="_blank" rel="noopener noreferrer">
 									SPIFFE Official Documentation
 								</Link>
 							</li>
-							<li style={{ padding: '0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<li
+								style={{
+									padding: '0.5rem 0',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
-								<Link href="https://spiffe.io/docs/latest/spire/" target="_blank" rel="noopener noreferrer">
+								<Link
+									href="https://spiffe.io/docs/latest/spire/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									SPIRE Documentation
 								</Link>
 							</li>
-							<li style={{ padding: '0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<li
+								style={{
+									padding: '0.5rem 0',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
-								<Link href="https://spiffe.io/docs/latest/architecture/federation/" target="_blank" rel="noopener noreferrer">
+								<Link
+									href="https://spiffe.io/docs/latest/architecture/federation/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									SPIFFE Federation Guide
 								</Link>
 							</li>
-							<li style={{ padding: '0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<li
+								style={{
+									padding: '0.5rem 0',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
-								<Link href="https://apidocs.pingidentity.com/pingone/platform/v1/api/" target="_blank" rel="noopener noreferrer">
+								<Link
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									PingOne Platform API Documentation
 								</Link>
 							</li>
-							<li style={{ padding: '0.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<li
+								style={{
+									padding: '0.5rem 0',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
-								<Link href="https://github.com/spiffe/spire" target="_blank" rel="noopener noreferrer">
+								<Link
+									href="https://github.com/spiffe/spire"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
 									SPIRE GitHub Repository
 								</Link>
 							</li>
@@ -673,9 +809,9 @@ POST /v1/environments/{envId}/serviceAccounts
 			<Alert $type="success">
 				<FiCheckCircle style={{ fontSize: '1.5rem', flexShrink: 0 }} />
 				<div>
-					<strong>Ready to Get Started?</strong> Begin by deploying SPIRE in your environment and configuring 
-					workload registration. Then set up SPIFFE Federation with PingOne to enable seamless SSO for your 
-					workloads.
+					<strong>Ready to Get Started?</strong> Begin by deploying SPIRE in your environment and
+					configuring workload registration. Then set up SPIFFE Federation with PingOne to enable
+					seamless SSO for your workloads.
 				</div>
 			</Alert>
 		</PageContainer>
@@ -683,4 +819,3 @@ POST /v1/environments/{envId}/serviceAccounts
 };
 
 export default SpiffeSpirePingOne;
-

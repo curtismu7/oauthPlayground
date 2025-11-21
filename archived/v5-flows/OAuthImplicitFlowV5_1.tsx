@@ -16,15 +16,16 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { FlowAnalyticsService } from '../../services/flowAnalyticsService';
 import { FlowComponentService } from '../../services/flowComponentService';
 import { FlowConfigService } from '../../services/flowConfigService';
@@ -33,7 +34,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import FlowStateService from '../../services/flowStateService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Service-generated styled components
@@ -408,7 +408,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 	// Controller provides handleCopy and handleFieldChange - no need to redefine
 
 	// Service-generated step content
-	
+
 	const renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
@@ -417,7 +417,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false, // Update based on flow capabilities
-			showIntrospection: false // Update based on flow capabilities
+			showIntrospection: false, // Update based on flow capabilities
 		};
 
 		return (
@@ -429,7 +429,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		);
 	}, [collapsedSections.flowSummary, toggleSection]);
 
-const renderStepContent = useMemo(() => {
+	const renderStepContent = useMemo(() => {
 		const currentStep = flowController.state.currentStep;
 
 		switch (currentStep) {
@@ -529,8 +529,8 @@ const renderStepContent = useMemo(() => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.pingOneConfig && (
 								<CollapsibleContent>
-									<PingOneApplicationConfig 
-										value={pingOneConfig} 
+									<PingOneApplicationConfig
+										value={pingOneConfig}
 										onChange={savePingOneConfig}
 										flowType="oauth-implicit-v5"
 									/>
@@ -791,7 +791,9 @@ const renderStepContent = useMemo(() => {
 										copyLabel="Access Token"
 										showTokenType={true}
 										showExpiry={true}
-										{...(controller.tokens.expires_in && { expiresIn: Number(controller.tokens.expires_in) })}
+										{...(controller.tokens.expires_in && {
+											expiresIn: Number(controller.tokens.expires_in),
+										})}
 										{...(controller.tokens.scope && { scope: String(controller.tokens.scope) })}
 									/>
 								)}
@@ -1221,7 +1223,12 @@ const renderStepContent = useMemo(() => {
 							environmentId: newEnvId,
 						});
 						// Auto-save if we have both environmentId and clientId
-						if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+						if (
+							newEnvId &&
+							controller.credentials.clientId &&
+							newEnvId.trim() &&
+							controller.credentials.clientId.trim()
+						) {
 							controller.saveCredentials();
 							v4ToastManager.showSuccess('Credentials auto-saved');
 						}
@@ -1249,7 +1256,12 @@ const renderStepContent = useMemo(() => {
 							clientId: newClientId,
 						});
 						// Auto-save if we have both environmentId and clientId
-						if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+						if (
+							controller.credentials.environmentId &&
+							newClientId &&
+							controller.credentials.environmentId.trim() &&
+							newClientId.trim()
+						) {
 							controller.saveCredentials();
 							v4ToastManager.showSuccess('Credentials auto-saved');
 						}

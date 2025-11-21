@@ -4,19 +4,19 @@
  * Interactive attack simulations showing what happens when security parameters are missing
  */
 
-import React, { useState, useCallback } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useCallback, useState } from 'react';
 import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiMonitor,
 	FiPlay,
 	FiRefreshCw,
-	FiAlertTriangle,
 	FiShield,
-	FiUser,
-	FiMonitor,
 	FiUnlock,
-	FiCheckCircle,
+	FiUser,
 	FiXCircle,
 } from 'react-icons/fi';
+import styled, { keyframes } from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const TheaterContainer = styled.div`
@@ -353,25 +353,50 @@ const ATTACK_SCENARIOS: Record<AttackType, AttackScenario> = {
 		id: 'csrf',
 		icon: '🎣',
 		title: 'CSRF Attack',
-		description: 'Cross-Site Request Forgery - attacker tricks user into authenticating with malicious OAuth request',
+		description:
+			'Cross-Site Request Forgery - attacker tricks user into authenticating with malicious OAuth request',
 		withoutDefense: {
 			steps: [
 				{ actor: 'user', action: 'Victim visits attacker.com', delay: 1000 },
-				{ actor: 'attacker', action: 'Attacker initiates OAuth flow with THEIR state', delay: 1500 },
+				{
+					actor: 'attacker',
+					action: 'Attacker initiates OAuth flow with THEIR state',
+					delay: 1500,
+				},
 				{ actor: 'user', action: 'Victim completes authentication', delay: 2000 },
-				{ actor: 'attacker', action: 'Victim\'s account linked to attacker\'s OAuth profile!', delay: 1500 },
-				{ actor: 'server', action: 'Server accepts the request - NO state validation', delay: 1000 },
+				{
+					actor: 'attacker',
+					action: "Victim's account linked to attacker's OAuth profile!",
+					delay: 1500,
+				},
+				{
+					actor: 'server',
+					action: 'Server accepts the request - NO state validation',
+					delay: 1000,
+				},
 			],
-			outcome: '💀 BREACH: Attacker can now access victim\'s data. Account compromise!',
+			outcome: "💀 BREACH: Attacker can now access victim's data. Account compromise!",
 			severity: 'critical',
 		},
 		withDefense: {
 			parameter: 'state',
 			steps: [
-				{ actor: 'user', action: 'User initiates OAuth (state=abc123 generated & stored)', delay: 1000 },
-				{ actor: 'attacker', action: 'Attacker intercepts and replaces state with xyz789', delay: 1500 },
+				{
+					actor: 'user',
+					action: 'User initiates OAuth (state=abc123 generated & stored)',
+					delay: 1000,
+				},
+				{
+					actor: 'attacker',
+					action: 'Attacker intercepts and replaces state with xyz789',
+					delay: 1500,
+				},
 				{ actor: 'user', action: 'User completes authentication', delay: 2000 },
-				{ actor: 'server', action: 'Server checks: returned xyz789 ≠ expected abc123', delay: 1500 },
+				{
+					actor: 'server',
+					action: 'Server checks: returned xyz789 ≠ expected abc123',
+					delay: 1500,
+				},
 				{ actor: 'server', action: '🛡️ REJECTED! CSRF detected. User safe!', delay: 1000 },
 			],
 			outcome: '✅ PROTECTED: State parameter validation blocked the CSRF attack!',
@@ -393,7 +418,8 @@ const returned = new URLSearchParams(location.search).get('state');
 if (returned !== sessionStorage.getItem('oauth_state')) {
   throw new Error('CSRF attack detected!');
 }`,
-			explanation: 'The state parameter acts as a CSRF token. Generate a random value, store it securely, send it with the auth request, and ALWAYS validate it on callback. Any mismatch indicates an attack.',
+			explanation:
+				'The state parameter acts as a CSRF token. Generate a random value, store it securely, send it with the auth request, and ALWAYS validate it on callback. Any mismatch indicates an attack.',
 		},
 	},
 	'token-replay': {
@@ -415,10 +441,22 @@ if (returned !== sessionStorage.getItem('oauth_state')) {
 		withDefense: {
 			parameter: 'nonce',
 			steps: [
-				{ actor: 'user', action: 'OAuth request includes nonce=xyz123 (stored in session)', delay: 1000 },
-				{ actor: 'server', action: 'ID token includes nonce claim: "nonce": "xyz123"', delay: 1500 },
+				{
+					actor: 'user',
+					action: 'OAuth request includes nonce=xyz123 (stored in session)',
+					delay: 1000,
+				},
+				{
+					actor: 'server',
+					action: 'ID token includes nonce claim: "nonce": "xyz123"',
+					delay: 1500,
+				},
 				{ actor: 'attacker', action: '😈 Steals ID token and tries to replay it', delay: 2000 },
-				{ actor: 'server', action: 'App checks: token nonce ≠ attacker\'s session nonce', delay: 1500 },
+				{
+					actor: 'server',
+					action: "App checks: token nonce ≠ attacker's session nonce",
+					delay: 1500,
+				},
 				{ actor: 'server', action: '🛡️ REJECTED! Replay attack blocked!', delay: 1000 },
 			],
 			outcome: '✅ PROTECTED: Nonce ensures each ID token is tied to a specific request!',
@@ -444,7 +482,8 @@ if (idToken.nonce !== expected) {
 }
 
 // Generate NEW nonce for EVERY auth request`,
-			explanation: 'The nonce (number used once) binds an ID token to a specific authentication request. Even if a token is stolen, it can only be used in the session it was issued for.',
+			explanation:
+				'The nonce (number used once) binds an ID token to a specific authentication request. Even if a token is stolen, it can only be used in the session it was issued for.',
 		},
 	},
 	'code-interception': {
@@ -457,10 +496,14 @@ if (idToken.nonce !== expected) {
 				{ actor: 'user', action: 'Mobile app initiates OAuth flow', delay: 1000 },
 				{ actor: 'server', action: 'Returns authorization code to app', delay: 1500 },
 				{ actor: 'attacker', action: '😈 Intercepts code from callback URL', delay: 2000 },
-				{ actor: 'attacker', action: 'Exchanges code for tokens (no client_secret in mobile!)', delay: 1500 },
-				{ actor: 'attacker', action: '💀 Has access token! Can access victim\'s APIs', delay: 1000 },
+				{
+					actor: 'attacker',
+					action: 'Exchanges code for tokens (no client_secret in mobile!)',
+					delay: 1500,
+				},
+				{ actor: 'attacker', action: "💀 Has access token! Can access victim's APIs", delay: 1000 },
 			],
-			outcome: '💀 BREACH: Mobile apps can\'t protect client secrets. Code stolen = tokens stolen!',
+			outcome: "💀 BREACH: Mobile apps can't protect client secrets. Code stolen = tokens stolen!",
 			severity: 'critical',
 		},
 		withDefense: {
@@ -469,7 +512,11 @@ if (idToken.nonce !== expected) {
 				{ actor: 'user', action: 'App generates code_verifier + code_challenge', delay: 1000 },
 				{ actor: 'user', action: 'Auth request includes code_challenge', delay: 1500 },
 				{ actor: 'attacker', action: '😈 Intercepts authorization code', delay: 2000 },
-				{ actor: 'attacker', action: 'Tries to exchange code (missing code_verifier)', delay: 1500 },
+				{
+					actor: 'attacker',
+					action: 'Tries to exchange code (missing code_verifier)',
+					delay: 1500,
+				},
 				{ actor: 'server', action: '🛡️ REJECTED! code_challenge validation failed', delay: 1000 },
 			],
 			outcome: '✅ PROTECTED: PKCE makes authorization code useless without code_verifier!',
@@ -498,7 +545,8 @@ const tokenReq = await fetch(tokenEndpoint, {
 });
 
 // Server validates: SHA256(code_verifier) === code_challenge`,
-			explanation: 'PKCE (Proof Key for Code Exchange) prevents authorization code interception. Even if the code is stolen, tokens cannot be obtained without the code_verifier, which never leaves the device.',
+			explanation:
+				'PKCE (Proof Key for Code Exchange) prevents authorization code interception. Even if the code is stolen, tokens cannot be obtained without the code_verifier, which never leaves the device.',
 		},
 	},
 	'session-hijack': {
@@ -509,9 +557,21 @@ const tokenReq = await fetch(tokenEndpoint, {
 		withoutDefense: {
 			steps: [
 				{ actor: 'user', action: 'User logs in at 10:00 AM at coffee shop', delay: 1000 },
-				{ actor: 'user', action: '🚶 User leaves laptop open and walks away at 10:30 AM', delay: 1500 },
-				{ actor: 'attacker', action: '😈 Attacker sits down at 11:00 AM (30 min later)', delay: 2000 },
-				{ actor: 'attacker', action: 'Still logged in! No re-authentication required', delay: 1500 },
+				{
+					actor: 'user',
+					action: '🚶 User leaves laptop open and walks away at 10:30 AM',
+					delay: 1500,
+				},
+				{
+					actor: 'attacker',
+					action: '😈 Attacker sits down at 11:00 AM (30 min later)',
+					delay: 2000,
+				},
+				{
+					actor: 'attacker',
+					action: 'Still logged in! No re-authentication required',
+					delay: 1500,
+				},
 				{ actor: 'attacker', action: '💀 Accesses sensitive data for hours', delay: 1000 },
 			],
 			outcome: '💀 BREACH: Session stayed active indefinitely. Data exposed!',
@@ -549,7 +609,8 @@ if (authAge > 300) {
 }
 
 // Recommended: 5-15 min for banking, 60 min for general apps`,
-			explanation: 'max_age limits how old the user\'s authentication can be. If the last authentication exceeds this age, the user must re-authenticate. Critical for high-security operations and shared devices.',
+			explanation:
+				"max_age limits how old the user's authentication can be. If the last authentication exceeds this age, the user must re-authenticate. Critical for high-security operations and shared devices.",
 		},
 	},
 	'refresh-token-theft': {
@@ -560,8 +621,16 @@ if (authAge > 300) {
 		season: 'season2',
 		withoutDefense: {
 			steps: [
-				{ actor: 'user', action: 'SPA stores refresh_token in localStorage for convenience', delay: 1000 },
-				{ actor: 'attacker', action: '😈 Injects malicious script via XSS vulnerability', delay: 1500 },
+				{
+					actor: 'user',
+					action: 'SPA stores refresh_token in localStorage for convenience',
+					delay: 1000,
+				},
+				{
+					actor: 'attacker',
+					action: '😈 Injects malicious script via XSS vulnerability',
+					delay: 1500,
+				},
 				{ actor: 'attacker', action: 'Copies refresh_token value from storage', delay: 2000 },
 				{ actor: 'attacker', action: 'Uses stolen refresh token on their own device', delay: 2000 },
 				{ actor: 'server', action: '✅ Issues new access tokens again and again', delay: 1500 },
@@ -572,10 +641,22 @@ if (authAge > 300) {
 		withDefense: {
 			parameter: 'Refresh Token Rotation',
 			steps: [
-				{ actor: 'server', action: 'Refresh tokens stored server-side only (httpOnly cookie)', delay: 1000 },
-				{ actor: 'server', action: 'Enables PingOne refresh token rotation + reuse detection', delay: 1500 },
+				{
+					actor: 'server',
+					action: 'Refresh tokens stored server-side only (httpOnly cookie)',
+					delay: 1000,
+				},
+				{
+					actor: 'server',
+					action: 'Enables PingOne refresh token rotation + reuse detection',
+					delay: 1500,
+				},
 				{ actor: 'attacker', action: '😈 Steals previous refresh_token', delay: 2000 },
-				{ actor: 'server', action: 'Detects reuse, revokes session + triggers MFA challenge', delay: 2000 },
+				{
+					actor: 'server',
+					action: 'Detects reuse, revokes session + triggers MFA challenge',
+					delay: 2000,
+				},
 				{ actor: 'user', action: 'Receives alert + forced re-authentication', delay: 1500 },
 			],
 			outcome: '✅ PROTECTED: Reuse detection kills stolen token instantly and alerts user.',
@@ -624,9 +705,21 @@ app.use(async (req, res, next) => {
 		season: 'season2',
 		withoutDefense: {
 			steps: [
-				{ actor: 'server', action: 'PingOne sends JSON {resumeUrl, code, state} to SPA', delay: 1000 },
-				{ actor: 'attacker', action: '😈 Intercepts network response via compromised browser extension', delay: 1800 },
-				{ actor: 'attacker', action: 'Posts resume payload to resumeUrl before the real app', delay: 2000 },
+				{
+					actor: 'server',
+					action: 'PingOne sends JSON {resumeUrl, code, state} to SPA',
+					delay: 1000,
+				},
+				{
+					actor: 'attacker',
+					action: '😈 Intercepts network response via compromised browser extension',
+					delay: 1800,
+				},
+				{
+					actor: 'attacker',
+					action: 'Posts resume payload to resumeUrl before the real app',
+					delay: 2000,
+				},
 				{ actor: 'server', action: 'Issues tokens to attacker channel', delay: 1500 },
 				{ actor: 'user', action: 'Victim app sees flow expired error', delay: 1200 },
 			],
@@ -636,9 +729,17 @@ app.use(async (req, res, next) => {
 		withDefense: {
 			parameter: 'resumeId + state validation',
 			steps: [
-				{ actor: 'server', action: 'Encrypts resume payload and stores with session nonce', delay: 1000 },
+				{
+					actor: 'server',
+					action: 'Encrypts resume payload and stores with session nonce',
+					delay: 1000,
+				},
 				{ actor: 'attacker', action: '😈 Replays stolen payload', delay: 2000 },
-				{ actor: 'server', action: 'Validates resumeId + nonce mismatch, blocks request', delay: 1800 },
+				{
+					actor: 'server',
+					action: 'Validates resumeId + nonce mismatch, blocks request',
+					delay: 1800,
+				},
 				{ actor: 'server', action: 'Real user resumes flow, validation succeeds', delay: 1800 },
 				{ actor: 'server', action: '🛡️ Issues tokens to legitimate channel only', delay: 1500 },
 			],
@@ -683,10 +784,18 @@ await fetch('/api/redirectless/resume', {
 		withoutDefense: {
 			steps: [
 				{ actor: 'server', action: 'Client posts PAR without client authentication', delay: 1000 },
-				{ actor: 'attacker', action: '😈 Crafts own PAR pointing to malicious redirect_uri', delay: 1800 },
+				{
+					actor: 'attacker',
+					action: '😈 Crafts own PAR pointing to malicious redirect_uri',
+					delay: 1800,
+				},
 				{ actor: 'attacker', action: 'Reuses request_uri from honest client', delay: 2000 },
 				{ actor: 'server', action: 'Redirects user to attacker redirect_uri', delay: 1500 },
-				{ actor: 'attacker', action: '💀 Receives authorization code meant for victim app', delay: 1500 },
+				{
+					actor: 'attacker',
+					action: '💀 Receives authorization code meant for victim app',
+					delay: 1500,
+				},
 			],
 			outcome: '💀 BREACH: Unsigned PAR lets attacker impersonate legitimate request URI.',
 			severity: 'high',
@@ -694,7 +803,11 @@ await fetch('/api/redirectless/resume', {
 		withDefense: {
 			parameter: 'client_assertion (private_key_jwt)',
 			steps: [
-				{ actor: 'server', action: 'Signs PAR with private key (kid registered in PingOne)', delay: 1000 },
+				{
+					actor: 'server',
+					action: 'Signs PAR with private key (kid registered in PingOne)',
+					delay: 1000,
+				},
 				{ actor: 'attacker', action: '😈 Attempts to replay request_uri', delay: 2000 },
 				{ actor: 'server', action: 'Verifies signature against client', delay: 1500 },
 				{ actor: 'server', action: '🛡️ Rejects unsigned or mismatched request_uri', delay: 1500 },
@@ -758,9 +871,13 @@ const SecurityThreatTheater: React.FC = () => {
 			setShowOutcome(false);
 			setLogs([]);
 
-			const steps = mode === 'vulnerable' ? scenario.withoutDefense.steps : scenario.withDefense.steps;
+			const steps =
+				mode === 'vulnerable' ? scenario.withoutDefense.steps : scenario.withDefense.steps;
 
-			addLog('info', `🎬 Starting ${mode === 'vulnerable' ? 'VULNERABLE' : 'PROTECTED'} simulation...`);
+			addLog(
+				'info',
+				`🎬 Starting ${mode === 'vulnerable' ? 'VULNERABLE' : 'PROTECTED'} simulation...`
+			);
 
 			if (mode === 'protected') {
 				addLog('success', `🛡️ Defense enabled: ${scenario.mitigation.parameter}`);
@@ -869,17 +986,15 @@ const SecurityThreatTheater: React.FC = () => {
 				</ControlBar>
 
 				<ActorsContainer>
-					<Actor role="user" $active={activeActor === 'user'}>
+					<Actor $active={activeActor === 'user'}>
 						<ActorIcon>
 							<FiUser />
 						</ActorIcon>
 						<ActorLabel>👤 User</ActorLabel>
-						<ActorStatus>
-							{activeActor === 'user' ? '🔄 Acting...' : 'Waiting...'}
-						</ActorStatus>
+						<ActorStatus>{activeActor === 'user' ? '🔄 Acting...' : 'Waiting...'}</ActorStatus>
 					</Actor>
 
-					<Actor role="attacker" $active={activeActor === 'attacker'}>
+					<Actor $active={activeActor === 'attacker'}>
 						<ActorIcon>
 							<FiUnlock />
 						</ActorIcon>
@@ -889,20 +1004,25 @@ const SecurityThreatTheater: React.FC = () => {
 						</ActorStatus>
 					</Actor>
 
-					<Actor role="server" $active={activeActor === 'server'}>
+					<Actor $active={activeActor === 'server'}>
 						<ActorIcon>
 							<FiMonitor />
 						</ActorIcon>
 						<ActorLabel>🖥️ Server</ActorLabel>
-						<ActorStatus>
-							{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}
-						</ActorStatus>
+						<ActorStatus>{activeActor === 'server' ? '⚙️ Processing...' : 'Waiting...'}</ActorStatus>
 					</Actor>
 				</ActorsContainer>
 
 				{logs.length > 0 && (
 					<div>
-						<div style={{ color: '#f1f5f9', fontWeight: 600, marginBottom: '0.75rem', fontSize: '1.1rem' }}>
+						<div
+							style={{
+								color: '#f1f5f9',
+								fontWeight: 600,
+								marginBottom: '0.75rem',
+								fontSize: '1.1rem',
+							}}
+						>
 							📊 Event Log:
 						</div>
 						<EventLog>
@@ -940,7 +1060,14 @@ const SecurityThreatTheater: React.FC = () => {
 
 					{simulationMode === 'protected' && (
 						<MitigationBox>
-							<div style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b', fontSize: '1.1rem' }}>
+							<div
+								style={{
+									fontWeight: 700,
+									marginBottom: '0.75rem',
+									color: '#1e293b',
+									fontSize: '1.1rem',
+								}}
+							>
 								🛡️ How {scenario.mitigation.parameter} Protected Us:
 							</div>
 							<div style={{ color: '#475569', marginBottom: '1rem', lineHeight: '1.6' }}>
@@ -955,7 +1082,14 @@ const SecurityThreatTheater: React.FC = () => {
 
 					{simulationMode === 'vulnerable' && (
 						<MitigationBox>
-							<div style={{ fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b', fontSize: '1.1rem' }}>
+							<div
+								style={{
+									fontWeight: 700,
+									marginBottom: '0.75rem',
+									color: '#1e293b',
+									fontSize: '1.1rem',
+								}}
+							>
 								✅ How to Prevent This Attack:
 							</div>
 							<div style={{ color: '#475569', marginBottom: '1rem', lineHeight: '1.6' }}>
@@ -980,14 +1114,23 @@ const SecurityThreatTheater: React.FC = () => {
 					border: '2px solid #ef4444',
 				}}
 			>
-				<div style={{ color: '#fca5a5', fontWeight: 700, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+				<div
+					style={{
+						color: '#fca5a5',
+						fontWeight: 700,
+						marginBottom: '0.75rem',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+				>
 					<FiAlertTriangle size={20} />
 					Critical Security Warning
 				</div>
 				<div style={{ color: '#e2e8f0', lineHeight: '1.6', fontSize: '0.95rem' }}>
-					These attacks are NOT theoretical — they happen in production every day. Security parameters
-					like <code>state</code>, <code>nonce</code>, and <code>PKCE</code> are REQUIRED, not
-					optional. Every parameter you skip is a vulnerability you introduce.
+					These attacks are NOT theoretical — they happen in production every day. Security
+					parameters like <code>state</code>, <code>nonce</code>, and <code>PKCE</code> are
+					REQUIRED, not optional. Every parameter you skip is a vulnerability you introduce.
 				</div>
 			</div>
 		</TheaterContainer>
@@ -995,4 +1138,3 @@ const SecurityThreatTheater: React.FC = () => {
 };
 
 export default SecurityThreatTheater;
-

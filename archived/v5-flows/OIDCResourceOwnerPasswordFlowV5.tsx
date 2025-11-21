@@ -2,23 +2,23 @@
 // V5.0.0 OIDC Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
-import { useStepValidation, StepValidationService } from '../../services/stepValidationService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { StepValidationService, useStepValidation } from '../../services/stepValidationService';
 import logger from '../../utils/logger';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -304,10 +304,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
-	const {
-		validateAndProceed,
-		StepValidationModal,
-	} = useStepValidation();
+	const { validateAndProceed, StepValidationModal } = useStepValidation();
 
 	// Ensure page starts at top
 	usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
@@ -315,9 +312,14 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const handleDiscoveryComplete = useCallback(
 		(discoveryResult: DiscoveryResult) => {
 			if (discoveryResult.success && discoveryResult.document) {
-				const environmentId = oidcDiscoveryService.extractEnvironmentId(discoveryResult.issuerUrl || discoveryResult.document.issuer);
+				const environmentId = oidcDiscoveryService.extractEnvironmentId(
+					discoveryResult.issuerUrl || discoveryResult.document.issuer
+				);
 
-				logger.discovery('OIDCResourceOwnerPasswordFlowV5', `Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`);
+				logger.discovery(
+					'OIDCResourceOwnerPasswordFlowV5',
+					`Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`
+				);
 
 				// Auto-populate token endpoint from discovery
 				if (discoveryResult.document.token_endpoint) {
@@ -471,7 +473,12 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 									clientId: newClientId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									credentials?.environmentId &&
+									newClientId &&
+									credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}

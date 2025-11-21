@@ -7,13 +7,13 @@ console.log('='.repeat(70));
 const testCases = [
 	{ identifier: 'curtis7', type: 'username' },
 	{ identifier: 'cmuir@pingone.com', type: 'email' },
-	{ identifier: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', type: 'user_id' }
+	{ identifier: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', type: 'user_id' },
 ];
 
 testCases.forEach((testCase, index) => {
 	console.log(`\n${index + 1}. Testing: ${testCase.identifier} (${testCase.type})`);
 	console.log('-'.repeat(70));
-	
+
 	if (testCase.type === 'user_id') {
 		console.log('   Method: Direct GET request');
 		console.log('   URL: GET /v1/environments/{envId}/users/{userId}');
@@ -21,10 +21,11 @@ testCases.forEach((testCase, index) => {
 		console.log('     Authorization: Bearer {workerToken}');
 		console.log('     Accept: application/json');
 	} else {
-		const filter = testCase.type === 'email' 
-			? `email eq "${testCase.identifier}"`
-			: `username eq "${testCase.identifier}"`;
-		
+		const filter =
+			testCase.type === 'email'
+				? `email eq "${testCase.identifier}"`
+				: `username eq "${testCase.identifier}"`;
+
 		console.log('   Method: SCIM Search (POST)');
 		console.log('   URL: POST /v1/environments/{envId}/users/.search');
 		console.log('   Headers:');
@@ -40,7 +41,7 @@ testCases.forEach((testCase, index) => {
 		console.log('     "startIndex": 1,');
 		console.log('     "count": 10');
 		console.log('   }');
-		
+
 		console.log('\n   Expected Response:');
 		console.log('   {');
 		console.log('     "schemas": [');

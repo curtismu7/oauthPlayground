@@ -94,13 +94,16 @@ export const getValidWorkerToken = (
 		if (!expirationInfo) {
 			// Token exists but no expiration data - assume it might be expired
 			if (showToast) {
-				v4ToastManager.showWarning('Worker token found but expiration data is missing. The token may be expired.');
+				v4ToastManager.showWarning(
+					'Worker token found but expiration data is missing. The token may be expired.'
+				);
 			}
 			return {
 				isValid: false,
 				token,
 				expirationInfo: null,
-				errorMessage: 'Worker token expiration data is missing. Please generate a new worker token.',
+				errorMessage:
+					'Worker token expiration data is missing. Please generate a new worker token.',
 			};
 		}
 
@@ -147,18 +150,17 @@ export const getValidWorkerToken = (
 /**
  * Show success message when token is generated
  */
-export const showTokenSuccessMessage = (
-	expiresIn: number,
-	requiredScopes?: string[]
-): void => {
+export const showTokenSuccessMessage = (expiresIn: number, requiredScopes?: string[]): void => {
 	const minutes = Math.floor(expiresIn / 60);
 	const hours = Math.floor(minutes / 60);
-	const timeText = hours > 0 ? `${hours} hour${hours !== 1 ? 's' : ''}` : `${minutes} minute${minutes !== 1 ? 's' : ''}`;
-	
-	const scopeText = requiredScopes && requiredScopes.length > 0
-		? ` with scopes: ${requiredScopes.join(', ')}`
-		: '';
-	
+	const timeText =
+		hours > 0
+			? `${hours} hour${hours !== 1 ? 's' : ''}`
+			: `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+
+	const scopeText =
+		requiredScopes && requiredScopes.length > 0 ? ` with scopes: ${requiredScopes.join(', ')}` : '';
+
 	v4ToastManager.showSuccess(
 		`Worker token generated successfully! Expires in ${timeText}.${scopeText}`
 	);
@@ -211,6 +213,3 @@ export default {
 	showExpirationWarning,
 	formatTimeRemaining,
 };
-
-
-

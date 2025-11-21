@@ -6,15 +6,15 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import StandardMessage from '../components/StandardMessage';
 import UISettingsModal from '../components/UISettingsModal';
+import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { usePageScroll } from '../hooks/usePageScroll';
 import type { OpenIDConfiguration } from '../services/discoveryService';
-import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
-import { useUISettings } from '../contexts/UISettingsContext';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
-import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
+import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const ConfigurationContainer = styled.div`
 	max-width: 1400px;
@@ -24,7 +24,7 @@ const ConfigurationContainer = styled.div`
 	color: var(--color-text-primary, #1e293b);
 	min-height: 100vh;
 `;
-const PageHeader = styled.div`
+const _PageHeader = styled.div`
   margin-bottom: 2rem;
   
   h1 {
@@ -387,7 +387,7 @@ const Configuration = () => {
 						userInfoEndpoint: '',
 						clientAuthMethod: 'client_secret_post',
 						tokenEndpointAuthMethod: 'client_secret_post',
-					}
+					},
 				});
 
 				console.log(' [Configuration] V7 FlowCredentialService result:', v7Credentials);
@@ -764,7 +764,8 @@ const Configuration = () => {
 			setSaveStatus({
 				type: 'success',
 				title: 'PingOne Credentials saved',
-				message: 'Your PingOne credentials have been saved successfully using V7 standardized storage.',
+				message:
+					'Your PingOne credentials have been saved successfully using V7 standardized storage.',
 			});
 
 			// Show centralized success message using v4ToastManager

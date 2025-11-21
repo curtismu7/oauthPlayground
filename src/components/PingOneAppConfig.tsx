@@ -1,7 +1,7 @@
 // src/components/PingOneAppConfig.tsx - Reusable PingOne Application Configuration Component
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiChevronDown, FiChevronUp, FiSettings } from 'react-icons/fi';
+import { FiChevronDown, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -489,9 +489,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 								<Checkbox
 									type="checkbox"
 									checked={config.grantTypes.ciba}
-									onChange={(e) =>
-										handleNestedChange('grantTypes', 'ciba', e.target.checked)
-									}
+									onChange={(e) => handleNestedChange('grantTypes', 'ciba', e.target.checked)}
 								/>
 								CIBA (Client Initiated Backchannel Authentication)
 							</CheckboxItem>

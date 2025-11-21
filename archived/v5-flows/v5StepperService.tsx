@@ -4,8 +4,8 @@
 // Purpose: Provides V5-style step layout with consistent styling and navigation
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface StepMetadata {
 	id: string;
@@ -21,7 +21,13 @@ export interface V5StepperConfig {
 
 export class V5StepperService {
 	// Main step container
-	static getStepContainer({ maxWidth = '960px', fullWidth = false }: { maxWidth?: string; fullWidth?: boolean } = {}) {
+	static getStepContainer({
+		maxWidth = '960px',
+		fullWidth = false,
+	}: {
+		maxWidth?: string;
+		fullWidth?: boolean;
+	} = {}) {
 		return styled.div`
 			background: white;
 			border-radius: 12px;
@@ -41,7 +47,7 @@ export class V5StepperService {
 			green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
 			orange: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 			purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-			red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+			red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 		};
 
 		return styled.div`
@@ -255,7 +261,7 @@ export class V5StepperService {
 				content: '';
 				display: block;
 				height: 100%;
-				width: ${props => props.$progress}%;
+				width: ${(props) => props.$progress}%;
 				background: #3b82f6;
 				transition: width 0.3s ease;
 			}
@@ -273,13 +279,12 @@ export class V5StepperService {
 
 	// Create a complete step layout component
 	static createStepLayout(config: V5StepperConfig = {}) {
-		const {
-			theme = 'blue',
-			showProgress = true,
-			enableAutoAdvance = false
-		} = config;
+		const { theme = 'blue', showProgress = true, enableAutoAdvance = false } = config;
 
-		const StepContainer = V5StepperService.getStepContainer({ maxWidth: '1100px', fullWidth: true });
+		const StepContainer = V5StepperService.getStepContainer({
+			maxWidth: '1100px',
+			fullWidth: true,
+		});
 		const StepHeader = V5StepperService.getStepHeader(theme);
 		const StepHeaderLeft = V5StepperService.getStepHeaderLeft();
 		const StepHeaderRight = V5StepperService.getStepHeaderRight();
@@ -310,10 +315,9 @@ export class V5StepperService {
 			NavigationButton,
 			StepProgress,
 			ProgressBar,
-			ProgressText
+			ProgressText,
 		};
 	}
 }
 
 export default V5StepperService;
-

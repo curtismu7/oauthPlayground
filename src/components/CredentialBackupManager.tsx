@@ -1,8 +1,8 @@
 // src/components/CredentialBackupManager.tsx
 // V7 Credential Backup Manager Component
 
-import React, { useState, useEffect } from 'react';
-import { FiDownload, FiTrash2, FiRefreshCw, FiInfo, FiShield } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
 
@@ -177,7 +177,7 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 	const [backupData, setBackupData] = useState<EnvBackupData>({});
 	const [isLoading, setIsLoading] = useState(false);
 
-	const loadBackupData = () => {
+	const loadBackupData = useCallback(() => {
 		setIsLoading(true);
 		try {
 			const data = credentialBackupService.getCredentialBackup();
@@ -187,18 +187,22 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		loadBackupData();
-	}, []);
+	}, [loadBackupData]);
 
 	const handleDownloadEnv = () => {
 		credentialBackupService.downloadEnvFile();
 	};
 
 	const handleClearAll = () => {
-		if (window.confirm('Are you sure you want to clear all credential backups? This action cannot be undone.')) {
+		if (
+			window.confirm(
+				'Are you sure you want to clear all credential backups? This action cannot be undone.'
+			)
+		) {
 			credentialBackupService.clearAllBackups();
 			loadBackupData();
 			onRefresh?.();
@@ -253,7 +257,14 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 
 			{Object.keys(backupData).length > 0 && (
 				<FlowsList>
-					<h4 style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
+					<h4
+						style={{
+							margin: '0 0 1rem 0',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+						}}
+					>
 						Backed Up Flows
 					</h4>
 					{Object.entries(backupData).map(([flowKey, config]) => (
@@ -277,9 +288,10 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 					About Credential Backup
 				</InfoTitle>
 				<InfoText>
-					This system automatically backs up non-sensitive credentials (environment ID, client ID, redirect URIs, scopes) 
-					to provide fallback when browser storage is cleared. Client secrets and worker tokens are never backed up for security.
-					You can download a .env file with these configurations for easy restoration.
+					This system automatically backs up non-sensitive credentials (environment ID, client ID,
+					redirect URIs, scopes) to provide fallback when browser storage is cleared. Client secrets
+					and worker tokens are never backed up for security. You can download a .env file with
+					these configurations for easy restoration.
 				</InfoText>
 			</InfoBox>
 		</Container>

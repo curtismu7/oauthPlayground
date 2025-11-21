@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
-import { FlowErrorService, FlowErrorConfig } from '../../services/flowErrorService';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -97,23 +97,25 @@ const AuthzCallback: React.FC = () => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const processedCode = sessionStorage.getItem('processed_auth_code');
-		
+
 		if (code && processedCode === code) {
 			console.log('[AuthzCallback] This authorization code has already been processed, skipping');
 			setStatus('error');
-			setMessage('This authorization code has already been used. Please start the authorization flow again.');
+			setMessage(
+				'This authorization code has already been used. Please start the authorization flow again.'
+			);
 			return;
 		}
 
 		const processCallback = async () => {
 			// Mark as processed immediately to prevent duplicate calls
 			processedRef.current = true;
-			
+
 			// Store the code as processed
 			if (code) {
 				sessionStorage.setItem('processed_auth_code', code);
 			}
-			
+
 			try {
 				const currentUrl = getValidatedCurrentUrl('AuthzCallback');
 				logger.auth('AuthzCallback', 'Processing authorization callback', { url: currentUrl });
@@ -144,9 +146,20 @@ const AuthzCallback: React.FC = () => {
 					});
 
 					if (implicitError) {
+						// DEBUG: Enhanced error logging with full URL details
+						console.error('🔴 [AuthzCallback] Implicit flow returned error parameters:', {
+							error: implicitError,
+							errorDescription: implicitErrorDescription,
+							fullUrl: urlObj.href,
+							hash: urlObj.hash,
+							search: urlObj.search,
+						});
+
 						logger.error('AuthzCallback', 'Implicit flow returned error parameters', {
 							error: implicitError,
 							errorDescription: implicitErrorDescription,
+							url: urlObj.href?.substring(0, 300), // Limit URL length for logging
+							hash: urlObj.hash?.substring(0, 200), // Limit hash length for logging
 						});
 					}
 
@@ -415,10 +428,10 @@ const AuthzCallback: React.FC = () => {
 								console.error(' [AuthzCallback] V7 authorization error:', error);
 								setStatus('error');
 								// Determine correct V7 flow based on context
-								const isV7_2 = 
+								const isV7_2 =
 									context?.flow === 'oauth-authorization-code-v7-2' ||
 									context?.flow === 'oidc-authorization-code-v7-2';
-								const isOIDCFlow = 
+								const _isOIDCFlow =
 									context?.flow === 'oidc-authorization-code-v7' ||
 									context?.flow === 'oidc-authorization-code-v7-2';
 								const errorPath = isV7_2
@@ -436,7 +449,7 @@ const AuthzCallback: React.FC = () => {
 								);
 
 								// Determine if this is V7.2 flow
-								const isV7_2 = 
+								const isV7_2 =
 									context?.flow === 'oauth-authorization-code-v7-2' ||
 									context?.flow === 'oidc-authorization-code-v7-2';
 
@@ -455,7 +468,7 @@ const AuthzCallback: React.FC = () => {
 								setStatus('success');
 
 								// Determine correct V7 flow based on context
-								const isOIDCFlow = 
+								const isOIDCFlow =
 									context?.flow === 'oidc-authorization-code-v7' ||
 									context?.flow === 'oidc-authorization-code-v7-2';
 								const flowName = isOIDCFlow ? 'OIDC V7' : 'OAuth V7';
@@ -484,14 +497,14 @@ const AuthzCallback: React.FC = () => {
 							const code = urlParams.get('code');
 							const state = urlParams.get('state');
 							const error = urlParams.get('error');
-							
+
 							// Debug: Log all URL parameters received
 							console.log(' [AuthzCallback] MFA callback URL parameters:', {
 								code: code ? `${code.substring(0, 10)}...` : 'MISSING',
 								state: state ? `${state.substring(0, 10)}...` : 'MISSING',
 								error: error || 'none',
 								fullUrl: currentUrl,
-								allParams: Object.fromEntries(urlParams.entries())
+								allParams: Object.fromEntries(urlParams.entries()),
 							});
 
 							if (error) {
@@ -500,21 +513,23 @@ const AuthzCallback: React.FC = () => {
 								setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
 								// Redirect back to MFA flow with error
 								setTimeout(() => {
-									navigate('/pingone-authentication?error=' + encodeURIComponent(error));
+									navigate(`/pingone-authentication?error=${encodeURIComponent(error)}`);
 								}, 2000);
 								return;
 							}
 
 							if (code && state) {
-								console.log(' [AuthzCallback] MFA authorization successful, storing code and redirecting');
-								
+								console.log(
+									' [AuthzCallback] MFA authorization successful, storing code and redirecting'
+								);
+
 								// Store the authorization code and state for MFA flow
 								sessionStorage.setItem('mfa_v7_auth_code', code);
 								sessionStorage.setItem('mfa_v7_state', state);
-								
+
 								setStatus('success');
 								setMessage('Authorization successful! Redirecting back to MFA flow...');
-								
+
 								// Redirect back to MFA flow - use the returnPath from context or default to MFA page
 								// The returnPath should be set by the MFA flow when it initiates the redirect
 								const returnPath = context?.returnPath || '/pingone-authentication';
@@ -737,7 +752,11 @@ Check your PingOne application configuration and ensure all parameters match exa
 				setStatus('error');
 				setMessage('Authorization failed');
 				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error('AuthzCallback', 'Error processing callback', err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) });
+				logger.error(
+					'AuthzCallback',
+					'Error processing callback',
+					err instanceof Error ? { error: err.message, stack: err.stack } : { error: String(err) }
+				);
 
 				// For non-popup flows, the error is displayed in the UI
 			}
@@ -760,18 +779,18 @@ Check your PingOne application configuration and ensure all parameters match exa
 	// Detect which flow was being used to provide navigation back
 	const flowInfo = useMemo(() => {
 		const activeFlow = sessionStorage.getItem('active_oauth_flow');
-		
+
 		if (activeFlow) {
 			return {
 				path: `/flows/${activeFlow}`,
-				name: activeFlow.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+				name: activeFlow.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase()),
 			};
 		}
-		
+
 		// Fallback to homepage
 		return {
 			path: '/',
-			name: 'Home'
+			name: 'Home',
 		};
 	}, []);
 
@@ -779,7 +798,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 		// Clear any error state in sessionStorage
 		sessionStorage.removeItem('processed_auth_code');
 		sessionStorage.removeItem('callback_processed');
-		
+
 		// Navigate back to the flow
 		navigate(flowInfo.path);
 	};
@@ -790,15 +809,25 @@ Check your PingOne application configuration and ensure all parameters match exa
 		const urlParams = new URLSearchParams(location.search);
 		const oauthError = urlParams.get('error');
 		const oauthErrorDescription = urlParams.get('error_description');
-		
+
 		// Determine flow type from active_oauth_flow or flowContext
-		let flowType: 'authorization-code' | 'implicit' | 'device-authorization' | 'client-credentials' | 'resource-owner-password' | 'jwt-bearer' | 'saml-bearer' | 'par' | 'rar' | 'redirectless' = 'authorization-code';
+		let flowType:
+			| 'authorization-code'
+			| 'implicit'
+			| 'device-authorization'
+			| 'client-credentials'
+			| 'resource-owner-password'
+			| 'jwt-bearer'
+			| 'saml-bearer'
+			| 'par'
+			| 'rar'
+			| 'redirectless' = 'authorization-code';
 		let flowKey = 'oauth-authorization-code-v6';
-		
+
 		const activeFlow = sessionStorage.getItem('active_oauth_flow');
 		if (activeFlow) {
 			flowKey = activeFlow;
-			
+
 			// Determine flow type from flow key
 			if (activeFlow.includes('implicit')) {
 				flowType = 'implicit';
@@ -812,7 +841,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 				flowType = 'redirectless';
 			}
 		}
-		
+
 		const config: FlowErrorConfig = {
 			flowType,
 			flowKey,
@@ -824,7 +853,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 			onStartOver: handleStartOver,
 			onRetry: () => window.location.reload(),
 		};
-		
+
 		return FlowErrorService.getFullPageError(config);
 	}
 

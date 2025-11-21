@@ -1,6 +1,6 @@
 import React from 'react';
-import { StepNavigationWithCredentials, type StepNavigationWithCredentialsProps } from './StepNavigationWithCredentials';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { StepNavigationWithCredentials } from './StepNavigationWithCredentials';
 
 export interface FlowWithCredentialGuardProps {
 	children: React.ReactNode;

@@ -1,172 +1,176 @@
 import React from 'react';
+import { FiBook, FiMessageCircle, FiSearch, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiMessageCircle, FiSearch, FiZap, FiBook } from 'react-icons/fi';
 
 const AIAssistantDemo: React.FC = () => {
-  return (
-    <Container>
-      <Header>
-        <Title>🤖 AI Assistant</Title>
-        <Subtitle>Your intelligent guide to OAuth & OIDC</Subtitle>
-      </Header>
+	return (
+		<Container>
+			<Header>
+				<Title>🤖 AI Assistant</Title>
+				<Subtitle>Your intelligent guide to OAuth & OIDC</Subtitle>
+			</Header>
 
-      <Content>
-        <Section>
-          <SectionTitle>
-            <FiMessageCircle size={24} />
-            What is the AI Assistant?
-          </SectionTitle>
-          <Description>
-            The AI Assistant is an intelligent chatbot built into the OAuth Playground that helps you:
-          </Description>
-          <FeatureList>
-            <FeatureItem>
-              <Icon>🔍</Icon>
-              <FeatureText>
-                <strong>Find the right OAuth flow</strong> for your application type
-              </FeatureText>
-            </FeatureItem>
-            <FeatureItem>
-              <Icon>💡</Icon>
-              <FeatureText>
-                <strong>Understand concepts</strong> like PKCE, scopes, and tokens
-              </FeatureText>
-            </FeatureItem>
-            <FeatureItem>
-              <Icon>🎯</Icon>
-              <FeatureText>
-                <strong>Navigate quickly</strong> to relevant documentation and features
-              </FeatureText>
-            </FeatureItem>
-            <FeatureItem>
-              <Icon>🔧</Icon>
-              <FeatureText>
-                <strong>Troubleshoot issues</strong> with helpful guidance
-              </FeatureText>
-            </FeatureItem>
-          </FeatureList>
-        </Section>
+			<Content>
+				<Section>
+					<SectionTitle>
+						<FiMessageCircle size={24} />
+						What is the AI Assistant?
+					</SectionTitle>
+					<Description>
+						The AI Assistant is an intelligent chatbot built into the OAuth Playground that helps
+						you:
+					</Description>
+					<FeatureList>
+						<FeatureItem>
+							<Icon>🔍</Icon>
+							<FeatureText>
+								<strong>Find the right OAuth flow</strong> for your application type
+							</FeatureText>
+						</FeatureItem>
+						<FeatureItem>
+							<Icon>💡</Icon>
+							<FeatureText>
+								<strong>Understand concepts</strong> like PKCE, scopes, and tokens
+							</FeatureText>
+						</FeatureItem>
+						<FeatureItem>
+							<Icon>🎯</Icon>
+							<FeatureText>
+								<strong>Navigate quickly</strong> to relevant documentation and features
+							</FeatureText>
+						</FeatureItem>
+						<FeatureItem>
+							<Icon>🔧</Icon>
+							<FeatureText>
+								<strong>Troubleshoot issues</strong> with helpful guidance
+							</FeatureText>
+						</FeatureItem>
+					</FeatureList>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiSearch size={24} />
-            How to Use It
-          </SectionTitle>
-          <StepList>
-            <Step>
-              <StepNumber>1</StepNumber>
-              <StepContent>
-                <StepTitle>Open the Assistant</StepTitle>
-                <StepDescription>
-                  Look for the <PurpleText>purple floating chat button</PurpleText> in the bottom-right corner of any page
-                </StepDescription>
-              </StepContent>
-            </Step>
-            <Step>
-              <StepNumber>2</StepNumber>
-              <StepContent>
-                <StepTitle>Ask Your Question</StepTitle>
-                <StepDescription>
-                  Type any question about OAuth, OIDC, or the playground features
-                </StepDescription>
-              </StepContent>
-            </Step>
-            <Step>
-              <StepNumber>3</StepNumber>
-              <StepContent>
-                <StepTitle>Get Instant Answers</StepTitle>
-                <StepDescription>
-                  Receive helpful answers with links to relevant resources
-                </StepDescription>
-              </StepContent>
-            </Step>
-            <Step>
-              <StepNumber>4</StepNumber>
-              <StepContent>
-                <StepTitle>Navigate Directly</StepTitle>
-                <StepDescription>
-                  Click on suggested links to jump to flows, features, or documentation
-                </StepDescription>
-              </StepContent>
-            </Step>
-          </StepList>
-        </Section>
+				<Section>
+					<SectionTitle>
+						<FiSearch size={24} />
+						How to Use It
+					</SectionTitle>
+					<StepList>
+						<Step>
+							<StepNumber>1</StepNumber>
+							<StepContent>
+								<StepTitle>Open the Assistant</StepTitle>
+								<StepDescription>
+									Look for the <PurpleText>purple floating chat button</PurpleText> in the
+									bottom-right corner of any page
+								</StepDescription>
+							</StepContent>
+						</Step>
+						<Step>
+							<StepNumber>2</StepNumber>
+							<StepContent>
+								<StepTitle>Ask Your Question</StepTitle>
+								<StepDescription>
+									Type any question about OAuth, OIDC, or the playground features
+								</StepDescription>
+							</StepContent>
+						</Step>
+						<Step>
+							<StepNumber>3</StepNumber>
+							<StepContent>
+								<StepTitle>Get Instant Answers</StepTitle>
+								<StepDescription>
+									Receive helpful answers with links to relevant resources
+								</StepDescription>
+							</StepContent>
+						</Step>
+						<Step>
+							<StepNumber>4</StepNumber>
+							<StepContent>
+								<StepTitle>Navigate Directly</StepTitle>
+								<StepDescription>
+									Click on suggested links to jump to flows, features, or documentation
+								</StepDescription>
+							</StepContent>
+						</Step>
+					</StepList>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiZap size={24} />
-            Example Questions
-          </SectionTitle>
-          <ExamplesGrid>
-            <ExampleCard>
-              <ExampleCategory>Flow Selection</ExampleCategory>
-              <ExampleQuestion>"Which flow should I use for my mobile app?"</ExampleQuestion>
-              <ExampleQuestion>"How do I test device flows?"</ExampleQuestion>
-              <ExampleQuestion>"What's the best flow for backend services?"</ExampleQuestion>
-            </ExampleCard>
-            <ExampleCard>
-              <ExampleCategory>Configuration</ExampleCategory>
-              <ExampleQuestion>"How do I configure Authorization Code flow?"</ExampleQuestion>
-              <ExampleQuestion>"How do I set up redirect URIs?"</ExampleQuestion>
-              <ExampleQuestion>"What credentials do I need?"</ExampleQuestion>
-            </ExampleCard>
-            <ExampleCard>
-              <ExampleCategory>Concepts</ExampleCategory>
-              <ExampleQuestion>"What is PKCE?"</ExampleQuestion>
-              <ExampleQuestion>"What's the difference between OAuth and OIDC?"</ExampleQuestion>
-              <ExampleQuestion>"Explain scopes and claims"</ExampleQuestion>
-            </ExampleCard>
-            <ExampleCard>
-              <ExampleCategory>Troubleshooting</ExampleCategory>
-              <ExampleQuestion>"Redirect URI mismatch error"</ExampleQuestion>
-              <ExampleQuestion>"How do I decode a JWT token?"</ExampleQuestion>
-              <ExampleQuestion>"Token validation failed"</ExampleQuestion>
-            </ExampleCard>
-          </ExamplesGrid>
-        </Section>
+				<Section>
+					<SectionTitle>
+						<FiZap size={24} />
+						Example Questions
+					</SectionTitle>
+					<ExamplesGrid>
+						<ExampleCard>
+							<ExampleCategory>Flow Selection</ExampleCategory>
+							<ExampleQuestion>"Which flow should I use for my mobile app?"</ExampleQuestion>
+							<ExampleQuestion>"How do I test device flows?"</ExampleQuestion>
+							<ExampleQuestion>"What's the best flow for backend services?"</ExampleQuestion>
+						</ExampleCard>
+						<ExampleCard>
+							<ExampleCategory>Configuration</ExampleCategory>
+							<ExampleQuestion>"How do I configure Authorization Code flow?"</ExampleQuestion>
+							<ExampleQuestion>"How do I set up redirect URIs?"</ExampleQuestion>
+							<ExampleQuestion>"What credentials do I need?"</ExampleQuestion>
+						</ExampleCard>
+						<ExampleCard>
+							<ExampleCategory>Concepts</ExampleCategory>
+							<ExampleQuestion>"What is PKCE?"</ExampleQuestion>
+							<ExampleQuestion>"What's the difference between OAuth and OIDC?"</ExampleQuestion>
+							<ExampleQuestion>"Explain scopes and claims"</ExampleQuestion>
+						</ExampleCard>
+						<ExampleCard>
+							<ExampleCategory>Troubleshooting</ExampleCategory>
+							<ExampleQuestion>"Redirect URI mismatch error"</ExampleQuestion>
+							<ExampleQuestion>"How do I decode a JWT token?"</ExampleQuestion>
+							<ExampleQuestion>"Token validation failed"</ExampleQuestion>
+						</ExampleCard>
+					</ExamplesGrid>
+				</Section>
 
-        <Section>
-          <SectionTitle>
-            <FiBook size={24} />
-            What It Can Search
-          </SectionTitle>
-          <SearchableContent>
-            <ContentCard>
-              <ContentIcon>🔄</ContentIcon>
-              <ContentTitle>15+ OAuth Flows</ContentTitle>
-              <ContentDescription>
-                Authorization Code, Client Credentials, Device Code, Implicit, JWT Bearer, CIBA, and more
-              </ContentDescription>
-            </ContentCard>
-            <ContentCard>
-              <ContentIcon>⚡</ContentIcon>
-              <ContentTitle>12+ Features</ContentTitle>
-              <ContentDescription>
-                PKCE, Token Inspector, Code Generator, MFA, Password Reset, Session Management, and more
-              </ContentDescription>
-            </ContentCard>
-            <ContentCard>
-              <ContentIcon>📖</ContentIcon>
-              <ContentTitle>Documentation</ContentTitle>
-              <ContentDescription>
-                Setup guides, security best practices, troubleshooting, and PingOne configuration
-              </ContentDescription>
-            </ContentCard>
-          </SearchableContent>
-        </Section>
+				<Section>
+					<SectionTitle>
+						<FiBook size={24} />
+						What It Can Search
+					</SectionTitle>
+					<SearchableContent>
+						<ContentCard>
+							<ContentIcon>🔄</ContentIcon>
+							<ContentTitle>15+ OAuth Flows</ContentTitle>
+							<ContentDescription>
+								Authorization Code, Client Credentials, Device Code, Implicit, JWT Bearer, CIBA, and
+								more
+							</ContentDescription>
+						</ContentCard>
+						<ContentCard>
+							<ContentIcon>⚡</ContentIcon>
+							<ContentTitle>12+ Features</ContentTitle>
+							<ContentDescription>
+								PKCE, Token Inspector, Code Generator, MFA, Password Reset, Session Management, and
+								more
+							</ContentDescription>
+						</ContentCard>
+						<ContentCard>
+							<ContentIcon>📖</ContentIcon>
+							<ContentTitle>Documentation</ContentTitle>
+							<ContentDescription>
+								Setup guides, security best practices, troubleshooting, and PingOne configuration
+							</ContentDescription>
+						</ContentCard>
+					</SearchableContent>
+				</Section>
 
-        <CallToAction>
-          <CTATitle>Try It Now!</CTATitle>
-          <CTADescription>
-            Look for the purple chat button in the bottom-right corner and start asking questions.
-          </CTADescription>
-          <CTAIcon>
-            <FiMessageCircle size={48} />
-          </CTAIcon>
-        </CallToAction>
-      </Content>
-    </Container>
-  );
+				<CallToAction>
+					<CTATitle>Try It Now!</CTATitle>
+					<CTADescription>
+						Look for the purple chat button in the bottom-right corner and start asking questions.
+					</CTADescription>
+					<CTAIcon>
+						<FiMessageCircle size={48} />
+					</CTAIcon>
+				</CallToAction>
+			</Content>
+		</Container>
+	);
 };
 
 // Styled Components

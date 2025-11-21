@@ -2,13 +2,20 @@
 // Ring Video Doorbell Style Device Authorization Flow Interface
 // Designed to look like actual Ring doorbell hardware
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiCamera, FiBell, FiWifi } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiBell,
+	FiCamera,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import InlineTokenDisplay from './InlineTokenDisplay';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Ring Doorbell Physical Housing
@@ -89,15 +96,20 @@ const CameraIcon = styled.div`
 const RingButton = styled.div<{ $status: string }>`
   width: 80px;
   height: 80px;
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-      case 'authorized': return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-      case 'denied': return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-      case 'expired': return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-      default: return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+			case 'authorized':
+				return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+			case 'denied':
+				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+			case 'expired':
+				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+			default:
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+		}
+	}};
   border-radius: 50%;
   border: 4px solid #0f172a;
   margin: 0 auto 1rem;
@@ -161,14 +173,18 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $status?: string }>`
   font-size: 0.875rem;
   font-weight: 500;
-  color: ${props => {
-    switch (props.$status) {
-      case 'online': return '#10b981';
-      case 'offline': return '#ef4444';
-      case 'pending': return '#f59e0b';
-      default: return '#ffffff';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'online':
+				return '#10b981';
+			case 'offline':
+				return '#ef4444';
+			case 'pending':
+				return '#f59e0b';
+			default:
+				return '#ffffff';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -178,9 +194,9 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 8px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -250,7 +266,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -302,164 +318,161 @@ const SuccessMessage = styled.div`
 `;
 
 interface RingDoorbellDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('RingDoorbellDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('RingDoorbellDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'Doorbell Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'Doorbell Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  return (
-    <>
-    <RingDoorbellContainer>
-      {/* Ring Branding */}
-      <RingBranding>
-        <RingLogo>RING</RingLogo>
-        <RingModel>Video Doorbell Pro 2</RingModel>
-      </RingBranding>
+	return (
+		<>
+			<RingDoorbellContainer>
+				{/* Ring Branding */}
+				<RingBranding>
+					<RingLogo>RING</RingLogo>
+					<RingModel>Video Doorbell Pro 2</RingModel>
+				</RingBranding>
 
-      {/* Ring Camera Lens */}
-      <RingCameraLens>
-        <CameraIcon>
-          <FiCamera />
-        </CameraIcon>
-      </RingCameraLens>
+				{/* Ring Camera Lens */}
+				<RingCameraLens>
+					<CameraIcon>
+						<FiCamera />
+					</CameraIcon>
+				</RingCameraLens>
 
-      {/* Ring Doorbell Button */}
-      <RingButton $status={state.status}>
-        <RingButtonIcon>
-          <FiBell />
-        </RingButtonIcon>
-      </RingButton>
+				{/* Ring Doorbell Button */}
+				<RingButton $status={state.status}>
+					<RingButtonIcon>
+						<FiBell />
+					</RingButtonIcon>
+				</RingButton>
 
-      {/* Status Display */}
-      <RingStatusDisplay>
-        <StatusRow>
-          <StatusLabel>WiFi</StatusLabel>
-          <StatusValue $status="online">
-            <StatusDot $active={true} $color="#10b981" />
-            Connected
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Battery</StatusLabel>
-          <StatusValue>
-            <StatusDot $active={true} $color="#10b981" />
-            87% - Good
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Status</StatusLabel>
-          <StatusValue $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Authorization Code</StatusLabel>
-          <StatusValue>
-            <span style={{ fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.1em' }}>
-              {deviceFlowService.formatUserCode(state.userCode)}
-            </span>
-          </StatusValue>
-        </StatusRow>
-      </RingStatusDisplay>
+				{/* Status Display */}
+				<RingStatusDisplay>
+					<StatusRow>
+						<StatusLabel>WiFi</StatusLabel>
+						<StatusValue $status="online">
+							<StatusDot $active={true} $color="#10b981" />
+							Connected
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Battery</StatusLabel>
+						<StatusValue>
+							<StatusDot $active={true} $color="#10b981" />
+							87% - Good
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Status</StatusLabel>
+						<StatusValue $status={state.status}>
+							{getStatusIcon()}
+							{getStatusText()}
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Authorization Code</StatusLabel>
+						<StatusValue>
+							<span style={{ fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.1em' }}>
+								{deviceFlowService.formatUserCode(state.userCode)}
+							</span>
+						</StatusValue>
+					</StatusRow>
+				</RingStatusDisplay>
 
-      {/* QR Code Section */}
-      <QRCodeSection>
-        <QRTitle>Connect to Ring App</QRTitle>
-        <QRSubtitle>
-          Scan this QR code with your phone to complete setup
-        </QRSubtitle>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={160}
-            bgColor="#ffffff"
-            fgColor="#1f2937"
-            level="H"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-        <ActionButtons>
-          <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy Code
-          </ActionButton>
-          <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open App
-          </ActionButton>
-        </ActionButtons>
-      </QRCodeSection>
+				{/* QR Code Section */}
+				<QRCodeSection>
+					<QRTitle>Connect to Ring App</QRTitle>
+					<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+					<QRCodeContainer>
+						<QRCodeSVG
+							value={state.verificationUriComplete}
+							size={160}
+							bgColor="#ffffff"
+							fgColor="#1f2937"
+							level="H"
+							includeMargin={true}
+						/>
+					</QRCodeContainer>
+					<ActionButtons>
+						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy /> Copy Code
+						</ActionButton>
+						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink /> Open App
+						</ActionButton>
+					</ActionButtons>
+				</QRCodeSection>
 
-      {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
-        <SuccessDisplay>
-          <SuccessTitle>
-            <FiCheckCircle />
-            Doorbell Connected Successfully!
-          </SuccessTitle>
-          <SuccessMessage>
-            Your Ring Video Doorbell is now connected and ready to monitor your front door.
-          </SuccessMessage>
-        </SuccessDisplay>
-      )}
+				{/* Success Display */}
+				{state.status === 'authorized' && state.tokens && (
+					<SuccessDisplay>
+						<SuccessTitle>
+							<FiCheckCircle />
+							Doorbell Connected Successfully!
+						</SuccessTitle>
+						<SuccessMessage>
+							Your Ring Video Doorbell is now connected and ready to monitor your front door.
+						</SuccessMessage>
+					</SuccessDisplay>
+				)}
+			</RingDoorbellContainer>
 
-    </RingDoorbellContainer>
-
-    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
-    <StandardizedTokenDisplay 
-      tokens={state.tokens}
-      backgroundColor="rgba(0, 0, 0, 0.2)"
-      borderColor="#374151"
-      headerTextColor="#ffffff"
-    />
-    </>
-  );
+			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+			<StandardizedTokenDisplay
+				tokens={state.tokens}
+				backgroundColor="rgba(0, 0, 0, 0.2)"
+				borderColor="#374151"
+				headerTextColor="#ffffff"
+			/>
+		</>
+	);
 };
 
 export default RingDoorbellDeviceFlow;
