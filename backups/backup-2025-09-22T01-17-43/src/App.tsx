@@ -1,69 +1,68 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
+import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
 import './styles/spec-cards.css';
-import Navbar from './components/Navbar';
-import Sidebar from './components/Sidebar';
 import CredentialSetupModal from './components/CredentialSetupModal';
-import { credentialManager } from './utils/credentialManager';
-import Dashboard from './pages/Dashboard';
-import Flows from './pages/Flows';
-import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
-import Configuration from './pages/Configuration';
-import Documentation from './pages/Documentation';
-import Login from './pages/Login';
-import Callback from './pages/Callback';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import { useAuth } from './contexts/NewAuthContext';
+import Callback from './pages/Callback';
+import Configuration from './pages/Configuration';
+import Dashboard from './pages/Dashboard';
+import Documentation from './pages/Documentation';
+import Flows from './pages/Flows';
+import Login from './pages/Login';
+import OAuthFlowsNew from './pages/OAuthFlowsNew';
+import { credentialManager } from './utils/credentialManager';
+
 // Removed useScrollToBottom - using centralized scroll management per page
 
-// Import all the new OAuth and OIDC flow components
-import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
-import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
-import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
-
-import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
-import HybridFlow from './pages/flows/HybridFlow';
-import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
-import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
-import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
-import UnifiedAuthorizationCodeFlowV3 from './pages/flows/UnifiedAuthorizationCodeFlowV3';
-import JWTBearerFlow from './pages/flows/JWTBearerFlow';
-import UserInfoFlow from './pages/flows/UserInfoFlow';
-import IDTokensFlow from './pages/flows/IDTokensFlow';
-import PARFlow from './pages/flows/PARFlow';
-import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
-import OIDC from './pages/OIDC';
-import TokenManagement from './pages/TokenManagement';
-import AutoDiscover from './pages/AutoDiscover';
-import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
-import AdvancedConfiguration from './pages/AdvancedConfiguration';
-import InteractiveTutorials from './pages/InteractiveTutorials';
-import OAuth21 from './pages/OAuth21';
-import OIDCSessionManagement from './pages/OIDCSessionManagement';
-import OIDCSpecs from './pages/docs/OIDCSpecs';
-import OIDCForAI from './pages/docs/OIDCForAI';
-import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
-import AuthorizationRequestModal from './components/AuthorizationRequestModal';
-import PageChangeSpinner from './components/PageChangeSpinner';
-import DebugPanel from './components/DebugPanel';
-import ErrorBoundary from './components/ErrorBoundary';
-import ServerStatusProvider from './components/ServerStatusProvider';
 import AuthErrorBoundary from './components/AuthErrorBoundary';
-import GlobalErrorDisplay from './components/GlobalErrorDisplay';
-
+import AuthorizationRequestModal from './components/AuthorizationRequestModal';
 // Import callback components
 import AuthzCallback from './components/callbacks/AuthzCallback';
-import OAuthV3Callback from './components/callbacks/OAuthV3Callback';
+import DashboardCallback from './components/callbacks/DashboardCallback';
+import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
 import HybridCallback from './components/callbacks/HybridCallback';
 import ImplicitCallback from './components/callbacks/ImplicitCallback';
+import OAuthV3Callback from './components/callbacks/OAuthV3Callback';
 import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
-import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
-import DashboardCallback from './components/callbacks/DashboardCallback';
+import DebugPanel from './components/DebugPanel';
+import ErrorBoundary from './components/ErrorBoundary';
+import GlobalErrorDisplay from './components/GlobalErrorDisplay';
+import PageChangeSpinner from './components/PageChangeSpinner';
+import ServerStatusProvider from './components/ServerStatusProvider';
+import AdvancedConfiguration from './pages/AdvancedConfiguration';
+import AIOpenIDConnectOverview from './pages/AIOpenIDConnectOverview';
+import AutoDiscover from './pages/AutoDiscover';
+import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
+import OIDCForAI from './pages/docs/OIDCForAI';
+import OIDCSpecs from './pages/docs/OIDCSpecs';
+import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
+import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
+import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
+import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
+import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
+import HybridFlow from './pages/flows/HybridFlow';
+import IDTokensFlow from './pages/flows/IDTokensFlow';
+// Import all the new OAuth and OIDC flow components
+import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
+import JWTBearerFlow from './pages/flows/JWTBearerFlow';
+import PARFlow from './pages/flows/PARFlow';
+import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
+import UnifiedAuthorizationCodeFlowV3 from './pages/flows/UnifiedAuthorizationCodeFlowV3';
+import UserInfoFlow from './pages/flows/UserInfoFlow';
+import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
+import InteractiveTutorials from './pages/InteractiveTutorials';
+import OAuth21 from './pages/OAuth21';
+import OIDC from './pages/OIDC';
+import OIDCSessionManagement from './pages/OIDCSessionManagement';
+import TokenManagement from './pages/TokenManagement';
 
 const AppContainer = styled.div`
   display: flex;

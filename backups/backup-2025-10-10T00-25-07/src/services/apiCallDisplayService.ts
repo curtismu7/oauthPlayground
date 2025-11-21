@@ -55,7 +55,9 @@ export class ApiCallDisplayService {
 			insecure,
 		});
 		const responseSummary = ApiCallDisplayService.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? ApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
+		const timingInfo = apiCall.duration
+			? ApiCallDisplayService.formatTimingInfo(apiCall.duration)
+			: undefined;
 
 		return {
 			formattedCall,
@@ -231,7 +233,9 @@ export class ApiCallDisplayService {
 		const status = apiCall.response?.status || 'Unknown';
 		const method = apiCall.method;
 		const url = apiCall.url;
-		const duration = apiCall.duration ? ` (${ApiCallDisplayService.formatTimingInfo(apiCall.duration)})` : '';
+		const duration = apiCall.duration
+			? ` (${ApiCallDisplayService.formatTimingInfo(apiCall.duration)})`
+			: '';
 
 		return `${method} ${url} → ${status}${duration}`;
 	}
@@ -295,12 +299,18 @@ export class ApiCallDisplayService {
 
 		// Sanitize body if it's an object
 		if (sanitized.body && typeof sanitized.body === 'object') {
-			sanitized.body = ApiCallDisplayService.sanitizeObject(sanitized.body, sensitiveFields) as object;
+			sanitized.body = ApiCallDisplayService.sanitizeObject(
+				sanitized.body,
+				sensitiveFields
+			) as object;
 		}
 
 		// Sanitize response data
 		if (sanitized.response?.data && typeof sanitized.response.data === 'object') {
-			sanitized.response.data = ApiCallDisplayService.sanitizeObject(sanitized.response.data, sensitiveFields);
+			sanitized.response.data = ApiCallDisplayService.sanitizeObject(
+				sanitized.response.data,
+				sensitiveFields
+			);
 		}
 
 		return sanitized;

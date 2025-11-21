@@ -1,7 +1,7 @@
 // src/services/v6StepManagementService.ts
 /**
  * V6 Step Management Service
- * 
+ *
  * Provides standardized step management utilities
  * - Step validation logic
  * - Step navigation helpers
@@ -10,7 +10,7 @@
  * - Collapsible section state
  */
 
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useState } from 'react';
 
 export interface StepMetadata {
 	id?: string;
@@ -238,23 +238,23 @@ export function useV6CollapsibleSections(initialState: CollapsibleSectionState =
 	const [collapsedSections, setCollapsedSections] = useState<CollapsibleSectionState>(initialState);
 
 	const toggleSection = useCallback((sectionKey: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[sectionKey]: !prev[sectionKey]
+			[sectionKey]: !prev[sectionKey],
 		}));
 	}, []);
 
 	const collapseSection = useCallback((sectionKey: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[sectionKey]: true
+			[sectionKey]: true,
 		}));
 	}, []);
 
 	const expandSection = useCallback((sectionKey: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[sectionKey]: false
+			[sectionKey]: false,
 		}));
 	}, []);
 
@@ -263,10 +263,8 @@ export function useV6CollapsibleSections(initialState: CollapsibleSectionState =
 		toggleSection,
 		collapseSection,
 		expandSection,
-		setCollapsedSections
+		setCollapsedSections,
 	};
 }
 
 export default V6StepManagementService;
-
-

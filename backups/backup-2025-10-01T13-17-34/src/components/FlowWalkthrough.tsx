@@ -1,6 +1,7 @@
 // src/components/FlowWalkthrough.tsx
-import styled from 'styled-components';
+
 import { FiGlobe } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface FlowStep {
 	title: string;

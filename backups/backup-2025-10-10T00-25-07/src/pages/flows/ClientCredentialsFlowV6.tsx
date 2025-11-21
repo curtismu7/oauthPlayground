@@ -3,37 +3,30 @@
 // Machine-to-machine authentication without user interaction
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiInfo,
-	FiKey,
-	FiServer,
-	FiShield,
-	FiZap,
-} from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiKey, FiServer, FiShield, FiZap } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	ClientAuthMethod,
-	ClientCredentialsDefaults,
 	ClientCredentialsCollapsibleSections,
+	ClientCredentialsDefaults,
 	ClientCredentialsEducationalContent,
 	ClientCredentialsTokenRequest,
-	log
+	log,
 } from '../../services/clientCredentialsSharedService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowSequenceService } from '../../services/flowSequenceService';
 import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { EducationalContentService } from '../../services/educationalContentService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowSequenceService } from '../../services/flowSequenceService';
 import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
 import { UISettingsService } from '../../services/uiSettingsService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import { EducationalContentService } from '../../services/educationalContentService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
 
@@ -74,15 +67,15 @@ const SectionDivider = styled.div`
 
 const AuthMethodCard = styled.div<{ isSelected: boolean; method: ClientAuthMethod }>`
 	padding: 1.5rem;
-	border: 2px solid ${props => props.isSelected ? getAuthMethodColor(props.method) : '#e2e8f0'};
+	border: 2px solid ${(props) => (props.isSelected ? getAuthMethodColor(props.method) : '#e2e8f0')};
 	border-radius: 0.75rem;
-	background: ${props => props.isSelected ? `${getAuthMethodColor(props.method)}10` : 'white'};
+	background: ${(props) => (props.isSelected ? `${getAuthMethodColor(props.method)}10` : 'white')};
 	cursor: pointer;
 	transition: all 0.2s ease;
 	
 	&:hover {
-		border-color: ${props => getAuthMethodColor(props.method)};
-		background: ${props => `${getAuthMethodColor(props.method)}05`};
+		border-color: ${(props) => getAuthMethodColor(props.method)};
+		background: ${(props) => `${getAuthMethodColor(props.method)}05`};
 	}
 `;
 
@@ -97,7 +90,7 @@ const AuthMethodIcon = styled.div<{ method: ClientAuthMethod }>`
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 0.5rem;
-	background: ${props => getAuthMethodColor(props.method)};
+	background: ${(props) => getAuthMethodColor(props.method)};
 	color: white;
 	display: flex;
 	align-items: center;
@@ -127,18 +120,24 @@ const SecurityBadge = styled.span<{ level: 'high' | 'medium' | 'low' }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	text-transform: uppercase;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.level) {
-			case 'high': return '#10b98120';
-			case 'medium': return '#f59e0b20';
-			case 'low': return '#ef444420';
+			case 'high':
+				return '#10b98120';
+			case 'medium':
+				return '#f59e0b20';
+			case 'low':
+				return '#ef444420';
 		}
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.level) {
-			case 'high': return '#047857';
-			case 'medium': return '#d97706';
-			case 'low': return '#dc2626';
+			case 'high':
+				return '#047857';
+			case 'medium':
+				return '#d97706';
+			case 'low':
+				return '#dc2626';
 		}
 	}};
 	margin-top: 0.5rem;
@@ -166,7 +165,7 @@ const BenefitItem = styled.li`
 
 const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
-	background: ${props => props.variant === 'secondary' ? '#10b981' : '#3b82f6'};
+	background: ${(props) => (props.variant === 'secondary' ? '#10b981' : '#3b82f6')};
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -176,7 +175,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	transition: all 0.2s ease;
 	
 	&:hover:not(:disabled) {
-		background: ${props => props.variant === 'secondary' ? '#059669' : '#2563eb'};
+		background: ${(props) => (props.variant === 'secondary' ? '#059669' : '#2563eb')};
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
@@ -190,10 +189,10 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 // Helper function to get auth method colors
 function getAuthMethodColor(method: ClientAuthMethod): string {
 	const colors: Record<ClientAuthMethod, string> = {
-		'client_secret_basic': '#3b82f6', // Blue
-		'client_secret_post': '#10b981', // Green
-		'private_key_jwt': '#8b5cf6', // Purple
-		'none': '#6b7280', // Gray
+		client_secret_basic: '#3b82f6', // Blue
+		client_secret_post: '#10b981', // Green
+		private_key_jwt: '#8b5cf6', // Purple
+		none: '#6b7280', // Gray
 	};
 	return colors[method];
 }
@@ -203,41 +202,41 @@ const STEP_METADATA = [
 	{
 		title: 'Credentials & Configuration',
 		subtitle: 'Configure your client credentials and authentication settings',
-		description: 'Set up your application credentials for machine-to-machine authentication'
+		description: 'Set up your application credentials for machine-to-machine authentication',
 	},
 	{
 		title: 'Authentication Method Selection',
 		subtitle: 'Choose your client authentication method',
-		description: 'Select the authentication method that best fits your security requirements'
+		description: 'Select the authentication method that best fits your security requirements',
 	},
 	{
 		title: 'Token Request',
 		subtitle: 'Request an access token',
-		description: 'Execute the token request using your selected authentication method'
+		description: 'Execute the token request using your selected authentication method',
 	},
 	{
 		title: 'Token Analysis',
 		subtitle: 'Analyze and manage your access token',
-		description: 'View, decode, and validate the received access token'
+		description: 'View, decode, and validate the received access token',
 	},
 	{
 		title: 'Token Management',
 		subtitle: 'Advanced token operations',
-		description: 'Introspect, manage, and monitor your access tokens'
+		description: 'Introspect, manage, and monitor your access tokens',
 	},
 	{
 		title: 'Flow Completion',
 		subtitle: 'Review and complete the client credentials flow',
-		description: 'Review the completed flow and explore next steps'
-	}
+		description: 'Review the completed flow and explore next steps',
+	},
 ];
 
 const ClientCredentialsFlowV6: React.FC = () => {
 	const navigate = useNavigate();
-	
+
 	// Initialize page scroll management
 	usePageScroll();
-	
+
 	// Initialize client credentials flow controller
 	const controller = useClientCredentialsFlowController({
 		flowKey: 'client-credentials-v6',
@@ -245,10 +244,11 @@ const ClientCredentialsFlowV6: React.FC = () => {
 
 	// Step management
 	const [currentStep, setCurrentStep] = useState(0);
-	
+
 	// Authentication method
-	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
-	
+	const [selectedAuthMethod, setSelectedAuthMethod] =
+		useState<ClientAuthMethod>('client_secret_post');
+
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		ClientCredentialsCollapsibleSections.getDefaultState()
@@ -261,24 +261,27 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	);
 
 	// Step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0: // Credentials & Configuration
-				return controller.hasValidCredentials;
-			case 1: // Authentication Method Selection
-				return !!selectedAuthMethod;
-			case 2: // Token Request
-				return !!selectedAuthMethod;
-			case 3: // Token Analysis
-				return !!controller.tokens;
-			case 4: // Token Management
-				return !!controller.tokens;
-			case 5: // Flow Completion
-				return !!controller.tokens;
-			default:
-				return false;
-		}
-	}, [controller, selectedAuthMethod]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0: // Credentials & Configuration
+					return controller.hasValidCredentials;
+				case 1: // Authentication Method Selection
+					return !!selectedAuthMethod;
+				case 2: // Token Request
+					return !!selectedAuthMethod;
+				case 3: // Token Analysis
+					return !!controller.tokens;
+				case 4: // Token Management
+					return !!controller.tokens;
+				case 5: // Flow Completion
+					return !!controller.tokens;
+				default:
+					return false;
+			}
+		},
+		[controller, selectedAuthMethod]
+	);
 
 	// Navigation handlers
 	const handleNext = useCallback(() => {
@@ -327,24 +330,27 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	}, [controller, selectedAuthMethod]);
 
 	// Render step content
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsConfiguration();
-			case 1:
-				return renderAuthMethodSelection();
-			case 2:
-				return renderTokenRequest();
-			case 3:
-				return renderTokenAnalysis();
-			case 4:
-				return renderTokenManagement();
-			case 5:
-				return renderFlowCompletion();
-			default:
-				return <div>Invalid step</div>;
-		}
-	}, [controller, collapsedSections, toggleSection, selectedAuthMethod]);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsConfiguration();
+				case 1:
+					return renderAuthMethodSelection();
+				case 2:
+					return renderTokenRequest();
+				case 3:
+					return renderTokenAnalysis();
+				case 4:
+					return renderTokenManagement();
+				case 5:
+					return renderFlowCompletion();
+				default:
+					return <div>Invalid step</div>;
+			}
+		},
+		[controller, collapsedSections, toggleSection, selectedAuthMethod]
+	);
 
 	// Step 0: Credentials & Configuration
 	const renderCredentialsConfiguration = () => (
@@ -355,9 +361,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 				collapsed={collapsedSections.overview}
 				onToggleCollapsed={() => toggleSection('overview')}
 			/>
-			
+
 			<SectionDivider />
-			
+
 			<ComprehensiveCredentialsService
 				credentials={controller.credentials}
 				onCredentialsChange={controller.setCredentials}
@@ -366,9 +372,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 				onToggleCollapsed={() => toggleSection('credentials')}
 				flowType="client-credentials"
 			/>
-			
+
 			<SectionDivider />
-			
+
 			<UISettingsService
 				collapsed={collapsedSections.uiSettings}
 				onToggleCollapsed={() => toggleSection('uiSettings')}
@@ -379,30 +385,31 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step 1: Authentication Method Selection
 	const renderAuthMethodSelection = () => {
 		const supportedMethods = ClientCredentialsDefaults.getSupportedAuthMethods();
-		
+
 		return (
 			<div>
 				<EducationalContentService
 					title="Client Authentication Methods"
 					content={{
 						title: 'Choose Your Authentication Method',
-						description: 'Select the authentication method that best fits your security requirements and implementation constraints',
+						description:
+							'Select the authentication method that best fits your security requirements and implementation constraints',
 						useCases: [
 							'client_secret_basic: Industry standard, highest security',
 							'client_secret_post: Simpler implementation, widely supported',
 							'private_key_jwt: Enhanced security with PKI',
-							'none: Public clients, development only'
-						]
+							'none: Public clients, development only',
+						],
 					}}
 					collapsed={collapsedSections.authMethods}
 					onToggleCollapsed={() => toggleSection('authMethods')}
 				/>
-				
+
 				<div style={{ marginTop: '2rem', display: 'grid', gap: '1rem' }}>
 					{supportedMethods.map((method) => {
 						const config = ClientCredentialsDefaults.getAuthMethodConfig(method);
 						const isSelected = selectedAuthMethod === method;
-						
+
 						return (
 							<AuthMethodCard
 								key={method}
@@ -418,15 +425,17 @@ const ClientCredentialsFlowV6: React.FC = () => {
 										{method === 'none' && <FiInfo />}
 									</AuthMethodIcon>
 									<div>
-										<AuthMethodTitle>{config.authMethod.replace(/_/g, ' ').toUpperCase()}</AuthMethodTitle>
+										<AuthMethodTitle>
+											{config.authMethod.replace(/_/g, ' ').toUpperCase()}
+										</AuthMethodTitle>
 										<SecurityBadge level={config.securityLevel}>
 											{config.securityLevel} Security
 										</SecurityBadge>
 									</div>
 								</AuthMethodHeader>
-								
+
 								<AuthMethodDescription>{config.description}</AuthMethodDescription>
-								
+
 								<BenefitsList>
 									{config.useCases.map((useCase, index) => (
 										<BenefitItem key={index}>{useCase}</BenefitItem>
@@ -443,7 +452,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step 2: Token Request
 	const renderTokenRequest = () => {
 		const config = ClientCredentialsDefaults.getAuthMethodConfig(selectedAuthMethod);
-		
+
 		return (
 			<div>
 				<EducationalContentService
@@ -454,13 +463,13 @@ const ClientCredentialsFlowV6: React.FC = () => {
 						useCases: [
 							'POST request to token endpoint',
 							'Client authentication via selected method',
-							'Receive access token for API calls'
-						]
+							'Receive access token for API calls',
+						],
 					}}
 					collapsed={collapsedSections.tokenRequest}
 					onToggleCollapsed={() => toggleSection('tokenRequest')}
 				/>
-				
+
 				<div style={{ marginTop: '2rem' }}>
 					<ActionButton
 						onClick={handleTokenRequest}
@@ -468,7 +477,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 					>
 						{controller.isLoading ? 'Requesting Token...' : 'Request Access Token'}
 					</ActionButton>
-					
+
 					{controller.tokens && (
 						<div style={{ marginTop: '2rem' }}>
 							<EnhancedApiCallDisplayService
@@ -502,13 +511,13 @@ const ClientCredentialsFlowV6: React.FC = () => {
 					useCases: [
 						'Inspect token claims and metadata',
 						'Verify token expiration',
-						'Validate token scope and audience'
-					]
+						'Validate token scope and audience',
+					],
 				}}
 				collapsed={collapsedSections.tokenAnalysis}
 				onToggleCollapsed={() => toggleSection('tokenAnalysis')}
 			/>
-			
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -532,13 +541,13 @@ const ClientCredentialsFlowV6: React.FC = () => {
 					useCases: [
 						'Token introspection for validation',
 						'Token revocation when needed',
-						'Token lifecycle management'
-					]
+						'Token lifecycle management',
+					],
 				}}
 				collapsed={collapsedSections.tokenIntrospection}
 				onToggleCollapsed={() => toggleSection('tokenIntrospection')}
 			/>
-			
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -546,9 +555,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 						flowType="client-credentials-v6"
 						showTokenManagementButtons={true}
 					/>
-					
+
 					<SectionDivider />
-					
+
 					<TokenIntrospectionService
 						tokens={controller.tokens}
 						flowType="client-credentials-v6"
@@ -569,7 +578,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -599,7 +608,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="client-credentials-v6" />
 				<FlowSequenceService flowType="client-credentials" />
-				
+
 				<MainCard>
 					<StepContent>{renderStepContent(currentStep)}</StepContent>
 				</MainCard>

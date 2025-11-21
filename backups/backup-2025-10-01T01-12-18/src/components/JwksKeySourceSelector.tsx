@@ -1,7 +1,7 @@
 // src/components/JwksKeySourceSelector.tsx
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { FiCopy, FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
+import styled from 'styled-components';
 import { buildJWKSUri } from '../utils/jwks';
 import { isPrivateKey } from '../utils/jwksConverter';
 

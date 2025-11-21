@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { showGlobalSuccess, showGlobalError } from '../hooks/useNotifications';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
 // Styled Components
 const Card = styled.div`

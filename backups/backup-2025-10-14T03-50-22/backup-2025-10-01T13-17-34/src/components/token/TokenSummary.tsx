@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import styled from 'styled-components';
 import { FiCheck, FiCopy, FiEye, FiEyeOff, FiShield } from 'react-icons/fi';
+import styled from 'styled-components';
 import { copyToClipboard } from '../../utils/clipboard';
 
 interface TokenSet {

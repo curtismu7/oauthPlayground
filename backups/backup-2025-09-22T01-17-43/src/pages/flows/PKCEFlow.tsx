@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react';
+import { FiAlertCircle, FiPlay, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiShield } from 'react-icons/fi';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ContextualHelp from '../../components/ContextualHelp';
+import FlowCredentials from '../../components/FlowCredentials';
+import PageTitle from '../../components/PageTitle';
+import Spinner from '../../components/Spinner';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import Typewriter from '../../components/Typewriter';
+import { URLParamExplainer } from '../../components/URLParamExplainer';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
-import Spinner from '../../components/Spinner';
-import Typewriter from '../../components/Typewriter';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
-import { URLParamExplainer } from '../../components/URLParamExplainer';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import ConfigurationButton from '../../components/ConfigurationButton';
-import TokenDisplayComponent from '../../components/TokenDisplay';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import PageTitle from '../../components/PageTitle';
-import FlowCredentials from '../../components/FlowCredentials';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
-import ContextualHelp from '../../components/ContextualHelp';
-import ConfigurationStatus from '../../components/ConfigurationStatus';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -24,6 +24,7 @@ import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { FlowAnalyticsService } from '../../services/flowAnalyticsService';
 import { FlowComponentService } from '../../services/flowComponentService';
 import { FlowConfigService } from '../../services/flowConfigService';
@@ -31,7 +32,6 @@ import { FlowControllerService } from '../../services/flowControllerService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
-import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Service-generated styled components
@@ -153,18 +153,26 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 	const serviceStepMetadata = flowConfig
 		? FlowStateService.createStepMetadata(flowConfig.stepConfigs)
 		: [];
-	
+
 	// Fallback step metadata if service-generated is empty
-	const stepMetadata = serviceStepMetadata.length > 0 ? serviceStepMetadata : [
-		{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OAuth Implicit Flow' },
-		{ title: 'Step 1: Configuration', subtitle: 'Configure credentials and parameters' },
-		{ title: 'Step 2: Authorization Request', subtitle: 'Build and launch authorization URL' },
-		{ title: 'Step 3: Process Response', subtitle: 'Handle callback and extract tokens' },
-		{ title: 'Step 4: Token Validation', subtitle: 'Validate received tokens' },
-		{ title: 'Step 5: User Info & Completion', subtitle: 'Fetch user info and complete flow' },
-	];
-	
-	
+	const stepMetadata =
+		serviceStepMetadata.length > 0
+			? serviceStepMetadata
+			: [
+					{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OAuth Implicit Flow' },
+					{ title: 'Step 1: Configuration', subtitle: 'Configure credentials and parameters' },
+					{
+						title: 'Step 2: Authorization Request',
+						subtitle: 'Build and launch authorization URL',
+					},
+					{ title: 'Step 3: Process Response', subtitle: 'Handle callback and extract tokens' },
+					{ title: 'Step 4: Token Validation', subtitle: 'Validate received tokens' },
+					{
+						title: 'Step 5: User Info & Completion',
+						subtitle: 'Fetch user info and complete flow',
+					},
+				];
+
 	const introSectionKeys = FlowStateService.createIntroSectionKeys('implicit');
 	// Add additional section keys for V5.1
 	const additionalSectionKeys = ['pingOneConfig', 'credentials'];
@@ -189,14 +197,12 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		stepMetadata.length, // Use actual step count
 		introSectionKeys
 	);
-	
 
 	// Service-generated analytics tracking
 	useEffect(() => {
 		FlowAnalyticsService.trackFlowStart('implicit', 'oauth-implicit-v5-1');
 		return () => FlowAnalyticsService.trackFlowComplete(true);
 	}, []);
-	
 
 	// Service-generated state management
 	const [collapsedSections, setCollapsedSections] = useState(defaultCollapsedSections);
@@ -294,15 +300,15 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 					const savedConfig = localStorage.getItem('oauth-implicit-v5-1-config');
 					if (savedConfig) {
 						const parsedConfig = JSON.parse(savedConfig);
-					controller.setCredentials({
-						...controller.credentials,
-						environmentId: parsedConfig.environmentId || '',
-						clientId: parsedConfig.clientId || '',
-						clientSecret: parsedConfig.clientSecret || '',
-						redirectUri: parsedConfig.redirectUri || 'https://localhost:3000/implicit-callback',
-						scopes: parsedConfig.scopes || 'openid profile email',
-						loginHint: parsedConfig.loginHint || '',
-					});
+						controller.setCredentials({
+							...controller.credentials,
+							environmentId: parsedConfig.environmentId || '',
+							clientId: parsedConfig.clientId || '',
+							clientSecret: parsedConfig.clientSecret || '',
+							redirectUri: parsedConfig.redirectUri || 'https://localhost:3000/implicit-callback',
+							scopes: parsedConfig.scopes || 'openid profile email',
+							loginHint: parsedConfig.loginHint || '',
+						});
 						console.log('Configuration loaded from localStorage');
 						v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 					} else {
@@ -316,15 +322,15 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 				}
 			} else {
 				// Load from provided config
-			controller.setCredentials({
-				...controller.credentials,
-				environmentId: config.environmentId || '',
-				clientId: config.clientId || '',
-				clientSecret: config.clientSecret || '',
-				redirectUri: config.redirectUri || 'https://localhost:3000/implicit-callback',
-				scopes: config.scopes || 'openid profile email',
-				loginHint: config.loginHint || '',
-			});
+				controller.setCredentials({
+					...controller.credentials,
+					environmentId: config.environmentId || '',
+					clientId: config.clientId || '',
+					clientSecret: config.clientSecret || '',
+					redirectUri: config.redirectUri || 'https://localhost:3000/implicit-callback',
+					scopes: config.scopes || 'openid profile email',
+					loginHint: config.loginHint || '',
+				});
 				console.log('Configuration loaded from provided config');
 				v4ToastManager.showSuccess('Configuration loaded from provided settings.');
 			}
@@ -375,9 +381,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 			v4ToastManager.showSuccess('Token validation would be implemented here.');
 		} catch (error) {
 			console.error('[OAuthImplicitFlowV5_1] Token validation failed:', error);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Token validation failed'
-			);
+			v4ToastManager.showError(error instanceof Error ? error.message : 'Token validation failed');
 		}
 	}, [controller.tokens]);
 
@@ -462,12 +466,22 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 										redirectUri={controller.credentials.redirectUri || ''}
 										scopes={controller.credentials.scopes || controller.credentials.scope || ''}
 										loginHint={controller.credentials.loginHint || ''}
-										onEnvironmentIdChange={(value) => controller.setCredentials({...controller.credentials, environmentId: value})}
-										onClientIdChange={(value) => controller.setCredentials({...controller.credentials, clientId: value})}
+										onEnvironmentIdChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, environmentId: value })
+										}
+										onClientIdChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, clientId: value })
+										}
 										onClientSecretChange={() => {}} // Not used in Implicit
-										onRedirectUriChange={(value) => controller.setCredentials({...controller.credentials, redirectUri: value})}
-										onScopesChange={(value) => controller.setCredentials({...controller.credentials, scopes: value})}
-										onLoginHintChange={(value) => controller.setCredentials({...controller.credentials, loginHint: value})}
+										onRedirectUriChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, redirectUri: value })
+										}
+										onScopesChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, scopes: value })
+										}
+										onLoginHintChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, loginHint: value })
+										}
 										onCopy={controller.handleCopy}
 										emptyRequiredFields={new Set()}
 										copiedField={controller.copiedField}
@@ -759,7 +773,12 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 									</div>
 								</ParameterGrid>
 								<ActionRow>
-									<Button $variant="primary" onClick={() => controller.handleCopy(controller.tokens?.access_token || '', 'Access Token')}>
+									<Button
+										$variant="primary"
+										onClick={() =>
+											controller.handleCopy(controller.tokens?.access_token || '', 'Access Token')
+										}
+									>
 										<FiCopy /> Copy Access Token
 									</Button>
 								</ActionRow>
@@ -966,7 +985,8 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 														borderRadius: '0.25rem',
 													}}
 												>
-													https://auth.pingone.com/{controller.credentials.environmentId}/as/userinfo
+													https://auth.pingone.com/{controller.credentials.environmentId}
+													/as/userinfo
 												</code>
 											</small>
 										</div>
@@ -1174,7 +1194,9 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 						responseType: 'token',
 						grantType: 'implicit',
 					}}
-					hasConfiguration={Boolean(controller.credentials.environmentId && controller.credentials.clientId)}
+					hasConfiguration={Boolean(
+						controller.credentials.environmentId && controller.credentials.clientId
+					)}
 					configurationDetails={{
 						environmentId: controller.credentials.environmentId || '',
 						clientId: controller.credentials.clientId || '',

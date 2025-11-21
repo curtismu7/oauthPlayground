@@ -9,38 +9,38 @@ import {
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
+	FiGitBranch,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
 	FiZap,
-	FiGitBranch,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlowController } from '../../hooks/useHybridFlowController';
-import { 
-	HybridFlowVariant,
-	HybridFlowDefaults,
-	HybridFlowStepRestoration,
-	HybridFlowCollapsibleSectionsManager,
-	HybridFlowEducationalContent,
-	log
-} from '../../services/hybridFlowSharedService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowSequenceService } from '../../services/flowSequenceService';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
-import { AuthenticationModalService } from '../../services/authenticationModalService';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { EducationalContentService } from '../../services/educationalContentService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowSequenceService } from '../../services/flowSequenceService';
+import {
+	HybridFlowCollapsibleSectionsManager,
+	HybridFlowDefaults,
+	HybridFlowEducationalContent,
+	HybridFlowStepRestoration,
+	HybridFlowVariant,
+	log,
+} from '../../services/hybridFlowSharedService';
+import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID-V6]';
 
@@ -100,15 +100,15 @@ const SectionDivider = styled.div`
 
 const ResponseTypeCard = styled.div<{ isSelected: boolean; variant: HybridFlowVariant }>`
 	padding: 1.5rem;
-	border: 2px solid ${props => props.isSelected ? getVariantColor(props.variant) : '#e2e8f0'};
+	border: 2px solid ${(props) => (props.isSelected ? getVariantColor(props.variant) : '#e2e8f0')};
 	border-radius: 0.75rem;
-	background: ${props => props.isSelected ? `${getVariantColor(props.variant)}10` : 'white'};
+	background: ${(props) => (props.isSelected ? `${getVariantColor(props.variant)}10` : 'white')};
 	cursor: pointer;
 	transition: all 0.2s ease;
 	
 	&:hover {
-		border-color: ${props => getVariantColor(props.variant)};
-		background: ${props => `${getVariantColor(props.variant)}05`};
+		border-color: ${(props) => getVariantColor(props.variant)};
+		background: ${(props) => `${getVariantColor(props.variant)}05`};
 	}
 `;
 
@@ -123,7 +123,7 @@ const ResponseTypeIcon = styled.div<{ variant: HybridFlowVariant }>`
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 0.5rem;
-	background: ${props => getVariantColor(props.variant)};
+	background: ${(props) => getVariantColor(props.variant)};
 	color: white;
 	display: flex;
 	align-items: center;
@@ -179,52 +179,52 @@ const STEP_METADATA = [
 	{
 		title: 'Credentials & Configuration',
 		subtitle: 'Configure your PingOne application and hybrid flow settings',
-		description: 'Set up your application credentials and choose the hybrid response type'
+		description: 'Set up your application credentials and choose the hybrid response type',
 	},
 	{
 		title: 'Response Type Selection',
 		subtitle: 'Choose your hybrid flow variant',
-		description: 'Select between code id_token, code token, or code id_token token'
+		description: 'Select between code id_token, code token, or code id_token token',
 	},
 	{
 		title: 'Authorization URL Generation',
 		subtitle: 'Generate the authorization URL with hybrid parameters',
-		description: 'Build the authorization URL with your selected response type'
+		description: 'Build the authorization URL with your selected response type',
 	},
 	{
 		title: 'User Authentication',
 		subtitle: 'Authenticate with PingOne',
-		description: 'Redirect to PingOne for user authentication and authorization'
+		description: 'Redirect to PingOne for user authentication and authorization',
 	},
 	{
 		title: 'Token Processing',
 		subtitle: 'Process tokens from URL fragment',
-		description: 'Extract and display tokens received in the URL fragment'
+		description: 'Extract and display tokens received in the URL fragment',
 	},
 	{
 		title: 'Code Exchange',
 		subtitle: 'Exchange authorization code for additional tokens',
-		description: 'Exchange the authorization code for refresh tokens and other tokens'
+		description: 'Exchange the authorization code for refresh tokens and other tokens',
 	},
 	{
 		title: 'Token Management',
 		subtitle: 'Manage and introspect your tokens',
-		description: 'View, decode, and manage all received tokens'
+		description: 'View, decode, and manage all received tokens',
 	},
 	{
 		title: 'Flow Completion',
 		subtitle: 'Review and complete the hybrid flow',
-		description: 'Review the completed flow and explore next steps'
-	}
+		description: 'Review the completed flow and explore next steps',
+	},
 ];
 
 const OIDCHybridFlowV6: React.FC = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
-	
+
 	// Initialize page scroll management
 	usePageScroll();
-	
+
 	// Initialize hybrid flow controller
 	const controller = useHybridFlowController({
 		flowKey: 'oidc-hybrid-v6',
@@ -234,7 +234,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 
 	// Step management
 	const [currentStep, setCurrentStep] = useState(() => HybridFlowStepRestoration.getInitialStep());
-	
+
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		HybridFlowCollapsibleSectionsManager.getDefaultState()
@@ -253,17 +253,20 @@ const OIDCHybridFlowV6: React.FC = () => {
 	}, [searchParams]);
 
 	// Step change handler
-	const handleStepChange = useCallback((newStep: number) => {
-		setCurrentStep(newStep);
-		HybridFlowStepRestoration.scrollToTopOnStepChange();
-		
-		// Update URL without triggering navigation
-		const newUrl = new URL(window.location.href);
-		newUrl.searchParams.set('step', newStep.toString());
-		window.history.replaceState({}, '', newUrl.toString());
-		
-		log.info('Step changed', { from: currentStep, to: newStep });
-	}, [currentStep]);
+	const handleStepChange = useCallback(
+		(newStep: number) => {
+			setCurrentStep(newStep);
+			HybridFlowStepRestoration.scrollToTopOnStepChange();
+
+			// Update URL without triggering navigation
+			const newUrl = new URL(window.location.href);
+			newUrl.searchParams.set('step', newStep.toString());
+			window.history.replaceState({}, '', newUrl.toString());
+
+			log.info('Step changed', { from: currentStep, to: newStep });
+		},
+		[currentStep]
+	);
 
 	// Toggle section handler
 	const toggleSection = useCallback(
@@ -272,28 +275,31 @@ const OIDCHybridFlowV6: React.FC = () => {
 	);
 
 	// Step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0: // Credentials & Configuration
-				return controller.hasValidCredentials;
-			case 1: // Response Type Selection
-				return !!controller.flowConfig;
-			case 2: // Authorization URL Generation
-				return !!controller.authorizationUrl;
-			case 3: // User Authentication
-				return !!controller.authorizationUrl;
-			case 4: // Token Processing
-				return !!controller.tokens && Object.keys(controller.tokens).length > 0;
-			case 5: // Code Exchange
-				return !!controller.tokens?.code;
-			case 6: // Token Management
-				return !!controller.tokens;
-			case 7: // Flow Completion
-				return !!controller.tokens;
-			default:
-				return false;
-		}
-	}, [controller]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0: // Credentials & Configuration
+					return controller.hasValidCredentials;
+				case 1: // Response Type Selection
+					return !!controller.flowConfig;
+				case 2: // Authorization URL Generation
+					return !!controller.authorizationUrl;
+				case 3: // User Authentication
+					return !!controller.authorizationUrl;
+				case 4: // Token Processing
+					return !!controller.tokens && Object.keys(controller.tokens).length > 0;
+				case 5: // Code Exchange
+					return !!controller.tokens?.code;
+				case 6: // Token Management
+					return !!controller.tokens;
+				case 7: // Flow Completion
+					return !!controller.tokens;
+				default:
+					return false;
+			}
+		},
+		[controller]
+	);
 
 	// Navigation handlers
 	const handleNext = useCallback(() => {
@@ -316,28 +322,31 @@ const OIDCHybridFlowV6: React.FC = () => {
 	}, [controller]);
 
 	// Render step content
-	const renderStepContent = useCallback((step: number) => {
-		switch (step) {
-			case 0:
-				return renderCredentialsConfiguration();
-			case 1:
-				return renderResponseTypeSelection();
-			case 2:
-				return renderAuthorizationUrlGeneration();
-			case 3:
-				return renderUserAuthentication();
-			case 4:
-				return renderTokenProcessing();
-			case 5:
-				return renderCodeExchange();
-			case 6:
-				return renderTokenManagement();
-			case 7:
-				return renderFlowCompletion();
-			default:
-				return <div>Invalid step</div>;
-		}
-	}, [controller, collapsedSections, toggleSection]);
+	const renderStepContent = useCallback(
+		(step: number) => {
+			switch (step) {
+				case 0:
+					return renderCredentialsConfiguration();
+				case 1:
+					return renderResponseTypeSelection();
+				case 2:
+					return renderAuthorizationUrlGeneration();
+				case 3:
+					return renderUserAuthentication();
+				case 4:
+					return renderTokenProcessing();
+				case 5:
+					return renderCodeExchange();
+				case 6:
+					return renderTokenManagement();
+				case 7:
+					return renderFlowCompletion();
+				default:
+					return <div>Invalid step</div>;
+			}
+		},
+		[controller, collapsedSections, toggleSection]
+	);
 
 	// Step 0: Credentials & Configuration
 	const renderCredentialsConfiguration = () => (
@@ -348,9 +357,9 @@ const OIDCHybridFlowV6: React.FC = () => {
 				collapsed={collapsedSections.overview}
 				onToggleCollapsed={() => toggleSection('overview')}
 			/>
-			
+
 			<SectionDivider />
-			
+
 			<ComprehensiveCredentialsService
 				credentials={controller.credentials}
 				onCredentialsChange={controller.setCredentials}
@@ -359,9 +368,9 @@ const OIDCHybridFlowV6: React.FC = () => {
 				onToggleCollapsed={() => toggleSection('credentials')}
 				flowType="hybrid"
 			/>
-			
+
 			<SectionDivider />
-			
+
 			<UISettingsService
 				collapsed={collapsedSections.uiSettings}
 				onToggleCollapsed={() => toggleSection('uiSettings')}
@@ -372,7 +381,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 	// Step 1: Response Type Selection
 	const renderResponseTypeSelection = () => {
 		const supportedVariants = HybridFlowDefaults.getSupportedResponseTypes();
-		
+
 		return (
 			<div>
 				<EducationalContentService
@@ -383,18 +392,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 						useCases: [
 							'code id_token: Immediate user identity verification',
 							'code token: Immediate API access',
-							'code id_token token: Complete hybrid approach'
-						]
+							'code id_token token: Complete hybrid approach',
+						],
 					}}
 					collapsed={collapsedSections.responseType}
 					onToggleCollapsed={() => toggleSection('responseType')}
 				/>
-				
+
 				<div style={{ marginTop: '2rem', display: 'grid', gap: '1rem' }}>
 					{supportedVariants.map((variant) => {
 						const config = HybridFlowDefaults.getFlowConfig(variant);
 						const isSelected = controller.flowVariant === variant;
-						
+
 						return (
 							<ResponseTypeCard
 								key={variant}
@@ -413,7 +422,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 										<ResponseTypeDescription>{config.description}</ResponseTypeDescription>
 									</div>
 								</ResponseTypeHeader>
-								
+
 								<BenefitsList>
 									{config.benefits.map((benefit, index) => (
 										<BenefitItem key={index}>{benefit}</BenefitItem>
@@ -434,17 +443,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 				title="Authorization URL Generation"
 				content={{
 					title: 'Building the Authorization URL',
-					description: 'The authorization URL contains all necessary parameters for the hybrid flow',
+					description:
+						'The authorization URL contains all necessary parameters for the hybrid flow',
 					useCases: [
 						'Response type determines which tokens are returned',
 						'PKCE parameters provide additional security',
-						'State and nonce parameters prevent attacks'
-					]
+						'State and nonce parameters prevent attacks',
+					],
 				}}
 				collapsed={collapsedSections.authRequest}
 				onToggleCollapsed={() => toggleSection('authRequest')}
 			/>
-			
+
 			<div style={{ marginTop: '2rem' }}>
 				<button
 					onClick={() => {
@@ -462,12 +472,12 @@ const OIDCHybridFlowV6: React.FC = () => {
 						fontSize: '1rem',
 						fontWeight: '500',
 						cursor: 'pointer',
-						opacity: (!controller.hasValidCredentials || controller.isLoading) ? 0.5 : 1,
+						opacity: !controller.hasValidCredentials || controller.isLoading ? 0.5 : 1,
 					}}
 				>
 					{controller.isLoading ? 'Generating...' : 'Generate Authorization URL'}
 				</button>
-				
+
 				{controller.authorizationUrl && (
 					<div style={{ marginTop: '2rem' }}>
 						<EnhancedApiCallDisplayService
@@ -496,17 +506,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 				title="User Authentication"
 				content={{
 					title: 'Redirect to PingOne for Authentication',
-					description: 'Users will be redirected to PingOne to authenticate and authorize your application',
+					description:
+						'Users will be redirected to PingOne to authenticate and authorize your application',
 					useCases: [
 						'User enters credentials at PingOne',
 						'User grants permissions to your application',
-						'PingOne redirects back with tokens in URL fragment'
-					]
+						'PingOne redirects back with tokens in URL fragment',
+					],
 				}}
 				collapsed={collapsedSections.authRequest}
 				onToggleCollapsed={() => toggleSection('authRequest')}
 			/>
-			
+
 			{controller.authorizationUrl && (
 				<div style={{ marginTop: '2rem' }}>
 					<AuthenticationModalService
@@ -528,17 +539,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 				title="Token Processing"
 				content={{
 					title: 'Processing Tokens from URL Fragment',
-					description: 'Tokens are returned in the URL fragment based on your selected response type',
+					description:
+						'Tokens are returned in the URL fragment based on your selected response type',
 					useCases: [
 						'Extract tokens from URL fragment parameters',
 						'Validate token signatures and claims',
-						'Store tokens for later use'
-					]
+						'Store tokens for later use',
+					],
 				}}
 				collapsed={collapsedSections.response}
 				onToggleCollapsed={() => toggleSection('response')}
 			/>
-			
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -558,17 +570,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 				title="Code Exchange"
 				content={{
 					title: 'Exchange Authorization Code for Additional Tokens',
-					description: 'Use the authorization code to get refresh tokens and other tokens not returned in the fragment',
+					description:
+						'Use the authorization code to get refresh tokens and other tokens not returned in the fragment',
 					useCases: [
 						'Exchange code for refresh token',
 						'Get additional access tokens if needed',
-						'Complete the hybrid flow token set'
-					]
+						'Complete the hybrid flow token set',
+					],
 				}}
 				collapsed={collapsedSections.exchange}
 				onToggleCollapsed={() => toggleSection('exchange')}
 			/>
-			
+
 			{controller.tokens?.code && (
 				<div style={{ marginTop: '2rem' }}>
 					<button
@@ -600,17 +613,18 @@ const OIDCHybridFlowV6: React.FC = () => {
 				title="Token Management"
 				content={{
 					title: 'Manage and Introspect Your Tokens',
-					description: 'View, decode, validate, and manage all tokens received from the hybrid flow',
+					description:
+						'View, decode, validate, and manage all tokens received from the hybrid flow',
 					useCases: [
 						'Decode JWT tokens to view claims',
 						'Validate token signatures and expiration',
-						'Introspect tokens with PingOne'
-					]
+						'Introspect tokens with PingOne',
+					],
 				}}
 				collapsed={collapsedSections.tokens}
 				onToggleCollapsed={() => toggleSection('tokens')}
 			/>
-			
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -618,9 +632,9 @@ const OIDCHybridFlowV6: React.FC = () => {
 						flowType="oidc-hybrid-v6"
 						showTokenManagementButtons={true}
 					/>
-					
+
 					<SectionDivider />
-					
+
 					<TokenIntrospectionService
 						tokens={controller.tokens}
 						flowType="oidc-hybrid-v6"
@@ -641,7 +655,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -672,7 +686,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-hybrid-v6" />
 				<FlowSequenceService flowType="hybrid" />
-				
+
 				<MainCard>
 					<StepContent>{renderStepContent(currentStep)}</StepContent>
 				</MainCard>

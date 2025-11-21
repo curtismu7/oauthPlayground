@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-	tokenLifecycleManager,
-	TokenSecurityAnalysis,
 	TokenLifecycleInfo,
+	TokenSecurityAnalysis,
+	tokenLifecycleManager,
 } from '../utils/tokenLifecycle';
 
 const SecurityContainer = styled.div`

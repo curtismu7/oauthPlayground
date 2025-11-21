@@ -1,21 +1,21 @@
 import React from 'react';
-import styled from 'styled-components';
 import {
-	FiShield,
-	FiLock,
-	FiKey,
-	FiGlobe,
 	FiAlertTriangle,
-	FiCheckCircle,
-	FiExternalLink,
 	FiBook,
+	FiCheckCircle,
 	FiCode,
-	FiUsers,
-	FiSettings,
+	FiExternalLink,
 	FiEye,
 	FiEyeOff,
+	FiGlobe,
+	FiKey,
+	FiLock,
 	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const PageContainer = styled.div`
   max-width: 1200px;

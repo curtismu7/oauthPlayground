@@ -1,5 +1,6 @@
 // src/components/flow/createAuthorizationCodeV5Steps.tsx
 
+import type { AuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 import {
 	createAuthUrlStep,
@@ -11,7 +12,6 @@ import {
 	createTokenValidationStep,
 	createUserAuthorizationStep,
 } from '../steps/CommonSteps';
-import type { AuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 
 interface CreateAuthorizationCodeV5StepsParams {
 	controller: AuthorizationCodeFlowController;

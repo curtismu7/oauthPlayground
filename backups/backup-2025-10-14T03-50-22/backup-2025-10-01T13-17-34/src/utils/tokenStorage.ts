@@ -3,11 +3,11 @@
  * Ensures all flows store and read tokens from the same location
  */
 
-import { oauthStorage } from './storage';
+import { logger } from './logger';
 import { secureTokenStorage } from './secureTokenStorage';
+import { oauthStorage } from './storage';
 import { addTokenToHistory } from './tokenHistory';
 import { tokenLifecycleManager } from './tokenLifecycle';
-import { logger } from './logger';
 
 export interface OAuthTokens {
 	access_token: string;

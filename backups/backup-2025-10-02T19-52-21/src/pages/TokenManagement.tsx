@@ -27,6 +27,7 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import { FlowHeader } from '../services/flowHeaderService';
 // JWT decoding functionality handled by token analysis service
 import {
 	clearTokenHistory,
@@ -38,7 +39,6 @@ import {
 } from '../utils/tokenHistory';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FlowHeader } from '../services/flowHeaderService';
 
 type TokenIntrospectionResult = {
 	active?: boolean;

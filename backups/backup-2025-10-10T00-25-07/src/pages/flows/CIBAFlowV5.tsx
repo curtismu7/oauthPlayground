@@ -2,8 +2,12 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { FiAlertCircle, FiCopy, FiInfo, FiRefreshCw, FiSmartphone, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import {
 	HelperText,
@@ -14,22 +18,18 @@ import {
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
+import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {
-	TokenIntrospectionService,
 	IntrospectionApiCallData,
+	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
 import { credentialManager } from '../../utils/credentialManager';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { usePageScroll } from '../../hooks/usePageScroll';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -544,12 +544,17 @@ const CIBAFlowV5: React.FC = () => {
 								<EnvironmentIdInput
 									initialEnvironmentId={effectiveConfig.environmentId || ''}
 									onEnvironmentIdChange={(newEnvId) => {
-										setEffectiveConfig(prev => ({
+										setEffectiveConfig((prev) => ({
 											...prev,
 											environmentId: newEnvId,
 										}));
 										// Auto-save if we have both environmentId and clientId
-										if (newEnvId && effectiveConfig.clientId && newEnvId.trim() && effectiveConfig.clientId.trim()) {
+										if (
+											newEnvId &&
+											effectiveConfig.clientId &&
+											newEnvId.trim() &&
+											effectiveConfig.clientId.trim()
+										) {
 											// Auto-save logic can be added here if needed
 										}
 									}}

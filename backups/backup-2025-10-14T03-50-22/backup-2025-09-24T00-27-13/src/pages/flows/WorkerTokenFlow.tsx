@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiKey, FiRefreshCw, FiServer, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSettings, FiKey, FiShield, FiServer, FiRefreshCw } from 'react-icons/fi';
+import Card from '../../components/Card';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import Card from '../../components/Card';
 
 // Default scope for Worker Token flow
 const DEFAULT_WORKER_TOKEN_SCOPE = 'openid';

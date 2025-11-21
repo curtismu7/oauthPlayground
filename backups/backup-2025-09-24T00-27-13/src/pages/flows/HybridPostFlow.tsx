@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
 import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

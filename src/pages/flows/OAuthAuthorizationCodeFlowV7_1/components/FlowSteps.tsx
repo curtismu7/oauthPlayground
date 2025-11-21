@@ -2,22 +2,22 @@
 // V7.1 Flow Steps - Step-by-step flow execution and display
 
 import React from 'react';
+import { FiCheck, FiClock, FiPause, FiPlay, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheck, FiClock, FiPlay, FiPause, FiRefreshCw } from 'react-icons/fi';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
-import { UI_CONSTANTS } from '../constants/uiConstants';
 import { STEP_METADATA } from '../constants/stepMetadata';
+import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant, StepCompletionState } from '../types/flowTypes';
 
 interface FlowStepsProps {
-  currentStep: number;
-  totalSteps: number;
-  stepCompletion: StepCompletionState;
-  flowVariant: FlowVariant;
-  onStepClick?: (step: number) => void;
-  showStepDetails?: boolean;
-  showProgress?: boolean;
-  isInteractive?: boolean;
+	currentStep: number;
+	totalSteps: number;
+	stepCompletion: StepCompletionState;
+	flowVariant: FlowVariant;
+	onStepClick?: (step: number) => void;
+	showStepDetails?: boolean;
+	showProgress?: boolean;
+	isInteractive?: boolean;
 }
 
 const StepsContainer = styled.div`
@@ -56,49 +56,51 @@ const StepsList = styled.div`
   gap: ${UI_CONSTANTS.SPACING.MD};
 `;
 
-const StepItem = styled.div<{ 
-  $isActive: boolean; 
-  $isCompleted: boolean; 
-  $isClickable: boolean;
-  $variant: FlowVariant;
+const StepItem = styled.div<{
+	$isActive: boolean;
+	$isCompleted: boolean;
+	$isClickable: boolean;
+	$variant: FlowVariant;
 }>`
   display: flex;
   align-items: flex-start;
   gap: ${UI_CONSTANTS.SPACING.MD};
   padding: ${UI_CONSTANTS.SPACING.LG};
-  background: ${props => {
-    if (props.$isActive) {
-      return props.$variant === 'oidc' 
-        ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
-        : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-    }
-    return UI_CONSTANTS.COLORS.WHITE;
-  }};
-  border: 2px solid ${props => {
-    if (props.$isActive) {
-      return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
-    }
-    if (props.$isCompleted) {
-      return '#10b981';
-    }
-    return UI_CONSTANTS.COLORS.GRAY_200;
-  }};
+  background: ${(props) => {
+		if (props.$isActive) {
+			return props.$variant === 'oidc'
+				? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
+				: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+		}
+		return UI_CONSTANTS.COLORS.WHITE;
+	}};
+  border: 2px solid ${(props) => {
+		if (props.$isActive) {
+			return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
+		}
+		if (props.$isCompleted) {
+			return '#10b981';
+		}
+		return UI_CONSTANTS.COLORS.GRAY_200;
+	}};
   border-radius: ${UI_CONSTANTS.SECTION.BORDER_RADIUS};
-  cursor: ${props => props.$isClickable ? 'pointer' : 'default'};
+  cursor: ${(props) => (props.$isClickable ? 'pointer' : 'default')};
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
   &:hover {
-    ${props => props.$isClickable && `
+    ${(props) =>
+			props.$isClickable &&
+			`
       transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
       box-shadow: ${UI_CONSTANTS.SECTION.CARD_SHADOW};
     `}
   }
 `;
 
-const StepIcon = styled.div<{ 
-  $isActive: boolean; 
-  $isCompleted: boolean; 
-  $variant: FlowVariant;
+const StepIcon = styled.div<{
+	$isActive: boolean;
+	$isCompleted: boolean;
+	$variant: FlowVariant;
 }>`
   display: flex;
   align-items: center;
@@ -106,21 +108,21 @@ const StepIcon = styled.div<{
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: ${props => {
-    if (props.$isCompleted) {
-      return '#10b981';
-    }
-    if (props.$isActive) {
-      return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
-    }
-    return UI_CONSTANTS.COLORS.GRAY_300;
-  }};
-  color: ${props => {
-    if (props.$isCompleted || props.$isActive) {
-      return UI_CONSTANTS.COLORS.WHITE;
-    }
-    return UI_CONSTANTS.COLORS.GRAY_600;
-  }};
+  background: ${(props) => {
+		if (props.$isCompleted) {
+			return '#10b981';
+		}
+		if (props.$isActive) {
+			return props.$variant === 'oidc' ? '#3b82f6' : '#16a34a';
+		}
+		return UI_CONSTANTS.COLORS.GRAY_300;
+	}};
+  color: ${(props) => {
+		if (props.$isCompleted || props.$isActive) {
+			return UI_CONSTANTS.COLORS.WHITE;
+		}
+		return UI_CONSTANTS.COLORS.GRAY_600;
+	}};
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.LG};
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
 `;
@@ -134,32 +136,32 @@ const StepContent = styled.div`
 
 const StepTitle = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.BASE};
-  font-weight: ${props => props.$isActive ? 
-    UI_CONSTANTS.TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD : 
-    UI_CONSTANTS.TYPOGRAPHY.FONT_WEIGHTS.MEDIUM
-  };
-  color: ${props => {
-    if (props.$isActive) {
-      return UI_CONSTANTS.COLORS.GRAY_900;
-    }
-    if (props.$isCompleted) {
-      return UI_CONSTANTS.COLORS.GRAY-700;
-    }
-    return UI_CONSTANTS.COLORS.GRAY_600;
-  }};
+  font-weight: ${(props) =>
+		props.$isActive
+			? UI_CONSTANTS.TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD
+			: UI_CONSTANTS.TYPOGRAPHY.FONT_WEIGHTS.MEDIUM};
+  color: ${(props) => {
+		if (props.$isActive) {
+			return UI_CONSTANTS.COLORS.GRAY_900;
+		}
+		if (props.$isCompleted) {
+			return UI_CONSTANTS.COLORS.GRAY - 700;
+		}
+		return UI_CONSTANTS.COLORS.GRAY_600;
+	}};
 `;
 
 const StepDescription = styled.div<{ $isActive: boolean; $isCompleted: boolean }>`
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM};
-  color: ${props => {
-    if (props.$isActive) {
-      return UI_CONSTANTS.COLORS.GRAY_700;
-    }
-    if (props.$isCompleted) {
-      return UI_CONSTANTS.COLORS.GRAY_500;
-    }
-    return UI_CONSTANTS.COLORS.GRAY_500;
-  }};
+  color: ${(props) => {
+		if (props.$isActive) {
+			return UI_CONSTANTS.COLORS.GRAY_700;
+		}
+		if (props.$isCompleted) {
+			return UI_CONSTANTS.COLORS.GRAY_500;
+		}
+		return UI_CONSTANTS.COLORS.GRAY_500;
+	}};
   line-height: ${UI_CONSTANTS.TYPOGRAPHY.LINE_HEIGHTS.RELAXED};
 `;
 
@@ -173,23 +175,23 @@ const StepStatus = styled.div<{ $status: 'pending' | 'active' | 'completed' }>`
   letter-spacing: ${UI_CONSTANTS.TYPOGRAPHY.LETTER_SPACING.WIDE};
   
   ${({ $status }) => {
-    switch ($status) {
-      case 'completed':
-        return `
+		switch ($status) {
+			case 'completed':
+				return `
           color: #10b981;
         `;
-      case 'active':
-        return `
+			case 'active':
+				return `
           color: #3b82f6;
         `;
-      case 'pending':
-        return `
+			case 'pending':
+				return `
           color: ${UI_CONSTANTS.COLORS.GRAY_500};
         `;
-      default:
-        return '';
-    }
-  }}
+			default:
+				return '';
+		}
+	}}
 `;
 
 const StepActions = styled.div`
@@ -211,9 +213,9 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background: ${UI_CONSTANTS.BUTTON.PRIMARY_BACKGROUND};
           color: ${UI_CONSTANTS.BUTTON.PRIMARY_COLOR};
           
@@ -222,8 +224,8 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
             transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: ${UI_CONSTANTS.COLORS.GRAY_200};
           color: ${UI_CONSTANTS.COLORS.GRAY_600};
           
@@ -232,10 +234,10 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
             transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
           }
         `;
-      default:
-        return '';
-    }
-  }}
+			default:
+				return '';
+		}
+	}}
 `;
 
 const ProgressBar = styled.div`
@@ -249,137 +251,140 @@ const ProgressBar = styled.div`
 
 const ProgressFill = styled.div<{ $progress: number; $variant: FlowVariant }>`
   height: 100%;
-  background: ${props => props.$variant === 'oidc' 
-    ? 'linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%)' 
-    : 'linear-gradient(90deg, #16a34a 0%, #15803d 100%)'
-  };
-  width: ${props => props.$progress}%;
+  background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(90deg, #16a34a 0%, #15803d 100%)'};
+  width: ${(props) => props.$progress}%;
   transition: width ${UI_CONSTANTS.ANIMATION.DURATION_SLOW} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
 `;
 
 export const FlowSteps: React.FC<FlowStepsProps> = ({
-  currentStep,
-  totalSteps,
-  stepCompletion,
-  flowVariant,
-  onStepClick,
-  showStepDetails = true,
-  showProgress = true,
-  isInteractive = true,
+	currentStep,
+	totalSteps,
+	stepCompletion,
+	flowVariant,
+	onStepClick,
+	showStepDetails = true,
+	showProgress = true,
+	isInteractive = true,
 }) => {
-  const getStepStatus = (stepIndex: number): 'pending' | 'active' | 'completed' => {
-    if (stepCompletion[stepIndex] === true) {
-      return 'completed';
-    }
-    if (stepIndex === currentStep) {
-      return 'active';
-    }
-    return 'pending';
-  };
+	const getStepStatus = (stepIndex: number): 'pending' | 'active' | 'completed' => {
+		if (stepCompletion[stepIndex] === true) {
+			return 'completed';
+		}
+		if (stepIndex === currentStep) {
+			return 'active';
+		}
+		return 'pending';
+	};
 
-  const getStepIcon = (stepIndex: number, status: 'pending' | 'active' | 'completed') => {
-    if (status === 'completed') {
-      return <FiCheck />;
-    }
-    if (status === 'active') {
-      return <FiPlay />;
-    }
-    return <FiClock />;
-  };
+	const getStepIcon = (stepIndex: number, status: 'pending' | 'active' | 'completed') => {
+		if (status === 'completed') {
+			return <FiCheck />;
+		}
+		if (status === 'active') {
+			return <FiPlay />;
+		}
+		return <FiClock />;
+	};
 
-  const getStepStatusText = (status: 'pending' | 'active' | 'completed') => {
-    switch (status) {
-      case 'completed':
-        return 'Completed';
-      case 'active':
-        return 'In Progress';
-      case 'pending':
-        return 'Pending';
-      default:
-        return 'Unknown';
-    }
-  };
+	const getStepStatusText = (status: 'pending' | 'active' | 'completed') => {
+		switch (status) {
+			case 'completed':
+				return 'Completed';
+			case 'active':
+				return 'In Progress';
+			case 'pending':
+				return 'Pending';
+			default:
+				return 'Unknown';
+		}
+	};
 
-  const progress = ((currentStep + 1) / totalSteps) * 100;
-  const completedSteps = Object.values(stepCompletion).filter(Boolean).length;
+	const progress = ((currentStep + 1) / totalSteps) * 100;
+	const completedSteps = Object.values(stepCompletion).filter(Boolean).length;
 
-  return (
-    <StepsContainer>
-      <StepsHeader>
-        <StepsTitle>Flow Steps</StepsTitle>
-        <ProgressIndicator>
-          <span>{completedSteps} of {totalSteps} completed</span>
-        </ProgressIndicator>
-      </StepsHeader>
+	return (
+		<StepsContainer>
+			<StepsHeader>
+				<StepsTitle>Flow Steps</StepsTitle>
+				<ProgressIndicator>
+					<span>
+						{completedSteps} of {totalSteps} completed
+					</span>
+				</ProgressIndicator>
+			</StepsHeader>
 
-      <StepsList>
-        {Array.from({ length: totalSteps }, (_, index) => {
-          const status = getStepStatus(index);
-          const stepConfig = STEP_METADATA[`STEP_${index}` as keyof typeof STEP_METADATA];
-          const isClickable = isInteractive && (status === 'completed' || index === currentStep);
+			<StepsList>
+				{Array.from({ length: totalSteps }, (_, index) => {
+					const status = getStepStatus(index);
+					const stepConfig = STEP_METADATA[`STEP_${index}` as keyof typeof STEP_METADATA];
+					const isClickable = isInteractive && (status === 'completed' || index === currentStep);
 
-          return (
-            <StepItem
-              key={index}
-              $isActive={status === 'active'}
-              $isCompleted={status === 'completed'}
-              $isClickable={isClickable}
-              $variant={flowVariant}
-              onClick={() => isClickable && onStepClick?.(index)}
-            >
-              <StepIcon
-                $isActive={status === 'active'}
-                $isCompleted={status === 'completed'}
-                $variant={flowVariant}
-              >
-                {getStepIcon(index, status)}
-              </StepIcon>
+					return (
+						<StepItem
+							key={index}
+							$isActive={status === 'active'}
+							$isCompleted={status === 'completed'}
+							$isClickable={isClickable}
+							$variant={flowVariant}
+							onClick={() => isClickable && onStepClick?.(index)}
+						>
+							<StepIcon
+								$isActive={status === 'active'}
+								$isCompleted={status === 'completed'}
+								$variant={flowVariant}
+							>
+								{getStepIcon(index, status)}
+							</StepIcon>
 
-              <StepContent>
-                <StepTitle $isActive={status === 'active'} $isCompleted={status === 'completed'}>
-                  {stepConfig?.title || `Step ${index + 1}`}
-                </StepTitle>
-                
-                {showStepDetails && (
-                  <StepDescription $isActive={status === 'active'} $isCompleted={status === 'completed'}>
-                    {stepConfig?.subtitle || `Complete step ${index + 1} of the flow`}
-                  </StepDescription>
-                )}
+							<StepContent>
+								<StepTitle $isActive={status === 'active'} $isCompleted={status === 'completed'}>
+									{stepConfig?.title || `Step ${index + 1}`}
+								</StepTitle>
 
-                <StepStatus $status={status}>
-                  {getStepStatusText(status)}
-                </StepStatus>
-              </StepContent>
+								{showStepDetails && (
+									<StepDescription
+										$isActive={status === 'active'}
+										$isCompleted={status === 'completed'}
+									>
+										{stepConfig?.subtitle || `Complete step ${index + 1} of the flow`}
+									</StepDescription>
+								)}
 
-              {status === 'active' && (
-                <StepActions>
-                  <ActionButton $variant="primary">
-                    <FiPlay />
-                    Continue
-                  </ActionButton>
-                </StepActions>
-              )}
+								<StepStatus $status={status}>{getStepStatusText(status)}</StepStatus>
+							</StepContent>
 
-              {status === 'completed' && (
-                <StepActions>
-                  <ActionButton $variant="secondary">
-                    <FiRefreshCw />
-                    Review
-                  </ActionButton>
-                </StepActions>
-              )}
-            </StepItem>
-          );
-        })}
-      </StepsList>
+							{status === 'active' && (
+								<StepActions>
+									<ActionButton $variant="primary">
+										<FiPlay />
+										Continue
+									</ActionButton>
+								</StepActions>
+							)}
 
-      {showProgress && (
-        <ProgressBar>
-          <ProgressFill $progress={progress} $variant={flowVariant} />
-        </ProgressBar>
-      )}
-    </StepsContainer>
-  );
+							{status === 'completed' && (
+								<StepActions>
+									<ActionButton $variant="secondary">
+										<FiRefreshCw />
+										Review
+									</ActionButton>
+								</StepActions>
+							)}
+						</StepItem>
+					);
+				})}
+			</StepsList>
+
+			{showProgress && (
+				<ProgressBar>
+					<ProgressFill $progress={progress} $variant={flowVariant} />
+				</ProgressBar>
+			)}
+		</StepsContainer>
+	);
 };
 
 export default FlowSteps;

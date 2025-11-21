@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes, css } from 'styled-components';
-import { FiWifi, FiWifiOff, FiRefreshCw, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiWifi, FiWifiOff } from 'react-icons/fi';
+import styled, { css, keyframes } from 'styled-components';
 
 const pulse = keyframes`
   0% { opacity: 1; }

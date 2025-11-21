@@ -19,16 +19,22 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -39,42 +45,35 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import {
-	EnhancedApiCallDisplayService,
-	EnhancedApiCallData,
-} from '../../services/enhancedApiCallDisplayService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import { decodeJWTHeader } from '../../utils/jwks';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import {
-	FlowUIService,
-	CollapsibleSection,
-	InfoBox,
-	ParameterGrid,
-	ActionRow,
-	Button,
-	ResultsSection as FlowResultsSection,
-} from '../../services/flowUIService';
-
 // V6 Services
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import PKCEService from '../../services/pkceService';
 import { CopyButtonService } from '../../services/copyButtonService';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import {
+	ActionRow,
+	Button,
+	CollapsibleSection,
+	ResultsSection as FlowResultsSection,
+	FlowUIService,
+	InfoBox,
+	ParameterGrid,
+} from '../../services/flowUIService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import PKCEService from '../../services/pkceService';
+import { ResponseMode } from '../../services/responseModeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { decodeJWTHeader } from '../../utils/jwks';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Simple Step Header Component
 const StepHeader = styled.div`
@@ -99,7 +98,10 @@ const StepSubtitle = styled.p`
 `;
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Authorization Code Flow' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the OIDC Authorization Code Flow',
+	},
 	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
 	{
 		title: 'Step 2: Authorization Request',
@@ -455,16 +457,16 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 			v4ToastManager.showSuccess('Token exchange successful!');
 		} catch (error) {
 			console.error('[OIDCAuthorizationCodeFlowV6] Token exchange failed:', error);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Token exchange failed'
-			);
+			v4ToastManager.showError(error instanceof Error ? error.message : 'Token exchange failed');
 		}
 	}, [controller, localAuthCode]);
 
 	// Handle user info retrieval
 	const handleGetUserInfo = useCallback(async () => {
 		if (!controller.tokens?.accessToken) {
-			v4ToastManager.showError('Complete above action: Exchange authorization code for tokens first.');
+			v4ToastManager.showError(
+				'Complete above action: Exchange authorization code for tokens first.'
+			);
 			return;
 		}
 
@@ -500,7 +502,10 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 								// Extract environment ID from issuer URL
 								const envIdMatch = result.issuerUrl.match(/environments\/([^/]+)/);
 								if (envIdMatch) {
-									const newCredentials = { ...controller.credentials, environmentId: envIdMatch[1] };
+									const newCredentials = {
+										...controller.credentials,
+										environmentId: envIdMatch[1],
+									};
 									controller.setCredentials(newCredentials);
 								}
 							}}
@@ -519,7 +524,13 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepSubtitle>{STEP_METADATA[1].subtitle}</StepSubtitle>
 						</StepHeader>
 						<PKCEService
-							value={controller.pkceCodes || { codeVerifier: '', codeChallenge: '', codeChallengeMethod: 'S256' }}
+							value={
+								controller.pkceCodes || {
+									codeVerifier: '',
+									codeChallenge: '',
+									codeChallengeMethod: 'S256',
+								}
+							}
 							onChange={(pkce) => controller.setPKCECodes(pkce)}
 						/>
 					</FlowResultsSection>
@@ -532,12 +543,16 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[2].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[2].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<ActionRow>
 							<Button onClick={handleGenerateAuthUrl} variant="primary">
 								<FiRefreshCw /> Generate Authorization URL
 							</Button>
-							<Button onClick={handleRedirectToPingOne} variant="success" disabled={!controller.authUrl}>
+							<Button
+								onClick={handleRedirectToPingOne}
+								variant="success"
+								disabled={!controller.authUrl}
+							>
 								<FiExternalLink /> Redirect to PingOne
 							</Button>
 						</ActionRow>
@@ -559,7 +574,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[3].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[3].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						{authCode ? (
 							<InfoBox variant="success">
 								<FiCheckCircle />
@@ -578,7 +593,10 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 								<FiInfo />
 								<div>
 									<strong>Waiting for Authorization Code</strong>
-									<p>Complete the authorization in the previous step to receive the authorization code.</p>
+									<p>
+										Complete the authorization in the previous step to receive the authorization
+										code.
+									</p>
 								</div>
 							</InfoBox>
 						)}
@@ -592,7 +610,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[4].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[4].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<ActionRow>
 							<Button onClick={handleTokenExchange} variant="primary" disabled={!authCode}>
 								<FiKey /> Exchange Code for Tokens
@@ -606,7 +624,9 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 									<strong>Tokens Received!</strong>
 									<p>Access Token: {tokens.accessToken.substring(0, 20)}...</p>
 									{tokens.idToken && <p>ID Token: {tokens.idToken.substring(0, 20)}...</p>}
-									{tokens.refreshToken && <p>Refresh Token: {tokens.refreshToken.substring(0, 20)}...</p>}
+									{tokens.refreshToken && (
+										<p>Refresh Token: {tokens.refreshToken.substring(0, 20)}...</p>
+									)}
 								</div>
 							</InfoBox>
 						)}
@@ -620,7 +640,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[5].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[5].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<ActionRow>
 							<Button onClick={handleGetUserInfo} variant="primary" disabled={!tokens?.accessToken}>
 								<FiUser /> Get User Info
@@ -646,7 +666,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[6].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[6].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						{tokens?.accessToken && (
 							<TokenIntrospect
 								token={tokens.accessToken}
@@ -666,7 +686,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[7].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[7].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<InfoBox variant="success">
 							<FiCheckCircle />
 							<div>
@@ -684,7 +704,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[8].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[8].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<SecurityFeaturesDemo />
 					</FlowResultsSection>
 				);
@@ -696,7 +716,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							<StepTitle>{STEP_METADATA[9].title}</StepTitle>
 							<StepSubtitle>{STEP_METADATA[9].subtitle}</StepSubtitle>
 						</StepHeader>
-						
+
 						<InfoBox variant="info">
 							<FiInfo />
 							<div>

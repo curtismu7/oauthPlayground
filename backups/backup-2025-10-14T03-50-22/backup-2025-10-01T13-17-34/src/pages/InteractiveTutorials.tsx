@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useUISettings } from '../contexts/UISettingsContext';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import React, { useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiCheckCircle,
 	FiArrowRight,
 	FiBookOpen,
-	FiCode,
-	FiShield,
-	FiUsers,
-	FiSettings,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
-	FiStar,
 	FiClock,
-	FiKey,
+	FiCode,
 	FiGlobe,
-	FiServer,
+	FiKey,
 	FiMonitor,
+	FiPlay,
+	FiServer,
+	FiSettings,
+	FiShield,
+	FiStar,
 	FiUser,
+	FiUsers,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
+import { useUISettings } from '../contexts/UISettingsContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;

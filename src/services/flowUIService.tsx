@@ -1,19 +1,18 @@
-	// src/services/flowUIService.ts
+// src/services/flowUIService.ts
 // Comprehensive UI component library for V5 flows
 // Consolidates all common UI patterns from OAuth flows
 
 import React from 'react';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiAlertCircle, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
 import {
-	CollapsibleHeader as V6CollapsibleHeader,
 	CollapsibleHeaderProps,
+	CollapsibleHeader as V6CollapsibleHeader,
 } from './collapsibleHeaderService';
 
-export interface CollapsibleHeaderAdapterProps
-	extends Omit<CollapsibleHeaderProps, 'theme'> {
+export interface CollapsibleHeaderAdapterProps extends Omit<CollapsibleHeaderProps, 'theme'> {
 	theme?: CollapsibleHeaderProps['theme'];
 	children: CollapsibleHeaderProps['children'];
 }
@@ -75,60 +74,129 @@ export interface ResultsSectionProps {
 
 export class FlowUIService {
 	// ============================================================================
+	// CACHE FOR STYLED COMPONENTS (prevents dynamic creation warnings)
+	// ============================================================================
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _containerCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _variantSelectorCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _variantButtonCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _variantTitleCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _variantDescriptionCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _contentWrapperCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _mainCardCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepHeaderCache = new Map<string, any>();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepHeaderLeftCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepHeaderRightCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _versionBadgeCache = new Map<string, any>();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepHeaderTitleCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepHeaderSubtitleCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepNumberCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepTotalCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _stepContentWrapperCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _collapsibleSectionCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _collapsibleHeaderButtonCache = new Map<string, any>();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _collapsibleTitleCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _collapsibleToggleIconCache = new Map<string, any>();
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _collapsibleContentCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _infoBoxCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _infoTitleCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _infoTextCache: any = null;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	private static _infoListCache: any = null;
+
+	// ============================================================================
 	// LAYOUT COMPONENTS
 	// ============================================================================
 
 	static getContainer() {
-		return styled.div`
-			min-height: 100vh;
-			background-color: #f9fafb;
-			padding: 2rem 0 6rem;
-		`;
+		if (!FlowUIService._containerCache) {
+			FlowUIService._containerCache = styled.div`
+				min-height: 100vh;
+				background-color: #f9fafb;
+				padding: 2rem 0 6rem;
+			`;
+		}
+		return FlowUIService._containerCache;
 	}
 
 	static getVariantSelector() {
-		return styled.div`
-			display: flex;
-			gap: 1rem;
-			margin-bottom: 2rem;
-			padding: 1.5rem;
-			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-			border-radius: 0.75rem;
-			border: 1px solid #cbd5e1;
-		`;
+		if (!FlowUIService._variantSelectorCache) {
+			FlowUIService._variantSelectorCache = styled.div`
+				display: flex;
+				gap: 1rem;
+				margin-bottom: 2rem;
+				padding: 1.5rem;
+				background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+				border-radius: 0.75rem;
+				border: 1px solid #cbd5e1;
+			`;
+		}
+		return FlowUIService._variantSelectorCache;
 	}
 
 	static getVariantButton() {
-		return styled.button<{ $selected: boolean }>`
-			flex: 1;
-			padding: 1rem;
-			border-radius: 0.5rem;
-			border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#cbd5e1')};
-			background: ${({ $selected }) => ($selected ? '#dbeafe' : 'white')};
-			color: ${({ $selected }) => ($selected ? '#1e40af' : '#475569')};
-			font-weight: ${({ $selected }) => ($selected ? '600' : '500')};
-			transition: all 0.2s ease;
-			cursor: pointer;
+		if (!FlowUIService._variantButtonCache) {
+			FlowUIService._variantButtonCache = styled.button<{ $selected: boolean }>`
+				flex: 1;
+				padding: 1rem;
+				border-radius: 0.5rem;
+				border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#cbd5e1')};
+				background: ${({ $selected }) => ($selected ? '#dbeafe' : 'white')};
+				color: ${({ $selected }) => ($selected ? '#1e40af' : '#475569')};
+				font-weight: ${({ $selected }) => ($selected ? '600' : '500')};
+				transition: all 0.2s ease;
+				cursor: pointer;
 
-			&:hover {
-				border-color: #3b82f6;
-				background: #dbeafe;
-			}
-		`;
+				&:hover {
+					border-color: #3b82f6;
+					background: #dbeafe;
+				}
+			`;
+		}
+		return FlowUIService._variantButtonCache;
 	}
 
 	static getVariantTitle() {
-		return styled.div`
-			font-size: 1.1rem;
-			margin-bottom: 0.25rem;
-		`;
+		if (!FlowUIService._variantTitleCache) {
+			FlowUIService._variantTitleCache = styled.div`
+				font-size: 1.1rem;
+				margin-bottom: 0.25rem;
+			`;
+		}
+		return FlowUIService._variantTitleCache;
 	}
 
 	static getVariantDescription() {
-		return styled.div`
-			font-size: 0.875rem;
-			opacity: 0.8;
-		`;
+		if (!FlowUIService._variantDescriptionCache) {
+			FlowUIService._variantDescriptionCache = styled.div`
+				font-size: 0.875rem;
+				opacity: 0.8;
+			`;
+		}
+		return FlowUIService._variantDescriptionCache;
 	}
 
 	static getCollapsibleHeaderAdapter(themeOverride?: CollapsibleHeaderProps['theme']) {
@@ -165,21 +233,27 @@ export class FlowUIService {
 	}
 
 	static getContentWrapper() {
-		return styled.div`
-			max-width: 64rem;
-			margin: 0 auto;
-			padding: 0 1rem;
-		`;
+		if (!FlowUIService._contentWrapperCache) {
+			FlowUIService._contentWrapperCache = styled.div`
+				max-width: 90rem;
+				margin: 0 auto;
+				padding: 0 1rem;
+			`;
+		}
+		return FlowUIService._contentWrapperCache;
 	}
 
 	static getMainCard() {
-		return styled.div`
-			background-color: #ffffff;
-			border-radius: 1rem;
-			box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-			border: 1px solid #e2e8f0;
-			overflow: hidden;
-		`;
+		if (!FlowUIService._mainCardCache) {
+			FlowUIService._mainCardCache = styled.div`
+				background-color: #ffffff;
+				border-radius: 1rem;
+				box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+				border: 1px solid #e2e8f0;
+				overflow: hidden;
+			`;
+		}
+		return FlowUIService._mainCardCache;
 	}
 
 	// ============================================================================
@@ -187,100 +261,134 @@ export class FlowUIService {
 	// ============================================================================
 
 	static getStepHeader(theme: string) {
-		const gradients = {
-			green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
-			orange: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-			blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-			purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-			red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-		};
+		if (!FlowUIService._stepHeaderCache.has(theme)) {
+			const gradients = {
+				green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+				orange: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+				blue: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+				purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+				red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+			};
 
-		return styled.div`
-			background: ${gradients[theme as keyof typeof gradients] || gradients.blue};
-			color: #ffffff;
-			padding: 2rem;
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-		`;
+			FlowUIService._stepHeaderCache.set(
+				theme,
+				styled.div`
+					background: ${gradients[theme as keyof typeof gradients] || gradients.blue};
+					color: #ffffff;
+					padding: 2rem;
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+				`
+			);
+		}
+		return FlowUIService._stepHeaderCache.get(theme)!;
 	}
 
 	static getStepHeaderLeft() {
-		return styled.div`
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-		`;
+		if (!FlowUIService._stepHeaderLeftCache) {
+			FlowUIService._stepHeaderLeftCache = styled.div`
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			`;
+		}
+		return FlowUIService._stepHeaderLeftCache;
 	}
 
 	static getStepHeaderRight() {
-		return styled.div`
-			text-align: right;
-		`;
+		if (!FlowUIService._stepHeaderRightCache) {
+			FlowUIService._stepHeaderRightCache = styled.div`
+				text-align: right;
+			`;
+		}
+		return FlowUIService._stepHeaderRightCache;
 	}
 
 	static getVersionBadge(theme: string) {
-		const themeColors = {
-			green: { background: 'rgba(22, 163, 74, 0.2)', border: '#4ade80', color: '#bbf7d0' },
-			orange: { background: 'rgba(249, 115, 22, 0.2)', border: '#fb923c', color: '#fed7aa' },
-			blue: { background: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6', color: '#dbeafe' },
-			purple: { background: 'rgba(139, 92, 246, 0.2)', border: '#8b5cf6', color: '#ede9fe' },
-			red: { background: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', color: '#fecaca' },
-		};
+		if (!FlowUIService._versionBadgeCache.has(theme)) {
+			const themeColors = {
+				green: { background: 'rgba(22, 163, 74, 0.2)', border: '#4ade80', color: '#bbf7d0' },
+				orange: { background: 'rgba(249, 115, 22, 0.2)', border: '#fb923c', color: '#fed7aa' },
+				blue: { background: 'rgba(59, 130, 246, 0.2)', border: '#3b82f6', color: '#dbeafe' },
+				purple: { background: 'rgba(139, 92, 246, 0.2)', border: '#8b5cf6', color: '#ede9fe' },
+				red: { background: 'rgba(239, 68, 68, 0.2)', border: '#ef4444', color: '#fecaca' },
+			};
 
-		const colors = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
+			const colors = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
 
-		return styled.span`
-			align-self: flex-start;
-			background: ${colors.background};
-			border: 1px solid ${colors.border};
-			color: ${colors.color};
-			font-size: 0.75rem;
-			font-weight: 600;
-			letter-spacing: 0.08em;
-			text-transform: uppercase;
-			padding: 0.25rem 0.75rem;
-			border-radius: 9999px;
-		`;
+			FlowUIService._versionBadgeCache.set(
+				theme,
+				styled.span`
+					align-self: flex-start;
+					background: ${colors.background};
+					border: 1px solid ${colors.border};
+					color: ${colors.color};
+					font-size: 0.75rem;
+					font-weight: 600;
+					letter-spacing: 0.08em;
+					text-transform: uppercase;
+					padding: 0.25rem 0.75rem;
+					border-radius: 9999px;
+				`
+			);
+		}
+		return FlowUIService._versionBadgeCache.get(theme)!;
 	}
 
 	static getStepHeaderTitle() {
-		return styled.h2`
-			font-size: 2rem;
-			font-weight: 700;
-			margin: 0;
-		`;
+		if (!FlowUIService._stepHeaderTitleCache) {
+			FlowUIService._stepHeaderTitleCache = styled.h2`
+				font-size: 2rem;
+				font-weight: 700;
+				margin: 0;
+				color: #ffffff;
+			`;
+		}
+		return FlowUIService._stepHeaderTitleCache;
 	}
 
 	static getStepHeaderSubtitle() {
-		return styled.p`
-			font-size: 1rem;
-			color: rgba(255, 255, 255, 0.85);
-			margin: 0;
-		`;
+		if (!FlowUIService._stepHeaderSubtitleCache) {
+			FlowUIService._stepHeaderSubtitleCache = styled.p`
+				font-size: 1rem;
+				color: rgba(255, 255, 255, 0.85);
+				margin: 0;
+			`;
+		}
+		return FlowUIService._stepHeaderSubtitleCache;
 	}
 
 	static getStepNumber() {
-		return styled.div`
-			font-size: 2.5rem;
-			font-weight: 700;
-			line-height: 1;
-		`;
+		if (!FlowUIService._stepNumberCache) {
+			FlowUIService._stepNumberCache = styled.div`
+				font-size: 2.5rem;
+				font-weight: 700;
+				line-height: 1;
+			`;
+		}
+		return FlowUIService._stepNumberCache;
 	}
 
 	static getStepTotal() {
-		return styled.div`
-			font-size: 0.875rem;
-			color: rgba(255, 255, 255, 0.75);
-			letter-spacing: 0.05em;
-		`;
+		if (!FlowUIService._stepTotalCache) {
+			FlowUIService._stepTotalCache = styled.div`
+				font-size: 0.875rem;
+				color: rgba(255, 255, 255, 0.75);
+				letter-spacing: 0.05em;
+			`;
+		}
+		return FlowUIService._stepTotalCache;
 	}
 
 	static getStepContentWrapper() {
-		return styled.div`
-			padding: 2rem;
-			background: #ffffff;
-		`;
+		if (!FlowUIService._stepContentWrapperCache) {
+			FlowUIService._stepContentWrapperCache = styled.div`
+				padding: 2rem;
+				background: #ffffff;
+			`;
+		}
+		return FlowUIService._stepContentWrapperCache;
 	}
 
 	// ============================================================================
@@ -288,127 +396,148 @@ export class FlowUIService {
 	// ============================================================================
 
 	static getCollapsibleSection() {
-		return styled.section`
-			border: 1px solid #e2e8f0;
-			border-radius: 0.75rem;
-			margin-bottom: 1.5rem;
-			background-color: #ffffff;
-			box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-		`;
+		if (!FlowUIService._collapsibleSectionCache) {
+			FlowUIService._collapsibleSectionCache = styled.section`
+				border: 1px solid #e2e8f0;
+				border-radius: 0.75rem;
+				margin-bottom: 1.5rem;
+				background-color: #ffffff;
+				box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+			`;
+		}
+		return FlowUIService._collapsibleSectionCache;
 	}
 
 	static getCollapsibleHeaderButton(theme: string) {
-		const themeColors = {
-			green: {
-				background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
-				hover: 'linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%)',
-				color: '#14532d',
-			},
-			orange: {
-				background: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
-				hover: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)',
-				color: '#7c2d12',
-			},
-			blue: {
-				background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-				hover: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
-				color: '#0c4a6e',
-			},
-			purple: {
-				background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-				hover: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
-				color: '#581c87',
-			},
-			red: {
-				background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-				hover: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
-				color: '#7f1d1d',
-			},
-		};
+		if (!FlowUIService._collapsibleHeaderButtonCache.has(theme)) {
+			const themeColors = {
+				green: {
+					background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%)',
+					hover: 'linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%)',
+					color: '#14532d',
+				},
+				orange: {
+					background: 'linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%)',
+					hover: 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)',
+					color: '#7c2d12',
+				},
+				blue: {
+					background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+					hover: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+					color: '#0c4a6e',
+				},
+				purple: {
+					background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
+					hover: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%)',
+					color: '#581c87',
+				},
+				red: {
+					background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+					hover: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+					color: '#7f1d1d',
+				},
+			};
 
-		const colors = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
+			const colors = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
 
-		return styled.button<{ $collapsed?: boolean }>`
-			display: flex;
-			align-items: center;
-			justify-content: space-between;
-			width: 100%;
-			padding: 1.25rem 1.5rem;
-			background: ${colors.background};
-			border: none;
-			border-radius: 0.75rem;
-			cursor: pointer;
-			font-size: 1.1rem;
-			font-weight: 600;
-			color: ${colors.color};
-			transition: background 0.2s ease;
+			FlowUIService._collapsibleHeaderButtonCache.set(
+				theme,
+				styled.button<{ $collapsed?: boolean }>`
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					width: 100%;
+					padding: 1.25rem 1.5rem;
+					background: ${colors.background};
+					border: none;
+					border-radius: 0.75rem;
+					cursor: pointer;
+					font-size: 1.1rem;
+					font-weight: 600;
+					color: ${colors.color};
+					transition: background 0.2s ease;
 
-			&:hover {
-				background: ${colors.hover};
-			}
-		`;
+					&:hover {
+						background: ${colors.hover};
+					}
+				`
+			);
+		}
+		return FlowUIService._collapsibleHeaderButtonCache.get(theme)!;
 	}
 
 	static getCollapsibleTitle() {
-		return styled.span`
-			display: flex;
-			align-items: center;
-			gap: 0.75rem;
-		`;
+		if (!FlowUIService._collapsibleTitleCache) {
+			FlowUIService._collapsibleTitleCache = styled.span`
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			`;
+		}
+		return FlowUIService._collapsibleTitleCache;
 	}
 
 	static getCollapsibleToggleIcon(theme: string) {
-		const themeColors = {
-			green: '#16a34a',
-			orange: '#ea580c',
-			blue: '#3b82f6',
-			purple: '#8b5cf6',
-			red: '#ef4444',
-		};
+		if (!FlowUIService._collapsibleToggleIconCache.has(theme)) {
+			const themeColors = {
+				green: '#16a34a',
+				orange: '#ea580c',
+				blue: '#3b82f6',
+				purple: '#8b5cf6',
+				red: '#ef4444',
+			};
 
-		const background = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
+			const background = themeColors[theme as keyof typeof themeColors] || themeColors.blue;
 
-		return styled(CollapsibleIcon).attrs<{ $collapsed?: boolean }>(({ $collapsed }) => ({
-			isExpanded: !$collapsed,
-		}))<{ $collapsed?: boolean }>`
-			display: inline-flex;
-			align-items: center;
-			justify-content: center;
-			width: 32px;
-			height: 32px;
-			border-radius: 50%;
-			background: ${background};
-			color: white;
-			box-shadow: 0 6px 16px ${background}33;
-			transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+			FlowUIService._collapsibleToggleIconCache.set(
+				theme,
+				styled(CollapsibleIcon).attrs<{ $collapsed?: boolean }>(({ $collapsed }) => ({
+					isExpanded: !$collapsed,
+				}))<{ $collapsed?: boolean }>`
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					width: 32px;
+					height: 32px;
+					border-radius: 50%;
+					background: ${background};
+					color: white;
+					box-shadow: 0 6px 16px ${background}33;
+					transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
 
-			svg {
-				width: 16px;
-				height: 16px;
-			}
+					svg {
+						width: 16px;
+						height: 16px;
+					}
 
-			&:hover {
-				transform: translateY(-1px);
-				box-shadow: 0 8px 20px ${background}4d;
-			}
-		`;
+					&:hover {
+						transform: translateY(-1px);
+						box-shadow: 0 8px 20px ${background}4d;
+					}
+				`
+			);
+		}
+		return FlowUIService._collapsibleToggleIconCache.get(theme)!;
 	}
 
 	static getCollapsibleContent() {
-		return styled.div`
-			padding: 1.5rem;
-			padding-top: 0;
-			animation: fadeIn 0.2s ease;
+		if (!FlowUIService._collapsibleContentCache) {
+			FlowUIService._collapsibleContentCache = styled.div`
+				padding: 1.5rem;
+				padding-top: 0;
+				animation: fadeIn 0.2s ease;
 
-			@keyframes fadeIn {
-				from {
-					opacity: 0;
+				@keyframes fadeIn {
+					from {
+						opacity: 0;
+					}
+					to {
+						opacity: 1;
+					}
 				}
-				to {
-					opacity: 1;
-				}
-			}
-		`;
+			`;
+		}
+		return FlowUIService._collapsibleContentCache;
 	}
 
 	// ============================================================================
@@ -416,60 +545,82 @@ export class FlowUIService {
 	// ============================================================================
 
 	static getInfoBox() {
-		return styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'danger' }>`
-			border-radius: 0.75rem;
-			padding: 1.5rem;
-			margin-bottom: 1.5rem;
-			display: flex;
-			gap: 1rem;
-			align-items: flex-start;
-			border: 1px solid
-				${({ $variant }) => {
-					switch ($variant) {
-						case 'warning': return '#f59e0b';
-						case 'success': return '#22c55e';
-						case 'danger': return '#ef4444';
-						default: return '#3b82f6';
-					}
-				}};
-			background-color:
-				${({ $variant }) => {
-					switch ($variant) {
-						case 'warning': return '#fef3c7';
-						case 'success': return '#dcfce7';
-						case 'danger': return '#fee2e2';
-						default: return '#dbeafe';
-					}
-				}};
-		`;
+		if (!FlowUIService._infoBoxCache) {
+			FlowUIService._infoBoxCache = styled.div<{
+				$variant?: 'info' | 'warning' | 'success' | 'danger';
+			}>`
+				border-radius: 0.75rem;
+				padding: 1.5rem;
+				margin-bottom: 1.5rem;
+				display: flex;
+				gap: 1rem;
+				align-items: flex-start;
+				border: 1px solid
+					${({ $variant }) => {
+						switch ($variant) {
+							case 'warning':
+								return '#f59e0b';
+							case 'success':
+								return '#22c55e';
+							case 'danger':
+								return '#ef4444';
+							default:
+								return '#3b82f6';
+						}
+					}};
+				background-color:
+					${({ $variant }) => {
+						switch ($variant) {
+							case 'warning':
+								return '#fef3c7';
+							case 'success':
+								return '#dcfce7';
+							case 'danger':
+								return '#fee2e2';
+							default:
+								return '#dbeafe';
+						}
+					}};
+			`;
+		}
+		return FlowUIService._infoBoxCache;
 	}
 
 	static getInfoTitle() {
-		return styled.h3`
-			font-size: 1rem;
-			font-weight: 600;
-			color: #0f172a;
-			margin: 0 0 0.5rem 0;
-		`;
+		if (!FlowUIService._infoTitleCache) {
+			FlowUIService._infoTitleCache = styled.h3`
+				font-size: 1rem;
+				font-weight: 600;
+				color: #0f172a;
+				margin: 0 0 0.5rem 0;
+			`;
+		}
+		return FlowUIService._infoTitleCache;
 	}
 
 	static getInfoText() {
-		return styled.p`
-			font-size: 0.95rem;
-			color: #3f3f46;
-			line-height: 1.7;
-			margin: 0;
-		`;
+		if (!FlowUIService._infoTextCache) {
+			FlowUIService._infoTextCache = styled.p`
+				font-size: 0.95rem;
+				color: #3f3f46;
+				line-height: 1.7;
+				margin: 0;
+			`;
+		}
+		return FlowUIService._infoTextCache;
 	}
 
 	static getInfoList() {
-		return styled.ul`
-			font-size: 0.875rem;
-			color: #334155;
-			line-height: 1.5;
-			margin: 0.5rem 0 0;
-			padding-left: 1.5rem;
-		`;
+		if (!FlowUIService._infoListCache) {
+			FlowUIService._infoListCache = styled.ul`
+				font-size: 0.875rem;
+				color: #334155;
+				line-height: 1.5;
+				margin: 0.5rem 0 0;
+				padding-left: 1.5rem;
+			`;
+		}
+		return FlowUIService._infoListCache;
 	}
 
 	// ============================================================================
@@ -522,7 +673,7 @@ export class FlowUIService {
 	static getActionRow() {
 		return styled.div<{ $justify?: string; $gap?: string; $wrap?: boolean }>`
 			display: flex;
-			flex-wrap: ${({ $wrap }) => $wrap ? 'wrap' : 'nowrap'};
+			flex-wrap: ${({ $wrap }) => ($wrap ? 'wrap' : 'nowrap')};
 			gap: ${({ $gap }) => $gap || '1rem'};
 			align-items: center;
 			justify-content: ${({ $justify }) => $justify || 'center'};
@@ -538,19 +689,22 @@ export class FlowUIService {
 			gap: 0.5rem;
 			padding: ${({ size }) => {
 				switch (size) {
-					case 'sm': return '0.5rem 1rem';
-					case 'lg': return '0.875rem 2rem';
-					default: return '0.75rem 1.5rem';
+					case 'sm':
+						return '0.5rem 1rem';
+					case 'lg':
+						return '0.875rem 2rem';
+					default:
+						return '0.75rem 1.5rem';
 				}
 			}};
 			border-radius: 0.5rem;
-			font-size: ${({ size }) => size === 'sm' ? '0.875rem' : '0.875rem'};
+			font-size: ${({ size }) => (size === 'sm' ? '0.875rem' : '0.875rem')};
 			font-weight: 600;
-			cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+			cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 			transition: all 0.2s;
 			border: 1px solid transparent;
-			width: ${({ fullWidth }) => fullWidth ? '100%' : 'auto'};
-			opacity: ${({ disabled }) => disabled ? 0.6 : 1};
+			width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
+			opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 
 			${({ variant }) => {
 				switch (variant) {
@@ -886,7 +1040,7 @@ export class FlowUIService {
 
 	static getFlowUIConfig(flowType: string): FlowUIConfig {
 		const configs: Record<string, FlowUIConfig> = {
-			'implicit': {
+			implicit: {
 				flowType: 'implicit',
 				theme: 'orange',
 				showEducationalContent: true,
@@ -948,7 +1102,8 @@ export class FlowUIService {
 			CollapsibleToggleIcon: FlowUIService.getCollapsibleToggleIcon('blue'), // Default theme
 			CollapsibleContent: FlowUIService.getCollapsibleContent(),
 			CollapsibleHeaderV6: FlowUIService.getCollapsibleHeaderAdapter(),
-			getThemedCollapsibleHeader: FlowUIService.getThemedCollapsibleHeaderAdapter.bind(FlowUIService),
+			getThemedCollapsibleHeader:
+				FlowUIService.getThemedCollapsibleHeaderAdapter.bind(FlowUIService),
 
 			// Info boxes
 			InfoBox: FlowUIService.getInfoBox(),
@@ -1129,7 +1284,6 @@ export class FlowUIService {
 		`;
 	}
 
-
 	// ============================================================================
 	// GENERATED CONTENT COMPONENTS
 	// ============================================================================
@@ -1164,81 +1318,93 @@ export class FlowUIService {
 // REACT COMPONENTS (Separate from class to avoid JSX issues)
 // ============================================================================
 
+// Pre-create styled components outside component to prevent dynamic creation warnings
+// These are guaranteed to be non-null after first call
+const CollapsibleSectionStyled = FlowUIService.getCollapsibleSection()!;
+const CollapsibleTitleStyled = FlowUIService.getCollapsibleTitle()!;
+const CollapsibleContentStyled = FlowUIService.getCollapsibleContent()!;
+
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 	title,
 	children,
 	isCollapsed,
 	onToggle,
 	icon,
-	variant = 'default'
+	variant = 'default',
 }) => {
 	const theme = FlowUIService.getThemeFromVariant(variant);
-	const Section = FlowUIService.getCollapsibleSection();
 	const HeaderButton = FlowUIService.getCollapsibleHeaderButton(theme);
-	const Title = FlowUIService.getCollapsibleTitle();
 	const ToggleIcon = FlowUIService.getCollapsibleToggleIcon(theme);
-	const Content = FlowUIService.getCollapsibleContent();
 
 	return (
-		<Section>
+		<CollapsibleSectionStyled>
 			<HeaderButton onClick={onToggle} $collapsed={isCollapsed}>
-				<Title>
+				<CollapsibleTitleStyled>
 					{icon}
 					{title}
-				</Title>
+				</CollapsibleTitleStyled>
 				<ToggleIcon $collapsed={isCollapsed} />
 			</HeaderButton>
-			{!isCollapsed && <Content>{children}</Content>}
-		</Section>
+			{!isCollapsed && <CollapsibleContentStyled>{children}</CollapsibleContentStyled>}
+		</CollapsibleSectionStyled>
 	);
 };
 
-export const InfoBox: React.FC<InfoBoxProps> = ({
-	title,
-	children,
-	variant = 'info',
-	icon
-}) => {
-	const Box = FlowUIService.getInfoBox();
-	const Title = FlowUIService.getInfoTitle();
-	const Text = FlowUIService.getInfoText();
+// Pre-create styled components outside component to prevent dynamic creation warnings
+// These are guaranteed to be non-null after first call
+const InfoBoxStyled = FlowUIService.getInfoBox()!;
+const InfoTitleStyled = FlowUIService.getInfoTitle()!;
+const InfoTextStyled = FlowUIService.getInfoText()!;
 
+export const InfoBox: React.FC<InfoBoxProps> = ({ title, children, variant = 'info', icon }) => {
 	const defaultIcons = {
 		info: <FiInfo size={20} />,
 		warning: <FiAlertTriangle size={20} />,
 		success: <FiCheckCircle size={20} />,
-		danger: <FiAlertCircle size={20} />
+		danger: <FiAlertCircle size={20} />,
 	};
 
 	return (
-		<Box $variant={variant}>
+		<InfoBoxStyled $variant={variant}>
 			{icon || defaultIcons[variant]}
 			<div>
-				{title && <Title>{title}</Title>}
-				{typeof children === 'string' ? <Text>{children}</Text> : children}
+				{title && <InfoTitleStyled>{title}</InfoTitleStyled>}
+				{typeof children === 'string' ? <InfoTextStyled>{children}</InfoTextStyled> : children}
 			</div>
-		</Box>
+		</InfoBoxStyled>
 	);
 };
 
 export const ParameterGrid: React.FC<ParameterGridProps> = ({
 	children,
 	columns = 1,
-	gap = '1rem'
+	gap = '1rem',
 }) => {
 	const Grid = FlowUIService.getParameterGrid();
-	return <Grid $columns={columns} $gap={gap}>{children}</Grid>;
+	return (
+		<Grid $columns={columns} $gap={gap}>
+			{children}
+		</Grid>
+	);
 };
 
 export const ActionRow: React.FC<ActionRowProps> = ({
 	children,
 	justify = 'center',
 	gap = '1rem',
-	wrap = false
+	wrap = false,
 }) => {
 	const Row = FlowUIService.getActionRow();
-	return <Row $justify={justify} $gap={gap} $wrap={wrap}>{children}</Row>;
+	return (
+		<Row $justify={justify} $gap={gap} $wrap={wrap}>
+			{children}
+		</Row>
+	);
 };
+
+// Pre-create styled button outside component to prevent dynamic creation warnings
+// This is guaranteed to be non-null after first call
+const ButtonStyled = FlowUIService.getButton()!;
 
 export const Button: React.FC<ButtonProps> = ({
 	children,
@@ -1248,21 +1414,20 @@ export const Button: React.FC<ButtonProps> = ({
 	loading = false,
 	onClick,
 	type = 'button',
-	fullWidth = false
+	fullWidth = false,
 }) => {
-	const StyledButton = FlowUIService.getButton();
 	return (
-		<StyledButton
+		<ButtonStyled
 			variant={variant}
 			size={size}
 			disabled={disabled || loading}
-			onClick={onClick}
+			{...(onClick ? { onClick } : {})}
 			type={type}
 			fullWidth={fullWidth}
 		>
 			{loading && <span>⟳</span>}
 			{children}
-		</StyledButton>
+		</ButtonStyled>
 	);
 };
 
@@ -1270,12 +1435,7 @@ export const Button: React.FC<ButtonProps> = ({
 const StyledResultsSection = FlowUIService.getResultsSection();
 const StyledResultsHeading = FlowUIService.getResultsHeading();
 
-export const ResultsSection: React.FC<ResultsSectionProps> = ({
-	title,
-	children,
-	icon,
-	variant = 'default'
-}) => {
+export const ResultsSection: React.FC<ResultsSectionProps> = ({ title, children, icon }) => {
 	return (
 		<StyledResultsSection>
 			<StyledResultsHeading>

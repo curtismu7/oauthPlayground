@@ -1,6 +1,5 @@
 // src/components/WorkerTokenFlowV5.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -13,30 +12,34 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../services/themeService';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
+import { EnhancedApiCallDisplayService } from '../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { pingOneConfigService } from '../services/pingoneConfigService';
+import { themeService } from '../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../services/tokenIntrospectionService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../utils/flowNavigation';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
+import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from './FlowConfigurationRequirements';
 import FlowInfoCard from './FlowInfoCard';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
 import PingOneApplicationConfig, { type PingOneApplicationState } from './PingOneApplicationConfig';
+import PingOneWorkerInfo from './PingOneWorkerInfo';
 import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
 import TokenIntrospect from './TokenIntrospect';
-import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../services/tokenIntrospectionService';
-import PingOneWorkerInfo from './PingOneWorkerInfo';
 
 export interface WorkerTokenFlowV5Props {
 	flowName?: string;
@@ -423,9 +426,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		const restoreStep = sessionStorage.getItem('restore_step');
 		return restoreStep ? parseInt(restoreStep, 10) : 0;
 	});
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	// Wrapper for introspection that creates API call data using reusable service
 	const handleIntrospectToken = useCallback(async () => {
@@ -438,19 +443,19 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 			token: controller.tokens.access_token,
 			clientId: controller.credentials.clientId,
 			clientSecret: controller.credentials.clientSecret,
-			tokenTypeHint: 'access_token' as const
+			tokenTypeHint: 'access_token' as const,
 		};
 
 		try {
 			await controller.introspectToken();
-			
+
 			// Create success API call using reusable service
 			const successApiCall = TokenIntrospectionService.createSuccessApiCall(
 				request,
 				'worker-token',
 				controller.introspectionResults as any
 			);
-			
+
 			setIntrospectionApiCall(successApiCall);
 		} catch (error) {
 			// Create error API call using reusable service
@@ -459,11 +464,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 				'worker-token',
 				error instanceof Error ? error.message : 'Unknown error'
 			);
-			
+
 			setIntrospectionApiCall(errorApiCall);
 		}
 	}, [controller]);
-	
+
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
@@ -587,7 +592,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 	}, []);
 
 	// Step validation functions
-		const isStepValid = useCallback(
+	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
@@ -1041,7 +1046,6 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 					</>
 				);
 
-
 			case 3:
 				return (
 					<>
@@ -1129,7 +1133,8 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('worker-token')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('worker-token'),
 								}}
 							/>
 						)}

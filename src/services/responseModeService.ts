@@ -146,14 +146,18 @@ export class ResponseModeService {
 	 * Get response modes compatible with specific client type
 	 */
 	static getModesForClientType(clientType: 'confidential' | 'public'): ResponseModeInfo[] {
-		return ResponseModeService.getAllModes().filter((mode) => mode.compatibility.clientTypes.includes(clientType));
+		return ResponseModeService.getAllModes().filter((mode) =>
+			mode.compatibility.clientTypes.includes(clientType)
+		);
 	}
 
 	/**
 	 * Get response modes compatible with specific platform
 	 */
 	static getModesForPlatform(platform: 'web' | 'mobile' | 'desktop' | 'iot'): ResponseModeInfo[] {
-		return ResponseModeService.getAllModes().filter((mode) => mode.compatibility.platforms.includes(platform));
+		return ResponseModeService.getAllModes().filter((mode) =>
+			mode.compatibility.platforms.includes(platform)
+		);
 	}
 
 	/**

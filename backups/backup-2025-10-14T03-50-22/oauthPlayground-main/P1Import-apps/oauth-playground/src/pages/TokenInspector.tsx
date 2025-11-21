@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiDownload, FiEye, FiEyeOff, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiEye, FiEyeOff, FiCheckCircle, FiXCircle, FiCopy, FiDownload } from 'react-icons/fi';
-import { decodeJwt, formatJwt, validateToken, getTimeRemainingFormatted } from '../utils/jwt';
+import { Card, CardBody, CardHeader } from '../components/Card';
+import { decodeJwt, formatJwt, getTimeRemainingFormatted, validateToken } from '../utils/jwt';
 import { oauthStorage } from '../utils/storage';
 
 const TokenInspectorContainer = styled.div`

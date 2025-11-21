@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiArrowLeft, FiArrowRight, FiPlay, FiRotateCcw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiPlay, FiArrowRight, FiArrowLeft, FiRotateCcw } from 'react-icons/fi';
 
 const FlowContainer = styled.div`
   margin-bottom: 1.5rem;

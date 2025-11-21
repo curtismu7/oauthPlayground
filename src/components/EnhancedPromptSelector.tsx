@@ -1,8 +1,8 @@
 // src/components/EnhancedPromptSelector.tsx
 // Enhanced OIDC Prompt Parameter Selector with multiple values
 import React from 'react';
+import { FiCheck, FiInfo, FiShield, FiUser, FiUsers } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiUser, FiShield, FiUsers, FiInfo, FiCheck } from 'react-icons/fi';
 
 export type PromptValue = 'none' | 'login' | 'consent' | 'select_account';
 
@@ -151,14 +151,14 @@ const promptOptions: {
 export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 	value,
 	onChange,
-	disabled = false
+	disabled = false,
 }) => {
 	const togglePrompt = (prompt: PromptValue) => {
 		if (disabled) return;
-		
+
 		if (value.includes(prompt)) {
 			// Remove if already selected
-			onChange(value.filter(p => p !== prompt));
+			onChange(value.filter((p) => p !== prompt));
 		} else {
 			// Add if not selected
 			onChange([...value, prompt]);
@@ -173,20 +173,22 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 	return (
 		<Container>
 			<Label>
-				<LabelIcon><FiUser /></LabelIcon>
+				<LabelIcon>
+					<FiUser />
+				</LabelIcon>
 				Prompt Parameter (OIDC Authentication Behavior)
 			</Label>
-			
+
 			<HelperText>
-				The <code>prompt</code> parameter controls the authentication and consent behavior. 
-				You can select multiple values to combine behaviors (e.g., "login consent").
+				The <code>prompt</code> parameter controls the authentication and consent behavior. You can
+				select multiple values to combine behaviors (e.g., "login consent").
 			</HelperText>
 
 			<PromptGrid>
 				{promptOptions.map((option) => {
 					const Icon = option.icon;
 					const isSelected = value.includes(option.value);
-					
+
 					return (
 						<PromptOption
 							key={option.value}
@@ -211,24 +213,36 @@ export const EnhancedPromptSelector: React.FC<EnhancedPromptSelectorProps> = ({
 			</PromptGrid>
 
 			<InfoBox>
-				<InfoIcon><FiInfo /></InfoIcon>
+				<InfoIcon>
+					<FiInfo />
+				</InfoIcon>
 				<div>
 					<strong>Current Value:</strong> <code>{formatValue(value)}</code>
 					<div style={{ marginTop: '0.5rem' }}>
-						<strong>About Multiple Prompts:</strong> You can combine multiple prompt values 
-						with spaces (e.g., "login consent"). The authorization server will process them 
-						in order. Common combinations:
+						<strong>About Multiple Prompts:</strong> You can combine multiple prompt values with
+						spaces (e.g., "login consent"). The authorization server will process them in order.
+						Common combinations:
 					</div>
 					<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-						<li><code>login</code> - Force fresh authentication</li>
-						<li><code>consent</code> - Force fresh consent</li>
-						<li><code>login consent</code> - Force both fresh auth and consent</li>
-						<li><code>select_account</code> - Show account picker</li>
-						<li><code>none</code> - Skip all prompts (default)</li>
+						<li>
+							<code>login</code> - Force fresh authentication
+						</li>
+						<li>
+							<code>consent</code> - Force fresh consent
+						</li>
+						<li>
+							<code>login consent</code> - Force both fresh auth and consent
+						</li>
+						<li>
+							<code>select_account</code> - Show account picker
+						</li>
+						<li>
+							<code>none</code> - Skip all prompts (default)
+						</li>
 					</ul>
 					<div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', fontStyle: 'italic' }}>
-						💡 <strong>Note:</strong> Some combinations may not be supported by all 
-						authorization servers. Check your provider's documentation.
+						💡 <strong>Note:</strong> Some combinations may not be supported by all authorization
+						servers. Check your provider's documentation.
 					</div>
 				</div>
 			</InfoBox>

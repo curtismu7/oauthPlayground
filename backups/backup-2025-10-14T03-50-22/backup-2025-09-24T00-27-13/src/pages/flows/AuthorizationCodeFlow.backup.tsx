@@ -1,38 +1,38 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiUser,
-	FiKey,
-	FiGlobe,
-	FiShield,
-	FiCode,
-	FiCheckCircle,
-	FiCopy,
-	FiSettings,
-	FiInfo,
 	FiAlertTriangle,
+	FiCheckCircle,
+	FiChevronDown,
 	FiClock,
-	FiLoader,
+	FiCode,
+	FiCopy,
 	FiEye,
 	FiEyeOff,
-	FiChevronDown,
-	FiSave,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLoader,
 	FiRefreshCw,
+	FiSave,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { credentialManager } from '../../utils/credentialManager';
-import { logger } from '../../utils/logger';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import { FlowConfiguration, type FlowConfig } from '../../components/FlowConfiguration';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
-import ContextualHelp from '../../components/ContextualHelp';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ContextualHelp from '../../components/ContextualHelp';
+import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import { type FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { credentialManager } from '../../utils/credentialManager';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { logger } from '../../utils/logger';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI

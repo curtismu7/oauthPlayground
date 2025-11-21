@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { jwksService, JWKSResponse, JWK } from '../services/jwksService';
+import { JWK, JWKSResponse, jwksService } from '../services/jwksService';
 import { logger } from '../utils/logger';
 
 const ViewerContainer = styled.div`

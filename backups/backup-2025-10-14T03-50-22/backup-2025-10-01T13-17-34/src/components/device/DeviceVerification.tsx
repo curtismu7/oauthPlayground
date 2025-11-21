@@ -1,17 +1,17 @@
 // Device verification component for OIDC Device Code flow
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiClock, FiCopy, FiExternalLink, FiMonitor, FiSmartphone } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiClock, FiExternalLink, FiSmartphone, FiMonitor } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
 import { formatUserCode } from '../../utils/deviceCode';
-import {
-	generateQRCode,
-	validateQRCodeUrl,
-	getQRCodeAltText,
-	formatUrlForQRCode,
-} from '../../utils/qrCode';
+import { logger } from '../../utils/logger';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
+import {
+	formatUrlForQRCode,
+	generateQRCode,
+	getQRCodeAltText,
+	validateQRCodeUrl,
+} from '../../utils/qrCode';
 
 interface DeviceVerificationProps {
 	userCode: string;

@@ -1,0 +1,144 @@
+/**
+ * Button Text Color Enforcement
+ * 
+ * Consistent button styling pattern:
+ * - Dark backgrounds (blue, green, red, dark gray): White text
+ * - Light backgrounds (white, light gray): Black text
+ * - Default: Blue (#3b82f6) with white text
+ * - Next Action: Green (#10b981) with white text
+ * - Token buttons: Red when no token, Green when token exists
+ */
+
+/* Default button - Blue background with white text */
+.btn,
+.btn-primary,
+button[class*="primary"],
+[class*="Button"][class*="primary"] {
+	background: #3b82f6 !important;
+	color: #ffffff !important;
+}
+
+.btn:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+button[class*="primary"]:hover:not(:disabled) {
+	background: #2563eb !important;
+	color: #ffffff !important;
+}
+
+/* Next Action button - Green background with white text */
+.btn-next,
+.btn-success,
+button[class*="next"],
+button[class*="success"] {
+	background: #10b981 !important;
+	color: #ffffff !important;
+}
+
+.btn-next:hover:not(:disabled),
+.btn-success:hover:not(:disabled),
+button[class*="next"]:hover:not(:disabled),
+button[class*="success"]:hover:not(:disabled) {
+	background: #059669 !important;
+	color: #ffffff !important;
+}
+
+/* Token button - Red when no token, Green when token exists */
+.btn-token-none {
+	background: #ef4444 !important;
+	color: #ffffff !important;
+}
+
+.btn-token-none:hover:not(:disabled) {
+	background: #dc2626 !important;
+	color: #ffffff !important;
+}
+
+.btn-token-has {
+	background: #10b981 !important;
+	color: #ffffff !important;
+}
+
+.btn-token-has:hover:not(:disabled) {
+	background: #059669 !important;
+	color: #ffffff !important;
+}
+
+/* Light background buttons - Black text */
+.btn-light,
+.btn-secondary,
+button[class*="light"],
+button[class*="secondary"] {
+	background: #ffffff !important;
+	color: #000000 !important;
+	border: 1px solid #d1d5db !important;
+}
+
+.btn-light:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled),
+button[class*="light"]:hover:not(:disabled),
+button[class*="secondary"]:hover:not(:disabled) {
+	background: #f9fafb !important;
+	color: #000000 !important;
+}
+
+/* Dark background buttons - White text */
+.btn-dark,
+button[class*="dark"] {
+	background: #1f2937 !important;
+	color: #ffffff !important;
+}
+
+.btn-dark:hover:not(:disabled),
+button[class*="dark"]:hover:not(:disabled) {
+	background: #374151 !important;
+	color: #ffffff !important;
+}
+
+/* Danger/Error buttons - Red background with white text */
+.btn-danger,
+button[class*="danger"] {
+	background: #ef4444 !important;
+	color: #ffffff !important;
+}
+
+.btn-danger:hover:not(:disabled),
+button[class*="danger"]:hover:not(:disabled) {
+	background: #dc2626 !important;
+	color: #ffffff !important;
+}
+
+/* Nested elements inside buttons - inherit parent color */
+.btn *,
+.btn-primary *,
+.btn-next *,
+.btn-success *,
+.btn-token-none *,
+.btn-token-has *,
+.btn-danger *,
+button * {
+	color: inherit !important;
+}
+
+/* Disabled state - maintain contrast */
+.btn:disabled,
+.btn-primary:disabled,
+.btn-next:disabled,
+.btn-success:disabled,
+.btn-token-none:disabled,
+.btn-token-has:disabled,
+.btn-light:disabled,
+.btn-dark:disabled,
+.btn-danger:disabled,
+button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/**
+ * Button Pattern Rules:
+ * 1. Default: Blue (#3b82f6) background with white text
+ * 2. Next Action: Green (#10b981) background with white text
+ * 3. Token buttons: Red (#ef4444) when no token, Green (#10b981) when token exists
+ * 4. Light backgrounds: White/light gray background with black text
+ * 5. Dark backgrounds: Dark gray/black background with white text
+ */

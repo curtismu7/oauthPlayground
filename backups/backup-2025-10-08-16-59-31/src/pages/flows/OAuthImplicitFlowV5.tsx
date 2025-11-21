@@ -1,65 +1,65 @@
 // src/pages/flows/OAuthImplicitFlowV5.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
 import {
 	FiAlertCircle,
+	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
+	FiClock,
+	FiCode,
 	FiCopy,
 	FiExternalLink,
-	FiInfo,
-	FiShield,
-	FiSettings,
-	FiRefreshCw,
 	FiGlobe,
+	FiInfo,
 	FiKey,
-	FiCode,
-	FiAlertTriangle,
-	FiClock,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
+import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
-import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
-import { FlowLayoutService } from '../../services/flowLayoutService';
-import { FlowStateService } from '../../services/flowStateService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { decodeJWTHeader } from '../../utils/jwks';
-import { useUISettings } from '../../contexts/UISettingsContext';
-import { validateForStep } from '../../services/credentialsValidationService';
-import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
-
-// Import shared services
-import { FlowConfigurationService } from '../../services/flowConfigurationService';
-import { FlowUIService } from '../../services/flowUIService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
-
 // Import components
 import TokenIntrospect from '../../components/TokenIntrospect';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import LoginSuccessModal from '../../components/LoginSuccessModal';
-
+import { useUISettings } from '../../contexts/UISettingsContext';
+import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import {
+	ConfigurationSummaryCard,
+	ConfigurationSummaryService,
+} from '../../services/configurationSummaryService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { validateForStep } from '../../services/credentialsValidationService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+// Import shared services
+import { FlowConfigurationService } from '../../services/flowConfigurationService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowLayoutService } from '../../services/flowLayoutService';
+import { FlowStateService } from '../../services/flowStateService';
+import { FlowUIService } from '../../services/flowUIService';
+import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { decodeJWTHeader } from '../../utils/jwks';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Import extracted styles and config
 
@@ -130,11 +130,11 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 `;
 
 import {
+	DEFAULT_APP_CONFIG,
 	FLOW_TYPE,
-	STEP_METADATA,
 	INTRO_SECTION_KEYS,
 	type IntroSectionKey,
-	DEFAULT_APP_CONFIG,
+	STEP_METADATA,
 } from './config/OAuthImplicitFlow.config';
 
 // Import step components
@@ -159,19 +159,21 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		if (controllerCreds && (controllerCreds.environmentId || controllerCreds.clientId)) {
 			return controllerCreds;
 		}
-		
+
 		const stored = configService.loadConfiguration();
-		return stored || {
-			environmentId: '',
-			clientId: '',
-			clientSecret: '',
-			redirectUri: 'https://localhost:3000/oauth-implicit-callback',
-			scope: '',  // OAuth 2.0 doesn't require openid scope
-			scopes: '',
-			responseType: 'token',
-			grantType: '',
-			clientAuthMethod: 'none',
-		};
+		return (
+			stored || {
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				redirectUri: 'https://localhost:3000/oauth-implicit-callback',
+				scope: '', // OAuth 2.0 doesn't require openid scope
+				scopes: '',
+				responseType: 'token',
+				grantType: '',
+				clientAuthMethod: 'none',
+			}
+		);
 	});
 
 	// Keep local credentials in sync with controller credentials
@@ -194,14 +196,17 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	const { responseMode, setResponseMode: setResponseModeInternal } = responseModeIntegration;
 
 	// Wrapper to update both local and controller credentials when response mode changes
-	const setResponseMode = useCallback((mode: string) => {
-		console.log('[OAuth Implicit V5] Response mode changing to:', mode);
-		setResponseModeInternal(mode as any);
-		// Also update controller credentials
-		const updated = { ...controller.credentials, responseMode: mode };
-		controller.setCredentials(updated);
-		setCredentials(updated);
-	}, [setResponseModeInternal, controller, setCredentials]);
+	const setResponseMode = useCallback(
+		(mode: string) => {
+			console.log('[OAuth Implicit V5] Response mode changing to:', mode);
+			setResponseModeInternal(mode as any);
+			// Also update controller credentials
+			const updated = { ...controller.credentials, responseMode: mode };
+			controller.setCredentials(updated);
+			setCredentials(updated);
+		},
+		[setResponseModeInternal, controller, setCredentials]
+	);
 
 	// Ensure page starts at top
 	usePageScroll({ pageName: 'OAuth Implicit Flow V5', force: true });
@@ -254,9 +259,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 
 	// Step completions are now handled by FlowStateService
 
-	const toggleSection = ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const savePingOneConfig = useCallback((config: PingOneApplicationState) => {
 		ImplicitFlowSharedService.CredentialsHandlers.createPingOneConfigHandler(
@@ -272,7 +276,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 			controller_clientId: controller.credentials?.clientId,
 			controller_environmentId: controller.credentials?.environmentId,
 		});
-		
+
 		if (!credentials.clientId || !credentials.environmentId) {
 			v4ToastManager.showError(
 				'Complete above action: Fill in Client ID and Environment ID first.'
@@ -317,7 +321,6 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	const handleCancelRedirect = useCallback(() => {
 		setShowRedirectModal(false);
 	}, []);
-
 
 	const navigateToTokenManagement = useCallback(() => {
 		ImplicitFlowSharedService.TokenManagement.navigateToTokenManagement(
@@ -437,7 +440,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		);
 	}, [handleNext, isStepValid, currentStep, credentials]);
 
-const renderStepContent = useMemo(() => {
+	const renderStepContent = useMemo(() => {
 		const tokens = controller.tokens;
 
 		switch (currentStep) {
@@ -465,11 +468,12 @@ const renderStepContent = useMemo(() => {
 											<InfoText>
 												This is the pure OAuth 2.0 Implicit Flow that returns{' '}
 												<StrongText>Access Token only</StrongText>. It's designed for{' '}
-												<StrongText>authorization and API access delegation</StrongText>, NOT for user authentication or identity.
+												<StrongText>authorization and API access delegation</StrongText>, NOT for
+												user authentication or identity.
 											</InfoText>
 											<InfoText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-												⚠️ This flow does NOT provide user identity information. If you need to authenticate users,
-												use OIDC Implicit Flow V5 instead.
+												⚠️ This flow does NOT provide user identity information. If you need to
+												authenticate users, use OIDC Implicit Flow V5 instead.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -492,11 +496,15 @@ const renderStepContent = useMemo(() => {
 										<ParameterGrid>
 											<div>
 												<ParameterLabel>Tokens Returned</ParameterLabel>
-												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>Access Token ONLY</ParameterValue>
+												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+													Access Token ONLY
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Purpose</ParameterLabel>
-												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>Authorization (NOT authentication)</ParameterValue>
+												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+													Authorization (NOT authentication)
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Spec Layer</ParameterLabel>
@@ -504,7 +512,9 @@ const renderStepContent = useMemo(() => {
 											</div>
 											<div>
 												<ParameterLabel>Nonce Requirement</ParameterLabel>
-												<ParameterValue style={{ color: '#059669' }}>Not used (no ID token)</ParameterValue>
+												<ParameterValue style={{ color: '#059669' }}>
+													Not used (no ID token)
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Scope Requirements</ParameterLabel>
@@ -512,11 +522,16 @@ const renderStepContent = useMemo(() => {
 											</div>
 											<div>
 												<ParameterLabel>User Identity</ParameterLabel>
-												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>NOT PROVIDED</ParameterValue>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													NOT PROVIDED
+												</ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Use Case</ParameterLabel>
-												<ParameterValue>Delegate API access to third-party app (e.g., "Let app X post to my Twitter")</ParameterValue>
+												<ParameterValue>
+													Delegate API access to third-party app (e.g., "Let app X post to my
+													Twitter")
+												</ParameterValue>
 											</div>
 										</ParameterGrid>
 									</GeneratedContentBox>
@@ -552,84 +567,85 @@ const renderStepContent = useMemo(() => {
 							)}
 						</CollapsibleSection>
 
-			{/* Comprehensive Credentials Service - replaces all credential configuration components */}
-			<ComprehensiveCredentialsService
-				// Pass individual credential props
-				environmentId={controller.credentials?.environmentId || ''}
-				clientId={controller.credentials?.clientId || ''}
-				clientSecret={controller.credentials?.clientSecret || ''}
-				redirectUri={controller.credentials?.redirectUri || 'https://localhost:3000/oauth-implicit-callback'}
-				scopes={controller.credentials?.scope || controller.credentials?.scopes || ''}
-				loginHint={controller.credentials?.loginHint || ''}
-				postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || ''}
-				
-			// Individual change handlers
-			onEnvironmentIdChange={(value) => {
-				const updated = { ...controller.credentials, environmentId: value };
-				controller.setCredentials(updated);
-				setCredentials(updated);
-				console.log('[OAuth Implicit V5] Environment ID updated:', value);
-			}}
-			onClientIdChange={(value) => {
-				const updated = { ...controller.credentials, clientId: value };
-				controller.setCredentials(updated);
-				setCredentials(updated);
-				console.log('[OAuth Implicit V5] Client ID updated:', value);
-			}}
-				onClientSecretChange={(value) => {
-					const updated = { ...controller.credentials, clientSecret: value };
-					controller.setCredentials(updated);
-					setCredentials(updated);
-				}}
-				onRedirectUriChange={(value) => {
-					const updated = { ...controller.credentials, redirectUri: value };
-					controller.setCredentials(updated);
-					setCredentials(updated);
-					console.log('[OAuth Implicit V5] Redirect URI updated:', value);
-					// Auto-save redirect URI to persist across refreshes
-					controller.saveCredentials().then(() => {
-						v4ToastManager.showSuccess('Redirect URI saved successfully!');
-					}).catch((error) => {
-						console.error('[OAuth Implicit V5] Failed to save redirect URI:', error);
-						v4ToastManager.showError('Failed to save redirect URI');
-					});
-				}}
-				onScopesChange={(value) => {
-					const updated = { ...controller.credentials, scope: value, scopes: value };
-					controller.setCredentials(updated);
-					setCredentials(updated);
-				}}
-				onLoginHintChange={(value) => {
-					const updated = { ...controller.credentials, loginHint: value };
-					controller.setCredentials(updated);
-					setCredentials(updated);
-				}}
-				
-				// Save handler for credentials
-				onSave={async () => {
-					try {
-						await controller.saveCredentials();
-						v4ToastManager.showSuccess('Credentials saved successfully!');
-					} catch (error) {
-						console.error('[OAuth Implicit V5] Failed to save credentials:', error);
-						v4ToastManager.showError('Failed to save credentials');
-					}
-				}}
-				
-			// Discovery handler - environment ID is auto-populated by the service
-			onDiscoveryComplete={(result) => {
-				console.log('[OAuth Implicit V5] OIDC Discovery completed:', result);
-				// Service already handles environment ID extraction
-			}}
-				
-				// PingOne Advanced Configuration (correct prop names)
-				pingOneAppState={pingOneConfig}
-				onPingOneAppStateChange={savePingOneConfig}
-				
-				// Configuration
-				requireClientSecret={false}
-				showAdvancedConfig={true}
-				defaultCollapsed={false}
+						{/* Comprehensive Credentials Service - replaces all credential configuration components */}
+						<ComprehensiveCredentialsService
+							// Pass individual credential props
+							environmentId={controller.credentials?.environmentId || ''}
+							clientId={controller.credentials?.clientId || ''}
+							clientSecret={controller.credentials?.clientSecret || ''}
+							redirectUri={
+								controller.credentials?.redirectUri ||
+								'https://localhost:3000/oauth-implicit-callback'
+							}
+							scopes={controller.credentials?.scope || controller.credentials?.scopes || ''}
+							loginHint={controller.credentials?.loginHint || ''}
+							postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || ''}
+							// Individual change handlers
+							onEnvironmentIdChange={(value) => {
+								const updated = { ...controller.credentials, environmentId: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+								console.log('[OAuth Implicit V5] Environment ID updated:', value);
+							}}
+							onClientIdChange={(value) => {
+								const updated = { ...controller.credentials, clientId: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+								console.log('[OAuth Implicit V5] Client ID updated:', value);
+							}}
+							onClientSecretChange={(value) => {
+								const updated = { ...controller.credentials, clientSecret: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+							}}
+							onRedirectUriChange={(value) => {
+								const updated = { ...controller.credentials, redirectUri: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+								console.log('[OAuth Implicit V5] Redirect URI updated:', value);
+								// Auto-save redirect URI to persist across refreshes
+								controller
+									.saveCredentials()
+									.then(() => {
+										v4ToastManager.showSuccess('Redirect URI saved successfully!');
+									})
+									.catch((error) => {
+										console.error('[OAuth Implicit V5] Failed to save redirect URI:', error);
+										v4ToastManager.showError('Failed to save redirect URI');
+									});
+							}}
+							onScopesChange={(value) => {
+								const updated = { ...controller.credentials, scope: value, scopes: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+							}}
+							onLoginHintChange={(value) => {
+								const updated = { ...controller.credentials, loginHint: value };
+								controller.setCredentials(updated);
+								setCredentials(updated);
+							}}
+							// Save handler for credentials
+							onSave={async () => {
+								try {
+									await controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials saved successfully!');
+								} catch (error) {
+									console.error('[OAuth Implicit V5] Failed to save credentials:', error);
+									v4ToastManager.showError('Failed to save credentials');
+								}
+							}}
+							// Discovery handler - environment ID is auto-populated by the service
+							onDiscoveryComplete={(result) => {
+								console.log('[OAuth Implicit V5] OIDC Discovery completed:', result);
+								// Service already handles environment ID extraction
+							}}
+							// PingOne Advanced Configuration (correct prop names)
+							pingOneAppState={pingOneConfig}
+							onPingOneAppStateChange={savePingOneConfig}
+							// Configuration
+							requireClientSecret={false}
+							showAdvancedConfig={true}
+							defaultCollapsed={false}
 						/>
 
 						{/* Configuration Summary Card - Compact */}
@@ -704,13 +720,16 @@ const renderStepContent = useMemo(() => {
 													<StrongText>No PKCE:</StrongText> Implicit flow doesn't support PKCE
 												</li>
 												<li>
-													<StrongText>No ID Token:</StrongText> OAuth 2.0 is for authorization, not authentication
+													<StrongText>No ID Token:</StrongText> OAuth 2.0 is for authorization, not
+													authentication
 												</li>
 												<li>
-													<StrongText>No openid scope:</StrongText> OAuth 2.0 doesn't use OIDC scopes
+													<StrongText>No openid scope:</StrongText> OAuth 2.0 doesn't use OIDC
+													scopes
 												</li>
 												<li>
-													<StrongText>No UserInfo endpoint:</StrongText> OAuth 2.0 doesn't provide user identity claims
+													<StrongText>No UserInfo endpoint:</StrongText> OAuth 2.0 doesn't provide
+													user identity claims
 												</li>
 											</InfoList>
 										</div>
@@ -721,12 +740,13 @@ const renderStepContent = useMemo(() => {
 										<div>
 											<InfoTitle>NOT for User Authentication!</InfoTitle>
 											<InfoText>
-												OAuth 2.0 Implicit is for <StrongText>authorization only</StrongText> (API access delegation).
-												It does NOT authenticate users or provide identity information.
+												OAuth 2.0 Implicit is for <StrongText>authorization only</StrongText> (API
+												access delegation). It does NOT authenticate users or provide identity
+												information.
 											</InfoText>
 											<InfoText style={{ marginTop: '0.5rem' }}>
-												<StrongText>Need user authentication?</StrongText> Use OIDC Implicit Flow V5 instead,
-												which returns an ID Token with user identity claims.
+												<StrongText>Need user authentication?</StrongText> Use OIDC Implicit Flow V5
+												instead, which returns an ID Token with user identity claims.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -739,7 +759,9 @@ const renderStepContent = useMemo(() => {
 						{/* Response Mode Selection */}
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
-								onClick={() => setCollapsedSections(prev => ({ ...prev, responseMode: !prev.responseMode }))}
+								onClick={() =>
+									setCollapsedSections((prev) => ({ ...prev, responseMode: !prev.responseMode }))
+								}
 								aria-expanded={!collapsedSections.responseMode}
 							>
 								<CollapsibleTitle>
@@ -787,10 +809,14 @@ const renderStepContent = useMemo(() => {
 											are required to generate the authorization URL. Please go back to Step 0 to
 											fill in these credentials first.
 										</InfoText>
-										<InfoText style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace' }}>
-											DEBUG: Client ID: {credentials.clientId || 'EMPTY'} | Environment ID: {credentials.environmentId || 'EMPTY'}
+										<InfoText
+											style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace' }}
+										>
+											DEBUG: Client ID: {credentials.clientId || 'EMPTY'} | Environment ID:{' '}
+											{credentials.environmentId || 'EMPTY'}
 											<br />
-											Controller: Client ID: {controller.credentials?.clientId || 'EMPTY'} | Environment ID: {controller.credentials?.environmentId || 'EMPTY'}
+											Controller: Client ID: {controller.credentials?.clientId || 'EMPTY'} |
+											Environment ID: {controller.credentials?.environmentId || 'EMPTY'}
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -893,8 +919,9 @@ const renderStepContent = useMemo(() => {
 										<div>
 											<InfoTitle>URL Fragment Response Format</InfoTitle>
 											<InfoText>
-												In OAuth 2.0 Implicit Flow, tokens are returned in the URL fragment (#) as key-value pairs.
-												This allows the client to extract tokens without a server-side exchange.
+												In OAuth 2.0 Implicit Flow, tokens are returned in the URL fragment (#) as
+												key-value pairs. This allows the client to extract tokens without a
+												server-side exchange.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -913,7 +940,7 @@ const renderStepContent = useMemo(() => {
 									</InfoBox>
 
 									<CodeBlock>
-{`// Extract tokens from URL fragment
+										{`// Extract tokens from URL fragment
 const hash = window.location.hash.substring(1);
 const params = new URLSearchParams(hash);
 
@@ -941,9 +968,9 @@ console.log('Scope:', scope);`}
 									<CollapsibleTitle>
 										<FiCheckCircle /> Token Response
 									</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponse}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponse}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
 								{!collapsedSections.tokenResponse && (
 									<CollapsibleContent>
@@ -1031,8 +1058,8 @@ console.log('Scope:', scope);`}
 											<div>
 												<InfoTitle>No Refresh Token</InfoTitle>
 												<InfoText>
-													Implicit Flow does not provide refresh tokens for security reasons. When the
-													access token expires, users must re-authenticate.
+													Implicit Flow does not provide refresh tokens for security reasons. When
+													the access token expires, users must re-authenticate.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -1099,8 +1126,12 @@ console.log('Scope:', scope);`}
 								rawJson: false,
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || 
-								    section === 'introspectionOverview' || section === 'introspectionDetails') {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionOverview' ||
+									section === 'introspectionDetails'
+								) {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -1561,57 +1592,70 @@ console.log('Scope:', scope);`}
 
 			{/* Redirect Confirmation Modal */}
 			{showRedirectModal && (
-				<div style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: 'rgba(0, 0, 0, 0.5)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 10000
-				}}>
-					<div style={{
-						backgroundColor: 'white',
-						borderRadius: '0.75rem',
-						padding: '2rem',
-						maxWidth: '600px',
-						width: '90%',
-						boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-					}}>
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '0.75rem',
+							padding: '2rem',
+							maxWidth: '600px',
+							width: '90%',
+							boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+						}}
+					>
 						<div style={{ marginBottom: '1.5rem' }}>
-							<h2 style={{ 
-								fontSize: '1.5rem', 
-								fontWeight: '600', 
-								color: '#111827',
-								marginBottom: '0.5rem'
-							}}>
+							<h2
+								style={{
+									fontSize: '1.5rem',
+									fontWeight: '600',
+									color: '#111827',
+									marginBottom: '0.5rem',
+								}}
+							>
 								🔐 Ready to Authenticate?
 							</h2>
-							<p style={{ 
-								fontSize: '1rem', 
-								color: '#6b7280',
-								lineHeight: '1.5'
-							}}>
-								You're about to be redirected to PingOne for authentication. This will open in a new window or redirect your current tab.
+							<p
+								style={{
+									fontSize: '1rem',
+									color: '#6b7280',
+									lineHeight: '1.5',
+								}}
+							>
+								You're about to be redirected to PingOne for authentication. This will open in a new
+								window or redirect your current tab.
 							</p>
 						</div>
 
-						<div style={{ 
-							backgroundColor: '#f8fafc',
-							border: '1px solid #e2e8f0',
-							borderRadius: '0.5rem',
-							padding: '1rem',
-							marginBottom: '1.5rem'
-						}}>
-							<h3 style={{ 
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '0.5rem'
-							}}>
+						<div
+							style={{
+								backgroundColor: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginBottom: '1.5rem',
+							}}
+						>
+							<h3
+								style={{
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '0.5rem',
+								}}
+							>
 								Authorization URL:
 							</h3>
 							<ColoredUrlDisplay
@@ -1623,11 +1667,13 @@ console.log('Scope:', scope);`}
 							/>
 						</div>
 
-						<div style={{ 
-							display: 'flex', 
-							gap: '0.75rem', 
-							justifyContent: 'flex-end' 
-						}}>
+						<div
+							style={{
+								display: 'flex',
+								gap: '0.75rem',
+								justifyContent: 'flex-end',
+							}}
+						>
 							<button
 								onClick={handleCancelRedirect}
 								style={{
@@ -1639,7 +1685,7 @@ console.log('Scope:', scope);`}
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
 									e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -1661,7 +1707,7 @@ console.log('Scope:', scope);`}
 									fontSize: '0.875rem',
 									fontWeight: '500',
 									cursor: 'pointer',
-									transition: 'all 0.2s ease'
+									transition: 'all 0.2s ease',
 								}}
 								onMouseEnter={(e) => {
 									e.currentTarget.style.backgroundColor = '#059669';

@@ -15,7 +15,6 @@ export interface GlobalEnvironmentConfig {
  */
 class GlobalEnvironmentService {
 	private readonly STORAGE_KEY = 'global_environment_config';
-	private readonly MAX_HISTORY_SIZE = 5;
 	private cache: GlobalEnvironmentConfig | null = null;
 
 	/**
@@ -79,14 +78,16 @@ class GlobalEnvironmentService {
 			this.cache = fullConfig;
 
 			// Dispatch custom event for cross-tab communication
-			window.dispatchEvent(new CustomEvent('globalEnvironmentChanged', {
-				detail: fullConfig
-			}));
+			window.dispatchEvent(
+				new CustomEvent('globalEnvironmentChanged', {
+					detail: fullConfig,
+				})
+			);
 
 			console.log('[GlobalEnvironment] Updated global environment config:', {
 				environmentId: fullConfig.environmentId,
 				region: fullConfig.region,
-				source: fullConfig.source
+				source: fullConfig.source,
 			});
 		} catch (error) {
 			console.error('[GlobalEnvironment] Failed to save config:', error);
@@ -97,7 +98,10 @@ class GlobalEnvironmentService {
 	/**
 	 * Set environment ID with auto-detected region
 	 */
-	setEnvironmentId(environmentId: string, source: 'user-input' | 'discovery' | 'auto-detected' = 'user-input'): void {
+	setEnvironmentId(
+		environmentId: string,
+		source: 'user-input' | 'discovery' | 'auto-detected' = 'user-input'
+	): void {
 		// Auto-detect region from environment ID if possible
 		const region = this.detectRegionFromEnvironmentId(environmentId);
 
@@ -148,28 +152,10 @@ class GlobalEnvironmentService {
 	}
 
 	/**
-	 * Add to environment history
-	 */
-	private addToHistory(config: GlobalEnvironmentConfig): void {
-		try {
-			const history = this.getEnvironmentHistory();
-			const filteredHistory = history.filter(h => h.environmentId !== config.environmentId);
-			filteredHistory.unshift(config);
-
-			// Keep only the most recent entries
-			const trimmedHistory = filteredHistory.slice(0, this.MAX_HISTORY_SIZE);
-
-			localStorage.setItem(`${this.STORAGE_KEY}_history`, JSON.stringify(trimmedHistory));
-		} catch (error) {
-			console.error('[GlobalEnvironment] Failed to save history:', error);
-		}
-	}
-
-	/**
 	 * Auto-detect region from environment ID
 	 * This is a heuristic - in a real implementation, you might call an API
 	 */
-	private detectRegionFromEnvironmentId(environmentId: string): 'us' | 'eu' | 'ap' | 'ca' {
+	private detectRegionFromEnvironmentId(_environmentId: string): 'us' | 'eu' | 'ap' | 'ca' {
 		// For now, default to US, but you could implement region detection logic here
 		// For example, check environment ID patterns or call a discovery API
 		return 'us';
@@ -202,9 +188,11 @@ class GlobalEnvironmentService {
 				// Dispatch local event
 				try {
 					const config = e.newValue ? JSON.parse(e.newValue) : null;
-					window.dispatchEvent(new CustomEvent('globalEnvironmentChanged', {
-						detail: config
-					}));
+					window.dispatchEvent(
+						new CustomEvent('globalEnvironmentChanged', {
+							detail: config,
+						})
+					);
 				} catch (error) {
 					console.error('[GlobalEnvironment] Failed to parse storage change:', error);
 				}
@@ -231,7 +219,7 @@ class GlobalEnvironmentService {
 	 */
 	getSuggestedEnvironmentIds(): string[] {
 		const history = this.getEnvironmentHistory();
-		return history.map(h => h.environmentId);
+		return history.map((h) => h.environmentId);
 	}
 }
 
@@ -240,7 +228,9 @@ export const globalEnvironmentService = new GlobalEnvironmentService();
 
 // Helper functions for easier access
 export const getGlobalEnvironmentId = () => globalEnvironmentService.getEnvironmentId();
-export const setGlobalEnvironmentId = (environmentId: string, source?: 'user-input' | 'discovery' | 'auto-detected') =>
-	globalEnvironmentService.setEnvironmentId(environmentId, source);
+export const setGlobalEnvironmentId = (
+	environmentId: string,
+	source?: 'user-input' | 'discovery' | 'auto-detected'
+) => globalEnvironmentService.setEnvironmentId(environmentId, source);
 export const hasGlobalEnvironmentId = () => globalEnvironmentService.hasEnvironmentId();
 export const clearGlobalEnvironmentId = () => globalEnvironmentService.clearEnvironmentConfig();

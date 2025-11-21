@@ -1,10 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
+import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSettings } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMenu, FiSettings, FiHelpCircle, FiLogIn, FiLogOut } from 'react-icons/fi';
+import styled from 'styled-components';
+import packageJson from '../../package.json';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
-import packageJson from '../../package.json';
 
 const NavbarContainer = styled.nav`
   position: fixed;

@@ -1,12 +1,12 @@
 // Worker Credentials component for secure credential input
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheck, FiEye, FiEyeOff, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiEye, FiEyeOff, FiCheck, FiAlertCircle, FiSettings } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
+import { DEFAULT_WORKER_SCOPES, WorkerTokenCredentials } from '../../types/workerToken';
 import { validateCredentialFormat } from '../../utils/clientCredentials';
+import { logger } from '../../utils/logger';
 import { validateEnvironmentId } from '../../utils/workerToken';
-import { WorkerTokenCredentials, DEFAULT_WORKER_SCOPES } from '../../types/workerToken';
 
 const Container = styled.div`
   background: white;

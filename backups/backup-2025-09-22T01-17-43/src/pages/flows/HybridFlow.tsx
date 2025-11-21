@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
+import { FiAlertCircle, FiCode, FiEye, FiKey, FiPlay, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiAlertCircle, FiCode, FiKey, FiShield } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { config } from '../../services/config';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import ConfigurationButton from '../../components/ConfigurationButton';
-import ColorCodedURL from '../../components/ColorCodedURL';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import FlowCredentials from '../../components/FlowCredentials';
 import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import ColorCodedURL from '../../components/ColorCodedURL';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { config } from '../../services/config';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

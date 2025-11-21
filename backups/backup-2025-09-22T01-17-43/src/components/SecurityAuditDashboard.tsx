@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-	securityAuditor,
 	SecurityAuditReport,
 	SecurityVulnerability,
+	securityAuditor,
 } from '../utils/securityAudit';
 
 const DashboardContainer = styled.div`

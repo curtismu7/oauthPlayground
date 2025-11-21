@@ -5,8 +5,16 @@
  */
 
 import React, { useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheckCircle,
+	FiClock,
+	FiGlobe,
+	FiLock,
+	FiShield,
+	FiUsers,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertCircle, FiCheckCircle, FiClock, FiLock, FiUsers, FiGlobe, FiShield } from 'react-icons/fi';
 
 const VisualizerContainer = styled.div`
 	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -49,9 +57,7 @@ const TabButton = styled.button<{ $active: boolean }>`
 	align-items: center;
 	gap: 0.5rem;
 	background: ${({ $active }) =>
-		$active
-			? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-			: 'white'};
+		$active ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)' : 'white'};
 	color: ${({ $active }) => ($active ? 'white' : '#475569')};
 	border: 2px solid ${({ $active }) => ($active ? '#3b82f6' : '#e2e8f0')};
 
@@ -197,11 +203,19 @@ type ParameterType = 'max_age' | 'prompt' | 'state' | 'nonce' | 'pkce' | 'resour
 
 interface Scenario {
 	before: {
-		events: Array<{ time: string; description: string; type: 'normal' | 'danger' | 'success' | 'warning' }>;
+		events: Array<{
+			time: string;
+			description: string;
+			type: 'normal' | 'danger' | 'success' | 'warning';
+		}>;
 		impact: string;
 	};
 	after: {
-		events: Array<{ time: string; description: string; type: 'normal' | 'danger' | 'success' | 'warning' }>;
+		events: Array<{
+			time: string;
+			description: string;
+			type: 'normal' | 'danger' | 'success' | 'warning';
+		}>;
 		impact: string;
 	};
 	code?: string;
@@ -232,7 +246,8 @@ const scenarios: Record<ParameterType, Scenario> = {
 					type: 'danger',
 				},
 			],
-			impact: '🚨 Security Breach: Session stayed active 76 minutes after user left. No re-authentication required.',
+			impact:
+				'🚨 Security Breach: Session stayed active 76 minutes after user left. No re-authentication required.',
 		},
 		after: {
 			events: [
@@ -253,11 +268,13 @@ const scenarios: Record<ParameterType, Scenario> = {
 				},
 				{
 					time: '11:16 AM',
-					description: '🛡️ Auth expired! Attacker sees login screen. Last auth was 76 min ago (max: 5 min)',
+					description:
+						'🛡️ Auth expired! Attacker sees login screen. Last auth was 76 min ago (max: 5 min)',
 					type: 'success',
 				},
 			],
-			impact: '✅ Protected: max_age forced re-authentication because last login exceeded 5 minutes.',
+			impact:
+				'✅ Protected: max_age forced re-authentication because last login exceeded 5 minutes.',
 		},
 		code: `// Authorization request with max_age
 const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?
@@ -301,7 +318,8 @@ if (authAge > 300) {
 					type: 'danger',
 				},
 			],
-			impact: '⚠️ UX Issue: User granted permissions without seeing what was shared. No transparency.',
+			impact:
+				'⚠️ UX Issue: User granted permissions without seeing what was shared. No transparency.',
 		},
 		after: {
 			events: [
@@ -326,7 +344,8 @@ if (authAge > 300) {
 					type: 'success',
 				},
 			],
-			impact: '✅ Transparency: User always sees what permissions they\'re granting, even if already logged in.',
+			impact:
+				"✅ Transparency: User always sees what permissions they're granting, even if already logged in.",
 		},
 		code: `// Force consent screen to always show
 const authUrl = \`https://auth.example.com/authorize?
@@ -362,11 +381,13 @@ const authUrl = \`https://auth.example.com/authorize?
 				},
 				{
 					time: 'Step 4',
-					description: '💀 Victim completes auth with attacker\'s OAuth flow - account linked to attacker!',
+					description:
+						"💀 Victim completes auth with attacker's OAuth flow - account linked to attacker!",
 					type: 'danger',
 				},
 			],
-			impact: '🚨 CSRF Attack: Victim\'s account is now linked to attacker\'s OAuth profile. Data breach!',
+			impact:
+				"🚨 CSRF Attack: Victim's account is now linked to attacker's OAuth profile. Data breach!",
 		},
 		after: {
 			events: [
@@ -382,7 +403,7 @@ const authUrl = \`https://auth.example.com/authorize?
 				},
 				{
 					time: 'Step 3',
-					description: '🎣 Victim clicks attacker\'s URL, completes auth',
+					description: "🎣 Victim clicks attacker's URL, completes auth",
 					type: 'warning',
 				},
 				{
@@ -438,7 +459,7 @@ if (returnedState !== expectedState) {
 					type: 'danger',
 				},
 			],
-			impact: '🚨 ID Token Replay: Attacker reuses victim\'s ID token to impersonate them.',
+			impact: "🚨 ID Token Replay: Attacker reuses victim's ID token to impersonate them.",
 		},
 		after: {
 			events: [
@@ -459,11 +480,13 @@ if (returnedState !== expectedState) {
 				},
 				{
 					time: 'Step 4',
-					description: '🛡️ Nonce mismatch! Attacker\'s session expected different nonce. Attack failed!',
+					description:
+						"🛡️ Nonce mismatch! Attacker's session expected different nonce. Attack failed!",
 					type: 'success',
 				},
 			],
-			impact: '✅ Replay Blocked: Nonce ensures each ID token is tied to a specific authentication request.',
+			impact:
+				'✅ Replay Blocked: Nonce ensures each ID token is tied to a specific authentication request.',
 		},
 		code: `// Generate nonce for each auth request
 const nonce = crypto.randomBytes(32).toString('hex');
@@ -505,11 +528,11 @@ if (idToken.nonce !== expectedNonce) {
 				},
 				{
 					time: 'Step 4',
-					description: '🚨 Attacker has access token and can access victim\'s data',
+					description: "🚨 Attacker has access token and can access victim's data",
 					type: 'danger',
 				},
 			],
-			impact: '🚨 Authorization Code Interception: Mobile apps can\'t keep client_secret secure!',
+			impact: "🚨 Authorization Code Interception: Mobile apps can't keep client_secret secure!",
 		},
 		after: {
 			events: [
@@ -530,11 +553,12 @@ if (idToken.nonce !== expectedNonce) {
 				},
 				{
 					time: 'Step 4',
-					description: '🛡️ Token exchange fails! Attacker doesn\'t have code_verifier. App safe!',
+					description: "🛡️ Token exchange fails! Attacker doesn't have code_verifier. App safe!",
 					type: 'success',
 				},
 			],
-			impact: '✅ PKCE Protection: Even if authorization code is stolen, tokens cannot be obtained.',
+			impact:
+				'✅ PKCE Protection: Even if authorization code is stolen, tokens cannot be obtained.',
 		},
 		code: `// Step 1: Generate PKCE pair
 import crypto from 'crypto';
@@ -585,11 +609,13 @@ const tokenResponse = await fetch(tokenEndpoint, {
 				},
 				{
 					time: 'Step 4',
-					description: '💀 Attacker uses token to access ALL customer APIs (CustomerA, CustomerB, CustomerC)',
+					description:
+						'💀 Attacker uses token to access ALL customer APIs (CustomerA, CustomerB, CustomerC)',
 					type: 'danger',
 				},
 			],
-			impact: '🚨 Excessive Scope: One stolen token compromises ALL customer data across the platform.',
+			impact:
+				'🚨 Excessive Scope: One stolen token compromises ALL customer data across the platform.',
 		},
 		after: {
 			events: [
@@ -610,11 +636,13 @@ const tokenResponse = await fetch(tokenEndpoint, {
 				},
 				{
 					time: 'Step 4',
-					description: '🛡️ CustomerB/C APIs reject token! Only CustomerA API accepts it. Blast radius limited!',
+					description:
+						'🛡️ CustomerB/C APIs reject token! Only CustomerA API accepts it. Blast radius limited!',
 					type: 'success',
 				},
 			],
-			impact: '✅ Least Privilege: Resource indicators limit token scope to specific APIs. Breach contained!',
+			impact:
+				'✅ Least Privilege: Resource indicators limit token scope to specific APIs. Breach contained!',
 		},
 		code: `// Request tokens for specific resources (RFC 8707)
 const authUrl = \`https://auth.example.com/authorize?
@@ -662,7 +690,8 @@ if (!token.aud.includes('https://customerA.api.com')) {
 					type: 'danger',
 				},
 			],
-			impact: '⚠️ Poor UX: Users must manually enter email every time. Increased friction and abandonment.',
+			impact:
+				'⚠️ Poor UX: Users must manually enter email every time. Increased friction and abandonment.',
 		},
 		after: {
 			events: [
@@ -687,7 +716,8 @@ if (!token.aud.includes('https://customerA.api.com')) {
 					type: 'success',
 				},
 			],
-			impact: '✅ Improved UX: Pre-populated email saves time and reduces friction. Better conversion!',
+			impact:
+				'✅ Improved UX: Pre-populated email saves time and reduces friction. Better conversion!',
 		},
 		code: `// Remember user's email from previous session
 const lastEmail = localStorage.getItem('user_email');
@@ -725,31 +755,52 @@ const ParameterImpactVisualizer: React.FC = () => {
 			</Subtitle>
 
 			<ParameterTabs>
-				<TabButton $active={selectedParameter === 'max_age'} onClick={() => setSelectedParameter('max_age')}>
+				<TabButton
+					$active={selectedParameter === 'max_age'}
+					onClick={() => setSelectedParameter('max_age')}
+				>
 					<FiClock />
 					max_age
 				</TabButton>
-				<TabButton $active={selectedParameter === 'prompt'} onClick={() => setSelectedParameter('prompt')}>
+				<TabButton
+					$active={selectedParameter === 'prompt'}
+					onClick={() => setSelectedParameter('prompt')}
+				>
 					<FiUsers />
 					prompt
 				</TabButton>
-				<TabButton $active={selectedParameter === 'state'} onClick={() => setSelectedParameter('state')}>
+				<TabButton
+					$active={selectedParameter === 'state'}
+					onClick={() => setSelectedParameter('state')}
+				>
 					<FiShield />
 					state
 				</TabButton>
-				<TabButton $active={selectedParameter === 'nonce'} onClick={() => setSelectedParameter('nonce')}>
+				<TabButton
+					$active={selectedParameter === 'nonce'}
+					onClick={() => setSelectedParameter('nonce')}
+				>
 					<FiLock />
 					nonce
 				</TabButton>
-				<TabButton $active={selectedParameter === 'pkce'} onClick={() => setSelectedParameter('pkce')}>
+				<TabButton
+					$active={selectedParameter === 'pkce'}
+					onClick={() => setSelectedParameter('pkce')}
+				>
 					<FiCheckCircle />
 					PKCE
 				</TabButton>
-				<TabButton $active={selectedParameter === 'resource'} onClick={() => setSelectedParameter('resource')}>
+				<TabButton
+					$active={selectedParameter === 'resource'}
+					onClick={() => setSelectedParameter('resource')}
+				>
 					<FiGlobe />
 					resource
 				</TabButton>
-				<TabButton $active={selectedParameter === 'login_hint'} onClick={() => setSelectedParameter('login_hint')}>
+				<TabButton
+					$active={selectedParameter === 'login_hint'}
+					onClick={() => setSelectedParameter('login_hint')}
+				>
 					<FiUsers />
 					login_hint
 				</TabButton>
@@ -817,9 +868,7 @@ const ParameterImpactVisualizer: React.FC = () => {
 
 			{scenario.code && (
 				<div>
-					<h3 style={{ color: '#1e293b', marginBottom: '1rem' }}>
-						💻 Implementation Code
-					</h3>
+					<h3 style={{ color: '#1e293b', marginBottom: '1rem' }}>💻 Implementation Code</h3>
 					<CodeBlock>{scenario.code}</CodeBlock>
 				</div>
 			)}
@@ -833,7 +882,16 @@ const ParameterImpactVisualizer: React.FC = () => {
 					border: '2px solid #3b82f6',
 				}}
 			>
-				<div style={{ color: '#1e293b', fontWeight: 600, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+				<div
+					style={{
+						color: '#1e293b',
+						fontWeight: 600,
+						marginBottom: '0.5rem',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+				>
 					<FiCheckCircle style={{ color: '#3b82f6' }} />
 					Key Takeaway
 				</div>
@@ -847,4 +905,3 @@ const ParameterImpactVisualizer: React.FC = () => {
 };
 
 export default ParameterImpactVisualizer;
-
