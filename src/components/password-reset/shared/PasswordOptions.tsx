@@ -31,14 +31,23 @@ export const PasswordOptions: React.FC<PasswordOptionsProps> = ({
 					/>
 					<span>Force password change on next sign-on</span>
 				</Label>
-				<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
+				<p
+					style={{
+						marginTop: '0.5rem',
+						fontSize: '0.875rem',
+						color: '#6B7280',
+						marginLeft: '1.75rem',
+					}}
+				>
 					If checked, the user will be required to change their password when they next sign in.
 				</p>
 			</FormGroup>
 
 			{showBypassPolicy && (
 				<FormGroup>
-					<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+					<Label
+						style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+					>
 						<input
 							type="checkbox"
 							checked={bypassPolicy}
@@ -47,13 +56,20 @@ export const PasswordOptions: React.FC<PasswordOptionsProps> = ({
 						/>
 						<span>Bypass password policy</span>
 					</Label>
-					<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-						If checked, the password will be set even if it doesn't meet the password policy requirements. 
-						Use with caution - this allows setting weak passwords that may violate security policies.
+					<p
+						style={{
+							marginTop: '0.5rem',
+							fontSize: '0.875rem',
+							color: '#6B7280',
+							marginLeft: '1.75rem',
+						}}
+					>
+						If checked, the password will be set even if it doesn't meet the password policy
+						requirements. Use with caution - this allows setting weak passwords that may violate
+						security policies.
 					</p>
 				</FormGroup>
 			)}
 		</>
 	);
 };
-

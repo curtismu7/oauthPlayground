@@ -119,7 +119,8 @@ export class FlowAnalyticsService {
 	 * Track step completion
 	 */
 	static trackStepComplete(stepIndex: number, duration?: number): void {
-		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex]) return;
+		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex])
+			return;
 
 		const step = FlowAnalyticsService.currentFlow.steps[stepIndex];
 		step.endTime = Date.now();
@@ -147,7 +148,8 @@ export class FlowAnalyticsService {
 		element: string,
 		data?: Record<string, any>
 	): void {
-		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex]) return;
+		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex])
+			return;
 
 		const interaction: InteractionAnalytics = {
 			type,
@@ -217,7 +219,9 @@ export class FlowAnalyticsService {
 		if (!FlowAnalyticsService.currentFlow) return;
 
 		FlowAnalyticsService.currentFlow.endTime = Date.now();
-		FlowAnalyticsService.currentFlow.duration = duration || FlowAnalyticsService.currentFlow.endTime - FlowAnalyticsService.currentFlow.startTime;
+		FlowAnalyticsService.currentFlow.duration =
+			duration ||
+			FlowAnalyticsService.currentFlow.endTime - FlowAnalyticsService.currentFlow.startTime;
 		FlowAnalyticsService.currentFlow.success = success;
 
 		// Log to console in development
@@ -275,7 +279,8 @@ export class FlowAnalyticsService {
 		const successfulFlows = FlowAnalyticsService.analytics.filter((flow) => flow.success).length;
 		const failedFlows = totalFlows - successfulFlows;
 		const averageDuration =
-			FlowAnalyticsService.analytics.reduce((sum, flow) => sum + (flow.duration || 0), 0) / totalFlows;
+			FlowAnalyticsService.analytics.reduce((sum, flow) => sum + (flow.duration || 0), 0) /
+			totalFlows;
 
 		// Most used flows
 		const flowCounts = FlowAnalyticsService.analytics.reduce(
@@ -324,7 +329,7 @@ export class FlowAnalyticsService {
 
 		const stepCompletionRatesArray = Object.entries(stepCompletionRates)
 			.map(([stepIndex, data]) => ({
-				stepIndex: parseInt(stepIndex),
+				stepIndex: parseInt(stepIndex, 10),
 				completionRate: data.completed / data.total,
 			}))
 			.sort((a, b) => a.stepIndex - b.stepIndex);

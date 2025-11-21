@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FlowErrorConfig, FlowErrorService } from '../../services/flowErrorService';
 import { logger } from '../../utils/logger';
-import { FlowErrorService, FlowErrorConfig } from '../../services/flowErrorService';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -132,14 +132,36 @@ const ImplicitCallback: React.FC = () => {
 				if (error) {
 					setStatus('error');
 					setMessage('Implicit grant failed');
-					setError(errorDescription || error);
-					logger.error('ImplicitCallback', 'Implicit grant error', { error, errorDescription });
+					const errorMsg = errorDescription || error || 'Unknown error';
+					setError(errorMsg);
+
+					// DEBUG: Enhanced error logging with full URL details
+					console.error('🔴 [ImplicitCallback] Implicit grant error:', {
+						error,
+						errorDescription,
+						fullUrl: window.location.href,
+						hash: window.location.hash,
+						search: window.location.search,
+						queryParams: Object.fromEntries(queryParams.entries()),
+						hashParams: Object.fromEntries(hashParams.entries()),
+					});
+
+					logger.error('ImplicitCallback', 'Implicit grant error', {
+						error,
+						errorDescription,
+						url: window.location.href,
+						hash: window.location.hash?.substring(0, 200), // Limit hash length for logging
+					});
 					return;
 				}
 
 				if (accessToken || idToken) {
 					// Check which flow this is from by looking for flow context
-					const v7Context = sessionStorage.getItem('implicit-flow-v7-oauth-active') || sessionStorage.getItem('implicit-flow-v7-oidc-active');
+					// DEBUG: V8 flows store context as 'implicit-v8-flow-active'
+					const v8Context = sessionStorage.getItem('implicit-v8-flow-active');
+					const v7Context =
+						sessionStorage.getItem('implicit-flow-v7-oauth-active') ||
+						sessionStorage.getItem('implicit-flow-v7-oidc-active');
 					const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
 					const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
 					const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
@@ -148,18 +170,51 @@ const ImplicitCallback: React.FC = () => {
 						sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
 						sessionStorage.getItem('oauth2_implicit_v3_flow_context');
 
-					if (v7Context) {
+					if (v8Context) {
+						// DEBUG: This is a V8 flow - redirect back to V8 flow with tokens
+						setStatus('success');
+						setMessage('Tokens received - returning to V8 flow');
+
+						try {
+							const parsedContext = JSON.parse(v8Context);
+
+							logger.auth('ImplicitCallback', 'V8 implicit grant received, returning to flow', {
+								hasAccessToken: !!accessToken,
+								hasIdToken: !!idToken,
+								responseType: parsedContext.responseType,
+								flow: 'implicit-v8',
+							});
+
+							setTimeout(() => {
+								// Redirect to V8 flow with fragment containing tokens
+								const fragment = window.location.hash.substring(1); // Get full hash without #
+								navigate(`/flows/implicit-v8?step=TOKENS#${fragment}`);
+							}, 1500);
+						} catch (parseError) {
+							console.error('[ImplicitCallback] Failed to parse V8 flow context:', parseError);
+							// Fall through to legacy handling
+							setStatus('warning');
+							setMessage('Implicit grant received (could not parse flow context)');
+							setTimeout(() => {
+								navigate('/flows/implicit-v8');
+							}, 2000);
+						}
+					} else if (v7Context) {
 						// This is a V7 flow - determine variant and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to unified flow');
-						
+
 						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
-						
-						logger.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
-							hasAccessToken: !!accessToken,
-							hasIdToken: !!idToken,
-							variant: isOIDCFlow ? 'oidc' : 'oauth',
-						});
+
+						logger.auth(
+							'ImplicitCallback',
+							'V7 implicit grant received, returning to unified flow',
+							{
+								hasAccessToken: !!accessToken,
+								hasIdToken: !!idToken,
+								variant: isOIDCFlow ? 'oidc' : 'oauth',
+							}
+						);
 
 						setTimeout(() => {
 							// Redirect to the unified V7 flow with fragment
@@ -170,10 +225,10 @@ const ImplicitCallback: React.FC = () => {
 						// This is a V6 flow - store tokens in hash and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to flow');
-						
+
 						// Determine which flow this is from
 						const isOIDCFlow = v6OIDCContext;
-						
+
 						logger.auth('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
@@ -192,11 +247,10 @@ const ImplicitCallback: React.FC = () => {
 						// This is a V5 flow - store tokens in hash and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to flow');
-						
-						// Determine which flow this is from (prioritize OAuth if both exist)
-						const isOAuthFlow = v5OAuthContext && !v5OIDCContext;
+
+						// Determine which flow this is from
 						const isOIDCFlow = v5OIDCContext && !v5OAuthContext;
-						
+
 						logger.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
@@ -258,8 +312,12 @@ const ImplicitCallback: React.FC = () => {
 			} catch (err) {
 				setStatus('error');
 				setMessage('Implicit grant failed');
-				setError(err instanceof Error ? err.message : 'Unknown error occurred');
-				logger.error('ImplicitCallback', 'Error processing implicit callback', err);
+				const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+				setError(errorMessage);
+				logger.error('ImplicitCallback', 'Error processing implicit callback', {
+					error: errorMessage,
+					url: window.location.href,
+				});
 			}
 		};
 
@@ -285,21 +343,34 @@ const ImplicitCallback: React.FC = () => {
 		const queryParams = new URLSearchParams(location.search);
 		const hashParams = new URLSearchParams(window.location.hash.substring(1));
 		const oauthError = queryParams.get('error') || hashParams.get('error');
-		const oauthErrorDescription = queryParams.get('error_description') || hashParams.get('error_description');
-		
+		const oauthErrorDescription =
+			queryParams.get('error_description') || hashParams.get('error_description');
+
 		// Determine flow type from session storage
-		let flowKey = 'oauth-implicit-v6';
+		// DEBUG: Check for V8 flow context first (newest)
+		let flowKey = 'implicit-v8';
+		const v8Context = sessionStorage.getItem('implicit-v8-flow-active');
 		const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
 		const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
 		const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
 		const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
-		
-		if (v6OIDCContext || v5OIDCContext) {
+
+		if (v8Context) {
+			// V8 flow - determine if OAuth or OIDC from context
+			try {
+				const parsed = JSON.parse(v8Context);
+				flowKey = parsed.responseType === 'oidc' ? 'implicit-v8' : 'implicit-v8';
+			} catch {
+				flowKey = 'implicit-v8';
+			}
+		} else if (v6OIDCContext || v5OIDCContext) {
 			flowKey = 'oidc-implicit-v6';
 		} else if (v6OAuthContext || v5OAuthContext) {
 			flowKey = 'oauth-implicit-v6';
+		} else {
+			flowKey = 'oauth-implicit-v6'; // Default fallback
 		}
-		
+
 		const config: FlowErrorConfig = {
 			flowType: 'implicit' as const,
 			flowKey,
@@ -315,7 +386,7 @@ const ImplicitCallback: React.FC = () => {
 			},
 			onRetry: () => window.location.reload(),
 		};
-		
+
 		return FlowErrorService.getFullPageError(config);
 	}
 

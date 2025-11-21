@@ -11,35 +11,36 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
+import ComprehensiveDiscoveryInput from '../../components/ComprehensiveDiscoveryInput';
+import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
+import PingOneAppConfig, {
+	type PingOneConfig as PingOneAppConfigType,
+} from '../../components/PingOneAppConfig';
+import PingOneApplicationConfig, {
+	type PingOneApplicationState,
+} from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { CredentialsInput } from '../../components/CredentialsInput';
-import ComprehensiveDiscoveryInput from '../../components/ComprehensiveDiscoveryInput';
-import PingOneApplicationConfig, { type PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import PingOneAppConfig, { type PingOneConfig as PingOneAppConfigType } from '../../components/PingOneAppConfig';
-import { IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { comprehensiveDiscoveryService, DiscoveryResult } from '../../services/comprehensiveDiscoveryService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
+import {
+	comprehensiveDiscoveryService,
+	DiscoveryResult,
+} from '../../services/comprehensiveDiscoveryService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { ResponseMode } from '../../services/responseModeService';
-
+import { IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 // Import V6 Service Architecture
 import { V6FlowService } from '../../services/v6FlowService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Create all V6 components with blue theme
-const {
-	Layout,
-	Collapsible,
-	Info,
-	Cards,
-} = V6FlowService.createFlowComponents('blue');
+const { Layout, Collapsible, Info, Cards } = V6FlowService.createFlowComponents('blue');
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -101,7 +102,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		return 0;
 	});
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig', boolean>>({
+	const [collapsedSections, setCollapsedSections] = useState<
+		Record<IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig', boolean>
+	>({
 		overview: false,
 		credentials: false,
 		responseMode: false,
@@ -125,7 +128,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		pingOneAltConfig: true,
 	});
 
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [responseMode, setResponseMode] = useState<ResponseMode>('query');
 
@@ -198,23 +203,29 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	});
 
 	// Toggle section visibility
-	const toggleSection = useCallback((key: IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig') => {
-		setCollapsedSections((prev) => ({
-			...prev,
-			[key]: !prev[key],
-		}));
-	}, []);
+	const toggleSection = useCallback(
+		(key: IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig') => {
+			setCollapsedSections((prev) => ({
+				...prev,
+				[key]: !prev[key],
+			}));
+		},
+		[]
+	);
 
 	// Handle discovery completion
-	const handleDiscoveryComplete = useCallback((result: DiscoveryResult) => {
-		if (result.success && result.document) {
-			controller.setCredentials({
-				...controller.credentials,
-				issuerUrl: result.issuerUrl || '',
-			});
-			v4ToastManager.showSuccess(`Discovered ${result.provider} endpoints`);
-		}
-	}, [controller]);
+	const handleDiscoveryComplete = useCallback(
+		(result: DiscoveryResult) => {
+			if (result.success && result.document) {
+				controller.setCredentials({
+					...controller.credentials,
+					issuerUrl: result.issuerUrl || '',
+				});
+				v4ToastManager.showSuccess(`Discovered ${result.provider} endpoints`);
+			}
+		},
+		[controller]
+	);
 
 	// Handle PingOne Application Config changes
 	const handlePingOneAppStateChange = useCallback((newState: PingOneApplicationState) => {
@@ -327,19 +338,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										<Cards.ParameterGrid>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<Cards.ParameterLabel>Tokens Returned</Cards.ParameterLabel>
-												<Cards.ParameterValue>Access Token + Refresh Token (no ID Token)</Cards.ParameterValue>
+												<Cards.ParameterValue>
+													Access Token + Refresh Token (no ID Token)
+												</Cards.ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<Cards.ParameterLabel>Purpose</Cards.ParameterLabel>
-												<Cards.ParameterValue>
-													Authorization (API access) only
-												</Cards.ParameterValue>
+												<Cards.ParameterValue>Authorization (API access) only</Cards.ParameterValue>
 											</div>
 											<div>
 												<Cards.ParameterLabel>Spec Layer</Cards.ParameterLabel>
-												<Cards.ParameterValue>
-													OAuth 2.0 / OAuth 2.1
-												</Cards.ParameterValue>
+												<Cards.ParameterValue>OAuth 2.0 / OAuth 2.1</Cards.ParameterValue>
 											</div>
 											<div>
 												<Cards.ParameterLabel>Scope Requirement</Cards.ParameterLabel>
@@ -387,7 +396,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										clientId={credentials.clientId || ''}
 										clientSecret={credentials.clientSecret || ''}
 										scopes={credentials.scope || 'openid profile email'}
-										postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+										postLogoutRedirectUri={
+											credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'
+										}
 										onEnvironmentIdChange={(newEnvId) => {
 											controller.setCredentials({
 												...credentials,
@@ -440,7 +451,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 						{/* PingOne Application Configuration (Recommended) */}
 						<Collapsible.CollapsibleSection>
-							<Collapsible.CollapsibleHeaderButton onClick={() => toggleSection('pingOneAppConfig')}>
+							<Collapsible.CollapsibleHeaderButton
+								onClick={() => toggleSection('pingOneAppConfig')}
+							>
 								<Collapsible.CollapsibleTitle>
 									<FiSettings />
 									PingOne Application Configuration (Recommended)
@@ -461,7 +474,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 						{/* PingOne App Configuration (Alternative) */}
 						<Collapsible.CollapsibleSection>
-							<Collapsible.CollapsibleHeaderButton onClick={() => toggleSection('pingOneAltConfig')}>
+							<Collapsible.CollapsibleHeaderButton
+								onClick={() => toggleSection('pingOneAltConfig')}
+							>
 								<Collapsible.CollapsibleTitle>
 									<FiSettings />
 									PingOne App Configuration (Alternative)
@@ -491,7 +506,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							<div>
 								<Info.InfoTitle>PKCE Protection</Info.InfoTitle>
 								<Info.InfoText>
-									PKCE (Proof Key for Code Exchange) protects against authorization code interception attacks.
+									PKCE (Proof Key for Code Exchange) protects against authorization code
+									interception attacks.
 								</Info.InfoText>
 							</div>
 						</Info.InfoBox>
@@ -506,12 +522,23 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						<FiInfo size={20} />
 						<div>
 							<Info.InfoTitle>Step {currentStep} - In Development</Info.InfoTitle>
-							<Info.InfoText>This step is being developed using V6 service architecture.</Info.InfoText>
+							<Info.InfoText>
+								This step is being developed using V6 service architecture.
+							</Info.InfoText>
 						</div>
 					</Info.InfoBox>
 				);
 		}
-	}, [currentStep, controller, collapsedSections, toggleSection, handleDiscoveryComplete, Cards, Info, Collapsible]);
+	}, [
+		currentStep,
+		controller,
+		collapsedSections,
+		toggleSection,
+		handleDiscoveryComplete,
+		Cards,
+		Info,
+		Collapsible,
+	]);
 
 	return (
 		<Layout.Container>
@@ -527,7 +554,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						<Layout.StepHeaderLeft>
 							<Layout.VersionBadge>V6.0 - Service Architecture</Layout.VersionBadge>
 							<Layout.StepHeaderTitle>{STEP_METADATA[currentStep].title}</Layout.StepHeaderTitle>
-							<Layout.StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</Layout.StepHeaderSubtitle>
+							<Layout.StepHeaderSubtitle>
+								{STEP_METADATA[currentStep].subtitle}
+							</Layout.StepHeaderSubtitle>
 						</Layout.StepHeaderLeft>
 						<Layout.StepHeaderRight>
 							<Layout.StepNumber>{currentStep}</Layout.StepNumber>

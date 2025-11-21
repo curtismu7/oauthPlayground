@@ -1,8 +1,8 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
+import { FiExternalLink, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink } from 'react-icons/fi';
-import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
+import { CopyButtonService, CopyButtonVariants } from '../services/copyButtonService';
 
 interface ColoredUrlDisplayProps {
 	url: string;
@@ -59,7 +59,7 @@ const UrlContent = styled.div`
 
 const ColoredUrlText = styled.span<{ $color: string }>`
 	color: ${({ $color }) => $color};
-	font-weight: ${({ $color }) => $color === '#1f2937' ? '600' : '400'};
+	font-weight: ${({ $color }) => ($color === '#1f2937' ? '600' : '400')};
 `;
 
 const ActionButtons = styled.div`
@@ -210,18 +210,18 @@ const parseUrlWithColors = (url: string) => {
 
 	for (let i = 0; i < url.length; i++) {
 		const char = url[i];
-		
+
 		if (char === '?' || char === '&') {
 			if (currentPart) {
 				parts.push({
 					text: currentPart,
-					color: URL_COLORS[colorIndex % URL_COLORS.length]
+					color: URL_COLORS[colorIndex % URL_COLORS.length],
 				});
 				colorIndex++;
 			}
 			parts.push({
 				text: char,
-				color: URL_COLORS[colorIndex % URL_COLORS.length]
+				color: URL_COLORS[colorIndex % URL_COLORS.length],
 			});
 			colorIndex++;
 			currentPart = '';
@@ -233,7 +233,7 @@ const parseUrlWithColors = (url: string) => {
 	if (currentPart) {
 		parts.push({
 			text: currentPart,
-			color: URL_COLORS[colorIndex % URL_COLORS.length]
+			color: URL_COLORS[colorIndex % URL_COLORS.length],
 		});
 	}
 
@@ -243,56 +243,60 @@ const parseUrlWithColors = (url: string) => {
 const getUrlParameters = (url: string) => {
 	const urlObj = new URL(url);
 	const params = new URLSearchParams(urlObj.search);
-	
+
 	const parameterInfo = [
 		{
 			name: 'response_type',
-			description: 'Specifies the OAuth response type. For hybrid flow, this can be "code id_token", "code token", or "code id_token token".',
-			value: params.get('response_type') || 'Not specified'
+			description:
+				'Specifies the OAuth response type. For hybrid flow, this can be "code id_token", "code token", or "code id_token token".',
+			value: params.get('response_type') || 'Not specified',
 		},
 		{
 			name: 'client_id',
 			description: 'The unique identifier for your OAuth client application.',
-			value: params.get('client_id') || 'Not specified'
+			value: params.get('client_id') || 'Not specified',
 		},
 		{
 			name: 'redirect_uri',
-			description: 'The URI where the user will be redirected after authorization. Must match the registered redirect URI.',
-			value: params.get('redirect_uri') || 'Not specified'
+			description:
+				'The URI where the user will be redirected after authorization. Must match the registered redirect URI.',
+			value: params.get('redirect_uri') || 'Not specified',
 		},
 		{
 			name: 'scope',
 			description: 'The permissions your application is requesting from the user.',
-			value: params.get('scope') || 'Not specified'
+			value: params.get('scope') || 'Not specified',
 		},
 		{
 			name: 'state',
-			description: 'A random string used to prevent CSRF attacks. Should be validated when the user returns.',
-			value: params.get('state') || 'Not specified'
+			description:
+				'A random string used to prevent CSRF attacks. Should be validated when the user returns.',
+			value: params.get('state') || 'Not specified',
 		},
 		{
 			name: 'response_mode',
-			description: 'How the authorization response should be returned. Options: query, fragment, form_post, or pi.flow.',
-			value: params.get('response_mode') || 'Not specified'
+			description:
+				'How the authorization response should be returned. Options: query, fragment, form_post, or pi.flow.',
+			value: params.get('response_mode') || 'Not specified',
 		},
 		{
 			name: 'code_challenge',
 			description: 'PKCE code challenge for additional security. Generated from code_verifier.',
-			value: params.get('code_challenge') || 'Not specified'
+			value: params.get('code_challenge') || 'Not specified',
 		},
 		{
 			name: 'code_challenge_method',
 			description: 'The method used to generate the code_challenge. Usually "S256".',
-			value: params.get('code_challenge_method') || 'Not specified'
+			value: params.get('code_challenge_method') || 'Not specified',
 		},
 		{
 			name: 'nonce',
 			description: 'A random string used to prevent replay attacks for ID tokens.',
-			value: params.get('nonce') || 'Not specified'
-		}
+			value: params.get('nonce') || 'Not specified',
+		},
 	];
 
-	return parameterInfo.filter(param => param.value !== 'Not specified');
+	return parameterInfo.filter((param) => param.value !== 'Not specified');
 };
 
 export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
@@ -302,7 +306,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 	showOpenButton = false,
 	onOpen,
 	label = 'Generated Authorization URL',
-	height
+	height,
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
 	const coloredParts = parseUrlWithColors(url);
@@ -324,7 +328,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 					</ActionButton>
 				)}
 			</UrlLabel>
-			
+
 			<UrlContent height={height}>
 				<ActionButtons>
 					{showCopyButton && (
@@ -343,7 +347,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						</ActionButton>
 					)}
 				</ActionButtons>
-				
+
 				{coloredParts.map((part, index) => (
 					<ColoredUrlText key={index} $color={part.color}>
 						{part.text}
@@ -357,7 +361,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						<InfoModalTitle>Authorization URL Parameters</InfoModalTitle>
 						<CloseButton onClick={() => setShowInfo(false)}>×</CloseButton>
 					</InfoModalHeader>
-					
+
 					<ParameterList>
 						{parameters.map((param, index) => (
 							<ParameterItem key={index}>

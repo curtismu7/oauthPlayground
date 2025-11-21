@@ -38,25 +38,29 @@ export async function ensureBackendReady(maxAttempts = 5): Promise<boolean> {
 				}
 
 				// Non-200 response, retry
-				const delay = initialDelay * Math.pow(2, attempt);
+				const delay = initialDelay * 2 ** attempt;
 				console.warn(
 					`[Backend Health Check] Backend not ready (status ${response.status}), retrying in ${delay}ms (attempt ${attempt + 1}/${maxAttempts})...`
 				);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				await new Promise((resolve) => setTimeout(resolve, delay));
 				attempt++;
 			} catch (error) {
 				// Network error, retry
-				const delay = initialDelay * Math.pow(2, attempt);
+				const delay = initialDelay * 2 ** attempt;
 				console.warn(
 					`[Backend Health Check] Backend not reachable, retrying in ${delay}ms (attempt ${attempt + 1}/${maxAttempts})...`,
 					error
 				);
-				await new Promise(resolve => setTimeout(resolve, delay));
+				await new Promise((resolve) => setTimeout(resolve, delay));
 				attempt++;
 			}
 		}
 
-		console.error('[Backend Health Check] Backend failed to become ready after', maxAttempts, 'attempts');
+		console.error(
+			'[Backend Health Check] Backend failed to become ready after',
+			maxAttempts,
+			'attempts'
+		);
 		return false;
 	})();
 

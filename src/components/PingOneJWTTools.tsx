@@ -1,7 +1,7 @@
 // src/components/PingOneJWTTools.tsx
 /**
  * PingOne JWT Creation Tools
- * 
+ *
  * Provides UI for creating PingOne-specific JWTs:
  * - Generate keypairs (RSA/ECDSA)
  * - Create login_hint_token JWT
@@ -11,9 +11,22 @@
  */
 
 import React, { useState } from 'react';
+import {
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
+	FiCopy,
+	FiKey,
+	FiSettings,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSettings, FiKey, FiCopy, FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { PingOneJWTService, KeyPair, LoginHintTokenPayload, RequestPropertyPayload, PrivateKeyJWTConfig } from '../services/pingOneJWTService';
+import {
+	KeyPair,
+	LoginHintTokenPayload,
+	PingOneJWTService,
+	PrivateKeyJWTConfig,
+	RequestPropertyPayload,
+} from '../services/pingOneJWTService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const ToolsContainer = styled.div`
@@ -50,7 +63,7 @@ const SectionTitle = styled.div`
 `;
 
 const SectionContent = styled.div<{ $collapsed: boolean }>`
-	display: ${props => props.$collapsed ? 'none' : 'block'};
+	display: ${(props) => (props.$collapsed ? 'none' : 'block')};
 	padding: 1rem;
 `;
 
@@ -128,7 +141,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	gap: 0.5rem;
 	transition: all 0.2s;
 	
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -227,7 +240,10 @@ interface PingOneJWTToolsProps {
 	onLoginHintTokenGenerated?: (token: string) => void;
 }
 
-export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, onLoginHintTokenGenerated }) => {
+export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({
+	config = {},
+	onLoginHintTokenGenerated,
+}) => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		keypair: true,
 		loginHint: true,
@@ -256,7 +272,9 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 	const [requestPropertyScope, setRequestPropertyScope] = useState('openid profile email');
 	const [requestPropertyState, setRequestPropertyState] = useState('');
 	const [requestPropertyNonce, setRequestPropertyNonce] = useState('');
-	const [requestPropertyAlgorithm, setRequestPropertyAlgorithm] = useState<'RS256' | 'ES256'>('RS256');
+	const [requestPropertyAlgorithm, setRequestPropertyAlgorithm] = useState<'RS256' | 'ES256'>(
+		'RS256'
+	);
 
 	const [privateKeyJWT, setPrivateKeyJWT] = useState('');
 	const [privateKeyJWTClientId, setPrivateKeyJWTClientId] = useState(config.clientId || '');
@@ -265,7 +283,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 	const [privateKeyJWTKeyId, setPrivateKeyJWTKeyId] = useState('');
 
 	const toggleSection = (section: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -275,7 +293,7 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 		try {
 			await navigator.clipboard.writeText(text);
 			v4ToastManager.showSuccess(`${label} copied to clipboard`);
-		} catch (error) {
+		} catch (_error) {
 			v4ToastManager.showError(`Failed to copy ${label}`);
 		}
 	};
@@ -419,7 +437,10 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 			<SectionContent $collapsed={collapsedSections.keypair}>
 				<FormGroup>
 					<Label>Key Type</Label>
-					<Select value={keypairType} onChange={(e) => setKeypairType(e.target.value as 'RSA' | 'ECDSA')}>
+					<Select
+						value={keypairType}
+						onChange={(e) => setKeypairType(e.target.value as 'RSA' | 'ECDSA')}
+					>
 						<option value="RSA">RSA</option>
 						<option value="ECDSA">ECDSA</option>
 					</Select>
@@ -427,7 +448,10 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 				{keypairType === 'RSA' && (
 					<FormGroup>
 						<Label>Key Size</Label>
-						<Select value={keySize} onChange={(e) => setKeySize(Number(e.target.value) as 2048 | 3072 | 4096)}>
+						<Select
+							value={keySize}
+							onChange={(e) => setKeySize(Number(e.target.value) as 2048 | 3072 | 4096)}
+						>
 							<option value="2048">2048 bits</option>
 							<option value="3072">3072 bits</option>
 							<option value="4096">4096 bits</option>
@@ -437,7 +461,10 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 				{keypairType === 'ECDSA' && (
 					<FormGroup>
 						<Label>Curve</Label>
-						<Select value={ecdsaCurve} onChange={(e) => setEcdsaCurve(e.target.value as 'P-256' | 'P-384' | 'P-521')}>
+						<Select
+							value={ecdsaCurve}
+							onChange={(e) => setEcdsaCurve(e.target.value as 'P-256' | 'P-384' | 'P-521')}
+						>
 							<option value="P-256">P-256</option>
 							<option value="P-384">P-384</option>
 							<option value="P-521">P-521</option>
@@ -458,7 +485,12 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 							<ResultLabel>Private Key (JWK)</ResultLabel>
 							<ResultValue>{JSON.stringify(keypair.jwk.private, null, 2)}</ResultValue>
 							<ButtonRow>
-								<Button $variant="secondary" onClick={() => copyToClipboard(JSON.stringify(keypair.jwk.private, null, 2), 'Private Key')}>
+								<Button
+									$variant="secondary"
+									onClick={() =>
+										copyToClipboard(JSON.stringify(keypair.jwk.private, null, 2), 'Private Key')
+									}
+								>
 									<FiCopy /> Copy Private Key
 								</Button>
 							</ButtonRow>
@@ -467,7 +499,12 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 							<ResultLabel>Public Key (JWK)</ResultLabel>
 							<ResultValue>{JSON.stringify(keypair.jwk.public, null, 2)}</ResultValue>
 							<ButtonRow>
-								<Button $variant="secondary" onClick={() => copyToClipboard(JSON.stringify(keypair.jwk.public, null, 2), 'Public Key')}>
+								<Button
+									$variant="secondary"
+									onClick={() =>
+										copyToClipboard(JSON.stringify(keypair.jwk.public, null, 2), 'Public Key')
+									}
+								>
 									<FiCopy /> Copy Public Key
 								</Button>
 							</ButtonRow>
@@ -489,23 +526,46 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 				</InfoText>
 				<FormGroup>
 					<Label>Username (optional)</Label>
-					<Input type="text" value={loginHintUsername} onChange={(e) => setLoginHintUsername(e.target.value)} placeholder="username" />
+					<Input
+						type="text"
+						value={loginHintUsername}
+						onChange={(e) => setLoginHintUsername(e.target.value)}
+						placeholder="username"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Email (optional)</Label>
-					<Input type="email" value={loginHintEmail} onChange={(e) => setLoginHintEmail(e.target.value)} placeholder="user@example.com" />
+					<Input
+						type="email"
+						value={loginHintEmail}
+						onChange={(e) => setLoginHintEmail(e.target.value)}
+						placeholder="user@example.com"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Phone (optional)</Label>
-					<Input type="text" value={loginHintPhone} onChange={(e) => setLoginHintPhone(e.target.value)} placeholder="+1234567890" />
+					<Input
+						type="text"
+						value={loginHintPhone}
+						onChange={(e) => setLoginHintPhone(e.target.value)}
+						placeholder="+1234567890"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Subject Identifier (optional)</Label>
-					<Input type="text" value={loginHintSub} onChange={(e) => setLoginHintSub(e.target.value)} placeholder="user-subject-id" />
+					<Input
+						type="text"
+						value={loginHintSub}
+						onChange={(e) => setLoginHintSub(e.target.value)}
+						placeholder="user-subject-id"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Signing Algorithm</Label>
-					<Select value={loginHintAlgorithm} onChange={(e) => setLoginHintAlgorithm(e.target.value as 'RS256' | 'ES256')}>
+					<Select
+						value={loginHintAlgorithm}
+						onChange={(e) => setLoginHintAlgorithm(e.target.value as 'RS256' | 'ES256')}
+					>
 						<option value="RS256">RS256</option>
 						<option value="ES256">ES256</option>
 					</Select>
@@ -520,11 +580,17 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 						<ResultLabel>Login Hint Token</ResultLabel>
 						<ResultValue>{loginHintToken}</ResultValue>
 						<ButtonRow>
-							<Button $variant="secondary" onClick={() => copyToClipboard(loginHintToken, 'Login Hint Token')}>
+							<Button
+								$variant="secondary"
+								onClick={() => copyToClipboard(loginHintToken, 'Login Hint Token')}
+							>
 								<FiCopy /> Copy Token
 							</Button>
 							{onLoginHintTokenGenerated && (
-								<Button $variant="primary" onClick={() => onLoginHintTokenGenerated(loginHintToken)}>
+								<Button
+									$variant="primary"
+									onClick={() => onLoginHintTokenGenerated(loginHintToken)}
+								>
 									<FiCheckCircle /> Use This Token
 								</Button>
 							)}
@@ -542,15 +608,24 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.requestProperty}>
 				<InfoText>
-					Create a JWT containing authorization request parameters for use with Pushed Authorization Request (PAR) or request_uri.
+					Create a JWT containing authorization request parameters for use with Pushed Authorization
+					Request (PAR) or request_uri.
 				</InfoText>
 				<FormGroup>
 					<Label>Client ID *</Label>
-					<Input type="text" value={requestPropertyClientId} onChange={(e) => setRequestPropertyClientId(e.target.value)} placeholder="your-client-id" />
+					<Input
+						type="text"
+						value={requestPropertyClientId}
+						onChange={(e) => setRequestPropertyClientId(e.target.value)}
+						placeholder="your-client-id"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Response Type *</Label>
-					<Select value={requestPropertyResponseType} onChange={(e) => setRequestPropertyResponseType(e.target.value)}>
+					<Select
+						value={requestPropertyResponseType}
+						onChange={(e) => setRequestPropertyResponseType(e.target.value)}
+					>
 						<option value="code">code</option>
 						<option value="token">token</option>
 						<option value="id_token">id_token</option>
@@ -560,29 +635,56 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 				</FormGroup>
 				<FormGroup>
 					<Label>Redirect URI (optional)</Label>
-					<Input type="text" value={requestPropertyRedirectUri} onChange={(e) => setRequestPropertyRedirectUri(e.target.value)} placeholder="https://example.com/callback" />
+					<Input
+						type="text"
+						value={requestPropertyRedirectUri}
+						onChange={(e) => setRequestPropertyRedirectUri(e.target.value)}
+						placeholder="https://example.com/callback"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Scope (optional)</Label>
-					<Input type="text" value={requestPropertyScope} onChange={(e) => setRequestPropertyScope(e.target.value)} placeholder="openid profile email" />
+					<Input
+						type="text"
+						value={requestPropertyScope}
+						onChange={(e) => setRequestPropertyScope(e.target.value)}
+						placeholder="openid profile email"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>State (optional)</Label>
-					<Input type="text" value={requestPropertyState} onChange={(e) => setRequestPropertyState(e.target.value)} placeholder="state-value" />
+					<Input
+						type="text"
+						value={requestPropertyState}
+						onChange={(e) => setRequestPropertyState(e.target.value)}
+						placeholder="state-value"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Nonce (optional)</Label>
-					<Input type="text" value={requestPropertyNonce} onChange={(e) => setRequestPropertyNonce(e.target.value)} placeholder="nonce-value" />
+					<Input
+						type="text"
+						value={requestPropertyNonce}
+						onChange={(e) => setRequestPropertyNonce(e.target.value)}
+						placeholder="nonce-value"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Signing Algorithm</Label>
-					<Select value={requestPropertyAlgorithm} onChange={(e) => setRequestPropertyAlgorithm(e.target.value as 'RS256' | 'ES256')}>
+					<Select
+						value={requestPropertyAlgorithm}
+						onChange={(e) => setRequestPropertyAlgorithm(e.target.value as 'RS256' | 'ES256')}
+					>
 						<option value="RS256">RS256</option>
 						<option value="ES256">ES256</option>
 					</Select>
 				</FormGroup>
 				<ButtonRow>
-					<Button $variant="primary" onClick={handleCreateRequestPropertyJWT} disabled={!keypair || !requestPropertyClientId}>
+					<Button
+						$variant="primary"
+						onClick={handleCreateRequestPropertyJWT}
+						disabled={!keypair || !requestPropertyClientId}
+					>
 						<FiKey /> Create Request Property JWT
 					</Button>
 				</ButtonRow>
@@ -591,7 +693,10 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 						<ResultLabel>Request Property JWT</ResultLabel>
 						<ResultValue>{requestPropertyToken}</ResultValue>
 						<ButtonRow>
-							<Button $variant="secondary" onClick={() => copyToClipboard(requestPropertyToken, 'Request Property JWT')}>
+							<Button
+								$variant="secondary"
+								onClick={() => copyToClipboard(requestPropertyToken, 'Request Property JWT')}
+							>
 								<FiCopy /> Copy Token
 							</Button>
 						</ButtonRow>
@@ -612,23 +717,46 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 				</InfoText>
 				<FormGroup>
 					<Label>Client ID *</Label>
-					<Input type="text" value={privateKeyJWTClientId} onChange={(e) => setPrivateKeyJWTClientId(e.target.value)} placeholder="your-client-id" />
+					<Input
+						type="text"
+						value={privateKeyJWTClientId}
+						onChange={(e) => setPrivateKeyJWTClientId(e.target.value)}
+						placeholder="your-client-id"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Audience (Token Endpoint URL) *</Label>
-					<Input type="text" value={privateKeyJWTAudience} onChange={(e) => setPrivateKeyJWTAudience(e.target.value)} placeholder="https://auth.pingone.com/{envId}/as/token" />
+					<Input
+						type="text"
+						value={privateKeyJWTAudience}
+						onChange={(e) => setPrivateKeyJWTAudience(e.target.value)}
+						placeholder="https://auth.pingone.com/{envId}/as/token"
+					/>
 				</FormGroup>
 				<FormGroup>
 					<Label>Private Key (JWK JSON) *</Label>
-					<Textarea value={privateKeyJWTPrivateKey} onChange={(e) => setPrivateKeyJWTPrivateKey(e.target.value)} placeholder='{"kty":"RSA","n":"...","e":"AQAB",...}' />
+					<Textarea
+						value={privateKeyJWTPrivateKey}
+						onChange={(e) => setPrivateKeyJWTPrivateKey(e.target.value)}
+						placeholder='{"kty":"RSA","n":"...","e":"AQAB",...}'
+					/>
 					<InfoText>Paste the private key in JWK format (from keypair generation above)</InfoText>
 				</FormGroup>
 				<FormGroup>
 					<Label>Key ID (optional)</Label>
-					<Input type="text" value={privateKeyJWTKeyId} onChange={(e) => setPrivateKeyJWTKeyId(e.target.value)} placeholder="key-id" />
+					<Input
+						type="text"
+						value={privateKeyJWTKeyId}
+						onChange={(e) => setPrivateKeyJWTKeyId(e.target.value)}
+						placeholder="key-id"
+					/>
 				</FormGroup>
 				<ButtonRow>
-					<Button $variant="primary" onClick={handleCreatePrivateKeyJWT} disabled={!privateKeyJWTPrivateKey || !privateKeyJWTClientId || !privateKeyJWTAudience}>
+					<Button
+						$variant="primary"
+						onClick={handleCreatePrivateKeyJWT}
+						disabled={!privateKeyJWTPrivateKey || !privateKeyJWTClientId || !privateKeyJWTAudience}
+					>
 						<FiKey /> Create Private Key JWT
 					</Button>
 				</ButtonRow>
@@ -637,7 +765,10 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 						<ResultLabel>Private Key JWT</ResultLabel>
 						<ResultValue>{privateKeyJWT}</ResultValue>
 						<ButtonRow>
-							<Button $variant="secondary" onClick={() => copyToClipboard(privateKeyJWT, 'Private Key JWT')}>
+							<Button
+								$variant="secondary"
+								onClick={() => copyToClipboard(privateKeyJWT, 'Private Key JWT')}
+							>
 								<FiCopy /> Copy Token
 							</Button>
 						</ButtonRow>
@@ -654,7 +785,8 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
 			</SectionHeader>
 			<SectionContent $collapsed={collapsedSections.transaction}>
 				<InfoText>
-					Transaction approval flows require additional request property JWT claims. Configure transaction-specific parameters here.
+					Transaction approval flows require additional request property JWT claims. Configure
+					transaction-specific parameters here.
 				</InfoText>
 				<ResultBox>
 					<ResultLabel>Transaction Approval Requirements</ResultLabel>
@@ -666,12 +798,12 @@ export const PingOneJWTTools: React.FC<PingOneJWTToolsProps> = ({ config = {}, o
   "user_consent_required": true
 }`}</ResultValue>
 					<InfoText style={{ marginTop: '0.5rem' }}>
-						These claims should be included in the request property JWT when initiating a transaction approval flow.
-						Use the "Create Request Property JWT" section above and add these as additional claims.
+						These claims should be included in the request property JWT when initiating a
+						transaction approval flow. Use the "Create Request Property JWT" section above and add
+						these as additional claims.
 					</InfoText>
 				</ResultBox>
 			</SectionContent>
 		</ToolsContainer>
 	);
 };
-

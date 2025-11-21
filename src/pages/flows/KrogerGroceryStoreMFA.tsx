@@ -2,32 +2,32 @@
 // Kroger Grocery Store Mockup - Real-world MFA authentication experience
 // This page demonstrates PingOne MFA in a realistic grocery store website context
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-	FiShoppingCart,
-	FiUser,
-	FiSearch,
-	FiHeart,
 	FiAlertCircle,
-	FiLock,
 	FiArrowLeft,
+	FiHeart,
+	FiLock,
 	FiLogOut,
 	FiRefreshCw,
+	FiSearch,
+	FiShoppingCart,
+	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ApiCallTable } from '../../components/ApiCallTable';
+import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
+import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import type { ApiCall } from '../../services/apiCallTrackerService';
+import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
 import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
-import { trackedFetch } from '../../utils/trackedFetch';
-import { apiCallTrackerService } from '../../services/apiCallTrackerService';
-import { ApiCallTable } from '../../components/ApiCallTable';
-import type { ApiCall } from '../../services/apiCallTrackerService';
-import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import type { UserInfo } from '../../types/oauth';
+import { trackedFetch } from '../../utils/trackedFetch';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
@@ -363,7 +363,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	right: 0;
 	bottom: 0;
 	background: rgba(0,0,0,0.7);
-	display: ${props => props.$isOpen ? 'flex' : 'none'};
+	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
 	align-items: center;
 	justify-content: center;
 	z-index: 2000;
@@ -602,7 +602,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
 	const [userInfoLoading, setUserInfoLoading] = useState(false);
 	const [userInfoError, setUserInfoError] = useState<string | null>(null);
-	
+
 	// MFA Workflow State (Steps 11-20)
 	const [userId, setUserId] = useState('');
 	const [deviceId, setDeviceId] = useState('');
@@ -612,10 +612,10 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [loginStep, setLoginStep] = useState<'login' | 'device-setup' | 'mfa' | 'success'>('login');
 	const [workerToken, setWorkerToken] = useState('');
-	
+
 	// API Call Tracking
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-	
+
 	// Use refs to avoid circular dependency issues in useCallback
 	const completeMFALoginRef = useRef<(() => Promise<void>) | null>(null);
 	const loginFormRef = useRef<HTMLDivElement | null>(null);
@@ -646,24 +646,31 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			const FLOW_TYPE = 'kroger-grocery-store-mfa';
 			const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
 			const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-			
+
 			// Check if we have a valid worker token
 			const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
 				clearExpired: true,
 				showToast: false,
 			});
-			
+
 			if (tokenResult.isValid && tokenResult.token) {
 				console.log('✅ [KrogerGroceryStoreMFA] Valid worker token found, not showing modal');
 				setWorkerToken(tokenResult.token);
 				return;
 			}
-			
+
 			// No valid token - check if we have credentials to generate one
 			const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-			if (!savedCreds || !savedCreds.environmentId || !savedCreds.clientId || !savedCreds.clientSecret) {
+			if (
+				!savedCreds ||
+				!savedCreds.environmentId ||
+				!savedCreds.clientId ||
+				!savedCreds.clientSecret
+			) {
 				// No credentials found - show modal to request them
-				console.log('⚠️ [KrogerGroceryStoreMFA] No worker token credentials found, showing modal...');
+				console.log(
+					'⚠️ [KrogerGroceryStoreMFA] No worker token credentials found, showing modal...'
+				);
 				setShowWorkerTokenModal(true);
 			}
 		};
@@ -675,67 +682,76 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	useEffect(() => {
 		const loadCredentials = () => {
 			console.log('🔄 [KrogerGroceryStoreMFA] Loading credentials...');
-			
+
 			// First, check isolated credentials directly
 			const isolatedCreds = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
 			console.log('🔍 [KrogerGroceryStoreMFA] Isolated credentials:', isolatedCreds);
-			
+
 			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
 				useSharedEnvironment: true,
-				useSharedDiscovery: true
+				useSharedDiscovery: true,
 			});
 
 			// Determine if we have complete credentials
-			const hasCompleteCredentials = isolatedCreds && 
-				isolatedCreds.environmentId && 
-				isolatedCreds.clientId && 
+			const hasCompleteCredentials =
+				isolatedCreds &&
+				isolatedCreds.environmentId &&
+				isolatedCreds.clientId &&
 				isolatedCreds.clientSecret;
 
 			if (hasCompleteCredentials) {
 				console.log('✅ [KrogerGroceryStoreMFA] Found complete authorization code credentials');
-				const envId = flowData.sharedEnvironment?.environmentId || isolatedCreds.environmentId || '';
+				const envId =
+					flowData.sharedEnvironment?.environmentId || isolatedCreds.environmentId || '';
 				const loadedCreds = {
 					environmentId: envId,
 					clientId: isolatedCreds.clientId || '',
 					clientSecret: isolatedCreds.clientSecret || '',
 					redirectUri: isolatedCreds.redirectUri || 'https://localhost:3000/callback',
-					scopes: Array.isArray(isolatedCreds.scopes) 
-						? isolatedCreds.scopes.join(' ') 
-						: (isolatedCreds.scopes || 'openid profile email consents'),
+					scopes: Array.isArray(isolatedCreds.scopes)
+						? isolatedCreds.scopes.join(' ')
+						: isolatedCreds.scopes || 'openid profile email consents',
 				};
 				setCredentials(loadedCreds);
 			} else if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-				console.log('✅ [KrogerGroceryStoreMFA] Found flow-specific credentials (may be incomplete)');
-				const envId = flowData.sharedEnvironment?.environmentId || flowData.flowCredentials.environmentId || '';
+				console.log(
+					'✅ [KrogerGroceryStoreMFA] Found flow-specific credentials (may be incomplete)'
+				);
+				const envId =
+					flowData.sharedEnvironment?.environmentId || flowData.flowCredentials.environmentId || '';
 				const loadedCreds = {
 					environmentId: envId,
 					clientId: flowData.flowCredentials.clientId || '',
 					clientSecret: flowData.flowCredentials.clientSecret || '',
 					redirectUri: flowData.flowCredentials.redirectUri || 'https://localhost:3000/callback',
-					scopes: Array.isArray(flowData.flowCredentials.scopes) 
-						? flowData.flowCredentials.scopes.join(' ') 
+					scopes: Array.isArray(flowData.flowCredentials.scopes)
+						? flowData.flowCredentials.scopes.join(' ')
 						: flowData.flowCredentials.scopes || 'openid profile email consents',
 				};
 				setCredentials(loadedCreds);
-				
+
 				// Check if credentials are complete
 				if (!loadedCreds.environmentId || !loadedCreds.clientId || !loadedCreds.clientSecret) {
-					console.log('⚠️ [KrogerGroceryStoreMFA] Incomplete authorization code credentials, showing setup modal...');
+					console.log(
+						'⚠️ [KrogerGroceryStoreMFA] Incomplete authorization code credentials, showing setup modal...'
+					);
 					// Delay showing modal slightly to ensure component is fully mounted
 					setTimeout(() => setShowSetupModal(true), 100);
 				}
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [KrogerGroceryStoreMFA] Using shared environment data only');
 				const envId = flowData.sharedEnvironment.environmentId;
-				setCredentials(prev => ({
+				setCredentials((prev) => ({
 					...prev,
 					environmentId: envId,
 				}));
-				
+
 				// Check if we still need client credentials
 				if (!isolatedCreds || !isolatedCreds.clientId || !isolatedCreds.clientSecret) {
-					console.log('⚠️ [KrogerGroceryStoreMFA] Missing client credentials, showing setup modal...');
+					console.log(
+						'⚠️ [KrogerGroceryStoreMFA] Missing client credentials, showing setup modal...'
+					);
 					// Delay showing modal slightly to ensure component is fully mounted
 					setTimeout(() => setShowSetupModal(true), 100);
 				}
@@ -776,16 +792,21 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	// Handle OIDC discovery completion - ensure environment ID is saved
 	const handleDiscoveryComplete = useCallback((result: any) => {
 		console.log('[KrogerGroceryStoreMFA] OIDC Discovery completed:', result);
-		
+
 		// Extract environment ID from issuer URL
 		if (result.issuerUrl) {
-			const envIdMatch = result.issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+			const envIdMatch = result.issuerUrl.match(
+				/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+			);
 			if (envIdMatch && envIdMatch[1]) {
 				const extractedEnvId = envIdMatch[1];
-				console.log('[KrogerGroceryStoreMFA] Extracted Environment ID from discovery:', extractedEnvId);
-				
+				console.log(
+					'[KrogerGroceryStoreMFA] Extracted Environment ID from discovery:',
+					extractedEnvId
+				);
+
 				// Update credentials with environment ID
-				setCredentials(prev => {
+				setCredentials((prev) => {
 					const updated = { ...prev, environmentId: extractedEnvId };
 
 					const scopesArray = Array.isArray(updated.scopes)
@@ -804,7 +825,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						credentialsToSave as typeof credentialsToSave & { scopes: string[] },
 						{ showToast: false }
 					);
-					
+
 					return updated;
 				});
 			}
@@ -876,12 +897,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			// Use flow-specific storage key
 			const tokenStorageKey = 'pingone_worker_token_kroger-grocery-store-mfa';
 			const tokenExpiryKey = 'pingone_worker_token_expires_at_kroger-grocery-store-mfa';
-			
+
 			const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
 				clearExpired: true,
 				showToast: false,
 			});
-			
+
 			if (tokenResult.isValid && tokenResult.token) {
 				setWorkerToken(tokenResult.token);
 				console.log('✅ [KrogerGroceryStoreMFA] Worker token loaded from storage');
@@ -895,7 +916,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		};
 
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
-		
+
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
@@ -906,18 +927,23 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		if (!credentials.environmentId || !userId || !workerToken) {
 			return;
 		}
-		
+
 		try {
-			const response = await trackedFetch(`/api/pingone/user/${userId}/mfa?environmentId=${credentials.environmentId}&accessToken=${encodeURIComponent(workerToken)}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-			
-			const data = await response.json() as { devices?: MfaDevice[] };
+			const response = await trackedFetch(
+				`/api/pingone/user/${userId}/mfa?environmentId=${credentials.environmentId}&accessToken=${encodeURIComponent(workerToken)}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			const data = (await response.json()) as { devices?: MfaDevice[] };
 			if (response.ok && data.devices) {
-				const smsDevices = data.devices.filter((d: MfaDevice) => d.type === 'SMS' || d.type === 'MOBILE');
+				const smsDevices = data.devices.filter(
+					(d: MfaDevice) => d.type === 'SMS' || d.type === 'MOBILE'
+				);
 				setMfaDevices(smsDevices);
 				if (smsDevices.length > 0) {
 					setSelectedDevice(smsDevices[0].id);
@@ -935,30 +961,32 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			v4ToastManager.showError('Please enter username and password');
 			return;
 		}
-		
+
 		// Validate credentials before making API call
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
 			console.error('[Kroger] Missing credentials:', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
-				credentials
+				credentials,
 			});
-			v4ToastManager.showError('Please configure application credentials first. Click "Configure Application Credentials" below the login form.');
+			v4ToastManager.showError(
+				'Please configure application credentials first. Click "Configure Application Credentials" below the login form.'
+			);
 			return;
 		}
-		
+
 		console.log('[Kroger] Starting login with credentials:', {
 			environmentId: credentials.environmentId?.substring(0, 20) + '...',
 			clientId: credentials.clientId?.substring(0, 20) + '...',
 			hasClientSecret: !!credentials.clientSecret,
 			redirectUri: credentials.redirectUri,
-			scopes: credentials.scopes
+			scopes: credentials.scopes,
 		});
 
 		// Worker token is NOT needed for user login (Authorization Code flow)
 		// Worker token is only needed for device registration (Step 11)
-		
+
 		setIsLoading(true);
 		try {
 			// Step 12: Send Authorize Request
@@ -1022,14 +1050,13 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			setLoginStep('mfa');
 			v4ToastManager.showInfo('Please check your phone for the verification code');
 			setIsLoading(false);
-
 		} catch (error) {
 			console.error('[Kroger] Login failed:', error);
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Login failed');
 			setIsLoading(false);
 		}
 	}, [credentials, username, password, workerToken]);
-	
+
 	// Update ref when function changes
 	useEffect(() => {
 		completeMFALoginRef.current = completeMFALogin;
@@ -1044,37 +1071,45 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 	}, [isAuthenticated, credentials.environmentId, tokens, fetchKrogerUserInfo]);
 
 	// Enable MFA Device
-	const enableMFADevice = useCallback(async (deviceId: string): Promise<boolean> => {
-		if (!credentials.environmentId || !userId || !workerToken) {
-			v4ToastManager.showError('Missing required parameters for device enablement');
-			return false;
-		}
-
-		try {
-			const response = await trackedFetch(`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices/${deviceId}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${workerToken}`,
-				},
-				body: JSON.stringify({
-					enabled: true,
-				}),
-			});
-
-			const data = await response.json();
-			if (response.ok) {
-				v4ToastManager.showSuccess('MFA device enabled successfully');
-				return true;
-			} else {
-				throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
+	const enableMFADevice = useCallback(
+		async (deviceId: string): Promise<boolean> => {
+			if (!credentials.environmentId || !userId || !workerToken) {
+				v4ToastManager.showError('Missing required parameters for device enablement');
+				return false;
 			}
-		} catch (error) {
-			console.error('[Kroger] Device enablement failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to enable MFA device');
-			return false;
-		}
-	}, [credentials.environmentId, userId, workerToken]);
+
+			try {
+				const response = await trackedFetch(
+					`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices/${deviceId}`,
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${workerToken}`,
+						},
+						body: JSON.stringify({
+							enabled: true,
+						}),
+					}
+				);
+
+				const data = await response.json();
+				if (response.ok) {
+					v4ToastManager.showSuccess('MFA device enabled successfully');
+					return true;
+				} else {
+					throw new Error(data.error_description || data.error || 'Failed to enable MFA device');
+				}
+			} catch (error) {
+				console.error('[Kroger] Device enablement failed:', error);
+				v4ToastManager.showError(
+					error instanceof Error ? error.message : 'Failed to enable MFA device'
+				);
+				return false;
+			}
+		},
+		[credentials.environmentId, userId, workerToken]
+	);
 
 	// Step 11: Register Mobile Phone Device
 	const registerMobilePhone = useCallback(async () => {
@@ -1082,22 +1117,25 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			v4ToastManager.showError('Please provide all required information');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
-			const response = await trackedFetch(`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${workerToken}`,
-				},
-				body: JSON.stringify({
-					type: 'SMS',
-					phone: phoneNumber,
-					nickname: 'Mobile Phone',
-				}),
-			});
-			
+			const response = await trackedFetch(
+				`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${workerToken}`,
+					},
+					body: JSON.stringify({
+						type: 'SMS',
+						phone: phoneNumber,
+						nickname: 'Mobile Phone',
+					}),
+				}
+			);
+
 			const data = await response.json();
 			if (response.ok && data.id) {
 				setDeviceId(data.id);
@@ -1116,11 +1154,12 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Kroger] Device registration failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to register device');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to register device'
+			);
 			setIsLoading(false);
 		}
 	}, [credentials.environmentId, userId, phoneNumber, workerToken, enableMFADevice]);
-
 
 	// Step 15-17: Complete MFA and Get Tokens
 	const verifyMFACode = useCallback(async () => {
@@ -1149,16 +1188,21 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			}
 
 			// Step 16: Call Resume Endpoint
-			const resumeResponse = await trackedFetch(`/api/pingone/resume?flowId=${flowId}&environment_id=${credentials.environmentId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
+			const resumeResponse = await trackedFetch(
+				`/api/pingone/resume?flowId=${flowId}&environment_id=${credentials.environmentId}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
 
 			const resumeData = await resumeResponse.json();
 			if (!resumeResponse.ok || !resumeData.code) {
-				throw new Error(resumeData.error_description || resumeData.error || 'Failed to get authorization code');
+				throw new Error(
+					resumeData.error_description || resumeData.error || 'Failed to get authorization code'
+				);
 			}
 
 			setAuthorizationCode(resumeData.code);
@@ -1191,7 +1235,6 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 			setLoginStep('success');
 			v4ToastManager.showSuccess('Login successful! Welcome to Kroger.');
 			setIsLoading(false);
-
 		} catch (error) {
 			console.error('[Kroger] MFA verification failed:', error);
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Verification failed');
@@ -1215,7 +1258,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		if (workerToken) {
 			// Fetch existing devices (optional - only if worker token available)
 			await fetchExistingDevices();
-			
+
 			// If no devices found and worker token available, offer device setup
 			if (mfaDevices.length === 0 && !deviceId) {
 				// Device setup requires worker token, but login doesn't
@@ -1269,7 +1312,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						</Logo>
 						<SearchBar>
 							<FiSearch />
-							<input type="text" placeholder="Search fresh groceries, bakery, and more" aria-label="Search products" />
+							<input
+								type="text"
+								placeholder="Search fresh groceries, bakery, and more"
+								aria-label="Search products"
+							/>
 						</SearchBar>
 						<HeaderActions>
 							<HeaderButton type="button">
@@ -1287,7 +1334,9 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 				<MainContent style={{ paddingTop: '2rem' }}>
 					<HeroBanner>
 						<h1>Shop Kroger with Secure MFA</h1>
-						<p>Experience the enhanced PingOne MFA journey while browsing exclusive Kroger deals.</p>
+						<p>
+							Experience the enhanced PingOne MFA journey while browsing exclusive Kroger deals.
+						</p>
 					</HeroBanner>
 
 					<LoginPageContainer onClick={(e) => e.stopPropagation()}>
@@ -1324,11 +1373,28 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							{isLoading ? 'Signing In...' : 'Sign In'}
 						</LoginButton>
 
-						<div style={{ marginTop: '1rem', fontSize: '0.875rem', color: '#666', textAlign: 'center' }}>
+						<div
+							style={{
+								marginTop: '1rem',
+								fontSize: '0.875rem',
+								color: '#666',
+								textAlign: 'center',
+							}}
+						>
 							<p style={{ margin: '0.5rem 0', color: '#999' }}>
-								Don't have an account? <a href="#" style={{ color: KROGER_BLUE, textDecoration: 'none' }}>Sign up</a>
+								Don't have an account?{' '}
+								<a href="#" style={{ color: KROGER_BLUE, textDecoration: 'none' }}>
+									Sign up
+								</a>
 							</p>
-							<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center' }}>
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '0.5rem',
+									alignItems: 'center',
+								}}
+							>
 								<button
 									onClick={() => {
 										setShowAuthzConfigModal(true);
@@ -1340,7 +1406,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 										cursor: 'pointer',
 										textDecoration: 'underline',
 										fontSize: '0.875rem',
-										marginTop: '0.5rem'
+										marginTop: '0.5rem',
 									}}
 								>
 									Configure Authorization Code Credentials
@@ -1350,19 +1416,21 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 										const FLOW_TYPE = 'kroger-grocery-store-mfa';
 										const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
 										const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-										
+
 										// Check if we already have a valid worker token
 										const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
 											clearExpired: true,
 											showToast: false,
 										});
-										
+
 										if (tokenResult.isValid && tokenResult.token) {
-											v4ToastManager.showSuccess(`Worker token is valid and expires in ${tokenResult.expirationInfo?.minutesRemaining || 0} minutes`);
+											v4ToastManager.showSuccess(
+												`Worker token is valid and expires in ${tokenResult.expirationInfo?.minutesRemaining || 0} minutes`
+											);
 											setWorkerToken(tokenResult.token);
 											return;
 										}
-										
+
 										// No valid token - show modal to configure/generate
 										setShowWorkerTokenModal(true);
 									}}
@@ -1372,7 +1440,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 										color: KROGER_BLUE,
 										cursor: 'pointer',
 										textDecoration: 'underline',
-										fontSize: '0.875rem'
+										fontSize: '0.875rem',
 									}}
 								>
 									Configure Worker Token Credentials
@@ -1383,8 +1451,8 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 
 					{/* API Call Table - Independent, wider container */}
 					<ApiCallTableContainer>
-						<ApiCallTable 
-							apiCalls={apiCalls} 
+						<ApiCallTable
+							apiCalls={apiCalls}
 							onClear={() => apiCallTrackerService.clearApiCalls()}
 						/>
 					</ApiCallTableContainer>
@@ -1399,8 +1467,8 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 							</div>
 							<h3>Verify Your Identity</h3>
 							<p>
-								We've sent a verification code to your registered device.
-								Please enter the 6-digit code to continue.
+								We've sent a verification code to your registered device. Please enter the 6-digit
+								code to continue.
 							</p>
 							<input
 								type="text"
@@ -1449,16 +1517,25 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								×
 							</button>
 						</ModalHeader>
-						
+
 						<div style={{ marginBottom: '1.5rem' }}>
 							<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1rem' }}>
-								The Kroger Grocery Store MFA flow requires authorization code credentials to be configured. 
-								Please configure your PingOne authorization code client credentials to continue.
+								The Kroger Grocery Store MFA flow requires authorization code credentials to be
+								configured. Please configure your PingOne authorization code client credentials to
+								continue.
 							</p>
 							<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 								You'll need:
 							</p>
-							<ul style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.8', marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+							<ul
+								style={{
+									color: '#6b7280',
+									fontSize: '0.875rem',
+									lineHeight: '1.8',
+									marginLeft: '1.5rem',
+									marginTop: '0.5rem',
+								}}
+							>
 								<li>Environment ID</li>
 								<li>Client ID</li>
 								<li>Client Secret</li>
@@ -1466,7 +1543,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								<li>Scopes (optional)</li>
 							</ul>
 						</div>
-						
+
 						<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
 							<button
 								onClick={() => setShowSetupModal(false)}
@@ -1526,21 +1603,23 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					isOpen={showAuthzConfigModal}
 					onClose={() => {
 						setShowAuthzConfigModal(false);
-						
+
 						// Reload saved credentials after modal closes
 						const FLOW_KEY = 'kroger-grocery-store-mfa';
 						const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
-						
+
 						if (saved && saved.environmentId && saved.clientId && saved.clientSecret) {
-							console.log('✅ [KrogerGroceryStoreMFA] Credentials found after save, updating state...');
+							console.log(
+								'✅ [KrogerGroceryStoreMFA] Credentials found after save, updating state...'
+							);
 							setCredentials({
 								environmentId: saved.environmentId || '',
 								clientId: saved.clientId || '',
 								clientSecret: saved.clientSecret || '',
 								redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
-								scopes: Array.isArray(saved.scopes) 
-									? saved.scopes.join(' ') 
-									: (saved.scopes || 'openid profile email consents'),
+								scopes: Array.isArray(saved.scopes)
+									? saved.scopes.join(' ')
+									: saved.scopes || 'openid profile email consents',
 							});
 							// Close setup modal if it was open
 							setShowSetupModal(false);
@@ -1553,7 +1632,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						// onClose callback will reload from storage to ensure consistency
 						setCredentials(savedCredentials);
 						// Close setup modal if credentials are now complete
-						if (savedCredentials.environmentId && savedCredentials.clientId && savedCredentials.clientSecret) {
+						if (
+							savedCredentials.environmentId &&
+							savedCredentials.clientId &&
+							savedCredentials.clientSecret
+						) {
 							setShowSetupModal(false);
 						}
 					}}
@@ -1566,31 +1649,45 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 						setShowWorkerTokenModal(false);
 						// After worker token modal closes, check if we need to show setup modal for authz code credentials
 						setTimeout(() => {
-							const isolatedCreds = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
-							if (!isolatedCreds || !isolatedCreds.environmentId || !isolatedCreds.clientId || !isolatedCreds.clientSecret) {
-								console.log('⚠️ [KrogerGroceryStoreMFA] Still missing authorization code credentials after worker token modal closed, showing setup modal...');
+							const isolatedCreds =
+								comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+							if (
+								!isolatedCreds ||
+								!isolatedCreds.environmentId ||
+								!isolatedCreds.clientId ||
+								!isolatedCreds.clientSecret
+							) {
+								console.log(
+									'⚠️ [KrogerGroceryStoreMFA] Still missing authorization code credentials after worker token modal closed, showing setup modal...'
+								);
 								setShowSetupModal(true);
 							}
 						}, 200);
 					}}
 					onContinue={() => {
 						setShowWorkerTokenModal(false);
-						
+
 						// Re-check for saved credentials and worker token after modal closes
 						const FLOW_TYPE = 'kroger-grocery-store-mfa';
 						const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-						
-						if (savedCreds && savedCreds.environmentId && savedCreds.clientId && savedCreds.clientSecret) {
-							console.log('✅ [KrogerGroceryStoreMFA] Credentials found after save, checking for token...');
-							
+
+						if (
+							savedCreds &&
+							savedCreds.environmentId &&
+							savedCreds.clientId &&
+							savedCreds.clientSecret
+						) {
+							console.log(
+								'✅ [KrogerGroceryStoreMFA] Credentials found after save, checking for token...'
+							);
+
 							// Re-check worker token after modal closes
 							const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
 							const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-							const tokenResult = getValidWorkerToken(
-								tokenStorageKey,
-								tokenExpiryKey,
-								{ clearExpired: true, showToast: false }
-							);
+							const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
+								clearExpired: true,
+								showToast: false,
+							});
 							if (tokenResult.isValid && tokenResult.token) {
 								setWorkerToken(tokenResult.token);
 							}
@@ -1602,8 +1699,10 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					environmentId={credentials.environmentId || ''}
 					prefillCredentials={(() => {
 						// Load saved worker token credentials (these are separate from Authorization Code credentials)
-						const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials('kroger-grocery-store-mfa');
-						
+						const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials(
+							'kroger-grocery-store-mfa'
+						);
+
 						if (savedWorkerTokenCreds) {
 							// Use saved worker token credentials
 							let workerScopes = '';
@@ -1614,7 +1713,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
 								workerScopes = scopeArray.length > 0 ? scopeArray[0] : '';
 							}
-							
+
 							return {
 								environmentId: savedWorkerTokenCreds.environmentId || '',
 								clientId: savedWorkerTokenCreds.clientId || '',
@@ -1624,7 +1723,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 								authMethod: savedWorkerTokenCreds.tokenEndpointAuthMethod || 'client_secret_post',
 							};
 						}
-						
+
 						// No saved worker token credentials - return empty
 						return {
 							environmentId: '',
@@ -1645,56 +1744,66 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 		<PageContainer>
 			<MainContent style={{ paddingTop: '2rem' }}>
 				<PortalDashboard>
-					<DashboardHeader style={{ 
-						display: 'flex', 
-						justifyContent: 'space-between', 
-						alignItems: 'center',
-						marginBottom: '2rem',
-						paddingBottom: '1rem',
-						borderBottom: `2px solid ${KROGER_LIGHT}`
-					}}>
+					<DashboardHeader
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '2rem',
+							paddingBottom: '1rem',
+							borderBottom: `2px solid ${KROGER_LIGHT}`,
+						}}
+					>
 						<div>
 							<h2 style={{ fontSize: '2rem', color: KROGER_DARK, margin: 0 }}>
 								Welcome back, {username}!
 							</h2>
-							<p style={{ fontSize: '1.125rem', color: '#666', marginTop: '0.5rem', marginBottom: 0 }}>
+							<p
+								style={{
+									fontSize: '1.125rem',
+									color: '#666',
+									marginTop: '0.5rem',
+									marginBottom: 0,
+								}}
+							>
 								You've successfully logged in with MFA! This is your Kroger portal dashboard.
 							</p>
 						</div>
-						<button onClick={() => {
-							setIsAuthenticated(false);
-							setTokens(null);
-							setAuthorizationCode('');
-							setFlowId('');
-							setDeviceId('');
-							setMfaCode('');
-							setPassword('');
-						}} style={{
-							padding: '0.75rem 1.5rem',
-							background: KROGER_BLUE,
-							color: 'white',
-							border: 'none',
-							borderRadius: '4px',
-							fontSize: '1rem',
-							fontWeight: 600,
-							cursor: 'pointer',
-							transition: 'background 0.2s'
-						}}>
+						<button
+							onClick={() => {
+								setIsAuthenticated(false);
+								setTokens(null);
+								setAuthorizationCode('');
+								setFlowId('');
+								setDeviceId('');
+								setMfaCode('');
+								setPassword('');
+							}}
+							style={{
+								padding: '0.75rem 1.5rem',
+								background: KROGER_BLUE,
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								fontSize: '1rem',
+								fontWeight: 600,
+								cursor: 'pointer',
+								transition: 'background 0.2s',
+							}}
+						>
 							Sign Out
 						</button>
 					</DashboardHeader>
 
 					<ProductsGrid>
-						{MOCK_PRODUCTS.map(product => (
+						{MOCK_PRODUCTS.map((product) => (
 							<ProductCard key={product.id}>
 								<div style={{ fontSize: '4rem', textAlign: 'center', marginBottom: '1rem' }}>
 									{product.image}
 								</div>
 								<h3>{product.name}</h3>
 								<div className="price">{product.price}</div>
-								<button>
-									Add to Cart
-								</button>
+								<button>Add to Cart</button>
 							</ProductCard>
 						))}
 					</ProductsGrid>
@@ -1711,7 +1820,7 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 									onCredentialsChange={handleCredentialsChange}
 									onDiscoveryComplete={handleDiscoveryComplete}
 									onEnvironmentIdChange={(envId) => {
-										setCredentials(prev => ({ ...prev, environmentId: envId }));
+										setCredentials((prev) => ({ ...prev, environmentId: envId }));
 									}}
 								/>
 							</div>
@@ -1719,16 +1828,11 @@ const KrogerGroceryStoreMFA: React.FC = () => {
 					</ConfigSection>
 
 					{/* API Call Table - Dashboard */}
-					<ApiCallTable 
-						apiCalls={apiCalls} 
-						onClear={() => apiCallTrackerService.clearApiCalls()}
-					/>
+					<ApiCallTable apiCalls={apiCalls} onClear={() => apiCallTrackerService.clearApiCalls()} />
 				</PortalDashboard>
 			</MainContent>
-
 		</PageContainer>
 	);
 };
 
 export default KrogerGroceryStoreMFA;
-

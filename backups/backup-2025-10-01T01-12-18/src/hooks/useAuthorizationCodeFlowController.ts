@@ -1,15 +1,16 @@
 // src/hooks/useAuthorizationCodeFlowController.ts
 
 import {
+	type Dispatch,
+	type SetStateAction,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
-	type Dispatch,
-	type SetStateAction,
 } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
+import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
@@ -17,7 +18,6 @@ import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
-import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';

@@ -1,16 +1,16 @@
 // src/services/pingOneJWTService.ts
 /**
  * PingOne JWT Creation Service
- * 
+ *
  * Provides utilities for creating PingOne-specific JWTs:
  * - login_hint_token JWT
  * - request property JWT
  * - private key JWT (for client authentication)
- * 
+ *
  * Supports keypair generation (RSA/ECDSA) and JWT signing.
  */
 
-import { SignJWT, importPKCS8, importJWK, KeyLike, exportJWK } from 'jose';
+import { exportJWK, importJWK, importPKCS8, KeyLike, SignJWT } from 'jose';
 import { logger } from '../utils/logger';
 
 export interface KeyPair {
@@ -159,21 +159,21 @@ export class PingOneJWTService {
 				algorithm,
 			});
 
-		// Import private key - handle both JWK (JSON string) and PEM formats
-		let key: KeyLike;
-		if (typeof privateKey === 'string') {
-			try {
-				// Try parsing as JWK first
-				const jwk = JSON.parse(privateKey);
-				key = await importJWK(jwk, algorithm);
-			} catch {
-				// If not JSON, assume PEM format
-				key = await importPKCS8(privateKey, algorithm);
+			// Import private key - handle both JWK (JSON string) and PEM formats
+			let key: KeyLike;
+			if (typeof privateKey === 'string') {
+				try {
+					// Try parsing as JWK first
+					const jwk = JSON.parse(privateKey);
+					key = await importJWK(jwk, algorithm);
+				} catch {
+					// If not JSON, assume PEM format
+					key = await importPKCS8(privateKey, algorithm);
+				}
+			} else {
+				// Already a JWK object
+				key = await importJWK(privateKey, algorithm);
 			}
-		} else {
-			// Already a JWK object
-			key = await importJWK(privateKey, algorithm);
-		}
 
 			// Build JWT header
 			const header: Record<string, unknown> = {
@@ -221,21 +221,21 @@ export class PingOneJWTService {
 				algorithm,
 			});
 
-		// Import private key - handle both JWK (JSON string) and PEM formats
-		let key: KeyLike;
-		if (typeof privateKey === 'string') {
-			try {
-				// Try parsing as JWK first
-				const jwk = JSON.parse(privateKey);
-				key = await importJWK(jwk, algorithm);
-			} catch {
-				// If not JSON, assume PEM format
-				key = await importPKCS8(privateKey, algorithm);
+			// Import private key - handle both JWK (JSON string) and PEM formats
+			let key: KeyLike;
+			if (typeof privateKey === 'string') {
+				try {
+					// Try parsing as JWK first
+					const jwk = JSON.parse(privateKey);
+					key = await importJWK(jwk, algorithm);
+				} catch {
+					// If not JSON, assume PEM format
+					key = await importPKCS8(privateKey, algorithm);
+				}
+			} else {
+				// Already a JWK object
+				key = await importJWK(privateKey, algorithm);
 			}
-		} else {
-			// Already a JWK object
-			key = await importJWK(privateKey, algorithm);
-		}
 
 			// Build JWT header
 			const header: Record<string, unknown> = {
@@ -305,8 +305,7 @@ export class PingOneJWTService {
 			}
 
 			// Create and sign JWT
-			const jwt = new SignJWT(claims)
-				.setProtectedHeader(header);
+			const jwt = new SignJWT(claims).setProtectedHeader(header);
 
 			if (typeof expirationTime === 'string') {
 				jwt.setExpirationTime(expirationTime);
@@ -343,21 +342,21 @@ export class PingOneJWTService {
 		}
 	): Promise<string> {
 		try {
-		// Import private key - handle both JWK (JSON string) and PEM formats
-		let key: KeyLike;
-		if (typeof privateKey === 'string') {
-			try {
-				// Try parsing as JWK first
-				const jwk = JSON.parse(privateKey);
-				key = await importJWK(jwk, algorithm);
-			} catch {
-				// If not JSON, assume PEM format
-				key = await importPKCS8(privateKey, algorithm);
+			// Import private key - handle both JWK (JSON string) and PEM formats
+			let key: KeyLike;
+			if (typeof privateKey === 'string') {
+				try {
+					// Try parsing as JWK first
+					const jwk = JSON.parse(privateKey);
+					key = await importJWK(jwk, algorithm);
+				} catch {
+					// If not JSON, assume PEM format
+					key = await importPKCS8(privateKey, algorithm);
+				}
+			} else {
+				// Already a JWK object
+				key = await importJWK(privateKey, algorithm);
 			}
-		} else {
-			// Already a JWK object
-			key = await importJWK(privateKey, algorithm);
-		}
 
 			// Build JWT header
 			const header: Record<string, unknown> = {
@@ -395,4 +394,3 @@ export class PingOneJWTService {
 
 // Export singleton instance
 export const pingOneJWTService = PingOneJWTService;
-

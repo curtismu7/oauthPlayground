@@ -1,8 +1,8 @@
 // src/services/unifiedTokenDisplayService.tsx
 import React from 'react';
+import { FiCopy, FiExternalLink, FiEyeOff, FiInfo, FiKey } from 'react-icons/fi';
+import { type NavigateFunction, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCopy, FiKey, FiInfo, FiCheckCircle, FiEyeOff, FiExternalLink } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService from './tokenDisplayService';
 
@@ -162,9 +162,17 @@ const OpaqueMessage = styled.div`
 	margin-top: 0.5rem;
 `;
 
+// Token response type
+interface TokenResponse {
+	access_token?: string;
+	id_token?: string;
+	refresh_token?: string;
+	[key: string]: unknown;
+}
+
 // Props interface
 interface UnifiedTokenDisplayProps {
-	tokens: Record<string, any> | null;
+	tokens: TokenResponse | null;
 	flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless';
 	flowKey: string;
 	showCopyButtons?: boolean;
@@ -181,6 +189,11 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 	showDecodeButtons = true,
 	className,
 }) => {
+	// Hooks must be called before any early returns
+	const [decodedStates, setDecodedStates] = React.useState<Record<string, unknown>>({});
+	const [isDecodedStates, setIsDecodedStates] = React.useState<Record<string, boolean>>({});
+	const navigate = useNavigate();
+
 	if (!tokens) {
 		return null;
 	}
@@ -204,27 +217,28 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 		return null;
 	};
 
-	// Move state to component level
-	const [decodedStates, setDecodedStates] = React.useState<Record<string, any>>({});
-	const [isDecodedStates, setIsDecodedStates] = React.useState<Record<string, boolean>>({});
-
 	const handleDecodeClick = (token: string, label: string) => {
 		const tokenKey = `${label}-${token.substring(0, 20)}`;
 		const isDecoded = isDecodedStates[tokenKey] || false;
-		
+
 		if (isDecoded) {
 			// Encode: hide decoded content
-			setDecodedStates(prev => ({ ...prev, [tokenKey]: null }));
-			setIsDecodedStates(prev => ({ ...prev, [tokenKey]: false }));
+			setDecodedStates((prev) => ({ ...prev, [tokenKey]: null }));
+			setIsDecodedStates((prev) => ({ ...prev, [tokenKey]: false }));
 		} else {
 			// Decode: show decoded content
 			const result = handleDecode(token, label);
-			setDecodedStates(prev => ({ ...prev, [tokenKey]: result }));
-			setIsDecodedStates(prev => ({ ...prev, [tokenKey]: true }));
+			setDecodedStates((prev) => ({ ...prev, [tokenKey]: result }));
+			setIsDecodedStates((prev) => ({ ...prev, [tokenKey]: true }));
 		}
 	};
 
-	const handleSendToTokenManagement = (token: string, tokenType: 'access' | 'id' | 'refresh', label: string, navigate: any) => {
+	const handleSendToTokenManagement = (
+		token: string,
+		tokenType: 'access' | 'id' | 'refresh',
+		label: string,
+		navigate: NavigateFunction
+	) => {
 		// Navigate to Token Management page with token in state
 		navigate('/token-management', {
 			state: {
@@ -237,7 +251,12 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 		v4ToastManager.showSuccess(`${label} sent to Token Management`);
 	};
 
-	const renderToken = (token: string, label: string, tokenType: 'access' | 'id' | 'refresh', navigate: any) => {
+	const renderToken = (
+		token: string,
+		label: string,
+		tokenType: 'access' | 'id' | 'refresh',
+		navigate: NavigateFunction
+	) => {
 		const tokenKey = `${label}-${token.substring(0, 20)}`;
 		const decoded = decodedStates[tokenKey];
 		const isDecoded = isDecodedStates[tokenKey] || false;
@@ -264,7 +283,10 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 								Copy
 							</ActionButton>
 						)}
-						<ActionButton $variant="management" onClick={() => handleSendToTokenManagement(token, tokenType, label, navigate)}>
+						<ActionButton
+							$variant="management"
+							onClick={() => handleSendToTokenManagement(token, tokenType, label, navigate)}
+						>
 							<FiExternalLink size={14} />
 							Token Management
 						</ActionButton>
@@ -275,7 +297,9 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 						<TokenValue>{token}</TokenValue>
 					) : (
 						<DecodedContent>
-							{decoded ? JSON.stringify(decoded, null, 2) : 'Token is opaque and cannot be decoded as JWT.'}
+							{decoded
+								? JSON.stringify(decoded, null, 2)
+								: 'Token is opaque and cannot be decoded as JWT.'}
 						</DecodedContent>
 					)}
 					{!isDecoded && showDecodeButtons && !TokenDisplayService.isJWT(token) && (
@@ -289,34 +313,20 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 		);
 	};
 
-	// Get navigate function for redirecting to Token Management
-	const navigate = useNavigate();
-
 	return (
 		<div style={{ maxWidth: '800px', margin: '0 auto' }}>
 			{/* Access Token */}
-			{tokens.access_token && renderToken(
-				String(tokens.access_token),
-				'Access Token',
-				'access',
-				navigate
-			)}
+			{tokens.access_token &&
+				renderToken(String(tokens.access_token), 'Access Token', 'access', navigate)}
 
 			{/* ID Token - OIDC flows only */}
-			{isOIDC && tokens.id_token && renderToken(
-				String(tokens.id_token),
-				'ID Token (OIDC)',
-				'id',
-				navigate
-			)}
+			{isOIDC &&
+				tokens.id_token &&
+				renderToken(String(tokens.id_token), 'ID Token (OIDC)', 'id', navigate)}
 
 			{/* Refresh Token */}
-			{tokens.refresh_token && renderToken(
-				String(tokens.refresh_token),
-				'Refresh Token',
-				'refresh',
-				navigate
-			)}
+			{tokens.refresh_token &&
+				renderToken(String(tokens.refresh_token), 'Refresh Token', 'refresh', navigate)}
 		</div>
 	);
 };
@@ -327,7 +337,7 @@ export class UnifiedTokenDisplayService {
 	 * Show unified token display with flow-specific configuration
 	 */
 	static showTokens(
-		tokens: Record<string, any> | null,
+		tokens: TokenResponse | null,
 		flowType: 'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless',
 		flowKey: string,
 		options?: {

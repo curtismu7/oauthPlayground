@@ -1,7 +1,7 @@
 // src/components/ComprehensiveDiscoveryInput.tsx
 /**
  * Comprehensive OIDC Discovery Input Component
- * 
+ *
  * Supports multiple input types:
  * - PingOne Environment ID
  * - PingOne issuer URL
@@ -11,12 +11,18 @@
  * - Generic OIDC provider URLs
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiCheck, FiEye, FiEyeOff, FiInfo, FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSearch, FiCheck, FiX, FiInfo, FiExternalLink, FiEye, FiEyeOff, FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import { comprehensiveDiscoveryService, DiscoveryResult } from '../services/comprehensiveDiscoveryService';
-import { discoveryPersistenceService, PersistedDiscoveryData } from '../services/discoveryPersistenceService';
+import {
+	comprehensiveDiscoveryService,
+	DiscoveryResult,
+} from '../services/comprehensiveDiscoveryService';
 import { CopyButtonVariants } from '../services/copyButtonService';
+import {
+	discoveryPersistenceService,
+	PersistedDiscoveryData,
+} from '../services/discoveryPersistenceService';
 
 interface ComprehensiveDiscoveryInputProps {
 	onDiscoveryComplete: (result: DiscoveryResult) => void;
@@ -35,6 +41,10 @@ const Container = styled.div`
 	border-radius: 0.75rem;
 	position: relative;
 	z-index: 1;
+	min-width: 0;
+	overflow: visible;
+	width: 100%;
+	box-sizing: border-box;
 `;
 
 const InputGroup = styled.div`
@@ -75,7 +85,7 @@ const SearchButton = styled.button<{ $loading?: boolean }>`
 	font-size: 0.875rem;
 	cursor: pointer;
 	transition: background-color 0.2s;
-	opacity: ${props => props.$loading ? 0.7 : 1};
+	opacity: ${(props) => (props.$loading ? 0.7 : 1)};
 
 	&:hover:not(:disabled) {
 		background-color: #2563eb;
@@ -164,7 +174,7 @@ const ModalMessage = styled.p`
 `;
 
 const PatienceMessage = styled.p<{ color: string }>`
-	color: ${props => props.color};
+	color: ${(props) => props.color};
 	font-size: 0.875rem;
 	margin: 0.5rem 0 0 0;
 	font-weight: 500;
@@ -300,10 +310,13 @@ const ResultsToggleButton = styled.button`
 `;
 
 const ResultsCollapsible = styled.div<{ $isOpen: boolean }>`
-	overflow: hidden;
-	transition: all 0.3s ease;
-	max-height: ${props => props.$isOpen ? '1000px' : '0'};
-	opacity: ${props => props.$isOpen ? '1' : '0'};
+	overflow: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
+	transition: ${(props) => (props.$isOpen ? 'opacity 0.3s ease' : 'all 0.3s ease')};
+	max-height: ${(props) => (props.$isOpen ? 'none' : '0')};
+	opacity: ${(props) => (props.$isOpen ? '1' : '0')};
+	min-width: 0;
+	width: 100%;
+	box-sizing: border-box;
 `;
 
 const ResultsContainer = styled.div`
@@ -312,6 +325,10 @@ const ResultsContainer = styled.div`
 	background: white;
 	border: 1px solid #e2e8f0;
 	border-radius: 0.5rem;
+	min-width: 0;
+	width: 100%;
+	box-sizing: border-box;
+	overflow: visible;
 `;
 
 const ResultsTitle = styled.h4`
@@ -329,25 +346,31 @@ const EndpointsList = styled.div`
 
 const EndpointItem = styled.div`
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 0.5rem;
 	padding: 0.75rem;
 	background: #f8fafc;
 	border: 1px solid #e2e8f0;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
+	flex-wrap: wrap;
 `;
 
 const EndpointLabel = styled.span`
 	font-weight: 500;
 	color: #374151;
 	min-width: 140px;
+	flex-shrink: 0;
 `;
 
 const EndpointUrl = styled.span`
 	color: #6b7280;
 	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
 	word-break: break-all;
+	word-wrap: break-word;
+	flex: 1;
+	min-width: 0;
+	overflow-wrap: anywhere;
 `;
 
 const ProviderDetails = styled.div`
@@ -364,11 +387,14 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	onDiscoveryComplete,
 	initialInput = '',
 	placeholder = 'Enter Environment ID, issuer URL, or provider...',
-	showProviderInfo = true
+	showProviderInfo = true,
 }) => {
 	const [input, setInput] = useState(initialInput);
 	const [isLoading, setIsLoading] = useState(false);
-	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [showResults, setShowResults] = useState(false);
 	const [showModal, setShowModal] = useState(false);
@@ -385,7 +411,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 		{ text: 'Processing OIDC metadata...', color: '#ef4444' },
 		{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
 		{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
-		{ text: 'Loading token configuration...', color: '#84cc16' }
+		{ text: 'Loading token configuration...', color: '#84cc16' },
 	];
 
 	// Cycle through patience messages every 3 seconds when modal is showing
@@ -421,14 +447,17 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			setInput(lastUsed.environmentId);
 			setStatus({
 				type: 'info',
-				message: `Restored last used: ${lastUsed.provider} (${lastUsed.environmentId.substring(0, 8)}...)`
+				message: `Restored last used: ${lastUsed.provider} (${lastUsed.environmentId.substring(0, 8)}...)`,
 			});
 		}
 	}, [initialInput]);
 
 	const handleDiscover = useCallback(async () => {
 		if (!input.trim()) {
-			setStatus({ type: 'error', message: 'Please enter an Environment ID, issuer URL, or provider name' });
+			setStatus({
+				type: 'error',
+				message: 'Please enter an Environment ID, issuer URL, or provider name',
+			});
 			return;
 		}
 
@@ -440,10 +469,11 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 		try {
 			const trimmedInput = input.trim();
-			
+
 			// Check if we have cached discovery first
-			const cached = discoveryPersistenceService.getDiscovery(trimmedInput) ||
-						   discoveryPersistenceService.getDiscoveryByIssuer(trimmedInput);
+			const cached =
+				discoveryPersistenceService.getDiscovery(trimmedInput) ||
+				discoveryPersistenceService.getDiscoveryByIssuer(trimmedInput);
 
 			if (cached) {
 				const cachedResult = {
@@ -453,13 +483,13 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					provider: cached.provider,
 					cached: true,
 				};
-				
+
 				// Add minimum delay to ensure spinner is visible
-				await new Promise(resolve => setTimeout(resolve, 500));
-				
-				setStatus({ 
-					type: 'success', 
-					message: `Using cached ${cached.provider} endpoints` 
+				await new Promise((resolve) => setTimeout(resolve, 500));
+
+				setStatus({
+					type: 'success',
+					message: `Using cached ${cached.provider} endpoints`,
 				});
 				setDiscoveryResult(cachedResult);
 				setLastEnvironmentId(cached.environmentId);
@@ -472,12 +502,14 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			// Perform fresh discovery
 			const result = await comprehensiveDiscoveryService.discover({
 				input: trimmedInput,
-				timeout: 10000
+				timeout: 10000,
 			});
 
 			if (result.success && result.document && result.issuerUrl) {
 				// Extract environment ID
-				const envMatch = result.issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+				const envMatch = result.issuerUrl.match(
+					/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+				);
 				const envId = envMatch ? envMatch[1] : trimmedInput;
 
 				// Save to persistence
@@ -491,23 +523,23 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 				discoveryPersistenceService.saveDiscovery(dataToSave);
 
-				setStatus({ 
-					type: 'success', 
-					message: `Successfully discovered and saved ${result.provider} endpoints` 
+				setStatus({
+					type: 'success',
+					message: `Successfully discovered and saved ${result.provider} endpoints`,
 				});
 				setDiscoveryResult(result);
 				setLastEnvironmentId(envId);
 				onDiscoveryComplete(result);
 			} else {
-				setStatus({ 
-					type: 'error', 
-					message: result.error || 'Discovery failed' 
+				setStatus({
+					type: 'error',
+					message: result.error || 'Discovery failed',
 				});
 			}
 		} catch (error) {
-			setStatus({ 
-				type: 'error', 
-				message: error instanceof Error ? error.message : 'Discovery failed' 
+			setStatus({
+				type: 'error',
+				message: error instanceof Error ? error.message : 'Discovery failed',
 			});
 		} finally {
 			setIsLoading(false);
@@ -532,17 +564,20 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					disabled={isLoading}
 					onKeyPress={(e) => e.key === 'Enter' && !isLoading && handleDiscover()}
 				/>
-				{input.trim() && (() => {
-					// Extract environment ID from input if it's a PingOne URL
-					const envMatch = input.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-					if (envMatch) {
-						return CopyButtonVariants.identifier(envMatch[1], 'Environment ID');
-					}
-					// For other inputs, copy the full input
-					return CopyButtonVariants.identifier(input, 'Discovery Input');
-				})()}
-				<SearchButton 
-					onClick={handleDiscover} 
+				{input.trim() &&
+					(() => {
+						// Extract environment ID from input if it's a PingOne URL
+						const envMatch = input.match(
+							/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+						);
+						if (envMatch) {
+							return CopyButtonVariants.identifier(envMatch[1], 'Environment ID');
+						}
+						// For other inputs, copy the full input
+						return CopyButtonVariants.identifier(input, 'Discovery Input');
+					})()}
+				<SearchButton
+					onClick={handleDiscover}
 					disabled={isLoading || !input.trim()}
 					$loading={isLoading}
 				>
@@ -563,8 +598,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 			{status && (
 				<StatusMessage $type={status.type}>
-					{status.type === 'success' ? <FiCheck /> : 
-					 status.type === 'error' ? <FiX /> : <FiInfo />}
+					{status.type === 'success' ? <FiCheck /> : status.type === 'error' ? <FiX /> : <FiInfo />}
 					{status.message}
 				</StatusMessage>
 			)}
@@ -583,10 +617,18 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					<Examples>
 						<ExampleTitle>Examples:</ExampleTitle>
 						<ExampleList>
-							<ExampleItem onClick={() => handleExampleClick('12345678-1234-1234-1234-123456789012')}>
+							<ExampleItem
+								onClick={() => handleExampleClick('12345678-1234-1234-1234-123456789012')}
+							>
 								PingOne Environment ID: 12345678-1234-1234-1234-123456789012
 							</ExampleItem>
-							<ExampleItem onClick={() => handleExampleClick('https://auth.pingone.com/12345678-1234-1234-1234-123456789012/as')}>
+							<ExampleItem
+								onClick={() =>
+									handleExampleClick(
+										'https://auth.pingone.com/12345678-1234-1234-1234-123456789012/as'
+									)
+								}
+							>
 								PingOne Issuer: https://auth.pingone.com/12345678-1234-1234-1234-123456789012/as
 							</ExampleItem>
 							<ExampleItem onClick={() => handleExampleClick('https://accounts.google.com')}>
@@ -595,7 +637,11 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 							<ExampleItem onClick={() => handleExampleClick('https://your-domain.auth0.com')}>
 								Auth0 Domain: https://your-domain.auth0.com
 							</ExampleItem>
-							<ExampleItem onClick={() => handleExampleClick('https://login.microsoftonline.com/your-tenant-id/v2.0')}>
+							<ExampleItem
+								onClick={() =>
+									handleExampleClick('https://login.microsoftonline.com/your-tenant-id/v2.0')
+								}
+							>
 								Microsoft: https://login.microsoftonline.com/your-tenant-id/v2.0
 							</ExampleItem>
 						</ExampleList>
@@ -621,7 +667,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 				{discoveryResult?.success && discoveryResult.document && (
 					<ResultsContainer>
 						<ResultsTitle>OIDC Discovery Results</ResultsTitle>
-						
+
 						{/* Provider Information */}
 						{discoveryResult.provider && (
 							<ProviderDetails>
@@ -639,7 +685,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 									{CopyButtonVariants.url(discoveryResult.document.authorization_endpoint)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.token_endpoint && (
 								<EndpointItem>
 									<EndpointLabel>Token:</EndpointLabel>
@@ -647,7 +693,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 									{CopyButtonVariants.url(discoveryResult.document.token_endpoint)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.userinfo_endpoint && (
 								<EndpointItem>
 									<EndpointLabel>UserInfo:</EndpointLabel>
@@ -655,7 +701,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 									{CopyButtonVariants.url(discoveryResult.document.userinfo_endpoint)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.jwks_uri && (
 								<EndpointItem>
 									<EndpointLabel>JWKS:</EndpointLabel>
@@ -663,7 +709,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 									{CopyButtonVariants.url(discoveryResult.document.jwks_uri)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.end_session_endpoint && (
 								<EndpointItem>
 									<EndpointLabel>End Session:</EndpointLabel>
@@ -671,20 +717,26 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 									{CopyButtonVariants.url(discoveryResult.document.end_session_endpoint)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.device_authorization_endpoint && (
 								<EndpointItem>
 									<EndpointLabel>Device Auth:</EndpointLabel>
-									<EndpointUrl>{discoveryResult.document.device_authorization_endpoint}</EndpointUrl>
+									<EndpointUrl>
+										{discoveryResult.document.device_authorization_endpoint}
+									</EndpointUrl>
 									{CopyButtonVariants.url(discoveryResult.document.device_authorization_endpoint)}
 								</EndpointItem>
 							)}
-							
+
 							{discoveryResult.document.pushed_authorization_request_endpoint && (
 								<EndpointItem>
 									<EndpointLabel>PAR:</EndpointLabel>
-									<EndpointUrl>{discoveryResult.document.pushed_authorization_request_endpoint}</EndpointUrl>
-									{CopyButtonVariants.url(discoveryResult.document.pushed_authorization_request_endpoint)}
+									<EndpointUrl>
+										{discoveryResult.document.pushed_authorization_request_endpoint}
+									</EndpointUrl>
+									{CopyButtonVariants.url(
+										discoveryResult.document.pushed_authorization_request_endpoint
+									)}
 								</EndpointItem>
 							)}
 						</EndpointsList>
@@ -704,9 +756,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 							This may take a few moments.
 						</ModalMessage>
 						{patienceMessage && (
-							<PatienceMessage color={patienceColor}>
-								{patienceMessage}
-							</PatienceMessage>
+							<PatienceMessage color={patienceColor}>{patienceMessage}</PatienceMessage>
 						)}
 					</ModalContent>
 				</Modal>

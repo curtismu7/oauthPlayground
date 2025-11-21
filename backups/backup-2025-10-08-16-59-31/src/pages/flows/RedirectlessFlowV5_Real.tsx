@@ -16,15 +16,18 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -35,30 +38,27 @@ import {
 	ResultsSection,
 	SectionDivider,
 } from '../../components/ResultsPanel';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
-import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { themeService } from '../../services/themeService';
 import {
-	EnhancedApiCallDisplayService,
-	EnhancedApiCallData,
-} from '../../services/enhancedApiCallDisplayService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import {
-	TokenIntrospectionService,
 	IntrospectionApiCallData,
+	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -742,7 +742,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		// Step 6
 		completionOverview: false,
 		completionDetails: false,
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
@@ -1488,7 +1488,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		handleNext();
 	}, [canNavigateNext, handleNext]);
 
-	
 	const renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
@@ -1497,7 +1496,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false, // Update based on flow capabilities
-			showIntrospection: false // Update based on flow capabilities
+			showIntrospection: false, // Update based on flow capabilities
 		};
 
 		return (
@@ -1509,7 +1508,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		);
 	}, [collapsedSections.flowSummary, toggleSection]);
 
-const renderStepContent = useMemo(() => {
+	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
 		const pkceCodes = controller.pkceCodes;
 		const authCode = controller.authCode;
@@ -1674,8 +1673,6 @@ const renderStepContent = useMemo(() => {
 						<EnhancedFlowWalkthrough flowId="oauth-redirectless" />
 
 						<FlowSequenceDisplay flowType="redirectless" />
-
-
 					</>
 				);
 

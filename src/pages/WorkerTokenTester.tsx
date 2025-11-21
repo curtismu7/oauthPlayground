@@ -1,7 +1,15 @@
 // src/pages/WorkerTokenTester.tsx
 import React, { useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheckCircle,
+	FiClock,
+	FiGlobe,
+	FiKey,
+	FiUser,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiClock, FiKey, FiUser, FiGlobe, FiAlertCircle } from 'react-icons/fi';
 import ApiCallList from '../components/ApiCallList';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { v4ToastManager } from '../utils/v4ToastManager';
@@ -86,12 +94,12 @@ const WorkerTokenTester: React.FC = () => {
 			const decoded = decodeToken(value);
 			if (decoded) {
 				setPayload(decoded);
-				
+
 				// Show toast based on token status
 				if (decoded.exp) {
 					const now = Math.floor(Date.now() / 1000);
 					const isTokenExpired = now > decoded.exp;
-					
+
 					if (isTokenExpired) {
 						v4ToastManager.showWarning('⚠️ Token decoded but it is EXPIRED');
 					} else {
@@ -159,7 +167,7 @@ const WorkerTokenTester: React.FC = () => {
 			if (envResponse.ok) {
 				// Store environment data for display
 				setEnvironmentData(envData);
-				
+
 				results.push({
 					test: 'Get Environment',
 					status: 'success',
@@ -168,7 +176,7 @@ const WorkerTokenTester: React.FC = () => {
 					details: `Environment: ${envData.name} (${envData.type})`,
 					data: envData,
 				});
-				
+
 				v4ToastManager.showSuccess(`✅ Token is valid! Environment: ${envData.name}`);
 			} else {
 				results.push({
@@ -178,7 +186,7 @@ const WorkerTokenTester: React.FC = () => {
 					message: envData.message || 'Failed to get environment',
 					details: envData.details || envData.error_description,
 				});
-				
+
 				if (envResponse.status === 401) {
 					v4ToastManager.showError('❌ Token is invalid or expired');
 				} else if (envResponse.status === 403) {
@@ -305,7 +313,7 @@ const WorkerTokenTester: React.FC = () => {
 				message: 'Network error or CORS issue',
 				details: errorMessage,
 			});
-			
+
 			v4ToastManager.showError(`❌ Network error: ${errorMessage}`);
 		}
 
@@ -418,15 +426,11 @@ const WorkerTokenTester: React.FC = () => {
 							<DetailsList>
 								<DetailsRow>
 									<DetailsLabel>Issued At:</DetailsLabel>
-									<DetailsValue>
-										{payload.iat ? formatDate(payload.iat) : 'N/A'}
-									</DetailsValue>
+									<DetailsValue>{payload.iat ? formatDate(payload.iat) : 'N/A'}</DetailsValue>
 								</DetailsRow>
 								<DetailsRow>
 									<DetailsLabel>Expires At:</DetailsLabel>
-									<DetailsValue>
-										{payload.exp ? formatDate(payload.exp) : 'N/A'}
-									</DetailsValue>
+									<DetailsValue>{payload.exp ? formatDate(payload.exp) : 'N/A'}</DetailsValue>
 								</DetailsRow>
 								<DetailsRow>
 									<DetailsLabel>Issuer:</DetailsLabel>
@@ -465,9 +469,11 @@ const WorkerTokenTester: React.FC = () => {
 										<EnvTableRow>
 											<EnvTableLabel>Environment Type</EnvTableLabel>
 											<EnvTableValue>
-												<TypeBadge type={environmentData.type}>
-													{environmentData.type || 'N/A'}
-												</TypeBadge>
+												{environmentData.type ? (
+													<TypeBadge type={environmentData.type}>{environmentData.type}</TypeBadge>
+												) : (
+													'N/A'
+												)}
 											</EnvTableValue>
 										</EnvTableRow>
 										<EnvTableRow>
@@ -477,7 +483,8 @@ const WorkerTokenTester: React.FC = () => {
 												{environmentData.region === 'EU' && '🇪🇺 EU (Europe)'}
 												{environmentData.region === 'AP' && '🌏 AP (Asia Pacific)'}
 												{environmentData.region === 'CA' && '🇨🇦 CA (Canada)'}
-												{!['NA', 'EU', 'AP', 'CA'].includes(environmentData.region || '') && (environmentData.region || 'N/A')}
+												{!['NA', 'EU', 'AP', 'CA'].includes(environmentData.region || '') &&
+													(environmentData.region || 'N/A')}
 											</EnvTableValue>
 										</EnvTableRow>
 										{environmentData.description && (
@@ -546,9 +553,16 @@ const WorkerTokenTester: React.FC = () => {
 
 // Styled Components
 const Container = styled.div`
-	max-width: 1600px;
-	margin: 0 auto;
+	width: 100%;
+	max-width: 100%;
 	padding: 2rem;
+	box-sizing: border-box;
+	overflow-x: auto;
+	min-width: 0; /* Allow flex items to shrink below content size */
+	
+	@media (max-width: 1024px) {
+		padding: 1rem;
+	}
 `;
 
 const Header = styled.div`
@@ -633,6 +647,10 @@ const InfoGrid = styled.div`
 	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 	gap: 1rem;
 	margin-bottom: 1.5rem;
+	
+	@media (max-width: 768px) {
+		grid-template-columns: 1fr;
+	}
 `;
 
 const InfoCard = styled.div`
@@ -652,17 +670,9 @@ const InfoIcon = styled.div<{ status: 'success' | 'error' | 'info' }>`
 	border-radius: 50%;
 	flex-shrink: 0;
 	background: ${(props) =>
-		props.status === 'success'
-			? '#e8f5e9'
-			: props.status === 'error'
-				? '#ffebee'
-				: '#e3f2fd'};
+		props.status === 'success' ? '#e8f5e9' : props.status === 'error' ? '#ffebee' : '#e3f2fd'};
 	color: ${(props) =>
-		props.status === 'success'
-			? '#4caf50'
-			: props.status === 'error'
-				? '#d32f2f'
-				: '#2196f3'};
+		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#2196f3'};
 `;
 
 const InfoContent = styled.div`
@@ -682,11 +692,7 @@ const InfoValue = styled.div<{ status?: 'success' | 'error' }>`
 	font-size: 1rem;
 	font-weight: 600;
 	color: ${(props) =>
-		props.status === 'success'
-			? '#4caf50'
-			: props.status === 'error'
-				? '#d32f2f'
-				: '#1a1a1a'};
+		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#1a1a1a'};
 	word-break: break-all;
 	margin-bottom: 0.25rem;
 `;
@@ -757,17 +763,9 @@ const TestResultCard = styled.div<{ status: 'success' | 'error' | 'warning' }>`
 	padding: 1rem;
 	border-left: 4px solid
 		${(props) =>
-		props.status === 'success'
-			? '#4caf50'
-			: props.status === 'error'
-				? '#d32f2f'
-				: '#ff9800'};
+			props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
 	background: ${(props) =>
-		props.status === 'success'
-			? '#f1f8f4'
-			: props.status === 'error'
-				? '#fef5f5'
-				: '#fff8f0'};
+		props.status === 'success' ? '#f1f8f4' : props.status === 'error' ? '#fef5f5' : '#fff8f0'};
 	border-radius: 6px;
 `;
 
@@ -780,11 +778,7 @@ const TestResultHeader = styled.div`
 
 const TestResultIcon = styled.div<{ status: 'success' | 'error' | 'warning' }>`
 	color: ${(props) =>
-		props.status === 'success'
-			? '#4caf50'
-			: props.status === 'error'
-				? '#d32f2f'
-				: '#ff9800'};
+		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
 `;
 
 const TestResultTitle = styled.div`
@@ -799,11 +793,7 @@ const StatusCode = styled.div<{ status: 'success' | 'error' | 'warning' }>`
 	font-size: 0.875rem;
 	font-weight: 600;
 	background: ${(props) =>
-		props.status === 'success'
-			? '#4caf50'
-			: props.status === 'error'
-				? '#d32f2f'
-				: '#ff9800'};
+		props.status === 'success' ? '#4caf50' : props.status === 'error' ? '#d32f2f' : '#ff9800'};
 	color: white;
 `;
 
@@ -861,7 +851,9 @@ const EnvTableValue = styled.td<{ highlight?: boolean; mono?: boolean }>`
 	color: ${(props) => (props.highlight ? '#1f2937' : '#4b5563')};
 	word-break: break-word;
 	overflow-wrap: break-word;
-	${(props) => props.mono && `
+	${(props) =>
+		props.mono &&
+		`
 		font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 		font-size: 0.875rem;
 		color: #6b7280;
@@ -878,11 +870,7 @@ const TypeBadge = styled.span<{ type?: string }>`
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	background: ${(props) =>
-		props.type === 'PRODUCTION'
-			? '#dc2626'
-			: props.type === 'SANDBOX'
-				? '#3b82f6'
-				: '#10b981'};
+		props.type === 'PRODUCTION' ? '#dc2626' : props.type === 'SANDBOX' ? '#3b82f6' : '#10b981'};
 	color: white;
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;

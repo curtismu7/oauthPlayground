@@ -76,84 +76,91 @@ const ErrorMessage = styled.div`
 `;
 
 const AuthzCallback: React.FC = () => {
-  const [authCode, setAuthCode] = useState<string>('');
-  const [state, setState] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [copied, setCopied] = useState(false);
+	const [authCode, setAuthCode] = useState<string>('');
+	const [state, setState] = useState<string>('');
+	const [error, setError] = useState<string>('');
+	const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('code');
-    const stateParam = params.get('state');
-    const errorParam = params.get('error');
-    const errorDescription = params.get('error_description');
+	useEffect(() => {
+		const params = new URLSearchParams(window.location.search);
+		const code = params.get('code');
+		const stateParam = params.get('state');
+		const errorParam = params.get('error');
+		const errorDescription = params.get('error_description');
 
-    if (errorParam) {
-      setError(`${errorParam}: ${errorDescription || 'Unknown error'}`);
-    } else if (code) {
-      setAuthCode(code);
-      if (stateParam) setState(stateParam);
-    } else {
-      setError('No authorization code received');
-    }
-  }, []);
+		if (errorParam) {
+			setError(`${errorParam}: ${errorDescription || 'Unknown error'}`);
+		} else if (code) {
+			setAuthCode(code);
+			if (stateParam) setState(stateParam);
+		} else {
+			setError('No authorization code received');
+		}
+	}, []);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(authCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+	const handleCopy = () => {
+		navigator.clipboard.writeText(authCode);
+		setCopied(true);
+		setTimeout(() => setCopied(false), 2000);
+	};
 
-  const handleBackToTest = () => {
-    window.location.href = '/test-authz-pkce';
-  };
+	const handleBackToTest = () => {
+		window.location.href = '/test-authz-pkce';
+	};
 
-  return (
-    <Container>
-      <Card>
-        <Title>🎉 Authorization Callback</Title>
-        
-        {error ? (
-          <ErrorMessage>
-            <strong>Error:</strong> {error}
-          </ErrorMessage>
-        ) : (
-          <>
-            <Section>
-              <Label>Authorization Code:</Label>
-              <CodeBox>{authCode}</CodeBox>
-              <Button onClick={handleCopy}>Copy Code</Button>
-              <Button onClick={handleBackToTest}>Back to Test Page</Button>
-              {copied && <SuccessMessage>✓ Copied to clipboard!</SuccessMessage>}
-            </Section>
+	return (
+		<Container>
+			<Card>
+				<Title>🎉 Authorization Callback</Title>
 
-            {state && (
-              <Section>
-                <Label>State Parameter:</Label>
-                <CodeBox>{state}</CodeBox>
-              </Section>
-            )}
+				{error ? (
+					<ErrorMessage>
+						<strong>Error:</strong> {error}
+					</ErrorMessage>
+				) : (
+					<>
+						<Section>
+							<Label>Authorization Code:</Label>
+							<CodeBox>{authCode}</CodeBox>
+							<Button onClick={handleCopy}>Copy Code</Button>
+							<Button onClick={handleBackToTest}>Back to Test Page</Button>
+							{copied && <SuccessMessage>✓ Copied to clipboard!</SuccessMessage>}
+						</Section>
 
-            <Section>
-              <Label>Full Callback URL:</Label>
-              <CodeBox>{window.location.href}</CodeBox>
-            </Section>
+						{state && (
+							<Section>
+								<Label>State Parameter:</Label>
+								<CodeBox>{state}</CodeBox>
+							</Section>
+						)}
 
-            <Section style={{marginTop: '30px', padding: '15px', background: '#f7fafc', borderRadius: '4px'}}>
-              <strong>Next Steps:</strong>
-              <ol style={{marginTop: '10px', paddingLeft: '20px'}}>
-                <li>Copy the authorization code above</li>
-                <li>Click "Back to Test Page"</li>
-                <li>Paste the code in the "Authorization Code" field</li>
-                <li>Click "Receive Auth Code"</li>
-                <li>Click "Exchange Code" to get tokens</li>
-              </ol>
-            </Section>
-          </>
-        )}
-      </Card>
-    </Container>
-  );
+						<Section>
+							<Label>Full Callback URL:</Label>
+							<CodeBox>{window.location.href}</CodeBox>
+						</Section>
+
+						<Section
+							style={{
+								marginTop: '30px',
+								padding: '15px',
+								background: '#f7fafc',
+								borderRadius: '4px',
+							}}
+						>
+							<strong>Next Steps:</strong>
+							<ol style={{ marginTop: '10px', paddingLeft: '20px' }}>
+								<li>Copy the authorization code above</li>
+								<li>Click "Back to Test Page"</li>
+								<li>Paste the code in the "Authorization Code" field</li>
+								<li>Click "Receive Auth Code"</li>
+								<li>Click "Exchange Code" to get tokens</li>
+							</ol>
+						</Section>
+					</>
+				)}
+			</Card>
+		</Container>
+	);
 };
 
 export default AuthzCallback;

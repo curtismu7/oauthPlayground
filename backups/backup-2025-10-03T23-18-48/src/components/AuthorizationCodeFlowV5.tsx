@@ -15,10 +15,10 @@ import {
 import styled from 'styled-components';
 import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
 import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
-import { FlowHeader } from '../services/flowHeaderService';
-import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';

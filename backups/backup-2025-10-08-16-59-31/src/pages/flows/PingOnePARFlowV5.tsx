@@ -12,11 +12,11 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
@@ -27,11 +27,14 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { pingOneConfigService } from '../../services/pingoneConfigService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { themeService } from '../../services/themeService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -318,7 +321,7 @@ const PingOnePARFlowV5: React.FC = () => {
 	const [parExpiresIn, setParExpiresIn] = useState<number | null>(null);
 	const [parError, setParError] = useState<string | null>(null);
 	const [isParLoading, setIsParLoading] = useState(false);
-	
+
 	// API call tracking for display
 	const [parApiCall, setParApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [authUrlApiCall, setAuthUrlApiCall] = useState<EnhancedApiCallData | null>(null);
@@ -410,7 +413,7 @@ const PingOnePARFlowV5: React.FC = () => {
 				method: 'POST' as const,
 				headers: {
 					'Content-Type': 'application/json',
-					'Accept': 'application/json'
+					Accept: 'application/json',
 				},
 				body: {
 					environment_id: controller.credentials.environmentId,
@@ -418,7 +421,7 @@ const PingOnePARFlowV5: React.FC = () => {
 					...parRequest,
 				},
 				timestamp: new Date(),
-				description: 'Push authorization request parameters to PingOne PAR endpoint'
+				description: 'Push authorization request parameters to PingOne PAR endpoint',
 			};
 
 			// Use the backend proxy to avoid CORS issues
@@ -444,8 +447,8 @@ const PingOnePARFlowV5: React.FC = () => {
 					status: response.status,
 					statusText: response.statusText,
 					headers: Object.fromEntries(response.headers.entries()),
-					data: responseData
-				}
+					data: responseData,
+				},
 			};
 
 			setParApiCall(updatedParApiCall);
@@ -505,9 +508,9 @@ const PingOnePARFlowV5: React.FC = () => {
 						authorization_url: authUrl.toString(),
 						request_uri: parRequestUri,
 						response_type: 'code',
-						note: 'This URL contains the request_uri from the PAR request instead of individual parameters'
-					}
-				}
+						note: 'This URL contains the request_uri from the PAR request instead of individual parameters',
+					},
+				},
 			};
 
 			setAuthUrlApiCall(authUrlApiCallData);
@@ -562,20 +565,20 @@ const PingOnePARFlowV5: React.FC = () => {
 	const handleReset = useCallback(() => {
 		// Reset current step
 		setCurrentStep(0);
-		
+
 		// Reset PAR-specific state (but keep credentials)
 		setParRequestUri(null);
 		setParExpiresIn(null);
 		setParError(null);
 		setIsParLoading(false);
-		
+
 		// Reset API call displays
 		setParApiCall(null);
 		setAuthUrlApiCall(null);
-		
+
 		// Reset controller state (this will clear authUrl, authCode, tokens, etc.)
 		controller.resetFlow();
-		
+
 		// Reset collapsed sections to default
 		setCollapsedSections({
 			overview: false,
@@ -588,7 +591,7 @@ const PingOnePARFlowV5: React.FC = () => {
 			authRequestOverview: false,
 			authRequestDetails: false,
 		});
-		
+
 		v4ToastManager.showSuccess('PAR flow reset successfully. Credentials preserved.');
 	}, [controller]);
 
@@ -646,55 +649,74 @@ const PingOnePARFlowV5: React.FC = () => {
 
 						<SectionDivider />
 						<ResultsSection>
-				<ResultsHeading>
-					<FiSettings size={18} /> PingOne Configuration
-				</ResultsHeading>
-				<HelperText>
-					Configure your PingOne environment and application credentials to use the PAR flow.
-				</HelperText>
+							<ResultsHeading>
+								<FiSettings size={18} /> PingOne Configuration
+							</ResultsHeading>
+							<HelperText>
+								Configure your PingOne environment and application credentials to use the PAR flow.
+							</HelperText>
 
-				<div style={{ marginTop: '1.5rem' }}>
-					<EnvironmentIdInput
-						initialEnvironmentId={controller.credentials.environmentId || ''}
-						onEnvironmentIdChange={(newEnvId) => {
-							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId });
-							if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-								controller.saveCredentials();
-								v4ToastManager.showSuccess('Credentials auto-saved');
-							}
-						}}
-						onIssuerUrlChange={() => {}}
-						showSuggestions={true}
-						autoDiscover={false}
-					/>
+							<div style={{ marginTop: '1.5rem' }}>
+								<EnvironmentIdInput
+									initialEnvironmentId={controller.credentials.environmentId || ''}
+									onEnvironmentIdChange={(newEnvId) => {
+										controller.setCredentials({
+											...controller.credentials,
+											environmentId: newEnvId,
+										});
+										if (
+											newEnvId &&
+											controller.credentials.clientId &&
+											newEnvId.trim() &&
+											controller.credentials.clientId.trim()
+										) {
+											controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials auto-saved');
+										}
+									}}
+									onIssuerUrlChange={() => {}}
+									showSuggestions={true}
+									autoDiscover={false}
+								/>
 
-					<CredentialsInput
-						environmentId={controller.credentials.environmentId || ''}
-						clientId={controller.credentials.clientId || ''}
-						clientSecret={controller.credentials.clientSecret || ''}
-						scopes={controller.credentials.scope || 'openid profile email'}
-						onEnvironmentIdChange={(newEnvId) =>
-							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId })
-						}
-						onClientIdChange={(newClientId) => {
-							controller.setCredentials({ ...controller.credentials, clientId: newClientId });
-							if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-								controller.saveCredentials();
-								v4ToastManager.showSuccess('Credentials auto-saved');
-							}
-						}}
-						onClientSecretChange={(newClientSecret) =>
-							controller.setCredentials({ ...controller.credentials, clientSecret: newClientSecret })
-						}
-						onScopesChange={(newScopes) =>
-							controller.setCredentials({ ...controller.credentials, scope: newScopes })
-						}
-						onCopy={handleCopy}
-						showRedirectUri={true}
-						showLoginHint={false}
-					/>
-				</div>
-			</ResultsSection>
+								<CredentialsInput
+									environmentId={controller.credentials.environmentId || ''}
+									clientId={controller.credentials.clientId || ''}
+									clientSecret={controller.credentials.clientSecret || ''}
+									scopes={controller.credentials.scope || 'openid profile email'}
+									onEnvironmentIdChange={(newEnvId) =>
+										controller.setCredentials({
+											...controller.credentials,
+											environmentId: newEnvId,
+										})
+									}
+									onClientIdChange={(newClientId) => {
+										controller.setCredentials({ ...controller.credentials, clientId: newClientId });
+										if (
+											controller.credentials.environmentId &&
+											newClientId &&
+											controller.credentials.environmentId.trim() &&
+											newClientId.trim()
+										) {
+											controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials auto-saved');
+										}
+									}}
+									onClientSecretChange={(newClientSecret) =>
+										controller.setCredentials({
+											...controller.credentials,
+											clientSecret: newClientSecret,
+										})
+									}
+									onScopesChange={(newScopes) =>
+										controller.setCredentials({ ...controller.credentials, scope: newScopes })
+									}
+									onCopy={handleCopy}
+									showRedirectUri={true}
+									showLoginHint={false}
+								/>
+							</div>
+						</ResultsSection>
 					</>
 				);
 
@@ -880,7 +902,8 @@ const PingOnePARFlowV5: React.FC = () => {
 									options={{
 										showEducationalNotes: true,
 										showFlowContext: true,
-										urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('par')
+										urlHighlightRules:
+											EnhancedApiCallDisplayService.getDefaultHighlightRules('par'),
 									}}
 								/>
 							)}
@@ -975,7 +998,8 @@ const PingOnePARFlowV5: React.FC = () => {
 									options={{
 										showEducationalNotes: true,
 										showFlowContext: true,
-										urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('par')
+										urlHighlightRules:
+											EnhancedApiCallDisplayService.getDefaultHighlightRules('par'),
 									}}
 								/>
 							)}

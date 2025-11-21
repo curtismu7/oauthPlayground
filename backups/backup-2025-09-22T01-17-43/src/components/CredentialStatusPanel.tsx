@@ -1,17 +1,17 @@
 // src/components/CredentialStatusPanel.tsx
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
-	FiXCircle,
 	FiAlertTriangle,
-	FiRefreshCw,
+	FiCheckCircle,
 	FiClock,
+	FiRefreshCw,
 	FiShield,
+	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { useAuth } from '../contexts/NewAuthContext';
 
 const StatusPanel = styled.div`
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);

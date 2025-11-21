@@ -1,9 +1,10 @@
 // src/components/DeviceDisplayTemplate.tsx
 // Standardized Device Display Template - Based on Airport Kiosk Layout
-import React from 'react';
-import styled from 'styled-components';
+
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
 import { FiCopy, FiExternalLink } from 'react-icons/fi';
+import styled from 'styled-components';
 
 // Main Device Container
 const DeviceContainer = styled.div`
@@ -33,7 +34,7 @@ const DisplayScreen = styled.div`
 
 // Device Header/Brand Bar
 const DeviceBrandBar = styled.div<{ $brandColor: string }>`
-  background: linear-gradient(90deg, ${props => props.$brandColor} 0%, ${props => props.$brandColor}aa 100%);
+  background: linear-gradient(90deg, ${(props) => props.$brandColor} 0%, ${(props) => props.$brandColor}aa 100%);
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
@@ -56,14 +57,18 @@ const BrandText = styled.div`
 `;
 
 const StatusBadge = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'authorized': return '#10b981';
-      case 'pending': return '#f59e0b';
-      case 'denied': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'authorized':
+				return '#10b981';
+			case 'pending':
+				return '#f59e0b';
+			case 'denied':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
   color: white;
   padding: 0.375rem 0.75rem;
   border-radius: 0.25rem;
@@ -178,43 +183,50 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   cursor: pointer;
   transition: all 0.2s ease;
   
-  ${({ $variant }) => 
-    $variant === 'primary' 
-      ? `
+  ${({ $variant }) =>
+		$variant === 'primary'
+			? `
         background: #3b82f6;
         color: white;
         &:hover {
           background: #2563eb;
         }
       `
-      : `
+			: `
         background: #f3f4f6;
         color: #374151;
         &:hover {
           background: #e5e7eb;
         }
-      `
-  }
+      `}
 `;
 
 // Status Message (below everything)
 const StatusMessage = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'authorized': return '#dcfce7';
-      case 'pending': return '#fef3c7';
-      case 'denied': return '#fecaca';
-      default: return '#f3f4f6';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$status) {
-      case 'authorized': return '#22c55e';
-      case 'pending': return '#f59e0b';
-      case 'denied': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'authorized':
+				return '#dcfce7';
+			case 'pending':
+				return '#fef3c7';
+			case 'denied':
+				return '#fecaca';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$status) {
+			case 'authorized':
+				return '#22c55e';
+			case 'pending':
+				return '#f59e0b';
+			case 'denied':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1rem;
   margin-top: 1.5rem;
@@ -225,14 +237,18 @@ const StatusMessage = styled.div<{ $status: string }>`
 
 const StatusIcon = styled.div<{ $status: string }>`
   font-size: 1.5rem;
-  color: ${props => {
-    switch (props.$status) {
-      case 'authorized': return '#22c55e';
-      case 'pending': return '#f59e0b';
-      case 'denied': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'authorized':
+				return '#22c55e';
+			case 'pending':
+				return '#f59e0b';
+			case 'denied':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const StatusText = styled.div`
@@ -253,137 +269,142 @@ const StatusDescription = styled.div`
 `;
 
 interface DeviceDisplayTemplateProps {
-  // Branding
-  brandName: string;
-  brandIcon?: string;
-  brandColor: string;
-  
-  // Device Info
-  deviceInfo: Array<{ label: string; value: string }>;
-  
-  // Authorization
-  authorizationCode: string;
-  showQRCode?: boolean;
-  qrCodeValue?: string;
-  
-  // Status
-  status: 'pending' | 'authorized' | 'denied' | 'expired';
-  statusIcon: React.ReactNode;
-  statusTitle: string;
-  statusDescription: string;
-  
-  // Actions
-  onCopyCode?: () => void;
-  onCopyURI?: () => void;
-  onOpenURI?: () => void;
-  
-  // Custom content
-  customContent?: React.ReactNode;
+	// Branding
+	brandName: string;
+	brandIcon?: string;
+	brandColor: string;
+
+	// Device Info
+	deviceInfo: Array<{ label: string; value: string }>;
+
+	// Authorization
+	authorizationCode: string;
+	showQRCode?: boolean;
+	qrCodeValue?: string;
+
+	// Status
+	status: 'pending' | 'authorized' | 'denied' | 'expired';
+	statusIcon: React.ReactNode;
+	statusTitle: string;
+	statusDescription: string;
+
+	// Actions
+	onCopyCode?: () => void;
+	onCopyURI?: () => void;
+	onOpenURI?: () => void;
+
+	// Custom content
+	customContent?: React.ReactNode;
 }
 
 export const DeviceDisplayTemplate: React.FC<DeviceDisplayTemplateProps> = ({
-  brandName,
-  brandIcon,
-  brandColor,
-  deviceInfo,
-  authorizationCode,
-  showQRCode = true,
-  qrCodeValue,
-  status,
-  statusIcon,
-  statusTitle,
-  statusDescription,
-  onCopyCode,
-  onCopyURI,
-  onOpenURI,
-  customContent,
+	brandName,
+	brandIcon,
+	brandColor,
+	deviceInfo,
+	authorizationCode,
+	showQRCode = true,
+	qrCodeValue,
+	status,
+	statusIcon,
+	statusTitle,
+	statusDescription,
+	onCopyCode,
+	onCopyURI,
+	onOpenURI,
+	customContent,
 }) => {
-  return (
-    <DeviceContainer>
-      {/* Device Display Screen */}
-      <DisplayScreen>
-        {/* Brand Bar */}
-        <DeviceBrandBar $brandColor={brandColor}>
-          <BrandLogo>
-            {brandIcon && <span style={{ fontSize: '1.5rem' }}>{brandIcon}</span>}
-            <BrandText>{brandName}</BrandText>
-          </BrandLogo>
-          <StatusBadge $status={status}>
-            {status === 'authorized' ? 'READY' : status === 'pending' ? 'PROCESSING' : status === 'denied' ? 'DENIED' : 'IDLE'}
-          </StatusBadge>
-        </DeviceBrandBar>
+	return (
+		<DeviceContainer>
+			{/* Device Display Screen */}
+			<DisplayScreen>
+				{/* Brand Bar */}
+				<DeviceBrandBar $brandColor={brandColor}>
+					<BrandLogo>
+						{brandIcon && <span style={{ fontSize: '1.5rem' }}>{brandIcon}</span>}
+						<BrandText>{brandName}</BrandText>
+					</BrandLogo>
+					<StatusBadge $status={status}>
+						{status === 'authorized'
+							? 'READY'
+							: status === 'pending'
+								? 'PROCESSING'
+								: status === 'denied'
+									? 'DENIED'
+									: 'IDLE'}
+					</StatusBadge>
+				</DeviceBrandBar>
 
-        {/* Device Content */}
-        <DeviceContent>
-          {/* Device Info Section */}
-          {deviceInfo.length > 0 && (
-            <DeviceInfoSection>
-              <SectionTitle>Device Information</SectionTitle>
-              {deviceInfo.map((info, index) => (
-                <InfoRow key={index}>
-                  <InfoLabel>{info.label}</InfoLabel>
-                  <InfoValue>{info.value}</InfoValue>
-                </InfoRow>
-              ))}
-            </DeviceInfoSection>
-          )}
+				{/* Device Content */}
+				<DeviceContent>
+					{/* Device Info Section */}
+					{deviceInfo.length > 0 && (
+						<DeviceInfoSection>
+							<SectionTitle>Device Information</SectionTitle>
+							{deviceInfo.map((info, index) => (
+								<InfoRow key={index}>
+									<InfoLabel>{info.label}</InfoLabel>
+									<InfoValue>{info.value}</InfoValue>
+								</InfoRow>
+							))}
+						</DeviceInfoSection>
+					)}
 
-          {/* Authorization Code */}
-          <AuthCodeSection>
-            <AuthCodeLabel>Authorization Code</AuthCodeLabel>
-            <AuthCodeDisplay>{authorizationCode}</AuthCodeDisplay>
-          </AuthCodeSection>
+					{/* Authorization Code */}
+					<AuthCodeSection>
+						<AuthCodeLabel>Authorization Code</AuthCodeLabel>
+						<AuthCodeDisplay>{authorizationCode}</AuthCodeDisplay>
+					</AuthCodeSection>
 
-          {/* QR Code (optional, inline) */}
-          {showQRCode && qrCodeValue && (
-            <QRSectionInline>
-              <QRLabel>Scan QR Code</QRLabel>
-              <QRCodeSVG
-                value={qrCodeValue}
-                size={100}
-                bgColor="#ffffff"
-                fgColor="#000000"
-                level="M"
-                includeMargin={true}
-              />
-            </QRSectionInline>
-          )}
+					{/* QR Code (optional, inline) */}
+					{showQRCode && qrCodeValue && (
+						<QRSectionInline>
+							<QRLabel>Scan QR Code</QRLabel>
+							<QRCodeSVG
+								value={qrCodeValue}
+								size={100}
+								bgColor="#ffffff"
+								fgColor="#000000"
+								level="M"
+								includeMargin={true}
+							/>
+						</QRSectionInline>
+					)}
 
-          {/* Custom Content */}
-          {customContent}
-        </DeviceContent>
-      </DisplayScreen>
+					{/* Custom Content */}
+					{customContent}
+				</DeviceContent>
+			</DisplayScreen>
 
-      {/* Action Buttons */}
-      <ActionButtons>
-        {onCopyCode && (
-          <ActionButton $variant="secondary" onClick={onCopyCode}>
-            <FiCopy /> Copy Code
-          </ActionButton>
-        )}
-        {onCopyURI && (
-          <ActionButton $variant="secondary" onClick={onCopyURI}>
-            <FiCopy /> Copy URI
-          </ActionButton>
-        )}
-        {onOpenURI && (
-          <ActionButton $variant="primary" onClick={onOpenURI}>
-            <FiExternalLink /> Open in Browser
-          </ActionButton>
-        )}
-      </ActionButtons>
+			{/* Action Buttons */}
+			<ActionButtons>
+				{onCopyCode && (
+					<ActionButton $variant="secondary" onClick={onCopyCode}>
+						<FiCopy /> Copy Code
+					</ActionButton>
+				)}
+				{onCopyURI && (
+					<ActionButton $variant="secondary" onClick={onCopyURI}>
+						<FiCopy /> Copy URI
+					</ActionButton>
+				)}
+				{onOpenURI && (
+					<ActionButton $variant="primary" onClick={onOpenURI}>
+						<FiExternalLink /> Open in Browser
+					</ActionButton>
+				)}
+			</ActionButtons>
 
-      {/* Status Message */}
-      <StatusMessage $status={status}>
-        <StatusIcon $status={status}>{statusIcon}</StatusIcon>
-        <StatusText>
-          <StatusTitle>{statusTitle}</StatusTitle>
-          <StatusDescription>{statusDescription}</StatusDescription>
-        </StatusText>
-      </StatusMessage>
-    </DeviceContainer>
-  );
+			{/* Status Message */}
+			<StatusMessage $status={status}>
+				<StatusIcon $status={status}>{statusIcon}</StatusIcon>
+				<StatusText>
+					<StatusTitle>{statusTitle}</StatusTitle>
+					<StatusDescription>{statusDescription}</StatusDescription>
+				</StatusText>
+			</StatusMessage>
+		</DeviceContainer>
+	);
 };
 
 export default DeviceDisplayTemplate;
-

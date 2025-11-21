@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FiCheck,
 	FiCheckCircle,
@@ -398,10 +398,24 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 		additionalScopes: '',
 	});
 
+	// Use a ref to store the callback to avoid including it in dependencies
+	const onCredentialsChangeRef = useRef(onCredentialsChange);
+	onCredentialsChangeRef.current = onCredentialsChange;
+
+	// Use a ref to track if credentials have been loaded to prevent infinite loops
+	const hasLoadedCredentialsRef = useRef(false);
+
 	// Load credentials: start with global, then override with flow-specific
 	useEffect(() => {
 		const loadCredentials = () => {
+			// Prevent multiple loads in the same render cycle
+			if (hasLoadedCredentialsRef.current) {
+				return;
+			}
+
 			try {
+				// Mark as loading to prevent concurrent loads
+				hasLoadedCredentialsRef.current = true;
 				logger.config('FlowCredentials', `Loading credentials for flow: ${flowType}`);
 
 				// Load credentials from appropriate storage based on flow type
@@ -431,9 +445,13 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				};
 
 				setCredentials(finalCredentials);
-				onCredentialsChange?.(finalCredentials);
+				
+				// Call the callback using the ref to avoid dependency issues
+				onCredentialsChangeRef.current?.(finalCredentials);
 				logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);
 			} catch (error) {
+				// Reset flag on error so we can retry
+				hasLoadedCredentialsRef.current = false;
 				logger.error(
 					'FlowCredentials',
 					'Failed to load credentials',
@@ -443,8 +461,10 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 			}
 		};
 
+		// Reset the loaded flag when flowType changes to allow reload
+		hasLoadedCredentialsRef.current = false;
 		loadCredentials();
-	}, [flowType]); // Removed onCredentialsChange from dependencies to prevent infinite loop
+	}, [flowType]); // Only depend on flowType to prevent infinite loop
 
 	// Check for changes to enable/disable save button
 	const hasConfigChanges = useMemo(() => {

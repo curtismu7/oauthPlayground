@@ -7,31 +7,36 @@ import {
 	FiCode,
 	FiExternalLink,
 	FiKey,
-	FiRefreshCw,
-	FiZap,
 	FiPlus,
+	FiRefreshCw,
 	FiTrash2,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import {
+	createOAuthTemplate,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { createOAuthTemplate } from '../../services/enhancedApiCallDisplayService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
 import { trackOAuthFlow } from '../../utils/activityTracker';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -144,7 +149,6 @@ const Input = styled.input`
 		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 	}
 `;
-
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
@@ -457,7 +461,6 @@ const FormattedExampleDetail = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 `;
 
-
 // RAR Flow Component
 export const RARFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(() => {
@@ -469,7 +472,7 @@ export const RARFlowV5: React.FC = () => {
 			console.log('🔄 [RAR-V5] Restored step from sessionStorage:', step);
 			return step;
 		}
-		
+
 		// Load current step from localStorage on initialization
 		const saved = localStorage.getItem('rar-v5-current-step');
 		if (saved) {
@@ -484,8 +487,10 @@ export const RARFlowV5: React.FC = () => {
 		return 0;
 	});
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
-	
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
+
 	const [credentials, setCredentials] = useState(() => {
 		// Load credentials from localStorage on initialization
 		const saved = localStorage.getItem('rar-v5-credentials');
@@ -531,13 +536,13 @@ export const RARFlowV5: React.FC = () => {
 				type: 'payment_initiation',
 				instructedAmount: {
 					currency: 'USD',
-					amount: '250.00'
+					amount: '250.00',
 				},
 				creditorName: 'Acme Inc.',
 				creditorAccount: {
-					iban: 'DE02100100109307118603'
-				}
-			}
+					iban: 'DE02100100109307118603',
+				},
+			},
 		];
 	});
 
@@ -589,7 +594,9 @@ export const RARFlowV5: React.FC = () => {
 		try {
 			localStorage.setItem('rar-v5-credentials', JSON.stringify(credentials));
 			console.log('💾 [RAR-V5] Credentials saved to localStorage:', {
-				environmentId: credentials.environmentId ? `${credentials.environmentId.substring(0, 8)}...` : 'none',
+				environmentId: credentials.environmentId
+					? `${credentials.environmentId.substring(0, 8)}...`
+					: 'none',
 				clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
 				hasClientSecret: !!credentials.clientSecret,
 				redirectUri: credentials.redirectUri,
@@ -656,27 +663,28 @@ export const RARFlowV5: React.FC = () => {
 		}
 	}, [tokens]);
 
-
-
 	// Check if step is valid
-	const isStepValid = useCallback((stepIndex: number): boolean => {
-		switch (stepIndex) {
-			case 0:
-				return true;
-			case 1:
-				return !!(credentials.environmentId && credentials.clientId && credentials.clientSecret);
-			case 2:
-				return !!(authUrl);
-			case 3:
-				return !!(authCode);
-			case 4:
-				return !!(tokens);
-			case 5:
-				return !!(tokens);
-			default:
-				return false;
-		}
-	}, [credentials, authUrl, authCode, tokens]);
+	const isStepValid = useCallback(
+		(stepIndex: number): boolean => {
+			switch (stepIndex) {
+				case 0:
+					return true;
+				case 1:
+					return !!(credentials.environmentId && credentials.clientId && credentials.clientSecret);
+				case 2:
+					return !!authUrl;
+				case 3:
+					return !!authCode;
+				case 4:
+					return !!tokens;
+				case 5:
+					return !!tokens;
+				default:
+					return false;
+			}
+		},
+		[credentials, authUrl, authCode, tokens]
+	);
 
 	// Check if can navigate to next step
 	const canNavigateNext = useCallback((): boolean => {
@@ -686,13 +694,13 @@ export const RARFlowV5: React.FC = () => {
 	// Handle step navigation
 	const handleNext = useCallback(() => {
 		if (canNavigateNext()) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	}, [canNavigateNext]);
 
 	const handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	}, [currentStep]);
 
@@ -764,9 +772,7 @@ export const RARFlowV5: React.FC = () => {
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'rar-v5');
-			console.log(
-				'🔍 [RARFlowV5] Passing access token to Token Management via localStorage'
-			);
+			console.log('🔍 [RARFlowV5] Passing access token to Token Management via localStorage');
 		}
 
 		window.open('/token-management', '_blank');
@@ -775,9 +781,7 @@ export const RARFlowV5: React.FC = () => {
 	// Handle authorization details update
 	const updateAuthorizationDetail = useCallback((index: number, field: string, value: any) => {
 		setAuthorizationDetails((prev: any[]) =>
-			prev.map((detail: any, i: number) =>
-				i === index ? { ...detail, [field]: value } : detail
-			)
+			prev.map((detail: any, i: number) => (i === index ? { ...detail, [field]: value } : detail))
 		);
 	}, []);
 
@@ -789,7 +793,7 @@ export const RARFlowV5: React.FC = () => {
 				instructedAmount: { currency: 'USD', amount: '0.00' },
 				creditorName: '',
 				creditorAccount: { iban: '' },
-			}
+			},
 		]);
 	}, []);
 
@@ -817,9 +821,13 @@ export const RARFlowV5: React.FC = () => {
 			// Add RAR authorization details
 			const rarDetails = {
 				type: 'oauth_authorization_details',
-				authorization_details: authorizationDetails.filter((detail: any) =>
-					detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
-				)
+				authorization_details: authorizationDetails.filter(
+					(detail: any) =>
+						detail.type &&
+						detail.instructedAmount &&
+						detail.creditorName &&
+						detail.creditorAccount?.iban
+				),
 			};
 
 			params.append('authorization_details', JSON.stringify(rarDetails));
@@ -843,12 +851,17 @@ export const RARFlowV5: React.FC = () => {
 		try {
 			// Mock token exchange with RAR claims
 			const mockTokens = {
-				access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiYXVkIjoiY2xpZW50X2lkIiwiZXhwIjoxNzM1ODQ5NjAwLCJpYXQiOjE3MzU4NDYwMDAsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRob3JpemF0aW9uX2RldGFpbHMiOlt7InR5cGUiOiJwYXltZW50X2luaXRpYXRpb24iLCJpbnN0cnVjdGVkQW1vdW50Ijp7ImN1cnJlbmN5IjoiVVNEIiwiYW1vdW50IjoiMjUwLjAwIn0sImNyZWRpdG9yTmFtZSI6IkFjbWUgSW5jLiIsImNyZWRpdG9yQWNjb3VudCI6eyJpYmFuIjoiREUwMjEwMDEwMDEwOTMwNzExODYwMyJ9fV19.signature',
+				access_token:
+					'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiYXVkIjoiY2xpZW50X2lkIiwiZXhwIjoxNzM1ODQ5NjAwLCJpYXQiOjE3MzU4NDYwMDAsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRob3JpemF0aW9uX2RldGFpbHMiOlt7InR5cGUiOiJwYXltZW50X2luaXRpYXRpb24iLCJpbnN0cnVjdGVkQW1vdW50Ijp7ImN1cnJlbmN5IjoiVVNEIiwiYW1vdW50IjoiMjUwLjAwIn0sImNyZWRpdG9yTmFtZSI6IkFjbWUgSW5jLiIsImNyZWRpdG9yQWNjb3VudCI6eyJpYmFuIjoiREUwMjEwMDEwMDEwOTMwNzExODYwMyJ9fV19.signature',
 				token_type: 'Bearer',
 				expires_in: 3600,
 				scope: credentials.scopes,
-				authorization_details: authorizationDetails.filter((detail: any) =>
-					detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
+				authorization_details: authorizationDetails.filter(
+					(detail: any) =>
+						detail.type &&
+						detail.instructedAmount &&
+						detail.creditorName &&
+						detail.creditorAccount?.iban
 				),
 			};
 
@@ -867,28 +880,32 @@ export const RARFlowV5: React.FC = () => {
 			case 0:
 				return (
 					<>
-						<FlowInfoCard flowInfo={getFlowInfo('rar') || {
-							flowType: 'oauth',
-							flowName: 'Rich Authorization Requests (RAR)',
-							tokensReturned: 'Access Token with RAR Claims',
-							purpose: 'Granular Authorization with Detailed Permissions',
-							specLayer: 'OAuth 2.0 Extension (RFC 9391)',
-							nonceRequirement: 'Not required (but recommended with PKCE)',
-							validation: 'Validate access token and authorization_details claims',
-							securityNotes: [
-								'✅ Enhanced security through granular permissions',
-								'Authorization details specified in token claims',
-								'Enables fine-grained access control',
-								'Reduces over-privileged access tokens',
-								'Requires authorization server RAR support',
-							],
-							useCases: [
-								'Open Banking and Financial APIs',
-								'Healthcare data access with specific permissions',
-								'IoT device authorization with granular controls',
-								'Multi-tenant applications with role-based access',
-							],
-						}} />
+						<FlowInfoCard
+							flowInfo={
+								getFlowInfo('rar') || {
+									flowType: 'oauth',
+									flowName: 'Rich Authorization Requests (RAR)',
+									tokensReturned: 'Access Token with RAR Claims',
+									purpose: 'Granular Authorization with Detailed Permissions',
+									specLayer: 'OAuth 2.0 Extension (RFC 9391)',
+									nonceRequirement: 'Not required (but recommended with PKCE)',
+									validation: 'Validate access token and authorization_details claims',
+									securityNotes: [
+										'✅ Enhanced security through granular permissions',
+										'Authorization details specified in token claims',
+										'Enables fine-grained access control',
+										'Reduces over-privileged access tokens',
+										'Requires authorization server RAR support',
+									],
+									useCases: [
+										'Open Banking and Financial APIs',
+										'Healthcare data access with specific permissions',
+										'IoT device authorization with granular controls',
+										'Multi-tenant applications with role-based access',
+									],
+								}
+							}
+						/>
 						<FlowSequenceDisplay flowType="rar" />
 						<FlowConfigurationRequirements flowType="rar" />
 					</>
@@ -900,8 +917,8 @@ export const RARFlowV5: React.FC = () => {
 						<ExplanationSection>
 							<ExplanationHeading>Configure RAR Flow Credentials</ExplanationHeading>
 							<p>
-								Set up your PingOne credentials and define the authorization details that will be requested
-								using the Rich Authorization Requests (RAR) specification.
+								Set up your PingOne credentials and define the authorization details that will be
+								requested using the Rich Authorization Requests (RAR) specification.
 							</p>
 						</ExplanationSection>
 
@@ -910,7 +927,9 @@ export const RARFlowV5: React.FC = () => {
 							<Input
 								type="text"
 								value={credentials.environmentId}
-								onChange={(e) => setCredentials(prev => ({ ...prev, environmentId: e.target.value }))}
+								onChange={(e) =>
+									setCredentials((prev) => ({ ...prev, environmentId: e.target.value }))
+								}
 								placeholder="Enter your PingOne Environment ID"
 							/>
 						</FormGroup>
@@ -920,7 +939,7 @@ export const RARFlowV5: React.FC = () => {
 							<Input
 								type="text"
 								value={credentials.clientId}
-								onChange={(e) => setCredentials(prev => ({ ...prev, clientId: e.target.value }))}
+								onChange={(e) => setCredentials((prev) => ({ ...prev, clientId: e.target.value }))}
 								placeholder="Enter your Client ID"
 							/>
 						</FormGroup>
@@ -930,7 +949,9 @@ export const RARFlowV5: React.FC = () => {
 							<Input
 								type="password"
 								value={credentials.clientSecret}
-								onChange={(e) => setCredentials(prev => ({ ...prev, clientSecret: e.target.value }))}
+								onChange={(e) =>
+									setCredentials((prev) => ({ ...prev, clientSecret: e.target.value }))
+								}
 								placeholder="Enter your Client Secret"
 							/>
 						</FormGroup>
@@ -940,7 +961,9 @@ export const RARFlowV5: React.FC = () => {
 							<Input
 								type="text"
 								value={credentials.redirectUri}
-								onChange={(e) => setCredentials(prev => ({ ...prev, redirectUri: e.target.value }))}
+								onChange={(e) =>
+									setCredentials((prev) => ({ ...prev, redirectUri: e.target.value }))
+								}
 								placeholder="https://localhost:3000/authz-callback"
 							/>
 						</FormGroup>
@@ -950,7 +973,7 @@ export const RARFlowV5: React.FC = () => {
 							<Input
 								type="text"
 								value={credentials.scopes}
-								onChange={(e) => setCredentials(prev => ({ ...prev, scopes: e.target.value }))}
+								onChange={(e) => setCredentials((prev) => ({ ...prev, scopes: e.target.value }))}
 								placeholder="openid profile email"
 							/>
 						</FormGroup>
@@ -962,7 +985,8 @@ export const RARFlowV5: React.FC = () => {
 								RAR Authorization Example
 							</ExampleHeader>
 							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-								Here's an example of RAR authorization_details structure. You can use this as a starting point or create your own.
+								Here's an example of RAR authorization_details structure. You can use this as a
+								starting point or create your own.
 							</p>
 
 							<ExampleContainer>
@@ -990,11 +1014,19 @@ export const RARFlowV5: React.FC = () => {
 											{JSON.stringify(exampleAuthorizationDetails, null, 2)}
 										</JsonExampleDisplay>
 										<JsonExampleActions>
-											<JsonExampleButton onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}>
+											<JsonExampleButton
+												onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}
+											>
 												<FiCheckCircle size={14} />
 												Use This Example
 											</JsonExampleButton>
-											<JsonExampleButton onClick={() => navigator.clipboard.writeText(JSON.stringify(exampleAuthorizationDetails, null, 2))}>
+											<JsonExampleButton
+												onClick={() =>
+													navigator.clipboard.writeText(
+														JSON.stringify(exampleAuthorizationDetails, null, 2)
+													)
+												}
+											>
 												<FiExternalLink size={14} />
 												Copy JSON
 											</JsonExampleButton>
@@ -1011,20 +1043,26 @@ export const RARFlowV5: React.FC = () => {
 													</FormattedExampleItemHeader>
 													<FormattedExampleDetails>
 														<FormattedExampleDetail>
-															<strong>instructedAmount:</strong> {detail.instructedAmount ? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}` : 'Not set'}
+															<strong>instructedAmount:</strong>{' '}
+															{detail.instructedAmount
+																? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}`
+																: 'Not set'}
 														</FormattedExampleDetail>
 														<FormattedExampleDetail>
 															<strong>creditorName:</strong> {detail.creditorName || 'Not set'}
 														</FormattedExampleDetail>
 														<FormattedExampleDetail>
-															<strong>creditorAccount.iban:</strong> {detail.creditorAccount?.iban || 'Not set'}
+															<strong>creditorAccount.iban:</strong>{' '}
+															{detail.creditorAccount?.iban || 'Not set'}
 														</FormattedExampleDetail>
 													</FormattedExampleDetails>
 												</FormattedExampleItem>
 											))}
 										</FormattedExampleList>
 										<JsonExampleActions>
-											<JsonExampleButton onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}>
+											<JsonExampleButton
+												onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}
+											>
 												<FiCheckCircle size={14} />
 												Use This Example
 											</JsonExampleButton>
@@ -1037,9 +1075,10 @@ export const RARFlowV5: React.FC = () => {
 						<AuthorizationDetailsContainer>
 							<Label>Authorization Details (RAR)</Label>
 							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-								Define the specific authorization details that will be requested using RAR. Use the example above or create your own.
+								Define the specific authorization details that will be requested using RAR. Use the
+								example above or create your own.
 							</p>
-							
+
 							{authorizationDetails.map((detail: any, index: number) => (
 								<AuthorizationDetailItem key={index}>
 									<div style={{ minWidth: '120px' }}>
@@ -1051,9 +1090,15 @@ export const RARFlowV5: React.FC = () => {
 										/>
 									</div>
 									<div style={{ minWidth: '200px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Instructed Amount</Label>
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+											Instructed Amount
+										</Label>
 										<DetailInput
-											value={detail.instructedAmount ? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}` : ''}
+											value={
+												detail.instructedAmount
+													? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}`
+													: ''
+											}
 											onChange={(e) => {
 												const [currency, amount] = e.target.value.split(' ');
 												updateAuthorizationDetail(index, 'instructedAmount', { currency, amount });
@@ -1062,18 +1107,28 @@ export const RARFlowV5: React.FC = () => {
 										/>
 									</div>
 									<div style={{ minWidth: '150px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Creditor Name</Label>
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+											Creditor Name
+										</Label>
 										<DetailInput
 											value={detail.creditorName || ''}
-											onChange={(e) => updateAuthorizationDetail(index, 'creditorName', e.target.value)}
+											onChange={(e) =>
+												updateAuthorizationDetail(index, 'creditorName', e.target.value)
+											}
 											placeholder="Acme Inc."
 										/>
 									</div>
 									<div style={{ minWidth: '200px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Creditor Account</Label>
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
+											Creditor Account
+										</Label>
 										<DetailInput
 											value={detail.creditorAccount?.iban || ''}
-											onChange={(e) => updateAuthorizationDetail(index, 'creditorAccount', { iban: e.target.value })}
+											onChange={(e) =>
+												updateAuthorizationDetail(index, 'creditorAccount', {
+													iban: e.target.value,
+												})
+											}
 											placeholder="DE02100100109307118603"
 										/>
 									</div>
@@ -1103,11 +1158,15 @@ export const RARFlowV5: React.FC = () => {
 							<ExplanationHeading>Generate Authorization Request with RAR</ExplanationHeading>
 							<p>
 								Generate an authorization URL that includes Rich Authorization Request parameters.
-								The authorization_details parameter contains the specific permissions being requested.
+								The authorization_details parameter contains the specific permissions being
+								requested.
 							</p>
 						</ExplanationSection>
 
-						<Button onClick={handleGenerateAuthUrl} disabled={!credentials.environmentId || !credentials.clientId}>
+						<Button
+							onClick={handleGenerateAuthUrl}
+							disabled={!credentials.environmentId || !credentials.clientId}
+						>
 							<FiZap />
 							Generate Authorization URL with RAR
 						</Button>
@@ -1139,14 +1198,18 @@ export const RARFlowV5: React.FC = () => {
 										clientId: credentials.clientId,
 										redirectUri: credentials.redirectUri,
 										scopes: credentials.scopes.split(' '),
-										authorizationDetails: authorizationDetails.filter((detail: any) =>
-											detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
-										)
+										authorizationDetails: authorizationDetails.filter(
+											(detail: any) =>
+												detail.type &&
+												detail.instructedAmount &&
+												detail.creditorName &&
+												detail.creditorAccount?.iban
+										),
 									})}
 									options={{
 										showEducationalNotes: true,
 										showFlowContext: true,
-										theme: 'light'
+										theme: 'light',
 									}}
 								/>
 							</>
@@ -1160,8 +1223,8 @@ export const RARFlowV5: React.FC = () => {
 						<ExplanationSection>
 							<ExplanationHeading>Token Exchange with RAR Claims</ExplanationHeading>
 							<p>
-								Exchange the authorization code for an access token. The token will contain
-								the authorization details from the RAR request as claims.
+								Exchange the authorization code for an access token. The token will contain the
+								authorization details from the RAR request as claims.
 							</p>
 						</ExplanationSection>
 
@@ -1175,10 +1238,7 @@ export const RARFlowV5: React.FC = () => {
 							/>
 						</FormGroup>
 
-						<Button 
-							onClick={handleTokenExchange} 
-							disabled={!authCode || isRequesting}
-						>
+						<Button onClick={handleTokenExchange} disabled={!authCode || isRequesting}>
 							{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiKey />}
 							{isRequesting ? 'Exchanging...' : 'Exchange for Access Token'}
 						</Button>
@@ -1201,12 +1261,12 @@ export const RARFlowV5: React.FC = () => {
 									clientId: credentials.clientId,
 									clientSecret: credentials.clientSecret,
 									redirectUri: credentials.redirectUri,
-									authorizationCode: authCode || '[authorization_code]'
+									authorizationCode: authCode || '[authorization_code]',
 								})}
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									theme: 'light'
+									theme: 'light',
 								}}
 							/>
 						)}
@@ -1226,23 +1286,18 @@ export const RARFlowV5: React.FC = () => {
 
 						{tokens && (
 							<>
-								<JWTTokenDisplay 
-									token={tokens.access_token} 
-									tokenType="access"
-								/>
+								<JWTTokenDisplay token={tokens.access_token} tokenType="access" />
 
 								<SectionDivider />
 
 								<FormGroup>
 									<Label>Authorization Details Claims</Label>
-									<CodeBlock>
-										{JSON.stringify(tokens.authorization_details, null, 2)}
-									</CodeBlock>
+									<CodeBlock>{JSON.stringify(tokens.authorization_details, null, 2)}</CodeBlock>
 								</FormGroup>
 
 								<FormGroup>
 									<Label>Token Introspection</Label>
-									<TokenIntrospect 
+									<TokenIntrospect
 										flowName="Rich Authorization Requests (RAR)"
 										flowVersion="V5"
 										tokens={tokens}
@@ -1262,7 +1317,7 @@ export const RARFlowV5: React.FC = () => {
 												token: token,
 												clientId: credentials.clientId,
 												clientSecret: credentials.clientSecret,
-												tokenTypeHint: 'access_token' as const
+												tokenTypeHint: 'access_token' as const,
 											};
 
 											try {
@@ -1272,10 +1327,10 @@ export const RARFlowV5: React.FC = () => {
 													'rar',
 													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 												);
-												
+
 												// Set the API call data for display
 												setIntrospectionApiCall(result.apiCall);
-												
+
 												return result.response;
 											} catch (error) {
 												// Create error API call using reusable service
@@ -1286,7 +1341,7 @@ export const RARFlowV5: React.FC = () => {
 													500,
 													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 												);
-												
+
 												setIntrospectionApiCall(errorApiCall);
 												throw error;
 											}
@@ -1300,7 +1355,8 @@ export const RARFlowV5: React.FC = () => {
 											options={{
 												showEducationalNotes: true,
 												showFlowContext: true,
-												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('rar')
+												urlHighlightRules:
+													EnhancedApiCallDisplayService.getDefaultHighlightRules('rar'),
 											}}
 										/>
 									)}
@@ -1316,8 +1372,8 @@ export const RARFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Security Features with RAR</ResultsHeading>
 							<p>
-								RAR provides enhanced security through granular authorization details.
-								Demonstrate security features with the RAR-enhanced access token.
+								RAR provides enhanced security through granular authorization details. Demonstrate
+								security features with the RAR-enhanced access token.
 							</p>
 						</ResultsSection>
 
@@ -1356,9 +1412,7 @@ export const RARFlowV5: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader
-				flowId="rar"
-			/>
+			<FlowHeader flowId="rar" />
 
 			<StepContainer>
 				<StepHeader>

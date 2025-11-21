@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiBookOpen, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSearch, FiBookOpen } from 'react-icons/fi';
 import CollapsibleIcon from '../components/CollapsibleIcon';
 
 const Container = styled.div`

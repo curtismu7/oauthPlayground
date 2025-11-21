@@ -1,7 +1,7 @@
 // src/services/v6CollapsibleSectionService.tsx
 /**
  * V6 Collapsible Section Service
- * 
+ *
  * Provides standardized collapsible sections for V6 flows
  * - Custom headers with icons
  * - Smooth animations
@@ -111,5 +111,3 @@ export class V6CollapsibleSectionService {
 }
 
 export default V6CollapsibleSectionService;
-
-

@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-	FiEye,
-	FiEyeOff,
+	FiCheck,
 	FiCheckCircle,
 	FiChevronDown,
 	FiChevronUp,
-	FiCheck,
+	FiEye,
+	FiEyeOff,
 } from 'react-icons/fi';
-import CopyIcon from './CopyIcon';
+import styled from 'styled-components';
+import { type AllCredentials, credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { credentialManager, type AllCredentials } from '../utils/credentialManager';
+import CopyIcon from './CopyIcon';
 
 interface FlowCredentialsProps {
 	flowType: string;

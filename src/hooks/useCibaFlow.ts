@@ -44,13 +44,7 @@ export interface CibaTokens {
 	server_timestamp?: string;
 }
 
-type CibaStage =
-	| 'idle'
-	| 'initiating'
-	| 'awaiting-approval'
-	| 'polling'
-	| 'success'
-	| 'error';
+type CibaStage = 'idle' | 'initiating' | 'awaiting-approval' | 'polling' | 'success' | 'error';
 
 interface UseCibaFlowReturn {
 	config: CibaConfig | null;
@@ -168,7 +162,11 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 	}, []);
 
 	const persistMockState = useCallback(
-		(newConfig: CibaConfig | null, newRequest: CibaAuthRequest | null, newTokens: CibaTokens | null) => {
+		(
+			newConfig: CibaConfig | null,
+			newRequest: CibaAuthRequest | null,
+			newTokens: CibaTokens | null
+		) => {
 			if (newConfig) {
 				setConfigState(newConfig);
 				localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
@@ -286,7 +284,8 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		}
 
 		if (
-			(activeConfig.authMethod === 'client_secret_post' || activeConfig.authMethod === 'client_secret_basic') &&
+			(activeConfig.authMethod === 'client_secret_post' ||
+				activeConfig.authMethod === 'client_secret_basic') &&
 			!activeConfig.clientSecret
 		) {
 			const errorMsg = 'Client secret is required for the selected authentication method.';

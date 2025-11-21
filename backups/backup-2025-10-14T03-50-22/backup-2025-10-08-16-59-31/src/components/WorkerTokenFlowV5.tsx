@@ -1,6 +1,5 @@
 // src/components/WorkerTokenFlowV5.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -13,34 +12,35 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../services/themeService';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
+import { EnhancedApiCallDisplayService } from '../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../services/flowHeaderService';
+import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { pingOneConfigService } from '../services/pingoneConfigService';
+import { themeService } from '../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../services/tokenIntrospectionService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../utils/flowNavigation';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialsInput } from './CredentialsInput';
+import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
 import EnvironmentIdInput from './EnvironmentIdInput';
-import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import FlowConfigurationRequirements from './FlowConfigurationRequirements';
 import FlowInfoCard from './FlowInfoCard';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
 import PingOneApplicationConfig, { type PingOneApplicationState } from './PingOneApplicationConfig';
+import PingOneWorkerInfo from './PingOneWorkerInfo';
 import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
 import TokenIntrospect from './TokenIntrospect';
-import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../services/tokenIntrospectionService';
-import PingOneWorkerInfo from './PingOneWorkerInfo';
 
 export interface WorkerTokenFlowV5Props {
 	flowName?: string;

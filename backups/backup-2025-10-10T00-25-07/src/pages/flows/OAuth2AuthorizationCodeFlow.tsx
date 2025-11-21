@@ -35,6 +35,7 @@ import { type FlowConfig, FlowConfiguration } from '../../components/FlowConfigu
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { FlowComponentService } from '../../services/flowComponentService';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import {
 	applyClientAuthentication,
@@ -44,9 +45,8 @@ import { credentialManager } from '../../utils/credentialManager';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { logger } from '../../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
-import { getBackendUrl } from '../../utils/protocolUtils';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import { FlowComponentService } from '../../services/flowComponentService';
+import { getBackendUrl } from '../../utils/protocolUtils';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -1760,7 +1760,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
 		} else if (flowConfig.enablePKCE && !pkceCodes.codeChallenge) {
 			// Force PKCE generation if enabled but codes not generated
-			console.warn(' [EnhancedAuthorizationCodeFlowV2] PKCE enabled but no codes generated. Generating now...');
+			console.warn(
+				' [EnhancedAuthorizationCodeFlowV2] PKCE enabled but no codes generated. Generating now...'
+			);
 			try {
 				const verifier = generateCodeVerifier();
 				const challenge = await generateCodeChallenge(verifier);
@@ -1770,7 +1772,10 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
 				console.log(' [EnhancedAuthorizationCodeFlowV2] Generated PKCE codes on-the-fly');
 			} catch (error) {
-				console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes on-the-fly:', error);
+				console.error(
+					' [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes on-the-fly:',
+					error
+				);
 			}
 		}
 
@@ -2208,7 +2213,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			const requestBody = {
 				...Object.fromEntries(authenticatedRequest.body),
 				environment_id: currentCredentials.environmentId.trim(),
-				...(currentCredentials.includeX5tParameter && { includeX5tParameter: currentCredentials.includeX5tParameter }),
+				...(currentCredentials.includeX5tParameter && {
+					includeX5tParameter: currentCredentials.includeX5tParameter,
+				}),
 			};
 
 			// Use backend proxy for secure token exchange
@@ -2510,7 +2517,9 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						>
 							OAuth Credentials Configuration
 						</h4>
-						<FlowComponentService.createCollapsibleToggleIcon collapsed={collapsedSections['setup-credentials']} />
+						<FlowComponentService.createCollapsibleToggleIcon
+							collapsed={collapsedSections['setup-credentials']}
+						/>
 					</div>
 					{!collapsedSections['setup-credentials'] && (
 						<div>

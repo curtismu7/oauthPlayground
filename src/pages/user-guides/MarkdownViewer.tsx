@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
+import { FiArrowLeft } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import PageLayoutService from '../../services/pageLayoutService';
-import { FiBookOpen, FiArrowLeft } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
 
 const MarkdownContent = styled.div`
   max-width: 960px;
@@ -202,87 +202,87 @@ const ErrorMessage = styled.div`
 `;
 
 interface MarkdownViewerProps {
-  markdownPath: string;
-  title: string;
-  pageName: string;
+	markdownPath: string;
+	title: string;
+	pageName: string;
 }
 
 const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ markdownPath, title, pageName }) => {
-  const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [content, setContent] = useState<string>('');
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  usePageScroll({ pageName, force: true });
+	usePageScroll({ pageName, force: true });
 
-  const pageConfig = {
-    flowType: 'documentation' as const,
-    theme: 'blue' as const,
-    maxWidth: '72rem',
-    showHeader: true,
-    showFooter: false,
-    responsive: true,
-    flowId: `user-guide-${pageName}`,
-  };
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: `user-guide-${pageName}`,
+	};
 
-  const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
+	const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
-  useEffect(() => {
-    const fetchMarkdown = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(markdownPath);
-        if (!response.ok) {
-          throw new Error(`Failed to load documentation: ${response.statusText}`);
-        }
-        const text = await response.text();
-        setContent(text);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load documentation');
-      } finally {
-        setLoading(false);
-      }
-    };
+	useEffect(() => {
+		const fetchMarkdown = async () => {
+			try {
+				setLoading(true);
+				const response = await fetch(markdownPath);
+				if (!response.ok) {
+					throw new Error(`Failed to load documentation: ${response.statusText}`);
+				}
+				const text = await response.text();
+				setContent(text);
+				setError(null);
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'Failed to load documentation');
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    fetchMarkdown();
-  }, [markdownPath]);
+		fetchMarkdown();
+	}, [markdownPath]);
 
-  // Simple markdown to HTML converter (basic implementation)
-  const renderMarkdown = (markdown: string) => {
-    return markdown
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-      .replace(/\*(.*)\*/gim, '<em>$1</em>')
-      .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />')
-      .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
-      .replace(/\n\n/gim, '</p><p>')
-      .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
-      .replace(/`([^`]+)`/gim, '<code>$1</code>');
-  };
+	// Simple markdown to HTML converter (basic implementation)
+	const renderMarkdown = (markdown: string) => {
+		return markdown
+			.replace(/^### (.*$)/gim, '<h3>$1</h3>')
+			.replace(/^## (.*$)/gim, '<h2>$1</h2>')
+			.replace(/^# (.*$)/gim, '<h1>$1</h1>')
+			.replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+			.replace(/\*(.*)\*/gim, '<em>$1</em>')
+			.replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2" />')
+			.replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+			.replace(/\n\n/gim, '</p><p>')
+			.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+			.replace(/`([^`]+)`/gim, '<code>$1</code>');
+	};
 
-  return (
-    <PageContainer>
-      <ContentWrapper>
-        <BackButton to="/documentation">
-          <FiArrowLeft /> Back to Documentation
-        </BackButton>
+	return (
+		<PageContainer>
+			<ContentWrapper>
+				<BackButton to="/documentation">
+					<FiArrowLeft /> Back to Documentation
+				</BackButton>
 
-        {loading && <LoadingMessage>Loading documentation...</LoadingMessage>}
+				{loading && <LoadingMessage>Loading documentation...</LoadingMessage>}
 
-        {error && (
-          <ErrorMessage>
-            <strong>Error:</strong> {error}
-          </ErrorMessage>
-        )}
+				{error && (
+					<ErrorMessage>
+						<strong>Error:</strong> {error}
+					</ErrorMessage>
+				)}
 
-        {!loading && !error && content && (
-          <MarkdownContent dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
-        )}
-      </ContentWrapper>
-    </PageContainer>
-  );
+				{!loading && !error && content && (
+					<MarkdownContent dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+				)}
+			</ContentWrapper>
+		</PageContainer>
+	);
 };
 
 export default MarkdownViewer;

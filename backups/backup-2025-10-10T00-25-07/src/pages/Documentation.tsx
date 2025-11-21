@@ -1,25 +1,25 @@
 import {
+	FiAlertTriangle,
 	FiBookOpen,
+	FiCheckCircle,
 	FiCode,
 	FiExternalLink,
+	FiGlobe,
 	FiHelpCircle,
+	FiKey,
 	FiLock,
 	FiPlay,
+	FiSettings,
 	FiShield,
 	FiTool,
 	FiUsers,
-	FiKey,
-	FiSettings,
-	FiGlobe,
-	FiCheckCircle,
-	FiAlertTriangle,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { FlowUIService } from '../services/flowUIService';
 import PageLayoutService from '../services/pageLayoutService';
 
@@ -259,8 +259,11 @@ const Documentation = () => {
 		flowId: 'pingone-sso-documentation', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>
@@ -276,7 +279,8 @@ const Documentation = () => {
 					<QuickStartBanner>
 						<h2>Ready to Implement PingOne SSO?</h2>
 						<p>
-							Jump into our interactive tutorials and start learning PingOne SSO implementation with hands-on examples
+							Jump into our interactive tutorials and start learning PingOne SSO implementation with
+							hands-on examples
 						</p>
 						<QuickStartButton to="/tutorials">
 							<FiPlay size={16} />
@@ -292,9 +296,10 @@ const Documentation = () => {
 					defaultCollapsed={false}
 				>
 					<p>
-						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO) with PingOne Identity Platform. 
-						Whether you're integrating with web applications, mobile apps, or enterprise systems, you'll find the resources you need 
-						to build secure, standards-compliant SSO solutions.
+						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO)
+						with PingOne Identity Platform. Whether you're integrating with web applications, mobile
+						apps, or enterprise systems, you'll find the resources you need to build secure,
+						standards-compliant SSO solutions.
 					</p>
 
 					<div
@@ -309,10 +314,12 @@ const Documentation = () => {
 						<h3 style={{ marginTop: 0, color: '#0c4a6e' }}>PingOne SSO Implementation Guide:</h3>
 						<ul style={{ marginBottom: 0, color: '#0369a1' }}>
 							<li>
-								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and applications
+								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and
+								applications
 							</li>
 							<li>
-								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for secure SSO
+								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for
+								secure SSO
 							</li>
 							<li>
 								<strong>User Authentication:</strong> PingOne login flows and user management
@@ -336,43 +343,43 @@ const Documentation = () => {
 					</div>
 				</CollapsibleHeader>
 
-			<FeatureHighlight>
-				<FeatureCard>
-					<div className="icon tutorials">
-						<FiPlay />
-					</div>
-					<h3>Interactive Tutorials</h3>
-					<p>Step-by-step guided learning with real examples and immediate feedback</p>
-					<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
-				</FeatureCard>
+				<FeatureHighlight>
+					<FeatureCard>
+						<div className="icon tutorials">
+							<FiPlay />
+						</div>
+						<h3>Interactive Tutorials</h3>
+						<p>Step-by-step guided learning with real examples and immediate feedback</p>
+						<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon flows">
-						<FiCode />
-					</div>
-					<h3>OAuth Flows</h3>
-					<p>Explore different OAuth 2.0 grant types with live implementations</p>
-					<FeatureButton to="/flows">View Flows</FeatureButton>
-				</FeatureCard>
+					<FeatureCard>
+						<div className="icon flows">
+							<FiCode />
+						</div>
+						<h3>OAuth Flows</h3>
+						<p>Explore different OAuth 2.0 grant types with live implementations</p>
+						<FeatureButton to="/flows">View Flows</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon security">
-						<FiShield />
-					</div>
-					<h3>Security Guide</h3>
-					<p>Learn security best practices and common pitfalls to avoid</p>
-					<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
-				</FeatureCard>
+					<FeatureCard>
+						<div className="icon security">
+							<FiShield />
+						</div>
+						<h3>Security Guide</h3>
+						<p>Learn security best practices and common pitfalls to avoid</p>
+						<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon tools">
-						<FiTool />
-					</div>
-					<h3>Developer Tools</h3>
-					<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
-					<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
-				</FeatureCard>
-			</FeatureHighlight>
+					<FeatureCard>
+						<div className="icon tools">
+							<FiTool />
+						</div>
+						<h3>Developer Tools</h3>
+						<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
+						<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
+					</FeatureCard>
+				</FeatureHighlight>
 
 				<CollapsibleHeader
 					title="PingOne SSO Getting Started"
@@ -391,7 +398,8 @@ const Documentation = () => {
 								PingOne SSO Basics <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Learn the fundamental concepts of PingOne SSO, including environments, applications, and user management.
+								Learn the fundamental concepts of PingOne SSO, including environments, applications,
+								and user management.
 							</p>
 						</DocCard>
 
@@ -400,7 +408,8 @@ const Documentation = () => {
 								PingOne OpenID Connect <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Understand how PingOne implements OpenID Connect for enterprise SSO and user authentication.
+								Understand how PingOne implements OpenID Connect for enterprise SSO and user
+								authentication.
 							</p>
 						</DocCard>
 
@@ -409,7 +418,8 @@ const Documentation = () => {
 								PingOne Environment Setup <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Step-by-step instructions for configuring your PingOne environment, applications, and SSO policies.
+								Step-by-step instructions for configuring your PingOne environment, applications,
+								and SSO policies.
 							</p>
 						</DocCard>
 					</CardGrid>
@@ -422,36 +432,38 @@ const Documentation = () => {
 					defaultCollapsed={false}
 				>
 					<p>
-						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for different SSO scenarios. 
-						Choose the right flow based on your application type and security requirements.
+						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for
+						different SSO scenarios. Choose the right flow based on your application type and
+						security requirements.
 					</p>
 
 					<CardGrid>
 						<DocCard to="/flows/oauth-authorization-code-v5">
 							<h3>PingOne Authorization Code SSO</h3>
 							<p>
-								The most secure PingOne SSO flow for server-side applications with confidential client credentials.
+								The most secure PingOne SSO flow for server-side applications with confidential
+								client credentials.
 							</p>
 						</DocCard>
 
 						<DocCard to="/flows/oidc-authorization-code-v5">
 							<h3>PingOne OIDC SSO Flow</h3>
 							<p>
-								Enhanced PingOne SSO with OpenID Connect for user authentication and identity information.
+								Enhanced PingOne SSO with OpenID Connect for user authentication and identity
+								information.
 							</p>
 						</DocCard>
 
 						<DocCard to="/flows/client-credentials-v5">
 							<h3>PingOne Service-to-Service</h3>
-							<p>
-								PingOne machine-to-machine authentication for backend services and API access.
-							</p>
+							<p>PingOne machine-to-machine authentication for backend services and API access.</p>
 						</DocCard>
 
 						<DocCard to="/flows/oidc-device-authorization-v5">
 							<h3>PingOne Device SSO</h3>
 							<p>
-								PingOne SSO for devices with limited input capabilities like smart TVs and IoT devices.
+								PingOne SSO for devices with limited input capabilities like smart TVs and IoT
+								devices.
 							</p>
 						</DocCard>
 					</CardGrid>
@@ -468,37 +480,37 @@ const Documentation = () => {
 						protect against common vulnerabilities and ensure enterprise-grade security.
 					</p>
 
-				<div
-					style={{
-						background: '#fef2f2',
-						border: '1px solid #fecaca',
-						borderRadius: '0.5rem',
-						padding: '1rem',
-						marginBottom: '1.5rem',
-					}}
-				>
-					<p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
-						<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
-						authentication data. Always follow these security guidelines to protect your users and
-						applications.
-					</p>
-				</div>
+					<div
+						style={{
+							background: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+							marginBottom: '1.5rem',
+						}}
+					>
+						<p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
+							<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
+							authentication data. Always follow these security guidelines to protect your users and
+							applications.
+						</p>
+					</div>
 
-				<div style={{ marginTop: '1.5rem' }}>
-					<h3>Always Use HTTPS</h3>
-					<p>
-						All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect tokens
-						and sensitive data in transit.
-					</p>
+					<div style={{ marginTop: '1.5rem' }}>
+						<h3>Always Use HTTPS</h3>
+						<p>
+							All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect
+							tokens and sensitive data in transit.
+						</p>
 
-					<h3>Validate ID Tokens</h3>
-					<p>
-						Always validate ID tokens to ensure they are properly signed, not expired, and issued by
-						a trusted identity provider.
-					</p>
+						<h3>Validate ID Tokens</h3>
+						<p>
+							Always validate ID tokens to ensure they are properly signed, not expired, and issued
+							by a trusted identity provider.
+						</p>
 
-					<CodeBlock>
-						<code>{`// Example ID token validation
+						<CodeBlock>
+							<code>{`// Example ID token validation
 const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the token signature
   // Check the token expiration (exp claim)
@@ -506,20 +518,20 @@ const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the audience (aud claim)
   // Check the nonce (if used)
 };`}</code>
-					</CodeBlock>
+						</CodeBlock>
 
-					<h3>Secure Token Storage</h3>
-					<p>
-						Store tokens securely based on your application type. For web applications, use
-						HTTP-only cookies or secure browser storage with appropriate security flags.
-					</p>
+						<h3>Secure Token Storage</h3>
+						<p>
+							Store tokens securely based on your application type. For web applications, use
+							HTTP-only cookies or secure browser storage with appropriate security flags.
+						</p>
 
-					<h3>Use PKCE for Public Clients</h3>
-					<p>
-						Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
-						authorization code interception attacks.
-					</p>
-				</div>
+						<h3>Use PKCE for Public Clients</h3>
+						<p>
+							Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
+							authorization code interception attacks.
+						</p>
+					</div>
 				</CollapsibleHeader>
 
 				<CollapsibleHeader
@@ -545,8 +557,8 @@ const validateIdToken = (idToken, clientId, issuer) => {
 					>
 						<p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
 							<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
-							Double-check your client settings, redirect URIs, and scopes before diving into complex
-							debugging.
+							Double-check your client settings, redirect URIs, and scopes before diving into
+							complex debugging.
 						</p>
 					</div>
 
@@ -565,8 +577,8 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						<p>
 							<strong>Error:</strong> "Invalid client"
 							<br />
-							<strong>Solution:</strong> Verify that your client ID and client secret are correct and
-							that your application is properly configured in PingOne.
+							<strong>Solution:</strong> Verify that your client ID and client secret are correct
+							and that your application is properly configured in PingOne.
 						</p>
 
 						<h3>Invalid Grant</h3>
@@ -589,7 +601,6 @@ const validateIdToken = (idToken, clientId, issuer) => {
 					icon={<FiExternalLink />}
 					defaultCollapsed={false}
 				>
-
 					<div style={{ marginTop: '1.5rem' }}>
 						<p>Explore these PingOne-specific resources for SSO implementation:</p>
 

@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
+import React, { useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiCheckCircle,
 	FiAlertCircle,
-	FiServer,
-	FiKey,
-	FiSettings,
 	FiArrowRight,
+	FiCheckCircle,
+	FiKey,
+	FiPlay,
 	FiRefreshCw,
+	FiServer,
+	FiSettings,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import ColorCodedURL from '../../components/ColorCodedURL';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import JSONHighlighter from '../../components/JSONHighlighter';
+import PageTitle from '../../components/PageTitle';
+import Spinner from '../../components/Spinner';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
-import Spinner from '../../components/Spinner';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import ConfigurationButton from '../../components/ConfigurationButton';
-import TokenDisplayComponent from '../../components/TokenDisplay';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import ColorCodedURL from '../../components/ColorCodedURL';
-import PageTitle from '../../components/PageTitle';
-import FlowCredentials from '../../components/FlowCredentials';
 import { logger } from '../../utils/logger';
-import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import JSONHighlighter from '../../components/JSONHighlighter';
-import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -1,6 +1,9 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
 vi.mock('jose');
+
+import type { JWKS, JWKSConfig, TokenValidationOptions } from '../jwks';
 import {
 	buildDiscoveryUri,
 	buildJWKSUri,
@@ -19,7 +22,6 @@ import {
 	validateJWKSStructure,
 	validateJWT,
 } from '../jwks';
-import type { JWKS, JWKSConfig, TokenValidationOptions } from '../jwks';
 
 // Mock jose library
 vi.mock('jose', () => ({

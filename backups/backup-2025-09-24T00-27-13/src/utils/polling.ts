@@ -1,14 +1,14 @@
 // Smart polling utilities for device code flow
 
-import { logger } from './logger';
 import {
-	DeviceTokenResponse,
 	DeviceTokenError,
-	isDeviceTokenError,
-	shouldContinuePolling,
-	isPollingFailure,
+	DeviceTokenResponse,
 	getNextPollingInterval,
+	isDeviceTokenError,
+	isPollingFailure,
+	shouldContinuePolling,
 } from './deviceCode';
+import { logger } from './logger';
 
 export interface PollingOptions {
 	interval: number;

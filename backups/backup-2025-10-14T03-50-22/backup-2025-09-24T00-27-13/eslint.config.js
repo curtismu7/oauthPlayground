@@ -1,5 +1,5 @@
-import tsparser from '@typescript-eslint/parser';
 import tsplugin from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
 
 export default [
 	{

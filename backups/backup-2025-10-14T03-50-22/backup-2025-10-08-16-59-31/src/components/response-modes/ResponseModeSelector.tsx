@@ -1,8 +1,8 @@
 // src/components/response-modes/ResponseModeSelector.tsx
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { FiAlertTriangle, FiInfo, FiChevronDown } from 'react-icons/fi';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CopyButtonService } from '../../services/copyButtonService';
 
@@ -312,8 +312,6 @@ const PreviewContentRow = styled.div`
   }
 `;
 
-
-
 const WarningChip = styled.div<{ $level: 'info' | 'warn' | 'error' }>`
   display: inline-flex;
   align-items: center;
@@ -390,7 +388,6 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 		[savePreference, onModeChange, selectedMode]
 	);
 
-
 	// Build authorization URL
 	const buildAuthUrl = useCallback(
 		(mode: ResponseMode) => {
@@ -423,27 +420,31 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	// Highlight only response_mode parameter
 	const highlightUrl = useCallback((url: string) => {
 		let highlighted = url;
-		
+
 		// Only highlight response_mode parameter since that's what we're demonstrating
 		const responseModeRegex = /(response_mode=[^&\s]*)/g;
-		highlighted = highlighted.replace(responseModeRegex, 
+		highlighted = highlighted.replace(
+			responseModeRegex,
 			`<span style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 600; margin: 0 0.25rem; font-size: 0.8rem; border: 2px solid #ea580c; box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); display: inline-block; transform: scale(1.05);">$1</span>`
 		);
-		
+
 		return highlighted;
 	}, []);
 
 	// Highlight response mode specific URLs
-	const highlightResponseMode = useCallback((url: string, mode: ResponseMode) => {
-		let highlighted = highlightUrl(url);
-		
-		// For fragment mode, remove response_mode if present
-		if (mode === 'fragment') {
-			highlighted = highlighted.replace(/response_mode=[^&]*&?/g, '');
-		}
-		
-		return highlighted;
-	}, [highlightUrl]);
+	const highlightResponseMode = useCallback(
+		(url: string, mode: ResponseMode) => {
+			let highlighted = highlightUrl(url);
+
+			// For fragment mode, remove response_mode if present
+			if (mode === 'fragment') {
+				highlighted = highlighted.replace(/response_mode=[^&]*&?/g, '');
+			}
+
+			return highlighted;
+		},
+		[highlightUrl]
+	);
 
 	// Build response examples
 	const buildResponseExample = useCallback(

@@ -1,11 +1,11 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+	ARIA_PROPERTIES,
+	ARIA_ROLES,
 	accessibilityManager,
-	getFocusManager,
 	getAnnouncer,
 	getContrastChecker,
-	ARIA_ROLES,
-	ARIA_PROPERTIES,
+	getFocusManager,
 	KEYBOARD_KEYS,
 } from '../utils/accessibility';
 import { logger } from '../utils/logger';

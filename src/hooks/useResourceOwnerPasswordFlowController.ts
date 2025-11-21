@@ -42,16 +42,16 @@ const LOG_PREFIX = '[👤 RESOURCE-OWNER-PASSWORD]';
 
 export const useResourceOwnerPasswordFlowController =
 	(): UseResourceOwnerPasswordFlowControllerReturn => {
-	const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>(() => {
-		// Try to load saved credentials from sessionStorage
-		const parsed = safeSessionStorageParse<ResourceOwnerPasswordConfig>(
-			'resource-owner-password-v5-credentials',
-			null
-		);
-		if (parsed) {
-			console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
-			return parsed;
-		}
+		const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>(() => {
+			// Try to load saved credentials from sessionStorage
+			const parsed = safeSessionStorageParse<ResourceOwnerPasswordConfig>(
+				'resource-owner-password-v5-credentials',
+				null
+			);
+			if (parsed) {
+				console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
+				return parsed;
+			}
 
 			// Return default credentials if no saved credentials found
 			return {

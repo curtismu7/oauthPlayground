@@ -1,6 +1,7 @@
 // src/utils/credentialManager.ts
-import { logger } from './logger';
+
 import { getCallbackUrlForFlow } from './callbackUrls';
+import { logger } from './logger';
 
 export interface PermanentCredentials {
 	environmentId: string;

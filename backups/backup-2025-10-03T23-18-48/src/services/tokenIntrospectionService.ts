@@ -27,7 +27,15 @@ export interface IntrospectionResponse {
 }
 
 export interface IntrospectionApiCallData extends EnhancedApiCallData {
-	flowType: 'authorization-code' | 'implicit' | 'client-credentials' | 'device-code' | 'rar' | 'hybrid' | 'ciba' | 'worker-token';
+	flowType:
+		| 'authorization-code'
+		| 'implicit'
+		| 'client-credentials'
+		| 'device-code'
+		| 'rar'
+		| 'hybrid'
+		| 'ciba'
+		| 'worker-token';
 	stepName: 'Token Introspection';
 }
 
@@ -47,16 +55,16 @@ export class TokenIntrospectionService {
 			method: 'POST' as const,
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'Accept': 'application/json'
+				Accept: 'application/json',
 			},
 			body: {
 				token: request.token,
 				token_type_hint: request.tokenTypeHint || 'access_token',
 				client_id: request.clientId,
-				...(request.clientSecret && { client_secret: '***REDACTED***' })
+				...(request.clientSecret && { client_secret: '***REDACTED***' }),
 			},
 			timestamp: new Date(),
-			description: 'Introspect access token to validate its current state and metadata'
+			description: 'Introspect access token to validate its current state and metadata',
 		};
 	}
 
@@ -71,7 +79,11 @@ export class TokenIntrospectionService {
 		apiCall: IntrospectionApiCallData;
 		response: IntrospectionResponse;
 	}> {
-		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(
+			request,
+			flowType,
+			baseUrl
+		);
 
 		try {
 			const formData = new URLSearchParams();
@@ -86,9 +98,9 @@ export class TokenIntrospectionService {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json'
+					Accept: 'application/json',
 				},
-				body: formData
+				body: formData,
 			});
 
 			const data = await response.json();
@@ -100,13 +112,13 @@ export class TokenIntrospectionService {
 					status: response.status,
 					statusText: response.statusText,
 					headers: { 'Content-Type': 'application/json' },
-					data: data
-				}
+					data: data,
+				},
 			};
 
 			return {
 				apiCall: updatedApiCall,
-				response: data as IntrospectionResponse
+				response: data as IntrospectionResponse,
 			};
 		} catch (error) {
 			// Update API call with error
@@ -116,13 +128,13 @@ export class TokenIntrospectionService {
 					status: 500,
 					statusText: 'Internal Server Error',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
 
 			throw {
 				apiCall: errorApiCall,
-				error: error instanceof Error ? error.message : 'Unknown error'
+				error: error instanceof Error ? error.message : 'Unknown error',
 			};
 		}
 	}
@@ -136,16 +148,20 @@ export class TokenIntrospectionService {
 		response: IntrospectionResponse,
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
-		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
-		
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(
+			request,
+			flowType,
+			baseUrl
+		);
+
 		return {
 			...apiCall,
 			response: {
 				status: 200,
 				statusText: 'OK',
 				headers: { 'Content-Type': 'application/json' },
-				data: response
-			}
+				data: response,
+			},
 		};
 	}
 
@@ -159,24 +175,22 @@ export class TokenIntrospectionService {
 		status: number = 400,
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
-		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
-		
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(
+			request,
+			flowType,
+			baseUrl
+		);
+
 		return {
 			...apiCall,
 			response: {
 				status,
 				statusText: status === 400 ? 'Bad Request' : 'Internal Server Error',
 				headers: { 'Content-Type': 'application/json' },
-				error
-			}
+				error,
+			},
 		};
 	}
 }
 
 export default TokenIntrospectionService;
-
-
-
-
-
-

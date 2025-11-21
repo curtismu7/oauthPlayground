@@ -81,8 +81,3 @@ export function clearAuthCode(flowKey: string): void {
 	sessionStorage.removeItem('oauth_auth_code');
 	sessionStorage.removeItem(`${flowKey}-auth-code-timestamp`);
 }
-
-
-
-
-

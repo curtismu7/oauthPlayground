@@ -1,18 +1,18 @@
 // src/utils/__tests__/oidcDiscovery.test.ts - Tests for OIDC discovery utilities
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	discoverOIDCConfiguration,
 	buildDiscoveryUrl,
 	buildWellKnownUrl,
-	getBaseUrl,
-	getBackendUrl,
-	fetchWithRetry,
-	validateEnvironmentId,
-	extractEnvironmentIdFromUrl,
-	validateOIDCConfiguration,
-	getSupportedFeatures,
 	DiscoveryOptions,
+	discoverOIDCConfiguration,
+	extractEnvironmentIdFromUrl,
+	fetchWithRetry,
+	getBackendUrl,
+	getBaseUrl,
+	getSupportedFeatures,
 	OIDCConfiguration,
+	validateEnvironmentId,
+	validateOIDCConfiguration,
 } from '../oidcDiscovery';
 
 // Mock logger

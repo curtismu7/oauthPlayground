@@ -1,11 +1,18 @@
 // src/components/CredentialsInput.tsx
 import { useState } from 'react';
-import { FiEye, FiEyeOff, FiGlobe, FiChevronRight, FiChevronDown, FiSettings } from 'react-icons/fi';
+import {
+	FiChevronDown,
+	FiChevronRight,
+	FiEye,
+	FiEyeOff,
+	FiGlobe,
+	FiSettings,
+} from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
+import { CopyButtonVariants } from '../services/copyButtonService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
-import { CopyButtonVariants } from '../services/copyButtonService';
 
 // CSS animation for loading spinner
 const spin = keyframes`
@@ -314,19 +321,16 @@ export const CredentialsInput = ({
 
 	return (
 		<CollapsibleContainer>
-			<CollapsibleHeader
-				onClick={() => setIsCollapsed(!isCollapsed)}
-				aria-expanded={!isCollapsed}
-			>
-			<CollapsibleHeaderLeft>
-				<FiSettings size={18} />
-				<span>Application Configuration & Credentials</span>
-			</CollapsibleHeaderLeft>
-			<CollapsibleToggleIcon $collapsed={isCollapsed}>
-				{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
-			</CollapsibleToggleIcon>
+			<CollapsibleHeader onClick={() => setIsCollapsed(!isCollapsed)} aria-expanded={!isCollapsed}>
+				<CollapsibleHeaderLeft>
+					<FiSettings size={18} />
+					<span>Application Configuration & Credentials</span>
+				</CollapsibleHeaderLeft>
+				<CollapsibleToggleIcon $collapsed={isCollapsed}>
+					{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+				</CollapsibleToggleIcon>
 			</CollapsibleHeader>
-			
+
 			<CollapsibleContent $collapsed={isCollapsed}>
 				<form>
 					{showEnvironmentIdInput && (
@@ -351,410 +355,455 @@ export const CredentialsInput = ({
 					)}
 
 					<FormGrid>
-				<FormField>
-					<FormLabel>
-						Environment ID <span style={{ color: '#ef4444' }}>*</span>
-					</FormLabel>
-					<div style={{ 
-						position: 'relative', 
-						display: 'flex', 
-						alignItems: 'stretch', 
-						gap: '0.5rem' 
-					}}>
-						<FormInput
-							type="text"
-							placeholder={
-								emptyRequiredFields.has('environmentId')
-									? 'Required: Enter your PingOne Environment ID'
-									: 'Enter your PingOne Environment ID'
-							}
-							value={environmentId}
-							onChange={(e) => onEnvironmentIdChange(e.target.value)}
-							disabled={false}
-							readOnly={false}
-							$hasError={emptyRequiredFields.has('environmentId')}
-							style={{ flex: 1 }}
-						/>
-						{environmentId && (
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', 
-								height: '100%' 
-							}}>
-								{CopyButtonVariants.identifier(environmentId, 'Environment ID')}
-							</div>
-						)}
-					</div>
-				</FormField>
-
-				<FormField>
-					<FormLabel>
-						Client ID <span style={{ color: '#ef4444' }}>*</span>
-					</FormLabel>
-					<div style={{ 
-						position: 'relative', 
-						display: 'flex', 
-						alignItems: 'stretch', 
-						gap: '0.5rem' 
-					}}>
-						<FormInput
-							type="text"
-							placeholder={
-								emptyRequiredFields.has('clientId')
-									? 'Required: Enter your PingOne Client ID'
-									: 'Enter your PingOne Client ID'
-							}
-							value={clientId}
-							onChange={(e) => onClientIdChange(e.target.value)}
-							$hasError={emptyRequiredFields.has('clientId')}
-							style={{ flex: 1 }}
-							disabled={false}
-							readOnly={false}
-						/>
-						{clientId && (
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', 
-								height: '100%' 
-							}}>
-								{CopyButtonVariants.identifier(clientId, 'Client ID')}
-							</div>
-						)}
-					</div>
-				</FormField>
-
-				{showClientSecret && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<FormLabel>
-							Client Secret <span style={{ color: '#ef4444' }}>*</span>
-						</FormLabel>
-						<div style={{ 
-							position: 'relative', 
-							display: 'flex', 
-							alignItems: 'stretch', 
-							gap: '0.5rem' 
-						}}>
-							<FormInput
-								type={showClientSecretValue ? 'text' : 'password'}
-								placeholder={
-									emptyRequiredFields.has('clientSecret')
-										? 'Required: Enter your PingOne Client Secret'
-										: 'Enter your PingOne Client Secret'
-								}
-								value={clientSecret}
-								onChange={(e) => onClientSecretChange(e.target.value)}
-								$hasError={emptyRequiredFields.has('clientSecret')}
-								style={{ flex: 1, paddingRight: '2.5rem' }}
-								disabled={false}
-								readOnly={false}
-								autoComplete="current-password"
-							/>
-							{clientSecret && (
-								<div style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
-									height: '100%' 
-								}}>
-									{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
-								</div>
-							)}
-							<IconButton
-								type="button"
-								onClick={() => setShowClientSecretValue(!showClientSecretValue)}
+						<FormField>
+							<FormLabel>
+								Environment ID <span style={{ color: '#ef4444' }}>*</span>
+							</FormLabel>
+							<div
 								style={{
-									position: 'absolute',
-									right: '0.5rem',
-									top: '50%',
-									transform: 'translateY(-50%)',
-									width: '2rem',
-									height: '2rem',
+									position: 'relative',
+									display: 'flex',
+									alignItems: 'stretch',
+									gap: '0.5rem',
 								}}
-								title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 							>
-								{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-							</IconButton>
-						</div>
-					</FormField>
-				)}
-
-				{!showClientSecret && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<div
-							style={{
-								fontSize: '0.875rem',
-								color: '#6b7280',
-								backgroundColor: '#f3f4f6',
-								padding: '0.75rem',
-								borderRadius: '0.5rem',
-								border: '1px solid #e5e7eb',
-								marginTop: '0.5rem',
-							}}
-						>
-							<strong>Note:</strong> Client Secret is not required for this flow type. This flow
-							uses public client authentication (client_id only).
-						</div>
-					</FormField>
-				)}
-
-				{showRedirectUri && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<FormLabel>
-							Redirect URI <span style={{ color: '#ef4444' }}>*</span>
-						</FormLabel>
-						<div style={{ 
-							position: 'relative', 
-							display: 'flex', 
-							alignItems: 'stretch', 
-							gap: '0.5rem' 
-						}}>
-							<FormInput
-								type="text"
-								placeholder="https://localhost:3000/authz-callback"
-								value={redirectUri || 'https://localhost:3000/authz-callback'}
-								onChange={(e) => onRedirectUriChange?.(e.target.value)}
-								$hasError={emptyRequiredFields.has('redirectUri')}
-								style={{ flex: 1 }}
-								disabled={false}
-								readOnly={false}
-							/>
-							{redirectUri && (
-								<div style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
-									height: '100%' 
-								}}>
-									{CopyButtonVariants.url(redirectUri, 'Redirect URI')}
-								</div>
-							)}
-						</div>
-					</FormField>
-				)}
-
-				{!showRedirectUri && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<div
-							style={{
-								fontSize: '0.875rem',
-								color: '#6b7280',
-								backgroundColor: '#f3f4f6',
-								padding: '0.75rem',
-								borderRadius: '0.5rem',
-								border: '1px solid #e5e7eb',
-								marginTop: '0.5rem',
-							}}
-						>
-							<strong>Note:</strong> Redirect URI is not required for this flow type. This flow
-							handles authentication without redirects.
-						</div>
-					</FormField>
-				)}
-
-				<FormField style={{ gridColumn: '1 / -1' }}>
-					<FormLabel>
-						Scopes <span style={{ color: '#ef4444' }}>*</span>
-					</FormLabel>
-					<div style={{ 
-						position: 'relative', 
-						display: 'flex', 
-						alignItems: 'stretch', // Changed from 'center' to 'stretch' for perfect alignment
-						gap: '0.5rem' 
-					}}>
-						<FormInput
-							type="text"
-							placeholder="openid profile email"
-							value={scopes}
-							onChange={(e) => handleScopesChange(e.target.value)}
-							onBlur={(e) => handleScopesBlur(e.target.value)}
-							onKeyDown={(e) => {
-								// Ensure space key works
-								if (e.key === ' ') {
-									e.stopPropagation();
-								}
-							}}
-							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
-							style={{ flex: 1 }}
-							disabled={false}
-							readOnly={false}
-						/>
-						{scopes && (
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', // Center the copy button within its container
-								height: '100%' // Match the input field height
-							}}>
-								{CopyButtonVariants.identifier(scopes, 'Scopes')}
+								<FormInput
+									type="text"
+									placeholder={
+										emptyRequiredFields.has('environmentId')
+											? 'Required: Enter your PingOne Environment ID'
+											: 'Enter your PingOne Environment ID'
+									}
+									value={environmentId}
+									onChange={(e) => onEnvironmentIdChange(e.target.value)}
+									disabled={false}
+									readOnly={false}
+									$hasError={emptyRequiredFields.has('environmentId')}
+									style={{ flex: 1 }}
+								/>
+								{environmentId && (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											height: '100%',
+										}}
+									>
+										{CopyButtonVariants.identifier(environmentId, 'Environment ID')}
+									</div>
+								)}
 							</div>
+						</FormField>
+
+						<FormField>
+							<FormLabel>
+								Client ID <span style={{ color: '#ef4444' }}>*</span>
+							</FormLabel>
+							<div
+								style={{
+									position: 'relative',
+									display: 'flex',
+									alignItems: 'stretch',
+									gap: '0.5rem',
+								}}
+							>
+								<FormInput
+									type="text"
+									placeholder={
+										emptyRequiredFields.has('clientId')
+											? 'Required: Enter your PingOne Client ID'
+											: 'Enter your PingOne Client ID'
+									}
+									value={clientId}
+									onChange={(e) => onClientIdChange(e.target.value)}
+									$hasError={emptyRequiredFields.has('clientId')}
+									style={{ flex: 1 }}
+									disabled={false}
+									readOnly={false}
+								/>
+								{clientId && (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											height: '100%',
+										}}
+									>
+										{CopyButtonVariants.identifier(clientId, 'Client ID')}
+									</div>
+								)}
+							</div>
+						</FormField>
+
+						{showClientSecret && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<FormLabel>
+									Client Secret <span style={{ color: '#ef4444' }}>*</span>
+								</FormLabel>
+								<div
+									style={{
+										position: 'relative',
+										display: 'flex',
+										alignItems: 'stretch',
+										gap: '0.5rem',
+									}}
+								>
+									<FormInput
+										type={showClientSecretValue ? 'text' : 'password'}
+										placeholder={
+											emptyRequiredFields.has('clientSecret')
+												? 'Required: Enter your PingOne Client Secret'
+												: 'Enter your PingOne Client Secret'
+										}
+										value={clientSecret}
+										onChange={(e) => onClientSecretChange(e.target.value)}
+										$hasError={emptyRequiredFields.has('clientSecret')}
+										style={{ flex: 1, paddingRight: '2.5rem' }}
+										disabled={false}
+										readOnly={false}
+										autoComplete="current-password"
+									/>
+									{clientSecret && (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												height: '100%',
+											}}
+										>
+											{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
+										</div>
+									)}
+									<IconButton
+										type="button"
+										onClick={() => setShowClientSecretValue(!showClientSecretValue)}
+										style={{
+											position: 'absolute',
+											right: '0.5rem',
+											top: '50%',
+											transform: 'translateY(-50%)',
+											width: '2rem',
+											height: '2rem',
+										}}
+										title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
+									>
+										{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									</IconButton>
+								</div>
+							</FormField>
 						)}
-					</div>
-					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-						Space-separated list of scopes. <strong>openid</strong> is always required and will be
-						automatically added.
-					</div>
-				</FormField>
 
-				{showLoginHint && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<FormLabel>
-							Login Hint <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
-						</FormLabel>
-						<div style={{ 
-							position: 'relative', 
-							display: 'flex', 
-							alignItems: 'stretch', 
-							gap: '0.5rem' 
-						}}>
-							<FormInput
-								type="text"
-								placeholder="user@example.com or username"
-								value={loginHint}
-								onChange={(e) => onLoginHintChange?.(e.target.value)}
-								style={{ flex: 1 }}
-								disabled={false}
-								readOnly={false}
-								data-field="login-hint"
-							/>
-							{loginHint && (
-								<div style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
-									height: '100%' 
-								}}>
-									{CopyButtonVariants.identifier(loginHint, 'Login Hint')}
+						{!showClientSecret && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<div
+									style={{
+										fontSize: '0.875rem',
+										color: '#6b7280',
+										backgroundColor: '#f3f4f6',
+										padding: '0.75rem',
+										borderRadius: '0.5rem',
+										border: '1px solid #e5e7eb',
+										marginTop: '0.5rem',
+									}}
+								>
+									<strong>Note:</strong> Client Secret is not required for this flow type. This flow
+									uses public client authentication (client_id only).
 								</div>
-							)}
-						</div>
-						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-							Hint about the user identifier (email, username). Helps pre-fill the login form or
-							skip account selection.
-						</div>
-					</FormField>
-				)}
+							</FormField>
+						)}
 
-				{showPostLogoutRedirectUri && (
-					<FormField style={{ gridColumn: '1 / -1' }}>
-						<FormLabel>
-							Post-Logout Redirect URI <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
-						</FormLabel>
-						<div style={{ 
-							position: 'relative', 
-							display: 'flex', 
-							alignItems: 'stretch', 
-							gap: '0.5rem' 
-						}}>
-							<FormInput
-								type="text"
-								placeholder="https://localhost:3000/logout-callback"
-								value={postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-								onChange={(e) => onPostLogoutRedirectUriChange?.(e.target.value)}
-								style={{ flex: 1 }}
-								disabled={false}
-								readOnly={false}
-							/>
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', 
-								height: '100%' 
-							}}>
-								{CopyButtonVariants.url(postLogoutRedirectUri || 'https://localhost:3000/logout-callback', 'Post-Logout Redirect URI')}
+						{showRedirectUri && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<FormLabel>
+									Redirect URI <span style={{ color: '#ef4444' }}>*</span>
+								</FormLabel>
+								<div
+									style={{
+										position: 'relative',
+										display: 'flex',
+										alignItems: 'stretch',
+										gap: '0.5rem',
+									}}
+								>
+									<FormInput
+										type="text"
+										placeholder="https://localhost:3000/authz-callback"
+										value={redirectUri || 'https://localhost:3000/authz-callback'}
+										onChange={(e) => onRedirectUriChange?.(e.target.value)}
+										$hasError={emptyRequiredFields.has('redirectUri')}
+										style={{ flex: 1 }}
+										disabled={false}
+										readOnly={false}
+									/>
+									{redirectUri && (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												height: '100%',
+											}}
+										>
+											{CopyButtonVariants.url(redirectUri, 'Redirect URI')}
+										</div>
+									)}
+								</div>
+							</FormField>
+						)}
+
+						{!showRedirectUri && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<div
+									style={{
+										fontSize: '0.875rem',
+										color: '#6b7280',
+										backgroundColor: '#f3f4f6',
+										padding: '0.75rem',
+										borderRadius: '0.5rem',
+										border: '1px solid #e5e7eb',
+										marginTop: '0.5rem',
+									}}
+								>
+									<strong>Note:</strong> Redirect URI is not required for this flow type. This flow
+									handles authentication without redirects.
+								</div>
+							</FormField>
+						)}
+
+						<FormField style={{ gridColumn: '1 / -1' }}>
+							<FormLabel>
+								Scopes <span style={{ color: '#ef4444' }}>*</span>
+							</FormLabel>
+							<div
+								style={{
+									position: 'relative',
+									display: 'flex',
+									alignItems: 'stretch', // Changed from 'center' to 'stretch' for perfect alignment
+									gap: '0.5rem',
+								}}
+							>
+								<FormInput
+									type="text"
+									placeholder="openid profile email"
+									value={scopes}
+									onChange={(e) => handleScopesChange(e.target.value)}
+									onBlur={(e) => handleScopesBlur(e.target.value)}
+									onKeyDown={(e) => {
+										// Ensure space key works
+										if (e.key === ' ') {
+											e.stopPropagation();
+										}
+									}}
+									$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
+									style={{ flex: 1 }}
+									disabled={false}
+									readOnly={false}
+								/>
+								{scopes && (
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center', // Center the copy button within its container
+											height: '100%', // Match the input field height
+										}}
+									>
+										{CopyButtonVariants.identifier(scopes, 'Scopes')}
+									</div>
+								)}
 							</div>
-						</div>
-						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-							URL to redirect users after logout. Add this to your PingOne application's Post-Logout Redirect URIs.
-						</div>
-					</FormField>
-				)}
-			</FormGrid>
+							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+								Space-separated list of scopes. <strong>openid</strong> is always required and will
+								be automatically added.
+							</div>
+						</FormField>
 
-			{showResponseModeSelector && (
-				<>
-					<SectionDivider />
-					<ResponseModeSelector
-						flowKey={flowKey}
-						responseType={responseType}
-						redirectUri={redirectUri}
-						clientId={clientId}
-						scope={scopes}
-						state="random_state_123"
-						nonce="random_nonce_456"
-						defaultMode={responseMode}
-						readOnlyFlowContext={false}
-						onModeChange={onResponseModeChange || (() => {})}
-					/>
-				</>
-			)}
+						{showLoginHint && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<FormLabel>
+									Login Hint{' '}
+									<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+								</FormLabel>
+								<div
+									style={{
+										position: 'relative',
+										display: 'flex',
+										alignItems: 'stretch',
+										gap: '0.5rem',
+									}}
+								>
+									<FormInput
+										type="text"
+										placeholder="user@example.com or username"
+										value={loginHint}
+										onChange={(e) => onLoginHintChange?.(e.target.value)}
+										style={{ flex: 1 }}
+										disabled={false}
+										readOnly={false}
+										data-field="login-hint"
+									/>
+									{loginHint && (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												height: '100%',
+											}}
+										>
+											{CopyButtonVariants.identifier(loginHint, 'Login Hint')}
+										</div>
+									)}
+								</div>
+								<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+									Hint about the user identifier (email, username). Helps pre-fill the login form or
+									skip account selection.
+								</div>
+							</FormField>
+						)}
 
-			{/* Save Button */}
-			{onSave && (
-				<div style={{ 
-					marginTop: '1.5rem', 
-					paddingTop: '1rem', 
-					borderTop: '1px solid #e5e7eb',
-					display: 'flex',
-					justifyContent: 'flex-start'
-				}}>
-					<button
-						type="button"
-						onClick={onSave}
-						disabled={isSaving}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							padding: '0.75rem 1.5rem',
-							backgroundColor: '#10b981',
-							color: 'white',
-							border: '1px solid #10b981',
-							borderRadius: '0.5rem',
-							fontSize: '0.875rem',
-							fontWeight: '600',
-							cursor: isSaving ? 'not-allowed' : 'pointer',
-							opacity: isSaving ? 0.7 : 1,
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							if (!isSaving) {
-								e.currentTarget.style.backgroundColor = '#059669';
-								e.currentTarget.style.borderColor = '#059669';
-							}
-						}}
-						onMouseLeave={(e) => {
-							if (!isSaving) {
-								e.currentTarget.style.backgroundColor = '#10b981';
-								e.currentTarget.style.borderColor = '#10b981';
-							}
-						}}
-					>
-						{isSaving ? (
-							<>
-								<div style={{
-									width: '16px',
-									height: '16px',
-									border: '2px solid #ffffff',
-									borderTop: '2px solid transparent',
-									borderRadius: '50%',
-									animation: 'spin 1s linear infinite'
-								}} />
-								<style>{`
+						{showPostLogoutRedirectUri && (
+							<FormField style={{ gridColumn: '1 / -1' }}>
+								<FormLabel>
+									Post-Logout Redirect URI{' '}
+									<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+								</FormLabel>
+								<div
+									style={{
+										position: 'relative',
+										display: 'flex',
+										alignItems: 'stretch',
+										gap: '0.5rem',
+									}}
+								>
+									<FormInput
+										type="text"
+										placeholder="https://localhost:3000/logout-callback"
+										value={postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+										onChange={(e) => onPostLogoutRedirectUriChange?.(e.target.value)}
+										style={{ flex: 1 }}
+										disabled={false}
+										readOnly={false}
+									/>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											height: '100%',
+										}}
+									>
+										{CopyButtonVariants.url(
+											postLogoutRedirectUri || 'https://localhost:3000/logout-callback',
+											'Post-Logout Redirect URI'
+										)}
+									</div>
+								</div>
+								<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+									URL to redirect users after logout. Add this to your PingOne application's
+									Post-Logout Redirect URIs.
+								</div>
+							</FormField>
+						)}
+					</FormGrid>
+
+					{showResponseModeSelector && (
+						<>
+							<SectionDivider />
+							<ResponseModeSelector
+								flowKey={flowKey}
+								responseType={responseType}
+								redirectUri={redirectUri}
+								clientId={clientId}
+								scope={scopes}
+								state="random_state_123"
+								nonce="random_nonce_456"
+								defaultMode={responseMode}
+								readOnlyFlowContext={false}
+								onModeChange={onResponseModeChange || (() => {})}
+							/>
+						</>
+					)}
+
+					{/* Save Button */}
+					{onSave && (
+						<div
+							style={{
+								marginTop: '1.5rem',
+								paddingTop: '1rem',
+								borderTop: '1px solid #e5e7eb',
+								display: 'flex',
+								justifyContent: 'flex-start',
+							}}
+						>
+							<button
+								type="button"
+								onClick={onSave}
+								disabled={isSaving}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									padding: '0.75rem 1.5rem',
+									backgroundColor: '#10b981',
+									color: 'white',
+									border: '1px solid #10b981',
+									borderRadius: '0.5rem',
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									cursor: isSaving ? 'not-allowed' : 'pointer',
+									opacity: isSaving ? 0.7 : 1,
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									if (!isSaving) {
+										e.currentTarget.style.backgroundColor = '#059669';
+										e.currentTarget.style.borderColor = '#059669';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (!isSaving) {
+										e.currentTarget.style.backgroundColor = '#10b981';
+										e.currentTarget.style.borderColor = '#10b981';
+									}
+								}}
+							>
+								{isSaving ? (
+									<>
+										<div
+											style={{
+												width: '16px',
+												height: '16px',
+												border: '2px solid #ffffff',
+												borderTop: '2px solid transparent',
+												borderRadius: '50%',
+												animation: 'spin 1s linear infinite',
+											}}
+										/>
+										<style>{`
 									@keyframes spin {
 										0% { transform: rotate(0deg); }
 										100% { transform: rotate(360deg); }
 									}
 								`}</style>
-								Saving...
-							</>
-						) : (
-							<>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-									<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-									<polyline points="17,21 17,13 7,13 7,21" />
-									<polyline points="7,3 7,8 15,8" />
-								</svg>
-								{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
-							</>
-						)}
-					</button>
-				</div>
-			)}
+										Saving...
+									</>
+								) : (
+									<>
+										<svg
+											width="16"
+											height="16"
+											viewBox="0 0 24 24"
+											fill="none"
+											stroke="currentColor"
+											strokeWidth="2"
+										>
+											<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+											<polyline points="17,21 17,13 7,13 7,21" />
+											<polyline points="7,3 7,8 15,8" />
+										</svg>
+										{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
+									</>
+								)}
+							</button>
+						</div>
+					)}
 				</form>
 			</CollapsibleContent>
 		</CollapsibleContainer>

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
 import {
-	FiArrowRight,
 	FiArrowLeft,
+	FiArrowRight,
 	FiCheckCircle,
+	FiClock,
 	FiCode,
 	FiShield,
-	FiUser,
-	FiClock,
 	FiStar,
+	FiUser,
 	FiX,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from './Card';
 
 interface WizardStep {
 	id: string;

@@ -2,15 +2,29 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
 
 import packageJson from './package.json';
 
 export default defineConfig(({ mode }) => {
 	// Load env file based on `mode` in the current working directory.
 	const env = loadEnv(mode, process.cwd(), '');
-	const appVersion = env.PINGONE_APP_VERSION || env.VITE_APP_VERSION || packageJson.version || '0.0.0-dev';
+	const appVersion =
+		env.PINGONE_APP_VERSION || env.VITE_APP_VERSION || packageJson.version || '0.0.0-dev';
 
 	return {
+		resolve: {
+			alias: {
+				'@': path.resolve(__dirname, './src'),
+				'@/v8': path.resolve(__dirname, './src/v8'),
+				'@/v8/components': path.resolve(__dirname, './src/v8/components'),
+				'@/v8/services': path.resolve(__dirname, './src/v8/services'),
+				'@/v8/hooks': path.resolve(__dirname, './src/v8/hooks'),
+				'@/v8/flows': path.resolve(__dirname, './src/v8/flows'),
+				'@/v8/types': path.resolve(__dirname, './src/v8/types'),
+				'@/v8/utils': path.resolve(__dirname, './src/v8/utils'),
+			},
+		},
 		plugins: [
 			react(),
 			basicSsl(), // Re-enable HTTPS for development
@@ -60,50 +74,50 @@ export default defineConfig(({ mode }) => {
 				},
 			}),
 		],
-	server: {
-		port: 3000,
-		open: true,
-		https: {}, // Re-enable HTTPS in development
-		// In production, Vercel will handle HTTPS
-		// In development, basic-ssl plugin provides self-signed certificates
-		hmr: {
+		server: {
 			port: 3000,
-			host: 'localhost',
-			protocol: 'wss',
-		},
-		proxy: {
-			'/api': {
-				target: 'http://localhost:3001', // Backend server (HTTP, not HTTPS)
-				changeOrigin: true,
-				secure: false,
-				timeout: 3000, // Shorter timeout for health checks
-				proxyTimeout: 3000,
-				rewrite: (path) => {
-					// Map /api/token to /api/token-exchange
-					if (path === '/api/token') {
-						return '/api/token-exchange';
-					}
-					return path;
-				},
-				configure: (proxy) => {
-					// Add error handling
-					proxy.on('error', (err) => {
-						console.log('Proxy error:', err.message);
-					});
+			open: true,
+			https: {}, // Re-enable HTTPS in development
+			// In production, Vercel will handle HTTPS
+			// In development, basic-ssl plugin provides self-signed certificates
+			hmr: {
+				port: 3000,
+				host: 'localhost',
+				protocol: 'wss',
+			},
+			proxy: {
+				'/api': {
+					target: 'http://localhost:3001', // Backend server (HTTP, not HTTPS)
+					changeOrigin: true,
+					secure: false,
+					timeout: 3000, // Shorter timeout for health checks
+					proxyTimeout: 3000,
+					rewrite: (path) => {
+						// Map /api/token to /api/token-exchange
+						if (path === '/api/token') {
+							return '/api/token-exchange';
+						}
+						return path;
+					},
+					configure: (proxy) => {
+						// Add error handling
+						proxy.on('error', (err) => {
+							console.log('Proxy error:', err.message);
+						});
 
-					// Add connection handling
-					proxy.on('proxyReq', (proxyReq) => {
-						proxyReq.setTimeout(3000);
-					});
+						// Add connection handling
+						proxy.on('proxyReq', (proxyReq) => {
+							proxyReq.setTimeout(3000);
+						});
 
-					proxy.on('proxyRes', (proxyRes) => {
-						proxyRes.setTimeout(3000);
-					});
+						proxy.on('proxyRes', (proxyRes) => {
+							proxyRes.setTimeout(3000);
+						});
+					},
 				},
 			},
 		},
-	},
-	build: {
+		build: {
 			outDir: 'dist',
 			sourcemap: true,
 			rollupOptions: {

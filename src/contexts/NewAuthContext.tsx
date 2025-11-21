@@ -1,4 +1,11 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import FlowContextUtils from '../services/flowContextUtils';
+import {
+	loadFlowCredentialsIsolated,
+	saveFlowCredentials,
+} from '../services/flowCredentialService';
+import FlowStorageService from '../services/flowStorageService';
+import { pingOneConfigService } from '../services/pingoneConfigService';
 import { AuthContextType, AuthState, LoginResult } from '../types/auth';
 import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage';
 import { credentialManager } from '../utils/credentialManager';
@@ -8,10 +15,6 @@ import { getBackendUrl } from '../utils/protocolUtils';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
-import FlowStorageService from '../services/flowStorageService';
-import FlowContextUtils from '../services/flowContextUtils';
-import { pingOneConfigService } from '../services/pingoneConfigService';
-import { loadFlowCredentialsIsolated, saveFlowCredentials } from '../services/flowCredentialService';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -216,16 +219,16 @@ async function loadConfiguration(): Promise<AppConfig> {
 
 		// V7 Standardized Credential Loading
 		console.log(' [NewAuthContext] Loading credentials using V7 standardized system...');
-		
+
 		// Try to load from V7 FlowCredentialService first (most recent)
-        try {
-            const v7Credentials = await loadFlowCredentialsIsolated({
-                flowKey: 'dashboard-login',
-                defaultCredentials: {
+		try {
+			const v7Credentials = await loadFlowCredentialsIsolated({
+				flowKey: 'dashboard-login',
+				defaultCredentials: {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-                    redirectUri: `${window.location.origin}/dashboard-callback`,
+					redirectUri: `${window.location.origin}/dashboard-callback`,
 					scope: 'openid profile email',
 					scopes: 'openid profile email',
 					loginHint: '',
@@ -238,12 +241,12 @@ async function loadConfiguration(): Promise<AppConfig> {
 					userInfoEndpoint: '',
 					clientAuthMethod: 'client_secret_post',
 					tokenEndpointAuthMethod: 'client_secret_post',
-                },
-                useSharedFallback: false
+				},
+				useSharedFallback: false,
 			});
-			
+
 			console.log(' [NewAuthContext] V7 FlowCredentialService result:', v7Credentials);
-			
+
 			if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
 				console.log(' [NewAuthContext] Using V7 FlowCredentialService credentials');
 				console.log('🔍 [NewAuthContext] V7 CREDENTIALS REDIRECT URI:', {
@@ -251,7 +254,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 					hasRedirectUri: !!v7Credentials.credentials.redirectUri,
 					redirectUriType: typeof v7Credentials.credentials.redirectUri,
 					allFields: Object.keys(v7Credentials.credentials),
-					fullObject: v7Credentials.credentials
+					fullObject: v7Credentials.credentials,
 				});
 				return v7Credentials.credentials;
 			}
@@ -263,7 +266,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 		console.log(' [NewAuthContext] Loading from legacy credential manager...');
 		const permanentCredentials = credentialManager.getAllCredentials();
 		console.log(' [NewAuthContext] Legacy credentials result:', permanentCredentials);
-		
+
 		if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
 			console.log(' [NewAuthContext] Using legacy credential manager credentials');
 			console.log('🔍 [NewAuthContext] LEGACY CREDENTIALS REDIRECT URI:', {
@@ -271,7 +274,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 				hasRedirectUri: !!permanentCredentials.redirectUri,
 				redirectUriType: typeof permanentCredentials.redirectUri,
 				allFields: Object.keys(permanentCredentials),
-				fullObject: permanentCredentials
+				fullObject: permanentCredentials,
 			});
 			return permanentCredentials;
 		}
@@ -281,7 +284,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 		try {
 			const v5Config = pingOneConfigService.getConfig();
 			console.log(' [NewAuthContext] V5 Config Service result:', v5Config);
-			
+
 			if (v5Config?.clientId && v5Config?.environmentId) {
 				console.log(' [NewAuthContext] Using V5 Config Service credentials');
 				console.log('🔍 [NewAuthContext] V5 CONFIG REDIRECT URI:', {
@@ -289,7 +292,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 					hasRedirectUri: !!v5Config.redirectUri,
 					redirectUriType: typeof v5Config.redirectUri,
 					allFields: Object.keys(v5Config),
-					fullObject: v5Config
+					fullObject: v5Config,
 				});
 				return v5Config;
 			}
@@ -316,7 +319,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 		if (allCredentials.environmentId && allCredentials.clientId) {
 			// Construct PingOne endpoints from environment ID if not provided
 			const baseUrl = `https://auth.pingone.com/${allCredentials.environmentId}/as`;
-			
+
 			const configFromCredentials = {
 				disableLogin: false,
 				clientId: allCredentials.clientId,
@@ -516,7 +519,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 			try {
 				const newConfig = await loadConfiguration();
-				setConfig(prevConfig => {
+				setConfig((prevConfig) => {
 					// Only update if config actually changed to prevent unnecessary re-renders
 					const changed = JSON.stringify(prevConfig) !== JSON.stringify(newConfig);
 					if (changed) {
@@ -712,22 +715,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					callbackType,
 					windowOrigin: window.location.origin,
 					configObject: config,
-					configKeys: config ? Object.keys(config) : []
+					configKeys: config ? Object.keys(config) : [],
 				});
-				
+
 				// Force dashboard callback when explicitly requested to avoid stale config bleed-through
-				const redirectUri = (
+				const redirectUri =
 					callbackType === 'dashboard'
 						? `${window.location.origin}/dashboard-callback`
-						: (configuredRedirectUri || `${window.location.origin}/authz-callback`)
-				);
-				
+						: configuredRedirectUri || `${window.location.origin}/authz-callback`;
+
 				console.log('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
 					configuredRedirectUri,
 					callbackType,
 					finalRedirectUri: redirectUri,
 					usingConfigured: !!configuredRedirectUri,
-					usingFallback: !configuredRedirectUri
+					usingFallback: !configuredRedirectUri,
 				});
 
 				console.log(' [NewAuthContext] Redirect URI configuration:', {
@@ -741,21 +743,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						hasRedirectUri: !!config.redirectUri,
 						redirectUriValue: config.redirectUri,
 						configKeys: config ? Object.keys(config) : [],
-						fullConfig: config
-					}
+						fullConfig: config,
+					},
 				});
 
 				// Check if PingOne config is available
 				// Handle both config structures: config.pingone.* and config.*
-				let authEndpoint = config?.pingone?.authEndpoint || config?.authorizationEndpoint || config?.authEndpoint;
+				let authEndpoint =
+					config?.pingone?.authEndpoint || config?.authorizationEndpoint || config?.authEndpoint;
 				const clientId = config?.pingone?.clientId || config?.clientId;
-				
+
 				// If authEndpoint is missing but we have environmentId, construct it
 				if (!authEndpoint && config?.environmentId) {
 					authEndpoint = `https://auth.pingone.com/${config.environmentId}/as/authorize`;
-					console.log(' [NewAuthContext] Constructed authEndpoint from environmentId:', authEndpoint);
+					console.log(
+						' [NewAuthContext] Constructed authEndpoint from environmentId:',
+						authEndpoint
+					);
 				}
-				
+
 				// Debug logging to help identify configuration issues
 				console.log(' [NewAuthContext] Configuration debug:', {
 					hasConfig: !!config,
@@ -768,16 +774,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							authorizationEndpoint: config?.authorizationEndpoint,
 							authEndpoint: config?.authEndpoint,
 							clientId: config?.clientId,
-							environmentId: config?.environmentId
-						}
-					}
+							environmentId: config?.environmentId,
+						},
+					},
 				});
-				
+
 				if (!authEndpoint || !clientId) {
 					const missing = [];
 					if (!authEndpoint) missing.push('Authorization Endpoint');
 					if (!clientId) missing.push('Client ID');
-					
+
 					const errorMessage = `PingOne configuration incomplete. Missing: ${missing.join(', ')}.
 
 To set up PingOne authentication:
@@ -787,7 +793,7 @@ To set up PingOne authentication:
 
 You can find these values in your PingOne Admin Console under Applications.
 Note: The Authorization Endpoint will be automatically constructed from your Environment ID.`;
-					
+
 					console.error(' [NewAuthContext] Configuration error:', errorMessage);
 					throw new Error(errorMessage);
 				}
@@ -797,16 +803,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				authUrl.searchParams.set('response_type', 'code');
 				authUrl.searchParams.set('client_id', clientId);
 				// Enforce correct redirect_uri for dashboard flows
-				const enforcedRedirectUri = (callbackType === 'dashboard')
-					? `${window.location.origin}/dashboard-callback`
-					: redirectUri;
+				const enforcedRedirectUri =
+					callbackType === 'dashboard'
+						? `${window.location.origin}/dashboard-callback`
+						: redirectUri;
 				authUrl.searchParams.set('redirect_uri', enforcedRedirectUri);
-				
+
 				// Use configured scopes or fallback to default
 				const scopes = config?.scopes || ['openid', 'profile', 'email'];
 				const scopeString = Array.isArray(scopes) ? scopes.join(' ') : scopes;
 				authUrl.searchParams.set('scope', scopeString);
-				
+
 				authUrl.searchParams.set('state', state);
 				authUrl.searchParams.set('nonce', nonce);
 				authUrl.searchParams.set('code_challenge', codeChallenge);
@@ -826,13 +833,28 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						code_challenge_method: 'S256',
 					},
 					debugInfo: {
-						redirectUriSource: callbackType === 'dashboard' ? 'forced-dashboard' : (configuredRedirectUri ? 'configured' : 'fallback'),
+						redirectUriSource:
+							callbackType === 'dashboard'
+								? 'forced-dashboard'
+								: configuredRedirectUri
+									? 'configured'
+									: 'fallback',
 						redirectUriExact: enforcedRedirectUri,
 						scopeSource: config?.scopes ? 'configured' : 'default',
 						scopeExact: scopeString,
-						clientIdSource: config?.clientId ? 'direct' : (config?.pingone?.clientId ? 'pingone' : 'unknown'),
-						authEndpointSource: config?.authEndpoint ? 'authEndpoint' : (config?.authorizationEndpoint ? 'authorizationEndpoint' : (config?.pingone?.authEndpoint ? 'pingone.authEndpoint' : 'constructed'))
-					}
+						clientIdSource: config?.clientId
+							? 'direct'
+							: config?.pingone?.clientId
+								? 'pingone'
+								: 'unknown',
+						authEndpointSource: config?.authEndpoint
+							? 'authEndpoint'
+							: config?.authorizationEndpoint
+								? 'authorizationEndpoint'
+								: config?.pingone?.authEndpoint
+									? 'pingone.authEndpoint'
+									: 'constructed',
+					},
 				});
 
 				logger.auth('NewAuthContext', 'Prepared authorization URL for modal display', {
@@ -847,15 +869,15 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
 					clientId: authUrl.searchParams.get('client_id'),
 					scope: authUrl.searchParams.get('scope'),
-					responseType: authUrl.searchParams.get('response_type')
+					responseType: authUrl.searchParams.get('response_type'),
 				});
-				
+
 				// CRITICAL DEBUG: Log redirect URI details
 				console.log('🔍 [NewAuthContext] REDIRECT URI BEING SENT:', {
 					redirectUri: authUrl.searchParams.get('redirect_uri'),
 					clientId: authUrl.searchParams.get('client_id'),
 					fullUrl: authUrl.toString(),
-					note: 'Check if this redirect URI matches your PingOne application configuration'
+					note: 'Check if this redirect URI matches your PingOne application configuration',
 				});
 
 				console.log(' [NewAuthContext] Authorization URL prepared, returning for modal display...');
@@ -896,7 +918,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				FlowContextUtils.emergencyCleanup();
 				console.log(' [NewAuthContext] Flow context cleaned up during logout');
 			} catch (flowCleanupError) {
-				console.warn(' [NewAuthContext] Failed to cleanup flow context during logout:', flowCleanupError);
+				console.warn(
+					' [NewAuthContext] Failed to cleanup flow context during logout:',
+					flowCleanupError
+				);
 			}
 
 			// Update state
@@ -941,49 +966,63 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						const isV6Flow =
 							parsed?.flow === 'oidc-authorization-code-v6' ||
 							parsed?.flow === 'oauth-authorization-code-v6';
-						
+
 						const isV7Flow =
 							parsed?.flow === 'oidc-authorization-code-v7' ||
 							parsed?.flow === 'oauth-authorization-code-v7' ||
 							parsed?.flow === 'oidc-authorization-code-v7-2' ||
 							parsed?.flow === 'oauth-authorization-code-v7-2';
-						
-						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Is V7 flow?', isV7Flow, 'Flow:', parsed?.flow);
-						
-					if (isV6Flow || isV7Flow) {
-						// For V6/V7 flows, skip state validation and redirect immediately
-						console.log(' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
-						
-						// Store auth code and state for the flow page
-						// Use flow-specific key (oauth_auth_code or oidc_auth_code)
-						if (code) {
-							const isOIDCFlow = parsed?.flow?.includes('oidc');
-							const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
-							sessionStorage.setItem(authCodeKey, code);
-							console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
-						}
-						if (state) {
-							sessionStorage.setItem('oauth_state', state);
-						}
-						
-						// Determine correct return path based on flow version
-						let returnPath;
-						if (isV7Flow) {
-							const isV7_2 = 
-								parsed?.flow === 'oauth-authorization-code-v7-2' ||
-								parsed?.flow === 'oidc-authorization-code-v7-2';
-							returnPath = parsed?.returnPath || (isV7_2 
-								? '/flows/oauth-authorization-code-v7-2?step=4' 
-								: '/flows/oauth-authorization-code-v7?step=4');
-						} else {
-							returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
-						}
-						console.log('🚀 [NewAuthContext] V6/V7 FLOW REDIRECT - About to redirect to:', returnPath);
+
+						console.log(
+							'🔍 [NewAuthContext] Is V6 flow?',
+							isV6Flow,
+							'Is V7 flow?',
+							isV7Flow,
+							'Flow:',
+							parsed?.flow
+						);
+
+						if (isV6Flow || isV7Flow) {
+							// For V6/V7 flows, skip state validation and redirect immediately
+							console.log(
+								' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page'
+							);
+
+							// Store auth code and state for the flow page
+							// Use flow-specific key (oauth_auth_code or oidc_auth_code)
+							if (code) {
+								const isOIDCFlow = parsed?.flow?.includes('oidc');
+								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
+								sessionStorage.setItem(authCodeKey, code);
+								console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
+							}
+							if (state) {
+								sessionStorage.setItem('oauth_state', state);
+							}
+
+							// Determine correct return path based on flow version
+							let returnPath;
+							if (isV7Flow) {
+								const isV7_2 =
+									parsed?.flow === 'oauth-authorization-code-v7-2' ||
+									parsed?.flow === 'oidc-authorization-code-v7-2';
+								returnPath =
+									parsed?.returnPath ||
+									(isV7_2
+										? '/flows/oauth-authorization-code-v7-2?step=4'
+										: '/flows/oauth-authorization-code-v7?step=4');
+							} else {
+								returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+							}
+							console.log(
+								'🚀 [NewAuthContext] V6/V7 FLOW REDIRECT - About to redirect to:',
+								returnPath
+							);
 							logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
 								flow: parsed?.flow,
 								returnPath,
 							});
-							
+
 							return { success: true, redirectUrl: returnPath };
 						}
 					} catch (err) {
@@ -1057,12 +1096,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					const flowContextRawEarly = sessionStorage.getItem('flowContext');
 					if (flowContextRawEarly) {
 						const parsedEarly = safeJsonParse(flowContextRawEarly);
-					const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
-					if (isEnhancedV2Early) {
-						// Persist auth code and state for the flow page to handle later
-						// Note: Enhanced V2 is OAuth-based, so use oauth_auth_code
-						sessionStorage.setItem('oauth_auth_code', code);
-						if (state) sessionStorage.setItem('oauth_state', state);
+						const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
+						if (isEnhancedV2Early) {
+							// Persist auth code and state for the flow page to handle later
+							// Note: Enhanced V2 is OAuth-based, so use oauth_auth_code
+							sessionStorage.setItem('oauth_auth_code', code);
+							if (state) sessionStorage.setItem('oauth_state', state);
 							const returnPathEarly =
 								parsedEarly?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
 							logger.auth(
@@ -1180,7 +1219,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				let clientId = '';
 				let clientSecret = '';
 				let environmentId = '';
-				
+
 				// CRITICAL: Extract credentials from flow context FIRST (this is set when starting auth flow)
 				if (flowContext) {
 					try {
@@ -1199,7 +1238,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						console.warn(' [NewAuthContext] Failed to parse flow context for credentials:', error);
 					}
 				}
-				
+
 				// Fallback to config if flow context didn't have credentials
 				if (!clientId || !environmentId) {
 					clientId = clientId || config?.clientId || '';
@@ -1247,9 +1286,9 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						hasConfig: !!config,
 						configClientId: config?.clientId,
 					});
-					
+
 					// Provide more helpful error message with troubleshooting steps
-					const errorMessage = 
+					const errorMessage =
 						'Client ID is required for token exchange. ' +
 						'This usually happens when:\n' +
 						'1. You accessed the authorization URL directly (not through the app flow)\n' +
@@ -1303,7 +1342,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				try {
 					const flowContextRaw = sessionStorage.getItem('flowContext');
 					console.log(' [NewAuthContext] Flow context raw from sessionStorage:', flowContextRaw);
-					
+
 					// FALLBACK: Check active_oauth_flow if flowContext is not set (V6 flows use this)
 					const activeOAuthFlow = sessionStorage.getItem('active_oauth_flow');
 					console.log(' [NewAuthContext] Active OAuth flow:', activeOAuthFlow);
@@ -1323,7 +1362,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						const isV6Flow =
 							parsed?.flow === 'oidc-authorization-code-v6' ||
 							parsed?.flow === 'oauth-authorization-code-v6';
-						
+
 						const isV7Flow =
 							parsed?.flow === 'oidc-authorization-code-v7' ||
 							parsed?.flow === 'oauth-authorization-code-v7' ||
@@ -1340,7 +1379,10 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							parsedReturnPath: parsed?.returnPath,
 						});
 
-						console.log(' [NewAuthContext] ENHANCED/V6/V7 FLOW DETECTED?', isEnhancedV2 || isEnhancedV3 || isV6Flow || isV7Flow);
+						console.log(
+							' [NewAuthContext] ENHANCED/V6/V7 FLOW DETECTED?',
+							isEnhancedV2 || isEnhancedV3 || isV6Flow || isV7Flow
+						);
 
 						if (isEnhancedV2 || isEnhancedV3 || isV6Flow || isV7Flow) {
 							// Persist auth code and state for the flow page
@@ -1349,7 +1391,9 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								const isOIDCFlow = parsed?.flow === 'oidc-authorization-code-v6';
 								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 								sessionStorage.setItem(authCodeKey, code);
-								console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`);
+								console.log(
+									`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`
+								);
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -1365,35 +1409,37 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								redirectUri = parsed.redirectUri;
 							}
 
-						// Determine correct return path based on flow version
-						let returnPath;
-						if (isV7Flow) {
-							// For V7 flows, redirect directly to the flow page (they handle auth code themselves)
-							console.log(' [NewAuthContext] V7 FLOW DETECTED - Redirecting to flow page, it will handle the auth code');
-							logger.info(
-								'NewAuthContext',
-								'V7 flow detected - redirecting to flow page',
-								{ flow: parsed?.flow, returnPath: parsed?.returnPath }
-							);
-							// Determine if this is V7.2 or V7
-							const isV7_2 = 
-								parsed?.flow === 'oauth-authorization-code-v7-2' ||
-								parsed?.flow === 'oidc-authorization-code-v7-2';
-							if (isV7_2) {
-								returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7-2?step=4';
-							} else {
-								returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7?step=4';
-							}
-						} else if (isV6Flow) {
-							// For V6 flows, redirect directly to the flow page (they handle auth code themselves)
-							console.log(' [NewAuthContext] V6 FLOW DETECTED - Redirecting to flow page, it will handle the auth code');
-							logger.info(
-								'NewAuthContext',
-								'V6 flow detected - redirecting to flow page',
-								{ flow: parsed?.flow, returnPath: parsed?.returnPath }
-							);
-							returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
-						} else if (isEnhancedV3) {
+							// Determine correct return path based on flow version
+							let returnPath;
+							if (isV7Flow) {
+								// For V7 flows, redirect directly to the flow page (they handle auth code themselves)
+								console.log(
+									' [NewAuthContext] V7 FLOW DETECTED - Redirecting to flow page, it will handle the auth code'
+								);
+								logger.info('NewAuthContext', 'V7 flow detected - redirecting to flow page', {
+									flow: parsed?.flow,
+									returnPath: parsed?.returnPath,
+								});
+								// Determine if this is V7.2 or V7
+								const isV7_2 =
+									parsed?.flow === 'oauth-authorization-code-v7-2' ||
+									parsed?.flow === 'oidc-authorization-code-v7-2';
+								if (isV7_2) {
+									returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7-2?step=4';
+								} else {
+									returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7?step=4';
+								}
+							} else if (isV6Flow) {
+								// For V6 flows, redirect directly to the flow page (they handle auth code themselves)
+								console.log(
+									' [NewAuthContext] V6 FLOW DETECTED - Redirecting to flow page, it will handle the auth code'
+								);
+								logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
+									flow: parsed?.flow,
+									returnPath: parsed?.returnPath,
+								});
+								returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+							} else if (isEnhancedV3) {
 								// Determine the correct V3 flow path based on the flow type
 								if (parsed?.flow === 'oauth-authorization-code-v3') {
 									returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v3?step=4';
@@ -1435,12 +1481,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						e as unknown as string
 					);
 				}
-				
+
 				// FALLBACK: Check for V6 flows using active_oauth_flow (when flowContext is not set)
 				const activeOAuthFlow = sessionStorage.getItem('active_oauth_flow');
 				if (activeOAuthFlow) {
 					console.log(' [NewAuthContext] V6 FLOW DETECTED via active_oauth_flow:', activeOAuthFlow);
-					
+
 					// Persist auth code for the flow page
 					// Use flow-specific key (oauth_auth_code or oidc_auth_code)
 					if (code) {
@@ -1448,15 +1494,20 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 						sessionStorage.setItem(authCodeKey, code);
 						sessionStorage.setItem(`${activeOAuthFlow}-authCode`, code);
-						console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`);
+						console.log(
+							`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`
+						);
 					}
 					if (state) {
 						sessionStorage.setItem('oauth_state', state);
 					}
-					
+
 					// Determine redirect path based on active flow
 					let returnPath = '/flows/oauth-authorization-code-v6';
-					if (activeOAuthFlow.includes('oauth-authorization-code-v7-2') || activeOAuthFlow.includes('oidc-authorization-code-v7-2')) {
+					if (
+						activeOAuthFlow.includes('oauth-authorization-code-v7-2') ||
+						activeOAuthFlow.includes('oidc-authorization-code-v7-2')
+					) {
 						returnPath = '/flows/oauth-authorization-code-v7-2?step=4'; // V7.2 flow
 					} else if (activeOAuthFlow.includes('oidc-authorization-code-v7')) {
 						returnPath = '/flows/oauth-authorization-code-v7?step=4'; // V7 unified flow handles both OAuth and OIDC
@@ -1471,7 +1522,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					} else if (activeOAuthFlow.includes('rar')) {
 						returnPath = '/flows/rar-flow';
 					}
-					
+
 					console.log(' [NewAuthContext] Deferring to V6 flow page:', returnPath);
 					return { success: true, redirectUrl: returnPath };
 				}
@@ -1515,21 +1566,23 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						'CRITICAL ERROR: Request body contains empty client_id. This should never happen.'
 					);
 				}
-				
+
 				// Additional validation for required fields
 				if (!requestBody.redirect_uri || requestBody.redirect_uri.trim() === '') {
 					console.error(' [NewAuthContext] Missing redirect_uri in token exchange request');
 					throw new Error('Missing redirect URI. Please configure your OAuth settings.');
 				}
-				
+
 				if (!requestBody.environment_id || requestBody.environment_id.trim() === '') {
 					console.error(' [NewAuthContext] Missing environment_id in token exchange request');
 					throw new Error('Missing environment ID. Please configure your PingOne environment.');
 				}
-				
+
 				// Check if we have PKCE codes when needed
 				if (requestBody.code_verifier && requestBody.code_verifier.trim() === '') {
-					console.warn(' [NewAuthContext] Empty code_verifier provided - this may cause PKCE mismatch');
+					console.warn(
+						' [NewAuthContext] Empty code_verifier provided - this may cause PKCE mismatch'
+					);
 				}
 
 				// Use backend proxy to avoid CORS issues
@@ -1561,7 +1614,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				if (!tokenResponse.ok) {
 					const errorText = await tokenResponse.text();
 					let errorMessage = `Token exchange failed: ${errorText}`;
-					
+
 					// Parse error response for better user guidance
 					let parsedError;
 					try {
@@ -1569,7 +1622,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					} catch (e) {
 						parsedError = { error: 'unknown', error_description: errorText };
 					}
-					
+
 					console.error(' [NewAuthContext] Token exchange failed:', {
 						status: tokenResponse.status,
 						statusText: tokenResponse.statusText,
@@ -1577,7 +1630,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						parsedError,
 						requestBody,
 					});
-					
+
 					// Provide specific guidance based on error type
 					if (parsedError.error === 'invalid_client') {
 						errorMessage = `Token exchange failed: Invalid client credentials. Please check your PingOne application configuration. If you're using a specific OAuth flow, try using the dedicated flow pages instead of the global callback.`;
@@ -1586,7 +1639,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					} else if (parsedError.error === 'invalid_request') {
 						errorMessage = `Token exchange failed: Invalid request parameters. Please check your configuration. For OAuth flows, consider using the dedicated flow pages at /flows/ for better error handling.`;
 					}
-					
+
 					logger.error('NewAuthContext', 'Token exchange failed', {
 						status: tokenResponse.status,
 						error: parsedError,
@@ -1689,7 +1742,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				// Enhanced redirect handling using FlowContextService
 				try {
 					console.log(' [NewAuthContext] Using enhanced FlowContextService for redirect handling');
-					
+
 					// Prepare callback data for FlowContextService
 					const callbackData = {
 						code,
@@ -1697,25 +1750,31 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						error,
 						error_description: errorDescription,
 						session_state: params.get('session_state'),
-						iss: params.get('iss')
+						iss: params.get('iss'),
 					};
 
 					// Use FlowContextUtils to handle the OAuth callback
 					const redirectResult = FlowContextUtils.handleOAuthCallback(callbackData);
-					
+
 					if (redirectResult.success) {
 						redirectUrl = redirectResult.redirectUrl;
 						console.log(' [NewAuthContext] FlowContextService redirect successful:', {
 							redirectUrl,
-							hasFlowState: !!redirectResult.flowState
+							hasFlowState: !!redirectResult.flowState,
 						});
 					} else {
-						console.warn(' [NewAuthContext] FlowContextService redirect failed:', redirectResult.error);
+						console.warn(
+							' [NewAuthContext] FlowContextService redirect failed:',
+							redirectResult.error
+						);
 						redirectUrl = '/dashboard'; // Safe fallback
 					}
 				} catch (flowContextError) {
-					console.error(' [NewAuthContext] FlowContextService error, falling back to legacy logic:', flowContextError);
-					
+					console.error(
+						' [NewAuthContext] FlowContextService error, falling back to legacy logic:',
+						flowContextError
+					);
+
 					// Fallback to legacy flow context handling for backward compatibility
 					if (flowContext) {
 						try {
@@ -1732,10 +1791,17 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 								redirectUrl = '/dashboard';
 							} else {
 								const parsedContext = safeJsonParse(flowContext);
-								console.log(' [NewAuthContext] Safely parsed flow context (fallback):', parsedContext);
+								console.log(
+									' [NewAuthContext] Safely parsed flow context (fallback):',
+									parsedContext
+								);
 
 								// Validate the parsed context structure
-								if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
+								if (
+									parsedContext &&
+									typeof parsedContext === 'object' &&
+									parsedContext.returnPath
+								) {
 									const returnPath = String(parsedContext.returnPath);
 									if (returnPath.includes('/flows/enhanced-authorization-code')) {
 										redirectUrl = returnPath;
@@ -1756,7 +1822,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					} else {
 						console.log(' [NewAuthContext] No flow context found, using dashboard');
 						redirectUrl = '/dashboard';
-						
+
 						// Clear nonce for non-Enhanced flows
 						sessionStorage.removeItem('oauth_nonce');
 					}
@@ -1810,8 +1876,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	// V7 Standardized credential saving function
 	const saveCredentialsV7 = useCallback(async (credentials: any) => {
 		try {
-			console.log(' [NewAuthContext] Saving credentials using V7 standardized system...', credentials);
-			
+			console.log(
+				' [NewAuthContext] Saving credentials using V7 standardized system...',
+				credentials
+			);
+
 			const success = await saveFlowCredentials(
 				'dashboard-login',
 				credentials,
@@ -1819,16 +1888,16 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				undefined, // additionalState
 				{ showToast: true }
 			);
-			
+
 			if (success) {
 				console.log(' [NewAuthContext] V7 credentials saved successfully');
 				// Reload configuration to pick up the new credentials
 				const newConfig = await loadConfiguration();
-				setState(prev => ({ ...prev, config: newConfig }));
+				setState((prev) => ({ ...prev, config: newConfig }));
 			} else {
 				console.error(' [NewAuthContext] Failed to save V7 credentials');
 			}
-			
+
 			return success;
 		} catch (error) {
 			console.error(' [NewAuthContext] Error saving V7 credentials:', error);
@@ -1842,32 +1911,39 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	}, [updateState]);
 
 	// Flow context helper functions
-	const initializeFlowContext = useCallback((
-		flowType: string,
-		currentStep: number,
-		flowState: any,
-		additionalParams?: Record<string, string>
-	): string => {
-		try {
-			return FlowContextUtils.initializeOAuthFlow(flowType, currentStep, flowState, additionalParams);
-		} catch (error) {
-			console.error(' [NewAuthContext] Failed to initialize flow context:', error);
-			throw error;
-		}
-	}, []);
+	const initializeFlowContext = useCallback(
+		(
+			flowType: string,
+			currentStep: number,
+			flowState: any,
+			additionalParams?: Record<string, string>
+		): string => {
+			try {
+				return FlowContextUtils.initializeOAuthFlow(
+					flowType,
+					currentStep,
+					flowState,
+					additionalParams
+				);
+			} catch (error) {
+				console.error(' [NewAuthContext] Failed to initialize flow context:', error);
+				throw error;
+			}
+		},
+		[]
+	);
 
-	const updateFlowStep = useCallback((
-		flowId: string,
-		newStep: number,
-		flowState?: any
-	): boolean => {
-		try {
-			return FlowContextUtils.updateFlowStep(flowId, newStep, flowState);
-		} catch (error) {
-			console.error(' [NewAuthContext] Failed to update flow step:', error);
-			return false;
-		}
-	}, []);
+	const updateFlowStep = useCallback(
+		(flowId: string, newStep: number, flowState?: any): boolean => {
+			try {
+				return FlowContextUtils.updateFlowStep(flowId, newStep, flowState);
+			} catch (error) {
+				console.error(' [NewAuthContext] Failed to update flow step:', error);
+				return false;
+			}
+		},
+		[]
+	);
 
 	const completeFlow = useCallback((flowId: string): void => {
 		try {
@@ -1942,7 +2018,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			initializeFlowContext,
 			updateFlowStep,
 			completeFlow,
-			getCurrentFlow
+			getCurrentFlow,
 		};
 		// Reduced debug logging to prevent console spam
 		// logger.debug('NewAuthContext', 'Creating context value', value);

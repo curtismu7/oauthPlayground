@@ -2,8 +2,8 @@
 // Modal service for displaying authorization URL validation results
 
 import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertTriangle, FiXCircle, FiInfo, FiExternalLink } from 'react-icons/fi';
 import type { UrlValidationResult } from './authorizationUrlValidationService';
 
 // Styled Components
@@ -34,14 +34,18 @@ const ModalContent = styled.div`
 const ModalHeader = styled.div<{ severity: UrlValidationResult['severity'] }>`
   padding: 1.5rem 1.5rem 1rem;
   border-bottom: 1px solid #e5e7eb;
-  background: ${props => {
-    switch (props.severity) {
-      case 'error': return '#fef2f2';
-      case 'warning': return '#fffbeb';
-      case 'info': return '#f0f9ff';
-      default: return '#f9fafb';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#fef2f2';
+			case 'warning':
+				return '#fffbeb';
+			case 'info':
+				return '#f0f9ff';
+			default:
+				return '#f9fafb';
+		}
+	}};
   border-radius: 12px 12px 0 0;
 `;
 
@@ -49,14 +53,18 @@ const ModalTitle = styled.h2<{ severity: UrlValidationResult['severity'] }>`
   margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${props => {
-    switch (props.severity) {
-      case 'error': return '#dc2626';
-      case 'warning': return '#d97706';
-      case 'info': return '#2563eb';
-      default: return '#374151';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#d97706';
+			case 'info':
+				return '#2563eb';
+			default:
+				return '#374151';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -83,33 +91,45 @@ const DetailItem = styled.div<{ type: 'error' | 'warning' | 'suggestion' }>`
   margin-bottom: 0.75rem;
   padding: 0.5rem;
   border-radius: 6px;
-  background: ${props => {
-    switch (props.type) {
-      case 'error': return '#fef2f2';
-      case 'warning': return '#fffbeb';
-      case 'suggestion': return '#f0f9ff';
-      default: return '#f9fafb';
-    }
-  }};
-  border-left: 3px solid ${props => {
-    switch (props.type) {
-      case 'error': return '#dc2626';
-      case 'warning': return '#d97706';
-      case 'suggestion': return '#2563eb';
-      default: return '#d1d5db';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.type) {
+			case 'error':
+				return '#fef2f2';
+			case 'warning':
+				return '#fffbeb';
+			case 'suggestion':
+				return '#f0f9ff';
+			default:
+				return '#f9fafb';
+		}
+	}};
+  border-left: 3px solid ${(props) => {
+		switch (props.type) {
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#d97706';
+			case 'suggestion':
+				return '#2563eb';
+			default:
+				return '#d1d5db';
+		}
+	}};
 `;
 
 const DetailIcon = styled.div<{ type: 'error' | 'warning' | 'suggestion' }>`
-  color: ${props => {
-    switch (props.type) {
-      case 'error': return '#dc2626';
-      case 'warning': return '#d97706';
-      case 'suggestion': return '#2563eb';
-      default: return '#6b7280';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.type) {
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#d97706';
+			case 'suggestion':
+				return '#2563eb';
+			default:
+				return '#6b7280';
+		}
+	}};
   margin-top: 0.125rem;
 `;
 
@@ -136,18 +156,18 @@ const Button = styled.button<{ variant: 'primary' | 'secondary' | 'danger' }>`
   cursor: pointer;
   transition: all 0.2s;
   
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #2563eb;
           color: white;
           &:hover {
             background: #1d4ed8;
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: #f9fafb;
           color: #374151;
           border-color: #d1d5db;
@@ -155,16 +175,16 @@ const Button = styled.button<{ variant: 'primary' | 'secondary' | 'danger' }>`
             background: #f3f4f6;
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #dc2626;
           color: white;
           &:hover {
             background: #b91c1c;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const UrlDisplay = styled.div`
@@ -192,199 +212,211 @@ const FlowTypeBadge = styled.span`
 `;
 
 interface AuthorizationUrlValidationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  validationResult: UrlValidationResult;
-  url: string;
-  onProceed?: () => void;
-  onFix?: () => void;
+	isOpen: boolean;
+	onClose: () => void;
+	validationResult: UrlValidationResult;
+	url: string;
+	onProceed?: () => void;
+	onFix?: () => void;
 }
 
 export const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalProps> = ({
-  isOpen,
-  onClose,
-  validationResult,
-  url,
-  onProceed,
-  onFix
+	isOpen,
+	onClose,
+	validationResult,
+	url,
+	onProceed,
+	onFix,
 }) => {
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  const { isValid, errors, warnings, suggestions, flowType, severity } = validationResult;
-  const summary = authorizationUrlValidationService.getValidationSummary(validationResult);
+	const { isValid, errors, warnings, suggestions, flowType, severity } = validationResult;
+	const summary = authorizationUrlValidationService.getValidationSummary(validationResult);
 
-  const getIcon = () => {
-    switch (severity) {
-      case 'error': return <FiXCircle size={24} />;
-      case 'warning': return <FiAlertTriangle size={24} />;
-      case 'info': return <FiCheckCircle size={24} />;
-      default: return <FiInfo size={24} />;
-    }
-  };
+	const getIcon = () => {
+		switch (severity) {
+			case 'error':
+				return <FiXCircle size={24} />;
+			case 'warning':
+				return <FiAlertTriangle size={24} />;
+			case 'info':
+				return <FiCheckCircle size={24} />;
+			default:
+				return <FiInfo size={24} />;
+		}
+	};
 
-  const handleProceed = () => {
-    if (onProceed) onProceed();
-    onClose();
-  };
+	const handleProceed = () => {
+		if (onProceed) onProceed();
+		onClose();
+	};
 
-  const handleFix = () => {
-    if (onFix) onFix();
-    onClose();
-  };
+	const handleFix = () => {
+		if (onFix) onFix();
+		onClose();
+	};
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader severity={severity}>
-          <ModalTitle severity={severity}>
-            {getIcon()}
-            {summary.title}
-          </ModalTitle>
-        </ModalHeader>
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContent onClick={(e) => e.stopPropagation()}>
+				<ModalHeader severity={severity}>
+					<ModalTitle severity={severity}>
+						{getIcon()}
+						{summary.title}
+					</ModalTitle>
+				</ModalHeader>
 
-        <ModalBody>
-          <ValidationMessage>{summary.message}</ValidationMessage>
-          
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Flow Type:</strong> <FlowTypeBadge>{flowType}</FlowTypeBadge>
-          </div>
+				<ModalBody>
+					<ValidationMessage>{summary.message}</ValidationMessage>
 
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Authorization URL:</strong>
-            <UrlDisplay>{url}</UrlDisplay>
-          </div>
+					<div style={{ marginBottom: '1rem' }}>
+						<strong>Flow Type:</strong> <FlowTypeBadge>{flowType}</FlowTypeBadge>
+					</div>
 
-          <ValidationDetails>
-            {errors.map((error, index) => (
-              <DetailItem key={`error-${index}`} type="error">
-                <DetailIcon type="error">
-                  <FiXCircle size={16} />
-                </DetailIcon>
-                <DetailText>{error}</DetailText>
-              </DetailItem>
-            ))}
+					<div style={{ marginBottom: '1rem' }}>
+						<strong>Authorization URL:</strong>
+						<UrlDisplay>{url}</UrlDisplay>
+					</div>
 
-            {warnings.map((warning, index) => (
-              <DetailItem key={`warning-${index}`} type="warning">
-                <DetailIcon type="warning">
-                  <FiAlertTriangle size={16} />
-                </DetailIcon>
-                <DetailText>{warning}</DetailText>
-              </DetailItem>
-            ))}
+					<ValidationDetails>
+						{errors.map((error, index) => (
+							<DetailItem key={`error-${index}`} type="error">
+								<DetailIcon type="error">
+									<FiXCircle size={16} />
+								</DetailIcon>
+								<DetailText>{error}</DetailText>
+							</DetailItem>
+						))}
 
-            {suggestions.map((suggestion, index) => (
-              <DetailItem key={`suggestion-${index}`} type="suggestion">
-                <DetailIcon type="suggestion">
-                  <FiInfo size={16} />
-                </DetailIcon>
-                <DetailText>{suggestion}</DetailText>
-              </DetailItem>
-            ))}
-          </ValidationDetails>
-        </ModalBody>
+						{warnings.map((warning, index) => (
+							<DetailItem key={`warning-${index}`} type="warning">
+								<DetailIcon type="warning">
+									<FiAlertTriangle size={16} />
+								</DetailIcon>
+								<DetailText>{warning}</DetailText>
+							</DetailItem>
+						))}
 
-        <ModalFooter>
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
-          
-          {!isValid && onFix && (
-            <Button variant="danger" onClick={handleFix}>
-              Fix Issues
-            </Button>
-          )}
-          
-          {isValid && onProceed && (
-            <Button variant="primary" onClick={handleProceed}>
-              Proceed with Authorization
-            </Button>
-          )}
-        </ModalFooter>
-      </ModalContent>
-    </ModalOverlay>
-  );
+						{suggestions.map((suggestion, index) => (
+							<DetailItem key={`suggestion-${index}`} type="suggestion">
+								<DetailIcon type="suggestion">
+									<FiInfo size={16} />
+								</DetailIcon>
+								<DetailText>{suggestion}</DetailText>
+							</DetailItem>
+						))}
+					</ValidationDetails>
+				</ModalBody>
+
+				<ModalFooter>
+					<Button variant="secondary" onClick={onClose}>
+						Close
+					</Button>
+
+					{!isValid && onFix && (
+						<Button variant="danger" onClick={handleFix}>
+							Fix Issues
+						</Button>
+					)}
+
+					{isValid && onProceed && (
+						<Button variant="primary" onClick={handleProceed}>
+							Proceed with Authorization
+						</Button>
+					)}
+				</ModalFooter>
+			</ModalContent>
+		</ModalOverlay>
+	);
 };
 
 // Service class for managing modal state
 class AuthorizationUrlValidationModalService {
-  private static instance: AuthorizationUrlValidationModalService;
-  private modalState: {
-    isOpen: boolean;
-    validationResult: UrlValidationResult | null;
-    url: string;
-    onProceed?: () => void;
-    onFix?: () => void;
-  } = {
-    isOpen: false,
-    validationResult: null,
-    url: ''
-  };
+	private static instance: AuthorizationUrlValidationModalService;
+	private modalState: {
+		isOpen: boolean;
+		validationResult: UrlValidationResult | null;
+		url: string;
+		onProceed?: () => void;
+		onFix?: () => void;
+	} = {
+		isOpen: false,
+		validationResult: null,
+		url: '',
+	};
 
-  static getInstance(): AuthorizationUrlValidationModalService {
-    if (!AuthorizationUrlValidationModalService.instance) {
-      AuthorizationUrlValidationModalService.instance = new AuthorizationUrlValidationModalService();
-    }
-    return AuthorizationUrlValidationModalService.instance;
-  }
+	static getInstance(): AuthorizationUrlValidationModalService {
+		if (!AuthorizationUrlValidationModalService.instance) {
+			AuthorizationUrlValidationModalService.instance =
+				new AuthorizationUrlValidationModalService();
+		}
+		return AuthorizationUrlValidationModalService.instance;
+	}
 
-  /**
-   * Show validation modal with results
-   */
-  showValidationModal(
-    validationResult: UrlValidationResult,
-    url: string,
-    onProceed?: () => void,
-    onFix?: () => void
-  ): void {
-    this.modalState = {
-      isOpen: true,
-      validationResult,
-      url,
-      onProceed,
-      onFix
-    };
-    
-    // Trigger re-render by dispatching custom event
-    window.dispatchEvent(new CustomEvent('urlValidationModalUpdate', {
-      detail: this.modalState
-    }));
-  }
+	/**
+	 * Show validation modal with results
+	 */
+	showValidationModal(
+		validationResult: UrlValidationResult,
+		url: string,
+		onProceed?: () => void,
+		onFix?: () => void
+	): void {
+		this.modalState = {
+			isOpen: true,
+			validationResult,
+			url,
+			onProceed,
+			onFix,
+		};
 
-  /**
-   * Hide validation modal
-   */
-  hideModal(): void {
-    this.modalState = {
-      isOpen: false,
-      validationResult: null,
-      url: ''
-    };
-    
-    window.dispatchEvent(new CustomEvent('urlValidationModalUpdate', {
-      detail: this.modalState
-    }));
-  }
+		// Trigger re-render by dispatching custom event
+		window.dispatchEvent(
+			new CustomEvent('urlValidationModalUpdate', {
+				detail: this.modalState,
+			})
+		);
+	}
 
-  /**
-   * Get current modal state
-   */
-  getModalState() {
-    return this.modalState;
-  }
+	/**
+	 * Hide validation modal
+	 */
+	hideModal(): void {
+		this.modalState = {
+			isOpen: false,
+			validationResult: null,
+			url: '',
+		};
+
+		window.dispatchEvent(
+			new CustomEvent('urlValidationModalUpdate', {
+				detail: this.modalState,
+			})
+		);
+	}
+
+	/**
+	 * Get current modal state
+	 */
+	getModalState() {
+		return this.modalState;
+	}
 }
 
 // Export singleton instance
-export const authorizationUrlValidationModalService = AuthorizationUrlValidationModalService.getInstance();
+export const authorizationUrlValidationModalService =
+	AuthorizationUrlValidationModalService.getInstance();
 
 // Export components and service
 export { AuthorizationUrlValidationModalService };
 
 // Global access for debugging
 if (typeof window !== 'undefined') {
-  (window as any).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
-  
-  console.log('🔍 Authorization URL Validation Modal Service loaded. Available commands:');
-  console.log('  - authorizationUrlValidationModalService.showValidationModal(result, url, onProceed, onFix)');
-  console.log('  - authorizationUrlValidationModalService.hideModal()');
+	(window as any).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
+
+	console.log('🔍 Authorization URL Validation Modal Service loaded. Available commands:');
+	console.log(
+		'  - authorizationUrlValidationModalService.showValidationModal(result, url, onProceed, onFix)'
+	);
+	console.log('  - authorizationUrlValidationModalService.hideModal()');
 }

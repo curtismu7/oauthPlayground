@@ -1,7 +1,7 @@
 // src/constants/errorMessages.ts
 /**
  * Standardized Error Message Templates
- * 
+ *
  * Central repository of error messages with helpful suggestions for users.
  * Used by FlowErrorService to display consistent, helpful error messages.
  */
@@ -14,7 +14,7 @@ export enum ErrorCategory {
 	VALIDATION = 'validation',
 	EXPIRED = 'expired',
 	PERMISSION = 'permission',
-	UNKNOWN = 'unknown'
+	UNKNOWN = 'unknown',
 }
 
 export interface ErrorTemplate {
@@ -31,21 +31,21 @@ export interface ErrorTemplate {
  */
 export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	// Configuration Errors
-	'invalid_client': {
+	invalid_client: {
 		title: 'Invalid Client Credentials',
 		message: 'There is an issue with your client ID or client secret.',
 		suggestions: [
 			'Verify your Client ID and Client Secret in PingOne Admin are correct',
 			'Check that the application is enabled in PingOne',
-			'Ensure you\'re using the correct environment ID',
-			'Confirm the client secret hasn\'t been regenerated',
+			"Ensure you're using the correct environment ID",
+			"Confirm the client secret hasn't been regenerated",
 		],
 		icon: 'FiAlertTriangle',
 		category: ErrorCategory.CONFIGURATION,
 		severity: 'error',
 	},
 
-	'redirect_uri_mismatch': {
+	redirect_uri_mismatch: {
 		title: 'Redirect URI Mismatch',
 		message: 'The redirect URI in your request does not match the configured URI in PingOne.',
 		suggestions: [
@@ -59,7 +59,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'invalid_request': {
+	invalid_request: {
 		title: 'Invalid Request',
 		message: 'The authorization request is missing required parameters or contains invalid values.',
 		suggestions: [
@@ -73,7 +73,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'unauthorized_client': {
+	unauthorized_client: {
 		title: 'Unauthorized Client',
 		message: 'The client is not authorized to use this grant type or flow.',
 		suggestions: [
@@ -86,7 +86,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'access_denied': {
+	access_denied: {
 		title: 'Access Denied',
 		message: 'The user or authorization server denied the request.',
 		suggestions: [
@@ -101,7 +101,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Token Exchange Errors
-	'authorization_code_expired': {
+	authorization_code_expired: {
 		title: 'Authorization Code Expired',
 		message: 'This authorization code has already been used or has expired.',
 		suggestions: [
@@ -115,21 +115,21 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'invalid_grant': {
+	invalid_grant: {
 		title: 'Invalid Grant',
 		message: 'The authorization code, refresh token, or credentials are invalid.',
 		suggestions: [
 			'The authorization code may have expired or already been used',
 			'Verify the code verifier matches the code challenge (PKCE)',
 			'Check that the redirect URI matches the one used in authorization',
-			'Ensure the refresh token hasn\'t been revoked',
+			"Ensure the refresh token hasn't been revoked",
 		],
 		icon: 'FiX',
 		category: ErrorCategory.TOKEN_EXCHANGE,
 		severity: 'error',
 	},
 
-	'pkce_verification_failed': {
+	pkce_verification_failed: {
 		title: 'PKCE Verification Failed',
 		message: 'The code verifier does not match the code challenge.',
 		suggestions: [
@@ -144,7 +144,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Network Errors
-	'network_error': {
+	network_error: {
 		title: 'Network Error',
 		message: 'Unable to connect to the authorization server.',
 		suggestions: [
@@ -158,7 +158,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'timeout': {
+	timeout: {
 		title: 'Request Timeout',
 		message: 'The request took too long to complete.',
 		suggestions: [
@@ -172,7 +172,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Validation Errors
-	'missing_required_fields': {
+	missing_required_fields: {
 		title: 'Missing Required Fields',
 		message: 'One or more required fields are missing.',
 		suggestions: [
@@ -185,14 +185,14 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'invalid_scope': {
+	invalid_scope: {
 		title: 'Invalid Scope',
 		message: 'One or more requested scopes are not supported or allowed.',
 		suggestions: [
 			'Check that all scope values are supported by PingOne',
 			'Verify scopes are enabled for your application',
 			'Ensure openid scope is included for OIDC flows',
-			'Remove any custom scopes that aren\'t configured',
+			"Remove any custom scopes that aren't configured",
 		],
 		icon: 'FiList',
 		category: ErrorCategory.VALIDATION,
@@ -200,12 +200,12 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Token/Session Errors
-	'token_expired': {
+	token_expired: {
 		title: 'Token Expired',
 		message: 'The access token has expired.',
 		suggestions: [
 			'Use the refresh token to obtain a new access token',
-			'Re-authenticate if you don\'t have a refresh token',
+			"Re-authenticate if you don't have a refresh token",
 			'Check token expiration times in your implementation',
 		],
 		icon: 'FiClock',
@@ -213,12 +213,12 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'warning',
 	},
 
-	'invalid_token': {
+	invalid_token: {
 		title: 'Invalid Token',
 		message: 'The token is malformed, invalid, or has been revoked.',
 		suggestions: [
-			'Verify the token hasn\'t been modified',
-			'Check that the token hasn\'t been revoked',
+			"Verify the token hasn't been modified",
+			"Check that the token hasn't been revoked",
 			'Ensure the token is from the correct issuer',
 			'Re-authenticate to obtain a new token',
 		],
@@ -228,7 +228,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Server Errors
-	'server_error': {
+	server_error: {
 		title: 'Server Error',
 		message: 'The authorization server encountered an unexpected error.',
 		suggestions: [
@@ -242,7 +242,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
-	'temporarily_unavailable': {
+	temporarily_unavailable: {
 		title: 'Service Temporarily Unavailable',
 		message: 'The authorization server is temporarily unavailable.',
 		suggestions: [
@@ -256,9 +256,9 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Device Flow Errors
-	'authorization_pending': {
+	authorization_pending: {
 		title: 'Authorization Pending',
-		message: 'The user hasn\'t completed the authorization yet.',
+		message: "The user hasn't completed the authorization yet.",
 		suggestions: [
 			'Wait for the user to complete authorization',
 			'The application will continue polling',
@@ -269,7 +269,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'info',
 	},
 
-	'slow_down': {
+	slow_down: {
 		title: 'Polling Too Fast',
 		message: 'The polling interval is too short.',
 		suggestions: [
@@ -281,7 +281,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'warning',
 	},
 
-	'expired_token': {
+	expired_token: {
 		title: 'Device Code Expired',
 		message: 'The device code has expired.',
 		suggestions: [
@@ -295,7 +295,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Missing Credentials Error
-	'client_id_is_required': {
+	client_id_is_required: {
 		title: 'Missing OAuth Credentials',
 		message: 'OAuth credentials are required to complete this flow.',
 		suggestions: [
@@ -310,7 +310,7 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 	},
 
 	// Generic catch-all
-	'unknown_error': {
+	unknown_error: {
 		title: 'Unknown Error',
 		message: 'An unexpected error occurred.',
 		suggestions: [
@@ -336,7 +336,7 @@ export function getErrorTemplate(errorCode: string): ErrorTemplate {
 /**
  * Categorize an error based on its code or message
  */
-export function categorizeError(errorCode: string, errorMessage?: string): ErrorCategory {
+export function categorizeError(errorCode: string, _errorMessage?: string): ErrorCategory {
 	const template = getErrorTemplate(errorCode);
 	return template.category;
 }
@@ -345,7 +345,7 @@ export function categorizeError(errorCode: string, errorMessage?: string): Error
  * Get all errors in a specific category
  */
 export function getErrorsByCategory(category: ErrorCategory): ErrorTemplate[] {
-	return Object.values(ERROR_MESSAGES).filter(error => error.category === category);
+	return Object.values(ERROR_MESSAGES).filter((error) => error.category === category);
 }
 
 /**
@@ -363,4 +363,3 @@ export default {
 	getErrorsByCategory,
 	isKnownError,
 };
-

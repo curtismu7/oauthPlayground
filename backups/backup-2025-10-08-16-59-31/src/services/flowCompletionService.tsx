@@ -1,14 +1,14 @@
 // src/services/flowCompletionService.tsx
 /**
  * Flow Completion Service
- * 
+ *
  * Provides a standardized completion page component for all OAuth/OIDC flows.
  * Includes success confirmation, summary of completed steps, and next steps guidance.
  */
 
 import React from 'react';
+import { FiCheckCircle, FiInfo, FiRefreshCw, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiInfo, FiZap, FiRefreshCw } from 'react-icons/fi';
 
 export interface FlowCompletionStep {
 	completed: boolean;
@@ -63,7 +63,7 @@ const CollapsibleTitle = styled.h3`
 `;
 
 const CollapsibleToggleIcon = styled.div<{ $collapsed: boolean }>`
-	transform: ${props => props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)'};
+	transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 `;
 
@@ -78,22 +78,32 @@ const InfoBox = styled.div<{ $variant?: 'success' | 'info' | 'warning' | 'error'
 	padding: 1rem;
 	border-radius: 8px;
 	margin-bottom: 1rem;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#f0fdf4';
-			case 'info': return '#f0f9ff';
-			case 'warning': return '#fffbeb';
-			case 'error': return '#fef2f2';
-			default: return '#f8fafc';
+			case 'success':
+				return '#f0fdf4';
+			case 'info':
+				return '#f0f9ff';
+			case 'warning':
+				return '#fffbeb';
+			case 'error':
+				return '#fef2f2';
+			default:
+				return '#f8fafc';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#bbf7d0';
-			case 'info': return '#bae6fd';
-			case 'warning': return '#fed7aa';
-			case 'error': return '#fecaca';
-			default: return '#e2e8f0';
+			case 'success':
+				return '#bbf7d0';
+			case 'info':
+				return '#bae6fd';
+			case 'warning':
+				return '#fed7aa';
+			case 'error':
+				return '#fecaca';
+			default:
+				return '#e2e8f0';
 		}
 	}};
 `;
@@ -102,7 +112,7 @@ const InfoTitle = styled.h4`
 	margin: 0 0 0.5rem 0;
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: ${props => props.theme?.colors?.success || '#15803d'};
+	color: ${(props) => props.theme?.colors?.success || '#15803d'};
 `;
 
 const InfoText = styled.p`
@@ -168,21 +178,27 @@ const Button = styled.button<{ $variant?: 'primary' | 'danger' | 'secondary' }>`
 	align-items: center;
 	gap: 0.5rem;
 	transition: all 0.2s ease;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$variant) {
-			case 'danger': return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-			case 'secondary': return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-			default: return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+			case 'danger':
+				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+			case 'secondary':
+				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+			default:
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
 		}
 	}};
 	color: white;
 
 	&:hover {
-		background: ${props => {
+		background: ${(props) => {
 			switch (props.$variant) {
-				case 'danger': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
-				case 'secondary': return 'linear-gradient(135deg, #4b5563 0%, #374151 100%)';
-				default: return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+				case 'danger':
+					return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+				case 'secondary':
+					return 'linear-gradient(135deg, #4b5563 0%, #374151 100%)';
+				default:
+					return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 			}
 		}};
 		transform: translateY(-1px);
@@ -210,7 +226,7 @@ export const FlowCompletionService: React.FC<{
 		showUserInfo = false,
 		showIntrospection = false,
 		userInfo,
-		introspectionResult
+		introspectionResult,
 	} = config;
 
 	return (
@@ -223,16 +239,14 @@ export const FlowCompletionService: React.FC<{
 					<FiInfo />
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
-			
+
 			{!collapsed && (
 				<CollapsibleContent>
 					<InfoBox $variant="success">
 						<FiCheckCircle size={24} />
 						<div>
 							<InfoTitle>{flowName} Complete!</InfoTitle>
-							<InfoText>
-								{flowDescription}
-							</InfoText>
+							<InfoText>{flowDescription}</InfoText>
 						</div>
 					</InfoBox>
 
@@ -284,83 +298,88 @@ export const FlowCompletionService: React.FC<{
 export const FlowCompletionConfigs = {
 	authorizationCode: {
 		flowName: 'Authorization Code Flow',
-		flowDescription: 'You\'ve successfully completed the OAuth 2.0 Authorization Code flow with PKCE. The authorization code has been exchanged for tokens.',
+		flowDescription:
+			"You've successfully completed the OAuth 2.0 Authorization Code flow with PKCE. The authorization code has been exchanged for tokens.",
 		completedSteps: [
 			{ completed: true, description: 'Authorization URL generated' },
 			{ completed: true, description: 'User redirected to authorization server' },
 			{ completed: true, description: 'User authorized the application' },
 			{ completed: true, description: 'Authorization code received' },
-			{ completed: true, description: 'Code exchanged for access token' }
+			{ completed: true, description: 'Code exchanged for access token' },
 		],
 		nextSteps: [
 			'Store the access token securely',
 			'Use the access token to call protected APIs',
 			'Refresh the token when it expires (if refresh token provided)',
 			'Handle token expiration and re-authorization',
-			'Implement proper error handling and retry logic'
-		]
+			'Implement proper error handling and retry logic',
+		],
 	},
-	
+
 	implicit: {
 		flowName: 'Implicit Flow',
-		flowDescription: 'You\'ve successfully completed the OAuth 2.0 Implicit flow. The access token has been received directly from the authorization server.',
+		flowDescription:
+			"You've successfully completed the OAuth 2.0 Implicit flow. The access token has been received directly from the authorization server.",
 		completedSteps: [
 			{ completed: true, description: 'Authorization URL generated' },
 			{ completed: true, description: 'User redirected to authorization server' },
 			{ completed: true, description: 'User authorized the application' },
-			{ completed: true, description: 'Access token received via URL fragment' }
+			{ completed: true, description: 'Access token received via URL fragment' },
 		],
 		nextSteps: [
 			'Store the access token securely',
 			'Use the access token to call protected APIs',
 			'Handle token expiration and re-authorization',
-			'Implement proper error handling and retry logic'
-		]
+			'Implement proper error handling and retry logic',
+		],
 	},
-	
+
 	deviceAuthorization: {
 		flowName: 'Device Authorization Flow',
-		flowDescription: 'You\'ve successfully completed the OAuth Device Authorization Grant flow. The device has been authorized and tokens have been received.',
+		flowDescription:
+			"You've successfully completed the OAuth Device Authorization Grant flow. The device has been authorized and tokens have been received.",
 		completedSteps: [
 			{ completed: true, description: 'Device code requested and received' },
 			{ completed: true, description: 'User code displayed to user' },
 			{ completed: true, description: 'User authorized on secondary device' },
-			{ completed: true, description: 'Tokens received via polling' }
+			{ completed: true, description: 'Tokens received via polling' },
 		],
 		nextSteps: [
 			'Store the access token securely',
 			'Use the access token to call protected APIs',
 			'Refresh the token when it expires (if refresh token provided)',
 			'Handle token expiration and re-authorization',
-			'Implement proper error handling and retry logic'
-		]
+			'Implement proper error handling and retry logic',
+		],
 	},
-	
+
 	clientCredentials: {
 		flowName: 'Client Credentials Flow',
-		flowDescription: 'You\'ve successfully completed the OAuth 2.0 Client Credentials flow. The client has been authenticated and access token received.',
+		flowDescription:
+			"You've successfully completed the OAuth 2.0 Client Credentials flow. The client has been authenticated and access token received.",
 		completedSteps: [
 			{ completed: true, description: 'Client credentials validated' },
 			{ completed: true, description: 'Token request sent to authorization server' },
-			{ completed: true, description: 'Access token received' }
+			{ completed: true, description: 'Access token received' },
 		],
 		nextSteps: [
 			'Store the access token securely',
 			'Use the access token to call protected APIs',
 			'Refresh the token when it expires',
-			'Implement proper error handling and retry logic'
-		]
+			'Implement proper error handling and retry logic',
+		],
 	},
-	
+
 	hybrid: {
 		flowName: 'OIDC Hybrid Flow',
-		flowDescription: 'You\'ve successfully completed the OpenID Connect Hybrid flow. The authorization code and ID token have been received.',
+		flowDescription:
+			"You've successfully completed the OpenID Connect Hybrid flow. The authorization code and ID token have been received.",
 		completedSteps: [
 			{ completed: true, description: 'Authorization URL generated' },
 			{ completed: true, description: 'User redirected to authorization server' },
 			{ completed: true, description: 'User authorized the application' },
 			{ completed: true, description: 'Authorization code and ID token received' },
-			{ completed: true, description: 'Code exchanged for additional tokens' }
+			{ completed: true, description: 'Code exchanged for additional tokens' },
 		],
 		nextSteps: [
 			'Store the access token and ID token securely',
@@ -368,9 +387,9 @@ export const FlowCompletionConfigs = {
 			'Validate the ID token signature and claims',
 			'Refresh the token when it expires (if refresh token provided)',
 			'Handle token expiration and re-authorization',
-			'Implement proper error handling and retry logic'
-		]
-	}
+			'Implement proper error handling and retry logic',
+		],
+	},
 };
 
 export default FlowCompletionService;

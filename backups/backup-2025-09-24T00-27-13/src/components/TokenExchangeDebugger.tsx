@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiRefreshCw, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiCheckCircle, FiXCircle, FiCopy, FiRefreshCw } from 'react-icons/fi';
 import { credentialManager } from '../utils/credentialManager';
 
 const DebuggerContainer = styled.div`

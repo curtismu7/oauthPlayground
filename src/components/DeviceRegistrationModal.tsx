@@ -1,8 +1,8 @@
 // src/components/DeviceRegistrationModal.tsx
 
 import React from 'react';
+import { FiCheckCircle, FiMail, FiShield, FiSmartphone, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiSmartphone, FiMail, FiShield, FiX } from 'react-icons/fi';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -122,30 +122,30 @@ const StatusBadge = styled.div<{ status: 'active' | 'pending' | 'inactive' }>`
   text-transform: uppercase;
   letter-spacing: 0.05em;
   
-  ${props => {
-    switch (props.status) {
-      case 'active':
-        return `
+  ${(props) => {
+		switch (props.status) {
+			case 'active':
+				return `
           background: #dcfce7;
           color: #166534;
         `;
-      case 'pending':
-        return `
+			case 'pending':
+				return `
           background: #fef3c7;
           color: #92400e;
         `;
-      case 'inactive':
-        return `
+			case 'inactive':
+				return `
           background: #fee2e2;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background: #f3f4f6;
           color: #374151;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ModalActions = styled.div`
@@ -164,9 +164,9 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
   border: none;
 
-  ${props => {
-    if (props.variant === 'primary') {
-      return `
+  ${(props) => {
+		if (props.variant === 'primary') {
+			return `
         background: #3b82f6;
         color: white;
         
@@ -174,8 +174,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
           background: #2563eb;
         }
       `;
-    } else {
-      return `
+		} else {
+			return `
         background: #f3f4f6;
         color: #374151;
         
@@ -183,136 +183,128 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
           background: #e5e7eb;
         }
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 interface DeviceRegistrationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  deviceData: {
-    deviceId: string;
-    deviceType: string;
-    deviceName: string;
-    contactInfo: string;
-    status: 'active' | 'pending' | 'inactive';
-    registeredAt: string;
-  };
-  onContinue: () => void;
+	isOpen: boolean;
+	onClose: () => void;
+	deviceData: {
+		deviceId: string;
+		deviceType: string;
+		deviceName: string;
+		contactInfo: string;
+		status: 'active' | 'pending' | 'inactive';
+		registeredAt: string;
+	};
+	onContinue: () => void;
 }
 
 const DeviceRegistrationModal: React.FC<DeviceRegistrationModalProps> = ({
-  isOpen,
-  onClose,
-  deviceData,
-  onContinue
+	isOpen,
+	onClose,
+	deviceData,
+	onContinue,
 }) => {
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  const getDeviceIcon = (deviceType: string) => {
-    switch (deviceType.toLowerCase()) {
-      case 'sms':
-        return <FiSmartphone size={16} />;
-      case 'email':
-        return <FiMail size={16} />;
-      case 'totp':
-        return <FiShield size={16} />;
-      default:
-        return <FiSmartphone size={16} />;
-    }
-  };
+	const getDeviceIcon = (deviceType: string) => {
+		switch (deviceType.toLowerCase()) {
+			case 'sms':
+				return <FiSmartphone size={16} />;
+			case 'email':
+				return <FiMail size={16} />;
+			case 'totp':
+				return <FiShield size={16} />;
+			default:
+				return <FiSmartphone size={16} />;
+		}
+	};
 
-  const formatContactInfo = (contactInfo: string, deviceType: string) => {
-    if (deviceType.toLowerCase() === 'sms' && contactInfo.startsWith('+')) {
-      // Format phone number nicely
-      const phone = contactInfo.substring(1); // Remove +
-      if (phone.length === 11 && phone.startsWith('1')) {
-        // US number: +1 (555) 123-4567
-        return `+1 (${phone.slice(1, 4)}) ${phone.slice(4, 7)}-${phone.slice(7)}`;
-      }
-    }
-    return contactInfo;
-  };
+	const formatContactInfo = (contactInfo: string, deviceType: string) => {
+		if (deviceType.toLowerCase() === 'sms' && contactInfo.startsWith('+')) {
+			// Format phone number nicely
+			const phone = contactInfo.substring(1); // Remove +
+			if (phone.length === 11 && phone.startsWith('1')) {
+				// US number: +1 (555) 123-4567
+				return `+1 (${phone.slice(1, 4)}) ${phone.slice(4, 7)}-${phone.slice(7)}`;
+			}
+		}
+		return contactInfo;
+	};
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
+	const formatDate = (dateString: string) => {
+		return new Date(dateString).toLocaleString();
+	};
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <FiCheckCircle size={24} color="#10b981" />
-            Device Registered Successfully
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX size={20} />
-          </CloseButton>
-        </ModalHeader>
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContainer onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiCheckCircle size={24} color="#10b981" />
+						Device Registered Successfully
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX size={20} />
+					</CloseButton>
+				</ModalHeader>
 
-        <SuccessIcon>
-          <FiCheckCircle size={32} color="#10b981" />
-        </SuccessIcon>
+				<SuccessIcon>
+					<FiCheckCircle size={32} color="#10b981" />
+				</SuccessIcon>
 
-        <DeviceInfo>
-          <InfoRow>
-            <DeviceIcon>
-              {getDeviceIcon(deviceData.deviceType)}
-            </DeviceIcon>
-            <InfoLabel>Device Type:</InfoLabel>
-            <InfoValue>{deviceData.deviceType.toUpperCase()}</InfoValue>
-          </InfoRow>
+				<DeviceInfo>
+					<InfoRow>
+						<DeviceIcon>{getDeviceIcon(deviceData.deviceType)}</DeviceIcon>
+						<InfoLabel>Device Type:</InfoLabel>
+						<InfoValue>{deviceData.deviceType.toUpperCase()}</InfoValue>
+					</InfoRow>
 
-          <InfoRow>
-            <InfoLabel>Device Name:</InfoLabel>
-            <InfoValue>{deviceData.deviceName}</InfoValue>
-          </InfoRow>
+					<InfoRow>
+						<InfoLabel>Device Name:</InfoLabel>
+						<InfoValue>{deviceData.deviceName}</InfoValue>
+					</InfoRow>
 
-          <InfoRow>
-            <InfoLabel>Contact Info:</InfoLabel>
-            <InfoValue>{formatContactInfo(deviceData.contactInfo, deviceData.deviceType)}</InfoValue>
-          </InfoRow>
+					<InfoRow>
+						<InfoLabel>Contact Info:</InfoLabel>
+						<InfoValue>
+							{formatContactInfo(deviceData.contactInfo, deviceData.deviceType)}
+						</InfoValue>
+					</InfoRow>
 
-          <InfoRow>
-            <InfoLabel>Status:</InfoLabel>
-            <InfoValue>
-              <StatusBadge status={deviceData.status}>
-                {deviceData.status}
-              </StatusBadge>
-            </InfoValue>
-          </InfoRow>
+					<InfoRow>
+						<InfoLabel>Status:</InfoLabel>
+						<InfoValue>
+							<StatusBadge status={deviceData.status}>{deviceData.status}</StatusBadge>
+						</InfoValue>
+					</InfoRow>
 
-          <InfoRow>
-            <InfoLabel>Registered:</InfoLabel>
-            <InfoValue>{formatDate(deviceData.registeredAt)}</InfoValue>
-          </InfoRow>
+					<InfoRow>
+						<InfoLabel>Registered:</InfoLabel>
+						<InfoValue>{formatDate(deviceData.registeredAt)}</InfoValue>
+					</InfoRow>
 
-          <InfoRow>
-            <InfoLabel>Device ID:</InfoLabel>
-            <InfoValue style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#6b7280' }}>
-              {deviceData.deviceId}
-            </InfoValue>
-          </InfoRow>
-        </DeviceInfo>
+					<InfoRow>
+						<InfoLabel>Device ID:</InfoLabel>
+						<InfoValue style={{ fontFamily: 'monospace', fontSize: '0.75rem', color: '#6b7280' }}>
+							{deviceData.deviceId}
+						</InfoValue>
+					</InfoRow>
+				</DeviceInfo>
 
-        <ModalActions>
-          <Button variant="secondary" onClick={onClose}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={onContinue}>
-            Continue to MFA Challenge
-          </Button>
-        </ModalActions>
-      </ModalContainer>
-    </ModalOverlay>
-  );
+				<ModalActions>
+					<Button variant="secondary" onClick={onClose}>
+						Close
+					</Button>
+					<Button variant="primary" onClick={onContinue}>
+						Continue to MFA Challenge
+					</Button>
+				</ModalActions>
+			</ModalContainer>
+		</ModalOverlay>
+	);
 };
 
 export default DeviceRegistrationModal;
-
-
-
-
-
-

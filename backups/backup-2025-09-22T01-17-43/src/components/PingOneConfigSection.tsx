@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiChevronDown, FiChevronRight, FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
+import { FiCheck, FiChevronDown, FiChevronRight, FiCopy, FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { copyToClipboard } from '../utils/clipboard';
 import { credentialManager } from '../utils/credentialManager';

@@ -3,7 +3,7 @@
 
 /**
  * Password Reset Service Version
- * 
+ *
  * Version History:
  * - 1.0.0 (2025-11-07): Initial release with basic password operations
  * - 1.1.0 (2025-11-07): Added error message extraction and user-friendly messages
@@ -36,10 +36,7 @@ export const VERSION_HISTORY: ServiceVersion[] = [
 	{
 		version: '1.1.1',
 		releaseDate: '2025-11-07',
-		features: [
-			'Fixed password check API field name',
-			'Corrected request body format',
-		],
+		features: ['Fixed password check API field name', 'Corrected request body format'],
 		breaking: false,
 	},
 	{
@@ -91,7 +88,7 @@ export function getVersionHistory(): ServiceVersion[] {
 export function isCompatibleVersion(requiredVersion: string): boolean {
 	const [reqMajor, reqMinor] = requiredVersion.split('.').map(Number);
 	const [curMajor, curMinor] = PASSWORD_RESET_SERVICE_VERSION.split('.').map(Number);
-	
+
 	// Major version must match, minor version must be >= required
 	return curMajor === reqMajor && curMinor >= reqMinor;
 }
@@ -100,8 +97,8 @@ export function isCompatibleVersion(requiredVersion: string): boolean {
  * Get breaking changes since version
  */
 export function getBreakingChangesSince(version: string): ServiceVersion[] {
-	const versionIndex = VERSION_HISTORY.findIndex(v => v.version === version);
+	const versionIndex = VERSION_HISTORY.findIndex((v) => v.version === version);
 	if (versionIndex === -1) return [];
-	
-	return VERSION_HISTORY.slice(0, versionIndex).filter(v => v.breaking);
+
+	return VERSION_HISTORY.slice(0, versionIndex).filter((v) => v.breaking);
 }

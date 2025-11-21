@@ -549,5 +549,3 @@ export const MissingConfigCard = styled.div`
 	font-size: 0.95rem;
 	line-height: 1.6;
 `;
-
-

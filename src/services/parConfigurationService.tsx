@@ -2,8 +2,8 @@
 // PAR (Pushed Authorization Request) Configuration Service
 // Reusable service for configuring PAR authorization request parameters
 
-import React, { useState, useCallback } from 'react';
-import { FiShield, FiCheckCircle } from 'react-icons/fi';
+import React, { useCallback, useState } from 'react';
+import { FiCheckCircle, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
@@ -160,30 +160,39 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 	config,
 	onConfigChange,
 	defaultCollapsed = true,
-	title = "PAR Authorization Request Configuration",
-	showEducationalContent = true
+	title = 'PAR Authorization Request Configuration',
+	showEducationalContent = true,
 }) => {
 	const [localConfig, setLocalConfig] = useState<PARConfiguration>(config);
 
-	const handleConfigChange = useCallback((field: keyof PARConfiguration, value: any) => {
-		const newConfig = { ...localConfig, [field]: value };
-		setLocalConfig(newConfig);
-		onConfigChange(newConfig);
-	}, [localConfig, onConfigChange]);
+	const handleConfigChange = useCallback(
+		(field: keyof PARConfiguration, value: any) => {
+			const newConfig = { ...localConfig, [field]: value };
+			setLocalConfig(newConfig);
+			onConfigChange(newConfig);
+		},
+		[localConfig, onConfigChange]
+	);
 
-	const handleFullConfigChange = useCallback((newConfig: PARConfiguration) => {
-		setLocalConfig(newConfig);
-		onConfigChange(newConfig);
-	}, [onConfigChange]);
+	const handleFullConfigChange = useCallback(
+		(newConfig: PARConfiguration) => {
+			setLocalConfig(newConfig);
+			onConfigChange(newConfig);
+		},
+		[onConfigChange]
+	);
 
-	const handleClaimsChange = useCallback((value: string) => {
-		try {
-			const claims = value ? JSON.parse(value) : null;
-			handleConfigChange('claims', claims);
-		} catch (error) {
-			// Invalid JSON, keep the text but don't update claims
-		}
-	}, [handleConfigChange]);
+	const handleClaimsChange = useCallback(
+		(value: string) => {
+			try {
+				const claims = value ? JSON.parse(value) : null;
+				handleConfigChange('claims', claims);
+			} catch (_error) {
+				// Invalid JSON, keep the text but don't update claims
+			}
+		},
+		[handleConfigChange]
+	);
 
 	return (
 		<CollapsibleHeader
@@ -198,8 +207,9 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 					<div>
 						<InfoTitle>PAR (Pushed Authorization Request) Parameters</InfoTitle>
 						<InfoText>
-							Configure the authorization request parameters that will be pushed to PingOne's PAR endpoint 
-							via secure back-channel. These parameters enhance security by storing them server-side.
+							Configure the authorization request parameters that will be pushed to PingOne's PAR
+							endpoint via secure back-channel. These parameters enhance security by storing them
+							server-side.
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -207,7 +217,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 
 			<GeneratedContentBox>
 				<GeneratedLabel>PAR Request Parameters</GeneratedLabel>
-				
+
 				{/* Quick-fill buttons for common configurations */}
 				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
 					<button
@@ -218,7 +228,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								prompt: 'consent',
 								maxAge: 3600,
 								uiLocales: 'en-US',
-								claims: { "id_token": { "email": null, "name": null } }
+								claims: { id_token: { email: null, name: null } },
 							};
 							handleFullConfigChange(basicConfig);
 						}}
@@ -229,7 +239,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							border: 'none',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						📝 Basic Profile
@@ -242,7 +252,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								prompt: 'login',
 								maxAge: 1800,
 								uiLocales: 'en-US',
-								claims: { "id_token": { "email": { "essential": true }, "email_verified": null } }
+								claims: { id_token: { email: { essential: true }, email_verified: null } },
 							};
 							handleFullConfigChange(secureConfig);
 						}}
@@ -253,7 +263,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							border: 'none',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						🔒 High Security
@@ -266,10 +276,10 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								prompt: 'consent',
 								maxAge: 3600,
 								uiLocales: 'en-US, es-ES',
-								claims: { 
-									"id_token": { "email": null, "name": null, "picture": null },
-									"userinfo": { "phone_number": null }
-								}
+								claims: {
+									id_token: { email: null, name: null, picture: null },
+									userinfo: { phone_number: null },
+								},
 							};
 							handleFullConfigChange(fullConfig);
 						}}
@@ -280,7 +290,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							border: 'none',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						📋 Complete Profile
@@ -293,7 +303,7 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								prompt: 'none',
 								maxAge: undefined,
 								uiLocales: '',
-								claims: null
+								claims: null,
 							};
 							handleConfigChange(minimalConfig);
 						}}
@@ -304,13 +314,13 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 							border: 'none',
 							borderRadius: '0.375rem',
 							fontSize: '0.875rem',
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						⚡ Minimal
 					</button>
 				</div>
-				
+
 				<ParameterGrid>
 					<div>
 						<ParameterLabel>ACR Values (Authentication Context Class Reference)</ParameterLabel>
@@ -322,7 +332,8 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								onChange={(e) => handleConfigChange('acrValues', e.target.value)}
 							/>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-								Specify required authentication assurance levels. Common values: 1 (basic), 2 (multi-factor), 3 (high assurance)
+								Specify required authentication assurance levels. Common values: 1 (basic), 2
+								(multi-factor), 3 (high assurance)
 							</div>
 						</ParameterValue>
 					</div>
@@ -340,7 +351,8 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								<option value="select_account">select_account (account selection)</option>
 							</Select>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-								Controls user experience during authorization. Use 'consent' for sensitive apps, 'login' for high-security scenarios
+								Controls user experience during authorization. Use 'consent' for sensitive apps,
+								'login' for high-security scenarios
 							</div>
 						</ParameterValue>
 					</div>
@@ -351,10 +363,13 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								type="number"
 								placeholder="3600"
 								value={localConfig.maxAge || ''}
-								onChange={(e) => handleConfigChange('maxAge', parseInt(e.target.value) || undefined)}
+								onChange={(e) =>
+									handleConfigChange('maxAge', parseInt(e.target.value, 10) || undefined)
+								}
 							/>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-								Forces re-authentication if user was authenticated longer ago (in seconds). Common: 3600 (1 hour), 1800 (30 min)
+								Forces re-authentication if user was authenticated longer ago (in seconds). Common:
+								3600 (1 hour), 1800 (30 min)
 							</div>
 						</ParameterValue>
 					</div>
@@ -368,7 +383,8 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								onChange={(e) => handleConfigChange('uiLocales', e.target.value)}
 							/>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-								Preferred languages for the authorization interface. Use ISO 639-1 language codes with country codes
+								Preferred languages for the authorization interface. Use ISO 639-1 language codes
+								with country codes
 							</div>
 						</ParameterValue>
 					</div>
@@ -382,10 +398,13 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 								rows={6}
 							/>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-								<strong>Real Examples:</strong><br/>
-								• <code>{`{"id_token": {"email": null, "name": null}}`}</code> - Request email and name in ID token<br/>
-								• <code>{`{"userinfo": {"phone_number": null}}`}</code> - Request phone number from userinfo endpoint<br/>
-								• <code>{`{"id_token": {"email": {"essential": true}}}`}</code> - Require email (essential claim)
+								<strong>Real Examples:</strong>
+								<br />• <code>{`{"id_token": {"email": null, "name": null}}`}</code> - Request email
+								and name in ID token
+								<br />• <code>{`{"userinfo": {"phone_number": null}}`}</code> - Request phone number
+								from userinfo endpoint
+								<br />• <code>{`{"id_token": {"email": {"essential": true}}}`}</code> - Require
+								email (essential claim)
 							</div>
 						</ParameterValue>
 					</div>
@@ -398,10 +417,10 @@ export const PARConfigurationService: React.FC<PARConfigurationServiceProps> = (
 					<div>
 						<InfoTitle>PAR Security Benefits</InfoTitle>
 						<InfoText>
-							• Parameters stored server-side, not visible in browser URLs<br/>
-							• User cannot modify authorization parameters<br/>
-							• No browser URL length limitations<br/>
-							• Enhanced security for sensitive authorization requests
+							• Parameters stored server-side, not visible in browser URLs
+							<br />• User cannot modify authorization parameters
+							<br />• No browser URL length limitations
+							<br />• Enhanced security for sensitive authorization requests
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -421,7 +440,7 @@ export class PARConfigurationServiceUtils {
 			prompt: '',
 			maxAge: undefined,
 			uiLocales: '',
-			claims: null
+			claims: null,
 		};
 	}
 
@@ -449,7 +468,7 @@ export class PARConfigurationServiceUtils {
 
 		return {
 			isValid: errors.length === 0,
-			errors
+			errors,
 		};
 	}
 
@@ -476,12 +495,12 @@ export class PARConfigurationServiceUtils {
 
 		if (params.acr_values) config.acrValues = params.acr_values;
 		if (params.prompt) config.prompt = params.prompt;
-		if (params.max_age) config.maxAge = parseInt(params.max_age);
+		if (params.max_age) config.maxAge = parseInt(params.max_age, 10);
 		if (params.ui_locales) config.uiLocales = params.ui_locales;
 		if (params.claims) {
 			try {
 				config.claims = JSON.parse(params.claims);
-			} catch (error) {
+			} catch (_error) {
 				console.warn('Invalid claims JSON:', params.claims);
 			}
 		}
@@ -493,7 +512,7 @@ export class PARConfigurationServiceUtils {
 	 * Get PAR configuration for specific flow types
 	 */
 	static getFlowSpecificConfig(flowType: string): PARConfiguration {
-		const baseConfig = this.getDefaultConfig();
+		const baseConfig = PARConfigurationServiceUtils.getDefaultConfig();
 
 		switch (flowType) {
 			case 'authorization-code':
@@ -504,7 +523,7 @@ export class PARConfigurationServiceUtils {
 					prompt: 'consent', // Force consent for authorization code flows
 					maxAge: 3600, // 1 hour default
 					uiLocales: 'en-US',
-					claims: { "id_token": { "email": null, "name": null } }
+					claims: { id_token: { email: null, name: null } },
 				};
 			case 'implicit':
 				return {
@@ -513,7 +532,7 @@ export class PARConfigurationServiceUtils {
 					prompt: 'none', // No consent needed for implicit flows
 					maxAge: 1800, // 30 minutes for implicit flows
 					uiLocales: 'en-US',
-					claims: { "id_token": { "email": null, "name": null, "picture": null } }
+					claims: { id_token: { email: null, name: null, picture: null } },
 				};
 			case 'device-authorization':
 				return {
@@ -522,7 +541,7 @@ export class PARConfigurationServiceUtils {
 					prompt: 'login', // Force login for device flows
 					maxAge: 7200, // 2 hours for device flows
 					uiLocales: 'en-US',
-					claims: { "id_token": { "email": { "essential": true }, "email_verified": null } }
+					claims: { id_token: { email: { essential: true }, email_verified: null } },
 				};
 			case 'rar':
 				return {
@@ -531,10 +550,10 @@ export class PARConfigurationServiceUtils {
 					prompt: 'consent',
 					maxAge: 3600,
 					uiLocales: 'en-US, es-ES',
-					claims: { 
-						"id_token": { "email": null, "name": null, "picture": null },
-						"userinfo": { "phone_number": null }
-					}
+					claims: {
+						id_token: { email: null, name: null, picture: null },
+						userinfo: { phone_number: null },
+					},
 				};
 			default:
 				return {
@@ -543,7 +562,7 @@ export class PARConfigurationServiceUtils {
 					prompt: 'consent',
 					maxAge: 3600,
 					uiLocales: 'en-US',
-					claims: { "id_token": { "email": null, "name": null } }
+					claims: { id_token: { email: null, name: null } },
 				};
 		}
 	}

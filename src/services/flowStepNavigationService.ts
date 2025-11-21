@@ -75,10 +75,7 @@ export class FlowStepNavigationService {
 			}
 		};
 
-		const isStepValid = (
-			stepIndex: number,
-			validators: Record<number, () => boolean>
-		): boolean => {
+		const isStepValid = (stepIndex: number, validators: Record<number, () => boolean>): boolean => {
 			const validator = validators[stepIndex];
 			return validator ? validator() : stepIndex === 0; // Step 0 is always valid
 		};

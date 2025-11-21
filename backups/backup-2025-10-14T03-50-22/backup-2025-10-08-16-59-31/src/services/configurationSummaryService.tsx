@@ -1,7 +1,7 @@
 // src/services/configurationSummaryService.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { FiCheck, FiChevronDown, FiCopy, FiDownload, FiSave, FiUpload, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiDownload, FiUpload, FiSave, FiCheck, FiCopy, FiX, FiChevronDown } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowLayoutService } from './flowLayoutService';
 
@@ -375,76 +375,69 @@ export const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> =
 
 					{showAdvanced && (
 						<CollapsibleContent>
-					<SummaryGrid>
-						{allFields.map((field, index) => (
-							<SummaryField key={index}>
-								<FieldLabel>{field.label}:</FieldLabel>
-								<FieldValue title={field.value || 'Not set'}>
-									{field.value || 'Not set'}
-									<CopyButton
-										onClick={() => handleCopy(field.value || '')}
-									title="Copy to clipboard"
-								>
-									<FiCopy size={12} />
-									</CopyButton>
-								</FieldValue>
-							</SummaryField>
-						))}
-					</SummaryGrid>
+							<SummaryGrid>
+								{allFields.map((field, index) => (
+									<SummaryField key={index}>
+										<FieldLabel>{field.label}:</FieldLabel>
+										<FieldValue title={field.value || 'Not set'}>
+											{field.value || 'Not set'}
+											<CopyButton
+												onClick={() => handleCopy(field.value || '')}
+												title="Copy to clipboard"
+											>
+												<FiCopy size={12} />
+											</CopyButton>
+										</FieldValue>
+									</SummaryField>
+								))}
+							</SummaryGrid>
 
-					<ActionButtons>
-						<ActionButton
-							variant="secondary"
-							onClick={handleExport}
-							disabled={isLoading}
-						>
-							<FiDownload size={14} />
-							Export
-						</ActionButton>
+							<ActionButtons>
+								<ActionButton variant="secondary" onClick={handleExport} disabled={isLoading}>
+									<FiDownload size={14} />
+									Export
+								</ActionButton>
 
-						<ActionButton
-							variant="primary"
-							onClick={handleSave}
-							disabled={isLoading}
-						>
-							<FiSave size={14} />
-							Save
-						</ActionButton>
+								<ActionButton variant="primary" onClick={handleSave} disabled={isLoading}>
+									<FiSave size={14} />
+									Save
+								</ActionButton>
 
-					<ActionButton
-						variant="secondary"
-						onClick={() => {
-							const input = document.createElement('input');
-							input.type = 'file';
-							input.accept = '.json';
-							input.onchange = (e) => {
-								const file = (e.target as HTMLInputElement).files?.[0];
-								if (file) {
-									const reader = new FileReader();
-									reader.onload = (e) => {
-										try {
-											const jsonString = e.target?.result as string;
-											const importedConfig = ConfigurationSummaryService.importConfig(jsonString);
-											if (onImport) {
-												onImport(importedConfig);
-												v4ToastManager.showSuccess('Configuration imported successfully');
+								<ActionButton
+									variant="secondary"
+									onClick={() => {
+										const input = document.createElement('input');
+										input.type = 'file';
+										input.accept = '.json';
+										input.onchange = (e) => {
+											const file = (e.target as HTMLInputElement).files?.[0];
+											if (file) {
+												const reader = new FileReader();
+												reader.onload = (e) => {
+													try {
+														const jsonString = e.target?.result as string;
+														const importedConfig =
+															ConfigurationSummaryService.importConfig(jsonString);
+														if (onImport) {
+															onImport(importedConfig);
+															v4ToastManager.showSuccess('Configuration imported successfully');
+														}
+													} catch (error) {
+														console.error('Import failed:', error);
+														v4ToastManager.showError('Invalid JSON file');
+													}
+												};
+												reader.readAsText(file);
 											}
-										} catch (error) {
-											console.error('Import failed:', error);
-											v4ToastManager.showError('Invalid JSON file');
-										}
-									};
-									reader.readAsText(file);
-								}
-							};
-							input.click();
-						}}
-						disabled={isLoading}
-					>
-						<FiUpload size={14} />
-						Import
-					</ActionButton>
-						</ActionButtons>
+										};
+										input.click();
+									}}
+									disabled={isLoading}
+								>
+									<FiUpload size={14} />
+									Import
+								</ActionButton>
+							</ActionButtons>
 						</CollapsibleContent>
 					)}
 				</CollapsibleSection>

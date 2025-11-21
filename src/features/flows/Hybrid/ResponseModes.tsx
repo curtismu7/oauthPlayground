@@ -2,9 +2,7 @@
 // Thin wrapper for embedding ResponseModeSelector in Hybrid flows
 
 import React from 'react';
-import ResponseModeSelector, {
-	type ResponseModeSelectorProps,
-} from '../../../components/response-modes/ResponseModeSelector';
+import ResponseModeSelector from '../../../components/response-modes/ResponseModeSelector';
 
 interface HybridResponseModesProps {
 	responseType: 'code id_token' | 'code token' | 'code token id_token';

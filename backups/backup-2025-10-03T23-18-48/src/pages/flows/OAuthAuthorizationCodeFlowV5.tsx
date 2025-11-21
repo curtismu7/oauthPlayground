@@ -16,15 +16,17 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -39,16 +41,20 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -722,11 +728,15 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
-	
+
 	// API call tracking for display
-	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
+	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(
+		null
+	);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -1073,7 +1083,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			method: 'POST' as const,
 			headers: {
 				'Content-Type': 'application/json',
-				'Accept': 'application/json'
+				Accept: 'application/json',
 			},
 			body: {
 				grant_type: 'authorization_code',
@@ -1084,15 +1094,17 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				code_verifier: controller.pkceCodes.codeVerifier,
 				client_auth_method: controller.credentials.clientAuthMethod || 'client_secret_post',
 				client_secret: '***REDACTED***',
-				...(controller.credentials.includeX5tParameter && { includeX5tParameter: controller.credentials.includeX5tParameter })
+				...(controller.credentials.includeX5tParameter && {
+					includeX5tParameter: controller.credentials.includeX5tParameter,
+				}),
 			},
 			timestamp: new Date(),
-			description: 'Exchange authorization code for access token and refresh token'
+			description: 'Exchange authorization code for access token and refresh token',
 		};
 
 		try {
 			await controller.exchangeTokens();
-			
+
 			// Update API call with success response
 			const updatedTokenExchangeApiCall: EnhancedApiCallData = {
 				...tokenExchangeApiCallData,
@@ -1100,10 +1112,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.tokens
-				}
+					data: controller.tokens,
+				},
 			};
-			
+
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
@@ -1116,10 +1128,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					status: 400,
 					statusText: 'Bad Request',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
-			
+
 			setTokenExchangeApiCall(errorApiCall);
 
 			// Parse error message for better user feedback
@@ -1159,20 +1171,22 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		const userInfoApiCallData: EnhancedApiCallData = {
 			flowType: 'authorization-code',
 			stepName: 'Fetch User Information',
-			url: controller.credentials.userInfoEndpoint || `https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
+			url:
+				controller.credentials.userInfoEndpoint ||
+				`https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
 			method: 'GET' as const,
 			headers: {
-				'Authorization': `Bearer ${controller.tokens.access_token}`,
-				'Accept': 'application/json'
+				Authorization: `Bearer ${controller.tokens.access_token}`,
+				Accept: 'application/json',
 			},
 			body: null,
 			timestamp: new Date(),
-			description: 'Fetch user information using the access token'
+			description: 'Fetch user information using the access token',
 		};
 
 		try {
 			await controller.fetchUserInfo();
-			
+
 			// Update API call with success response
 			const updatedUserInfoApiCall: EnhancedApiCallData = {
 				...userInfoApiCallData,
@@ -1180,10 +1194,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.userInfo
-				}
+					data: controller.userInfo,
+				},
 			};
-			
+
 			setUserInfoApiCall(updatedUserInfoApiCall);
 			v4ToastManager.showSuccess('User info fetched successfully!');
 		} catch (error) {
@@ -1194,10 +1208,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					status: 401,
 					statusText: 'Unauthorized',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
-			
+
 			setUserInfoApiCall(errorApiCall);
 			v4ToastManager.showError('Failed to fetch user info');
 		}
@@ -1306,7 +1320,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -1316,10 +1330,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					'authorization-code',
 					'/api/introspect-token'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -1330,7 +1344,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -2418,7 +2432,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 											options={{
 												showEducationalNotes: true,
 												showFlowContext: true,
-												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+												urlHighlightRules:
+													EnhancedApiCallDisplayService.getDefaultHighlightRules(
+														'authorization-code'
+													),
 											}}
 										/>
 									)}
@@ -2455,7 +2472,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 
 											<GeneratedContentBox style={{ marginTop: '1rem' }}>
 												<GeneratedLabel>Tokens Received</GeneratedLabel>
-												
+
 												{/* Enhanced JWT Token Display */}
 												{tokens.access_token && (
 													<JWTTokenDisplay
@@ -2466,7 +2483,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 														onCopy={handleCopy}
 													/>
 												)}
-												
+
 												{/* Refresh Token Display */}
 												{tokens.refresh_token && (
 													<div style={{ marginTop: '1rem' }}>
@@ -2493,7 +2510,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 														</Button>
 													</div>
 												)}
-												
+
 												{/* Additional Token Information */}
 												<ParameterGrid style={{ marginTop: '1rem' }}>
 													{tokens.token_type && (
@@ -2562,7 +2579,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 													)}
 												</ActionRow>
 											</GeneratedContentBox>
-											
+
 											{/* Code Examples for Token Exchange Step */}
 											{tokens.access_token && (
 												<div style={{ marginTop: '2rem' }}>
@@ -2574,7 +2591,11 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 															clientId: credentials?.clientId || '',
 															clientSecret: credentials?.clientSecret || '',
 															redirectUri: credentials?.redirectUri || '',
-															scopes: credentials?.scopes?.split(' ') || ['openid', 'profile', 'email'],
+															scopes: credentials?.scopes?.split(' ') || [
+																'openid',
+																'profile',
+																'email',
+															],
 															environmentId: credentials?.environmentId || '',
 														}}
 													/>
@@ -2628,7 +2649,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2640,7 +2662,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2685,7 +2708,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}

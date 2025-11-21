@@ -2,23 +2,23 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
-	FiInfo,
-	FiLock,
-	FiUser,
-	FiKey,
 	FiCheckCircle,
-	FiRefreshCw,
 	FiCopy,
 	FiEye,
 	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
-import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPasswordFlowV5';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -155,8 +155,6 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	`}
 `;
 
-
-
 const PasswordInputContainer = styled.div`
 	position: relative;
 `;
@@ -197,7 +195,7 @@ const STEP_METADATA = [
 ] as const;
 
 const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
-	const controller = useResourceOwnerPasswordFlowV5({
+	const controller = useResourceOwnerPasswordFlowV7({
 		flowKey: 'oauth2-rop',
 		enableDebugger: true,
 	});
@@ -485,15 +483,17 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									User Information
 								</h4>
 
-								<div style={{
-									background: '#f8fafc',
-									border: '1px solid #e2e8f0',
-									borderRadius: '0.5rem',
-									padding: '1rem',
-									fontFamily: 'Monaco, Menlo, monospace',
-									fontSize: '0.875rem',
-									margin: '1rem 0'
-								}}>
+								<div
+									style={{
+										background: '#f8fafc',
+										border: '1px solid #e2e8f0',
+										borderRadius: '0.5rem',
+										padding: '1rem',
+										fontFamily: 'Monaco, Menlo, monospace',
+										fontSize: '0.875rem',
+										margin: '1rem 0',
+									}}
+								>
 									<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
 										{JSON.stringify(controller.userInfo, null, 2)}
 									</pre>
@@ -543,9 +543,32 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							</p>
 						)}
 
-					{controller.refreshedTokens && (
-						<>
-							{controller.tokens && (
+						{controller.refreshedTokens && (
+							<>
+								{controller.tokens && (
+									<div style={{ marginTop: '2rem' }}>
+										<h4
+											style={{
+												marginBottom: '1rem',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+											}}
+										>
+											<FiInfo color="#3b82f6" />
+											Before Refresh
+										</h4>
+										{UnifiedTokenDisplayService.showTokens(
+											controller.tokens,
+											'oauth',
+											'oauth-resource-owner-password-before',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
+									</div>
+								)}
 								<div style={{ marginTop: '2rem' }}>
 									<h4
 										style={{
@@ -555,53 +578,34 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 											gap: '0.5rem',
 										}}
 									>
-										<FiInfo color="#3b82f6" />
-										Before Refresh
+										<FiCheckCircle color="#059669" />
+										After Refresh
 									</h4>
+									<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
+										<FiInfo style={{ flexShrink: 0 }} />
+										<CardText style={{ margin: 0, fontSize: '0.875rem' }}>
+											Whether a refresh token is opaque or JWT depends on the authorization server's
+											design:
+											<br />• <strong>PingOne</strong> → typically opaque (refresh token references
+											state stored server-side)
+											<br />• <strong>PingFederate/PingAM/AIC</strong> → can issue JWT refresh
+											tokens (optional setting)
+											<br />• <strong>Custom OIDC servers</strong> → often use JWT refresh tokens to
+											avoid DB lookups
+										</CardText>
+									</InfoCard>
 									{UnifiedTokenDisplayService.showTokens(
-										controller.tokens,
+										controller.refreshedTokens,
 										'oauth',
-										'oauth-resource-owner-password-before',
+										'oauth-resource-owner-password-refresh',
 										{
 											showCopyButtons: true,
 											showDecodeButtons: true,
 										}
 									)}
 								</div>
-							)}
-							<div style={{ marginTop: '2rem' }}>
-								<h4
-									style={{
-										marginBottom: '1rem',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-									}}
-								>
-									<FiCheckCircle color="#059669" />
-									After Refresh
-								</h4>
-								<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
-									<FiInfo style={{ flexShrink: 0 }} />
-									<CardText style={{ margin: 0, fontSize: '0.875rem' }}>
-										Whether a refresh token is opaque or JWT depends on the authorization server's design:
-										<br />• <strong>PingOne</strong> → typically opaque (refresh token references state stored server-side)
-										<br />• <strong>PingFederate/PingAM/AIC</strong> → can issue JWT refresh tokens (optional setting)
-										<br />• <strong>Custom OIDC servers</strong> → often use JWT refresh tokens to avoid DB lookups
-									</CardText>
-								</InfoCard>
-								{UnifiedTokenDisplayService.showTokens(
-									controller.refreshedTokens,
-									'oauth',
-									'oauth-resource-owner-password-refresh',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
-							</div>
-						</>
-					)}
+							</>
+						)}
 					</FormContainer>
 				);
 

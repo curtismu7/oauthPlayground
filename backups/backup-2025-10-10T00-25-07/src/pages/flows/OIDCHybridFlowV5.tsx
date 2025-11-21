@@ -18,26 +18,26 @@ import {
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import { JWTTokenDisplay } from '../../components/JWTTokenDisplay';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowStepService, type StepConfig } from '../../services/flowStepService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { ResponseMode } from '../../services/responseModeService';
 import { credentialManager } from '../../utils/credentialManager';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import { JWTTokenDisplay } from '../../components/JWTTokenDisplay';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { FlowStepService, type StepConfig } from '../../services/flowStepService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -57,7 +57,10 @@ const log = {
 };
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Hybrid Flow and configure credentials' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the OIDC Hybrid Flow and configure credentials',
+	},
 	{ title: 'Step 1: Authorization Request', subtitle: 'Build and launch authorization URL' },
 	{ title: 'Step 2: Process Response', subtitle: 'Handle callback and validate tokens' },
 	{ title: 'Step 3: Token Exchange', subtitle: 'Exchange code for additional tokens' },
@@ -124,7 +127,6 @@ const MainCard = styled.div`
 	overflow: hidden;
 	margin-bottom: 2rem;
 `;
-
 
 const StepContent = styled.div`
 	padding: 2rem;
@@ -339,7 +341,6 @@ const ParameterValue = styled.div`
 	border-radius: 0.375rem;
 `;
 
-
 const SectionDivider = styled.div`
 	height: 1px;
 	background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
@@ -382,33 +383,47 @@ const OIDCHybridFlowV5: React.FC = () => {
 		validation: {
 			isStepValid: (stepIndex: number) => {
 				switch (stepIndex) {
-					case 0: return !!hybridFlow.credentials?.environmentId && !!hybridFlow.credentials?.clientId;
-					case 1: return !!hybridFlow.authorizationUrl;
-					case 2: return !!hybridFlow.tokens || !!hybridFlow.error;
-					case 3: return !!hybridFlow.tokens;
-					case 4: return !!hybridFlow.tokens;
-					case 5: return true;
-					case 6: return true;
-					default: return false;
+					case 0:
+						return !!hybridFlow.credentials?.environmentId && !!hybridFlow.credentials?.clientId;
+					case 1:
+						return !!hybridFlow.authorizationUrl;
+					case 2:
+						return !!hybridFlow.tokens || !!hybridFlow.error;
+					case 3:
+						return !!hybridFlow.tokens;
+					case 4:
+						return !!hybridFlow.tokens;
+					case 5:
+						return true;
+					case 6:
+						return true;
+					default:
+						return false;
 				}
 			},
 			getStepRequirements: (stepIndex: number) => {
 				switch (stepIndex) {
-					case 0: return ['Valid environment ID', 'Client ID', 'Redirect URI'];
-					case 1: return ['Complete step 0', 'Valid credentials'];
-					case 2: return ['Authorization URL generated', 'User authorization'];
-					case 3: return ['Authorization code received'];
-					case 4: return ['Tokens received'];
-					case 5: return ['Flow completed'];
-					case 6: return ['All previous steps completed'];
-					default: return [];
+					case 0:
+						return ['Valid environment ID', 'Client ID', 'Redirect URI'];
+					case 1:
+						return ['Complete step 0', 'Valid credentials'];
+					case 2:
+						return ['Authorization URL generated', 'User authorization'];
+					case 3:
+						return ['Authorization code received'];
+					case 4:
+						return ['Tokens received'];
+					case 5:
+						return ['Flow completed'];
+					case 6:
+						return ['All previous steps completed'];
+					default:
+						return [];
 				}
 			},
 		},
 		requirements: [],
 	}));
-
-
 
 	usePageScroll();
 
@@ -436,7 +451,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 			if (error) {
 				console.error('❌ [OIDC-Hybrid-V5] Authorization error:', error, errorDescription);
 				v4ToastManager.showError(`Authorization failed: ${errorDescription || error}`);
-				
+
 				// Clear URL parameters
 				window.history.replaceState({}, '', window.location.pathname);
 				return;
@@ -444,7 +459,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 			if (authCode) {
 				console.log('✅ [OIDC-Hybrid-V5] Authorization code received from URL');
-				
+
 				// Create tokens object with what we received
 				const tokens: {
 					code: string;
@@ -470,12 +485,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 				// Set the tokens in the hybrid flow
 				hybridFlow.setTokens(tokens);
-				
+
 				// Auto-advance to step 2 (process response)
 				setCurrentStep(2);
-				
+
 				v4ToastManager.showSuccess('🎉 Authorization successful! Ready for token exchange.');
-				
+
 				// Clear URL parameters
 				window.history.replaceState({}, '', window.location.pathname);
 			}
@@ -492,9 +507,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [scopes, setScopes] = useState('openid profile email');
-	const [responseType] = useState<
-		'code id_token' | 'code token' | 'code id_token token'
-	>('code id_token');
+	const [responseType] = useState<'code id_token' | 'code token' | 'code id_token token'>(
+		'code id_token'
+	);
 	const [responseMode, setResponseMode] = useState<ResponseMode>('fragment');
 
 	// Update credentials when response mode changes
@@ -506,7 +521,6 @@ const OIDCHybridFlowV5: React.FC = () => {
 			});
 		}
 	}, [responseMode, hybridFlow]);
-
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -566,21 +580,24 @@ const OIDCHybridFlowV5: React.FC = () => {
 		log.info('Credentials saved');
 	}, [environmentId, clientId, clientSecret, scopes, responseType, hybridFlow]);
 
-	const handleClientIdChange = useCallback((newClientId: string) => {
-		setClientId(newClientId);
-		// Auto-save credentials if we have both environmentId and clientId
-		if (environmentId && newClientId && environmentId.trim() && newClientId.trim()) {
-			hybridFlow.setCredentials({
-				environmentId,
-				clientId: newClientId,
-				clientSecret,
-				scopes,
-				responseType,
-				responseMode,
-			});
-			v4ToastManager.showSuccess('Credentials auto-saved');
-		}
-	}, [environmentId, clientSecret, scopes, responseType, responseMode, hybridFlow]);
+	const handleClientIdChange = useCallback(
+		(newClientId: string) => {
+			setClientId(newClientId);
+			// Auto-save credentials if we have both environmentId and clientId
+			if (environmentId && newClientId && environmentId.trim() && newClientId.trim()) {
+				hybridFlow.setCredentials({
+					environmentId,
+					clientId: newClientId,
+					clientSecret,
+					scopes,
+					responseType,
+					responseMode,
+				});
+				v4ToastManager.showSuccess('Credentials auto-saved');
+			}
+		},
+		[environmentId, clientSecret, scopes, responseType, responseMode, hybridFlow]
+	);
 
 	const handleStartAuthorization = useCallback(() => {
 		try {
@@ -588,7 +605,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 			log.info('Redirecting to authorization URL');
 			window.location.href = authUrl;
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
@@ -598,7 +616,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 			hybridFlow.generateAuthorizationUrl();
 			log.info('Authorization URL generated');
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
@@ -815,9 +834,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 							showSuggestions={true}
 							autoDiscover={false}
 						/>
-						
+
 						<SectionDivider />
-						
+
 						<CredentialsInput
 							environmentId={environmentId}
 							clientId={clientId}
@@ -847,7 +866,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 						/>
 
 						<SectionDivider />
-						
+
 						<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
 
 						<SectionDivider />
@@ -896,7 +915,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 					<FiExternalLink /> Step 2: Generate Authorization URL
 				</StepTitle>
 				<StepDescription>
-					Configure response mode and generate the authorization URL to redirect users to PingOne for authentication.
+					Configure response mode and generate the authorization URL to redirect users to PingOne
+					for authentication.
 				</StepDescription>
 			</StepHeader>
 
@@ -918,7 +938,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 							<FiInfo size={20} />
 							<div>
 								<InfoText>
-									Choose how the authorization response should be returned. This affects security and user experience.
+									Choose how the authorization response should be returned. This affects security
+									and user experience.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1257,7 +1278,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -1277,7 +1298,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -1290,7 +1311,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 	};
 
 	const canNavigateNext = useCallback((): boolean => {
-		const config = stepConfigs.find(c => c.stepIndex === currentStep);
+		const config = stepConfigs.find((c) => c.stepIndex === currentStep);
 		const isCurrentStepValid = config ? config.validation.isStepValid(currentStep) : false;
 		return isCurrentStepValid && currentStep < STEP_METADATA.length - 1;
 	}, [currentStep, stepConfigs]);

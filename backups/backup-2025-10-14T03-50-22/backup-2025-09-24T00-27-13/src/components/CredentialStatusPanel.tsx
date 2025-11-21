@@ -1,19 +1,19 @@
 // src/components/CredentialStatusPanel.tsx
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
-	FiXCircle,
 	FiAlertTriangle,
-	FiRefreshCw,
+	FiCheckCircle,
 	FiClock,
-	FiShield,
+	FiRefreshCw,
 	FiServer,
+	FiShield,
+	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { useAuth } from '../contexts/NewAuthContext';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { useAuth } from '../contexts/NewAuthContext';
-import { showFlowSuccess, showFlowError } from './CentralizedSuccessMessage';
+import { showFlowError, showFlowSuccess } from './CentralizedSuccessMessage';
 import ServerStatusModal from './ServerStatusModal';
 
 const StatusPanel = styled.div`

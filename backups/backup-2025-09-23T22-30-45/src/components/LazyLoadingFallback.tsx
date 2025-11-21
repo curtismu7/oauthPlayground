@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiLoader, FiShield, FiUsers, FiZap } from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
-import { FiLoader, FiZap, FiShield, FiUsers } from 'react-icons/fi';
 
 // Loading animation
 const spin = keyframes`

@@ -74,7 +74,7 @@ export class CibaFlowSharedService {
 		 */
 		showCopiedToClipboard(label: string): void {
 			v4ToastManager.showSuccess(`${label} copied to clipboard`);
-		}
+		},
 	};
 
 	/**
@@ -87,38 +87,38 @@ export class CibaFlowSharedService {
 		 */
 		validateConfig(config: any): string[] {
 			const errors: string[] = [];
-			
+
 			if (!config.environmentId?.trim()) {
 				errors.push('Environment ID is required');
 			}
-			
+
 			if (!config.clientId?.trim()) {
 				errors.push('Client ID is required');
 			}
-			
+
 			if (!config.scope?.trim()) {
 				errors.push('Scope is required');
 			}
-			
+
 			if (!config.loginHint?.trim()) {
 				errors.push('Login hint is required');
 			}
-			
+
 			if (!config.authMethod) {
 				errors.push('Authentication method is required');
 			}
-			
+
 			// CIBA-specific validation
 			if (config.scope && !config.scope.includes('openid')) {
 				errors.push('Scope must include "openid" for OIDC CIBA flow');
 			}
-			
+
 			if (config.bindingMessage && config.bindingMessage.length > 255) {
 				errors.push('Binding message must be 255 characters or less');
 			}
-			
+
 			return errors;
-		}
+		},
 	};
 
 	/**
@@ -172,7 +172,7 @@ export class CibaFlowSharedService {
 				default:
 					return '#6b7280';
 			}
-		}
+		},
 	};
 }
 

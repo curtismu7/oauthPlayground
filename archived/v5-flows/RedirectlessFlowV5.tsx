@@ -19,8 +19,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import {
 	HelperText,
 	ResultsHeading,
@@ -29,13 +29,14 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService'
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
+
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -459,7 +460,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		// Step 5
 		completionOverview: false,
 		completionDetails: false,
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 
@@ -512,7 +513,7 @@ const RedirectlessFlowV5: React.FC = () => {
 				return [];
 			default:
 				return [];
-			}
+		}
 	}, []);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
@@ -660,7 +661,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Flow reset successfully!');
 	}, [controller]);
 
-	
 	const renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
@@ -669,7 +669,7 @@ const RedirectlessFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false, // Update based on flow capabilities
-			showIntrospection: false // Update based on flow capabilities
+			showIntrospection: false, // Update based on flow capabilities
 		};
 
 		return (
@@ -681,99 +681,94 @@ const RedirectlessFlowV5: React.FC = () => {
 		);
 	}, [collapsedSections.flowSummary, toggleSection]);
 
-const renderStepContent = useMemo(() => {
+	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
 			case 0:
 				return (
 					<>
 						<CollapsibleHeader
-					title="What is Redirectless Flow (pi.flow)?"
-					icon={<FiInfo />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-										<FiShield size={20} />
-										<div>
-											<InfoTitle>PingOne Proprietary Response Mode</InfoTitle>
-											<InfoText>
-												<code>response_mode=pi.flow</code> is a PingOne-specific OAuth 2.0 extension
-												that allows applications to request OAuth/OIDC tokens without redirecting
-												the user's browser. Instead of traditional redirects, the authentication UI
-												is hosted within your application, and tokens are returned in a JSON
-												response.
-											</InfoText>
-											<InfoList>
-												<li>
-													<strong>No Browser Redirects:</strong> Authentication happens within your
-													app's context
-												</li>
-												<li>
-													<strong>JSON Response:</strong> Tokens returned as JSON instead of URL
-													parameters
-												</li>
-												<li>
-													<strong>Flow Object:</strong> Receive a flow object to manage
-													authentication state
-												</li>
-												<li>
-													<strong>Embedded UI:</strong> Host PingOne authentication UI in your
-													application
-												</li>
-											</InfoList>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+							title="What is Redirectless Flow (pi.flow)?"
+							icon={<FiInfo />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>PingOne Proprietary Response Mode</InfoTitle>
+									<InfoText>
+										<code>response_mode=pi.flow</code> is a PingOne-specific OAuth 2.0 extension
+										that allows applications to request OAuth/OIDC tokens without redirecting the
+										user's browser. Instead of traditional redirects, the authentication UI is
+										hosted within your application, and tokens are returned in a JSON response.
+									</InfoText>
+									<InfoList>
+										<li>
+											<strong>No Browser Redirects:</strong> Authentication happens within your
+											app's context
+										</li>
+										<li>
+											<strong>JSON Response:</strong> Tokens returned as JSON instead of URL
+											parameters
+										</li>
+										<li>
+											<strong>Flow Object:</strong> Receive a flow object to manage authentication
+											state
+										</li>
+										<li>
+											<strong>Embedded UI:</strong> Host PingOne authentication UI in your
+											application
+										</li>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
-						<CollapsibleHeader
-					title="Use Cases"
-					icon={<FiMonitor />}
-					defaultCollapsed={true}
-				>
-					<UseCaseGrid>
-										<UseCaseCard>
-											<UseCaseIcon>
-												<FiSmartphone />
-											</UseCaseIcon>
-											<UseCaseTitle>Mobile Applications</UseCaseTitle>
-											<UseCaseDescription>
-												Native mobile apps can implement custom authentication UI without browser
-												redirects.
-											</UseCaseDescription>
-										</UseCaseCard>
+						<CollapsibleHeader title="Use Cases" icon={<FiMonitor />} defaultCollapsed={true}>
+							<UseCaseGrid>
+								<UseCaseCard>
+									<UseCaseIcon>
+										<FiSmartphone />
+									</UseCaseIcon>
+									<UseCaseTitle>Mobile Applications</UseCaseTitle>
+									<UseCaseDescription>
+										Native mobile apps can implement custom authentication UI without browser
+										redirects.
+									</UseCaseDescription>
+								</UseCaseCard>
 
-										<UseCaseCard>
-											<UseCaseIcon>
-												<FiMonitor />
-											</UseCaseIcon>
-											<UseCaseTitle>Single Page Applications</UseCaseTitle>
-											<UseCaseDescription>
-												SPAs can render authentication UI natively without leaving the application
-												context.
-											</UseCaseDescription>
-										</UseCaseCard>
+								<UseCaseCard>
+									<UseCaseIcon>
+										<FiMonitor />
+									</UseCaseIcon>
+									<UseCaseTitle>Single Page Applications</UseCaseTitle>
+									<UseCaseDescription>
+										SPAs can render authentication UI natively without leaving the application
+										context.
+									</UseCaseDescription>
+								</UseCaseCard>
 
-										<UseCaseCard>
-											<UseCaseIcon>
-												<FiShield />
-											</UseCaseIcon>
-											<UseCaseTitle>MFA Integration</UseCaseTitle>
-											<UseCaseDescription>
-												Integrate PingOne MFA into existing applications without redirecting users.
-											</UseCaseDescription>
-										</UseCaseCard>
+								<UseCaseCard>
+									<UseCaseIcon>
+										<FiShield />
+									</UseCaseIcon>
+									<UseCaseTitle>MFA Integration</UseCaseTitle>
+									<UseCaseDescription>
+										Integrate PingOne MFA into existing applications without redirecting users.
+									</UseCaseDescription>
+								</UseCaseCard>
 
-										<UseCaseCard>
-											<UseCaseIcon>
-												<FiLock />
-											</UseCaseIcon>
-											<UseCaseTitle>Transaction Approval</UseCaseTitle>
-											<UseCaseDescription>
-												Implement strong authentication for high-value transactions without full
-												page redirects.
-											</UseCaseDescription>
-										</UseCaseCard>
-									</UseCaseGrid>
-				</CollapsibleHeader>
+								<UseCaseCard>
+									<UseCaseIcon>
+										<FiLock />
+									</UseCaseIcon>
+									<UseCaseTitle>Transaction Approval</UseCaseTitle>
+									<UseCaseDescription>
+										Implement strong authentication for high-value transactions without full page
+										redirects.
+									</UseCaseDescription>
+								</UseCaseCard>
+							</UseCaseGrid>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -854,7 +849,12 @@ const renderStepContent = useMemo(() => {
 									environmentId: newEnvId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+								if (
+									newEnvId &&
+									controller.credentials.clientId &&
+									newEnvId.trim() &&
+									controller.credentials.clientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
@@ -882,7 +882,12 @@ const renderStepContent = useMemo(() => {
 									clientId: newClientId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									controller.credentials.environmentId &&
+									newClientId &&
+									controller.credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
@@ -910,22 +915,22 @@ const renderStepContent = useMemo(() => {
 				return (
 					<>
 						<CollapsibleHeader
-					title="PKCE Parameters Overview"
-					icon={<FiKey />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-										<FiKey size={20} />
-										<div>
-											<InfoTitle>PKCE for Redirectless Flow</InfoTitle>
-											<InfoText>
-												PKCE (Proof Key for Code Exchange) is essential for security in redirectless
-												flows. The code challenge is included in the authorization request, and the
-												code verifier is used during token exchange.
-											</InfoText>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+							title="PKCE Parameters Overview"
+							icon={<FiKey />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="info">
+								<FiKey size={20} />
+								<div>
+									<InfoTitle>PKCE for Redirectless Flow</InfoTitle>
+									<InfoText>
+										PKCE (Proof Key for Code Exchange) is essential for security in redirectless
+										flows. The code challenge is included in the authorization request, and the code
+										verifier is used during token exchange.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1053,20 +1058,20 @@ const renderStepContent = useMemo(() => {
 				return (
 					<>
 						<CollapsibleHeader
-					title="Authorization Request with pi.flow"
-					icon={<FiCode />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-										<FiCode size={20} />
-										<div>
-											<InfoTitle>Key Parameter: response_mode=pi.flow</InfoTitle>
-											<InfoText>
-												The <code>response_mode=pi.flow</code> parameter tells PingOne to return a
-												flow object instead of redirecting the browser. This enables embedded
-												authentication within your application.
-											</InfoText>
-											<CodeBlock>{`GET /as/authorize?
+							title="Authorization Request with pi.flow"
+							icon={<FiCode />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="info">
+								<FiCode size={20} />
+								<div>
+									<InfoTitle>Key Parameter: response_mode=pi.flow</InfoTitle>
+									<InfoText>
+										The <code>response_mode=pi.flow</code> parameter tells PingOne to return a flow
+										object instead of redirecting the browser. This enables embedded authentication
+										within your application.
+									</InfoText>
+									<CodeBlock>{`GET /as/authorize?
   response_type=code
   &response_mode=pi.flow  // KEY PARAMETER
   &client_id={{clientID}}
@@ -1076,9 +1081,9 @@ const renderStepContent = useMemo(() => {
   &nonce={{randomNonce}}
   &code_challenge={{codeChallenge}}
   &code_challenge_method=S256`}</CodeBlock>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1186,22 +1191,22 @@ const renderStepContent = useMemo(() => {
 				return (
 					<>
 						<CollapsibleHeader
-					title="Flow Response (No Redirect)"
-					icon={<FiZap />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-										<FiZap size={20} />
-										<div>
-											<InfoTitle>Flow Object Response</InfoTitle>
-											<InfoText>
-												Instead of redirecting, PingOne returns a JSON flow object containing
-												authentication state and UI components. Your application renders the
-												authentication UI based on this object.
-											</InfoText>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+							title="Flow Response (No Redirect)"
+							icon={<FiZap />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="info">
+								<FiZap size={20} />
+								<div>
+									<InfoTitle>Flow Object Response</InfoTitle>
+									<InfoText>
+										Instead of redirecting, PingOne returns a JSON flow object containing
+										authentication state and UI components. Your application renders the
+										authentication UI based on this object.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1249,22 +1254,22 @@ const renderStepContent = useMemo(() => {
 				return (
 					<>
 						<CollapsibleHeader
-					title="Token Response (JSON Format)"
-					icon={<FiKey />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-										<FiKey size={20} />
-										<div>
-											<InfoTitle>Tokens in JSON Format</InfoTitle>
-											<InfoText>
-												After authentication, tokens are returned in JSON format instead of URL
-												parameters. This provides better security and allows your application to
-												handle tokens programmatically.
-											</InfoText>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+							title="Token Response (JSON Format)"
+							icon={<FiKey />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="info">
+								<FiKey size={20} />
+								<div>
+									<InfoTitle>Tokens in JSON Format</InfoTitle>
+									<InfoText>
+										After authentication, tokens are returned in JSON format instead of URL
+										parameters. This provides better security and allows your application to handle
+										tokens programmatically.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1310,38 +1315,37 @@ const renderStepContent = useMemo(() => {
 				return (
 					<>
 						<CollapsibleHeader
-					title="Redirectless Flow Complete"
-					icon={<FiCheckCircle />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="success">
-										<FiCheckCircle size={20} />
-										<div>
-											<InfoTitle>Flow Complete!</InfoTitle>
-											<InfoText>
-												You've successfully completed the redirectless flow demonstration. You've
-												seen how
-												<code>response_mode=pi.flow</code> enables embedded authentication without
-												browser redirects.
-											</InfoText>
-											<InfoList>
-												<li>
-													<strong>No Redirects:</strong> Authentication happened within the app
-													context
-												</li>
-												<li>
-													<strong>JSON Responses:</strong> Flow object and tokens returned as JSON
-												</li>
-												<li>
-													<strong>Better UX:</strong> Users stayed within your application
-												</li>
-												<li>
-													<strong>More Secure:</strong> Tokens not exposed in URL parameters
-												</li>
-											</InfoList>
-										</div>
-									</InfoBox>
-				</CollapsibleHeader>
+							title="Redirectless Flow Complete"
+							icon={<FiCheckCircle />}
+							defaultCollapsed={false}
+						>
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>Flow Complete!</InfoTitle>
+									<InfoText>
+										You've successfully completed the redirectless flow demonstration. You've seen
+										how
+										<code>response_mode=pi.flow</code> enables embedded authentication without
+										browser redirects.
+									</InfoText>
+									<InfoList>
+										<li>
+											<strong>No Redirects:</strong> Authentication happened within the app context
+										</li>
+										<li>
+											<strong>JSON Responses:</strong> Flow object and tokens returned as JSON
+										</li>
+										<li>
+											<strong>Better UX:</strong> Users stayed within your application
+										</li>
+										<li>
+											<strong>More Secure:</strong> Tokens not exposed in URL parameters
+										</li>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>

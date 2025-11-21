@@ -1,11 +1,20 @@
 // src/services/pkceService.tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useState } from 'react';
+import {
+	FiCheck,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiRefreshCw, FiShield, FiKey, FiEye, FiEyeOff, FiInfo, FiExternalLink, FiCheck } from 'react-icons/fi';
-import { generateCodeVerifier, generateCodeChallenge } from '../utils/oauth';
-import { CopyButtonVariants } from './copyButtonService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
+import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { CopyButtonVariants } from './copyButtonService';
 
 export interface PKCECodes {
 	codeVerifier: string;
@@ -81,11 +90,10 @@ const GenerateButton = styled.button<{ $isGenerating: boolean }>`
 	align-items: center;
 	gap: 0.75rem;
 	padding: 1rem 1.5rem;
-	background: ${({ $isGenerating }) => 
-		$isGenerating 
-			? 'linear-gradient(135deg, #6b7280, #4b5563)' 
-			: 'linear-gradient(135deg, #3b82f6, #2563eb)'
-	};
+	background: ${({ $isGenerating }) =>
+		$isGenerating
+			? 'linear-gradient(135deg, #6b7280, #4b5563)'
+			: 'linear-gradient(135deg, #3b82f6, #2563eb)'};
 	color: white;
 	border: none;
 	border-radius: 12px;
@@ -193,6 +201,7 @@ const PKCEFieldsContainer = styled.div`
 	border: 2px solid #e5e7eb;
 	border-radius: 16px;
 	padding: 2rem;
+	margin-top: 2rem;
 	margin-bottom: 2rem;
 	transition: all 0.3s ease;
 	position: relative;
@@ -292,25 +301,16 @@ const Badge = styled.div<{ $variant: 'secret' | 'public' }>`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
-	background: ${({ $variant }) => 
-		$variant === 'secret' 
-			? 'linear-gradient(135deg, #fef2f2, #fecaca)' 
-			: 'linear-gradient(135deg, #dbeafe, #bfdbfe)'
-	};
-	color: ${({ $variant }) => 
-		$variant === 'secret' 
-			? '#991b1b' 
-			: '#1e40af'
-	};
+	background: ${({ $variant }) =>
+		$variant === 'secret'
+			? 'linear-gradient(135deg, #fef2f2, #fecaca)'
+			: 'linear-gradient(135deg, #dbeafe, #bfdbfe)'};
+	color: ${({ $variant }) => ($variant === 'secret' ? '#991b1b' : '#1e40af')};
 	padding: 0.375rem 0.75rem;
 	border-radius: 8px;
 	font-size: 0.8125rem;
 	font-weight: 600;
-	border: 1px solid ${({ $variant }) => 
-		$variant === 'secret' 
-			? '#f87171' 
-			: '#60a5fa'
-	};
+	border: 1px solid ${({ $variant }) => ($variant === 'secret' ? '#f87171' : '#60a5fa')};
 `;
 
 const SecurityInfo = styled.div`
@@ -388,7 +388,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 	showDetails = true,
 	title = 'Generate PKCE Codes',
 	subtitle = 'Create secure code verifier and challenge for authorization',
-	authUrl
+	authUrl,
 }) => {
 	const [showCodeVerifier, setShowCodeVerifier] = useState(false);
 	const [isLocalGenerating, setIsLocalGenerating] = useState(false);
@@ -400,16 +400,16 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 		try {
 			const codeVerifier = generateCodeVerifier();
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
-			
+
 			const newCodes: PKCECodes = {
 				codeVerifier,
 				codeChallenge,
-				codeChallengeMethod: 'S256'
+				codeChallengeMethod: 'S256',
 			};
 
 			onChange(newCodes);
 			onGenerate?.();
-			
+
 			v4ToastManager.showSuccess('PKCE codes generated successfully!');
 		} catch (error) {
 			console.error('PKCE generation failed:', error);
@@ -424,7 +424,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 	// Generate authorization URL with PKCE parameters
 	const getAuthorizationUrl = useCallback(() => {
 		if (!authUrl || !value.codeChallenge) return authUrl;
-		
+
 		const url = new URL(authUrl);
 		url.searchParams.set('code_challenge', value.codeChallenge);
 		url.searchParams.set('code_challenge_method', value.codeChallengeMethod);
@@ -456,7 +456,8 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 								Security Protection
 							</EducationalCardTitle>
 							<EducationalText>
-								PKCE (Proof Key for Code Exchange) protects against authorization code interception attacks by requiring a secret code verifier that only your application knows.
+								PKCE (Proof Key for Code Exchange) protects against authorization code interception
+								attacks by requiring a secret code verifier that only your application knows.
 							</EducationalText>
 						</EducationalCard>
 						<EducationalCard>
@@ -465,12 +466,45 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 								How It Works
 							</EducationalCardTitle>
 							<EducationalText>
-								Your app generates a secret code verifier, creates a challenge from it, sends the challenge publicly, but keeps the verifier secret until token exchange.
+								Your app generates a secret code verifier, creates a challenge from it, sends the
+								challenge publicly, but keeps the verifier secret until token exchange.
 							</EducationalText>
 						</EducationalCard>
 					</EducationalContent>
 				</EducationalSection>
 			)}
+
+			{/* PKCE Generation Button Section */}
+			<PKCEButtonSection>
+				<GenerateButton
+					onClick={handleGenerate}
+					disabled={isGeneratingState}
+					$isGenerating={isGeneratingState}
+				>
+					{isGeneratingState ? (
+						<>
+							<div
+								style={{
+									width: '18px',
+									height: '18px',
+									border: '2px solid #ffffff',
+									borderTop: '2px solid transparent',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite',
+								}}
+							/>
+							Generating...
+						</>
+					) : (
+						<>
+							<FiRefreshCw />
+							{value.codeVerifier && value.codeChallenge
+								? 'Regenerate PKCE Codes'
+								: 'Generate PKCE Codes'}
+						</>
+					)}
+				</GenerateButton>
+			</PKCEButtonSection>
 
 			{value.codeVerifier && value.codeChallenge && (
 				<>
@@ -485,7 +519,9 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 							</PKCELabel>
 							<PKCEValueContainer>
 								<PKCEValue>
-									{showCodeVerifier ? value.codeVerifier : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
+									{showCodeVerifier
+										? value.codeVerifier
+										: '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
 								</PKCEValue>
 								<ToggleButton
 									onClick={() => setShowCodeVerifier(!showCodeVerifier)}
@@ -507,9 +543,7 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 								Code Challenge
 							</PKCELabel>
 							<PKCEValueContainer>
-								<PKCEValue>
-									{value.codeChallenge}
-								</PKCEValue>
+								<PKCEValue>{value.codeChallenge}</PKCEValue>
 								{CopyButtonVariants.identifier(value.codeChallenge, 'Code Challenge')}
 							</PKCEValueContainer>
 						</PKCEField>
@@ -522,10 +556,12 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 						</SecurityTitle>
 						<SecurityList>
 							<SecurityItem>
-								<strong>Code Verifier:</strong> 43-128 character secret generated by your application
+								<strong>Code Verifier:</strong> 43-128 character secret generated by your
+								application
 							</SecurityItem>
 							<SecurityItem>
-								<strong>Code Challenge:</strong> SHA256 hash of the verifier, sent in authorization request
+								<strong>Code Challenge:</strong> SHA256 hash of the verifier, sent in authorization
+								request
 							</SecurityItem>
 							<SecurityItem>
 								<strong>Method:</strong> S256 (SHA256) - the recommended and most secure method
@@ -552,34 +588,6 @@ export const PKCEService: React.FC<PKCEServiceProps> = ({
 					)}
 				</>
 			)}
-
-			{/* PKCE Generation Button Section */}
-			<PKCEButtonSection>
-				<GenerateButton
-					onClick={handleGenerate}
-					disabled={isGeneratingState}
-					$isGenerating={isGeneratingState}
-				>
-					{isGeneratingState ? (
-						<>
-							<div style={{
-								width: '18px',
-								height: '18px',
-								border: '2px solid #ffffff',
-								borderTop: '2px solid transparent',
-								borderRadius: '50%',
-								animation: 'spin 1s linear infinite'
-							}} />
-							Generating...
-						</>
-					) : (
-						<>
-							<FiRefreshCw />
-							{value.codeVerifier && value.codeChallenge ? 'Regenerate PKCE Codes' : 'Generate PKCE Codes'}
-						</>
-					)}
-				</GenerateButton>
-			</PKCEButtonSection>
 		</PKCEContainer>
 	);
 };
@@ -594,11 +602,11 @@ export const PKCEServiceUtils = {
 		return {
 			codeVerifier,
 			codeChallenge,
-			codeChallengeMethod: 'S256'
+			codeChallengeMethod: 'S256',
 		};
 	},
-	
+
 	validateCodes: (codes: PKCECodes): boolean => {
 		return !!(codes.codeVerifier && codes.codeChallenge && codes.codeChallengeMethod === 'S256');
-	}
+	},
 };

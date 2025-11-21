@@ -1,4 +1,4 @@
-import { Shield, Key, Lock, AlertCircle, CheckCircle, Server, RefreshCw } from 'lucide-react';
+import { AlertCircle, CheckCircle, Key, Lock, RefreshCw, Server, Shield } from 'lucide-react';
 
 // Exportable data service
 export const PingOneWorkerData = {

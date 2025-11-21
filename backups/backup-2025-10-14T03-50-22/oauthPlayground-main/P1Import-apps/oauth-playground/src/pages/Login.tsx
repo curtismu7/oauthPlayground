@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiLogIn,
 	FiAlertCircle,
-	FiCopy,
 	FiCheck,
-	FiEdit,
 	FiCheckCircle,
+	FiCopy,
+	FiEdit,
 	FiEye,
 	FiEyeOff,
+	FiLogIn,
 } from 'react-icons/fi';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginContainer = styled.div`

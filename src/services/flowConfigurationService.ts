@@ -1,6 +1,7 @@
 // src/services/flowConfigurationService.ts
-import { v4ToastManager } from '../utils/v4ToastMessages';
+
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowRedirectUriService } from './flowRedirectUriService';
 
 export interface FlowConfigurationServiceOptions {

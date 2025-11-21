@@ -1,7 +1,7 @@
 // src/utils/jwtValidation.ts - JWT validation utilities for multi-flow reuse
 import { JWTPayload } from 'jose';
+import { JWKSConfig, TokenValidationOptions, ValidationResult, validateJWT } from './jwks';
 import { logger } from './logger';
-import { validateJWT, JWKSConfig, TokenValidationOptions, ValidationResult } from './jwks';
 
 /**
  * Extended validation options for different flow types

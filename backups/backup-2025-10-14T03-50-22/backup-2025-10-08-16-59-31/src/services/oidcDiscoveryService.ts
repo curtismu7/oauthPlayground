@@ -84,7 +84,7 @@ class OIDCDiscoveryService {
 
 			// Extract environment ID and region from issuer URL
 			const { environmentId, region } = this.extractEnvironmentInfo(normalizedIssuer);
-			
+
 			// Use backend proxy to avoid CORS issues
 			const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
 			console.log('[OIDC Discovery] Fetching discovery document via proxy:', proxyUrl);
@@ -109,7 +109,7 @@ class OIDCDiscoveryService {
 			}
 
 			const result = await response.json();
-			
+
 			if (!result.success) {
 				throw new Error(result.error_description || 'Discovery failed');
 			}
@@ -217,26 +217,28 @@ class OIDCDiscoveryService {
 
 			console.log('[OIDC Discovery] Processing issuer URL:', issuerUrl);
 			const url = new URL(issuerUrl);
-			
+
 			// Validate that this is a PingOne URL
 			if (!url.hostname.includes('pingone')) {
-				throw new Error(`Only PingOne issuer URLs are supported. Received: ${issuerUrl}. Please use a URL like https://auth.pingone.com/{environment-id}`);
+				throw new Error(
+					`Only PingOne issuer URLs are supported. Received: ${issuerUrl}. Please use a URL like https://auth.pingone.com/{environment-id}`
+				);
 			}
-			
+
 			// Extract environment ID from path (e.g., /b9817c16-9910-4415-b67e-4ac687da74d9)
-			const pathParts = url.pathname.split('/').filter(part => part.length > 0);
+			const pathParts = url.pathname.split('/').filter((part) => part.length > 0);
 			const environmentId = pathParts[0];
-			
+
 			if (!environmentId) {
 				throw new Error('Environment ID not found in issuer URL path');
 			}
-			
+
 			// Validate environment ID format (should be a UUID)
 			const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 			if (!uuidRegex.test(environmentId)) {
 				throw new Error('Invalid environment ID format. Expected UUID format.');
 			}
-			
+
 			// Determine region from hostname
 			let region = 'us'; // default
 			if (url.hostname === 'auth.pingone.eu') {
@@ -246,7 +248,7 @@ class OIDCDiscoveryService {
 			} else if (url.hostname === 'auth.pingone.ca') {
 				region = 'ca';
 			}
-			
+
 			return { environmentId, region };
 		} catch (error) {
 			if (error instanceof Error) {
@@ -315,7 +317,7 @@ class OIDCDiscoveryService {
 
 			// Clean up the input first
 			const cleanedUrl = issuerUrl.trim();
-			
+
 			// If it doesn't start with http/https, assume https
 			let urlToNormalize = cleanedUrl;
 			if (!/^https?:\/\//.test(cleanedUrl)) {

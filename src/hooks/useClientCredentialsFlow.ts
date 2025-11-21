@@ -210,12 +210,12 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 	const setConfig = useCallback((newConfig: ClientCredentialsConfig) => {
 		// Update state immediately for UI responsiveness
 		setConfigState(newConfig);
-		
+
 		// Debounce localStorage save to prevent excessive writes
 		if (saveDebounceRef.current) {
 			clearTimeout(saveDebounceRef.current);
 		}
-		
+
 		saveDebounceRef.current = setTimeout(() => {
 			try {
 				localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));

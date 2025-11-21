@@ -186,7 +186,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			}, 100);
 		});
 	}
-	
+
 	isLoadingConfiguration = true;
 	try {
 		console.log(' [NewAuthContext] Loading configuration...');

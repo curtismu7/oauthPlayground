@@ -1,18 +1,18 @@
 // src/services/authorizationCodeSharedService.ts
 /**
  * Authorization Code Flow Shared Service
- * 
+ *
  * Consolidates ALL shared logic between OAuth Authorization Code V5 and OIDC Authorization Code V5
  * to ensure perfect synchronization. Any update here automatically applies to both flows.
- * 
+ *
  * Based on the proven ImplicitFlowSharedService pattern.
  */
 
 import { useCallback, useState } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { validateForStep } from './credentialsValidationService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { validateForStep } from './credentialsValidationService';
 
 export type AuthzFlowVariant = 'oauth' | 'oidc';
 
@@ -61,9 +61,7 @@ export class AuthzSessionStorageManager {
 	 * Save PingOne app configuration to session storage
 	 */
 	static savePingOneConfig(variant: AuthzFlowVariant, config: PingOneApplicationState): void {
-		const key = variant === 'oauth' 
-			? 'oauth-authz-v5-app-config' 
-			: 'oidc-authz-v5-app-config';
+		const key = variant === 'oauth' ? 'oauth-authz-v5-app-config' : 'oidc-authz-v5-app-config';
 		sessionStorage.setItem(key, JSON.stringify(config));
 		console.log(`[SessionStorageManager] ${variant.toUpperCase()} PingOne config saved`);
 	}
@@ -72,9 +70,7 @@ export class AuthzSessionStorageManager {
 	 * Load PingOne app configuration from session storage
 	 */
 	static loadPingOneConfig(variant: AuthzFlowVariant): PingOneApplicationState | null {
-		const key = variant === 'oauth' 
-			? 'oauth-authz-v5-app-config' 
-			: 'oidc-authz-v5-app-config';
+		const key = variant === 'oauth' ? 'oauth-authz-v5-app-config' : 'oidc-authz-v5-app-config';
 		const stored = sessionStorage.getItem(key);
 		return stored ? JSON.parse(stored) : null;
 	}
@@ -284,16 +280,20 @@ export class AuthzFlowValidationManager {
 
 		if (!validation.isValid) {
 			// Format field names for display
-			const fieldNames = validation.missingFields.map(f => {
+			const fieldNames = validation.missingFields.map((f) => {
 				switch (f) {
-					case 'environmentId': return 'Environment ID';
-					case 'clientId': return 'Client ID';
-					case 'clientSecret': return 'Client Secret';
-					case 'redirectUri': return 'Redirect URI';
-					case 'scope': return variant === 'oidc' 
-						? 'Scope (must include openid)' 
-						: 'Scope';
-					default: return f;
+					case 'environmentId':
+						return 'Environment ID';
+					case 'clientId':
+						return 'Client ID';
+					case 'clientSecret':
+						return 'Client Secret';
+					case 'redirectUri':
+						return 'Redirect URI';
+					case 'scope':
+						return variant === 'oidc' ? 'Scope (must include openid)' : 'Scope';
+					default:
+						return f;
 				}
 			});
 
@@ -414,9 +414,10 @@ export class AuthzFlowCredentialsHandlers {
 			controller.setCredentials(updated);
 			setCredentials(updated);
 			console.log(`[${variant.toUpperCase()} Authz V5] Redirect URI updated:`, value);
-			
+
 			// Auto-save redirect URI to persist across refreshes
-			controller.saveCredentials()
+			controller
+				.saveCredentials()
 				.then(() => {
 					AuthzFlowToastManager.showRedirectUriSaved();
 				})
@@ -429,10 +430,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createScopesHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -443,10 +441,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createLoginHintHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -457,10 +452,7 @@ export class AuthzFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(
-		variant: AuthzFlowVariant,
-		controller: any
-	) {
+	static createSaveHandler(variant: AuthzFlowVariant, controller: any) {
 		return async () => {
 			try {
 				await controller.saveCredentials();
@@ -534,11 +526,14 @@ export class AuthzFlowAuthorizationManager {
 
 			// Generate the URL
 			await controller.generateAuthorizationUrl();
-			
+
 			AuthzFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(`[${variant.toUpperCase()}AuthzFlowV5] Failed to generate authorization URL:`, error);
+			console.error(
+				`[${variant.toUpperCase()}AuthzFlowV5] Failed to generate authorization URL:`,
+				error
+			);
 			AuthzFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}
@@ -570,9 +565,9 @@ export class AuthzFlowCodeProcessor {
 		setState: (state: string) => void,
 		setCurrentStep: (step: number) => void
 	): void {
-		console.log('[CodeProcessor] Processing authorization code:', { 
-			code: code.substring(0, 20) + '...', 
-			state 
+		console.log('[CodeProcessor] Processing authorization code:', {
+			code: code.substring(0, 20) + '...',
+			state,
 		});
 
 		// Store the code
@@ -631,7 +626,9 @@ export class AuthzFlowTokenExchangeManager {
 		}
 
 		try {
-			console.log(`[${variant.toUpperCase()} Authz V5] Exchanging authorization code for tokens...`);
+			console.log(
+				`[${variant.toUpperCase()} Authz V5] Exchanging authorization code for tokens...`
+			);
 
 			// Use controller's token exchange method
 			await controller.exchangeCodeForTokens(authCode, codeVerifier);
@@ -710,7 +707,7 @@ export class AuthzFlowDefaults {
 	static getOAuthDefaults(): Partial<StepCredentials> {
 		return {
 			redirectUri: 'https://localhost:3000/authz-callback',
-			scope: '',  // OAuth doesn't require openid scope
+			scope: '', // OAuth doesn't require openid scope
 			scopes: '',
 			responseType: 'code',
 			grantType: 'authorization_code',
@@ -805,7 +802,8 @@ export class AuthzFlowTokenManagement {
 		credentials: StepCredentials,
 		currentStep: number
 	): void {
-		const flowId = variant === 'oauth' ? 'oauth-authorization-code-v5' : 'oidc-authorization-code-v5';
+		const flowId =
+			variant === 'oauth' ? 'oauth-authorization-code-v5' : 'oidc-authorization-code-v5';
 		const flowType = variant === 'oauth' ? 'oauth' : 'oidc';
 
 		// Store flow navigation state for back navigation
@@ -905,7 +903,7 @@ export class AuthzFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = false;
 			});
 			return updated;
@@ -921,7 +919,7 @@ export class AuthzFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = true;
 			});
 			return updated;
@@ -950,9 +948,11 @@ export class AuthzFlowResponseTypeEnforcer {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		const expectedType = AuthzFlowResponseTypeEnforcer.getExpectedResponseType(variant);
-		
+
 		if (credentials.responseType !== expectedType) {
-			console.log(`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`);
+			console.log(
+				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
+			);
 			setCredentials({
 				...credentials,
 				responseType: expectedType,
@@ -975,7 +975,10 @@ export class AuthzFlowCredentialsSync {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
-			console.log(`[${variant.toUpperCase()} Authz V5] Syncing credentials from controller:`, controllerCredentials);
+			console.log(
+				`[${variant.toUpperCase()} Authz V5] Syncing credentials from controller:`,
+				controllerCredentials
+			);
 			setCredentials(controllerCredentials);
 		}
 	}
@@ -1045,4 +1048,3 @@ export const AuthorizationCodeSharedService = {
 };
 
 export default AuthorizationCodeSharedService;
-

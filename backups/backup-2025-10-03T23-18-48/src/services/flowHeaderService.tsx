@@ -342,7 +342,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Client Initiated Backchannel Authentication flow for decoupled authentication scenarios with secondary device approval',
 		version: 'V5',
 	},
-	'rar': {
+	rar: {
 		flowType: 'oauth',
 		title: 'Rich Authorization Requests (RAR) Flow',
 		subtitle:

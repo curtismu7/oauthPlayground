@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiMenu, FiSettings, FiHelpCircle, FiLogIn, FiLogOut } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 
 const NavbarContainer = styled.nav`

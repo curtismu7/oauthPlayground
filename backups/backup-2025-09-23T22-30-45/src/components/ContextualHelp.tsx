@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardBody } from './Card';
 import {
-	FiHelpCircle,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiInfo,
-	FiShield,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
 	FiExternalLink,
+	FiHelpCircle,
+	FiInfo,
+	FiShield,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody } from './Card';
 
 interface HelpContent {
 	whenToUse: string;

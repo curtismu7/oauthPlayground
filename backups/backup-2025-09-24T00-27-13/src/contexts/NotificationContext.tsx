@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 type NotificationType = 'success' | 'error' | 'info' | 'warning';

@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiShield,
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiXCircle,
-	FiTrendingUp,
-	FiTrendingDown,
-	FiEye,
 	FiDownload,
+	FiEye,
 	FiRefreshCw,
 	FiSettings,
+	FiShield,
+	FiTrendingDown,
+	FiTrendingUp,
+	FiXCircle,
 } from 'react-icons/fi';
-import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
+import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
-import { SecuritySeverity, ComplianceStandard } from '../utils/securityAnalytics';
+import { useSecurityAnalytics } from '../hooks/useSecurityAnalytics';
+import { ComplianceStandard, SecuritySeverity } from '../utils/securityAnalytics';
 
 // Styled components
 const DashboardContainer = styled.div`

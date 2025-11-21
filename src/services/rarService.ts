@@ -5,13 +5,13 @@ import { StepCredentials } from '../types/flowTypes';
 
 // RAR Types per RFC 9396
 export interface AuthorizationDetail {
-	type: string;                    // Required per RFC 9396
-	locations?: string[];            // Optional
-	actions?: string[];              // Optional
-	datatypes?: string[];            // Optional
-	identifier?: string;             // Optional
-	privileges?: string[];           // Optional
-	[key: string]: any;             // Type-specific fields
+	type: string; // Required per RFC 9396
+	locations?: string[]; // Optional
+	actions?: string[]; // Optional
+	datatypes?: string[]; // Optional
+	identifier?: string; // Optional
+	privileges?: string[]; // Optional
+	[key: string]: any; // Type-specific fields
 }
 
 export interface PaymentInitiationDetail extends AuthorizationDetail {
@@ -44,9 +44,9 @@ export interface AccountInformationDetail extends AuthorizationDetail {
 
 export interface CustomerInformationDetail extends AuthorizationDetail {
 	type: 'customer_information';
-	actions: string[];              // Required: read, write, etc.
-	datatypes: string[];            // Required: contacts, photos, etc.
-	locations: string[];            // Required: API endpoints
+	actions: string[]; // Required: read, write, etc.
+	datatypes: string[]; // Required: contacts, photos, etc.
+	locations: string[]; // Required: API endpoints
 }
 
 export interface RARValidationResult {
@@ -82,7 +82,7 @@ export class RARService {
 			scope: credentials.scope || '',
 			state: RARService.generateState(),
 			// CORRECT: Direct authorization_details parameter per RFC 9396
-			authorization_details: JSON.stringify(authorizationDetails)
+			authorization_details: JSON.stringify(authorizationDetails),
 		});
 
 		return `${credentials.authorizationEndpoint}?${params.toString()}`;
@@ -96,15 +96,18 @@ export class RARService {
 		authorizationDetails: AuthorizationDetail[];
 	}): { url: string; validation: RARValidationResult } {
 		const validation = RARService.validateAuthorizationDetails(config.authorizationDetails);
-		
+
 		if (!validation.valid) {
 			return {
 				url: '',
-				validation
+				validation,
 			};
 		}
 
-		const url = RARService.generateAuthorizationRequest(config.credentials, config.authorizationDetails);
+		const url = RARService.generateAuthorizationRequest(
+			config.credentials,
+			config.authorizationDetails
+		);
 		return { url, validation };
 	}
 
@@ -131,7 +134,10 @@ export class RARService {
 	/**
 	 * Validate a single authorization detail object
 	 */
-	private static validateSingleAuthorizationDetail(detail: AuthorizationDetail, index: number): string[] {
+	private static validateSingleAuthorizationDetail(
+		detail: AuthorizationDetail,
+		index: number
+	): string[] {
 		const errors: string[] = [];
 
 		// RFC 9396 Section 2 - Required fields
@@ -149,45 +155,72 @@ export class RARService {
 	/**
 	 * Validate type-specific fields for authorization details
 	 */
-	private static validateAuthorizationDetailType(detail: AuthorizationDetail, index: number): string[] {
+	private static validateAuthorizationDetailType(
+		detail: AuthorizationDetail,
+		index: number
+	): string[] {
 		const errors: string[] = [];
 
 		switch (detail.type) {
 			case 'payment_initiation':
 				if (!detail.instructedAmount?.amount) {
-					errors.push(`authorization_details[${index}]: instructedAmount.amount is required for payment_initiation`);
+					errors.push(
+						`authorization_details[${index}]: instructedAmount.amount is required for payment_initiation`
+					);
 				}
 				if (!detail.creditorName) {
-					errors.push(`authorization_details[${index}]: creditorName is required for payment_initiation`);
+					errors.push(
+						`authorization_details[${index}]: creditorName is required for payment_initiation`
+					);
 				}
 				if (!detail.creditorAccount) {
-					errors.push(`authorization_details[${index}]: creditorAccount is required for payment_initiation`);
+					errors.push(
+						`authorization_details[${index}]: creditorAccount is required for payment_initiation`
+					);
 				}
 				break;
 
 			case 'account_information':
 				// Account information is more flexible, but should have at least one access type
 				if (!detail.balances && !detail.transactions) {
-					errors.push(`authorization_details[${index}]: account_information should specify balances, transactions, or both`);
+					errors.push(
+						`authorization_details[${index}]: account_information should specify balances, transactions, or both`
+					);
 				}
 				break;
 
 			case 'customer_information':
 				if (!detail.actions || !Array.isArray(detail.actions) || detail.actions.length === 0) {
-					errors.push(`authorization_details[${index}]: actions array is required for customer_information`);
+					errors.push(
+						`authorization_details[${index}]: actions array is required for customer_information`
+					);
 				}
-				if (!detail.datatypes || !Array.isArray(detail.datatypes) || detail.datatypes.length === 0) {
-					errors.push(`authorization_details[${index}]: datatypes array is required for customer_information`);
+				if (
+					!detail.datatypes ||
+					!Array.isArray(detail.datatypes) ||
+					detail.datatypes.length === 0
+				) {
+					errors.push(
+						`authorization_details[${index}]: datatypes array is required for customer_information`
+					);
 				}
-				if (!detail.locations || !Array.isArray(detail.locations) || detail.locations.length === 0) {
-					errors.push(`authorization_details[${index}]: locations array is required for customer_information`);
+				if (
+					!detail.locations ||
+					!Array.isArray(detail.locations) ||
+					detail.locations.length === 0
+				) {
+					errors.push(
+						`authorization_details[${index}]: locations array is required for customer_information`
+					);
 				}
 				// Validate actions contain valid values
 				if (detail.actions && Array.isArray(detail.actions)) {
 					const validActions = ['read', 'write', 'delete', 'update'];
-					const invalidActions = detail.actions.filter(action => !validActions.includes(action));
+					const invalidActions = detail.actions.filter((action) => !validActions.includes(action));
 					if (invalidActions.length > 0) {
-						errors.push(`authorization_details[${index}]: invalid actions [${invalidActions.join(', ')}]. Valid actions: ${validActions.join(', ')}`);
+						errors.push(
+							`authorization_details[${index}]: invalid actions [${invalidActions.join(', ')}]. Valid actions: ${validActions.join(', ')}`
+						);
 					}
 				}
 				// Validate locations are valid URLs
@@ -196,7 +229,9 @@ export class RARService {
 						try {
 							new URL(location);
 						} catch {
-							errors.push(`authorization_details[${index}]: locations[${locIndex}] must be a valid URL`);
+							errors.push(
+								`authorization_details[${index}]: locations[${locIndex}] must be a valid URL`
+							);
 						}
 					});
 				}
@@ -214,8 +249,9 @@ export class RARService {
 	 * Generate a secure state parameter
 	 */
 	private static generateState(): string {
-		return Math.random().toString(36).substring(2, 15) +
-			   Math.random().toString(36).substring(2, 15);
+		return (
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+		);
 	}
 
 	/**
@@ -227,7 +263,7 @@ export class RARService {
 				type: 'payment_initiation',
 				instructedAmount: { currency: 'USD', amount: '0.00' },
 				creditorName: '',
-				creditorAccount: { iban: '' }
+				creditorAccount: { iban: '' },
 			},
 			accountInformation: {
 				type: 'account_information',
@@ -235,15 +271,15 @@ export class RARService {
 				balances: true,
 				transactions: {
 					fromBookingDateTime: new Date().toISOString(),
-					toBookingDateTime: new Date().toISOString()
-				}
+					toBookingDateTime: new Date().toISOString(),
+				},
 			},
 			customerInformation: {
 				type: 'customer_information',
 				actions: ['read', 'write'],
 				datatypes: ['contacts', 'photos'],
-				locations: ['https://api.example.com/customers']
-			}
+				locations: ['https://api.example.com/customers'],
+			},
 		};
 	}
 
@@ -256,13 +292,13 @@ export class RARService {
 				type: 'customer_information',
 				actions: ['read', 'write'],
 				datatypes: ['contacts', 'photos'],
-				locations: ['https://api.example.com/customers']
+				locations: ['https://api.example.com/customers'],
 			},
 			{
 				type: 'payment_initiation',
 				instructedAmount: { currency: 'USD', amount: '250.00' },
 				creditorName: 'ABC Supplies',
-				creditorAccount: { iban: 'DE89370400440532013000' }
+				creditorAccount: { iban: 'DE89370400440532013000' },
 			},
 			{
 				type: 'account_information',
@@ -270,9 +306,9 @@ export class RARService {
 				balances: true,
 				transactions: {
 					fromBookingDateTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-					toBookingDateTime: new Date().toISOString()
-				}
-			}
+					toBookingDateTime: new Date().toISOString(),
+				},
+			},
 		];
 	}
 
@@ -300,7 +336,7 @@ export class RARService {
 
 		return {
 			tokens: tokenResponse,
-			authorizationDetails
+			authorizationDetails,
 		};
 	}
 
@@ -316,12 +352,12 @@ export class RARService {
 		// Basic scope validation - ensure authorization details are within scope bounds
 		for (let i = 0; i < authorizationDetails.length; i++) {
 			const detail = authorizationDetails[i];
-			
+
 			// For customer_information type, ensure appropriate scopes are granted
 			if (detail.type === 'customer_information') {
 				const hasReadScope = grantedScopes.includes('profile') || grantedScopes.includes('openid');
 				const hasWriteScope = grantedScopes.includes('profile') || detail.actions?.includes('read');
-				
+
 				if (detail.actions?.includes('write') && !hasWriteScope) {
 					errors.push(`authorization_details[${i}]: write action requires appropriate scope`);
 				}

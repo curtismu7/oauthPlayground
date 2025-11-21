@@ -4,8 +4,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { safeSessionStorageParse } from '../utils/secureJson';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface ResourceOwnerPasswordCredentials {
 	environmentId: string;
@@ -127,7 +127,10 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				scopes: credentials.scope ? credentials.scope.split(' ').filter((s) => s.trim()) : [],
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_basic',
-				tokenAuthMethod: credentials.tokenEndpointAuthMethod || credentials.clientAuthMethod || 'client_secret_basic',
+				tokenAuthMethod:
+					credentials.tokenEndpointAuthMethod ||
+					credentials.clientAuthMethod ||
+					'client_secret_basic',
 			};
 
 			await credentialManager.saveAuthzFlowCredentials(mappedCredentials);
@@ -186,19 +189,19 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			}
 
 			// Simulate network delay for realistic experience
-			await new Promise(resolve => setTimeout(resolve, 1500));
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			// Generate realistic mock JWT tokens using the actual credential values
 			const now = Math.floor(Date.now() / 1000);
 			const exp = now + 3600; // 1 hour from now
-			
+
 			// Create JWT header
 			const header = {
 				alg: 'RS256',
 				typ: 'JWT',
-				kid: 'mock-key-id'
+				kid: 'mock-key-id',
 			};
-			
+
 			// Create JWT payload
 			const payload = {
 				iss: `https://auth.pingone.com/${credentials.environmentId}/as`,
@@ -210,19 +213,30 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				client_id: credentials.clientId,
 				username: credentials.username,
 				flow: 'resource_owner_password_credentials',
-				environment_id: credentials.environmentId
+				environment_id: credentials.environmentId,
 			};
-			
+
 			// Encode header and payload
-			const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-			const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-			
+			const encodedHeader = btoa(JSON.stringify(header))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+			const encodedPayload = btoa(JSON.stringify(payload))
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+
 			// Create mock signature
-			const signature = 'mock_signature_' + btoa(credentials.clientId + credentials.username + now).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-			
+			const signature =
+				'mock_signature_' +
+				btoa(credentials.clientId + credentials.username + now)
+					.replace(/\+/g, '-')
+					.replace(/\//g, '_')
+					.replace(/=/g, '');
+
 			// Combine into JWT
 			const jwtToken = `${encodedHeader}.${encodedPayload}.${signature}`;
-			
+
 			const mockTokenData: ResourceOwnerPasswordTokens = {
 				access_token: jwtToken,
 				token_type: 'Bearer',
@@ -256,7 +270,9 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				username: credentials.username,
 			});
 
-			v4ToastManager.showSuccess('🎭 Mock authentication successful! Access token generated with your credentials.');
+			v4ToastManager.showSuccess(
+				'🎭 Mock authentication successful! Access token generated with your credentials.'
+			);
 
 			// Don't auto-advance - let user see the tokens on step 1
 			// stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
@@ -290,13 +306,13 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			}
 
 			// Simulate network delay for realistic experience
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
 			// Generate realistic mock user data based on the username credential
 			const [localPart, domain] = credentials.username.split('@');
 			const firstName = localPart.split('.')[0] || 'Demo';
 			const lastName = localPart.split('.')[1] || 'User';
-			
+
 			const mockUserData: ResourceOwnerPasswordUserInfo = {
 				sub: `mock_user_${credentials.environmentId}_${credentials.clientId}_${localPart}`,
 				name: `${firstName.charAt(0).toUpperCase() + firstName.slice(1)} ${lastName.charAt(0).toUpperCase() + lastName.slice(1)}`,
@@ -364,7 +380,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			}
 
 			// Simulate network delay for realistic experience
-			await new Promise(resolve => setTimeout(resolve, 1200));
+			await new Promise((resolve) => setTimeout(resolve, 1200));
 
 			// Generate new mock tokens using the same credential values
 			const newMockTokens: ResourceOwnerPasswordTokens = {
@@ -440,23 +456,23 @@ export const useResourceOwnerPasswordFlowV5 = ({
 	useEffect(() => {
 		const loadCredentials = async () => {
 			try {
-			// First try to load from sessionStorage (Resource Owner Password specific)
-			const parsed = safeSessionStorageParse<ResourceOwnerPasswordCredentials>(
-				'resource-owner-password-v5-credentials',
-				null
-			);
-			if (parsed?.environmentId && parsed.clientId) {
-				setCredentials(parsed);
-				setHasCredentialsSaved(true);
-				if (enableDebugger) {
-					console.log(
-						'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage'
-					);
+				// First try to load from sessionStorage (Resource Owner Password specific)
+				const parsed = safeSessionStorageParse<ResourceOwnerPasswordCredentials>(
+					'resource-owner-password-v5-credentials',
+					null
+				);
+				if (parsed?.environmentId && parsed.clientId) {
+					setCredentials(parsed);
+					setHasCredentialsSaved(true);
+					if (enableDebugger) {
+						console.log(
+							'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage'
+						);
+					}
+					return;
 				}
-				return;
-			}
 
-			// Fallback to loading from credentialManager (but keep mock username/password)
+				// Fallback to loading from credentialManager (but keep mock username/password)
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
 					// Safely handle scopes - check if it's an array before calling join

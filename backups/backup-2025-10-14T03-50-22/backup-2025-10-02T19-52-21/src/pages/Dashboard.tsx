@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
+import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
 import { getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;

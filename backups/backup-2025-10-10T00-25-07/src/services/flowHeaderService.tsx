@@ -357,7 +357,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		flowType: 'documentation',
 		title: 'Environment ID Input Demo',
 		subtitle:
-			'Simplified PingOne configuration. Just enter your environment ID, select your region, and we\'ll construct the issuer URL and discover all OIDC endpoints automatically.',
+			"Simplified PingOne configuration. Just enter your environment ID, select your region, and we'll construct the issuer URL and discover all OIDC endpoints automatically.",
 		icon: '🔧',
 	},
 	'oidc-overview': {
@@ -438,7 +438,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Client Initiated Backchannel Authentication flow for decoupled authentication scenarios with secondary device approval',
 		version: 'V5',
 	},
-	'rar': {
+	rar: {
 		flowType: 'oauth',
 		title: 'Rich Authorization Requests (RAR) Flow',
 		subtitle:

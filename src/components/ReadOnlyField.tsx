@@ -1,21 +1,21 @@
 // src/components/ReadOnlyField.tsx
 /**
  * ReadOnlyField Component
- * 
+ *
  * Displays a read-only credential field with lock icon and explanation.
  * Used when a field value is fixed by OAuth/OIDC specifications.
  */
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiLock } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface ReadOnlyFieldProps {
-  label: string;
-  value: string;
-  explanation: string;
-  specReference?: string;
-  icon?: React.ReactNode;
+	label: string;
+	value: string;
+	explanation: string;
+	specReference?: string;
+	icon?: React.ReactNode;
 }
 
 const FormField = styled.div`
@@ -89,38 +89,36 @@ const SpecLink = styled.a`
  * Renders a field with lock icon and explanation for specification-enforced values
  */
 export const ReadOnlyField: React.FC<ReadOnlyFieldProps> = ({
-  label,
-  value,
-  explanation,
-  specReference,
-  icon,
+	label,
+	value,
+	explanation,
+	specReference,
+	icon,
 }) => {
-  return (
-    <FormField>
-      <FormLabel>
-        <LockIcon>
-          {icon || <FiLock size={14} />}
-        </LockIcon>
-        {label}
-      </FormLabel>
-      <ReadOnlyInput
-        type="text"
-        value={value}
-        readOnly
-        disabled
-        aria-label={label}
-        aria-readonly="true"
-      />
-      <ExplanationText>
-        {explanation}
-        {specReference && (
-          <SpecLink href={specReference} target="_blank" rel="noopener noreferrer">
-            View Specification →
-          </SpecLink>
-        )}
-      </ExplanationText>
-    </FormField>
-  );
+	return (
+		<FormField>
+			<FormLabel>
+				<LockIcon>{icon || <FiLock size={14} />}</LockIcon>
+				{label}
+			</FormLabel>
+			<ReadOnlyInput
+				type="text"
+				value={value}
+				readOnly
+				disabled
+				aria-label={label}
+				aria-readonly="true"
+			/>
+			<ExplanationText>
+				{explanation}
+				{specReference && (
+					<SpecLink href={specReference} target="_blank" rel="noopener noreferrer">
+						View Specification →
+					</SpecLink>
+				)}
+			</ExplanationText>
+		</FormField>
+	);
 };
 
 export default ReadOnlyField;

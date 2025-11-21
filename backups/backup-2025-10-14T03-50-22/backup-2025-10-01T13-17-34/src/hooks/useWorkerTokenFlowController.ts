@@ -1,26 +1,26 @@
 // src/hooks/useWorkerTokenFlowController.ts
 
 import {
+	type Dispatch,
+	type SetStateAction,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
-	type Dispatch,
-	type SetStateAction,
 } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
-import { trackOAuthFlow, trackTokenOperation } from '../utils/activityTracker';
 import { storeOAuthTokens } from '../utils/tokenStorage';
+import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
+import { introspectToken, requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { requestClientCredentialsToken, introspectToken } from '../utils/workerToken';
-import type { WorkerTokenResponse, TokenIntrospectionResponse } from '../utils/workerToken';
 
 export interface WorkerTokenFlowControllerOptions {
 	flowKey?: string;

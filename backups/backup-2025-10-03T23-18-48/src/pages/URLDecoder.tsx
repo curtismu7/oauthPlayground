@@ -13,8 +13,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
-import { copyToClipboard } from '../utils/clipboard';
 import { FlowHeader } from '../services/flowHeaderService';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Styled components
 const Container = styled.div`

@@ -4,12 +4,10 @@
 import React from 'react';
 import ClientCredentialsFlowV7Complete from './ClientCredentialsFlowV7_Complete';
 
-interface ClientCredentialsFlowV7Props {
-  // Add any props if needed
-}
+type ClientCredentialsFlowV7Props = {};
 
 const ClientCredentialsFlowV7: React.FC<ClientCredentialsFlowV7Props> = () => {
-  return <ClientCredentialsFlowV7Complete />;
+	return <ClientCredentialsFlowV7Complete />;
 };
 
 export default ClientCredentialsFlowV7;

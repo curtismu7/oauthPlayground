@@ -172,311 +172,311 @@ export const CredentialsInput = ({
 	return (
 		<form>
 			<FormGrid>
-			<FormField>
-				<FormLabel>
-					Environment ID <span style={{ color: '#ef4444' }}>*</span>
-				</FormLabel>
-				<div style={{ position: 'relative' }}>
-					<FormInput
-						type="text"
-						placeholder={
-							emptyRequiredFields.has('environmentId')
-								? 'Required: Enter your PingOne Environment ID'
-								: 'Enter your PingOne Environment ID'
-						}
-						value={environmentId}
-						onChange={(e) => onEnvironmentIdChange(e.target.value)}
-						disabled={false}
-						readOnly={false}
-						$hasError={emptyRequiredFields.has('environmentId')}
-						style={{ paddingRight: '2.5rem' }}
-					/>
-					<IconButton
-						type="button"
-						onClick={() => onCopy(environmentId, 'Environment ID')}
-						style={{
-							right: '0.5rem',
-							top: '50%',
-							transform:
-								copiedField === 'Environment ID'
-									? 'translateY(-50%) scale(1.2)'
-									: 'translateY(-50%) scale(1)',
-							color: copiedField === 'Environment ID' ? '#10b981' : '#6b7280',
-							width: '2rem',
-							height: '2rem',
-						}}
-						title="Copy Environment ID"
-					>
-						<FiCopy size={16} />
-					</IconButton>
-				</div>
-			</FormField>
-
-			<FormField>
-				<FormLabel>
-					Client ID <span style={{ color: '#ef4444' }}>*</span>
-				</FormLabel>
-				<div style={{ position: 'relative' }}>
-					<FormInput
-						type="text"
-						placeholder={
-							emptyRequiredFields.has('clientId')
-								? 'Required: Enter your PingOne Client ID'
-								: 'Enter your PingOne Client ID'
-						}
-						value={clientId}
-						onChange={(e) => onClientIdChange(e.target.value)}
-						$hasError={emptyRequiredFields.has('clientId')}
-						style={{ paddingRight: '2.5rem' }}
-						disabled={false}
-						readOnly={false}
-					/>
-					<IconButton
-						type="button"
-						onClick={() => onCopy(clientId, 'Client ID')}
-						style={{
-							right: '0.5rem',
-							top: '50%',
-							transform:
-								copiedField === 'Client ID'
-									? 'translateY(-50%) scale(1.2)'
-									: 'translateY(-50%) scale(1)',
-							color: copiedField === 'Client ID' ? '#10b981' : '#6b7280',
-							width: '2rem',
-							height: '2rem',
-						}}
-						title="Copy Client ID"
-					>
-						<FiCopy size={16} />
-					</IconButton>
-				</div>
-			</FormField>
-
-			{showClientSecret && (
-				<FormField style={{ gridColumn: '1 / -1' }}>
+				<FormField>
 					<FormLabel>
-						Client Secret <span style={{ color: '#ef4444' }}>*</span>
-					</FormLabel>
-					<div style={{ position: 'relative' }}>
-						<FormInput
-							type={showClientSecretValue ? 'text' : 'password'}
-							placeholder={
-								emptyRequiredFields.has('clientSecret')
-									? 'Required: Enter your PingOne Client Secret'
-									: 'Enter your PingOne Client Secret'
-							}
-							value={clientSecret}
-							onChange={(e) => onClientSecretChange(e.target.value)}
-							$hasError={emptyRequiredFields.has('clientSecret')}
-							style={{ paddingRight: '5rem' }}
-							disabled={false}
-							readOnly={false}
-							autoComplete="current-password"
-						/>
-						<IconButton
-							type="button"
-							onClick={() => onCopy(clientSecret, 'Client Secret')}
-							style={{
-								right: '2.25rem',
-								top: '50%',
-								transform:
-									copiedField === 'Client Secret'
-										? 'translateY(-50%) scale(1.2)'
-										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
-								width: '2rem',
-								height: '2rem',
-							}}
-							title="Copy Client Secret"
-						>
-							<FiCopy size={16} />
-						</IconButton>
-						<IconButton
-							type="button"
-							onClick={() => setShowClientSecretValue(!showClientSecretValue)}
-							style={{
-								right: '0.5rem',
-								top: '50%',
-								transform: 'translateY(-50%)',
-								width: '2rem',
-								height: '2rem',
-							}}
-							title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
-						>
-							{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-						</IconButton>
-					</div>
-				</FormField>
-			)}
-
-			{!showClientSecret && (
-				<FormField style={{ gridColumn: '1 / -1' }}>
-					<div
-						style={{
-							fontSize: '0.875rem',
-							color: '#6b7280',
-							backgroundColor: '#f3f4f6',
-							padding: '0.75rem',
-							borderRadius: '0.5rem',
-							border: '1px solid #e5e7eb',
-							marginTop: '0.5rem',
-						}}
-					>
-						<strong>Note:</strong> Client Secret is not required for this flow type. This flow uses
-						public client authentication (client_id only).
-					</div>
-				</FormField>
-			)}
-
-			{showRedirectUri && (
-				<FormField style={{ gridColumn: '1 / -1' }}>
-					<FormLabel>
-						Redirect URI <span style={{ color: '#ef4444' }}>*</span>
+						Environment ID <span style={{ color: '#ef4444' }}>*</span>
 					</FormLabel>
 					<div style={{ position: 'relative' }}>
 						<FormInput
 							type="text"
 							placeholder={
-								emptyRequiredFields.has('redirectUri')
-									? 'Required: Enter your Redirect URI'
-									: 'Enter your Redirect URI'
+								emptyRequiredFields.has('environmentId')
+									? 'Required: Enter your PingOne Environment ID'
+									: 'Enter your PingOne Environment ID'
 							}
-							value={redirectUri}
-							onChange={(e) => onRedirectUriChange?.(e.target.value)}
-							$hasError={emptyRequiredFields.has('redirectUri')}
+							value={environmentId}
+							onChange={(e) => onEnvironmentIdChange(e.target.value)}
+							disabled={false}
+							readOnly={false}
+							$hasError={emptyRequiredFields.has('environmentId')}
+							style={{ paddingRight: '2.5rem' }}
+						/>
+						<IconButton
+							type="button"
+							onClick={() => onCopy(environmentId, 'Environment ID')}
+							style={{
+								right: '0.5rem',
+								top: '50%',
+								transform:
+									copiedField === 'Environment ID'
+										? 'translateY(-50%) scale(1.2)'
+										: 'translateY(-50%) scale(1)',
+								color: copiedField === 'Environment ID' ? '#10b981' : '#6b7280',
+								width: '2rem',
+								height: '2rem',
+							}}
+							title="Copy Environment ID"
+						>
+							<FiCopy size={16} />
+						</IconButton>
+					</div>
+				</FormField>
+
+				<FormField>
+					<FormLabel>
+						Client ID <span style={{ color: '#ef4444' }}>*</span>
+					</FormLabel>
+					<div style={{ position: 'relative' }}>
+						<FormInput
+							type="text"
+							placeholder={
+								emptyRequiredFields.has('clientId')
+									? 'Required: Enter your PingOne Client ID'
+									: 'Enter your PingOne Client ID'
+							}
+							value={clientId}
+							onChange={(e) => onClientIdChange(e.target.value)}
+							$hasError={emptyRequiredFields.has('clientId')}
 							style={{ paddingRight: '2.5rem' }}
 							disabled={false}
 							readOnly={false}
 						/>
 						<IconButton
 							type="button"
-							onClick={() => onCopy(redirectUri, 'Redirect URI')}
+							onClick={() => onCopy(clientId, 'Client ID')}
 							style={{
 								right: '0.5rem',
 								top: '50%',
 								transform:
-									copiedField === 'Redirect URI'
+									copiedField === 'Client ID'
 										? 'translateY(-50%) scale(1.2)'
 										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Redirect URI' ? '#10b981' : '#6b7280',
+								color: copiedField === 'Client ID' ? '#10b981' : '#6b7280',
 								width: '2rem',
 								height: '2rem',
 							}}
-							title="Copy Redirect URI"
+							title="Copy Client ID"
 						>
 							<FiCopy size={16} />
 						</IconButton>
 					</div>
 				</FormField>
-			)}
 
-			{!showRedirectUri && (
-				<FormField style={{ gridColumn: '1 / -1' }}>
-					<div
-						style={{
-							fontSize: '0.875rem',
-							color: '#6b7280',
-							backgroundColor: '#f3f4f6',
-							padding: '0.75rem',
-							borderRadius: '0.5rem',
-							border: '1px solid #e5e7eb',
-							marginTop: '0.5rem',
-						}}
-					>
-						<strong>Note:</strong> Redirect URI is not required for this flow type. This flow
-						handles authentication without redirects.
-					</div>
-				</FormField>
-			)}
+				{showClientSecret && (
+					<FormField style={{ gridColumn: '1 / -1' }}>
+						<FormLabel>
+							Client Secret <span style={{ color: '#ef4444' }}>*</span>
+						</FormLabel>
+						<div style={{ position: 'relative' }}>
+							<FormInput
+								type={showClientSecretValue ? 'text' : 'password'}
+								placeholder={
+									emptyRequiredFields.has('clientSecret')
+										? 'Required: Enter your PingOne Client Secret'
+										: 'Enter your PingOne Client Secret'
+								}
+								value={clientSecret}
+								onChange={(e) => onClientSecretChange(e.target.value)}
+								$hasError={emptyRequiredFields.has('clientSecret')}
+								style={{ paddingRight: '5rem' }}
+								disabled={false}
+								readOnly={false}
+								autoComplete="current-password"
+							/>
+							<IconButton
+								type="button"
+								onClick={() => onCopy(clientSecret, 'Client Secret')}
+								style={{
+									right: '2.25rem',
+									top: '50%',
+									transform:
+										copiedField === 'Client Secret'
+											? 'translateY(-50%) scale(1.2)'
+											: 'translateY(-50%) scale(1)',
+									color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
+									width: '2rem',
+									height: '2rem',
+								}}
+								title="Copy Client Secret"
+							>
+								<FiCopy size={16} />
+							</IconButton>
+							<IconButton
+								type="button"
+								onClick={() => setShowClientSecretValue(!showClientSecretValue)}
+								style={{
+									right: '0.5rem',
+									top: '50%',
+									transform: 'translateY(-50%)',
+									width: '2rem',
+									height: '2rem',
+								}}
+								title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
+							>
+								{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+							</IconButton>
+						</div>
+					</FormField>
+				)}
 
-			<FormField style={{ gridColumn: '1 / -1' }}>
-				<FormLabel>
-					Scopes <span style={{ color: '#ef4444' }}>*</span>
-				</FormLabel>
-				<div style={{ position: 'relative' }}>
-					<FormInput
-						type="text"
-						placeholder="openid profile email"
-						value={scopes}
-						onChange={(e) => handleScopesChange(e.target.value)}
-						onBlur={(e) => handleScopesBlur(e.target.value)}
-						onKeyDown={(e) => {
-							// Ensure space key works
-							if (e.key === ' ') {
-								e.stopPropagation();
-							}
-						}}
-						$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
-						style={{ paddingRight: '2.5rem' }}
-						disabled={false}
-						readOnly={false}
-					/>
-					<IconButton
-						type="button"
-						onClick={() => onCopy(scopes, 'Scopes')}
-						style={{
-							right: '0.5rem',
-							top: '50%',
-							transform:
-								copiedField === 'Scopes'
-									? 'translateY(-50%) scale(1.2)'
-									: 'translateY(-50%) scale(1)',
-							color: copiedField === 'Scopes' ? '#10b981' : '#6b7280',
-							width: '2rem',
-							height: '2rem',
-						}}
-						title="Copy Scopes"
-					>
-						<FiCopy size={16} />
-					</IconButton>
-				</div>
-				<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-					Space-separated list of scopes. <strong>openid</strong> is always required and will be
-					automatically added.
-				</div>
-			</FormField>
+				{!showClientSecret && (
+					<FormField style={{ gridColumn: '1 / -1' }}>
+						<div
+							style={{
+								fontSize: '0.875rem',
+								color: '#6b7280',
+								backgroundColor: '#f3f4f6',
+								padding: '0.75rem',
+								borderRadius: '0.5rem',
+								border: '1px solid #e5e7eb',
+								marginTop: '0.5rem',
+							}}
+						>
+							<strong>Note:</strong> Client Secret is not required for this flow type. This flow
+							uses public client authentication (client_id only).
+						</div>
+					</FormField>
+				)}
 
-			{showLoginHint && (
+				{showRedirectUri && (
+					<FormField style={{ gridColumn: '1 / -1' }}>
+						<FormLabel>
+							Redirect URI <span style={{ color: '#ef4444' }}>*</span>
+						</FormLabel>
+						<div style={{ position: 'relative' }}>
+							<FormInput
+								type="text"
+								placeholder={
+									emptyRequiredFields.has('redirectUri')
+										? 'Required: Enter your Redirect URI'
+										: 'Enter your Redirect URI'
+								}
+								value={redirectUri}
+								onChange={(e) => onRedirectUriChange?.(e.target.value)}
+								$hasError={emptyRequiredFields.has('redirectUri')}
+								style={{ paddingRight: '2.5rem' }}
+								disabled={false}
+								readOnly={false}
+							/>
+							<IconButton
+								type="button"
+								onClick={() => onCopy(redirectUri, 'Redirect URI')}
+								style={{
+									right: '0.5rem',
+									top: '50%',
+									transform:
+										copiedField === 'Redirect URI'
+											? 'translateY(-50%) scale(1.2)'
+											: 'translateY(-50%) scale(1)',
+									color: copiedField === 'Redirect URI' ? '#10b981' : '#6b7280',
+									width: '2rem',
+									height: '2rem',
+								}}
+								title="Copy Redirect URI"
+							>
+								<FiCopy size={16} />
+							</IconButton>
+						</div>
+					</FormField>
+				)}
+
+				{!showRedirectUri && (
+					<FormField style={{ gridColumn: '1 / -1' }}>
+						<div
+							style={{
+								fontSize: '0.875rem',
+								color: '#6b7280',
+								backgroundColor: '#f3f4f6',
+								padding: '0.75rem',
+								borderRadius: '0.5rem',
+								border: '1px solid #e5e7eb',
+								marginTop: '0.5rem',
+							}}
+						>
+							<strong>Note:</strong> Redirect URI is not required for this flow type. This flow
+							handles authentication without redirects.
+						</div>
+					</FormField>
+				)}
+
 				<FormField style={{ gridColumn: '1 / -1' }}>
 					<FormLabel>
-						Login Hint <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+						Scopes <span style={{ color: '#ef4444' }}>*</span>
 					</FormLabel>
 					<div style={{ position: 'relative' }}>
 						<FormInput
 							type="text"
-							placeholder="user@example.com or username"
-							value={loginHint}
-							onChange={(e) => onLoginHintChange?.(e.target.value)}
+							placeholder="openid profile email"
+							value={scopes}
+							onChange={(e) => handleScopesChange(e.target.value)}
+							onBlur={(e) => handleScopesBlur(e.target.value)}
+							onKeyDown={(e) => {
+								// Ensure space key works
+								if (e.key === ' ') {
+									e.stopPropagation();
+								}
+							}}
+							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
 							style={{ paddingRight: '2.5rem' }}
 							disabled={false}
 							readOnly={false}
 						/>
 						<IconButton
 							type="button"
-							onClick={() => onCopy(loginHint, 'Login Hint')}
+							onClick={() => onCopy(scopes, 'Scopes')}
 							style={{
 								right: '0.5rem',
 								top: '50%',
 								transform:
-									copiedField === 'Login Hint'
+									copiedField === 'Scopes'
 										? 'translateY(-50%) scale(1.2)'
 										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Login Hint' ? '#10b981' : '#6b7280',
+								color: copiedField === 'Scopes' ? '#10b981' : '#6b7280',
 								width: '2rem',
 								height: '2rem',
 							}}
-							title="Copy Login Hint"
+							title="Copy Scopes"
 						>
 							<FiCopy size={16} />
 						</IconButton>
 					</div>
 					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-						Hint about the user identifier (email, username). Helps pre-fill the login form or skip
-						account selection.
+						Space-separated list of scopes. <strong>openid</strong> is always required and will be
+						automatically added.
 					</div>
 				</FormField>
-			)}
-		</FormGrid>
+
+				{showLoginHint && (
+					<FormField style={{ gridColumn: '1 / -1' }}>
+						<FormLabel>
+							Login Hint <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+						</FormLabel>
+						<div style={{ position: 'relative' }}>
+							<FormInput
+								type="text"
+								placeholder="user@example.com or username"
+								value={loginHint}
+								onChange={(e) => onLoginHintChange?.(e.target.value)}
+								style={{ paddingRight: '2.5rem' }}
+								disabled={false}
+								readOnly={false}
+							/>
+							<IconButton
+								type="button"
+								onClick={() => onCopy(loginHint, 'Login Hint')}
+								style={{
+									right: '0.5rem',
+									top: '50%',
+									transform:
+										copiedField === 'Login Hint'
+											? 'translateY(-50%) scale(1.2)'
+											: 'translateY(-50%) scale(1)',
+									color: copiedField === 'Login Hint' ? '#10b981' : '#6b7280',
+									width: '2rem',
+									height: '2rem',
+								}}
+								title="Copy Login Hint"
+							>
+								<FiCopy size={16} />
+							</IconButton>
+						</div>
+						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+							Hint about the user identifier (email, username). Helps pre-fill the login form or
+							skip account selection.
+						</div>
+					</FormField>
+				)}
+			</FormGrid>
 		</form>
 	);
 };

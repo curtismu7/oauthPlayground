@@ -7,7 +7,9 @@ const watchedPrefixes = ['src/services/'];
 
 const runGitCommand = (command) => {
 	try {
-		return execSync(command, { stdio: ['ignore', 'pipe', 'ignore'] }).toString().trim();
+		return execSync(command, { stdio: ['ignore', 'pipe', 'ignore'] })
+			.toString()
+			.trim();
 	} catch {
 		return '';
 	}
@@ -38,7 +40,7 @@ const packageDiff = runGitCommand('git diff --cached package.json');
 if (!packageDiff.includes('"version"')) {
 	console.error(
 		'❌ Detected changes inside src/services/ but package.json version was not updated.\n' +
-		'   Please bump the version in package.json (and regenerate dependent surfaces) before committing.'
+			'   Please bump the version in package.json (and regenerate dependent surfaces) before committing.'
 	);
 	exit(1);
 }

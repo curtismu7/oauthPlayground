@@ -1,12 +1,12 @@
 // src/components/LogoutUriReference.tsx
 import React, { useState } from 'react';
-import { FiX, FiCopy, FiCheck, FiLogOut, FiAlertTriangle, FiBook, FiGlobe } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheck, FiCopy, FiGlobe, FiLogOut, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { callbackUriService } from '../services/callbackUriService';
 
 interface LogoutUriReferenceProps {
-  isOpen: boolean;
-  onClose: () => void;
+	isOpen: boolean;
+	onClose: () => void;
 }
 
 const ModalOverlay = styled.div`
@@ -144,7 +144,7 @@ const UriCode = styled.code`
 `;
 
 const CopyButton = styled.button<{ copied?: boolean }>`
-  background-color: ${props => props.copied ? '#10b981' : '#3b82f6'};
+  background-color: ${(props) => (props.copied ? '#10b981' : '#3b82f6')};
   color: white;
   border: none;
   padding: 0.25rem 0.5rem;
@@ -157,7 +157,7 @@ const CopyButton = styled.button<{ copied?: boolean }>`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: ${props => props.copied ? '#059669' : '#2563eb'};
+    background-color: ${(props) => (props.copied ? '#059669' : '#2563eb')};
   }
 `;
 
@@ -236,140 +236,138 @@ const WarningText = styled.p`
 `;
 
 const LogoutUriReference: React.FC<LogoutUriReferenceProps> = ({ isOpen, onClose }) => {
-  const [copiedUris, setCopiedUris] = useState<Set<string>>(new Set());
+	const [copiedUris, setCopiedUris] = useState<Set<string>>(new Set());
 
-  const flows = [
-    'authorization_code',
-    'implicit', 
-    'hybrid',
-    'device',
-    'client_credentials',
-    'pingone_auth',
-    'dashboard'
-  ] as const;
+	const flows = [
+		'authorization_code',
+		'implicit',
+		'hybrid',
+		'device',
+		'client_credentials',
+		'pingone_auth',
+		'dashboard',
+	] as const;
 
-  const handleCopyUri = async (uri: string) => {
-    try {
-      await navigator.clipboard.writeText(uri);
-      setCopiedUris(prev => new Set(prev).add(uri));
-      setTimeout(() => {
-        setCopiedUris(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(uri);
-          return newSet;
-        });
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy URI:', err);
-    }
-  };
+	const handleCopyUri = async (uri: string) => {
+		try {
+			await navigator.clipboard.writeText(uri);
+			setCopiedUris((prev) => new Set(prev).add(uri));
+			setTimeout(() => {
+				setCopiedUris((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(uri);
+					return newSet;
+				});
+			}, 2000);
+		} catch (err) {
+			console.error('Failed to copy URI:', err);
+		}
+	};
 
-  const getAllLogoutUris = () => {
-    return flows.map(flow => callbackUriService.getRedirectUriForFlow(flow).logoutUri);
-  };
+	const getAllLogoutUris = () => {
+		return flows.map((flow) => callbackUriService.getRedirectUriForFlow(flow).logoutUri);
+	};
 
-  const handleCopyAllUris = async () => {
-    const allUris = getAllLogoutUris().join('\n');
-    try {
-      await navigator.clipboard.writeText(allUris);
-    } catch (err) {
-      console.error('Failed to copy all URIs:', err);
-    }
-  };
+	const handleCopyAllUris = async () => {
+		const allUris = getAllLogoutUris().join('\n');
+		try {
+			await navigator.clipboard.writeText(allUris);
+		} catch (err) {
+			console.error('Failed to copy all URIs:', err);
+		}
+	};
 
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContent onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <FiLogOut />
-            Logout URIs Reference
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX />
-          </CloseButton>
-        </ModalHeader>
-        
-        <ModalBody>
-          <IntroSection>
-            <IntroTitle>
-              <FiGlobe />
-              Why Flow-Specific Logout URIs?
-            </IntroTitle>
-            <IntroText>
-              Each OAuth/OIDC flow requires its own unique logout URI to ensure proper logout handling, 
-              prevent cross-flow conflicts, and maintain security isolation. This prevents logout from 
-              one flow from interfering with another flow's state.
-            </IntroText>
-          </IntroSection>
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContent onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiLogOut />
+						Logout URIs Reference
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX />
+					</CloseButton>
+				</ModalHeader>
 
-          <FlowGrid>
-            {flows.map(flow => {
-              const uriInfo = callbackUriService.getRedirectUriForFlow(flow);
-              const isCopied = copiedUris.has(uriInfo.logoutUri);
-              
-              return (
-                <FlowCard key={flow}>
-                  <FlowHeader>
-                    <FlowIcon>🚪</FlowIcon>
-                    <FlowName>{uriInfo.description}</FlowName>
-                  </FlowHeader>
-                  
-                  <UriContainer>
-                    <UriCode>{uriInfo.logoutUri}</UriCode>
-                    <CopyButton 
-                      copied={isCopied}
-                      onClick={() => handleCopyUri(uriInfo.logoutUri)}
-                    >
-                      {isCopied ? <FiCheck /> : <FiCopy />}
-                      {isCopied ? 'Copied!' : 'Copy URI'}
-                    </CopyButton>
-                  </UriContainer>
-                  
-                  <FlowDescription>{uriInfo.logoutNote}</FlowDescription>
-                </FlowCard>
-              );
-            })}
-          </FlowGrid>
+				<ModalBody>
+					<IntroSection>
+						<IntroTitle>
+							<FiGlobe />
+							Why Flow-Specific Logout URIs?
+						</IntroTitle>
+						<IntroText>
+							Each OAuth/OIDC flow requires its own unique logout URI to ensure proper logout
+							handling, prevent cross-flow conflicts, and maintain security isolation. This prevents
+							logout from one flow from interfering with another flow's state.
+						</IntroText>
+					</IntroSection>
 
-          <PingOneSection>
-            <PingOneTitle>
-              <FiAlertTriangle />
-              PingOne Application Configuration
-            </PingOneTitle>
-            <PingOneText>
-              Add these URIs to your PingOne application's <strong>"Post Logout Redirect URIs"</strong> list:
-            </PingOneText>
-            <UriList>
-              {getAllLogoutUris().map((uri, index) => (
-                <UriListItem key={index}>{uri}</UriListItem>
-              ))}
-            </UriList>
-            <CopyButton onClick={handleCopyAllUris} style={{ marginTop: '0.75rem' }}>
-              <FiCopy />
-              Copy All URIs
-            </CopyButton>
-          </PingOneSection>
+					<FlowGrid>
+						{flows.map((flow) => {
+							const uriInfo = callbackUriService.getRedirectUriForFlow(flow);
+							const isCopied = copiedUris.has(uriInfo.logoutUri);
 
-          <WarningSection>
-            <WarningTitle>
-              <FiAlertTriangle />
-              Important Security Notes
-            </WarningTitle>
-            <WarningText>
-              • All logout URIs must use HTTPS in production<br/>
-              • URIs must match exactly (no wildcards)<br/>
-              • Each flow should use its own unique logout URI<br/>
-              • Remove unused logout URIs from your PingOne applications<br/>
-              • Regularly audit your logout URI configurations
-            </WarningText>
-          </WarningSection>
-        </ModalBody>
-      </ModalContent>
-    </ModalOverlay>
-  );
+							return (
+								<FlowCard key={flow}>
+									<FlowHeader>
+										<FlowIcon>🚪</FlowIcon>
+										<FlowName>{uriInfo.description}</FlowName>
+									</FlowHeader>
+
+									<UriContainer>
+										<UriCode>{uriInfo.logoutUri}</UriCode>
+										<CopyButton copied={isCopied} onClick={() => handleCopyUri(uriInfo.logoutUri)}>
+											{isCopied ? <FiCheck /> : <FiCopy />}
+											{isCopied ? 'Copied!' : 'Copy URI'}
+										</CopyButton>
+									</UriContainer>
+
+									<FlowDescription>{uriInfo.logoutNote}</FlowDescription>
+								</FlowCard>
+							);
+						})}
+					</FlowGrid>
+
+					<PingOneSection>
+						<PingOneTitle>
+							<FiAlertTriangle />
+							PingOne Application Configuration
+						</PingOneTitle>
+						<PingOneText>
+							Add these URIs to your PingOne application's{' '}
+							<strong>"Post Logout Redirect URIs"</strong> list:
+						</PingOneText>
+						<UriList>
+							{getAllLogoutUris().map((uri, index) => (
+								<UriListItem key={index}>{uri}</UriListItem>
+							))}
+						</UriList>
+						<CopyButton onClick={handleCopyAllUris} style={{ marginTop: '0.75rem' }}>
+							<FiCopy />
+							Copy All URIs
+						</CopyButton>
+					</PingOneSection>
+
+					<WarningSection>
+						<WarningTitle>
+							<FiAlertTriangle />
+							Important Security Notes
+						</WarningTitle>
+						<WarningText>
+							• All logout URIs must use HTTPS in production
+							<br />• URIs must match exactly (no wildcards)
+							<br />• Each flow should use its own unique logout URI
+							<br />• Remove unused logout URIs from your PingOne applications
+							<br />• Regularly audit your logout URI configurations
+						</WarningText>
+					</WarningSection>
+				</ModalBody>
+			</ModalContent>
+		</ModalOverlay>
+	);
 };
 
 export default LogoutUriReference;

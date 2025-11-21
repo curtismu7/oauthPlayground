@@ -1,5 +1,5 @@
+import { RenderOptions, render } from '@testing-library/react';
 import React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
 import { ThemeProvider } from 'styled-components';
 import { AuthProvider } from '../contexts/NewAuthContext';
 import { PageStyleProvider } from '../contexts/PageStyleContext';

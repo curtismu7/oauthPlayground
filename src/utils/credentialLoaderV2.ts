@@ -3,13 +3,12 @@
 
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialStorageManager } from '../services/credentialStorageManager';
-import { getCallbackUrlForFlow } from './callbackUrls';
 
 /**
  * Load credentials for a specific flow using the new isolated storage system
- * 
+ *
  * NO FALLBACK to other flows - this eliminates credential bleeding!
- * 
+ *
  * @param flowKey - Unique flow key (e.g., 'oauth-implicit-v7')
  * @param defaultRedirectUri - Default redirect URI for this flow
  * @returns Credentials or empty credentials if not found
@@ -39,7 +38,7 @@ export async function loadFlowCredentialsV2(
 
 /**
  * Save credentials for a specific flow using the new isolated storage system
- * 
+ *
  * @param flowKey - Unique flow key
  * @param credentials - Credentials to save
  */

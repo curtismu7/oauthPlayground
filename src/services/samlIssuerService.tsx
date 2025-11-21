@@ -1,8 +1,6 @@
 // src/services/samlIssuerService.tsx
 // SAML Issuer Service for managing common SAML identity providers
 
-import React from 'react';
-
 export interface SAMLIssuer {
 	id: string;
 	name: string;
@@ -22,12 +20,9 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://sso.connect.pingidentity.com/sso/idp/SSO.saml2',
 			description: 'Ping Identity PingOne cloud identity platform',
 			category: 'cloud',
-			commonAudiences: [
-				'https://sso.connect.pingidentity.com/sso/sp',
-				'https://auth.pingone.com'
-			],
+			commonAudiences: ['https://sso.connect.pingidentity.com/sso/sp', 'https://auth.pingone.com'],
 			exampleSubject: 'user@company.com',
-			documentationUrl: 'https://docs.pingidentity.com/bundle/pingone/page/kxd1564027202198.html'
+			documentationUrl: 'https://docs.pingidentity.com/bundle/pingone/page/kxd1564027202198.html',
 		},
 		{
 			id: 'okta',
@@ -35,11 +30,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://dev-123456.okta.com',
 			description: 'Okta identity and access management platform',
 			category: 'cloud',
-			commonAudiences: [
-				'https://dev-123456.okta.com',
-				'urn:okta:dev-123456'
-			],
-			exampleSubject: 'user@company.com'
+			commonAudiences: ['https://dev-123456.okta.com', 'urn:okta:dev-123456'],
+			exampleSubject: 'user@company.com',
 		},
 		{
 			id: 'azure-ad',
@@ -47,11 +39,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://sts.windows.net/tenant-id/',
 			description: 'Microsoft Azure Active Directory',
 			category: 'cloud',
-			commonAudiences: [
-				'https://sts.windows.net/tenant-id/',
-				'https://graph.microsoft.com'
-			],
-			exampleSubject: 'user@company.onmicrosoft.com'
+			commonAudiences: ['https://sts.windows.net/tenant-id/', 'https://graph.microsoft.com'],
+			exampleSubject: 'user@company.onmicrosoft.com',
 		},
 		{
 			id: 'aws-cognito',
@@ -61,9 +50,9 @@ export class SAMLIssuerService {
 			category: 'cloud',
 			commonAudiences: [
 				'https://cognito-idp.region.amazonaws.com/user-pool-id',
-				'arn:aws:cognito-idp:region:account:userpool/user-pool-id'
+				'arn:aws:cognito-idp:region:account:userpool/user-pool-id',
 			],
-			exampleSubject: 'user@company.com'
+			exampleSubject: 'user@company.com',
 		},
 		{
 			id: 'auth0',
@@ -71,11 +60,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://tenant.auth0.com/',
 			description: 'Auth0 identity platform',
 			category: 'cloud',
-			commonAudiences: [
-				'https://tenant.auth0.com/',
-				'urn:auth0:tenant:api'
-			],
-			exampleSubject: 'auth0|user-id'
+			commonAudiences: ['https://tenant.auth0.com/', 'urn:auth0:tenant:api'],
+			exampleSubject: 'auth0|user-id',
 		},
 		{
 			id: 'adfs',
@@ -83,11 +69,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://adfs.company.com/adfs/services/trust',
 			description: 'Microsoft Active Directory Federation Services',
 			category: 'enterprise',
-			commonAudiences: [
-				'https://adfs.company.com/adfs/services/trust',
-				'urn:company:adfs'
-			],
-			exampleSubject: 'user@company.com'
+			commonAudiences: ['https://adfs.company.com/adfs/services/trust', 'urn:company:adfs'],
+			exampleSubject: 'user@company.com',
 		},
 		{
 			id: 'shibboleth',
@@ -95,11 +78,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://idp.university.edu/idp/shibboleth',
 			description: 'Shibboleth identity provider (common in education)',
 			category: 'education',
-			commonAudiences: [
-				'https://sp.university.edu/shibboleth',
-				'urn:university:sp'
-			],
-			exampleSubject: 'user@university.edu'
+			commonAudiences: ['https://sp.university.edu/shibboleth', 'urn:university:sp'],
+			exampleSubject: 'user@university.edu',
 		},
 		{
 			id: 'google-workspace',
@@ -109,9 +89,9 @@ export class SAMLIssuerService {
 			category: 'cloud',
 			commonAudiences: [
 				'https://accounts.google.com/o/saml2?idpid=tenant-id',
-				'urn:google:workspace'
+				'urn:google:workspace',
 			],
-			exampleSubject: 'user@company.com'
+			exampleSubject: 'user@company.com',
 		},
 		{
 			id: 'salesforce',
@@ -119,11 +99,8 @@ export class SAMLIssuerService {
 			issuerUrl: 'https://company.salesforce.com',
 			description: 'Salesforce identity provider',
 			category: 'cloud',
-			commonAudiences: [
-				'https://company.salesforce.com',
-				'https://login.salesforce.com'
-			],
-			exampleSubject: 'user@company.com'
+			commonAudiences: ['https://company.salesforce.com', 'https://login.salesforce.com'],
+			exampleSubject: 'user@company.com',
 		},
 		{
 			id: 'custom',
@@ -132,8 +109,8 @@ export class SAMLIssuerService {
 			description: 'Custom SAML identity provider',
 			category: 'custom',
 			commonAudiences: [],
-			exampleSubject: 'user@company.com'
-		}
+			exampleSubject: 'user@company.com',
+		},
 	];
 
 	/**
@@ -147,14 +124,14 @@ export class SAMLIssuerService {
 	 * Get issuers by category
 	 */
 	static getIssuersByCategory(category: SAMLIssuer['category']): SAMLIssuer[] {
-		return SAMLIssuerService.COMMON_ISSUERS.filter(issuer => issuer.category === category);
+		return SAMLIssuerService.COMMON_ISSUERS.filter((issuer) => issuer.category === category);
 	}
 
 	/**
 	 * Find issuer by ID
 	 */
 	static getIssuerById(id: string): SAMLIssuer | undefined {
-		return SAMLIssuerService.COMMON_ISSUERS.find(issuer => issuer.id === id);
+		return SAMLIssuerService.COMMON_ISSUERS.find((issuer) => issuer.id === id);
 	}
 
 	/**
@@ -166,7 +143,7 @@ export class SAMLIssuerService {
 			{ value: 'enterprise', label: 'Enterprise' },
 			{ value: 'education', label: 'Education' },
 			{ value: 'government', label: 'Government' },
-			{ value: 'custom', label: 'Custom' }
+			{ value: 'custom', label: 'Custom' },
 		];
 	}
 
@@ -202,7 +179,7 @@ export class SAMLIssuerService {
 		return {
 			issuer: issuer.issuerUrl,
 			audience: issuer.commonAudiences[0] || issuer.issuerUrl,
-			subject: issuer.exampleSubject
+			subject: issuer.exampleSubject,
 		};
 	}
 
@@ -215,16 +192,13 @@ export class SAMLIssuerService {
 		}
 
 		const lowerInput = input.toLowerCase();
-		return SAMLIssuerService.COMMON_ISSUERS.filter(issuer => 
-			issuer.name.toLowerCase().includes(lowerInput) ||
-			issuer.issuerUrl.toLowerCase().includes(lowerInput) ||
-			issuer.description.toLowerCase().includes(lowerInput)
+		return SAMLIssuerService.COMMON_ISSUERS.filter(
+			(issuer) =>
+				issuer.name.toLowerCase().includes(lowerInput) ||
+				issuer.issuerUrl.toLowerCase().includes(lowerInput) ||
+				issuer.description.toLowerCase().includes(lowerInput)
 		).slice(0, 10);
 	}
 }
 
 export default SAMLIssuerService;
-
-
-
-

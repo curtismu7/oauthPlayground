@@ -38,15 +38,10 @@ const FlowResponseModes: React.FC<FlowResponseModesProps> = ({
 			nonce={nonce ?? defaults.nonce}
 			extraParams={extraParams ?? defaults.extraParams ?? {}}
 			defaultMode={defaultMode ?? defaults.defaultMode}
-			readOnlyFlowContext={
-				readOnlyFlowContext ?? defaults.readOnlyFlowContext ?? true
-			}
+			readOnlyFlowContext={readOnlyFlowContext ?? defaults.readOnlyFlowContext ?? true}
 			className={className}
 		/>
 	);
 };
 
 export default FlowResponseModes;
-
-
-

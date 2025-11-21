@@ -109,12 +109,14 @@ class ServerRestartHistoryService {
 		let uptimeAfterRestart = 0;
 		if (newStatus === 'online' && serverType === 'backend') {
 			// For backend, we can get actual uptime from the health endpoint
-			this.getBackendUptime().then(uptime => {
-				uptimeAfterRestart = uptime;
-				this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
-			}).catch(() => {
-				this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
-			});
+			this.getBackendUptime()
+				.then((uptime) => {
+					uptimeAfterRestart = uptime;
+					this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
+				})
+				.catch(() => {
+					this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
+				});
 		} else {
 			this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
 		}

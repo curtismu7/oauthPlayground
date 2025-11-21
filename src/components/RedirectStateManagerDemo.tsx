@@ -1,11 +1,10 @@
 // src/components/RedirectStateManagerDemo.tsx
 // Demo showing RedirectStateManager usage in OAuth flows
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FiAlertCircle, FiArrowRight, FiCheckCircle, FiRefreshCw, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiArrowRight, FiRefreshCw, FiCheckCircle, FiAlertCircle, FiSave } from 'react-icons/fi';
 import RedirectStateManager, { type FlowState } from '../services/redirectStateManager';
-import FlowContextService from '../services/flowContextService';
 
 const Container = styled.div`
   max-width: 1000px;
@@ -56,35 +55,35 @@ const Button = styled.button<{ variant?: 'primary' | 'success' | 'danger' }>`
   margin-right: 0.5rem;
   margin-bottom: 0.5rem;
 
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           &:hover { background: #2563eb; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background: #10b981;
           color: white;
           &:hover { background: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #ef4444;
           color: white;
           &:hover { background: #dc2626; }
         `;
-      default:
-        return `
+			default:
+				return `
           background: #f3f4f6;
           color: #374151;
           border: 1px solid #d1d5db;
           &:hover { background: #e5e7eb; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
@@ -96,28 +95,28 @@ const StatusDisplay = styled.div<{ status: 'success' | 'error' | 'info' }>`
   font-size: 0.875rem;
   margin-bottom: 1rem;
 
-  ${props => {
-    switch (props.status) {
-      case 'success':
-        return `
+  ${(props) => {
+		switch (props.status) {
+			case 'success':
+				return `
           background: #f0fdf4;
           border: 1px solid #bbf7d0;
           color: #166534;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background: #fef2f2;
           border: 1px solid #fecaca;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background: #eff6ff;
           border: 1px solid #bfdbfe;
           color: #1e40af;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -133,196 +132,201 @@ const CodeBlock = styled.pre`
 `;
 
 export const RedirectStateManagerDemo: React.FC = () => {
-  const [flowState, setFlowState] = useState<FlowState>({
-    currentStep: 1,
-    credentials: {
-      environmentId: 'demo-env-123',
-      clientId: 'demo-client-456',
-      clientSecret: 'demo-secret-789'
-    },
-    formData: {
-      selectedScopes: ['openid', 'profile', 'email'],
-      customParameter: 'demo-value'
-    }
-  });
-  
-  const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
-  const [preservedState, setPreservedState] = useState<FlowState | null>(null);
-  const [flowId] = useState('demo-oauth-flow');
+	const [flowState, setFlowState] = useState<FlowState>({
+		currentStep: 1,
+		credentials: {
+			environmentId: 'demo-env-123',
+			clientId: 'demo-client-456',
+			clientSecret: 'demo-secret-789',
+		},
+		formData: {
+			selectedScopes: ['openid', 'profile', 'email'],
+			customParameter: 'demo-value',
+		},
+	});
 
-  const handlePreserveState = () => {
-    try {
-      const success = RedirectStateManager.preserveFlowState(flowId, flowState);
-      
-      if (success) {
-        setStatus({ 
-          type: 'success', 
-          message: 'Flow state preserved successfully! Ready for OAuth redirect.' 
-        });
-      } else {
-        setStatus({ 
-          type: 'error', 
-          message: 'Failed to preserve flow state. State may be too large.' 
-        });
-      }
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Error preserving state: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+	const [status, setStatus] = useState<{
+		type: 'success' | 'error' | 'info';
+		message: string;
+	} | null>(null);
+	const [preservedState, setPreservedState] = useState<FlowState | null>(null);
+	const [flowId] = useState('demo-oauth-flow');
 
-  const handleRestoreState = () => {
-    try {
-      const restored = RedirectStateManager.restoreFlowState(flowId);
-      
-      if (restored) {
-        setPreservedState(restored);
-        setStatus({ 
-          type: 'success', 
-          message: 'Flow state restored successfully! All data preserved across redirect.' 
-        });
-      } else {
-        setStatus({ 
-          type: 'error', 
-          message: 'No preserved state found or state has expired.' 
-        });
-      }
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Error restoring state: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+	const handlePreserveState = () => {
+		try {
+			const success = RedirectStateManager.preserveFlowState(flowId, flowState);
 
-  const handleSimulateCallback = () => {
-    try {
-      const callbackData = {
-        code: 'demo_auth_code_12345',
-        state: 'demo_state_67890',
-        session_state: 'demo_session_abcdef'
-      };
+			if (success) {
+				setStatus({
+					type: 'success',
+					message: 'Flow state preserved successfully! Ready for OAuth redirect.',
+				});
+			} else {
+				setStatus({
+					type: 'error',
+					message: 'Failed to preserve flow state. State may be too large.',
+				});
+			}
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Error preserving state: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-      const result = RedirectStateManager.handleRedirectReturn(callbackData);
-      
-      if (result.success) {
-        setStatus({ 
-          type: 'success', 
-          message: `Callback handled successfully! Redirect to: ${result.redirectUrl}` 
-        });
-        
-        if (result.flowState) {
-          setPreservedState(result.flowState);
-        }
-      } else {
-        setStatus({ 
-          type: 'error', 
-          message: `Callback failed: ${result.error}` 
-        });
-      }
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Callback error: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+	const handleRestoreState = () => {
+		try {
+			const restored = RedirectStateManager.restoreFlowState(flowId);
 
-  const handleClearState = () => {
-    try {
-      RedirectStateManager.clearFlowState(flowId);
-      setPreservedState(null);
-      setStatus({ 
-        type: 'success', 
-        message: 'Flow state cleared successfully.' 
-      });
-    } catch (error) {
-      setStatus({ 
-        type: 'error', 
-        message: `Error clearing state: ${error instanceof Error ? error.message : 'Unknown error'}` 
-      });
-    }
-  };
+			if (restored) {
+				setPreservedState(restored);
+				setStatus({
+					type: 'success',
+					message: 'Flow state restored successfully! All data preserved across redirect.',
+				});
+			} else {
+				setStatus({
+					type: 'error',
+					message: 'No preserved state found or state has expired.',
+				});
+			}
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Error restoring state: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-  const updateFlowState = (field: string, value: any) => {
-    setFlowState(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+	const handleSimulateCallback = () => {
+		try {
+			const callbackData = {
+				code: 'demo_auth_code_12345',
+				state: 'demo_state_67890',
+				session_state: 'demo_session_abcdef',
+			};
 
-  return (
-    <Container>
-      <Header>
-        <Title>RedirectStateManager Demo</Title>
-        <p style={{ color: '#6b7280', margin: 0 }}>
-          Demonstration of flow state preservation across OAuth redirects
-        </p>
-      </Header>
+			const result = RedirectStateManager.handleRedirectReturn(callbackData);
 
-      {status && (
-        <StatusDisplay status={status.type}>
-          {status.type === 'success' && <FiCheckCircle size={16} />}
-          {status.type === 'error' && <FiAlertCircle size={16} />}
-          {status.type === 'info' && <FiRefreshCw size={16} />}
-          {status.message}
-        </StatusDisplay>
-      )}
+			if (result.success) {
+				setStatus({
+					type: 'success',
+					message: `Callback handled successfully! Redirect to: ${result.redirectUrl}`,
+				});
 
-      <Section>
-        <SectionTitle>Current Flow State</SectionTitle>
-        <CodeBlock>{JSON.stringify(flowState, null, 2)}</CodeBlock>
-        
-        <div>
-          <Button onClick={() => updateFlowState('currentStep', flowState.currentStep + 1)}>
-            Increment Step
-          </Button>
-          <Button onClick={() => updateFlowState('tokens', { access_token: 'new_token_' + Date.now() })}>
-            Add Tokens
-          </Button>
-        </div>
-      </Section>
+				if (result.flowState) {
+					setPreservedState(result.flowState);
+				}
+			} else {
+				setStatus({
+					type: 'error',
+					message: `Callback failed: ${result.error}`,
+				});
+			}
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Callback error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-      <Section>
-        <SectionTitle>State Management Actions</SectionTitle>
-        <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-          Simulate the OAuth redirect flow with state preservation:
-        </p>
-        
-        <div>
-          <Button variant="primary" onClick={handlePreserveState}>
-            <FiSave size={14} />
-            1. Preserve State
-          </Button>
-          <Button onClick={handleRestoreState}>
-            <FiRefreshCw size={14} />
-            2. Restore State
-          </Button>
-          <Button variant="success" onClick={handleSimulateCallback}>
-            <FiArrowRight size={14} />
-            3. Simulate Callback
-          </Button>
-          <Button variant="danger" onClick={handleClearState}>
-            Clear State
-          </Button>
-        </div>
-      </Section>
+	const handleClearState = () => {
+		try {
+			RedirectStateManager.clearFlowState(flowId);
+			setPreservedState(null);
+			setStatus({
+				type: 'success',
+				message: 'Flow state cleared successfully.',
+			});
+		} catch (error) {
+			setStatus({
+				type: 'error',
+				message: `Error clearing state: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			});
+		}
+	};
 
-      {preservedState && (
-        <Section>
-          <SectionTitle>Restored Flow State</SectionTitle>
-          <p style={{ color: '#059669', marginBottom: '1rem' }}>
-            ✅ State successfully preserved and restored across redirect!
-          </p>
-          <CodeBlock>{JSON.stringify(preservedState, null, 2)}</CodeBlock>
-        </Section>
-      )}
+	const updateFlowState = (field: string, value: any) => {
+		setFlowState((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
 
-      <Section>
-        <SectionTitle>Integration Example</SectionTitle>
-        <CodeBlock>{`// Example: Using RedirectStateManager in an OAuth flow
+	return (
+		<Container>
+			<Header>
+				<Title>RedirectStateManager Demo</Title>
+				<p style={{ color: '#6b7280', margin: 0 }}>
+					Demonstration of flow state preservation across OAuth redirects
+				</p>
+			</Header>
+
+			{status && (
+				<StatusDisplay status={status.type}>
+					{status.type === 'success' && <FiCheckCircle size={16} />}
+					{status.type === 'error' && <FiAlertCircle size={16} />}
+					{status.type === 'info' && <FiRefreshCw size={16} />}
+					{status.message}
+				</StatusDisplay>
+			)}
+
+			<Section>
+				<SectionTitle>Current Flow State</SectionTitle>
+				<CodeBlock>{JSON.stringify(flowState, null, 2)}</CodeBlock>
+
+				<div>
+					<Button onClick={() => updateFlowState('currentStep', flowState.currentStep + 1)}>
+						Increment Step
+					</Button>
+					<Button
+						onClick={() => updateFlowState('tokens', { access_token: `new_token_${Date.now()}` })}
+					>
+						Add Tokens
+					</Button>
+				</div>
+			</Section>
+
+			<Section>
+				<SectionTitle>State Management Actions</SectionTitle>
+				<p style={{ color: '#6b7280', marginBottom: '1rem' }}>
+					Simulate the OAuth redirect flow with state preservation:
+				</p>
+
+				<div>
+					<Button variant="primary" onClick={handlePreserveState}>
+						<FiSave size={14} />
+						1. Preserve State
+					</Button>
+					<Button onClick={handleRestoreState}>
+						<FiRefreshCw size={14} />
+						2. Restore State
+					</Button>
+					<Button variant="success" onClick={handleSimulateCallback}>
+						<FiArrowRight size={14} />
+						3. Simulate Callback
+					</Button>
+					<Button variant="danger" onClick={handleClearState}>
+						Clear State
+					</Button>
+				</div>
+			</Section>
+
+			{preservedState && (
+				<Section>
+					<SectionTitle>Restored Flow State</SectionTitle>
+					<p style={{ color: '#059669', marginBottom: '1rem' }}>
+						✅ State successfully preserved and restored across redirect!
+					</p>
+					<CodeBlock>{JSON.stringify(preservedState, null, 2)}</CodeBlock>
+				</Section>
+			)}
+
+			<Section>
+				<SectionTitle>Integration Example</SectionTitle>
+				<CodeBlock>{`// Example: Using RedirectStateManager in an OAuth flow
 
 import RedirectStateManager from '../services/redirectStateManager';
 
@@ -359,9 +363,9 @@ const MyOAuthFlow = () => {
     }
   };
 };`}</CodeBlock>
-      </Section>
-    </Container>
-  );
+			</Section>
+		</Container>
+	);
 };
 
 export default RedirectStateManagerDemo;

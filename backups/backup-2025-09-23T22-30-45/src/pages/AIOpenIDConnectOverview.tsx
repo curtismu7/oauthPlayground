@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import React, { useEffect, useState } from 'react';
 import {
-	FiBookOpen,
-	FiCode,
-	FiShield,
-	FiUsers,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiInfo,
 	FiArrowRight,
+	FiBookOpen,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiShield,
 	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
 
 const Container = styled.div`
   max-width: 1200px;

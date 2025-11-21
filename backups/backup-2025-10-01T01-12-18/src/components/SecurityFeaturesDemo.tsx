@@ -1,23 +1,23 @@
 // src/components/SecurityFeaturesDemo.tsx
 import React, { useCallback, useState } from 'react';
 import {
-	FiShield,
-	FiKey,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiExternalLink,
-	FiDownload,
-	FiPlay,
-	FiX,
-	FiRefreshCw,
-	FiEye,
+	FiCheckCircle,
 	FiClock,
-	FiLock,
-	FiUnlock,
+	FiDownload,
+	FiExternalLink,
+	FiEye,
 	FiGlobe,
-	FiSettings,
+	FiKey,
+	FiLock,
+	FiPlay,
 	FiPlus,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
 	FiTrash2,
+	FiUnlock,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';

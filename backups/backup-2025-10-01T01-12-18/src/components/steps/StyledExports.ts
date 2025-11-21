@@ -1,7 +1,7 @@
 export {
 	FormField,
-	FormLabel,
 	FormInput,
+	FormLabel,
 	FormSelect,
 	InfoBox,
 	StyledActionButton as ActionButton,

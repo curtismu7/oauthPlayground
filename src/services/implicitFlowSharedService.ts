@@ -1,16 +1,16 @@
 // src/services/implicitFlowSharedService.ts
 /**
  * Implicit Flow Shared Service
- * 
+ *
  * Consolidates ALL shared logic between OAuth Implicit V5 and OIDC Implicit V5
  * to ensure perfect synchronization. Any update here automatically applies to both flows.
  */
 
 import { useCallback, useState } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { validateForStep } from './credentialsValidationService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { validateForStep } from './credentialsValidationService';
 
 export type ImplicitFlowVariant = 'oauth' | 'oidc';
 
@@ -37,68 +37,79 @@ const SESSION_FLAG_CONFIG = {
 } as const;
 
 export class SessionStorageManager {
-  /**
-   * Set session storage flag for the active flow (clears the other)
-   */
-  static setActiveFlow(variant: ImplicitFlowVariant, version: 'v5' | 'v6' | 'v7' = 'v5'): void {
-    const keys = SESSION_FLAG_CONFIG[variant];
-    const activeKey = keys[version];
-    const otherVariant = variant === 'oauth' ? 'oidc' : 'oauth';
-    const otherKey = SESSION_FLAG_CONFIG[otherVariant][version];
+	/**
+	 * Set session storage flag for the active flow (clears the other)
+	 */
+	static setActiveFlow(variant: ImplicitFlowVariant, version: 'v5' | 'v6' | 'v7' = 'v5'): void {
+		const keys = SESSION_FLAG_CONFIG[variant];
+		const activeKey = keys[version];
+		const otherVariant = variant === 'oauth' ? 'oidc' : 'oauth';
+		const otherKey = SESSION_FLAG_CONFIG[otherVariant][version];
 
-    sessionStorage.removeItem(otherKey);
-    sessionStorage.setItem(activeKey, 'true');
+		sessionStorage.removeItem(otherKey);
+		sessionStorage.setItem(activeKey, 'true');
 
-    console.log(`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} flow marked as active`);
+		console.log(
+			`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} flow marked as active`
+		);
 
-    if (version === 'v7') {
-      sessionStorage.setItem(SESSION_FLAG_CONFIG.default.v7, variant);
-    }
-  }
+		if (version === 'v7') {
+			sessionStorage.setItem(SESSION_FLAG_CONFIG.default.v7, variant);
+		}
+	}
 
-  /**
-   * Clear all implicit flow session storage flags
-   */
-  static clearAllFlowFlags(): void {
-    Object.values(SESSION_FLAG_CONFIG.oauth).forEach((key) => sessionStorage.removeItem(key));
-    Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => sessionStorage.removeItem(key));
-    console.log('[SessionStorageManager] All implicit flow flags cleared');
-  }
+	/**
+	 * Clear all implicit flow session storage flags
+	 */
+	static clearAllFlowFlags(): void {
+		Object.values(SESSION_FLAG_CONFIG.oauth).forEach((key) => sessionStorage.removeItem(key));
+		Object.values(SESSION_FLAG_CONFIG.oidc).forEach((key) => sessionStorage.removeItem(key));
+		console.log('[SessionStorageManager] All implicit flow flags cleared');
+	}
 
-  /**
-   * Check which flow is currently active (v7 takes precedence)
-   */
-  static getActiveFlow(version: 'v5' | 'v6' | 'v7' = 'v5'): ImplicitFlowVariant | null {
-    if (version === 'v7') {
-      const selected = sessionStorage.getItem(SESSION_FLAG_CONFIG.default.v7);
-      return selected === 'oidc' || selected === 'oauth' ? selected : null;
-    }
+	/**
+	 * Check which flow is currently active (v7 takes precedence)
+	 */
+	static getActiveFlow(version: 'v5' | 'v6' | 'v7' = 'v5'): ImplicitFlowVariant | null {
+		if (version === 'v7') {
+			const selected = sessionStorage.getItem(SESSION_FLAG_CONFIG.default.v7);
+			return selected === 'oidc' || selected === 'oauth' ? selected : null;
+		}
 
-    const hasOAuth = sessionStorage.getItem(SESSION_FLAG_CONFIG.oauth[version]) === 'true';
-    const hasOIDC = sessionStorage.getItem(SESSION_FLAG_CONFIG.oidc[version]) === 'true';
+		const hasOAuth = sessionStorage.getItem(SESSION_FLAG_CONFIG.oauth[version]) === 'true';
+		const hasOIDC = sessionStorage.getItem(SESSION_FLAG_CONFIG.oidc[version]) === 'true';
 
-    if (hasOAuth && !hasOIDC) return 'oauth';
-    if (hasOIDC && !hasOAuth) return 'oidc';
-    return null;
-  }
+		if (hasOAuth && !hasOIDC) return 'oauth';
+		if (hasOIDC && !hasOAuth) return 'oidc';
+		return null;
+	}
 
-  /**
-   * Save PingOne app configuration to session storage
-   */
-  static savePingOneConfig(variant: ImplicitFlowVariant, config: PingOneApplicationState, version: 'v5' | 'v6' | 'v7' = 'v5'): void {
-    const key = `${variant}-implicit-${version}-app-config`;
-    sessionStorage.setItem(key, JSON.stringify(config));
-    console.log(`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} PingOne config saved`);
-  }
+	/**
+	 * Save PingOne app configuration to session storage
+	 */
+	static savePingOneConfig(
+		variant: ImplicitFlowVariant,
+		config: PingOneApplicationState,
+		version: 'v5' | 'v6' | 'v7' = 'v5'
+	): void {
+		const key = `${variant}-implicit-${version}-app-config`;
+		sessionStorage.setItem(key, JSON.stringify(config));
+		console.log(
+			`[SessionStorageManager] ${variant.toUpperCase()} Implicit ${version.toUpperCase()} PingOne config saved`
+		);
+	}
 
-  /**
-   * Load PingOne app configuration from session storage
-   */
-  static loadPingOneConfig(variant: ImplicitFlowVariant, version: 'v5' | 'v6' | 'v7' = 'v5'): PingOneApplicationState | null {
-    const key = `${variant}-implicit-${version}-app-config`;
-    const stored = sessionStorage.getItem(key);
-    return stored ? JSON.parse(stored) : null;
-  }
+	/**
+	 * Load PingOne app configuration from session storage
+	 */
+	static loadPingOneConfig(
+		variant: ImplicitFlowVariant,
+		version: 'v5' | 'v6' | 'v7' = 'v5'
+	): PingOneApplicationState | null {
+		const key = `${variant}-implicit-${version}-app-config`;
+		const stored = sessionStorage.getItem(key);
+		return stored ? JSON.parse(stored) : null;
+	}
 }
 
 /**
@@ -212,15 +223,18 @@ export class ImplicitFlowValidationManager {
 
 		if (!validation.isValid) {
 			// Format field names for display
-			const fieldNames = validation.missingFields.map(f => {
+			const fieldNames = validation.missingFields.map((f) => {
 				switch (f) {
-					case 'environmentId': return 'Environment ID';
-					case 'clientId': return 'Client ID';
-					case 'redirectUri': return 'Redirect URI';
-					case 'scope': return variant === 'oidc' 
-						? 'Scope (must include openid)' 
-						: 'Scope';
-					default: return f;
+					case 'environmentId':
+						return 'Environment ID';
+					case 'clientId':
+						return 'Client ID';
+					case 'redirectUri':
+						return 'Redirect URI';
+					case 'scope':
+						return variant === 'oidc' ? 'Scope (must include openid)' : 'Scope';
+					default:
+						return f;
 				}
 			});
 
@@ -318,9 +332,10 @@ export class ImplicitFlowCredentialsHandlers {
 			controller.setCredentials(updated);
 			setCredentials(updated);
 			console.log(`[${variant.toUpperCase()} Implicit V5] Redirect URI updated:`, value);
-			
+
 			// Auto-save redirect URI to persist across refreshes
-			controller.saveCredentials()
+			controller
+				.saveCredentials()
 				.then(() => {
 					ImplicitFlowToastManager.showRedirectUriSaved();
 				})
@@ -333,10 +348,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createScopesHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -347,10 +359,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createLoginHintHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -361,10 +370,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(
-		variant: ImplicitFlowVariant,
-		controller: any
-	) {
+	static createSaveHandler(variant: ImplicitFlowVariant, controller: any) {
 		return async () => {
 			try {
 				await controller.saveCredentials();
@@ -440,11 +446,14 @@ export class ImplicitFlowAuthorizationManager {
 
 			// Generate the URL
 			await controller.generateAuthorizationUrl();
-			
+
 			ImplicitFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(`[${variant.toUpperCase()}ImplicitFlowV5] Failed to generate authorization URL:`, error);
+			console.error(
+				`[${variant.toUpperCase()}ImplicitFlowV5] Failed to generate authorization URL:`,
+				error
+			);
 			ImplicitFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}
@@ -511,90 +520,90 @@ export class ImplicitFlowNavigationManager {
  * Provides flow-specific default configurations
  */
 export class ImplicitFlowDefaults {
-    /**
-     * Get default credentials for OAuth Implicit
-     */
-    static getOAuthDefaults(): Partial<StepCredentials> {
-	const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
-        return {
-            redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
-            scope: 'openid profile email',  // Consistent scopes for both OAuth 2.0 and OIDC variants
-            scopes: 'openid profile email',  // Consistent scopes for both OAuth 2.0 and OIDC variants
-            responseType: 'token',
-            clientAuthMethod: 'none',
-        };
-    }
+	/**
+	 * Get default credentials for OAuth Implicit
+	 */
+	static getOAuthDefaults(): Partial<StepCredentials> {
+		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
+		return {
+			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
+			scope: 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
+			scopes: 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
+			responseType: 'token',
+			clientAuthMethod: 'none',
+		};
+	}
 
-    /**
-     * Get default credentials for OIDC Implicit
-     */
-    static getOIDCDefaults(): Partial<StepCredentials> {
-	const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
-        return {
-            redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oidc-implicit-v6'),
-            scope: 'openid profile email',
-            scopes: 'openid profile email',
-            responseType: 'id_token token',
-            clientAuthMethod: 'none',
-        };
-    }
+	/**
+	 * Get default credentials for OIDC Implicit
+	 */
+	static getOIDCDefaults(): Partial<StepCredentials> {
+		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
+		return {
+			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oidc-implicit-v6'),
+			scope: 'openid profile email',
+			scopes: 'openid profile email',
+			responseType: 'id_token token',
+			clientAuthMethod: 'none',
+		};
+	}
 
-    /**
-     * Get default PingOne app config for Implicit flows
-     */
-    static getDefaultAppConfig(variant: ImplicitFlowVariant): PingOneApplicationState {
-        return {
-            clientAuthMethod: 'none',
-            allowRedirectUriPatterns: false,
-            pkceEnforcement: 'OPTIONAL',
-            responseTypeCode: false,
-            responseTypeToken: true,
-            responseTypeIdToken: variant === 'oidc', // Only OIDC returns ID token
-            grantTypeAuthorizationCode: false,
-            initiateLoginUri: '',
-            targetLinkUri: '',
-            signoffUrls: [],
-            requestParameterSignatureRequirement: 'DEFAULT',
-            enableJWKS: false,
-            jwksMethod: 'JWKS_URL',
-            jwksUrl: '',
-            jwks: '',
-            requirePushedAuthorizationRequest: false,
-            pushedAuthorizationRequestTimeout: 60,
-            additionalRefreshTokenReplayProtection: false,
-            includeX5tParameter: false,
-            oidcSessionManagement: false,
-            requestScopesForMultipleResources: false,
-            terminateUserSessionByIdToken: false,
-            corsOrigins: [],
-            corsAllowAnyOrigin: false,
-        };
-    }
+	/**
+	 * Get default PingOne app config for Implicit flows
+	 */
+	static getDefaultAppConfig(variant: ImplicitFlowVariant): PingOneApplicationState {
+		return {
+			clientAuthMethod: 'none',
+			allowRedirectUriPatterns: false,
+			pkceEnforcement: 'OPTIONAL',
+			responseTypeCode: false,
+			responseTypeToken: true,
+			responseTypeIdToken: variant === 'oidc', // Only OIDC returns ID token
+			grantTypeAuthorizationCode: false,
+			initiateLoginUri: '',
+			targetLinkUri: '',
+			signoffUrls: [],
+			requestParameterSignatureRequirement: 'DEFAULT',
+			enableJWKS: false,
+			jwksMethod: 'JWKS_URL',
+			jwksUrl: '',
+			jwks: '',
+			requirePushedAuthorizationRequest: false,
+			pushedAuthorizationRequestTimeout: 60,
+			additionalRefreshTokenReplayProtection: false,
+			includeX5tParameter: false,
+			oidcSessionManagement: false,
+			requestScopesForMultipleResources: false,
+			terminateUserSessionByIdToken: false,
+			corsOrigins: [],
+			corsAllowAnyOrigin: false,
+		};
+	}
 
-    /**
-     * Get default collapsed sections state
-     */
-    static getDefaultCollapsedSections(): Record<string, boolean> {
-        return {
-            overview: true,
-            flowDiagram: true,
-            authRequestOverview: false, // Expanded by default for Step 2
-            authRequestDetails: true,
-            responseMode: true,
-            tokenResponseOverview: true,
-            tokenResponseDetails: true,
-            tokenResponse: false, // Expanded by default for Step 2
-            introspectionOverview: true,
-            introspectionDetails: false, // Expanded by default for introspection
-            apiCallDisplay: true,
-            securityOverview: true,
-            securityBestPractices: true,
-            flowSummary: false, // Expanded by default for flow summary page
-            flowComparison: true,
-            completionOverview: true,
-            completionDetails: true,
-        };
-    }
+	/**
+	 * Get default collapsed sections state
+	 */
+	static getDefaultCollapsedSections(): Record<string, boolean> {
+		return {
+			overview: true,
+			flowDiagram: true,
+			authRequestOverview: false, // Expanded by default for Step 2
+			authRequestDetails: true,
+			responseMode: true,
+			tokenResponseOverview: true,
+			tokenResponseDetails: true,
+			tokenResponse: false, // Expanded by default for Step 2
+			introspectionOverview: true,
+			introspectionDetails: false, // Expanded by default for introspection
+			apiCallDisplay: true,
+			securityOverview: true,
+			securityBestPractices: true,
+			flowSummary: false, // Expanded by default for flow summary page
+			flowComparison: true,
+			completionOverview: true,
+			completionDetails: true,
+		};
+	}
 }
 
 /**
@@ -657,7 +666,7 @@ export class ImplicitFlowTokenFragmentProcessor {
 	): boolean {
 		const hash = window.location.hash;
 		console.log('[TokenFragmentProcessor] Checking for tokens in hash:', hash);
-		
+
 		if (!hash?.includes('access_token')) {
 			console.log('[TokenFragmentProcessor] No access_token found in hash, returning false');
 			return false;
@@ -667,11 +676,11 @@ export class ImplicitFlowTokenFragmentProcessor {
 
 		// Extract and set tokens
 		controller.setTokensFromFragment(hash);
-		
+
 		// Navigate to token response step (Step 3: Token Response = index 2)
 		console.log('[TokenFragmentProcessor] Setting current step to 2 (Step 3: Token Response)');
 		setCurrentStep(2);
-		
+
 		// Show success feedback
 		ImplicitFlowToastManager.showTokensReceived();
 		setShowSuccessModal(true);
@@ -679,7 +688,9 @@ export class ImplicitFlowTokenFragmentProcessor {
 		// Clean up URL
 		window.history.replaceState({}, '', window.location.pathname);
 
-		console.log('[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)');
+		console.log(
+			'[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)'
+		);
 		return true;
 	}
 }
@@ -697,7 +708,9 @@ export class ImplicitFlowStepRestoration {
 		// Check if we have tokens in the URL fragment first (highest priority)
 		const hash = window.location.hash;
 		if (hash?.includes('access_token')) {
-			console.log('[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)');
+			console.log(
+				'[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)'
+			);
 			return 2; // Step 3: Token Response
 		}
 
@@ -709,7 +722,7 @@ export class ImplicitFlowStepRestoration {
 			console.log('[StepRestoration] Restoring to step:', step);
 			return step;
 		}
-		
+
 		console.log('[StepRestoration] No restore_step found, returning step 0');
 		return 0;
 	}
@@ -782,7 +795,7 @@ export class ImplicitFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = false;
 			});
 			return updated;
@@ -798,7 +811,7 @@ export class ImplicitFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = true;
 			});
 			return updated;
@@ -859,9 +872,11 @@ export class ImplicitFlowResponseTypeEnforcer {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		const expectedType = ImplicitFlowResponseTypeEnforcer.getExpectedResponseType(variant);
-		
+
 		if (credentials.responseType !== expectedType) {
-			console.log(`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`);
+			console.log(
+				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
+			);
 			setCredentials({
 				...credentials,
 				responseType: expectedType,
@@ -884,7 +899,10 @@ export class ImplicitFlowCredentialsSync {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
-			console.log(`[${variant.toUpperCase()} Implicit V5] Syncing credentials from controller:`, controllerCredentials);
+			console.log(
+				`[${variant.toUpperCase()} Implicit V5] Syncing credentials from controller:`,
+				controllerCredentials
+			);
 			setCredentials(controllerCredentials);
 		}
 	}
@@ -935,15 +953,20 @@ export class ImplicitFlowV7Helpers {
 		switch (variant) {
 			case 'oauth':
 				return {
-					overview: 'The OAuth 2.0 Implicit Grant is designed for public clients (SPAs, mobile apps) that cannot securely store client secrets.',
-					security: 'Access tokens are returned directly in the URL fragment, making them vulnerable to interception. Always use HTTPS.',
+					overview:
+						'The OAuth 2.0 Implicit Grant is designed for public clients (SPAs, mobile apps) that cannot securely store client secrets.',
+					security:
+						'Access tokens are returned directly in the URL fragment, making them vulnerable to interception. Always use HTTPS.',
 					tokens: 'Only returns an access token. No refresh token is provided.',
 				};
 			case 'oidc':
 				return {
-					overview: 'The OIDC Implicit Flow extends OAuth 2.0 with identity information, providing both access tokens and ID tokens.',
-					security: 'ID tokens contain user identity claims. Access tokens are still vulnerable in URL fragments.',
-					tokens: 'Returns both access token and ID token. The ID token contains verified user identity claims.',
+					overview:
+						'The OIDC Implicit Flow extends OAuth 2.0 with identity information, providing both access tokens and ID tokens.',
+					security:
+						'ID tokens contain user identity claims. Access tokens are still vulnerable in URL fragments.',
+					tokens:
+						'Returns both access token and ID token. The ID token contains verified user identity claims.',
 				};
 		}
 	}
@@ -986,16 +1009,9 @@ export class ImplicitFlowV7Helpers {
 
 		switch (variant) {
 			case 'oauth':
-				return [
-					...common,
-					'response_type=token',
-				];
+				return [...common, 'response_type=token'];
 			case 'oidc':
-				return [
-					...common,
-					'response_type=id_token token',
-					'openid scope required',
-				];
+				return [...common, 'response_type=id_token token', 'openid scope required'];
 		}
 	}
 
@@ -1037,7 +1053,8 @@ export class ImplicitFlowV7Helpers {
 			case 'oidc':
 				return {
 					title: 'OIDC Implicit Flow Complete',
-					description: 'Successfully obtained access token and ID token for authorization and identity.',
+					description:
+						'Successfully obtained access token and ID token for authorization and identity.',
 					nextSteps: [
 						'Validate ID token signature and claims',
 						'Use access token to call protected APIs',
@@ -1081,4 +1098,3 @@ export const ImplicitFlowSharedService = {
 	CredentialsSync: ImplicitFlowCredentialsSync,
 	V7Helpers: ImplicitFlowV7Helpers,
 };
-

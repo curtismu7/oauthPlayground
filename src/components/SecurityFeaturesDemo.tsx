@@ -19,15 +19,15 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfirmationModal from './ConfirmationModal';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import {
 	buildLogoutUrl,
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import ConfirmationModal from './ConfirmationModal';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`
@@ -493,7 +493,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 				'⚠️ No access token available.\n\nPlease complete the OAuth flow first to see real x5t values.'
 			);
 		}
-	}, [tokens, getX5tParameter]);
+	}, [tokens, getX5tParameter, x5tValue]);
 
 	const verifyCertificate = useCallback(() => {
 		v4ToastManager.showSuccess(
@@ -536,12 +536,18 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					// Validate ID token before using it
 					const idToken = normalizedTokens.id_token;
 					if (idToken && !isJWT(idToken)) {
-						console.warn('[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call');
-						v4ToastManager.showWarning('Invalid ID token detected. Session will be cleared locally only.');
-						
+						console.warn(
+							'[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call'
+						);
+						v4ToastManager.showWarning(
+							'Invalid ID token detected. Session will be cleared locally only.'
+						);
+
 						// Clear local storage without calling logout endpoint
 						onTerminateSession?.();
-						setSessionResults('❌ INVALID ID TOKEN\n\nSession cleared locally only.\nID token was malformed and could not be used for server-side logout.');
+						setSessionResults(
+							'❌ INVALID ID TOKEN\n\nSession cleared locally only.\nID token was malformed and could not be used for server-side logout.'
+						);
 						return;
 					}
 
@@ -1801,7 +1807,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 												$variant="primary"
 												$primaryColor={colors.primary}
 												onClick={() => {
-													const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+													const logoutUrl =
+														calculatedLogoutUrl ||
+														'https://auth.pingone.com/{environmentId}/as/signoff';
 													window.open(logoutUrl, '_blank');
 												}}
 											>
@@ -1811,7 +1819,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 												$variant="secondary"
 												$primaryColor={colors.primary}
 												onClick={() => {
-													const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+													const logoutUrl =
+														calculatedLogoutUrl ||
+														'https://auth.pingone.com/{environmentId}/as/signoff';
 													navigator.clipboard.writeText(logoutUrl);
 													v4ToastManager.showSuccess('📋 Logout URL copied to clipboard!');
 												}}

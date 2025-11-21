@@ -1,19 +1,19 @@
 // src/components/FieldTooltip.tsx
 /**
  * FieldTooltip Component
- * 
+ *
  * Displays helpful tooltips on credential field labels with
  * field purpose and specification references.
  */
 
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiHelpCircle } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface FieldTooltipProps {
-  content: string;
-  specReference?: string;
-  children?: React.ReactNode;
+	content: string;
+	specReference?: string;
+	children?: React.ReactNode;
 }
 
 const TooltipWrapper = styled.span`
@@ -83,59 +83,55 @@ const TooltipLink = styled.a`
  * FieldTooltip Component
  * Shows helpful information on hover with 300ms delay
  */
-export const FieldTooltip: React.FC<FieldTooltipProps> = ({
-  content,
-  specReference,
-  children,
-}) => {
-  const [visible, setVisible] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+export const FieldTooltip: React.FC<FieldTooltipProps> = ({ content, specReference, children }) => {
+	const [visible, setVisible] = useState(false);
+	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMouseEnter = () => {
-    // 300ms delay before showing tooltip
-    timeoutRef.current = setTimeout(() => {
-      setVisible(true);
-    }, 300);
-  };
+	const handleMouseEnter = () => {
+		// 300ms delay before showing tooltip
+		timeoutRef.current = setTimeout(() => {
+			setVisible(true);
+		}, 300);
+	};
 
-  const handleMouseLeave = () => {
-    // Clear timeout and hide immediately
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-    setVisible(false);
-  };
+	const handleMouseLeave = () => {
+		// Clear timeout and hide immediately
+		if (timeoutRef.current) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = null;
+		}
+		setVisible(false);
+	};
 
-  useEffect(() => {
-    // Cleanup timeout on unmount
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+	useEffect(() => {
+		// Cleanup timeout on unmount
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, []);
 
-  return (
-    <TooltipWrapper>
-      <TooltipTrigger
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        role="tooltip"
-        aria-label={content}
-      >
-        {children || <FiHelpCircle size={14} />}
-      </TooltipTrigger>
-      <TooltipContent $visible={visible} role="tooltip">
-        {content}
-        {specReference && (
-          <TooltipLink href={specReference} target="_blank" rel="noopener noreferrer">
-            View Specification →
-          </TooltipLink>
-        )}
-      </TooltipContent>
-    </TooltipWrapper>
-  );
+	return (
+		<TooltipWrapper>
+			<TooltipTrigger
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+				role="tooltip"
+				aria-label={content}
+			>
+				{children || <FiHelpCircle size={14} />}
+			</TooltipTrigger>
+			<TooltipContent $visible={visible} role="tooltip">
+				{content}
+				{specReference && (
+					<TooltipLink href={specReference} target="_blank" rel="noopener noreferrer">
+						View Specification →
+					</TooltipLink>
+				)}
+			</TooltipContent>
+		</TooltipWrapper>
+	);
 };
 
 export default FieldTooltip;

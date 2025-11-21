@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Card } from '../Card';
 import { ThemeType } from '../../types/token-inspector';
+import { Card } from '../Card';
 
 export const Container = styled.div`
   max-width: 1200px;

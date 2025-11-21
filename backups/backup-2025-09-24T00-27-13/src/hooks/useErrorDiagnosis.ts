@@ -1,15 +1,15 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-	errorDiagnosisManager,
 	diagnoseError,
-	resolveError,
+	ErrorDiagnosis,
+	ErrorHistory,
+	ErrorPattern,
+	ErrorStatistics,
+	errorDiagnosisManager,
 	getErrorHistory,
 	getErrorPatterns,
-	ErrorDiagnosis,
-	ErrorPattern,
+	resolveError,
 	SuggestedFix,
-	ErrorHistory,
-	ErrorStatistics,
 } from '../utils/errorDiagnosis';
 import { logger } from '../utils/logger';
 

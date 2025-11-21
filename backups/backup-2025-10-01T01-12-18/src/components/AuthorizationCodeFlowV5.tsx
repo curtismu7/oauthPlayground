@@ -17,6 +17,12 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
+import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
+import { pingOneConfigService } from '../services/pingoneConfigService';
+import { trackOAuthFlow } from '../utils/activityTracker';
+import { decodeJWTHeader } from '../utils/jwks';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
 import { FlowWalkthrough } from './FlowWalkthrough';
@@ -36,12 +42,6 @@ import { StepNavigationButtons } from './StepNavigationButtons';
 import type { StepCredentials } from './steps/CommonSteps';
 import TokenIntrospect from './TokenIntrospect';
 import UserInformationStep from './UserInformationStep';
-import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
-import { decodeJWTHeader } from '../utils/jwks';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { pingOneConfigService } from '../services/pingoneConfigService';
-import { trackOAuthFlow } from '../utils/activityTracker';
-import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },

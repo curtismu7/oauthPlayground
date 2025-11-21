@@ -131,7 +131,7 @@ const evaluateAuthorizationCode = (
 	const includesOffline = scopeArray.includes('offline_access');
 
 	let variant: GuidanceVariant = 'info';
-	let title = 'Refresh Token Behavior';
+	const title = 'Refresh Token Behavior';
 	let description =
 		'Let the playground know how your PingOne app is configured so we can coach you on requesting refresh tokens.';
 	let addToastMessage =
@@ -343,9 +343,7 @@ export const OfflineAccessSettingsPanel: React.FC<OfflineAccessSettingsPanelProp
 					id="offline-access-refresh-grant"
 					type="checkbox"
 					checked={settings.refreshGrantEnabled}
-					onChange={() =>
-						onSettingsChange({ refreshGrantEnabled: !settings.refreshGrantEnabled })
-					}
+					onChange={() => onSettingsChange({ refreshGrantEnabled: !settings.refreshGrantEnabled })}
 				/>
 				<CheckboxDescription>
 					<strong>Refresh Token grant is enabled on this application</strong>
@@ -386,5 +384,3 @@ export const OfflineAccessService = {
 	getImplicitGuidance,
 	sanitizeImplicitScopes,
 };
-
-

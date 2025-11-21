@@ -1,24 +1,30 @@
 // src/services/v7SharedService.ts
 /**
  * V7 Shared Service - Unified OAuth/OIDC Specification Compliance
- * 
+ *
  * Provides shared functionality for all V7 flows with comprehensive
  * OAuth 2.0 and OpenID Connect specification compliance.
- * 
+ *
  * Integrates:
  * - ID Token Validation (OIDC Core 1.0)
  * - Standardized Error Handling (RFC 6749)
  * - Parameter Validation (RFC 6749 + OIDC)
  * - Security Headers (Security Best Practices)
- * 
+ *
  * Follows the established V7 service architecture pattern.
  */
 
-import React from 'react';
-import { IDTokenValidationService, type IDTokenValidationResult } from '../utils/idTokenValidation';
-import { StandardizedErrorHandler, type StandardizedErrorResponse, type ErrorContext } from '../utils/standardizedErrorHandling';
-import { ParameterValidationService, type ParameterValidationResult } from '../utils/parameterValidation';
-import { SecurityHeadersService, type SecurityHeaders } from '../utils/securityHeaders';
+import { type IDTokenValidationResult, IDTokenValidationService } from '../utils/idTokenValidation';
+import {
+	type ParameterValidationResult,
+	ParameterValidationService,
+} from '../utils/parameterValidation';
+import { type SecurityHeaders, SecurityHeadersService } from '../utils/securityHeaders';
+import {
+	type ErrorContext,
+	StandardizedErrorHandler,
+	type StandardizedErrorResponse,
+} from '../utils/standardizedErrorHandling';
 
 // Unified logging format: [🔧 V7-SHARED]
 const LOG_PREFIX = '[🔧 V7-SHARED]';
@@ -44,7 +50,7 @@ const log = {
 
 // V7 Flow Types
 export type V7FlowType = 'oauth' | 'oidc' | 'pingone' | 'mock';
-export type V7FlowName = 
+export type V7FlowName =
 	| 'oauth-authorization-code-v7'
 	| 'oauth-implicit-v7'
 	| 'oauth-device-authorization-v7'
@@ -86,7 +92,7 @@ export class V7IDTokenValidationManager {
 		flowName?: V7FlowName
 	): Promise<IDTokenValidationResult> {
 		log.info(`Validating ID token for flow: ${flowName || 'unknown'}`);
-		
+
 		try {
 			const result = await IDTokenValidationService.validateIDToken(
 				idToken,
@@ -134,10 +140,10 @@ export class V7ErrorHandlingManager {
 	 */
 	static handleOAuthError(error: any, context?: ErrorContext): StandardizedErrorResponse {
 		log.error(`Handling OAuth error for flow: ${context?.flowName || 'unknown'}`, error);
-		
+
 		const response = StandardizedErrorHandler.handleOAuthError(error, context);
 		StandardizedErrorHandler.logError(response, context);
-		
+
 		return response;
 	}
 
@@ -146,10 +152,10 @@ export class V7ErrorHandlingManager {
 	 */
 	static handleOIDCError(error: any, context?: ErrorContext): StandardizedErrorResponse {
 		log.error(`Handling OIDC error for flow: ${context?.flowName || 'unknown'}`, error);
-		
+
 		const response = StandardizedErrorHandler.handleOIDCError(error, context);
 		StandardizedErrorHandler.logError(response, context);
-		
+
 		return response;
 	}
 
@@ -158,7 +164,7 @@ export class V7ErrorHandlingManager {
 	 */
 	static createScenarioError(scenario: string, context?: ErrorContext): StandardizedErrorResponse {
 		log.warn(`Creating scenario error: ${scenario} for flow: ${context?.flowName || 'unknown'}`);
-		
+
 		return StandardizedErrorHandler.createScenarioError(scenario, context);
 	}
 
@@ -186,11 +192,14 @@ export class V7ParameterValidationManager {
 	/**
 	 * Validate parameters for a specific V7 flow
 	 */
-	static validateFlowParameters(flowName: V7FlowName, parameters: Record<string, any>): ParameterValidationResult {
+	static validateFlowParameters(
+		flowName: V7FlowName,
+		parameters: Record<string, any>
+	): ParameterValidationResult {
 		log.info(`Validating parameters for flow: ${flowName}`);
-		
+
 		const result = ParameterValidationService.validateFlowParameters(flowName, parameters);
-		
+
 		if (result.isValid) {
 			log.success(`Parameter validation successful for flow: ${flowName}`);
 		} else {
@@ -225,7 +234,7 @@ export class V7ParameterValidationManager {
 	 * Get all supported V7 flows
 	 */
 	static getSupportedV7Flows(): V7FlowName[] {
-		return ParameterValidationService.getSupportedFlows().filter(flow => 
+		return ParameterValidationService.getSupportedFlows().filter((flow) =>
 			flow.includes('-v7')
 		) as V7FlowName[];
 	}
@@ -241,7 +250,7 @@ export class V7SecurityHeadersManager {
 	 */
 	static getSecurityHeaders(flowName: V7FlowName): SecurityHeaders {
 		log.info(`Getting security headers for flow: ${flowName}`);
-		
+
 		return SecurityHeadersService.getSecurityHeaders(flowName);
 	}
 
@@ -303,59 +312,61 @@ export class V7SpecificationComplianceManager {
 				type: 'oauth',
 				specification: 'RFC 6749 - OAuth 2.0 Authorization Framework',
 				version: 'V7',
-				features: ['PKCE', 'State Validation', 'Error Handling', 'Security Headers']
+				features: ['PKCE', 'State Validation', 'Error Handling', 'Security Headers'],
 			},
 			'oauth-implicit-v7': {
 				name: 'oauth-implicit-v7',
 				type: 'oauth',
 				specification: 'RFC 6749 - OAuth 2.0 Authorization Framework',
 				version: 'V7',
-				features: ['Fragment Handling', 'State Validation', 'Error Handling', 'Security Headers']
+				features: ['Fragment Handling', 'State Validation', 'Error Handling', 'Security Headers'],
 			},
 			'oauth-device-authorization-v7': {
 				name: 'oauth-device-authorization-v7',
 				type: 'oauth',
 				specification: 'RFC 8628 - OAuth 2.0 Device Authorization Grant',
 				version: 'V7',
-				features: ['Device Code', 'Polling', 'Error Handling', 'Security Headers']
+				features: ['Device Code', 'Polling', 'Error Handling', 'Security Headers'],
 			},
 			'oauth-client-credentials-v7': {
 				name: 'oauth-client-credentials-v7',
 				type: 'oauth',
 				specification: 'RFC 6749 - OAuth 2.0 Authorization Framework',
 				version: 'V7',
-				features: ['Client Authentication', 'JWT Assertions', 'mTLS', 'Error Handling']
+				features: ['Client Authentication', 'JWT Assertions', 'mTLS', 'Error Handling'],
 			},
 			'oidc-authorization-code-v7': {
 				name: 'oidc-authorization-code-v7',
 				type: 'oidc',
 				specification: 'OpenID Connect Core 1.0',
 				version: 'V7',
-				features: ['ID Token Validation', 'Claims Handling', 'Nonce Validation', 'PKCE']
+				features: ['ID Token Validation', 'Claims Handling', 'Nonce Validation', 'PKCE'],
 			},
 			'oidc-hybrid-v7': {
 				name: 'oidc-hybrid-v7',
 				type: 'oidc',
 				specification: 'OpenID Connect Core 1.0',
 				version: 'V7',
-				features: ['ID Token Validation', 'Fragment Processing', 'Nonce Validation', 'PKCE']
+				features: ['ID Token Validation', 'Fragment Processing', 'Nonce Validation', 'PKCE'],
 			},
 			'pingone-par-v7': {
 				name: 'pingone-par-v7',
 				type: 'pingone',
 				specification: 'RFC 9126 - OAuth 2.0 Pushed Authorization Requests',
 				version: 'V7',
-				features: ['PAR Request', 'PAR Authorization', 'Token Exchange', 'PingOne Integration']
-			}
+				features: ['PAR Request', 'PAR Authorization', 'Token Exchange', 'PingOne Integration'],
+			},
 		};
 
-		return configs[flowName] || {
-			name: flowName,
-			type: 'oauth',
-			specification: 'Unknown',
-			version: 'V7',
-			features: []
-		};
+		return (
+			configs[flowName] || {
+				name: flowName,
+				type: 'oauth',
+				specification: 'Unknown',
+				version: 'V7',
+				features: [],
+			}
+		);
 	}
 
 	/**
@@ -367,10 +378,10 @@ export class V7SpecificationComplianceManager {
 		missingFeatures: string[];
 		recommendations: string[];
 	} {
-		const config = this.getFlowConfig(flowName);
+		const config = V7SpecificationComplianceManager.getFlowConfig(flowName);
 		const supportedFlows = V7ParameterValidationManager.getSupportedV7Flows();
 		const isSupported = supportedFlows.includes(flowName);
-		
+
 		let complianceScore = 0;
 		const missingFeatures: string[] = [];
 		const recommendations: string[] = [];
@@ -405,7 +416,7 @@ export class V7SpecificationComplianceManager {
 			isCompliant: complianceScore >= 90,
 			complianceScore,
 			missingFeatures,
-			recommendations
+			recommendations,
 		};
 	}
 }
@@ -418,12 +429,15 @@ export class V7FlowIntegrationManager {
 	/**
 	 * Initialize V7 flow with compliance features
 	 */
-	static initializeFlow(flowName: V7FlowName, options?: {
-		enableIDTokenValidation?: boolean;
-		enableParameterValidation?: boolean;
-		enableErrorHandling?: boolean;
-		enableSecurityHeaders?: boolean;
-	}) {
+	static initializeFlow(
+		flowName: V7FlowName,
+		options?: {
+			enableIDTokenValidation?: boolean;
+			enableParameterValidation?: boolean;
+			enableErrorHandling?: boolean;
+			enableSecurityHeaders?: boolean;
+		}
+	) {
 		log.info(`Initializing V7 flow: ${flowName}`, options);
 
 		const config = V7SpecificationComplianceManager.getFlowConfig(flowName);
@@ -434,11 +448,11 @@ export class V7FlowIntegrationManager {
 			config,
 			compliance,
 			features: {
-				idTokenValidation: options?.enableIDTokenValidation ?? (config.type === 'oidc'),
+				idTokenValidation: options?.enableIDTokenValidation ?? config.type === 'oidc',
 				parameterValidation: options?.enableParameterValidation ?? true,
 				errorHandling: options?.enableErrorHandling ?? true,
-				securityHeaders: options?.enableSecurityHeaders ?? true
-			}
+				securityHeaders: options?.enableSecurityHeaders ?? true,
+			},
 		};
 	}
 
@@ -455,7 +469,7 @@ export class V7FlowIntegrationManager {
 			config,
 			compliance,
 			errorStats,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		};
 	}
 }
@@ -471,16 +485,16 @@ export const V7SharedService = {
 	SecurityHeaders: V7SecurityHeadersManager,
 	SpecificationCompliance: V7SpecificationComplianceManager,
 	FlowIntegration: V7FlowIntegrationManager,
-	
+
 	// Utility functions
 	initializeFlow: V7FlowIntegrationManager.initializeFlow,
 	getFlowStatus: V7FlowIntegrationManager.getFlowStatus,
-	
+
 	// Direct access to underlying services
 	IDTokenValidationService,
 	StandardizedErrorHandler,
 	ParameterValidationService,
-	SecurityHeadersService
+	SecurityHeadersService,
 };
 
 export default V7SharedService;

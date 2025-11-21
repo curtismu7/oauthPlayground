@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiEye, FiEyeOff, FiLoader, FiLock } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiLock, FiEye, FiEyeOff, FiLoader } from 'react-icons/fi';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
 

@@ -19,23 +19,23 @@ import {
 	FiSmartphone,
 	FiZap,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowCredentials from '../../components/FlowCredentials';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
-import { pingOneConfigService } from '../../services/pingoneConfigService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { themeService } from '../../services/themeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import FlowCredentials from '../../components/FlowCredentials';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`

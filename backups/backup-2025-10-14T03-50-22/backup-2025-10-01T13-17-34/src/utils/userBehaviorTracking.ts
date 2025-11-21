@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { analyticsManager } from './analytics';
+import { logger } from './logger';
 
 // User behavior tracking types
 export interface UserSession {

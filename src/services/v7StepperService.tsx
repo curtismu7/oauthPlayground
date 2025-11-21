@@ -4,9 +4,7 @@
 // Purpose: Provides V7-style step layout with consistent styling and navigation
 // Renamed from V5StepperService to avoid confusion with archived V5 flows
 
-import React from 'react';
 import styled from 'styled-components';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 export interface StepMetadata {
 	id: string;
@@ -22,7 +20,13 @@ export interface V7StepperConfig {
 
 export class V7StepperService {
 	// Main step container
-	static getStepContainer({ maxWidth = '960px', fullWidth = false }: { maxWidth?: string; fullWidth?: boolean } = {}) {
+	static getStepContainer({
+		maxWidth = '960px',
+		fullWidth = false,
+	}: {
+		maxWidth?: string;
+		fullWidth?: boolean;
+	} = {}) {
 		return styled.div`
 			background: white;
 			border-radius: 12px;
@@ -42,7 +46,7 @@ export class V7StepperService {
 			green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
 			orange: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
 			purple: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-			red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+			red: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
 		};
 
 		return styled.div`
@@ -176,7 +180,7 @@ export class V7StepperService {
 	}
 
 	// Navigation buttons
-	static getNavigationButton(variant: 'primary' | 'secondary' | 'danger' = 'primary') {
+	static getNavigationButton(_variant: 'primary' | 'secondary' | 'danger' = 'primary') {
 		return styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 			display: inline-flex;
 			align-items: center;
@@ -256,7 +260,7 @@ export class V7StepperService {
 				content: '';
 				display: block;
 				height: 100%;
-				width: ${props => props.$progress}%;
+				width: ${(props) => props.$progress}%;
 				background: #3b82f6;
 				transition: width 0.3s ease;
 			}
@@ -273,14 +277,13 @@ export class V7StepperService {
 	}
 
 	// Create a complete step layout component
-	static createStepLayout(config: V5StepperConfig = {}) {
-		const {
-			theme = 'blue',
-			showProgress = true,
-			enableAutoAdvance = false
-		} = config;
+	static createStepLayout(config: V7StepperConfig = {}) {
+		const { theme = 'blue', showProgress = true, enableAutoAdvance = false } = config;
 
-		const StepContainer = V7StepperService.getStepContainer({ maxWidth: '1100px', fullWidth: true });
+		const StepContainer = V7StepperService.getStepContainer({
+			maxWidth: '1100px',
+			fullWidth: true,
+		});
 		const StepHeader = V7StepperService.getStepHeader(theme);
 		const StepHeaderLeft = V7StepperService.getStepHeaderLeft();
 		const StepHeaderRight = V7StepperService.getStepHeaderRight();
@@ -311,10 +314,9 @@ export class V7StepperService {
 			NavigationButton,
 			StepProgress,
 			ProgressBar,
-			ProgressText
+			ProgressText,
 		};
 	}
 }
 
 export default V7StepperService;
-

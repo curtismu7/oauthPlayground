@@ -1,19 +1,6 @@
-import { useEffect, useId, useState } from 'react';
-import { FiEye, FiEyeOff, FiGlobe, FiRefreshCw, FiSave, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import packageJson from '../../package.json';
-import CollapsibleSection from '../components/CollapsibleSection';
-import DiscoveryPanel from '../components/DiscoveryPanel';
-import StandardMessage from '../components/StandardMessage';
-import UISettingsModal from '../components/UISettingsModal';
-import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { usePageScroll } from '../hooks/usePageScroll';
-import type { OpenIDConfiguration } from '../services/discoveryService';
-import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
-import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowHeader } from '../services/flowHeaderService';
-import { credentialManager } from '../utils/credentialManager';
 
 const ConfigurationContainer = styled.div`
 	max-width: 1400px;

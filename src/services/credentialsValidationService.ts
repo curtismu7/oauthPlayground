@@ -1,7 +1,7 @@
 // src/services/credentialsValidationService.ts
 /**
  * Credentials Validation Service
- * 
+ *
  * Provides reusable validation logic for OAuth/OIDC flow credentials
  * to ensure required fields are filled before proceeding to next steps.
  */
@@ -92,9 +92,7 @@ export function validateCredentials(
 	// Generate user-friendly error message
 	let errorMessage: string | undefined;
 	if (!isValid) {
-		const fieldNames = missingFields
-			.map(field => FIELD_DISPLAY_NAMES[field] || field)
-			.join(', ');
+		const fieldNames = missingFields.map((field) => FIELD_DISPLAY_NAMES[field] || field).join(', ');
 		errorMessage = `Please fill in the following required field${missingFields.length > 1 ? 's' : ''}: ${fieldNames}`;
 	}
 
@@ -245,7 +243,12 @@ export function formatFieldName(fieldName: string): string {
 export function validateForStep(
 	stepNumber: number,
 	credentials: CredentialsToValidate,
-	flowType: 'oauth-implicit' | 'oidc-implicit' | 'authorization-code' | 'client-credentials' | 'device-authorization'
+	flowType:
+		| 'oauth-implicit'
+		| 'oidc-implicit'
+		| 'authorization-code'
+		| 'client-credentials'
+		| 'device-authorization'
 ): ValidationResult {
 	// Step 0 (intro) - no validation needed
 	if (stepNumber === 0) {
@@ -255,7 +258,7 @@ export function validateForStep(
 	// Step 1 (authorization request) - all required fields must be filled
 	if (stepNumber === 1) {
 		let requirements: ValidationRequirements;
-		
+
 		switch (flowType) {
 			case 'oauth-implicit':
 				requirements = FlowValidationRequirements.oauthImplicit;
@@ -296,4 +299,3 @@ export default {
 	formatFieldName,
 	validateForStep,
 };
-

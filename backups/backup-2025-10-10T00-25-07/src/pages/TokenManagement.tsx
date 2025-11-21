@@ -18,6 +18,7 @@ import {
 	FiXCircle,
 	FiZap,
 } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -28,6 +29,13 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import {
+	getFlowDisplayName,
+	getFlowNavigationState,
+	navigateBackToFlow,
+} from '../utils/flowNavigation';
 // JWT decoding functionality handled by token analysis service
 import {
 	clearTokenHistory,
@@ -38,14 +46,6 @@ import {
 } from '../utils/tokenHistory';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import PageLayoutService from '../services/pageLayoutService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import {
-	getFlowNavigationState,
-	navigateBackToFlow,
-	getFlowDisplayName,
-} from '../utils/flowNavigation';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -646,8 +646,11 @@ const TokenManagement = () => {
 		flowId: 'token-management', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// Track flow source so tokens passed from other flows persist after sessionStorage is cleared
 	const [flowSourceState, setFlowSourceState] = useState(() => {
@@ -2013,995 +2016,959 @@ const TokenManagement = () => {
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			{/* Back to Flow Button */}
-			{flowNavigationState && (
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'flex-start',
-						marginBottom: '1.5rem',
-					}}
-				>
-					<button
-						onClick={handleBackToFlow}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							padding: '0.75rem 1.5rem',
-							backgroundColor: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '0.9rem',
-							fontWeight: '600',
-							cursor: 'pointer',
-							boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseOver={(e) => {
-							e.currentTarget.style.backgroundColor = '#2563eb';
-							e.currentTarget.style.transform = 'translateY(-1px)';
-							e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
-						}}
-						onMouseOut={(e) => {
-							e.currentTarget.style.backgroundColor = '#3b82f6';
-							e.currentTarget.style.transform = 'translateY(0)';
-							e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
-						}}
-					>
-						<FiArrowLeft size={16} />
-						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step{' '}
-						{flowNavigationState.stepIndex + 1})
-					</button>
-				</div>
-			)}
-
-			{/* Token Source Indicator */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-					border: `2px solid ${tokenSourceInfo.color}`,
-					borderRadius: '12px',
-					padding: '1.5rem',
-					marginBottom: '2rem',
-					boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-				}}
-			>
-				<div
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '1rem',
-						marginBottom: '0.5rem',
-					}}
-				>
+				{/* Back to Flow Button */}
+				{flowNavigationState && (
 					<div
 						style={{
 							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							width: '3rem',
-							height: '3rem',
-							borderRadius: '50%',
-							background: `${tokenSourceInfo.color}20`,
-							color: tokenSourceInfo.color,
-							fontSize: '1.5rem',
+							justifyContent: 'flex-start',
+							marginBottom: '1.5rem',
 						}}
 					>
-						{tokenSourceInfo.icon}
-					</div>
-					<div>
-						<h3
+						<button
+							onClick={handleBackToFlow}
 							style={{
-								margin: 0,
-								color: tokenSourceInfo.color,
-								fontSize: '1.25rem',
-								fontWeight: '600',
-							}}
-						>
-							Token Source: {tokenSourceInfo.type}
-						</h3>
-						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
-							{tokenSourceInfo.description}
-						</p>
-					</div>
-				</div>
-				{flowSourceState && (
-					<div
-						style={{
-							fontSize: '0.875rem',
-							color: '#6b7280',
-							fontFamily: 'system-ui, -apple-system, sans-serif',
-							background: '#f8fafc',
-							padding: '0.75rem',
-							borderRadius: '6px',
-							border: '1px solid #e2e8f0',
-							marginTop: '0.75rem',
-						}}
-					>
-						<strong>Flow Source:</strong>{' '}
-						{flowSourceState.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-					</div>
-				)}
-			</div>
-
-			{/* Current Token Status Section - Merged */}
-			<TokenSection>
-				<CardHeader>
-					<h2>Current Token Status</h2>
-				</CardHeader>
-				<CardBody>
-					<TokenStatus className={tokenStatus}>
-						<div className={`indicator ${tokenStatus}`}></div>
-						<div className="text">
-							<strong>
-								{tokenStatus === 'valid' && 'Active Access Token Available'}
-								{tokenStatus === 'expired' && 'Token has expired'}
-								{tokenStatus === 'invalid' && 'Token is invalid'}
-								{tokenStatus === 'none' && 'No token available'}
-							</strong>
-							<br />
-							<small style={{ color: '#6b7280' }}>
-								{tokenString || tokens?.access_token
-									? 'Token is loaded and decoded below. You can also paste other tokens for analysis.'
-									: 'No active token found. Complete an OAuth flow to get tokens, or paste a token below for analysis.'}
-							</small>
-						</div>
-					</TokenStatus>
-
-					{tokens?.access_token || tokenString ? (
-						<TokenDetails>
-							<div className="detail">
-								<span className="label">Token Type</span>
-								<span className="value">
-									{tokens?.token_type || 'Bearer'}
-									{tokenTypeInfo()?.type !== 'unknown' &&
-										` (${tokenTypeInfo()?.type === 'access' ? 'Access Token' : tokenTypeInfo()?.type === 'id' ? 'ID Token' : tokenTypeInfo()?.type === 'refresh' ? 'Refresh Token' : tokenTypeInfo()?.type})`}
-								</span>
-							</div>
-							<div className="detail">
-								<span className="label">Scope</span>
-								<span className="value">
-									{tokens?.scope ||
-										(Array.isArray(tokenTypeInfo?.scopes)
-											? tokenTypeInfo.scopes.join(' ')
-											: tokenTypeInfo?.scopes) ||
-										'openid profile email'}
-								</span>
-							</div>
-							<div className="detail">
-								<span className="label">Expires</span>
-								<span className="value">
-									{tokens?.expires_at
-										? new Date(tokens.expires_at).toLocaleString()
-										: currentAnalysis?.expiresIn
-											? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes from now`
-											: 'Not specified'}
-								</span>
-							</div>
-							<div className="detail">
-								<span className="label">Status</span>
-								<span
-									className="value"
-									style={{
-										color:
-											tokenStatus === 'valid'
-												? '#22c55e'
-												: tokenStatus === 'expired'
-													? '#ef4444'
-													: '#6b7280',
-										fontWeight: '600',
-									}}
-								>
-									{tokenStatus === 'valid'
-										? 'Valid'
-										: tokenStatus === 'expired'
-											? 'Expired'
-											: tokenStatus === 'invalid'
-												? 'Invalid'
-												: 'Unknown'}
-								</span>
-							</div>
-						</TokenDetails>
-					) : null}
-				</CardBody>
-			</TokenSection>
-
-			{/* Token Input Section */}
-			<TokenSection>
-				<CardHeader>
-					<h2>Token Decoder</h2>
-					<p
-						style={{
-							margin: '0.5rem 0 0 0',
-							color: '#6b7280',
-							fontSize: '0.875rem',
-						}}
-					>
-						{tokenSource?.source === 'Current Session'
-							? 'Currently showing your active Access Token. You can also paste any other JWT token below for decoding.'
-							: 'Paste any JWT token below to decode and analyze it. You can get tokens from the AuthZ Code Flow or paste custom tokens.'}
-					</p>
-				</CardHeader>
-				<CardBody>
-					<TokenSurface
-						hasToken={!!tokenString}
-						isJson={!!tokenString && tokenString?.trim().startsWith('{')}
-						jsonContent={tokenString?.trim().startsWith('{') ? tokenString : undefined}
-						ariaLabel="JWT token input for decoding"
-					>
-						<textarea
-							id={tokenTextareaId}
-							value={tokenString}
-							onChange={handleTokenInput}
-							placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
-							style={{
-								width: '100%',
-								minHeight: '400px',
-								resize: 'vertical',
-								border: 0,
-								outline: 'none',
-								background: 'transparent',
-								color: 'inherit',
-								fontFamily: 'inherit',
-								fontSize: '14px',
-								lineHeight: '1.5',
-							}}
-						/>
-					</TokenSurface>
-
-					{/* Success Message */}
-					{successMessage && (
-						<div
-							style={{
-								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-								color: 'white',
-								padding: '0.75rem 1rem',
-								borderRadius: '0.5rem',
-								marginBottom: '1rem',
 								display: 'flex',
 								alignItems: 'center',
 								gap: '0.5rem',
-								fontWeight: '500',
-								boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)',
-								animation: 'slideIn 0.3s ease-out',
+								padding: '0.75rem 1.5rem',
+								backgroundColor: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '0.9rem',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseOver={(e) => {
+								e.currentTarget.style.backgroundColor = '#2563eb';
+								e.currentTarget.style.transform = 'translateY(-1px)';
+								e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+							}}
+							onMouseOut={(e) => {
+								e.currentTarget.style.backgroundColor = '#3b82f6';
+								e.currentTarget.style.transform = 'translateY(0)';
+								e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
 							}}
 						>
-							<FiCheckCircle size={20} />
-							{successMessage}
-						</div>
-					)}
+							<FiArrowLeft size={16} />
+							Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step{' '}
+							{flowNavigationState.stepIndex + 1})
+						</button>
+					</div>
+				)}
 
-					{/* Error/Warning Message */}
-					{message && (
-						<StandardMessage
-							type={message.type}
-							title={message.title}
-							message={message.message}
-							onDismiss={() => setMessage(null)}
-						/>
-					)}
-
-					{isOAuthFlow && (
+				{/* Token Source Indicator */}
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+						border: `2px solid ${tokenSourceInfo.color}`,
+						borderRadius: '12px',
+						padding: '1.5rem',
+						marginBottom: '2rem',
+						boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '1rem',
+							marginBottom: '0.5rem',
+						}}
+					>
 						<div
 							style={{
-								background: '#eff6ff',
-								border: '1px solid #bfdbfe',
-								borderRadius: '8px',
-								padding: '1rem',
-								marginBottom: '1rem',
-								color: '#1e40af',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								width: '3rem',
+								height: '3rem',
+								borderRadius: '50%',
+								background: `${tokenSourceInfo.color}20`,
+								color: tokenSourceInfo.color,
+								fontSize: '1.5rem',
 							}}
 						>
-							<div
+							{tokenSourceInfo.icon}
+						</div>
+						<div>
+							<h3
 								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.5rem',
+									margin: 0,
+									color: tokenSourceInfo.color,
+									fontSize: '1.25rem',
 									fontWeight: '600',
 								}}
 							>
-								<FiInfo />
-								OAuth 2.0 Flow Detected
-							</div>
-							<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-								ID Tokens are not available in pure OAuth 2.0 flows. ID Tokens are an OpenID Connect
-								(OIDC) feature. Only Access and Refresh tokens are available for analysis.
-							</div>
+								Token Source: {tokenSourceInfo.type}
+							</h3>
+							<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem' }}>
+								{tokenSourceInfo.description}
+							</p>
+						</div>
+					</div>
+					{flowSourceState && (
+						<div
+							style={{
+								fontSize: '0.875rem',
+								color: '#6b7280',
+								fontFamily: 'system-ui, -apple-system, sans-serif',
+								background: '#f8fafc',
+								padding: '0.75rem',
+								borderRadius: '6px',
+								border: '1px solid #e2e8f0',
+								marginTop: '0.75rem',
+							}}
+						>
+							<strong>Flow Source:</strong>{' '}
+							{flowSourceState.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
 						</div>
 					)}
-				</CardBody>
-			</TokenSection>
+				</div>
 
-			{/* Decoded Token Section */}
-			<TokenSection>
-				<CardHeader>
-					<h2>Decoded Token</h2>
-				</CardHeader>
-				<CardBody>
-					<div style={{ marginBottom: '1rem' }}>
-						<div
+				{/* Current Token Status Section - Merged */}
+				<TokenSection>
+					<CardHeader>
+						<h2>Current Token Status</h2>
+					</CardHeader>
+					<CardBody>
+						<TokenStatus className={tokenStatus}>
+							<div className={`indicator ${tokenStatus}`}></div>
+							<div className="text">
+								<strong>
+									{tokenStatus === 'valid' && 'Active Access Token Available'}
+									{tokenStatus === 'expired' && 'Token has expired'}
+									{tokenStatus === 'invalid' && 'Token is invalid'}
+									{tokenStatus === 'none' && 'No token available'}
+								</strong>
+								<br />
+								<small style={{ color: '#6b7280' }}>
+									{tokenString || tokens?.access_token
+										? 'Token is loaded and decoded below. You can also paste other tokens for analysis.'
+										: 'No active token found. Complete an OAuth flow to get tokens, or paste a token below for analysis.'}
+								</small>
+							</div>
+						</TokenStatus>
+
+						{tokens?.access_token || tokenString ? (
+							<TokenDetails>
+								<div className="detail">
+									<span className="label">Token Type</span>
+									<span className="value">
+										{tokens?.token_type || 'Bearer'}
+										{tokenTypeInfo()?.type !== 'unknown' &&
+											` (${tokenTypeInfo()?.type === 'access' ? 'Access Token' : tokenTypeInfo()?.type === 'id' ? 'ID Token' : tokenTypeInfo()?.type === 'refresh' ? 'Refresh Token' : tokenTypeInfo()?.type})`}
+									</span>
+								</div>
+								<div className="detail">
+									<span className="label">Scope</span>
+									<span className="value">
+										{tokens?.scope ||
+											(Array.isArray(tokenTypeInfo?.scopes)
+												? tokenTypeInfo.scopes.join(' ')
+												: tokenTypeInfo?.scopes) ||
+											'openid profile email'}
+									</span>
+								</div>
+								<div className="detail">
+									<span className="label">Expires</span>
+									<span className="value">
+										{tokens?.expires_at
+											? new Date(tokens.expires_at).toLocaleString()
+											: currentAnalysis?.expiresIn
+												? `${Math.floor(currentAnalysis.expiresIn / 60)} minutes from now`
+												: 'Not specified'}
+									</span>
+								</div>
+								<div className="detail">
+									<span className="label">Status</span>
+									<span
+										className="value"
+										style={{
+											color:
+												tokenStatus === 'valid'
+													? '#22c55e'
+													: tokenStatus === 'expired'
+														? '#ef4444'
+														: '#6b7280',
+											fontWeight: '600',
+										}}
+									>
+										{tokenStatus === 'valid'
+											? 'Valid'
+											: tokenStatus === 'expired'
+												? 'Expired'
+												: tokenStatus === 'invalid'
+													? 'Invalid'
+													: 'Unknown'}
+									</span>
+								</div>
+							</TokenDetails>
+						) : null}
+					</CardBody>
+				</TokenSection>
+
+				{/* Token Input Section */}
+				<TokenSection>
+					<CardHeader>
+						<h2>Token Decoder</h2>
+						<p
 							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '0.5rem',
+								margin: '0.5rem 0 0 0',
+								color: '#6b7280',
+								fontSize: '0.875rem',
 							}}
 						>
-							<h4 style={{ margin: 0 }}>Header</h4>
-							{jwtHeader && jwtHeader !== 'No token data' && !jwtHeader.startsWith('Error:') && (
-								<ActionButton
-									className="secondary"
-									onClick={handleCopyHeader}
-									style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
-								>
-									<FiCopy />
-									Copy Header
-								</ActionButton>
-							)}
-						</div>
+							{tokenSource?.source === 'Current Session'
+								? 'Currently showing your active Access Token. You can also paste any other JWT token below for decoding.'
+								: 'Paste any JWT token below to decode and analyze it. You can get tokens from the AuthZ Code Flow or paste custom tokens.'}
+						</p>
+					</CardHeader>
+					<CardBody>
 						<TokenSurface
-							id={jwtHeaderId}
-							className="jwt-content"
-							ariaLabel="JWT Header"
-							scrollable
-							hasToken={!!jwtHeader}
-							isJson={!!jwtHeader}
-							jsonContent={jwtHeader}
+							hasToken={!!tokenString}
+							isJson={!!tokenString && tokenString?.trim().startsWith('{')}
+							jsonContent={tokenString?.trim().startsWith('{') ? tokenString : undefined}
+							ariaLabel="JWT token input for decoding"
 						>
-							{jwtHeader || 'No token data'}
+							<textarea
+								id={tokenTextareaId}
+								value={tokenString}
+								onChange={handleTokenInput}
+								placeholder="Paste any JWT token here to decode it (Access Token, ID Token, etc.) or use the buttons above to load tokens from AuthZ Code Flow"
+								style={{
+									width: '100%',
+									minHeight: '400px',
+									resize: 'vertical',
+									border: 0,
+									outline: 'none',
+									background: 'transparent',
+									color: 'inherit',
+									fontFamily: 'inherit',
+									fontSize: '14px',
+									lineHeight: '1.5',
+								}}
+							/>
 						</TokenSurface>
-					</div>
 
-					<div>
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'space-between',
-								alignItems: 'center',
-								marginBottom: '0.5rem',
-							}}
-						>
-							<h4 style={{ margin: 0 }}>Payload</h4>
-							{jwtPayload && jwtPayload !== 'No token data' && !jwtPayload.startsWith('Error:') && (
-								<ActionButton
-									className="secondary"
-									onClick={handleCopyPayload}
-									style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
-								>
-									<FiCopy />
-									Copy Payload
-								</ActionButton>
-							)}
-						</div>
-						<TokenSurface
-							id={jwtPayloadId}
-							className="jwt-content"
-							ariaLabel="JWT Payload"
-							scrollable
-							hasToken={!!jwtPayload}
-							isJson={!!jwtPayload}
-							jsonContent={jwtPayload}
-						>
-							{jwtPayload || 'No token data'}
-						</TokenSurface>
-					</div>
-				</CardBody>
-			</TokenSection>
-
-			{/* Group 1: Get Tokens */}
-			<div
-				style={{
-					marginBottom: '1rem',
-					backgroundColor: '#fff7ed',
-					border: '1px solid #fed7aa',
-					borderRadius: '8px',
-					padding: '1rem',
-				}}
-			>
-				<h4
-					style={{
-						margin: '0 0 0.75rem 0',
-						fontSize: '0.9rem',
-						fontWeight: '600',
-						color: '#c2410c',
-					}}
-				>
-					Get Tokens
-				</h4>
-				<ButtonGroup>
-					<ActionButton
-						id={getAccessTokenButtonId}
-						className="primary"
-						onClick={() => handleGetSpecificToken('access_token')}
-						disabled={isLoading}
-						style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-					>
-						<FiKey />
-						{isLoading ? 'Getting...' : 'Get Access Token'}
-					</ActionButton>
-
-					<ActionButton
-						id={getIdTokenButtonId}
-						className={isOAuthFlow ? 'secondary' : 'primary'}
-						onClick={() => handleGetSpecificToken('id_token')}
-						disabled={isLoading || isOAuthFlow}
-						title={
-							isOAuthFlow
-								? 'ID Tokens are not available in OAuth 2.0 flows (only in OpenID Connect)'
-								: 'Get ID Token from current session'
-						}
-						style={{
-							backgroundColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
-							borderColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
-						}}
-					>
-						<FiShield />
-						{isLoading ? 'Getting...' : isOAuthFlow ? 'Get ID Token (OAuth N/A)' : 'Get ID Token'}
-					</ActionButton>
-
-					<ActionButton
-						id={getRefreshTokenButtonId}
-						className="primary"
-						onClick={() => handleGetSpecificToken('refresh_token')}
-						disabled={isLoading}
-						style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-					>
-						<FiRefreshCw />
-						{isLoading ? 'Getting...' : 'Get Refresh Token'}
-					</ActionButton>
-				</ButtonGroup>
-			</div>
-
-			{/* Group 2: Token Actions */}
-			<div
-				style={{
-					marginBottom: '1rem',
-					backgroundColor: '#f0fdf4',
-					border: '1px solid #bbf7d0',
-					borderRadius: '8px',
-					padding: '1rem',
-				}}
-			>
-				<h4
-					style={{
-						margin: '0 0 0.75rem 0',
-						fontSize: '0.9rem',
-						fontWeight: '600',
-						color: '#166534',
-					}}
-				>
-					Token Actions
-				</h4>
-				<ButtonGroup>
-					<ActionButton
-						id={copyTokenButtonId}
-						className="secondary"
-						onClick={handleCopyToken}
-						disabled={!tokenString || isLoading}
-						style={{
-							backgroundColor: '#3b82f6',
-							borderColor: '#3b82f6',
-							color: 'white',
-						}}
-					>
-						<FiCopy />
-						Copy Token
-					</ActionButton>
-
-					<ActionButton
-						id={introspectTokenButtonId}
-						className="secondary"
-						onClick={handleIntrospectToken}
-						disabled={!tokenString || isLoading}
-						style={{
-							backgroundColor: '#3b82f6',
-							borderColor: '#3b82f6',
-							color: 'white',
-						}}
-					>
-						<FiShield />
-						Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
-					</ActionButton>
-
-					<ActionButton
-						id={decodeTokenButtonId}
-						className="primary"
-						onClick={handleDecodeClick}
-						disabled={!tokenString || isLoading}
-						style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-					>
-						<FiEye />
-						Decode JWT
-					</ActionButton>
-				</ButtonGroup>
-			</div>
-
-			{/* Group 3: Load Tokens */}
-			<div
-				style={{
-					marginBottom: '1rem',
-					backgroundColor: '#fefce8',
-					border: '1px solid #fde047',
-					borderRadius: '8px',
-					padding: '1rem',
-				}}
-			>
-				<h4
-					style={{
-						margin: '0 0 0.75rem 0',
-						fontSize: '0.9rem',
-						fontWeight: '600',
-						color: '#a16207',
-					}}
-				>
-					Load Tokens
-				</h4>
-				<ButtonGroup>
-					<ActionButton
-						className="secondary"
-						onClick={() => {
-							console.log(' [TokenManagement] Loading tokens from storage...');
-							const storedTokens = getOAuthTokens();
-
-							console.log(' [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
-
-							if (storedTokens?.access_token) {
-								console.log(' [TokenManagement] Found stored tokens, loading...');
-								setTokenString(storedTokens.access_token);
-								setTokenSource({
-									source: 'Stored Tokens',
-									description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
-									timestamp: new Date().toLocaleString(),
-								});
-
-								// Auto-decode the token
-								setTimeout(() => decodeJWT(storedTokens.access_token), 100);
-
-								// Update token status
-								if (storedTokens.expires_at) {
-									const now = Date.now();
-									const expiresAt = new Date(storedTokens.expires_at).getTime();
-									setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
-								} else if (storedTokens.expires_in) {
-									const now = Date.now();
-									const expiresAt = now + storedTokens.expires_in * 1000;
-									setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
-								} else {
-									setTokenStatus('valid');
-								}
-
-								// Show success message
-								v4ToastManager.showSuccess('tokenLoadedFromStorage');
-							} else {
-								console.log(' [TokenManagement] No stored tokens found');
-								setTokenStatus('none');
-								v4ToastManager.showWarning('noTokensInStorage');
-							}
-						}}
-						style={{
-							backgroundColor: '#3b82f6',
-							borderColor: '#3b82f6',
-							color: 'white',
-						}}
-					>
-						<FiRefreshCw />
-						Load from Storage
-					</ActionButton>
-
-					<ActionButton
-						className="secondary"
-						onClick={() => {
-							console.log(' [TokenManagement] Getting token from Dashboard Login...');
-							// Try to get token from auth context first
-							if (tokens?.access_token) {
-								console.log(' [TokenManagement] Found token in auth context');
-								setTokenString(tokens.access_token);
-								setTokenSource({
-									source: 'Dashboard Login',
-									description: 'Access Token from current OAuth session',
-									timestamp: new Date().toLocaleString(),
-								});
-								setTimeout(() => decodeJWT(tokens.access_token), 100);
-
-								// Show success message
-								v4ToastManager.showSuccess('saveConfigurationSuccess');
-							} else {
-								// Try to get from storage
-								const storedTokens = getOAuthTokens();
-								if (storedTokens?.access_token) {
-									console.log(' [TokenManagement] Found token in storage');
-									setTokenString(storedTokens.access_token);
-									setTokenSource({
-										source: 'Dashboard Login (Stored)',
-										description: 'Access Token from stored OAuth session',
-										timestamp: new Date().toLocaleString(),
-									});
-									setTimeout(() => decodeJWT(storedTokens.access_token), 100);
-
-									// Show success message
-									v4ToastManager.showSuccess(
-										'Sample JWT loaded - this demonstrates a typical token structure'
-									);
-								} else {
-									v4ToastManager.showWarning('saveConfigurationStart');
-								}
-							}
-						}}
-						style={{
-							backgroundColor: '#3b82f6',
-							borderColor: '#3b82f6',
-							color: 'white',
-						}}
-					>
-						<FiKey />
-						Get from Dashboard Login
-					</ActionButton>
-				</ButtonGroup>
-			</div>
-
-			{/* Group 4: Sample & Demo Tokens */}
-			<div
-				style={{
-					marginBottom: '1rem',
-					backgroundColor: '#fef2f2',
-					border: '1px solid #fecaca',
-					borderRadius: '8px',
-					padding: '1rem',
-				}}
-			>
-				<h4
-					style={{
-						margin: '0 0 0.75rem 0',
-						fontSize: '0.9rem',
-						fontWeight: '600',
-						color: '#dc2626',
-					}}
-				>
-					Sample & Demo Tokens
-				</h4>
-				<ButtonGroup>
-					<ActionButton
-						className="secondary"
-						onClick={() => {
-							// Create a comprehensive sample token that matches real PingOne token structure
-							const now = Math.floor(Date.now() / 1000);
-							const samplePayload = {
-								// Standard JWT claims
-								iss: 'https://auth.pingone.com/12345678-1234-1234-1234-123456789012',
-								sub: '87654321-4321-4321-4321-210987654321',
-								aud: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
-								exp: now + 3600, // Expires in 1 hour
-								iat: now - 300, // Issued 5 minutes ago
-								auth_time: now - 300,
-								jti: `jwt_${Date.now()}`,
-
-								// OIDC claims
-								nonce: 'abc123def456ghi789',
-								at_hash: 'sample_at_hash_value_123',
-
-								// PingOne specific claims
-								env: '12345678-1234-1234-1234-123456789012',
-								org: '98765432-8765-4321-9876-543210987654',
-
-								// User profile claims
-								name: 'John Doe',
-								given_name: 'John',
-								family_name: 'Doe',
-								email: 'john.doe@example.com',
-								email_verified: true,
-								preferred_username: 'john.doe',
-								picture: 'https://example.com/avatar/john.doe.jpg',
-
-								// Additional standard claims
-								locale: 'en-US',
-								zoneinfo: 'America/New_York',
-								updated_at: now - 86400, // Updated yesterday
-
-								// OAuth scope-related claims
-								scope: 'openid profile email',
-								client_id: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
-
-								// PingOne environment claims
-								amr: ['pwd'], // Authentication method reference
-								acr: 'urn:pingone:loa:1', // Authentication context class reference
-								sid: `session_${Date.now()}`,
-							};
-
-							// Create a properly formatted JWT (header.payload.signature)
-							const header = {
-								alg: 'RS256',
-								typ: 'JWT',
-								kid: 'sample_key_id_123',
-							};
-							const encodedHeader = btoa(JSON.stringify(header)).replace(
-								/[+/=]/g,
-								(m) => ({ '+': '-', '/': '_', '=': '' })[m]
-							);
-							const encodedPayload = btoa(JSON.stringify(samplePayload)).replace(
-								/[+/=]/g,
-								(m) => ({ '+': '-', '/': '_', '=': '' })[m]
-							);
-							const sampleSignature =
-								'sample_signature_' +
-								btoa('comprehensive_sample_token').replace(
-									/[+/=]/g,
-									(m) => ({ '+': '-', '/': '_', '=': '' })[m]
-								);
-							const sampleToken = `${encodedHeader}.${encodedPayload}.${sampleSignature}`;
-
-							setTokenString(sampleToken);
-							setTokenSource({
-								source: 'Comprehensive Sample',
-								description:
-									'Realistic PingOne JWT sample with comprehensive claims including OIDC, profile, and PingOne-specific fields',
-								timestamp: new Date().toLocaleString(),
-							});
-							console.log(
-								' [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure'
-							);
-
-							// Auto-decode the sample token
-							setTimeout(() => decodeJWT(sampleToken), 100);
-
-							// Show success message
-							v4ToastManager.showSuccess('sampleTokenLoaded');
-						}}
-						style={{
-							backgroundColor: '#eab308',
-							borderColor: '#eab308',
-							color: 'white',
-						}}
-					>
-						Load Sample Token
-					</ActionButton>
-
-					<ActionButton
-						className="danger"
-						onClick={() => {
-							// Generate a realistic-looking but intentionally flawed PingOne token
-							const badToken = generateBadSecurityToken();
-							setTokenString(badToken);
-							setTokenSource({
-								source: 'Security Demo',
-								description: 'Intentionally flawed token for security demonstration',
-								timestamp: new Date().toLocaleString(),
-							});
-							console.log(' [TokenManagement] Loaded bad security token for demonstration');
-
-							// Auto-decode the bad token
-							setTimeout(() => decodeJWT(badToken), 100);
-
-							// Show success message
-							v4ToastManager.showSuccess('badTokenLoaded');
-						}}
-						style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
-					>
-						Bad Security Token
-					</ActionButton>
-				</ButtonGroup>
-			</div>
-
-			{/* Token Introspection Results Section */}
-			{introspectionResults && (
-				<div ref={introspectionSectionRef}>
-					<TokenSection>
-						<CardHeader>
-							<h2> Token Introspection</h2>
-						</CardHeader>
-						<CardBody>
+						{/* Success Message */}
+						{successMessage && (
 							<div
 								style={{
-									border: '1px solid #dbeafe',
-									borderRadius: '10px',
-									background: '#f8fbff',
-									padding: '1.75rem',
+									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+									color: 'white',
+									padding: '0.75rem 1rem',
+									borderRadius: '0.5rem',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									fontWeight: '500',
+									boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.3)',
+									animation: 'slideIn 0.3s ease-out',
+								}}
+							>
+								<FiCheckCircle size={20} />
+								{successMessage}
+							</div>
+						)}
+
+						{/* Error/Warning Message */}
+						{message && (
+							<StandardMessage
+								type={message.type}
+								title={message.title}
+								message={message.message}
+								onDismiss={() => setMessage(null)}
+							/>
+						)}
+
+						{isOAuthFlow && (
+							<div
+								style={{
+									background: '#eff6ff',
+									border: '1px solid #bfdbfe',
+									borderRadius: '8px',
+									padding: '1rem',
+									marginBottom: '1rem',
+									color: '#1e40af',
 								}}
 							>
 								<div
 									style={{
 										display: 'flex',
 										alignItems: 'center',
-										gap: '0.75rem',
-										marginBottom: '1.5rem',
+										gap: '0.5rem',
+										fontWeight: '600',
 									}}
 								>
-									<div
-										style={{
-											background: introspectionResults.active ? '#16a34a' : '#dc2626',
-											borderRadius: '50%',
-											width: '2.5rem',
-											height: '2.5rem',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											boxShadow: `0 8px 20px ${introspectionResults.active ? 'rgba(22, 163, 74, 0.25)' : 'rgba(220, 38, 38, 0.25)'}`,
-										}}
-									>
-										{introspectionResults.active ? <FiShield size={18} color="white" /> : ''}
-									</div>
-									<div>
-										<div
-											style={{
-												margin: 0,
-												fontSize: '1.1rem',
-												fontWeight: 700,
-												color: introspectionResults.active ? '#166534' : '#b91c1c',
-											}}
-										>
-											{introspectionResults.active ? 'Token is Active' : 'Token is Inactive'}
-										</div>
-										<p
-											style={{
-												margin: '0.35rem 0 0 0',
-												color: '#475569',
-												fontSize: '0.875rem',
-											}}
-										>
-											PingOne{' '}
-											{introspectionResults.active
-												? 'validated this token.'
-												: 'reported this token as inactive.'}
-										</p>
-									</div>
+									<FiInfo />
+									OAuth 2.0 Flow Detected
 								</div>
-
-								{/* Token Status */}
-								{renderIntrospectionItem(
-									'Token Status',
-									introspectionResults.active ? '✅ Active' : '❌ Inactive'
-								)}
-
-								<div
-									style={{
-										display: 'grid',
-										gap: '1rem',
-										gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-									}}
-								>
-									{/* Core Token Information */}
-									{renderIntrospectionItem('Client ID', introspectionResults.client_id)}
-									{renderIntrospectionItem('Subject', introspectionResults.sub)}
-									{renderIntrospectionItem('Username', introspectionResults.username)}
-									{renderIntrospectionItem('Token Type', introspectionResults.token_type)}
-									{renderIntrospectionItem('Scope', introspectionResults.scope)}
-
-									{/* Token Metadata */}
-									{renderIntrospectionItem('Audience', introspectionResults.aud)}
-									{renderIntrospectionItem('Issuer', introspectionResults.iss)}
-									{renderIntrospectionItem('JWT ID', introspectionResults.jti)}
-
-									{/* Timestamps */}
-									{renderIntrospectionItem(
-										'Issued At',
-										introspectionResults.iat ? formatTimestamp(introspectionResults.iat) : undefined
-									)}
-									{renderIntrospectionItem(
-										'Not Before',
-										introspectionResults.nbf ? formatTimestamp(introspectionResults.nbf) : undefined
-									)}
-									{renderIntrospectionItem(
-										'Expires At',
-										introspectionResults.exp ? formatTimestamp(introspectionResults.exp) : undefined
-									)}
-									{/* ID Token specific fields */}
-									{!isAccessToken &&
-										introspectionResults.auth_time &&
-										renderIntrospectionItem(
-											'Auth Time',
-											formatTimestamp(introspectionResults.auth_time)
-										)}
-									{!isAccessToken &&
-										introspectionResults.nonce &&
-										renderIntrospectionItem('Nonce', introspectionResults.nonce)}
-									{!isAccessToken &&
-										introspectionResults.acr &&
-										renderIntrospectionItem('ACR', introspectionResults.acr)}
-									{!isAccessToken &&
-										introspectionResults.amr &&
-										renderIntrospectionItem(
-											'AMR',
-											Array.isArray(introspectionResults.amr)
-												? introspectionResults.amr.join(', ')
-												: introspectionResults.amr
-										)}
-									{!isAccessToken &&
-										introspectionResults.at_hash &&
-										renderIntrospectionItem('AT Hash', introspectionResults.at_hash)}
-									{!isAccessToken &&
-										introspectionResults.c_hash &&
-										renderIntrospectionItem('C Hash', introspectionResults.c_hash)}
+								<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+									ID Tokens are not available in pure OAuth 2.0 flows. ID Tokens are an OpenID
+									Connect (OIDC) feature. Only Access and Refresh tokens are available for analysis.
 								</div>
+							</div>
+						)}
+					</CardBody>
+				</TokenSection>
 
-								{introspectionResults.username && (
-									<div
-										style={{
-											marginTop: '1.25rem',
-											paddingTop: '1.25rem',
-											borderTop: '1px solid #e2e8f0',
-										}}
+				{/* Decoded Token Section */}
+				<TokenSection>
+					<CardHeader>
+						<h2>Decoded Token</h2>
+					</CardHeader>
+					<CardBody>
+						<div style={{ marginBottom: '1rem' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '0.5rem',
+								}}
+							>
+								<h4 style={{ margin: 0 }}>Header</h4>
+								{jwtHeader && jwtHeader !== 'No token data' && !jwtHeader.startsWith('Error:') && (
+									<ActionButton
+										className="secondary"
+										onClick={handleCopyHeader}
+										style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
 									>
-										<div
-											style={{
-												fontWeight: 600,
-												fontSize: '0.95rem',
-												color: '#2563eb',
-												marginBottom: '0.75rem',
-											}}
-										>
-											Subject Details
-										</div>
-										<div
-											style={{
-												display: 'grid',
-												gap: '0.75rem',
-												gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-											}}
-										>
-											{renderIntrospectionItem('Username', introspectionResults.username)}
-											{renderIntrospectionItem('Email', introspectionResults.email)}
-											{renderIntrospectionItem('Given Name', introspectionResults.given_name)}
-											{renderIntrospectionItem('Family Name', introspectionResults.family_name)}
-										</div>
-									</div>
+										<FiCopy />
+										Copy Header
+									</ActionButton>
 								)}
 							</div>
-						</CardBody>
-					</TokenSection>
-				</div>
-			)}
-
-			{/* Token History Section */}
-			<TokenSection>
-				<CardHeader>
-					<div
-						style={{
-							display: 'flex',
-							justifyContent: 'space-between',
-							alignItems: 'center',
-						}}
-					>
-						<h2>Token History</h2>
-						<div style={{ display: 'flex', gap: '0.5rem' }}>
-							<ActionButton
-								className="secondary"
-								style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
-								onClick={() => {
-									const _count = refreshTokenHistory();
-									v4ToastManager.showSuccess('saveConfigurationSuccess');
-								}}
-								title="Refresh token history from storage"
+							<TokenSurface
+								id={jwtHeaderId}
+								className="jwt-content"
+								ariaLabel="JWT Header"
+								scrollable
+								hasToken={!!jwtHeader}
+								isJson={!!jwtHeader}
+								jsonContent={jwtHeader}
 							>
-								<FiRefreshCw />
-								Refresh
-							</ActionButton>
-							{tokenHistory.length > 0 && (
-								<ActionButton
-									className="secondary"
-									style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
-									onClick={handleClearHistory}
-								>
-									<FiTrash2 />
-									Clear History
-								</ActionButton>
-							)}
+								{jwtHeader || 'No token data'}
+							</TokenSurface>
 						</div>
-					</div>
-				</CardHeader>
-				<CardBody>
-					{/* Debug information */}
-					<div
+
+						<div>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '0.5rem',
+								}}
+							>
+								<h4 style={{ margin: 0 }}>Payload</h4>
+								{jwtPayload &&
+									jwtPayload !== 'No token data' &&
+									!jwtPayload.startsWith('Error:') && (
+										<ActionButton
+											className="secondary"
+											onClick={handleCopyPayload}
+											style={{ fontSize: '0.75rem', padding: '0.5rem 0.75rem' }}
+										>
+											<FiCopy />
+											Copy Payload
+										</ActionButton>
+									)}
+							</div>
+							<TokenSurface
+								id={jwtPayloadId}
+								className="jwt-content"
+								ariaLabel="JWT Payload"
+								scrollable
+								hasToken={!!jwtPayload}
+								isJson={!!jwtPayload}
+								jsonContent={jwtPayload}
+							>
+								{jwtPayload || 'No token data'}
+							</TokenSurface>
+						</div>
+					</CardBody>
+				</TokenSection>
+
+				{/* Group 1: Get Tokens */}
+				<div
+					style={{
+						marginBottom: '1rem',
+						backgroundColor: '#fff7ed',
+						border: '1px solid #fed7aa',
+						borderRadius: '8px',
+						padding: '1rem',
+					}}
+				>
+					<h4
 						style={{
-							background: '#f8fafc',
-							border: '1px solid #e2e8f0',
-							borderRadius: '6px',
-							padding: '0.75rem',
-							marginBottom: '1rem',
-							fontSize: '0.875rem',
-							color: '#64748b',
+							margin: '0 0 0.75rem 0',
+							fontSize: '0.9rem',
+							fontWeight: '600',
+							color: '#c2410c',
 						}}
 					>
+						Get Tokens
+					</h4>
+					<ButtonGroup>
+						<ActionButton
+							id={getAccessTokenButtonId}
+							className="primary"
+							onClick={() => handleGetSpecificToken('access_token')}
+							disabled={isLoading}
+							style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+						>
+							<FiKey />
+							{isLoading ? 'Getting...' : 'Get Access Token'}
+						</ActionButton>
+
+						<ActionButton
+							id={getIdTokenButtonId}
+							className={isOAuthFlow ? 'secondary' : 'primary'}
+							onClick={() => handleGetSpecificToken('id_token')}
+							disabled={isLoading || isOAuthFlow}
+							title={
+								isOAuthFlow
+									? 'ID Tokens are not available in OAuth 2.0 flows (only in OpenID Connect)'
+									: 'Get ID Token from current session'
+							}
+							style={{
+								backgroundColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
+								borderColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
+							}}
+						>
+							<FiShield />
+							{isLoading ? 'Getting...' : isOAuthFlow ? 'Get ID Token (OAuth N/A)' : 'Get ID Token'}
+						</ActionButton>
+
+						<ActionButton
+							id={getRefreshTokenButtonId}
+							className="primary"
+							onClick={() => handleGetSpecificToken('refresh_token')}
+							disabled={isLoading}
+							style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+						>
+							<FiRefreshCw />
+							{isLoading ? 'Getting...' : 'Get Refresh Token'}
+						</ActionButton>
+					</ButtonGroup>
+				</div>
+
+				{/* Group 2: Token Actions */}
+				<div
+					style={{
+						marginBottom: '1rem',
+						backgroundColor: '#f0fdf4',
+						border: '1px solid #bbf7d0',
+						borderRadius: '8px',
+						padding: '1rem',
+					}}
+				>
+					<h4
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '0.9rem',
+							fontWeight: '600',
+							color: '#166534',
+						}}
+					>
+						Token Actions
+					</h4>
+					<ButtonGroup>
+						<ActionButton
+							id={copyTokenButtonId}
+							className="secondary"
+							onClick={handleCopyToken}
+							disabled={!tokenString || isLoading}
+							style={{
+								backgroundColor: '#3b82f6',
+								borderColor: '#3b82f6',
+								color: 'white',
+							}}
+						>
+							<FiCopy />
+							Copy Token
+						</ActionButton>
+
+						<ActionButton
+							id={introspectTokenButtonId}
+							className="secondary"
+							onClick={handleIntrospectToken}
+							disabled={!tokenString || isLoading}
+							style={{
+								backgroundColor: '#3b82f6',
+								borderColor: '#3b82f6',
+								color: 'white',
+							}}
+						>
+							<FiShield />
+							Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
+						</ActionButton>
+
+						<ActionButton
+							id={decodeTokenButtonId}
+							className="primary"
+							onClick={handleDecodeClick}
+							disabled={!tokenString || isLoading}
+							style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+						>
+							<FiEye />
+							Decode JWT
+						</ActionButton>
+					</ButtonGroup>
+				</div>
+
+				{/* Group 3: Load Tokens */}
+				<div
+					style={{
+						marginBottom: '1rem',
+						backgroundColor: '#fefce8',
+						border: '1px solid #fde047',
+						borderRadius: '8px',
+						padding: '1rem',
+					}}
+				>
+					<h4
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '0.9rem',
+							fontWeight: '600',
+							color: '#a16207',
+						}}
+					>
+						Load Tokens
+					</h4>
+					<ButtonGroup>
+						<ActionButton
+							className="secondary"
+							onClick={() => {
+								console.log(' [TokenManagement] Loading tokens from storage...');
+								const storedTokens = getOAuthTokens();
+
+								console.log(
+									' [TokenManagement] Stored tokens from getOAuthTokens():',
+									storedTokens
+								);
+
+								if (storedTokens?.access_token) {
+									console.log(' [TokenManagement] Found stored tokens, loading...');
+									setTokenString(storedTokens.access_token);
+									setTokenSource({
+										source: 'Stored Tokens',
+										description: `Access Token from ${storedTokens.token_type || 'Bearer'} flow`,
+										timestamp: new Date().toLocaleString(),
+									});
+
+									// Auto-decode the token
+									setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+
+									// Update token status
+									if (storedTokens.expires_at) {
+										const now = Date.now();
+										const expiresAt = new Date(storedTokens.expires_at).getTime();
+										setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+									} else if (storedTokens.expires_in) {
+										const now = Date.now();
+										const expiresAt = now + storedTokens.expires_in * 1000;
+										setTokenStatus(now >= expiresAt ? 'expired' : 'valid');
+									} else {
+										setTokenStatus('valid');
+									}
+
+									// Show success message
+									v4ToastManager.showSuccess('tokenLoadedFromStorage');
+								} else {
+									console.log(' [TokenManagement] No stored tokens found');
+									setTokenStatus('none');
+									v4ToastManager.showWarning('noTokensInStorage');
+								}
+							}}
+							style={{
+								backgroundColor: '#3b82f6',
+								borderColor: '#3b82f6',
+								color: 'white',
+							}}
+						>
+							<FiRefreshCw />
+							Load from Storage
+						</ActionButton>
+
+						<ActionButton
+							className="secondary"
+							onClick={() => {
+								console.log(' [TokenManagement] Getting token from Dashboard Login...');
+								// Try to get token from auth context first
+								if (tokens?.access_token) {
+									console.log(' [TokenManagement] Found token in auth context');
+									setTokenString(tokens.access_token);
+									setTokenSource({
+										source: 'Dashboard Login',
+										description: 'Access Token from current OAuth session',
+										timestamp: new Date().toLocaleString(),
+									});
+									setTimeout(() => decodeJWT(tokens.access_token), 100);
+
+									// Show success message
+									v4ToastManager.showSuccess('saveConfigurationSuccess');
+								} else {
+									// Try to get from storage
+									const storedTokens = getOAuthTokens();
+									if (storedTokens?.access_token) {
+										console.log(' [TokenManagement] Found token in storage');
+										setTokenString(storedTokens.access_token);
+										setTokenSource({
+											source: 'Dashboard Login (Stored)',
+											description: 'Access Token from stored OAuth session',
+											timestamp: new Date().toLocaleString(),
+										});
+										setTimeout(() => decodeJWT(storedTokens.access_token), 100);
+
+										// Show success message
+										v4ToastManager.showSuccess(
+											'Sample JWT loaded - this demonstrates a typical token structure'
+										);
+									} else {
+										v4ToastManager.showWarning('saveConfigurationStart');
+									}
+								}
+							}}
+							style={{
+								backgroundColor: '#3b82f6',
+								borderColor: '#3b82f6',
+								color: 'white',
+							}}
+						>
+							<FiKey />
+							Get from Dashboard Login
+						</ActionButton>
+					</ButtonGroup>
+				</div>
+
+				{/* Group 4: Sample & Demo Tokens */}
+				<div
+					style={{
+						marginBottom: '1rem',
+						backgroundColor: '#fef2f2',
+						border: '1px solid #fecaca',
+						borderRadius: '8px',
+						padding: '1rem',
+					}}
+				>
+					<h4
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '0.9rem',
+							fontWeight: '600',
+							color: '#dc2626',
+						}}
+					>
+						Sample & Demo Tokens
+					</h4>
+					<ButtonGroup>
+						<ActionButton
+							className="secondary"
+							onClick={() => {
+								// Create a comprehensive sample token that matches real PingOne token structure
+								const now = Math.floor(Date.now() / 1000);
+								const samplePayload = {
+									// Standard JWT claims
+									iss: 'https://auth.pingone.com/12345678-1234-1234-1234-123456789012',
+									sub: '87654321-4321-4321-4321-210987654321',
+									aud: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
+									exp: now + 3600, // Expires in 1 hour
+									iat: now - 300, // Issued 5 minutes ago
+									auth_time: now - 300,
+									jti: `jwt_${Date.now()}`,
+
+									// OIDC claims
+									nonce: 'abc123def456ghi789',
+									at_hash: 'sample_at_hash_value_123',
+
+									// PingOne specific claims
+									env: '12345678-1234-1234-1234-123456789012',
+									org: '98765432-8765-4321-9876-543210987654',
+
+									// User profile claims
+									name: 'John Doe',
+									given_name: 'John',
+									family_name: 'Doe',
+									email: 'john.doe@example.com',
+									email_verified: true,
+									preferred_username: 'john.doe',
+									picture: 'https://example.com/avatar/john.doe.jpg',
+
+									// Additional standard claims
+									locale: 'en-US',
+									zoneinfo: 'America/New_York',
+									updated_at: now - 86400, // Updated yesterday
+
+									// OAuth scope-related claims
+									scope: 'openid profile email',
+									client_id: 'a1b2c3d4-5678-90ab-cdef-1234567890ab',
+
+									// PingOne environment claims
+									amr: ['pwd'], // Authentication method reference
+									acr: 'urn:pingone:loa:1', // Authentication context class reference
+									sid: `session_${Date.now()}`,
+								};
+
+								// Create a properly formatted JWT (header.payload.signature)
+								const header = {
+									alg: 'RS256',
+									typ: 'JWT',
+									kid: 'sample_key_id_123',
+								};
+								const encodedHeader = btoa(JSON.stringify(header)).replace(
+									/[+/=]/g,
+									(m) => ({ '+': '-', '/': '_', '=': '' })[m]
+								);
+								const encodedPayload = btoa(JSON.stringify(samplePayload)).replace(
+									/[+/=]/g,
+									(m) => ({ '+': '-', '/': '_', '=': '' })[m]
+								);
+								const sampleSignature =
+									'sample_signature_' +
+									btoa('comprehensive_sample_token').replace(
+										/[+/=]/g,
+										(m) => ({ '+': '-', '/': '_', '=': '' })[m]
+									);
+								const sampleToken = `${encodedHeader}.${encodedPayload}.${sampleSignature}`;
+
+								setTokenString(sampleToken);
+								setTokenSource({
+									source: 'Comprehensive Sample',
+									description:
+										'Realistic PingOne JWT sample with comprehensive claims including OIDC, profile, and PingOne-specific fields',
+									timestamp: new Date().toLocaleString(),
+								});
+								console.log(
+									' [TokenManagement] Loaded comprehensive sample token with realistic PingOne structure'
+								);
+
+								// Auto-decode the sample token
+								setTimeout(() => decodeJWT(sampleToken), 100);
+
+								// Show success message
+								v4ToastManager.showSuccess('sampleTokenLoaded');
+							}}
+							style={{
+								backgroundColor: '#eab308',
+								borderColor: '#eab308',
+								color: 'white',
+							}}
+						>
+							Load Sample Token
+						</ActionButton>
+
+						<ActionButton
+							className="danger"
+							onClick={() => {
+								// Generate a realistic-looking but intentionally flawed PingOne token
+								const badToken = generateBadSecurityToken();
+								setTokenString(badToken);
+								setTokenSource({
+									source: 'Security Demo',
+									description: 'Intentionally flawed token for security demonstration',
+									timestamp: new Date().toLocaleString(),
+								});
+								console.log(' [TokenManagement] Loaded bad security token for demonstration');
+
+								// Auto-decode the bad token
+								setTimeout(() => decodeJWT(badToken), 100);
+
+								// Show success message
+								v4ToastManager.showSuccess('badTokenLoaded');
+							}}
+							style={{ backgroundColor: '#dc2626', borderColor: '#dc2626' }}
+						>
+							Bad Security Token
+						</ActionButton>
+					</ButtonGroup>
+				</div>
+
+				{/* Token Introspection Results Section */}
+				{introspectionResults && (
+					<div ref={introspectionSectionRef}>
+						<TokenSection>
+							<CardHeader>
+								<h2> Token Introspection</h2>
+							</CardHeader>
+							<CardBody>
+								<div
+									style={{
+										border: '1px solid #dbeafe',
+										borderRadius: '10px',
+										background: '#f8fbff',
+										padding: '1.75rem',
+									}}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.75rem',
+											marginBottom: '1.5rem',
+										}}
+									>
+										<div
+											style={{
+												background: introspectionResults.active ? '#16a34a' : '#dc2626',
+												borderRadius: '50%',
+												width: '2.5rem',
+												height: '2.5rem',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												boxShadow: `0 8px 20px ${introspectionResults.active ? 'rgba(22, 163, 74, 0.25)' : 'rgba(220, 38, 38, 0.25)'}`,
+											}}
+										>
+											{introspectionResults.active ? <FiShield size={18} color="white" /> : ''}
+										</div>
+										<div>
+											<div
+												style={{
+													margin: 0,
+													fontSize: '1.1rem',
+													fontWeight: 700,
+													color: introspectionResults.active ? '#166534' : '#b91c1c',
+												}}
+											>
+												{introspectionResults.active ? 'Token is Active' : 'Token is Inactive'}
+											</div>
+											<p
+												style={{
+													margin: '0.35rem 0 0 0',
+													color: '#475569',
+													fontSize: '0.875rem',
+												}}
+											>
+												PingOne{' '}
+												{introspectionResults.active
+													? 'validated this token.'
+													: 'reported this token as inactive.'}
+											</p>
+										</div>
+									</div>
+
+									{/* Token Status */}
+									{renderIntrospectionItem(
+										'Token Status',
+										introspectionResults.active ? '✅ Active' : '❌ Inactive'
+									)}
+
+									<div
+										style={{
+											display: 'grid',
+											gap: '1rem',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+										}}
+									>
+										{/* Core Token Information */}
+										{renderIntrospectionItem('Client ID', introspectionResults.client_id)}
+										{renderIntrospectionItem('Subject', introspectionResults.sub)}
+										{renderIntrospectionItem('Username', introspectionResults.username)}
+										{renderIntrospectionItem('Token Type', introspectionResults.token_type)}
+										{renderIntrospectionItem('Scope', introspectionResults.scope)}
+
+										{/* Token Metadata */}
+										{renderIntrospectionItem('Audience', introspectionResults.aud)}
+										{renderIntrospectionItem('Issuer', introspectionResults.iss)}
+										{renderIntrospectionItem('JWT ID', introspectionResults.jti)}
+
+										{/* Timestamps */}
+										{renderIntrospectionItem(
+											'Issued At',
+											introspectionResults.iat
+												? formatTimestamp(introspectionResults.iat)
+												: undefined
+										)}
+										{renderIntrospectionItem(
+											'Not Before',
+											introspectionResults.nbf
+												? formatTimestamp(introspectionResults.nbf)
+												: undefined
+										)}
+										{renderIntrospectionItem(
+											'Expires At',
+											introspectionResults.exp
+												? formatTimestamp(introspectionResults.exp)
+												: undefined
+										)}
+										{/* ID Token specific fields */}
+										{!isAccessToken &&
+											introspectionResults.auth_time &&
+											renderIntrospectionItem(
+												'Auth Time',
+												formatTimestamp(introspectionResults.auth_time)
+											)}
+										{!isAccessToken &&
+											introspectionResults.nonce &&
+											renderIntrospectionItem('Nonce', introspectionResults.nonce)}
+										{!isAccessToken &&
+											introspectionResults.acr &&
+											renderIntrospectionItem('ACR', introspectionResults.acr)}
+										{!isAccessToken &&
+											introspectionResults.amr &&
+											renderIntrospectionItem(
+												'AMR',
+												Array.isArray(introspectionResults.amr)
+													? introspectionResults.amr.join(', ')
+													: introspectionResults.amr
+											)}
+										{!isAccessToken &&
+											introspectionResults.at_hash &&
+											renderIntrospectionItem('AT Hash', introspectionResults.at_hash)}
+										{!isAccessToken &&
+											introspectionResults.c_hash &&
+											renderIntrospectionItem('C Hash', introspectionResults.c_hash)}
+									</div>
+
+									{introspectionResults.username && (
+										<div
+											style={{
+												marginTop: '1.25rem',
+												paddingTop: '1.25rem',
+												borderTop: '1px solid #e2e8f0',
+											}}
+										>
+											<div
+												style={{
+													fontWeight: 600,
+													fontSize: '0.95rem',
+													color: '#2563eb',
+													marginBottom: '0.75rem',
+												}}
+											>
+												Subject Details
+											</div>
+											<div
+												style={{
+													display: 'grid',
+													gap: '0.75rem',
+													gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+												}}
+											>
+												{renderIntrospectionItem('Username', introspectionResults.username)}
+												{renderIntrospectionItem('Email', introspectionResults.email)}
+												{renderIntrospectionItem('Given Name', introspectionResults.given_name)}
+												{renderIntrospectionItem('Family Name', introspectionResults.family_name)}
+											</div>
+										</div>
+									)}
+								</div>
+							</CardBody>
+						</TokenSection>
+					</div>
+				)}
+
+				{/* Token History Section */}
+				<TokenSection>
+					<CardHeader>
 						<div
 							style={{
 								display: 'flex',
@@ -3009,581 +2976,633 @@ const TokenManagement = () => {
 								alignItems: 'center',
 							}}
 						>
-							<div>
-								<strong>Token History Status:</strong> {tokenHistory.length} entries stored
-							</div>
-							<div>
-								<strong>Storage Key:</strong> pingone_playground_token_history
+							<h2>Token History</h2>
+							<div style={{ display: 'flex', gap: '0.5rem' }}>
+								<ActionButton
+									className="secondary"
+									style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+									onClick={() => {
+										const _count = refreshTokenHistory();
+										v4ToastManager.showSuccess('saveConfigurationSuccess');
+									}}
+									title="Refresh token history from storage"
+								>
+									<FiRefreshCw />
+									Refresh
+								</ActionButton>
+								{tokenHistory.length > 0 && (
+									<ActionButton
+										className="secondary"
+										style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}
+										onClick={handleClearHistory}
+									>
+										<FiTrash2 />
+										Clear History
+									</ActionButton>
+								)}
 							</div>
 						</div>
-					</div>
-
-					{tokenHistory.length === 0 ? (
+					</CardHeader>
+					<CardBody>
+						{/* Debug information */}
 						<div
 							style={{
-								color: '#6b7280',
-								fontStyle: 'italic',
-								textAlign: 'center',
-								padding: '2rem',
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '6px',
+								padding: '0.75rem',
+								marginBottom: '1rem',
+								fontSize: '0.875rem',
+								color: '#64748b',
 							}}
 						>
-							<FiClock
-								style={{
-									display: 'inline',
-									marginRight: '0.5rem',
-									fontSize: '1.5rem',
-								}}
-							/>
-							<div style={{ marginTop: '0.5rem' }}>No token history available</div>
-							<div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
-								Complete OAuth flows to see token history here
-							</div>
-						</div>
-					) : (
-						<div>
 							<div
 								style={{
-									marginBottom: '1rem',
-									color: '#6b7280',
-									fontSize: '0.875rem',
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
 								}}
 							>
-								{tokenHistory.length} token
-								{tokenHistory.length !== 1 ? 's' : ''} received from OAuth flows
-							</div>
-
-							<HistoryTable>
-								<HistoryTableHeader>
-									<tr>
-										<HistoryTableHeaderCell>Flow Type</HistoryTableHeaderCell>
-										<HistoryTableHeaderCell>Tokens Received</HistoryTableHeaderCell>
-										<HistoryTableHeaderCell>Date & Time</HistoryTableHeaderCell>
-										<HistoryTableHeaderCell>Actions</HistoryTableHeaderCell>
-									</tr>
-								</HistoryTableHeader>
-								<HistoryTableBody>
-									{tokenHistory.map((entry) => (
-										<HistoryTableRow
-											key={entry.id}
-											onClick={() => handleLoadTokenFromHistory(entry)}
-										>
-											<HistoryTableCell>
-												<FlowBadge $flowType={entry.flowType}>
-													{getFlowIcon(entry.flowType)}
-													{getFlowDisplayName(entry.flowType)}
-												</FlowBadge>
-												<div
-													style={{
-														fontSize: '0.75rem',
-														color: '#6b7280',
-														marginTop: '0.25rem',
-													}}
-												>
-													Scope: {entry.tokens.scope || 'openid profile email'}
-												</div>
-											</HistoryTableCell>
-
-											<HistoryTableCell>
-												<div
-													style={{
-														display: 'flex',
-														flexWrap: 'wrap',
-														gap: '0.25rem',
-													}}
-												>
-													{entry.hasAccessToken && <TokenBadge $type="access"> Access</TokenBadge>}
-													{entry.hasIdToken && <TokenBadge $type="id"> ID</TokenBadge>}
-													{entry.hasRefreshToken && (
-														<TokenBadge $type="refresh"> Refresh</TokenBadge>
-													)}
-												</div>
-												<div
-													style={{
-														fontSize: '0.75rem',
-														color: '#6b7280',
-														marginTop: '0.25rem',
-													}}
-												>
-													{entry.tokenCount} token
-													{entry.tokenCount !== 1 ? 's' : ''} {entry.tokens.token_type || 'Bearer'}
-												</div>
-											</HistoryTableCell>
-
-											<HistoryTableCell>
-												<div style={{ color: '#374151', fontWeight: '500' }}>
-													{entry.timestampFormatted}
-												</div>
-												<div
-													style={{
-														color: '#6b7280',
-														fontSize: '0.75rem',
-														marginTop: '0.25rem',
-													}}
-												>
-													{entry.tokens.expires_in
-														? `Expires: ${Math.floor(entry.tokens.expires_in / 60)} min`
-														: 'Expires: 1 hour'}
-												</div>
-											</HistoryTableCell>
-
-											<HistoryTableCell>
-												<HistoryActions>
-													<HistoryButton
-														$variant="primary"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleLoadTokenFromHistory(entry);
-														}}
-													>
-														<FiEye />
-														Analyze
-													</HistoryButton>
-													<HistoryButton
-														onClick={(e) => {
-															e.stopPropagation();
-															setHistoryEntryToRemove(entry.id);
-															setShowRemoveHistoryModal(true);
-														}}
-													>
-														<FiTrash2 />
-														Remove
-													</HistoryButton>
-												</HistoryActions>
-											</HistoryTableCell>
-										</HistoryTableRow>
-									))}
-								</HistoryTableBody>
-							</HistoryTable>
-						</div>
-					)}
-				</CardBody>
-			</TokenSection>
-
-			{/* Enhanced Token Analysis and Error Diagnosis Section */}
-			<TokenSection>
-				<CardHeader>
-					<h3
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							margin: 0,
-						}}
-					>
-						<FiShield />
-						Token Analysis & Error Diagnosis
-					</h3>
-				</CardHeader>
-				<CardBody>
-					<TabContainer>
-						<Tab $active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')}>
-							<FiShield style={{ marginRight: '0.5rem' }} />
-							Token Analysis
-						</Tab>
-						<Tab $active={activeTab === 'diagnosis'} onClick={() => setActiveTab('diagnosis')}>
-							<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
-							Error Diagnosis
-						</Tab>
-					</TabContainer>
-
-					{/* Token Analysis Tab */}
-					<TabContent $active={activeTab === 'analysis'}>
-						{tokenString ? (
-							<div>
-								{/* Token Status and Refresh Info */}
-								<div style={{ marginBottom: '1.5rem' }}>
-									<RefreshStatus $status={getTokenExpirationStatus().status}>
-										{getTokenExpirationStatus().status === 'valid' && <FiCheckCircle />}
-										{getTokenExpirationStatus().status === 'expiring' && <FiClock />}
-										{getTokenExpirationStatus().status === 'expired' && <FiXCircle />}
-										{getTokenExpirationStatus().status === 'unknown' && <FiInfo />}
-										{getTokenExpirationStatus().status === 'valid' && 'Token is valid'}
-										{getTokenExpirationStatus().status === 'expiring' && 'Token expiring soon'}
-										{getTokenExpirationStatus().status === 'expired' && 'Token has expired'}
-										{getTokenExpirationStatus().status === 'unknown' && 'Token status unknown'}
-										{getTokenExpirationStatus().timeRemaining > 0 && (
-											<span style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
-												({Math.floor(getTokenExpirationStatus().timeRemaining / 1000 / 60)} minutes
-												remaining)
-											</span>
-										)}
-									</RefreshStatus>
-
-									{canRefresh && (
-										<div style={{ marginTop: '0.5rem' }}>
-											<ActionButton
-												className="secondary"
-												onClick={handleRefreshToken}
-												disabled={isAnalyzing}
-											>
-												<FiRefreshCw />
-												Refresh Token
-											</ActionButton>
-										</div>
-									)}
+								<div>
+									<strong>Token History Status:</strong> {tokenHistory.length} entries stored
 								</div>
-
-								{/* Analysis Results */}
-								{currentAnalysis && (
-									<AnalysisSection>
-										{/* Security Score */}
-										<SecurityScoreCard $score={getTokenSecurityScore().overall}>
-											<h4 style={{ margin: '0 0 1rem 0', textAlign: 'center' }}>Security Score</h4>
-											<ScoreCircle $score={getTokenSecurityScore().overall}>
-												{getTokenSecurityScore().overall}
-											</ScoreCircle>
-											<div
-												style={{
-													textAlign: 'center',
-													fontSize: '0.875rem',
-													color: '#6b7280',
-												}}
-											>
-												{getTokenSecurityScore().overall >= 80 && 'Excellent'}
-												{getTokenSecurityScore().overall >= 60 &&
-													getTokenSecurityScore().overall < 80 &&
-													'Good'}
-												{getTokenSecurityScore().overall >= 40 &&
-													getTokenSecurityScore().overall < 60 &&
-													'Fair'}
-												{getTokenSecurityScore().overall < 40 && 'Poor'}
-											</div>
-										</SecurityScoreCard>
-
-										{/* Token Information */}
-										<div>
-											<h4 style={{ margin: '0 0 1rem 0' }}>Token Information</h4>
-											<div style={{ display: 'grid', gap: '0.5rem' }}>
-												<div>
-													<strong>Type:</strong> {tokenTypeInfo()?.type}
-												</div>
-												<div>
-													<strong>Format:</strong> {tokenTypeInfo()?.format}
-												</div>
-												{tokenTypeInfo()?.issuer && (
-													<div>
-														<strong>Issuer:</strong> {tokenTypeInfo()?.issuer}
-													</div>
-												)}
-												{tokenTypeInfo()?.subject && (
-													<div>
-														<strong>Subject:</strong> {tokenTypeInfo()?.subject}
-													</div>
-												)}
-												{tokenTypeInfo()?.scopes && (
-													<div>
-														<strong>Scopes:</strong>{' '}
-														{Array.isArray(tokenTypeInfo()?.scopes)
-															? tokenTypeInfo().scopes.join(', ')
-															: tokenTypeInfo()?.scopes}
-													</div>
-												)}
-											</div>
-										</div>
-									</AnalysisSection>
-								)}
-
-								{/* Security Issues */}
-								{hasIssues && (
-									<div style={{ marginBottom: '1.5rem' }}>
-										<h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
-											<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
-											Security Issues ({getCriticalIssues().length})
-										</h4>
-										<IssueList>
-											{getCriticalIssues().map((issue, index) => (
-												<IssueItem
-													key={renderIssueKey('critical', index, issue.description)}
-													$severity={issue.severity}
-												>
-													<div
-														style={{
-															fontWeight: '500',
-															marginBottom: '0.25rem',
-														}}
-													>
-														{issue.type.replace(/_/g, ' ').toUpperCase()}
-													</div>
-													<div
-														style={{
-															fontSize: '0.875rem',
-															marginBottom: '0.5rem',
-														}}
-													>
-														{issue.description}
-													</div>
-													<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-														<strong>Recommendation:</strong> {issue.recommendation}
-													</div>
-												</IssueItem>
-											))}
-										</IssueList>
-									</div>
-								)}
-
-								{/* Validation Errors */}
-								{hasErrors && (
-									<div style={{ marginBottom: '1.5rem' }}>
-										<h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
-											<FiXCircle style={{ marginRight: '0.5rem' }} />
-											Validation Errors ({getValidationErrors().length})
-										</h4>
-										<IssueList>
-											{getValidationErrors().map((error, index) => (
-												<IssueItem
-													key={renderIssueKey('validation', index, error.error)}
-													$severity={error.severity}
-												>
-													<div
-														style={{
-															fontWeight: '500',
-															marginBottom: '0.25rem',
-														}}
-													>
-														{error.field}
-													</div>
-													<div style={{ fontSize: '0.875rem' }}>{error.error}</div>
-												</IssueItem>
-											))}
-										</IssueList>
-									</div>
-								)}
+								<div>
+									<strong>Storage Key:</strong> pingone_playground_token_history
+								</div>
 							</div>
-						) : (
+						</div>
+
+						{tokenHistory.length === 0 ? (
 							<div
 								style={{
+									color: '#6b7280',
+									fontStyle: 'italic',
 									textAlign: 'center',
 									padding: '2rem',
-									color: '#6b7280',
 								}}
 							>
-								<FiKey size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-								<p>Enter a token above to see detailed analysis</p>
+								<FiClock
+									style={{
+										display: 'inline',
+										marginRight: '0.5rem',
+										fontSize: '1.5rem',
+									}}
+								/>
+								<div style={{ marginTop: '0.5rem' }}>No token history available</div>
+								<div style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+									Complete OAuth flows to see token history here
+								</div>
+							</div>
+						) : (
+							<div>
+								<div
+									style={{
+										marginBottom: '1rem',
+										color: '#6b7280',
+										fontSize: '0.875rem',
+									}}
+								>
+									{tokenHistory.length} token
+									{tokenHistory.length !== 1 ? 's' : ''} received from OAuth flows
+								</div>
+
+								<HistoryTable>
+									<HistoryTableHeader>
+										<tr>
+											<HistoryTableHeaderCell>Flow Type</HistoryTableHeaderCell>
+											<HistoryTableHeaderCell>Tokens Received</HistoryTableHeaderCell>
+											<HistoryTableHeaderCell>Date & Time</HistoryTableHeaderCell>
+											<HistoryTableHeaderCell>Actions</HistoryTableHeaderCell>
+										</tr>
+									</HistoryTableHeader>
+									<HistoryTableBody>
+										{tokenHistory.map((entry) => (
+											<HistoryTableRow
+												key={entry.id}
+												onClick={() => handleLoadTokenFromHistory(entry)}
+											>
+												<HistoryTableCell>
+													<FlowBadge $flowType={entry.flowType}>
+														{getFlowIcon(entry.flowType)}
+														{getFlowDisplayName(entry.flowType)}
+													</FlowBadge>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginTop: '0.25rem',
+														}}
+													>
+														Scope: {entry.tokens.scope || 'openid profile email'}
+													</div>
+												</HistoryTableCell>
+
+												<HistoryTableCell>
+													<div
+														style={{
+															display: 'flex',
+															flexWrap: 'wrap',
+															gap: '0.25rem',
+														}}
+													>
+														{entry.hasAccessToken && (
+															<TokenBadge $type="access"> Access</TokenBadge>
+														)}
+														{entry.hasIdToken && <TokenBadge $type="id"> ID</TokenBadge>}
+														{entry.hasRefreshToken && (
+															<TokenBadge $type="refresh"> Refresh</TokenBadge>
+														)}
+													</div>
+													<div
+														style={{
+															fontSize: '0.75rem',
+															color: '#6b7280',
+															marginTop: '0.25rem',
+														}}
+													>
+														{entry.tokenCount} token
+														{entry.tokenCount !== 1 ? 's' : ''}{' '}
+														{entry.tokens.token_type || 'Bearer'}
+													</div>
+												</HistoryTableCell>
+
+												<HistoryTableCell>
+													<div style={{ color: '#374151', fontWeight: '500' }}>
+														{entry.timestampFormatted}
+													</div>
+													<div
+														style={{
+															color: '#6b7280',
+															fontSize: '0.75rem',
+															marginTop: '0.25rem',
+														}}
+													>
+														{entry.tokens.expires_in
+															? `Expires: ${Math.floor(entry.tokens.expires_in / 60)} min`
+															: 'Expires: 1 hour'}
+													</div>
+												</HistoryTableCell>
+
+												<HistoryTableCell>
+													<HistoryActions>
+														<HistoryButton
+															$variant="primary"
+															onClick={(e) => {
+																e.stopPropagation();
+																handleLoadTokenFromHistory(entry);
+															}}
+														>
+															<FiEye />
+															Analyze
+														</HistoryButton>
+														<HistoryButton
+															onClick={(e) => {
+																e.stopPropagation();
+																setHistoryEntryToRemove(entry.id);
+																setShowRemoveHistoryModal(true);
+															}}
+														>
+															<FiTrash2 />
+															Remove
+														</HistoryButton>
+													</HistoryActions>
+												</HistoryTableCell>
+											</HistoryTableRow>
+										))}
+									</HistoryTableBody>
+								</HistoryTable>
 							</div>
 						)}
-					</TabContent>
+					</CardBody>
+				</TokenSection>
 
-					{/* Error Diagnosis Tab */}
-					<TabContent $active={activeTab === 'diagnosis'}>
-						<div>
-							<h4 style={{ margin: '0 0 1rem 0' }}>Error Diagnosis</h4>
-							<p
-								style={{
-									marginBottom: '1rem',
-									color: '#6b7280',
-									fontSize: '0.875rem',
-								}}
-							>
-								Paste an error message below to get automated diagnosis and suggested fixes.
-							</p>
+				{/* Enhanced Token Analysis and Error Diagnosis Section */}
+				<TokenSection>
+					<CardHeader>
+						<h3
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								margin: 0,
+							}}
+						>
+							<FiShield />
+							Token Analysis & Error Diagnosis
+						</h3>
+					</CardHeader>
+					<CardBody>
+						<TabContainer>
+							<Tab $active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')}>
+								<FiShield style={{ marginRight: '0.5rem' }} />
+								Token Analysis
+							</Tab>
+							<Tab $active={activeTab === 'diagnosis'} onClick={() => setActiveTab('diagnosis')}>
+								<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+								Error Diagnosis
+							</Tab>
+						</TabContainer>
 
-							<textarea
-								placeholder="Paste error message here..."
-								value={errorInput}
-								onChange={(e) => setErrorInput(e.target.value)}
-								style={{
-									width: '100%',
-									minHeight: '100px',
-									padding: '0.75rem',
-									border: '1px solid #d1d5db',
-									borderRadius: '0.375rem',
-									fontSize: '0.875rem',
-									resize: 'vertical',
-								}}
-							/>
+						{/* Token Analysis Tab */}
+						<TabContent $active={activeTab === 'analysis'}>
+							{tokenString ? (
+								<div>
+									{/* Token Status and Refresh Info */}
+									<div style={{ marginBottom: '1.5rem' }}>
+										<RefreshStatus $status={getTokenExpirationStatus().status}>
+											{getTokenExpirationStatus().status === 'valid' && <FiCheckCircle />}
+											{getTokenExpirationStatus().status === 'expiring' && <FiClock />}
+											{getTokenExpirationStatus().status === 'expired' && <FiXCircle />}
+											{getTokenExpirationStatus().status === 'unknown' && <FiInfo />}
+											{getTokenExpirationStatus().status === 'valid' && 'Token is valid'}
+											{getTokenExpirationStatus().status === 'expiring' && 'Token expiring soon'}
+											{getTokenExpirationStatus().status === 'expired' && 'Token has expired'}
+											{getTokenExpirationStatus().status === 'unknown' && 'Token status unknown'}
+											{getTokenExpirationStatus().timeRemaining > 0 && (
+												<span style={{ marginLeft: '0.5rem', fontSize: '0.75rem' }}>
+													({Math.floor(getTokenExpirationStatus().timeRemaining / 1000 / 60)}{' '}
+													minutes remaining)
+												</span>
+											)}
+										</RefreshStatus>
 
-							<ButtonGroup>
-								<ActionButton
-									className="primary"
-									onClick={handleDiagnoseError}
-									disabled={!errorInput.trim() || isDiagnosing}
-								>
-									{isDiagnosing ? <FiRefreshCw className="animate-spin" /> : <FiAlertTriangle />}
-									{isDiagnosing ? 'Diagnosing...' : 'Diagnose Error'}
-								</ActionButton>
-								<ActionButton className="secondary" onClick={() => setErrorInput('')}>
-									<FiX />
-									Clear
-								</ActionButton>
-							</ButtonGroup>
-
-							{/* Diagnosis Results */}
-							{hasCurrentDiagnosis && currentDiagnosis && (
-								<div style={{ marginTop: '1.5rem' }}>
-									<div
-										style={{
-											padding: '1rem',
-											borderRadius: '0.5rem',
-											backgroundColor: '#f0f9ff',
-											border: '1px solid #bae6fd',
-											marginBottom: '1rem',
-										}}
-									>
-										<div
-											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '0.5rem',
-												marginBottom: '0.5rem',
-											}}
-										>
-											<FiCheckCircle style={{ color: '#3b82f6' }} />
-											<strong>Diagnosis Complete</strong>
-										</div>
-										<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-											<div>
-												<strong>Confidence:</strong> {getErrorConfidence()}%
+										{canRefresh && (
+											<div style={{ marginTop: '0.5rem' }}>
+												<ActionButton
+													className="secondary"
+													onClick={handleRefreshToken}
+													disabled={isAnalyzing}
+												>
+													<FiRefreshCw />
+													Refresh Token
+												</ActionButton>
 											</div>
-											<div>
-												<strong>Severity:</strong> {getErrorSeverity()}
-											</div>
-											<div>
-												<strong>Category:</strong> {getErrorCategory()}
-											</div>
-										</div>
+										)}
 									</div>
 
-									{/* Suggested Fixes */}
-									{getSuggestedFixes().length > 0 && (
-										<div>
-											<h4 style={{ margin: '0 0 1rem 0' }}>Suggested Fixes</h4>
-											<FixList>
-												{getSuggestedFixes().map((fix, index) => (
-													<FixItem
-														key={renderIssueKey('fix', index, fix.title)}
-														$priority={fix.priority}
+									{/* Analysis Results */}
+									{currentAnalysis && (
+										<AnalysisSection>
+											{/* Security Score */}
+											<SecurityScoreCard $score={getTokenSecurityScore().overall}>
+												<h4 style={{ margin: '0 0 1rem 0', textAlign: 'center' }}>
+													Security Score
+												</h4>
+												<ScoreCircle $score={getTokenSecurityScore().overall}>
+													{getTokenSecurityScore().overall}
+												</ScoreCircle>
+												<div
+													style={{
+														textAlign: 'center',
+														fontSize: '0.875rem',
+														color: '#6b7280',
+													}}
+												>
+													{getTokenSecurityScore().overall >= 80 && 'Excellent'}
+													{getTokenSecurityScore().overall >= 60 &&
+														getTokenSecurityScore().overall < 80 &&
+														'Good'}
+													{getTokenSecurityScore().overall >= 40 &&
+														getTokenSecurityScore().overall < 60 &&
+														'Fair'}
+													{getTokenSecurityScore().overall < 40 && 'Poor'}
+												</div>
+											</SecurityScoreCard>
+
+											{/* Token Information */}
+											<div>
+												<h4 style={{ margin: '0 0 1rem 0' }}>Token Information</h4>
+												<div style={{ display: 'grid', gap: '0.5rem' }}>
+													<div>
+														<strong>Type:</strong> {tokenTypeInfo()?.type}
+													</div>
+													<div>
+														<strong>Format:</strong> {tokenTypeInfo()?.format}
+													</div>
+													{tokenTypeInfo()?.issuer && (
+														<div>
+															<strong>Issuer:</strong> {tokenTypeInfo()?.issuer}
+														</div>
+													)}
+													{tokenTypeInfo()?.subject && (
+														<div>
+															<strong>Subject:</strong> {tokenTypeInfo()?.subject}
+														</div>
+													)}
+													{tokenTypeInfo()?.scopes && (
+														<div>
+															<strong>Scopes:</strong>{' '}
+															{Array.isArray(tokenTypeInfo()?.scopes)
+																? tokenTypeInfo().scopes.join(', ')
+																: tokenTypeInfo()?.scopes}
+														</div>
+													)}
+												</div>
+											</div>
+										</AnalysisSection>
+									)}
+
+									{/* Security Issues */}
+									{hasIssues && (
+										<div style={{ marginBottom: '1.5rem' }}>
+											<h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+												<FiAlertTriangle style={{ marginRight: '0.5rem' }} />
+												Security Issues ({getCriticalIssues().length})
+											</h4>
+											<IssueList>
+												{getCriticalIssues().map((issue, index) => (
+													<IssueItem
+														key={renderIssueKey('critical', index, issue.description)}
+														$severity={issue.severity}
 													>
 														<div
 															style={{
 																fontWeight: '500',
-																marginBottom: '0.5rem',
+																marginBottom: '0.25rem',
 															}}
 														>
-															{fix.title}
+															{issue.type.replace(/_/g, ' ').toUpperCase()}
 														</div>
 														<div
 															style={{
 																fontSize: '0.875rem',
-																marginBottom: '0.75rem',
-															}}
-														>
-															{fix.description}
-														</div>
-														<div
-															style={{
-																fontSize: '0.75rem',
-																color: '#6b7280',
 																marginBottom: '0.5rem',
 															}}
 														>
-															<strong>Priority:</strong> {fix.priority} |<strong> Time:</strong>{' '}
-															{fix.estimatedTime} |<strong> Success Rate:</strong> {fix.successRate}
-															%
+															{issue.description}
 														</div>
-														{fix.steps.length > 0 && (
-															<div>
-																<strong style={{ fontSize: '0.75rem' }}>Steps:</strong>
-																<ol
-																	style={{
-																		fontSize: '0.75rem',
-																		marginTop: '0.25rem',
-																		paddingLeft: '1.25rem',
-																	}}
-																>
-																	{fix.steps.map((step, stepIndex) => (
-																		<li
-																			key={renderIssueKey(
-																				'fix-step',
-																				stepIndex,
-																				`${fix.title}-${step}`
-																			)}
-																			style={{ marginBottom: '0.25rem' }}
-																		>
-																			{step}
-																		</li>
-																	))}
-																</ol>
-															</div>
-														)}
-														{fix.codeExample && (
-															<div style={{ marginTop: '0.75rem' }}>
-																<strong style={{ fontSize: '0.75rem' }}>Code Example:</strong>
-																<pre
-																	style={{
-																		fontSize: '0.75rem',
-																		background: '#f3f4f6',
-																		padding: '0.5rem',
-																		borderRadius: '0.25rem',
-																		marginTop: '0.25rem',
-																		overflow: 'auto',
-																	}}
-																>
-																	{fix.codeExample}
-																</pre>
-															</div>
-														)}
-													</FixItem>
+														<div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+															<strong>Recommendation:</strong> {issue.recommendation}
+														</div>
+													</IssueItem>
 												))}
-											</FixList>
+											</IssueList>
+										</div>
+									)}
+
+									{/* Validation Errors */}
+									{hasErrors && (
+										<div style={{ marginBottom: '1.5rem' }}>
+											<h4 style={{ margin: '0 0 1rem 0', color: '#dc2626' }}>
+												<FiXCircle style={{ marginRight: '0.5rem' }} />
+												Validation Errors ({getValidationErrors().length})
+											</h4>
+											<IssueList>
+												{getValidationErrors().map((error, index) => (
+													<IssueItem
+														key={renderIssueKey('validation', index, error.error)}
+														$severity={error.severity}
+													>
+														<div
+															style={{
+																fontWeight: '500',
+																marginBottom: '0.25rem',
+															}}
+														>
+															{error.field}
+														</div>
+														<div style={{ fontSize: '0.875rem' }}>{error.error}</div>
+													</IssueItem>
+												))}
+											</IssueList>
 										</div>
 									)}
 								</div>
+							) : (
+								<div
+									style={{
+										textAlign: 'center',
+										padding: '2rem',
+										color: '#6b7280',
+									}}
+								>
+									<FiKey size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+									<p>Enter a token above to see detailed analysis</p>
+								</div>
 							)}
-						</div>
-					</TabContent>
-				</CardBody>
-			</TokenSection>
+						</TabContent>
 
-			{/* Confirmation Modals */}
-			<ConfirmationModal
-				isOpen={showRevokeModal}
-				onClose={() => setShowRevokeModal(false)}
-				onConfirm={confirmRevokeToken}
-				title="Revoke Token"
-				message="Are you sure you want to revoke this token? This action cannot be undone and the token will no longer be valid."
-				confirmText="Revoke Token"
-				cancelText="Cancel"
-				variant="danger"
-				isLoading={isLoading}
-			/>
+						{/* Error Diagnosis Tab */}
+						<TabContent $active={activeTab === 'diagnosis'}>
+							<div>
+								<h4 style={{ margin: '0 0 1rem 0' }}>Error Diagnosis</h4>
+								<p
+									style={{
+										marginBottom: '1rem',
+										color: '#6b7280',
+										fontSize: '0.875rem',
+									}}
+								>
+									Paste an error message below to get automated diagnosis and suggested fixes.
+								</p>
 
-			<ConfirmationModal
-				isOpen={showClearModal}
-				onClose={() => setShowClearModal(false)}
-				onConfirm={confirmClearToken}
-				title="Clear Token"
-				message="Are you sure you want to clear the current token? This will remove it from the display but won't revoke it on the server."
-				confirmText="Clear Token"
-				cancelText="Cancel"
-				variant="primary"
-			/>
+								<textarea
+									placeholder="Paste error message here..."
+									value={errorInput}
+									onChange={(e) => setErrorInput(e.target.value)}
+									style={{
+										width: '100%',
+										minHeight: '100px',
+										padding: '0.75rem',
+										border: '1px solid #d1d5db',
+										borderRadius: '0.375rem',
+										fontSize: '0.875rem',
+										resize: 'vertical',
+									}}
+								/>
 
-			<ConfirmationModal
-				isOpen={showClearHistoryModal}
-				onClose={() => setShowClearHistoryModal(false)}
-				onConfirm={confirmClearHistory}
-				title="Clear Token History"
-				message="Are you sure you want to clear all token history? This action cannot be undone and all stored token history will be permanently removed."
-				confirmText="Clear History"
-				cancelText="Cancel"
-				variant="danger"
-			/>
+								<ButtonGroup>
+									<ActionButton
+										className="primary"
+										onClick={handleDiagnoseError}
+										disabled={!errorInput.trim() || isDiagnosing}
+									>
+										{isDiagnosing ? <FiRefreshCw className="animate-spin" /> : <FiAlertTriangle />}
+										{isDiagnosing ? 'Diagnosing...' : 'Diagnose Error'}
+									</ActionButton>
+									<ActionButton className="secondary" onClick={() => setErrorInput('')}>
+										<FiX />
+										Clear
+									</ActionButton>
+								</ButtonGroup>
 
-			<ConfirmationModal
-				isOpen={showRemoveHistoryModal}
-				onClose={() => {
-					setShowRemoveHistoryModal(false);
-					setHistoryEntryToRemove(null);
-				}}
-				onConfirm={confirmRemoveHistoryEntry}
-				title="Remove Token Entry"
-				message="Are you sure you want to remove this token entry from history? This action cannot be undone."
-				confirmText="Remove Entry"
-				cancelText="Cancel"
-				variant="danger"
-			/>
+								{/* Diagnosis Results */}
+								{hasCurrentDiagnosis && currentDiagnosis && (
+									<div style={{ marginTop: '1.5rem' }}>
+										<div
+											style={{
+												padding: '1rem',
+												borderRadius: '0.5rem',
+												backgroundColor: '#f0f9ff',
+												border: '1px solid #bae6fd',
+												marginBottom: '1rem',
+											}}
+										>
+											<div
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '0.5rem',
+													marginBottom: '0.5rem',
+												}}
+											>
+												<FiCheckCircle style={{ color: '#3b82f6' }} />
+												<strong>Diagnosis Complete</strong>
+											</div>
+											<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+												<div>
+													<strong>Confidence:</strong> {getErrorConfidence()}%
+												</div>
+												<div>
+													<strong>Severity:</strong> {getErrorSeverity()}
+												</div>
+												<div>
+													<strong>Category:</strong> {getErrorCategory()}
+												</div>
+											</div>
+										</div>
 
-			{/* Centralized Success/Error Messages */}
+										{/* Suggested Fixes */}
+										{getSuggestedFixes().length > 0 && (
+											<div>
+												<h4 style={{ margin: '0 0 1rem 0' }}>Suggested Fixes</h4>
+												<FixList>
+													{getSuggestedFixes().map((fix, index) => (
+														<FixItem
+															key={renderIssueKey('fix', index, fix.title)}
+															$priority={fix.priority}
+														>
+															<div
+																style={{
+																	fontWeight: '500',
+																	marginBottom: '0.5rem',
+																}}
+															>
+																{fix.title}
+															</div>
+															<div
+																style={{
+																	fontSize: '0.875rem',
+																	marginBottom: '0.75rem',
+																}}
+															>
+																{fix.description}
+															</div>
+															<div
+																style={{
+																	fontSize: '0.75rem',
+																	color: '#6b7280',
+																	marginBottom: '0.5rem',
+																}}
+															>
+																<strong>Priority:</strong> {fix.priority} |<strong> Time:</strong>{' '}
+																{fix.estimatedTime} |<strong> Success Rate:</strong>{' '}
+																{fix.successRate}%
+															</div>
+															{fix.steps.length > 0 && (
+																<div>
+																	<strong style={{ fontSize: '0.75rem' }}>Steps:</strong>
+																	<ol
+																		style={{
+																			fontSize: '0.75rem',
+																			marginTop: '0.25rem',
+																			paddingLeft: '1.25rem',
+																		}}
+																	>
+																		{fix.steps.map((step, stepIndex) => (
+																			<li
+																				key={renderIssueKey(
+																					'fix-step',
+																					stepIndex,
+																					`${fix.title}-${step}`
+																				)}
+																				style={{ marginBottom: '0.25rem' }}
+																			>
+																				{step}
+																			</li>
+																		))}
+																	</ol>
+																</div>
+															)}
+															{fix.codeExample && (
+																<div style={{ marginTop: '0.75rem' }}>
+																	<strong style={{ fontSize: '0.75rem' }}>Code Example:</strong>
+																	<pre
+																		style={{
+																			fontSize: '0.75rem',
+																			background: '#f3f4f6',
+																			padding: '0.5rem',
+																			borderRadius: '0.25rem',
+																			marginTop: '0.25rem',
+																			overflow: 'auto',
+																		}}
+																	>
+																		{fix.codeExample}
+																	</pre>
+																</div>
+															)}
+														</FixItem>
+													))}
+												</FixList>
+											</div>
+										)}
+									</div>
+								)}
+							</div>
+						</TabContent>
+					</CardBody>
+				</TokenSection>
+
+				{/* Confirmation Modals */}
+				<ConfirmationModal
+					isOpen={showRevokeModal}
+					onClose={() => setShowRevokeModal(false)}
+					onConfirm={confirmRevokeToken}
+					title="Revoke Token"
+					message="Are you sure you want to revoke this token? This action cannot be undone and the token will no longer be valid."
+					confirmText="Revoke Token"
+					cancelText="Cancel"
+					variant="danger"
+					isLoading={isLoading}
+				/>
+
+				<ConfirmationModal
+					isOpen={showClearModal}
+					onClose={() => setShowClearModal(false)}
+					onConfirm={confirmClearToken}
+					title="Clear Token"
+					message="Are you sure you want to clear the current token? This will remove it from the display but won't revoke it on the server."
+					confirmText="Clear Token"
+					cancelText="Cancel"
+					variant="primary"
+				/>
+
+				<ConfirmationModal
+					isOpen={showClearHistoryModal}
+					onClose={() => setShowClearHistoryModal(false)}
+					onConfirm={confirmClearHistory}
+					title="Clear Token History"
+					message="Are you sure you want to clear all token history? This action cannot be undone and all stored token history will be permanently removed."
+					confirmText="Clear History"
+					cancelText="Cancel"
+					variant="danger"
+				/>
+
+				<ConfirmationModal
+					isOpen={showRemoveHistoryModal}
+					onClose={() => {
+						setShowRemoveHistoryModal(false);
+						setHistoryEntryToRemove(null);
+					}}
+					onConfirm={confirmRemoveHistoryEntry}
+					title="Remove Token Entry"
+					message="Are you sure you want to remove this token entry from history? This action cannot be undone."
+					confirmText="Remove Entry"
+					cancelText="Cancel"
+					variant="danger"
+				/>
+
+				{/* Centralized Success/Error Messages */}
 			</ContentWrapper>
 		</PageContainer>
 	);

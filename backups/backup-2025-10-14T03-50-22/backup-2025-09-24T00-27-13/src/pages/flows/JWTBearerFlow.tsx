@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { SpecCard } from '../../components/SpecCard';
-import { TokenSurface } from '../../components/TokenSurface';
+import React, { useEffect, useState } from 'react';
 import {
-	FiKey,
-	FiShield,
-	FiCheckCircle,
-	FiXCircle,
-	FiCopy,
-	FiRefreshCw,
-	FiInfo,
 	FiAlertTriangle,
+	FiCheckCircle,
 	FiClock,
-	FiUser,
+	FiCopy,
 	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+	FiUser,
+	FiXCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';
+import { SpecCard } from '../../components/SpecCard';
+import { TokenSurface } from '../../components/TokenSurface';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 
 const Container = styled.div`

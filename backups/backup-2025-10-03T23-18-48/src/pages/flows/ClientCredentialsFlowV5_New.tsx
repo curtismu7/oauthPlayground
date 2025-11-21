@@ -16,28 +16,36 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from '../../components/InfoBlocks';
+import {
+	FlowDiagram,
+	FlowStep,
+	FlowStepContent,
+	FlowStepNumber,
+} from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -358,9 +366,11 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		}
 		return 0;
 	});
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	usePageScroll();
 
@@ -439,46 +449,49 @@ const ClientCredentialsFlowV5: React.FC = () => {
 	}, [resetControllerFlow, defaultCollapsed]);
 
 	// Wrapper for introspection that creates API call data using reusable service
-	const handleIntrospectToken = useCallback(async (token: string) => {
-		const credentials = controller.credentials;
+	const handleIntrospectToken = useCallback(
+		async (token: string) => {
+			const credentials = controller.credentials;
 
-		if (!credentials.environmentId || !credentials.clientId) {
-			throw new Error('Missing PingOne credentials. Please configure your credentials first.');
-		}
+			if (!credentials.environmentId || !credentials.clientId) {
+				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
+			}
 
-		const request = {
-			token: token,
-			clientId: credentials.clientId,
-			clientSecret: credentials.clientSecret,
-			tokenTypeHint: 'access_token' as const
-		};
+			const request = {
+				token: token,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				tokenTypeHint: 'access_token' as const,
+			};
 
-		try {
-			// Use the reusable service to create API call data and execute introspection
-			const result = await TokenIntrospectionService.introspectToken(
-				request,
-				'client-credentials',
-				'/api/introspect-token'
-			);
-			
-			// Set the API call data for display
-			setIntrospectionApiCall(result.apiCall);
-			
-			return result.response;
-		} catch (error) {
-			// Create error API call using reusable service
-			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
-				request,
-				'client-credentials',
-				error instanceof Error ? error.message : 'Unknown error',
-				500,
-				'/api/introspect-token'
-			);
-			
-			setIntrospectionApiCall(errorApiCall);
-			throw error;
-		}
-	}, [controller.credentials]);
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'client-credentials',
+					'/api/introspect-token'
+				);
+
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'client-credentials',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					'/api/introspect-token'
+				);
+
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
+			}
+		},
+		[controller.credentials]
+	);
 
 	const navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
@@ -588,9 +601,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											<div>
 												<InfoTitle>What is the Client Credentials Flow?</InfoTitle>
 												<InfoText>
-													The Client Credentials flow is used for server-to-server authentication where
-													the client application acts on its own behalf rather than on behalf of a user.
-													This is ideal for background processes, API integrations, and
+													The Client Credentials flow is used for server-to-server authentication
+													where the client application acts on its own behalf rather than on behalf
+													of a user. This is ideal for background processes, API integrations, and
 													service-to-service communication.
 												</InfoText>
 											</div>
@@ -601,7 +614,11 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											<div>
 												<InfoTitle>Client Credentials in OIDC Context</InfoTitle>
 												<InfoText>
-													Client Credentials is very relevant in OIDC - it's just focused on <strong>application identity</strong> rather than <strong>user identity</strong>. Your implementation correctly handles this distinction by focusing on access token acquisition for API access rather than user authentication flows.
+													Client Credentials is very relevant in OIDC - it's just focused on{' '}
+													<strong>application identity</strong> rather than{' '}
+													<strong>user identity</strong>. Your implementation correctly handles this
+													distinction by focusing on access token acquisition for API access rather
+													than user authentication flows.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -628,9 +645,15 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											clientId={credentials.clientId || ''}
 											clientSecret={credentials.clientSecret || ''}
 											scopes={credentials.scopes || ''}
-											onEnvironmentIdChange={(value) => setCredentials({ ...credentials, environmentId: value })}
-											onClientIdChange={(value) => setCredentials({ ...credentials, clientId: value })}
-											onClientSecretChange={(value) => setCredentials({ ...credentials, clientSecret: value })}
+											onEnvironmentIdChange={(value) =>
+												setCredentials({ ...credentials, environmentId: value })
+											}
+											onClientIdChange={(value) =>
+												setCredentials({ ...credentials, clientId: value })
+											}
+											onClientSecretChange={(value) =>
+												setCredentials({ ...credentials, clientSecret: value })
+											}
 											onScopesChange={(value) => setCredentials({ ...credentials, scopes: value })}
 											onCopy={handleCopy}
 											showRedirectUri={false}
@@ -717,8 +740,8 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												<div>
 													<InfoTitle>Client Secret (Recommended for Development)</InfoTitle>
 													<InfoText>
-														Most common method using client_id and client_secret. Simple to implement
-														but requires secure secret storage.
+														Most common method using client_id and client_secret. Simple to
+														implement but requires secure secret storage.
 													</InfoText>
 													<InfoList>
 														<li>Uses HTTP Basic or POST authentication</li>
@@ -789,8 +812,8 @@ const ClientCredentialsFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>Token Request</InfoTitle>
 									<InfoText>
-										Request an access token using your configured client credentials. The token will be
-										issued directly without user interaction.
+										Request an access token using your configured client credentials. The token will
+										be issued directly without user interaction.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -847,7 +870,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												View in Token Management
 											</Button>
 										</ActionRow>
-										
+
 										{/* Code Examples for Client Credentials Flow */}
 										<div style={{ marginTop: '2rem' }}>
 											<CodeExamplesDisplay
@@ -877,20 +900,24 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									<TokenIntrospect
 										flowName="Client Credentials Flow V5"
 										flowVersion="V5"
-										tokens={{
-											access_token: tokens.access_token,
-											refresh_token: tokens.refresh_token,
-										} as { [key: string]: unknown; access_token?: string; refresh_token?: string }}
-										credentials={{
-											environmentId: credentials.environmentId,
-											clientId: credentials.clientId,
-											clientSecret: credentials.clientSecret,
-										} as unknown as {
-											[key: string]: unknown;
-											environmentId?: string;
-											clientId?: string;
-											clientSecret?: string;
-										}}
+										tokens={
+											{
+												access_token: tokens.access_token,
+												refresh_token: tokens.refresh_token,
+											} as { [key: string]: unknown; access_token?: string; refresh_token?: string }
+										}
+										credentials={
+											{
+												environmentId: credentials.environmentId,
+												clientId: credentials.clientId,
+												clientSecret: credentials.clientSecret,
+											} as unknown as {
+												[key: string]: unknown;
+												environmentId?: string;
+												clientId?: string;
+												clientSecret?: string;
+											}
+										}
 										userInfo={null}
 										onFetchUserInfo={async () => {}}
 										isFetchingUserInfo={false}
@@ -924,7 +951,10 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											options={{
 												showEducationalNotes: true,
 												showFlowContext: true,
-												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('client-credentials')
+												urlHighlightRules:
+													EnhancedApiCallDisplayService.getDefaultHighlightRules(
+														'client-credentials'
+													),
 											}}
 										/>
 									)}
@@ -964,21 +994,13 @@ const ClientCredentialsFlowV5: React.FC = () => {
 
 															<ParameterGrid>
 																<ParameterLabel>Algorithm</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.header.alg || 'N/A'}
-																</ParameterValue>
+																<ParameterValue>{decodedToken.header.alg || 'N/A'}</ParameterValue>
 																<ParameterLabel>Key ID</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.header.kid || 'N/A'}
-																</ParameterValue>
+																<ParameterValue>{decodedToken.header.kid || 'N/A'}</ParameterValue>
 																<ParameterLabel>Issuer</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.payload.iss || 'N/A'}
-																</ParameterValue>
+																<ParameterValue>{decodedToken.payload.iss || 'N/A'}</ParameterValue>
 																<ParameterLabel>Subject</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.payload.sub || 'N/A'}
-																</ParameterValue>
+																<ParameterValue>{decodedToken.payload.sub || 'N/A'}</ParameterValue>
 																<ParameterLabel>Audience</ParameterLabel>
 																<ParameterValue>
 																	{Array.isArray(decodedToken.payload.aud)
@@ -1067,12 +1089,12 @@ const ClientCredentialsFlowV5: React.FC = () => {
 
 				<MainCard>
 					<StepHeader>
-				<StepHeaderLeft>
-					<VersionBadge>V5</VersionBadge>
-					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
-					<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
-				</StepHeaderLeft>
-			</StepHeader>
+						<StepHeaderLeft>
+							<VersionBadge>V5</VersionBadge>
+							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+						</StepHeaderLeft>
+					</StepHeader>
 
 					<StepContent>{renderStepContent(currentStep)}</StepContent>
 				</MainCard>

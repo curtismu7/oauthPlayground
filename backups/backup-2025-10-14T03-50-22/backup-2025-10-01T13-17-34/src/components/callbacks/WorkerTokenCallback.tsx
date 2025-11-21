@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../contexts/NewAuthContext';
+import { FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { logger } from '../../utils/logger';
 import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 

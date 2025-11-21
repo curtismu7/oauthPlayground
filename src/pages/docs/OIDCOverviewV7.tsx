@@ -1,48 +1,35 @@
 // src/pages/docs/OIDCOverviewV7.tsx
 // V7 OIDC Overview with Enhanced Architecture
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-	FiAlertCircle,
 	FiArrowRight,
-	FiBookOpen,
 	FiCheckCircle,
 	FiCode,
-	FiExternalLink,
-	FiEye,
+	FiGitBranch,
 	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiLock,
-	FiShield,
+	FiRefreshCw,
+	FiSettings,
+	FiSmartphone,
 	FiUsers,
 	FiZap,
-	FiSettings,
-	FiRefreshCw,
-	FiSmartphone,
-	FiGitBranch,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
-
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 // Import V7 service architecture components
 import { FlowHeader } from '../../services/flowHeaderService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
-
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
-const {
-	Container,
-	ContentWrapper,
-	MainCard,
-	InfoBox,
-	InfoTitle,
-	SectionDivider,
-	HelperText,
-} = FlowUIService.getFlowUIComponents();
+import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+
+const { Container, ContentWrapper, MainCard, InfoBox, InfoTitle, SectionDivider, HelperText } =
+	FlowUIService.getFlowUIComponents();
 
 // V7 Styled Components
 const ResponsiveContainer = styled(Container)`
@@ -112,7 +99,7 @@ const FlowIcon = styled.div<{ $color: string }>`
 	width: 3rem;
 	height: 3rem;
 	border-radius: 50%;
-	background: ${props => props.$color};
+	background: ${(props) => props.$color};
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -148,7 +135,7 @@ const SecurityLevel = styled.div<{ $level: number }>`
 	.star {
 		width: 1rem;
 		height: 1rem;
-		background: ${props => props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444'};
+		background: ${(props) => (props.$level >= 3 ? '#10b981' : props.$level >= 2 ? '#f59e0b' : '#ef4444')};
 		clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 	}
 `;
@@ -250,7 +237,8 @@ const oidcFlows: OIDCFlow[] = [
 	{
 		id: 'authorization-code',
 		title: 'Authorization Code Flow',
-		description: 'The most secure flow for applications that can securely store client credentials. Provides both access and ID tokens.',
+		description:
+			'The most secure flow for applications that can securely store client credentials. Provides both access and ID tokens.',
 		icon: FiKey,
 		color: '#10b981',
 		securityLevel: 5,
@@ -258,12 +246,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/oauth-authorization-code-v7',
 		bestFor: ['Web applications', 'Server-side applications', 'Mobile apps with secure storage'],
 		pros: ['Highest security', 'Refresh token support', 'Client authentication'],
-		cons: ['More complex implementation', 'Requires secure client storage']
+		cons: ['More complex implementation', 'Requires secure client storage'],
 	},
 	{
 		id: 'implicit',
 		title: 'Implicit Flow',
-		description: 'Legacy flow for browser-based applications. Returns tokens directly from authorization endpoint.',
+		description:
+			'Legacy flow for browser-based applications. Returns tokens directly from authorization endpoint.',
 		icon: FiZap,
 		color: '#f59e0b',
 		securityLevel: 2,
@@ -272,12 +261,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/implicit-v7',
 		bestFor: ['Legacy SPAs (not recommended)'],
 		pros: ['Simple implementation', 'No backend required'],
-		cons: ['Less secure', 'No refresh tokens', 'Deprecated in OAuth 2.1']
+		cons: ['Less secure', 'No refresh tokens', 'Deprecated in OAuth 2.1'],
 	},
 	{
 		id: 'hybrid',
 		title: 'Hybrid Flow',
-		description: 'Combines Authorization Code and Implicit flows. Returns some tokens immediately and others via backchannel.',
+		description:
+			'Combines Authorization Code and Implicit flows. Returns some tokens immediately and others via backchannel.',
 		icon: FiGitBranch,
 		color: '#8b5cf6',
 		securityLevel: 4,
@@ -285,12 +275,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/oidc-hybrid-v7',
 		bestFor: ['Complex applications', 'Multi-tier architectures'],
 		pros: ['Flexible token delivery', 'Immediate access to some tokens'],
-		cons: ['Complex implementation', 'Multiple endpoints']
+		cons: ['Complex implementation', 'Multiple endpoints'],
 	},
 	{
 		id: 'device-authorization',
 		title: 'Device Authorization Flow',
-		description: 'For devices with limited input capabilities. User authenticates on a separate device.',
+		description:
+			'For devices with limited input capabilities. User authenticates on a separate device.',
 		icon: FiSmartphone,
 		color: '#06b6d4',
 		securityLevel: 4,
@@ -298,12 +289,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/device-authorization-v7',
 		bestFor: ['Smart TVs', 'IoT devices', 'CLI applications'],
 		pros: ['Works on input-limited devices', 'Secure authentication'],
-		cons: ['Requires secondary device', 'More complex UX']
+		cons: ['Requires secondary device', 'More complex UX'],
 	},
 	{
 		id: 'client-credentials',
 		title: 'Client Credentials Flow',
-		description: 'Machine-to-machine authentication without user interaction. Uses client ID and secret.',
+		description:
+			'Machine-to-machine authentication without user interaction. Uses client ID and secret.',
 		icon: FiSettings,
 		color: '#6366f1',
 		securityLevel: 4,
@@ -311,7 +303,7 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/client-credentials-v7',
 		bestFor: ['APIs', 'Microservices', 'Background services'],
 		pros: ['Simple M2M auth', 'No user interaction', 'High throughput'],
-		cons: ['No user context', 'Requires secure credential storage']
+		cons: ['No user context', 'Requires secure credential storage'],
 	},
 	{
 		id: 'refresh-token',
@@ -324,7 +316,7 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/token-refresh-v7',
 		bestFor: ['Long-lived sessions', 'Mobile apps', 'Background sync'],
 		pros: ['Seamless token renewal', 'Better UX', 'Maintains sessions'],
-		cons: ['Requires secure storage', 'Token rotation complexity']
+		cons: ['Requires secure storage', 'Token rotation complexity'],
 	},
 	{
 		id: 'ropc',
@@ -338,12 +330,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/ropc-v7',
 		bestFor: ['Legacy systems', 'Trusted first-party apps'],
 		pros: ['Simple implementation', 'Direct credential use'],
-		cons: ['Security risks', 'No SSO', 'Deprecated pattern']
+		cons: ['Security risks', 'No SSO', 'Deprecated pattern'],
 	},
 	{
 		id: 'ciba',
 		title: 'CIBA Flow',
-		description: 'Client Initiated Backchannel Authentication for decoupled authentication scenarios.',
+		description:
+			'Client Initiated Backchannel Authentication for decoupled authentication scenarios.',
 		icon: FiUsers,
 		color: '#10b981',
 		securityLevel: 5,
@@ -351,12 +344,13 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/ciba-v7',
 		bestFor: ['Banking apps', 'High-security scenarios', 'Decoupled auth'],
 		pros: ['High security', 'Decoupled flow', 'Push notifications'],
-		cons: ['Complex implementation', 'Limited adoption']
+		cons: ['Complex implementation', 'Limited adoption'],
 	},
 	{
 		id: 'token-exchange',
 		title: 'Token Exchange Flow',
-		description: 'Exchange tokens for different audiences or scopes (RFC 8693). Modern microservices pattern.',
+		description:
+			'Exchange tokens for different audiences or scopes (RFC 8693). Modern microservices pattern.',
 		icon: FiCode,
 		color: '#f59e0b',
 		securityLevel: 4,
@@ -364,8 +358,8 @@ const oidcFlows: OIDCFlow[] = [
 		path: '/flows/token-exchange-v7',
 		bestFor: ['Microservices', 'Token delegation', 'Service mesh'],
 		pros: ['Flexible token handling', 'Secure delegation', 'Standards-based'],
-		cons: ['Complex setup', 'Limited provider support']
-	}
+		cons: ['Complex setup', 'Limited provider support'],
+	},
 ];
 
 // OIDC Concepts
@@ -374,56 +368,57 @@ const oidcConcepts = [
 		title: 'ID Token',
 		description: 'A JWT containing user identity information and authentication details.',
 		icon: FiUsers,
-		examples: ['User ID', 'Email', 'Name', 'Authentication time']
+		examples: ['User ID', 'Email', 'Name', 'Authentication time'],
 	},
 	{
 		title: 'UserInfo Endpoint',
 		description: 'Protected endpoint that returns user profile information using an access token.',
 		icon: FiInfo,
-		examples: ['Profile data', 'Claims', 'Custom attributes']
+		examples: ['Profile data', 'Claims', 'Custom attributes'],
 	},
 	{
 		title: 'Scopes & Claims',
-		description: 'Scopes request access to specific user information, claims are the actual data returned.',
+		description:
+			'Scopes request access to specific user information, claims are the actual data returned.',
 		icon: FiLock,
-		examples: ['openid', 'profile', 'email', 'address']
+		examples: ['openid', 'profile', 'email', 'address'],
 	},
 	{
 		title: 'Discovery',
 		description: 'Automatic configuration discovery using well-known endpoints.',
 		icon: FiGlobe,
-		examples: ['Authorization endpoint', 'Token endpoint', 'Supported scopes']
-	}
+		examples: ['Authorization endpoint', 'Token endpoint', 'Supported scopes'],
+	},
 ];
 
 const OIDCOverviewV7: React.FC = () => {
 	usePageScroll();
 	const navigate = useNavigate();
-	const [selectedFlow, setSelectedFlow] = useState<string | null>(null);
+	const [_selectedFlow, _setSelectedFlow] = useState<string | null>(null);
 
-	const handleFlowClick = useCallback((flow: OIDCFlow) => {
-		if (flow.deprecated) {
-			v4ToastManager.showWarning(
-				`${flow.title} is deprecated`,
-				{ description: 'This flow is deprecated and should not be used in new applications.' },
-				{ duration: 4000 }
-			);
-		}
-		
-		// Navigate with OIDC context
-		navigate(flow.path, { state: { fromSection: 'oidc', protocol: 'oidc' } });
-	}, [navigate]);
+	const handleFlowClick = useCallback(
+		(flow: OIDCFlow) => {
+			if (flow.deprecated) {
+				v4ToastManager.showWarning(
+					`${flow.title} is deprecated`,
+					{ description: 'This flow is deprecated and should not be used in new applications.' },
+					{ duration: 4000 }
+				);
+			}
+
+			// Navigate with OIDC context
+			navigate(flow.path, { state: { fromSection: 'oidc', protocol: 'oidc' } });
+		},
+		[navigate]
+	);
 
 	const renderSecurityLevel = useCallback((level: number) => {
 		return (
 			<SecurityLevel $level={level}>
 				<span>Security:</span>
 				<div className="stars">
-					{[1, 2, 3, 4, 5].map(star => (
-						<div 
-							key={star} 
-							className={`star ${star <= level ? 'filled' : ''}`}
-						/>
+					{[1, 2, 3, 4, 5].map((star) => (
+						<div key={star} className={`star ${star <= level ? 'filled' : ''}`} />
 					))}
 				</div>
 				<span>{level}/5</span>
@@ -434,7 +429,7 @@ const OIDCOverviewV7: React.FC = () => {
 	return (
 		<ResponsiveContainer>
 			<FlowHeader flowId="oidc-overview" />
-			
+
 			<ResponsiveContentWrapper>
 				{/* OIDC Overview Introduction */}
 				<InfoBox $variant="info" style={{ marginBottom: '2rem' }}>
@@ -442,12 +437,13 @@ const OIDCOverviewV7: React.FC = () => {
 					<div>
 						<InfoTitle>OpenID Connect (OIDC) Overview</InfoTitle>
 						<p style={{ marginBottom: '1rem' }}>
-							OpenID Connect is an identity layer built on top of OAuth 2.0. It enables applications to verify user identity 
-							and obtain basic profile information in a standardized, secure manner.
+							OpenID Connect is an identity layer built on top of OAuth 2.0. It enables applications
+							to verify user identity and obtain basic profile information in a standardized, secure
+							manner.
 						</p>
 						<HelperText>
-							🎯 <strong>Key Difference:</strong> While OAuth 2.0 handles authorization (what you can do), 
-							OIDC adds authentication (who you are) with standardized identity tokens.
+							🎯 <strong>Key Difference:</strong> While OAuth 2.0 handles authorization (what you
+							can do), OIDC adds authentication (who you are) with standardized identity tokens.
 						</HelperText>
 					</div>
 				</InfoBox>
@@ -455,10 +451,7 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* Core OIDC Concepts */}
-				<CollapsibleHeader 
-					title="Core OIDC Concepts"
-					defaultOpen={true}
-				>
+				<CollapsibleHeader title="Core OIDC Concepts" defaultOpen={true}>
 					<ConceptGrid>
 						{oidcConcepts.map((concept, index) => (
 							<ConceptCard key={index}>
@@ -478,71 +471,85 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* OIDC Flows */}
-				<CollapsibleHeader 
-					title="OIDC Authentication Flows"
-					defaultOpen={true}
-				>
+				<CollapsibleHeader title="OIDC Authentication Flows" defaultOpen={true}>
 					<FlowGrid>
 						{oidcFlows.map((flow) => (
-							<FlowCard 
-								key={flow.id}
-								onClick={() => handleFlowClick(flow)}
-							>
+							<FlowCard key={flow.id} onClick={() => handleFlowClick(flow)}>
 								{/* OAuth 2.1 Status Badge */}
-								<div style={{ 
-									position: 'absolute',
-									top: '1rem',
-									right: '1rem',
-									padding: '0.25rem 0.5rem',
-									borderRadius: '0.25rem',
-									fontSize: '0.75rem',
-									fontWeight: '600',
-									textTransform: 'uppercase',
-									backgroundColor: 
-										flow.oauth21Status === 'included' ? '#dcfce7' :
-										flow.oauth21Status === 'deprecated' ? '#fef3c7' : '#f3f4f6',
-									color: 
-										flow.oauth21Status === 'included' ? '#166534' :
-										flow.oauth21Status === 'deprecated' ? '#d97706' : '#6b7280',
-									border: `1px solid ${
-										flow.oauth21Status === 'included' ? '#bbf7d0' :
-										flow.oauth21Status === 'deprecated' ? '#fde68a' : '#e5e7eb'
-									}`
-								}}>
-									{flow.oauth21Status === 'included' ? 'OAuth 2.1' : 
-									 flow.oauth21Status === 'deprecated' ? 'Deprecated in OAuth 2.1' : 
-									 'OIDC Only'}
+								<div
+									style={{
+										position: 'absolute',
+										top: '1rem',
+										right: '1rem',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '0.25rem',
+										fontSize: '0.75rem',
+										fontWeight: '600',
+										textTransform: 'uppercase',
+										backgroundColor:
+											flow.oauth21Status === 'included'
+												? '#dcfce7'
+												: flow.oauth21Status === 'deprecated'
+													? '#fef3c7'
+													: '#f3f4f6',
+										color:
+											flow.oauth21Status === 'included'
+												? '#166534'
+												: flow.oauth21Status === 'deprecated'
+													? '#d97706'
+													: '#6b7280',
+										border: `1px solid ${
+											flow.oauth21Status === 'included'
+												? '#bbf7d0'
+												: flow.oauth21Status === 'deprecated'
+													? '#fde68a'
+													: '#e5e7eb'
+										}`,
+									}}
+								>
+									{flow.oauth21Status === 'included'
+										? 'OAuth 2.1'
+										: flow.oauth21Status === 'deprecated'
+											? 'Deprecated in OAuth 2.1'
+											: 'OIDC Only'}
 								</div>
 
 								<FlowIcon $color={flow.color}>
 									<flow.icon />
 								</FlowIcon>
-								
+
 								<FlowTitle>{flow.title}</FlowTitle>
 								<FlowDescription>{flow.description}</FlowDescription>
-								
+
 								{renderSecurityLevel(flow.securityLevel)}
-								
+
 								<div style={{ marginBottom: '1rem' }}>
 									<strong style={{ color: '#374151', fontSize: '0.875rem' }}>Best For:</strong>
-									<ul style={{ margin: '0.5rem 0', paddingLeft: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+									<ul
+										style={{
+											margin: '0.5rem 0',
+											paddingLeft: '1rem',
+											fontSize: '0.875rem',
+											color: '#6b7280',
+										}}
+									>
 										{flow.bestFor.map((item, index) => (
 											<li key={index}>{item}</li>
 										))}
 									</ul>
 								</div>
-								
-								<div style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
-									justifyContent: 'space-between',
-									marginTop: 'auto',
-									paddingTop: '1rem',
-									borderTop: '1px solid #e5e7eb'
-								}}>
-									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-										Click to explore
-									</span>
+
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginTop: 'auto',
+										paddingTop: '1rem',
+										borderTop: '1px solid #e5e7eb',
+									}}
+								>
+									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Click to explore</span>
 									<FiArrowRight style={{ color: '#3b82f6' }} />
 								</div>
 							</FlowCard>
@@ -553,10 +560,7 @@ const OIDCOverviewV7: React.FC = () => {
 				<SectionDivider />
 
 				{/* Flow Comparison */}
-				<CollapsibleHeader 
-					title="Quick Flow Comparison"
-					defaultOpen={false}
-				>
+				<CollapsibleHeader title="Quick Flow Comparison" defaultOpen={false}>
 					<ComparisonTable>
 						<table>
 							<thead>
@@ -573,7 +577,10 @@ const OIDCOverviewV7: React.FC = () => {
 									<tr key={flow.id}>
 										<td>
 											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-												<FlowIcon $color={flow.color} style={{ width: '2rem', height: '2rem', fontSize: '1rem' }}>
+												<FlowIcon
+													$color={flow.color}
+													style={{ width: '2rem', height: '2rem', fontSize: '1rem' }}
+												>
 													<flow.icon />
 												</FlowIcon>
 												{flow.title}
@@ -612,7 +619,7 @@ const OIDCOverviewV7: React.FC = () => {
 				{OAuthFlowComparisonService.getComparisonTable({
 					highlightFlow: 'oidc',
 					collapsed: true,
-					title: 'OAuth 2.0 vs OpenID Connect'
+					title: 'OAuth 2.0 vs OpenID Connect',
 				})}
 
 				<SectionDivider />
@@ -623,15 +630,29 @@ const OIDCOverviewV7: React.FC = () => {
 					<div>
 						<InfoTitle>Implementation Best Practices</InfoTitle>
 						<ul style={{ margin: '1rem 0', paddingLeft: '1rem' }}>
-							<li><strong>Always validate ID tokens:</strong> Verify signature, issuer, audience, and expiration</li>
-							<li><strong>Use PKCE:</strong> Even for confidential clients when possible</li>
-							<li><strong>Implement proper logout:</strong> Use RP-initiated logout for complete session cleanup</li>
-							<li><strong>Handle token refresh:</strong> Implement proper refresh token rotation</li>
-							<li><strong>Scope management:</strong> Request only necessary scopes for your application</li>
+							<li>
+								<strong>Always validate ID tokens:</strong> Verify signature, issuer, audience, and
+								expiration
+							</li>
+							<li>
+								<strong>Use PKCE:</strong> Even for confidential clients when possible
+							</li>
+							<li>
+								<strong>Implement proper logout:</strong> Use RP-initiated logout for complete
+								session cleanup
+							</li>
+							<li>
+								<strong>Handle token refresh:</strong> Implement proper refresh token rotation
+							</li>
+							<li>
+								<strong>Scope management:</strong> Request only necessary scopes for your
+								application
+							</li>
 						</ul>
 						<HelperText>
-							💡 <strong>Pro Tip:</strong> Start with Authorization Code Flow + PKCE for most applications. 
-							It provides the best security and is supported by all modern OIDC providers.
+							💡 <strong>Pro Tip:</strong> Start with Authorization Code Flow + PKCE for most
+							applications. It provides the best security and is supported by all modern OIDC
+							providers.
 						</HelperText>
 					</div>
 				</InfoBox>

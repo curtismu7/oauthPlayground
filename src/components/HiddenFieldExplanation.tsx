@@ -1,19 +1,19 @@
 // src/components/HiddenFieldExplanation.tsx
 /**
  * HiddenFieldExplanation Component
- * 
+ *
  * Displays an informational panel explaining why a credential field
  * is not applicable to the current OAuth/OIDC flow type.
  */
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiInfo } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface HiddenFieldExplanationProps {
-  fieldName: string;
-  reason: string;
-  specReference?: string;
+	fieldName: string;
+	reason: string;
+	specReference?: string;
 }
 
 const InfoPanel = styled.div`
@@ -69,27 +69,27 @@ const SpecLink = styled.a`
  * Shows why a field is not used in the current flow
  */
 export const HiddenFieldExplanation: React.FC<HiddenFieldExplanationProps> = ({
-  fieldName,
-  reason,
-  specReference,
+	fieldName,
+	reason,
+	specReference,
 }) => {
-  return (
-    <InfoPanel role="status" aria-live="polite">
-      <InfoIcon aria-hidden="true">
-        <FiInfo size={14} />
-      </InfoIcon>
-      <InfoContent>
-        <strong>{fieldName}</strong> is not used in this flow.
-        <br />
-        {reason}
-        {specReference && (
-          <SpecLink href={specReference} target="_blank" rel="noopener noreferrer">
-            Learn more →
-          </SpecLink>
-        )}
-      </InfoContent>
-    </InfoPanel>
-  );
+	return (
+		<InfoPanel role="status" aria-live="polite">
+			<InfoIcon aria-hidden="true">
+				<FiInfo size={14} />
+			</InfoIcon>
+			<InfoContent>
+				<strong>{fieldName}</strong> is not used in this flow.
+				<br />
+				{reason}
+				{specReference && (
+					<SpecLink href={specReference} target="_blank" rel="noopener noreferrer">
+						Learn more →
+					</SpecLink>
+				)}
+			</InfoContent>
+		</InfoPanel>
+	);
 };
 
 export default HiddenFieldExplanation;
