@@ -2,8 +2,8 @@
 
 import { describe, expect, it } from 'vitest';
 import {
-	ApiCallDisplayService,
 	type ApiCallData,
+	ApiCallDisplayService,
 	type CurlCommandOptions,
 } from '../services/apiCallDisplayService';
 

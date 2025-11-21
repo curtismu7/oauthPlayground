@@ -26,27 +26,27 @@ export function checkCredentialsAndWarn(
 ): boolean {
 	const { flowName, requiredFields = ['environmentId', 'clientId'], showToast = true } = options;
 	const normalizedCredentials = credentials ?? {};
-	
+
 	// Check if any required fields are missing
 	const missingFields: string[] = [];
-	
-	requiredFields.forEach(field => {
+
+	requiredFields.forEach((field) => {
 		const value = normalizedCredentials[field as keyof CredentialsCheck];
 		if (!value || value.trim() === '') {
 			missingFields.push(field);
 		}
 	});
-	
+
 	// If credentials are missing, show warning toast
 	if (missingFields.length > 0 && showToast) {
 		const missingFieldsText = missingFields
-			.map(field => field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1'))
+			.map((field) => field.charAt(0).toUpperCase() + field.slice(1).replace(/([A-Z])/g, ' $1'))
 			.join(', ');
-		
+
 		v4ToastManager.showWarning(
 			`⚠️ ${flowName}: Please fill in your credentials (${missingFieldsText}) to continue`
 		);
-		
+
 		console.warn(`[CredentialsWarning] ${flowName} started without credentials:`, {
 			missingFields,
 			credentials: {
@@ -54,12 +54,12 @@ export function checkCredentialsAndWarn(
 				hasClientId: !!normalizedCredentials.clientId,
 				hasClientSecret: !!normalizedCredentials.clientSecret,
 				hasRedirectUri: !!normalizedCredentials.redirectUri,
-			}
+			},
 		});
-		
+
 		return false; // Credentials are missing
 	}
-	
+
 	return true; // Credentials are present
 }
 
@@ -73,7 +73,7 @@ export function useCredentialsWarning(
 ) {
 	// Only show warning once per flow mount
 	const hasShownWarning = React.useRef(false);
-	
+
 	React.useEffect(() => {
 		if (!hasShownWarning.current) {
 			const options: CredentialsWarningOptions = requiredFields

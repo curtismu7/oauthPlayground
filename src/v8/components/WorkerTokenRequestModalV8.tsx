@@ -1,0 +1,462 @@
+/**
+ * @file WorkerTokenRequestModalV8.tsx
+ * @module v8/components
+ * @description Educational modal showing worker token API request details for V8
+ * @version 8.0.0
+ * @since 2024-11-16
+ */
+
+import React, { useState } from 'react';
+
+interface WorkerTokenRequestModalV8Props {
+	isOpen: boolean;
+	onClose: () => void;
+	onExecute: () => void;
+	requestDetails: {
+		tokenEndpoint: string;
+		requestParams: {
+			grant_type: string;
+			client_id: string;
+			client_secret: string;
+			scope: string;
+		};
+		authMethod: string;
+		region: string;
+	};
+	isExecuting: boolean;
+}
+
+export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props> = ({
+	isOpen,
+	onClose,
+	onExecute,
+	requestDetails,
+	isExecuting,
+}) => {
+	const [showSecret, setShowSecret] = useState(false);
+	const [copiedField, setCopiedField] = useState<string | null>(null);
+
+	// Lock body scroll when modal is open
+	React.useEffect(() => {
+		if (isOpen) {
+			const originalOverflow = document.body.style.overflow;
+			document.body.style.overflow = 'hidden';
+			return () => {
+				document.body.style.overflow = originalOverflow;
+			};
+		}
+	}, [isOpen]);
+
+	if (!isOpen) return null;
+
+	const handleCopy = (text: string, field: string) => {
+		navigator.clipboard.writeText(text);
+		setCopiedField(field);
+		setTimeout(() => setCopiedField(null), 2000);
+	};
+
+	// Color code the URL parts
+	const renderColoredUrl = (url: string) => {
+		const parts = url.match(/(https:\/\/)([^/]+)(\/[^/]+)(\/as\/token)/);
+		if (!parts) return url;
+
+		return (
+			<span style={{ fontFamily: 'monospace', fontSize: '12px' }}>
+				<span style={{ color: '#10b981' }}>{parts[1]}</span>
+				<span style={{ color: '#3b82f6' }}>{parts[2]}</span>
+				<span style={{ color: '#f59e0b' }}>{parts[3]}</span>
+				<span style={{ color: '#8b5cf6' }}>{parts[4]}</span>
+			</span>
+		);
+	};
+
+	return (
+		<>
+			{/* Backdrop */}
+			<div
+				style={{
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					background: 'rgba(0, 0, 0, 0.6)',
+					zIndex: 1001,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+				}}
+				onClick={onClose}
+			/>
+
+			{/* Modal */}
+			<div
+				style={{
+					position: 'fixed',
+					top: '50%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					background: 'white',
+					borderRadius: '8px',
+					boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+					zIndex: 1002,
+					maxWidth: '700px',
+					width: '90%',
+					maxHeight: '85vh',
+					overflow: 'auto',
+				}}
+				onClick={(e) => e.stopPropagation()}
+			>
+				{/* Header */}
+				<div
+					style={{
+						background: 'linear-gradient(to right, #fef3c7 0%, #fde68a 100%)',
+						padding: '20px 24px',
+						borderBottom: '1px solid #fcd34d',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+						<div>
+							<h2
+								style={{
+									margin: '0 0 4px 0',
+									fontSize: '18px',
+									fontWeight: '700',
+									color: '#92400e',
+								}}
+							>
+								📡 Worker Token API Request
+							</h2>
+							<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
+								Review the request details before executing
+							</p>
+						</div>
+						<button
+							onClick={onClose}
+							style={{
+								background: 'none',
+								border: 'none',
+								fontSize: '24px',
+								cursor: 'pointer',
+								color: '#92400e',
+								padding: '4px 8px',
+							}}
+						>
+							×
+						</button>
+					</div>
+				</div>
+
+				{/* Content */}
+				<div style={{ padding: '24px' }}>
+					{/* Info Box */}
+					<div
+						style={{
+							padding: '12px',
+							background: '#d1fae5',
+							borderRadius: '6px',
+							border: '1px solid #10b981',
+							marginBottom: '20px',
+							fontSize: '13px',
+							color: '#065f46',
+						}}
+					>
+						<strong>✅ Educational Mode:</strong> This shows you exactly what API call will be made.
+						Review the details and click "Execute Request" to proceed.
+					</div>
+
+					{/* Token Endpoint */}
+					<div style={{ marginBottom: '20px' }}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'space-between',
+								marginBottom: '8px',
+							}}
+						>
+							<h3 style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+								🌐 Token Endpoint
+							</h3>
+							<button
+								onClick={() => handleCopy(requestDetails.tokenEndpoint, 'endpoint')}
+								style={{
+									padding: '4px 8px',
+									background: copiedField === 'endpoint' ? '#10b981' : '#e5e7eb',
+									color: copiedField === 'endpoint' ? 'white' : '#374151',
+									border: 'none',
+									borderRadius: '4px',
+									fontSize: '12px',
+									cursor: 'pointer',
+									fontWeight: '600',
+								}}
+							>
+								{copiedField === 'endpoint' ? '✓ Copied' : '📋 Copy'}
+							</button>
+						</div>
+						<div
+							style={{
+								padding: '12px',
+								background: '#f9fafb',
+								borderRadius: '4px',
+								border: '1px solid #e5e7eb',
+								wordBreak: 'break-all',
+							}}
+						>
+							{renderColoredUrl(requestDetails.tokenEndpoint)}
+						</div>
+						<div style={{ marginTop: '8px', fontSize: '12px', color: '#6b7280' }}>
+							<strong>Method:</strong> POST | <strong>Region:</strong>{' '}
+							{requestDetails.region.toUpperCase()}
+						</div>
+					</div>
+
+					{/* Request Parameters */}
+					<div style={{ marginBottom: '20px' }}>
+						<h3
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}
+						>
+							📝 Request Parameters
+						</h3>
+						<div
+							style={{
+								background: 'white',
+								border: '1px solid #e5e7eb',
+								borderRadius: '6px',
+								overflow: 'hidden',
+							}}
+						>
+							{/* Grant Type */}
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: '140px 1fr',
+									borderBottom: '1px solid #e5e7eb',
+								}}
+							>
+								<div
+									style={{
+										padding: '12px',
+										background: '#f9fafb',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+									}}
+								>
+									grant_type
+								</div>
+								<div
+									style={{
+										padding: '12px',
+										fontFamily: 'monospace',
+										fontSize: '12px',
+										color: '#6b7280',
+									}}
+								>
+									{requestDetails.requestParams.grant_type}
+								</div>
+							</div>
+
+							{/* Client ID */}
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: '140px 1fr',
+									borderBottom: '1px solid #e5e7eb',
+								}}
+							>
+								<div
+									style={{
+										padding: '12px',
+										background: '#f9fafb',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+									}}
+								>
+									client_id
+								</div>
+								<div
+									style={{
+										padding: '12px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
+									<span
+										style={{
+											fontFamily: 'monospace',
+											fontSize: '12px',
+											color: '#6b7280',
+											wordBreak: 'break-all',
+										}}
+									>
+										{requestDetails.requestParams.client_id}
+									</span>
+									<button
+										onClick={() => handleCopy(requestDetails.requestParams.client_id, 'clientId')}
+										style={{
+											padding: '4px 8px',
+											background: 'none',
+											border: 'none',
+											color: '#6b7280',
+											cursor: 'pointer',
+											fontSize: '12px',
+											marginLeft: '8px',
+										}}
+									>
+										{copiedField === 'clientId' ? '✓' : '📋'}
+									</button>
+								</div>
+							</div>
+
+							{/* Client Secret */}
+							<div style={{ display: 'grid', gridTemplateColumns: '140px 1fr' }}>
+								<div
+									style={{
+										padding: '12px',
+										background: '#f9fafb',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+									}}
+								>
+									client_secret
+								</div>
+								<div
+									style={{
+										padding: '12px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
+									<span
+										style={{
+											fontFamily: 'monospace',
+											fontSize: '12px',
+											color: '#6b7280',
+											wordBreak: 'break-all',
+										}}
+									>
+										{showSecret ? requestDetails.requestParams.client_secret : '••••••••••••••••'}
+									</span>
+									<div style={{ display: 'flex', gap: '4px', marginLeft: '8px' }}>
+										<button
+											onClick={() => setShowSecret(!showSecret)}
+											style={{
+												padding: '4px 8px',
+												background: 'none',
+												border: 'none',
+												color: '#6b7280',
+												cursor: 'pointer',
+												fontSize: '12px',
+											}}
+										>
+											{showSecret ? '👁️' : '👁️‍🗨️'}
+										</button>
+										<button
+											onClick={() =>
+												handleCopy(requestDetails.requestParams.client_secret, 'clientSecret')
+											}
+											style={{
+												padding: '4px 8px',
+												background: 'none',
+												border: 'none',
+												color: '#6b7280',
+												cursor: 'pointer',
+												fontSize: '12px',
+											}}
+										>
+											{copiedField === 'clientSecret' ? '✓' : '📋'}
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{/* Authentication Method */}
+					<div style={{ marginBottom: '20px' }}>
+						<h3
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}
+						>
+							🔐 Authentication Method
+						</h3>
+						<div
+							style={{
+								padding: '12px',
+								background: '#f9fafb',
+								borderRadius: '4px',
+								border: '1px solid #e5e7eb',
+								fontSize: '13px',
+								color: '#374151',
+							}}
+						>
+							<strong>{requestDetails.authMethod}</strong>
+							<div style={{ marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+								Credentials sent in request body (POST parameters)
+							</div>
+						</div>
+					</div>
+
+					{/* Warning Box */}
+					<div
+						style={{
+							padding: '12px',
+							background: '#fef3c7',
+							borderRadius: '6px',
+							border: '1px solid #fcd34d',
+							marginBottom: '20px',
+							fontSize: '13px',
+							color: '#92400e',
+						}}
+					>
+						<strong>⚠️ Security Note:</strong> Worker tokens have elevated privileges. Store them
+						securely and never expose them in client-side code.
+					</div>
+
+					{/* Actions */}
+					<div style={{ display: 'flex', gap: '8px' }}>
+						<button
+							onClick={onClose}
+							style={{
+								flex: 1,
+								padding: '10px 16px',
+								background: '#e5e7eb',
+								color: '#1f2937',
+								border: 'none',
+								borderRadius: '4px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+							}}
+						>
+							Cancel
+						</button>
+						<button
+							onClick={onExecute}
+							disabled={isExecuting}
+							style={{
+								flex: 1,
+								padding: '10px 16px',
+								background: isExecuting ? '#9ca3af' : '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '4px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: isExecuting ? 'not-allowed' : 'pointer',
+							}}
+						>
+							{isExecuting ? '🔄 Executing...' : '▶️ Execute Request'}
+						</button>
+					</div>
+				</div>
+			</div>
+		</>
+	);
+};
+
+export default WorkerTokenRequestModalV8;

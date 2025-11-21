@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiTerminal,
-	FiX,
-	FiDownload,
-	FiTrash2,
-	FiEye,
-	FiEyeOff,
 	FiChevronDown,
 	FiChevronUp,
-	FiMinimize2,
+	FiDownload,
+	FiEye,
+	FiEyeOff,
 	FiMaximize2,
+	FiMinimize2,
+	FiTerminal,
+	FiTrash2,
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { logger } from '../utils/logger';
 import ErrorHelpPanel from './ErrorHelpPanel';
 import TokenExchangeDebugger from './TokenExchangeDebugger';

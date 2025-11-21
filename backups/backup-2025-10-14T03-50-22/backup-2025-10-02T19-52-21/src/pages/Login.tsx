@@ -10,7 +10,6 @@ import {
 	FiEyeOff,
 	FiLogIn,
 } from 'react-icons/fi';
-import { themeService } from '../services/themeService';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
@@ -19,9 +18,10 @@ import DebugCredentials from '../components/DebugCredentials';
 import Spinner from '../components/Spinner';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useNotifications } from '../hooks/useNotifications';
-import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { pingOneConfigService, type PingOneConfig } from '../services/pingoneConfigService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { type PingOneConfig, pingOneConfigService } from '../services/pingoneConfigService';
+import { themeService } from '../services/themeService';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';

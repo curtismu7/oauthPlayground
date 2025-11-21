@@ -1,6 +1,6 @@
 // src/utils/performance.ts - Performance optimization utilities
 
-import React, { useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 
 /**
  * Debounce hook for performance optimization

@@ -16,7 +16,6 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
@@ -41,6 +40,7 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { themeService } from '../../services/themeService';
 import { applyClientAuthentication } from '../../utils/clientAuthentication';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

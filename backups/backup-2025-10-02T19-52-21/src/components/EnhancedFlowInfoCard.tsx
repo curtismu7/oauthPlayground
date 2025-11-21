@@ -5,14 +5,14 @@ import {
 	FiChevronDown,
 	FiExternalLink,
 	FiInfo,
-	FiShield,
-	FiZap,
-	FiUsers,
 	FiServer,
+	FiShield,
+	FiUsers,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { FlowInfoService, FlowInfoCardData } from '../services/FlowInfoService';
+import { FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';
 
 const CardContainer = styled.div<{ $colorScheme?: string; $fontSize?: string }>`
 	background: ${({ $colorScheme }) => {

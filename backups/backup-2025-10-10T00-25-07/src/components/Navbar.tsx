@@ -137,25 +137,15 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 					<FiHelpCircle aria-hidden="true" />
 					<span>Docs</span>
 				</Link>
-				<Link
-					to="/configuration"
-					title="Configure OAuth settings"
-				>
+				<Link to="/configuration" title="Configure OAuth settings">
 					<FiSettings aria-hidden="true" />
 					<span>Configuration</span>
 				</Link>
-				<Link
-					to="/auto-discover"
-					title="OIDC Discovery tool"
-					aria-label="OIDC Discovery tool"
-				>
+				<Link to="/auto-discover" title="OIDC Discovery tool" aria-label="OIDC Discovery tool">
 					<FiSearch aria-hidden="true" />
 					<span>OIDC Discovery</span>
 				</Link>
-				<Link
-					to="/client-generator"
-					title="Generate PingOne applications"
-				>
+				<Link to="/client-generator" title="Generate PingOne applications">
 					<FiSettings aria-hidden="true" />
 					<span>App Generator</span>
 				</Link>

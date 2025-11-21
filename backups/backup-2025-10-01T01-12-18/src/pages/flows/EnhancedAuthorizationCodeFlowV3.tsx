@@ -1,7 +1,6 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV3.tsx - Clean reusable implementation
 
 import React, { useCallback, useState } from 'react';
-import styled from 'styled-components';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -11,8 +10,10 @@ import {
 	FiShield,
 	FiUser,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
 import { type FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
+import FlowIntro from '../../components/flow/FlowIntro';
 import {
 	InlineDocumentation,
 	QuickReference,
@@ -20,7 +21,6 @@ import {
 } from '../../components/InlineDocumentation';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
 import PingOneConfigSection from '../../components/PingOneConfigSection';
-import FlowIntro from '../../components/flow/FlowIntro';
 import {
 	createAuthUrlStep,
 	createCallbackHandlingStep,

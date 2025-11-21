@@ -2,26 +2,26 @@
 // V5.0.0 OIDC Hybrid Flow - Full parity with Authorization Code Flow V5
 // Supports: code id_token, code token, code id_token token
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiInfo,
-	FiShield,
-	FiKey,
-	FiCheckCircle,
 	FiAlertCircle,
+	FiCheckCircle,
+	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
-	FiChevronDown,
-	FiZap,
+	FiInfo,
+	FiKey,
 	FiRefreshCw,
 	FiSettings,
+	FiShield,
+	FiZap,
 } from 'react-icons/fi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import styled from 'styled-components';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 

@@ -16,11 +16,11 @@ import {
 	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import type { OAuthTokenResponse } from '../../types/storage';
 import { getAuthMethodSecurityLevel } from '../../utils/clientAuthentication';
 import { copyToClipboard } from '../../utils/clipboard';
 import { ColorCodedURL } from '../ColorCodedURL';
 import type { EnhancedFlowStep } from '../EnhancedStepFlowV2';
-import type { OAuthTokenResponse } from '../../types/storage';
 import type { WorkerTokenResponse } from '../worker/WorkerTokenDisplay';
 
 // Common styled components

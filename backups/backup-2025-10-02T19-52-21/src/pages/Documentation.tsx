@@ -10,9 +10,9 @@ import {
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;

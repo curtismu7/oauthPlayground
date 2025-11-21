@@ -72,8 +72,3 @@ const ResultPageLayout: React.FC<ResultPageLayoutProps> = ({
 };
 
 export default ResultPageLayout;
-
-
-
-
-

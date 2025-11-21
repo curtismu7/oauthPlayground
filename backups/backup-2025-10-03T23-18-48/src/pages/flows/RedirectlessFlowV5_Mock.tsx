@@ -20,10 +20,9 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { themeService } from '../../services/themeService';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import {
 	HelperText,
 	ResultsHeading,
@@ -33,6 +32,7 @@ import {
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { themeService } from '../../services/themeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [

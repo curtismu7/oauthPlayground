@@ -1,6 +1,6 @@
-// src/utils/mockOAuth.ts - Mock OAuth utilities for educational purposes
+// src/utils/mockOAuth.ts - Mock OAuth utilities for educational purposes (used by V7RM flows)
 
-import type { MockTokens, MockUserInfo } from '../hooks/useMockOIDCResourceOwnerPasswordController';
+import type { V7RMTokens, V7RMUserInfo } from '../hooks/useV7RMOIDCResourceOwnerPasswordController';
 
 interface GenerateMockTokensParams {
 	scopes: string[];
@@ -17,8 +17,8 @@ export const generateMockTokens = ({
 	includeRefreshToken = true,
 	includeIdToken = true,
 	expiresIn = 3600,
-}: GenerateMockTokensParams): MockTokens => {
-	const mockTokens: MockTokens = {
+}: GenerateMockTokensParams): V7RMTokens => {
+	const mockTokens: V7RMTokens = {
 		access_token: generateMockAccessToken(),
 		token_type: 'Bearer',
 		expires_in: expiresIn,
@@ -108,7 +108,7 @@ export const generateMockIdToken = (): string => {
 /**
  * Generate mock user info for the UserInfo endpoint
  */
-export const generateMockUserInfo = (username: string): MockUserInfo => {
+export const generateMockUserInfo = (username: string): V7RMUserInfo => {
 	const [localPart] = username.split('@');
 	const displayName = localPart.charAt(0).toUpperCase() + localPart.slice(1);
 

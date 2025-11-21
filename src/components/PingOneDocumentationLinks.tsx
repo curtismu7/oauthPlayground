@@ -1,13 +1,13 @@
 // src/components/PingOneDocumentationLinks.tsx
 /**
  * PingOne Documentation Links Component
- * 
+ *
  * Provides references to key PingOne documentation for users
  */
 
 import React, { useState } from 'react';
+import { FiBook, FiChevronDown, FiChevronUp, FiExternalLink } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiBook, FiExternalLink, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 
 const DocsContainer = styled.div`
 	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
@@ -22,7 +22,7 @@ const DocsHeader = styled.div`
 	align-items: center;
 	justify-content: space-between;
 	cursor: pointer;
-	margin-bottom: ${props => props.$expanded ? '1rem' : '0'};
+	margin-bottom: ${(props) => (props.$expanded ? '1rem' : '0')};
 	transition: margin-bottom 0.2s;
 `;
 
@@ -36,8 +36,8 @@ const DocsTitle = styled.div`
 `;
 
 const DocsContent = styled.div<{ $expanded: boolean }>`
-	display: ${props => props.$expanded ? 'block' : 'none'};
-	animation: ${props => props.$expanded ? 'fadeIn 0.3s ease-in' : 'none'};
+	display: ${(props) => (props.$expanded ? 'block' : 'none')};
+	animation: ${(props) => (props.$expanded ? 'fadeIn 0.3s ease-in' : 'none')};
 	
 	@keyframes fadeIn {
 		from {
@@ -180,9 +180,7 @@ export const PingOneDocumentationLinks: React.FC = () => {
 									<FiExternalLink size={16} />
 									<span>{link.title}</span>
 								</DocsLink>
-								{link.description && (
-									<DocsDescription>{link.description}</DocsDescription>
-								)}
+								{link.description && <DocsDescription>{link.description}</DocsDescription>}
 							</div>
 						))}
 					</DocsSection>
@@ -191,5 +189,3 @@ export const PingOneDocumentationLinks: React.FC = () => {
 		</DocsContainer>
 	);
 };
-
-

@@ -1,45 +1,45 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '../contexts/NewAuthContext';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiRefreshCw,
-	FiCheckCircle,
-	FiPlus,
-	FiX,
-	FiClock,
-	FiKey,
-	FiEye,
-	FiTrash2,
-	FiCopy,
-	FiShield,
 	FiAlertTriangle,
-	FiXCircle,
-	FiInfo,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
 	FiDownload,
+	FiEye,
+	FiInfo,
+	FiKey,
+	FiPlus,
+	FiRefreshCw,
 	FiSettings,
+	FiShield,
+	FiTrash2,
+	FiX,
+	FiXCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
+import CentralizedSuccessMessage, {
+	showFlowError,
+	showFlowSuccess,
+} from '../components/CentralizedSuccessMessage';
+import ConfirmationModal from '../components/ConfirmationModal';
+import JSONHighlighter from '../components/JSONHighlighter';
 import PageTitle from '../components/PageTitle';
-import { getOAuthTokens } from '../utils/tokenStorage';
-import {
-	getTokenHistory,
-	clearTokenHistory,
-	removeTokenFromHistory,
-	getFlowDisplayName,
-	getFlowIcon,
-	TokenHistoryEntry,
-} from '../utils/tokenHistory';
-import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import StandardMessage from '../components/StandardMessage';
+import { TokenSurface } from '../components/TokenSurface';
+import { useAuth } from '../contexts/NewAuthContext';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
 import { usePageScroll } from '../hooks/usePageScroll';
-import JSONHighlighter from '../components/JSONHighlighter';
-import { TokenSurface } from '../components/TokenSurface';
-import StandardMessage from '../components/StandardMessage';
-import ConfirmationModal from '../components/ConfirmationModal';
-import CentralizedSuccessMessage, {
-	showFlowSuccess,
-	showFlowError,
-} from '../components/CentralizedSuccessMessage';
+import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import {
+	clearTokenHistory,
+	getFlowDisplayName,
+	getFlowIcon,
+	getTokenHistory,
+	removeTokenFromHistory,
+	TokenHistoryEntry,
+} from '../utils/tokenHistory';
+import { getOAuthTokens } from '../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

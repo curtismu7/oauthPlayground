@@ -12,9 +12,9 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
+import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import { FlowHeader } from '../../services/flowHeaderService';
-import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 
 const Container = styled.div`
   max-width: 1400px;

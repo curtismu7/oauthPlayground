@@ -57,18 +57,20 @@ export class ErrorMonitoring {
 	private alertRules: AlertRule[] = [];
 	private isMonitoring: boolean = false;
 
-	constructor(config: MonitoringConfig = {
-		enableRealTimeMonitoring: true,
-		enableErrorAggregation: true,
-		enableAlerting: true,
-		maxErrorHistory: 1000,
-		alertThresholds: {
-			criticalErrorRate: 0.1, // 10% critical error rate
-			errorSpikeThreshold: 10, // 10 errors in short time
-			consecutiveFailures: 3 // 3 consecutive failures
-		},
-		retentionPeriod: 24 * 60 * 60 * 1000 // 24 hours
-	}) {
+	constructor(
+		config: MonitoringConfig = {
+			enableRealTimeMonitoring: true,
+			enableErrorAggregation: true,
+			enableAlerting: true,
+			maxErrorHistory: 1000,
+			alertThresholds: {
+				criticalErrorRate: 0.1, // 10% critical error rate
+				errorSpikeThreshold: 10, // 10 errors in short time
+				consecutiveFailures: 3, // 3 consecutive failures
+			},
+			retentionPeriod: 24 * 60 * 60 * 1000, // 24 hours
+		}
+	) {
 		this.config = config;
 		this.initializeAlertRules();
 		this.startMonitoring();
@@ -82,20 +84,22 @@ export class ErrorMonitoring {
 		this.alertRules.push({
 			id: 'critical-error-rate',
 			name: 'Critical Error Rate Alert',
-			condition: (metrics) => metrics.criticalErrorRate > this.config.alertThresholds.criticalErrorRate,
+			condition: (metrics) =>
+				metrics.criticalErrorRate > this.config.alertThresholds.criticalErrorRate,
 			severity: 'critical',
 			message: 'Critical error rate exceeded threshold',
-			enabled: true
+			enabled: true,
 		});
 
 		// Error spike alert
 		this.alertRules.push({
 			id: 'error-spike',
 			name: 'Error Spike Alert',
-			condition: (metrics) => metrics.averageErrorsPerHour > this.config.alertThresholds.errorSpikeThreshold,
+			condition: (metrics) =>
+				metrics.averageErrorsPerHour > this.config.alertThresholds.errorSpikeThreshold,
 			severity: 'high',
 			message: 'Error spike detected',
-			enabled: true
+			enabled: true,
 		});
 
 		// Flow-specific failure alert
@@ -104,11 +108,11 @@ export class ErrorMonitoring {
 			name: 'Flow Failure Alert',
 			condition: (metrics) => {
 				const flowErrors = Object.values(metrics.errorsByFlow);
-				return flowErrors.some(count => count > this.config.alertThresholds.consecutiveFailures);
+				return flowErrors.some((count) => count > this.config.alertThresholds.consecutiveFailures);
 			},
 			severity: 'medium',
 			message: 'Multiple failures detected in specific flow',
-			enabled: true
+			enabled: true,
 		});
 	}
 
@@ -137,9 +141,9 @@ export class ErrorMonitoring {
 					filename: event.filename,
 					lineno: event.lineno,
 					colno: event.colno,
-					error: event.error
+					error: event.error,
 				},
-				stack: event.error?.stack
+				stack: event.error?.stack,
 			});
 		});
 
@@ -151,8 +155,8 @@ export class ErrorMonitoring {
 				message: 'Unhandled Promise Rejection',
 				context: {
 					reason: event.reason,
-					promise: event.promise
-				}
+					promise: event.promise,
+				},
 			});
 		});
 
@@ -163,7 +167,7 @@ export class ErrorMonitoring {
 				level: 'error',
 				category: 'console-error',
 				message: args.join(' '),
-				context: { args }
+				context: { args },
 			});
 			originalConsoleError.apply(console, args);
 		};
@@ -174,10 +178,13 @@ export class ErrorMonitoring {
 	 */
 	private startMetricsCalculation(): void {
 		// Calculate metrics every 5 minutes
-		setInterval(() => {
-			this.calculateMetrics();
-			this.checkAlerts();
-		}, 5 * 60 * 1000);
+		setInterval(
+			() => {
+				this.calculateMetrics();
+				this.checkAlerts();
+			},
+			5 * 60 * 1000
+		);
 	}
 
 	/**
@@ -196,14 +203,17 @@ export class ErrorMonitoring {
 		const errorEvent: ErrorEvent = {
 			id: this.generateErrorId(),
 			timestamp: Date.now(),
-			...errorData
+			...errorData,
 		};
 
 		this.errorHistory.push(errorEvent);
 		this.cleanupOldErrors();
 
 		// Log error
-		console.error(`[Error Monitoring] ${errorData.level.toUpperCase()}: ${errorData.message}`, errorData.context);
+		console.error(
+			`[Error Monitoring] ${errorData.level.toUpperCase()}: ${errorData.message}`,
+			errorData.context
+		);
 
 		// Check for immediate alerts
 		if (errorData.level === 'critical') {
@@ -223,7 +233,7 @@ export class ErrorMonitoring {
 	 */
 	private cleanupOldErrors(): void {
 		const cutoffTime = Date.now() - this.config.retentionPeriod;
-		this.errorHistory = this.errorHistory.filter(error => error.timestamp > cutoffTime);
+		this.errorHistory = this.errorHistory.filter((error) => error.timestamp > cutoffTime);
 
 		// Limit history size
 		if (this.errorHistory.length > this.config.maxErrorHistory) {
@@ -236,14 +246,14 @@ export class ErrorMonitoring {
 	 */
 	private calculateMetrics(): void {
 		const now = Date.now();
-		const oneHourAgo = now - (60 * 60 * 1000);
-		const recentErrors = this.errorHistory.filter(error => error.timestamp > oneHourAgo);
+		const oneHourAgo = now - 60 * 60 * 1000;
+		const recentErrors = this.errorHistory.filter((error) => error.timestamp > oneHourAgo);
 
 		const errorsByLevel: Record<string, number> = {};
 		const errorsByCategory: Record<string, number> = {};
 		const errorsByFlow: Record<string, number> = {};
 
-		recentErrors.forEach(error => {
+		recentErrors.forEach((error) => {
 			errorsByLevel[error.level] = (errorsByLevel[error.level] || 0) + 1;
 			errorsByCategory[error.category] = (errorsByCategory[error.category] || 0) + 1;
 			if (error.flowName) {
@@ -263,7 +273,10 @@ export class ErrorMonitoring {
 			errorsByFlow,
 			averageErrorsPerHour,
 			criticalErrorRate,
-			lastErrorTime: this.errorHistory.length > 0 ? this.errorHistory[this.errorHistory.length - 1].timestamp : 0
+			lastErrorTime:
+				this.errorHistory.length > 0
+					? this.errorHistory[this.errorHistory.length - 1].timestamp
+					: 0,
 		};
 	}
 
@@ -273,7 +286,7 @@ export class ErrorMonitoring {
 	private checkAlerts(): void {
 		if (!this.metrics || !this.config.enableAlerting) return;
 
-		this.alertRules.forEach(rule => {
+		this.alertRules.forEach((rule) => {
 			if (rule.enabled && rule.condition(this.metrics)) {
 				this.triggerAlert(rule);
 			}
@@ -285,10 +298,10 @@ export class ErrorMonitoring {
 	 */
 	private triggerImmediateAlert(error: ErrorEvent): void {
 		console.error(`[CRITICAL ALERT] ${error.message}`, error.context);
-		
+
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll show a user notification
-		if (typeof window !== 'undefined' && window.alert) {
+		if (window?.alert) {
 			window.alert(`Critical error detected: ${error.message}`);
 		}
 	}
@@ -298,7 +311,7 @@ export class ErrorMonitoring {
 	 */
 	private triggerAlert(rule: AlertRule): void {
 		console.warn(`[ALERT] ${rule.name}: ${rule.message}`, this.metrics);
-		
+
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll log to console
 	}
@@ -321,22 +334,22 @@ export class ErrorMonitoring {
 	 * Get recent errors
 	 */
 	getRecentErrors(hours: number = 1): ErrorEvent[] {
-		const cutoffTime = Date.now() - (hours * 60 * 60 * 1000);
-		return this.errorHistory.filter(error => error.timestamp > cutoffTime);
+		const cutoffTime = Date.now() - hours * 60 * 60 * 1000;
+		return this.errorHistory.filter((error) => error.timestamp > cutoffTime);
 	}
 
 	/**
 	 * Get errors by flow
 	 */
 	getErrorsByFlow(flowName: string): ErrorEvent[] {
-		return this.errorHistory.filter(error => error.flowName === flowName);
+		return this.errorHistory.filter((error) => error.flowName === flowName);
 	}
 
 	/**
 	 * Get errors by level
 	 */
 	getErrorsByLevel(level: string): ErrorEvent[] {
-		return this.errorHistory.filter(error => error.level === level);
+		return this.errorHistory.filter((error) => error.level === level);
 	}
 
 	/**
@@ -351,7 +364,7 @@ export class ErrorMonitoring {
 	 * Remove alert rule
 	 */
 	removeAlertRule(ruleId: string): void {
-		this.alertRules = this.alertRules.filter(rule => rule.id !== ruleId);
+		this.alertRules = this.alertRules.filter((rule) => rule.id !== ruleId);
 		console.log(`[Error Monitoring] Removed alert rule: ${ruleId}`);
 	}
 
@@ -369,7 +382,7 @@ export class ErrorMonitoring {
 				overall: 'warning',
 				metrics: null,
 				recentErrors: 0,
-				criticalErrors: 0
+				criticalErrors: 0,
 			};
 		}
 
@@ -387,7 +400,7 @@ export class ErrorMonitoring {
 			overall,
 			metrics: this.metrics,
 			recentErrors,
-			criticalErrors
+			criticalErrors,
 		};
 	}
 
@@ -404,13 +417,17 @@ export class ErrorMonitoring {
 	 * Export error data
 	 */
 	exportErrorData(): string {
-		return JSON.stringify({
-			config: this.config,
-			metrics: this.metrics,
-			errorHistory: this.errorHistory,
-			alertRules: this.alertRules,
-			exportedAt: Date.now()
-		}, null, 2);
+		return JSON.stringify(
+			{
+				config: this.config,
+				metrics: this.metrics,
+				errorHistory: this.errorHistory,
+				alertRules: this.alertRules,
+				exportedAt: Date.now(),
+			},
+			null,
+			2
+		);
 	}
 }
 

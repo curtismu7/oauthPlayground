@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiRefreshCw, FiSettings, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiSettings, FiRefreshCw, FiCheckCircle, FiX } from 'react-icons/fi';
 
 const ErrorHelpContainer = styled.div`
   background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);

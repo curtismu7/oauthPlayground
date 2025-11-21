@@ -79,4 +79,3 @@ export const getRegionDisplayName = (region?: string): string => {
 			return `US (${domain})`;
 	}
 };
-

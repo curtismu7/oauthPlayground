@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { FiCopy, FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
 import styled from 'styled-components';
-import { decodeJWT, isJWT, type DecodedJWT } from '../utils/jwtDecoder';
+import { type DecodedJWT, decodeJWT, isJWT } from '../utils/jwtDecoder';
 
 interface JWTTokenDisplayProps {
 	token: string;
@@ -202,7 +202,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 		const remainingSeconds = seconds % 60;
-		
+
 		if (hours > 0) {
 			return `${hours}h ${minutes}m ${remainingSeconds}s`;
 		} else if (minutes > 0) {
@@ -223,7 +223,13 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 					<ToggleButton
 						onClick={handleToggleDecode}
 						disabled={!isJWT(token)}
-						title={!isJWT(token) ? 'Token is not a JWT' : isDecoded ? 'Hide decoded token' : 'Show decoded token'}
+						title={
+							!isJWT(token)
+								? 'Token is not a JWT'
+								: isDecoded
+									? 'Hide decoded token'
+									: 'Show decoded token'
+						}
 					>
 						{isDecoded ? <FiEyeOff size={12} /> : <FiEye size={12} />}
 						{isDecoded ? 'Hide Decoded' : 'Decode JWT'}
@@ -266,9 +272,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 					{decodeError ? (
 						<ErrorMessage>{decodeError}</ErrorMessage>
 					) : decodedToken ? (
-						<DecodedContent>
-							{JSON.stringify(decodedToken.payload, null, 2)}
-						</DecodedContent>
+						<DecodedContent>{JSON.stringify(decodedToken.payload, null, 2)}</DecodedContent>
 					) : null}
 				</DecodedSection>
 			)}
@@ -277,11 +281,3 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 };
 
 export default JWTTokenDisplay;
-
-
-
-
-
-
-
-

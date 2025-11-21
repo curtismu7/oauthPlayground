@@ -2,9 +2,9 @@
 // Sony DualSense Game Controller Style Device Authorization Flow Interface
 // Designed to look like actual Sony PlayStation DualSense controller
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiPlay, FiPause, FiVolume2 } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
@@ -194,14 +194,18 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $status?: string }>`
   font-size: 0.875rem;
   font-weight: 500;
-  color: ${props => {
-    switch (props.$status) {
-      case 'connected': return '#10b981';
-      case 'disconnected': return '#ef4444';
-      case 'pending': return '#f59e0b';
-      default: return '#ffffff';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'connected':
+				return '#10b981';
+			case 'disconnected':
+				return '#ef4444';
+			case 'pending':
+				return '#f59e0b';
+			default:
+				return '#ffffff';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -211,9 +215,9 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 8px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -281,7 +285,7 @@ const ActionButtons = styled.div`
 `;
 
 const UIActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -333,168 +337,163 @@ const SuccessMessage = styled.div`
 `;
 
 interface SonyGameControllerDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const SonyGameControllerDeviceFlow: React.FC<SonyGameControllerDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('SonyGameControllerDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('SonyGameControllerDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'Controller Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'Controller Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  return (
-    <>
-    <SonyControllerContainer>
-      {/* PlayStation Branding */}
-      <CenterSection>
-        <PlayStationLogo>PlayStation</PlayStationLogo>
-        <ControllerModel>DualSense Wireless Controller</ControllerModel>
-      </CenterSection>
+	return (
+		<>
+			<SonyControllerContainer>
+				{/* PlayStation Branding */}
+				<CenterSection>
+					<PlayStationLogo>PlayStation</PlayStationLogo>
+					<ControllerModel>DualSense Wireless Controller</ControllerModel>
+				</CenterSection>
 
-      {/* Controller Face Buttons */}
-      <ControllerFace>
-        {/* D-Pad */}
-        <DPad>
-          <DPadButton>↑</DPadButton>
-          <DPadButton>→</DPadButton>
-          <DPadButton>↓</DPadButton>
-          <DPadButton>←</DPadButton>
-        </DPad>
+				{/* Controller Face Buttons */}
+				<ControllerFace>
+					{/* D-Pad */}
+					<DPad>
+						<DPadButton>↑</DPadButton>
+						<DPadButton>→</DPadButton>
+						<DPadButton>↓</DPadButton>
+						<DPadButton>←</DPadButton>
+					</DPad>
 
-        {/* Center Section */}
-        <CenterSection>
-          <AuthCodeDisplay>
-            {deviceFlowService.formatUserCode(state.userCode)}
-          </AuthCodeDisplay>
-        </CenterSection>
+					{/* Center Section */}
+					<CenterSection>
+						<AuthCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</AuthCodeDisplay>
+					</CenterSection>
 
-        {/* Action Buttons */}
-        <ControllerActionButtons>
-          <ActionButton $color="#ef4444">△</ActionButton>
-          <ActionButton $color="#3b82f6">○</ActionButton>
-          <ActionButton $color="#f59e0b">□</ActionButton>
-          <ActionButton $color="#10b981">✕</ActionButton>
-        </ControllerActionButtons>
-      </ControllerFace>
+					{/* Action Buttons */}
+					<ControllerActionButtons>
+						<ActionButton $color="#ef4444">△</ActionButton>
+						<ActionButton $color="#3b82f6">○</ActionButton>
+						<ActionButton $color="#f59e0b">□</ActionButton>
+						<ActionButton $color="#10b981">✕</ActionButton>
+					</ControllerActionButtons>
+				</ControllerFace>
 
-      {/* Status Display */}
-      <StatusDisplay>
-        <StatusRow>
-          <StatusLabel>Battery</StatusLabel>
-          <StatusValue $status="connected">
-            <StatusDot $active={true} $color="#10b981" />
-            87% - Good
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Connection</StatusLabel>
-          <StatusValue $status={state.status === 'authorized' ? 'connected' : 'disconnected'}>
-            <StatusDot $active={state.status === 'authorized'} $color="#10b981" />
-            {state.status === 'authorized' ? 'Connected' : 'Disconnected'}
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Status</StatusLabel>
-          <StatusValue $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </StatusValue>
-        </StatusRow>
-      </StatusDisplay>
+				{/* Status Display */}
+				<StatusDisplay>
+					<StatusRow>
+						<StatusLabel>Battery</StatusLabel>
+						<StatusValue $status="connected">
+							<StatusDot $active={true} $color="#10b981" />
+							87% - Good
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Connection</StatusLabel>
+						<StatusValue $status={state.status === 'authorized' ? 'connected' : 'disconnected'}>
+							<StatusDot $active={state.status === 'authorized'} $color="#10b981" />
+							{state.status === 'authorized' ? 'Connected' : 'Disconnected'}
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Status</StatusLabel>
+						<StatusValue $status={state.status}>
+							{getStatusIcon()}
+							{getStatusText()}
+						</StatusValue>
+					</StatusRow>
+				</StatusDisplay>
 
-      {/* QR Code Section */}
-      <QRCodeSection>
-        <QRTitle>Connect to PlayStation Network</QRTitle>
-        <QRSubtitle>
-          Scan this QR code with your phone to complete setup
-        </QRSubtitle>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={160}
-            bgColor="#ffffff"
-            fgColor="#1f2937"
-            level="H"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-        <ActionButtons>
-          <UIActionButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy Code
-          </UIActionButton>
-          <UIActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open App
-          </UIActionButton>
-        </ActionButtons>
-      </QRCodeSection>
+				{/* QR Code Section */}
+				<QRCodeSection>
+					<QRTitle>Connect to PlayStation Network</QRTitle>
+					<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+					<QRCodeContainer>
+						<QRCodeSVG
+							value={state.verificationUriComplete}
+							size={160}
+							bgColor="#ffffff"
+							fgColor="#1f2937"
+							level="H"
+							includeMargin={true}
+						/>
+					</QRCodeContainer>
+					<ActionButtons>
+						<UIActionButton $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy /> Copy Code
+						</UIActionButton>
+						<UIActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink /> Open App
+						</UIActionButton>
+					</ActionButtons>
+				</QRCodeSection>
 
-      {/* Success Display */}
-      {state.status === 'authorized' && (
-        <SuccessDisplay>
-          <SuccessTitle>
-            <FiCheckCircle />
-            Controller Connected Successfully!
-          </SuccessTitle>
-          <SuccessMessage>
-            Your Sony DualSense controller is now connected and ready for gaming.
-          </SuccessMessage>
-        </SuccessDisplay>
-      )}
+				{/* Success Display */}
+				{state.status === 'authorized' && (
+					<SuccessDisplay>
+						<SuccessTitle>
+							<FiCheckCircle />
+							Controller Connected Successfully!
+						</SuccessTitle>
+						<SuccessMessage>
+							Your Sony DualSense controller is now connected and ready for gaming.
+						</SuccessMessage>
+					</SuccessDisplay>
+				)}
+			</SonyControllerContainer>
 
-    </SonyControllerContainer>
-
-    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
-    <StandardizedTokenDisplay 
-      tokens={state.tokens}
-      backgroundColor="rgba(0, 0, 0, 0.2)"
-      borderColor="#333333"
-      headerTextColor="#ffffff"
-    />
-    </>
-  );
+			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+			<StandardizedTokenDisplay
+				tokens={state.tokens}
+				backgroundColor="rgba(0, 0, 0, 0.2)"
+				borderColor="#333333"
+				headerTextColor="#ffffff"
+			/>
+		</>
+	);
 };
 
 export default SonyGameControllerDeviceFlow;

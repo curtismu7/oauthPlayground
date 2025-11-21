@@ -204,8 +204,6 @@ const BenefitItem = styled.li`
 	}
 `;
 
-
-
 interface FlowSequenceDisplayProps {
 	flowType: string;
 }

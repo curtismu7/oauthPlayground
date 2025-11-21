@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { analyticsManager } from './analytics';
+import { logger } from './logger';
 
 // Security analytics types
 export type SecurityEventType =

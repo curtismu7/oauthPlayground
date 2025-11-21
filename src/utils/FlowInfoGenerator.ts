@@ -514,8 +514,6 @@ export class FlowInfoGenerator {
 						},
 					],
 				};
-
-			case 'custom':
 			default:
 				return baseTemplate;
 		}

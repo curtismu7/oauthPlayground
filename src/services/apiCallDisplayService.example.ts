@@ -1,6 +1,6 @@
 // Example usage of ApiCallDisplayService
 
-import { ApiCallDisplayService, type ApiCallData } from './apiCallDisplayService';
+import { type ApiCallData, ApiCallDisplayService } from './apiCallDisplayService';
 
 // Example API call data
 const apiCall: ApiCallData = {

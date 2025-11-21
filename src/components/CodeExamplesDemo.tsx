@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { CodeExamplesConfig } from '../services/codeExamplesService';
 import { FlowHeader } from '../services/flowHeaderService';
-import { CodeExamplesDisplay } from './CodeExamplesDisplay';
 import { CodeExamplesInline } from './CodeExamplesInline';
 import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
@@ -318,4 +317,3 @@ export const CodeExamplesDemo: React.FC = () => {
 };
 
 export default CodeExamplesDemo;
-

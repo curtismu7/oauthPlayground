@@ -1,13 +1,20 @@
 // src/components/MobilePhoneDeviceFlow.tsx
 // Mobile Phone Style Device Authorization Flow Interface
 
-import React, { useEffect, useState } from 'react';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiRefreshCw,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
+import { logger } from '../utils/logger';
 
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
 const MobilePhoneContainer = styled.div`
@@ -284,8 +291,8 @@ const TouchButtons = styled.div`
 `;
 
 const TouchButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#0a84ff' : 'rgba(120, 120, 128, 0.24)'};
-  color: ${props => props.$variant === 'primary' ? '#ffffff' : '#0a84ff'};
+  background: ${(props) => (props.$variant === 'primary' ? '#0a84ff' : 'rgba(120, 120, 128, 0.24)')};
+  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#0a84ff')};
   border: none;
   border-radius: 0.75rem;
   padding: 0.875rem 1.25rem;
@@ -299,12 +306,13 @@ const TouchButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
   flex: 1;
   justify-content: center;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-  box-shadow: ${props => props.$variant === 'primary' ? 
-    '0 2px 8px rgba(10, 132, 255, 0.4)' : 
-    '0 1px 3px rgba(0, 0, 0, 0.2)'};
+  box-shadow: ${(props) =>
+		props.$variant === 'primary'
+			? '0 2px 8px rgba(10, 132, 255, 0.4)'
+			: '0 1px 3px rgba(0, 0, 0, 0.2)'};
   
   &:hover {
-    background: ${props => props.$variant === 'primary' ? '#0077ed' : 'rgba(120, 120, 128, 0.32)'};
+    background: ${(props) => (props.$variant === 'primary' ? '#0077ed' : 'rgba(120, 120, 128, 0.32)')};
     transform: scale(0.98);
   }
   
@@ -316,24 +324,34 @@ const TouchButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 
 // Status Display
 const StatusDisplay = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return 'linear-gradient(135deg, #ffa500 0%, #ff8c00 100%)';
-      case 'authorized': return 'linear-gradient(135deg, #00ff00 0%, #32cd32 100%)';
-      case 'denied': return 'linear-gradient(135deg, #ff0000 0%, #dc143c 100%)';
-      case 'expired': return 'linear-gradient(135deg, #666666 0%, #404040 100%)';
-      default: return 'linear-gradient(135deg, #666666 0%, #404040 100%)';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$status) {
-      case 'pending': return '#ff8c00';
-      case 'authorized': return '#32cd32';
-      case 'denied': return '#dc143c';
-      case 'expired': return '#404040';
-      default: return '#404040';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return 'linear-gradient(135deg, #ffa500 0%, #ff8c00 100%)';
+			case 'authorized':
+				return 'linear-gradient(135deg, #00ff00 0%, #32cd32 100%)';
+			case 'denied':
+				return 'linear-gradient(135deg, #ff0000 0%, #dc143c 100%)';
+			case 'expired':
+				return 'linear-gradient(135deg, #666666 0%, #404040 100%)';
+			default:
+				return 'linear-gradient(135deg, #666666 0%, #404040 100%)';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#ff8c00';
+			case 'authorized':
+				return '#32cd32';
+			case 'denied':
+				return '#dc143c';
+			case 'expired':
+				return '#404040';
+			default:
+				return '#404040';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
@@ -370,142 +388,141 @@ const HomeButton = styled.div`
 `;
 
 interface MobilePhoneDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const [currentTime, setCurrentTime] = useState(new Date());
+	const [currentTime, setCurrentTime] = useState(new Date());
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+	useEffect(() => {
+		const timer = setInterval(() => {
+			setCurrentTime(new Date());
+		}, 1000);
+		return () => clearInterval(timer);
+	}, []);
 
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('MobilePhoneDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleCopyVerificationUri = () => {
-    navigator.clipboard.writeText(state.verificationUri);
-    logger.info('MobilePhoneDeviceFlow', 'Verification URI copied to clipboard');
-  };
+	const handleCopyVerificationUri = () => {
+		navigator.clipboard.writeText(state.verificationUri);
+		logger.info('MobilePhoneDeviceFlow', 'Verification URI copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('MobilePhoneDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'AUTHORIZATION PENDING';
-      case 'authorized':
-        return 'AUTHORIZATION COMPLETE';
-      case 'denied':
-        return 'AUTHORIZATION DENIED';
-      case 'expired':
-        return 'AUTHORIZATION EXPIRED';
-      default:
-        return 'UNKNOWN STATUS';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'AUTHORIZATION PENDING';
+			case 'authorized':
+				return 'AUTHORIZATION COMPLETE';
+			case 'denied':
+				return 'AUTHORIZATION DENIED';
+			case 'expired':
+				return 'AUTHORIZATION EXPIRED';
+			default:
+				return 'UNKNOWN STATUS';
+		}
+	};
 
-  const getStatusMessage = () => {
-    return deviceFlowService.getStatusMessage(state);
-  };
+	const getStatusMessage = () => {
+		return deviceFlowService.getStatusMessage(state);
+	};
 
-  return (
-    <>
-    <MobilePhoneContainer>
-      {/* iPhone 17 Pro Screen */}
-      <PhoneScreen>
-        {/* iOS 18 Status Bar Indicators */}
-        <IOSStatusBar>
-          <SignalIcon />
-          <WifiIcon>Wi-Fi</WifiIcon>
-          <BatteryIndicator />
-        </IOSStatusBar>
+	return (
+		<>
+			<MobilePhoneContainer>
+				{/* iPhone 17 Pro Screen */}
+				<PhoneScreen>
+					{/* iOS 18 Status Bar Indicators */}
+					<IOSStatusBar>
+						<SignalIcon />
+						<WifiIcon>Wi-Fi</WifiIcon>
+						<BatteryIndicator />
+					</IOSStatusBar>
 
-        {/* App Header */}
-        <AppHeader>
-          <AppTitle>Device Authorization</AppTitle>
-          <AppSubtitle>iPhone 17 Pro</AppSubtitle>
-        </AppHeader>
+					{/* App Header */}
+					<AppHeader>
+						<AppTitle>Device Authorization</AppTitle>
+						<AppSubtitle>iPhone 17 Pro</AppSubtitle>
+					</AppHeader>
 
-        {/* User Code Display */}
-        <UserCodeDisplay>
-          {deviceFlowService.formatUserCode(state.userCode)}
-        </UserCodeDisplay>
+					{/* User Code Display */}
+					<UserCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</UserCodeDisplay>
 
-        {/* QR Code Section */}
-        <QRCodeSection>
-          <QRCodeLabel>QR Code</QRCodeLabel>
-          <QRCodeContainer>
-            <QRCodeSVG
-              value={state.verificationUriComplete}
-              size={120}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              level="M"
-              includeMargin={true}
-            />
-          </QRCodeContainer>
-        </QRCodeSection>
+					{/* QR Code Section */}
+					<QRCodeSection>
+						<QRCodeLabel>QR Code</QRCodeLabel>
+						<QRCodeContainer>
+							<QRCodeSVG
+								value={state.verificationUriComplete}
+								size={120}
+								bgColor="#ffffff"
+								fgColor="#000000"
+								level="M"
+								includeMargin={true}
+							/>
+						</QRCodeContainer>
+					</QRCodeSection>
 
-        {/* Touch Buttons */}
-        <TouchButtons>
-          <TouchButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy
-          </TouchButton>
-          <TouchButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open
-          </TouchButton>
-        </TouchButtons>
+					{/* Touch Buttons */}
+					<TouchButtons>
+						<TouchButton $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy /> Copy
+						</TouchButton>
+						<TouchButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink /> Open
+						</TouchButton>
+					</TouchButtons>
 
-        {/* Status Display */}
-        <StatusDisplay $status={state.status}>
-          <StatusText>{getStatusText()}</StatusText>
-          <StatusMessage>{getStatusMessage()}</StatusMessage>
-        </StatusDisplay>
+					{/* Status Display */}
+					<StatusDisplay $status={state.status}>
+						<StatusText>{getStatusText()}</StatusText>
+						<StatusMessage>{getStatusMessage()}</StatusMessage>
+					</StatusDisplay>
+				</PhoneScreen>
 
-      </PhoneScreen>
+				{/* Home Button */}
+				<HomeButton>🏠</HomeButton>
+			</MobilePhoneContainer>
 
-      {/* Home Button */}
-      <HomeButton>🏠</HomeButton>
-    </MobilePhoneContainer>
-
-    {/* Token Display - Independent, Full Width */}
-    {state.status === 'authorized' && state.tokens && (
-      <div style={{
-        width: '100%',
-        maxWidth: '60rem',
-        margin: '2rem auto'
-      }}>
-        {UnifiedTokenDisplayService.showTokens(
-          state.tokens as any,
-          'oauth',
-          'device-authorization-v7',
-          {
-            showCopyButtons: true,
-            showDecodeButtons: true,
-            inlineDecode: true,
-          }
-        )}
-      </div>
-    )}
-    </>
-  );
+			{/* Token Display - Independent, Full Width */}
+			{state.status === 'authorized' && state.tokens && (
+				<div
+					style={{
+						width: '100%',
+						maxWidth: '60rem',
+						margin: '2rem auto',
+					}}
+				>
+					{UnifiedTokenDisplayService.showTokens(
+						state.tokens as any,
+						'oauth',
+						'device-authorization-v7',
+						{
+							showCopyButtons: true,
+							showDecodeButtons: true,
+							inlineDecode: true,
+						}
+					)}
+				</div>
+			)}
+		</>
+	);
 };
 
 export default MobilePhoneDeviceFlow;

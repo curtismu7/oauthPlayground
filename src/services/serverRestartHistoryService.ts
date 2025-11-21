@@ -92,7 +92,7 @@ class ServerRestartHistoryService {
 			});
 
 			return response.ok ? 'online' : 'offline';
-		} catch (error) {
+		} catch (_error) {
 			return 'offline';
 		}
 	}
@@ -103,18 +103,20 @@ class ServerRestartHistoryService {
 		newStatus: 'online' | 'offline' | 'unknown',
 		reason?: string
 	): void {
-		const now = new Date();
+		const _now = new Date();
 
 		// Calculate uptime after restart (simplified - in a real implementation this would track actual uptime)
 		let uptimeAfterRestart = 0;
 		if (newStatus === 'online' && serverType === 'backend') {
 			// For backend, we can get actual uptime from the health endpoint
-			this.getBackendUptime().then(uptime => {
-				uptimeAfterRestart = uptime;
-				this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
-			}).catch(() => {
-				this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
-			});
+			this.getBackendUptime()
+				.then((uptime) => {
+					uptimeAfterRestart = uptime;
+					this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
+				})
+				.catch(() => {
+					this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
+				});
 		} else {
 			this.finalizeRestart(serverType, previousStatus, newStatus, uptimeAfterRestart, reason);
 		}

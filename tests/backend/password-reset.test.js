@@ -1,9 +1,9 @@
 // tests/backend/password-reset.test.js
 // Backend tests for password reset API endpoints
 
+import { jest } from '@jest/globals';
 import request from 'supertest';
 import app from '../../server.js';
-import { jest } from '@jest/globals';
 
 describe('Password Reset API Endpoints', () => {
 	const mockEnvironmentId = 'test-env-123';
@@ -67,7 +67,7 @@ describe('Password Reset API Endpoints', () => {
 		it('should send recovery code successfully', async () => {
 			// Ensure mock is set up
 			globalThis.fetch = global.fetch;
-			
+
 			// Mock successful PingOne response (204 No Content or 200 OK)
 			global.fetch.mockResolvedValueOnce({
 				ok: true,
@@ -93,9 +93,9 @@ describe('Password Reset API Endpoints', () => {
 				expect.objectContaining({
 					method: 'POST',
 					headers: expect.objectContaining({
-						'Authorization': `Bearer ${mockWorkerToken}`,
+						Authorization: `Bearer ${mockWorkerToken}`,
 						'Content-Type': 'application/json',
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					}),
 				})
 			);
@@ -105,10 +105,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 404,
-				json: () => Promise.resolve({
-					error: 'user_not_found',
-					error_description: 'User does not exist',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'user_not_found',
+						error_description: 'User does not exist',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -160,10 +161,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,
-				json: () => Promise.resolve({
-					id: 'txn-123',
-					success: true,
-				}),
+				json: () =>
+					Promise.resolve({
+						id: 'txn-123',
+						success: true,
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -188,9 +190,9 @@ describe('Password Reset API Endpoints', () => {
 				expect.objectContaining({
 					method: 'POST',
 					headers: expect.objectContaining({
-						'Authorization': `Bearer ${mockWorkerToken}`,
+						Authorization: `Bearer ${mockWorkerToken}`,
 						'Content-Type': 'application/vnd.pingidentity.password.recover+json',
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					}),
 					body: JSON.stringify({
 						recoveryCode: mockRecoveryCode,
@@ -204,10 +206,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 400,
-				json: () => Promise.resolve({
-					error: 'invalid_recovery_code',
-					error_description: 'Recovery code is invalid or expired',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'invalid_recovery_code',
+						error_description: 'Recovery code is invalid or expired',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -230,11 +233,12 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 400,
-				json: () => Promise.resolve({
-					error: 'password_policy_violation',
-					error_description: 'Password does not meet policy requirements',
-					message: 'Password must be at least 8 characters',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'password_policy_violation',
+						error_description: 'Password does not meet policy requirements',
+						message: 'Password must be at least 8 characters',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -316,10 +320,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,
-				json: () => Promise.resolve({
-					id: 'txn-456',
-					success: true,
-				}),
+				json: () =>
+					Promise.resolve({
+						id: 'txn-456',
+						success: true,
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -333,7 +338,9 @@ describe('Password Reset API Endpoints', () => {
 				.expect(200);
 
 			expect(response.body.success).toBe(true);
-			expect(response.body.message).toBe('User will be required to change password on next sign-on');
+			expect(response.body.message).toBe(
+				'User will be required to change password on next sign-on'
+			);
 			expect(response.body.transactionId).toBe('txn-456');
 
 			// Verify fetch was called with correct parameters
@@ -342,9 +349,9 @@ describe('Password Reset API Endpoints', () => {
 				expect.objectContaining({
 					method: 'POST',
 					headers: expect.objectContaining({
-						'Authorization': `Bearer ${mockWorkerToken}`,
+						Authorization: `Bearer ${mockWorkerToken}`,
 						'Content-Type': 'application/vnd.pingidentity.password.forceChange+json',
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					}),
 					body: JSON.stringify({
 						forceChange: true,
@@ -357,10 +364,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 403,
-				json: () => Promise.resolve({
-					error: 'insufficient_privileges',
-					error_description: 'Worker token does not have required permissions',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'insufficient_privileges',
+						error_description: 'Worker token does not have required permissions',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -374,17 +382,20 @@ describe('Password Reset API Endpoints', () => {
 				.expect(403);
 
 			expect(response.body.error).toBe('insufficient_privileges');
-			expect(response.body.error_description).toBe('Worker token does not have required permissions');
+			expect(response.body.error_description).toBe(
+				'Worker token does not have required permissions'
+			);
 		});
 
 		it('should handle user not found', async () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 404,
-				json: () => Promise.resolve({
-					error: 'user_not_found',
-					error_description: 'User does not exist',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'user_not_found',
+						error_description: 'User does not exist',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -436,10 +447,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: true,
 				status: 200,
-				json: () => Promise.resolve({
-					id: 'txn-789',
-					success: true,
-				}),
+				json: () =>
+					Promise.resolve({
+						id: 'txn-789',
+						success: true,
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -464,9 +476,9 @@ describe('Password Reset API Endpoints', () => {
 				expect.objectContaining({
 					method: 'POST',
 					headers: expect.objectContaining({
-						'Authorization': `Bearer ${mockAccessToken}`,
+						Authorization: `Bearer ${mockAccessToken}`,
 						'Content-Type': 'application/vnd.pingidentity.password.change+json',
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					}),
 					body: JSON.stringify({
 						oldPassword: mockOldPassword,
@@ -480,10 +492,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 401,
-				json: () => Promise.resolve({
-					error: 'invalid_credentials',
-					error_description: 'Current password is incorrect',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'invalid_credentials',
+						error_description: 'Current password is incorrect',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -506,10 +519,11 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 401,
-				json: () => Promise.resolve({
-					error: 'invalid_token',
-					error_description: 'Access token is invalid or expired',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'invalid_token',
+						error_description: 'Access token is invalid or expired',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -532,11 +546,12 @@ describe('Password Reset API Endpoints', () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 400,
-				json: () => Promise.resolve({
-					error: 'password_policy_violation',
-					error_description: 'New password does not meet complexity requirements',
-					message: 'Password must contain uppercase, lowercase, number, and special character',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'password_policy_violation',
+						error_description: 'New password does not meet complexity requirements',
+						message: 'Password must contain uppercase, lowercase, number, and special character',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -552,17 +567,20 @@ describe('Password Reset API Endpoints', () => {
 				.expect(400);
 
 			expect(response.body.error).toBe('password_policy_violation');
-			expect(response.body.error_description).toBe('Password must contain uppercase, lowercase, number, and special character');
+			expect(response.body.error_description).toBe(
+				'Password must contain uppercase, lowercase, number, and special character'
+			);
 		});
 
 		it('should handle password reuse error', async () => {
 			global.fetch.mockResolvedValueOnce({
 				ok: false,
 				status: 400,
-				json: () => Promise.resolve({
-					error: 'password_reuse',
-					error_description: 'New password must be different from current password',
-				}),
+				json: () =>
+					Promise.resolve({
+						error: 'password_reuse',
+						error_description: 'New password must be different from current password',
+					}),
 				headers: new Map([['content-type', 'application/json']]),
 			});
 
@@ -578,7 +596,9 @@ describe('Password Reset API Endpoints', () => {
 				.expect(400);
 
 			expect(response.body.error).toBe('password_reuse');
-			expect(response.body.error_description).toBe('New password must be different from current password');
+			expect(response.body.error_description).toBe(
+				'New password must be different from current password'
+			);
 		});
 
 		it('should handle network errors', async () => {
@@ -600,4 +620,3 @@ describe('Password Reset API Endpoints', () => {
 		});
 	});
 });
-

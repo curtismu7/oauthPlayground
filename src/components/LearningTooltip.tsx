@@ -2,8 +2,8 @@
 // Learning Mode Tooltip Component - Explains OAuth concepts inline
 // Used throughout flows to help users understand OAuth/OIDC concepts
 
-import React, { useState, useRef, useEffect } from 'react';
-import { FiInfo, FiBook, FiAlertCircle, FiCheckCircle, FiLock, FiKey, FiShield } from 'react-icons/fi';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiAlertCircle, FiBook, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export type TooltipVariant = 'info' | 'learning' | 'warning' | 'success' | 'security';
@@ -34,13 +34,18 @@ const TooltipTrigger = styled.span`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
-	color: ${props => {
+	color: ${(props) => {
 		switch (props['data-variant']) {
-			case 'security': return '#dc2626'; // red
-			case 'warning': return '#d97706'; // orange
-			case 'success': return '#059669'; // green
-			case 'learning': return '#2563eb'; // blue
-			default: return '#6b7280'; // gray
+			case 'security':
+				return '#dc2626'; // red
+			case 'warning':
+				return '#d97706'; // orange
+			case 'success':
+				return '#059669'; // green
+			case 'learning':
+				return '#2563eb'; // blue
+			default:
+				return '#6b7280'; // gray
 		}
 	}};
 	
@@ -63,7 +68,7 @@ const TooltipContent = styled.div<{ $placement: string; $variant: TooltipVariant
 	line-height: 1.5;
 	color: #374151;
 	
-	${props => {
+	${(props) => {
 		switch (props.$placement) {
 			case 'top':
 				return `
@@ -131,7 +136,7 @@ const TooltipContent = styled.div<{ $placement: string; $variant: TooltipVariant
 	}}
 	
 	/* Variant-specific styling */
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'security':
 				return `
@@ -177,20 +182,25 @@ const TooltipText = styled.div`
 
 const getIcon = (variant: TooltipVariant) => {
 	switch (variant) {
-		case 'security': return <FiShield size={16} />;
-		case 'warning': return <FiAlertCircle size={16} />;
-		case 'success': return <FiCheckCircle size={16} />;
-		case 'learning': return <FiBook size={16} />;
-		default: return <FiInfo size={16} />;
+		case 'security':
+			return <FiShield size={16} />;
+		case 'warning':
+			return <FiAlertCircle size={16} />;
+		case 'success':
+			return <FiCheckCircle size={16} />;
+		case 'learning':
+			return <FiBook size={16} />;
+		default:
+			return <FiInfo size={16} />;
 	}
 };
 
 /**
  * LearningTooltip - Educational tooltip component for OAuth/OIDC concepts
- * 
+ *
  * Provides contextual explanations when users hover over OAuth-related elements.
  * Perfect for helping users understand OAuth flows, concepts, and best practices.
- * 
+ *
  * @example
  * ```tsx
  * <LearningTooltip
@@ -256,4 +266,3 @@ export const LearningTooltip: React.FC<LearningTooltipProps> = ({
 };
 
 export default LearningTooltip;
-

@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+	ErrorCategory,
 	ErrorHandler,
+	ErrorSeverity,
 	errorHandler,
 	handleAsyncError,
 	handleSyncError,
-	withErrorHandling,
 	withAsyncErrorHandling,
-	ErrorSeverity,
-	ErrorCategory,
+	withErrorHandling,
 } from '../utils/errorHandler';
 
 // Mock the logger

@@ -2,10 +2,10 @@
 // V7.1 Error Boundary Test - Test component to demonstrate error boundary functionality
 
 import React, { useState } from 'react';
-import { FlowErrorBoundary } from './FlowErrorBoundary';
+import styled from 'styled-components';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
-import styled from 'styled-components';
+import { FlowErrorBoundary } from './FlowErrorBoundary';
 
 const TestContainer = styled.div`
   padding: ${UI_CONSTANTS.SPACING['2XL']};
@@ -53,71 +53,67 @@ const TestDescription = styled.p`
 
 // Component that throws an error
 const ErrorThrowingComponent: React.FC<{ shouldThrow: boolean }> = ({ shouldThrow }) => {
-  if (shouldThrow) {
-    throw new Error('This is a test error to demonstrate the error boundary functionality!');
-  }
-  
-  return (
-    <div>
-      <p>✅ Component is working correctly!</p>
-    </div>
-  );
+	if (shouldThrow) {
+		throw new Error('This is a test error to demonstrate the error boundary functionality!');
+	}
+
+	return (
+		<div>
+			<p>✅ Component is working correctly!</p>
+		</div>
+	);
 };
 
 // Test component
 export const ErrorBoundaryTest: React.FC = () => {
-  const [shouldThrow, setShouldThrow] = useState(false);
-  const [errorCount, setErrorCount] = useState(0);
+	const [shouldThrow, setShouldThrow] = useState(false);
+	const [errorCount, setErrorCount] = useState(0);
 
-  const handleThrowError = () => {
-    setShouldThrow(true);
-    setErrorCount(prev => prev + 1);
-  };
+	const handleThrowError = () => {
+		setShouldThrow(true);
+		setErrorCount((prev) => prev + 1);
+	};
 
-  const handleReset = () => {
-    setShouldThrow(false);
-    setErrorCount(0);
-  };
+	const handleReset = () => {
+		setShouldThrow(false);
+		setErrorCount(0);
+	};
 
-  const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-    console.log('Error boundary caught error:', error, errorInfo);
-  };
+	const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
+		console.log('Error boundary caught error:', error, errorInfo);
+	};
 
-  const handleRetry = () => {
-    console.log('Error boundary retry triggered');
-    setShouldThrow(false);
-  };
+	const handleRetry = () => {
+		console.log('Error boundary retry triggered');
+		setShouldThrow(false);
+	};
 
-  return (
-    <TestContainer>
-      <TestTitle>Error Boundary Test</TestTitle>
-      <TestDescription>
-        This component demonstrates the error boundary functionality. 
-        Click the button below to trigger an error and see how the error boundary handles it.
-      </TestDescription>
-      
-      <div>
-        <TestButton onClick={handleThrowError}>
-          🚨 Trigger Error
-        </TestButton>
-        <TestButton onClick={handleReset}>
-          🔄 Reset Test
-        </TestButton>
-      </div>
-      
-      <p>Error count: {errorCount}</p>
-      
-      <FlowErrorBoundary
-        flowName="Error Boundary Test"
-        onError={handleError}
-        onRetry={handleRetry}
-        onReset={handleReset}
-        showDetails={true}
-      >
-        <ErrorThrowingComponent shouldThrow={shouldThrow} />
-      </FlowErrorBoundary>
-    </TestContainer>
-  );
+	return (
+		<TestContainer>
+			<TestTitle>Error Boundary Test</TestTitle>
+			<TestDescription>
+				This component demonstrates the error boundary functionality. Click the button below to
+				trigger an error and see how the error boundary handles it.
+			</TestDescription>
+
+			<div>
+				<TestButton onClick={handleThrowError}>🚨 Trigger Error</TestButton>
+				<TestButton onClick={handleReset}>🔄 Reset Test</TestButton>
+			</div>
+
+			<p>Error count: {errorCount}</p>
+
+			<FlowErrorBoundary
+				flowName="Error Boundary Test"
+				onError={handleError}
+				onRetry={handleRetry}
+				onReset={handleReset}
+				showDetails={true}
+			>
+				<ErrorThrowingComponent shouldThrow={shouldThrow} />
+			</FlowErrorBoundary>
+		</TestContainer>
+	);
 };
 
 export default ErrorBoundaryTest;

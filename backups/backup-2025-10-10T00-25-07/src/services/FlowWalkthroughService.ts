@@ -455,15 +455,18 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User clicks login to start the OIDC flow',
-				description: 'User initiates authentication by clicking the login button in your application',
+				description:
+					'User initiates authentication by clicking the login button in your application',
 			},
 			{
 				title: 'App redirects to PingOne with OIDC authorization request',
-				description: "Your application redirects the user to PingOne's authorization server with openid scope and required parameters",
+				description:
+					"Your application redirects the user to PingOne's authorization server with openid scope and required parameters",
 			},
 			{
 				title: 'User authenticates and approves scopes',
-				description: 'User logs in and grants permission for the requested OIDC scopes (openid, profile, email)',
+				description:
+					'User logs in and grants permission for the requested OIDC scopes (openid, profile, email)',
 			},
 			{
 				title: 'PingOne returns an authorization code to the redirect URI',
@@ -471,11 +474,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Backend exchanges the code for access and ID tokens',
-				description: 'Your backend exchanges the authorization code for access token and ID token containing user identity claims',
+				description:
+					'Your backend exchanges the authorization code for access token and ID token containing user identity claims',
 			},
 			{
 				title: 'Validate ID token and extract user information',
-				description: 'Validate the ID token signature and extract user identity information from the claims',
+				description:
+					'Validate the ID token signature and extract user identity information from the claims',
 			},
 			{
 				title: 'Use access token for API calls',

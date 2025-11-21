@@ -15,8 +15,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
-import PageLayoutService from '../services/pageLayoutService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
@@ -354,8 +354,11 @@ const OIDCSessionManagement = () => {
 		flowId: 'oidc-session-management', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	const [activeDemo, setActiveDemo] = useState<string | null>(null);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -416,205 +419,211 @@ const OIDCSessionManagement = () => {
 						defaultCollapsed={false}
 					>
 						<div style={{ padding: '1.5rem' }}>
+							<OverviewCard>
+								<CardHeader>
+									<h2>What is OpenID Connect Session Management?</h2>
+								</CardHeader>
+								<CardBody>
+									<p>
+										OpenID Connect Session Management complements the OpenID Connect Core 1.0
+										specification by defining how to monitor the End-User's login status at the
+										OpenID Provider on an ongoing basis. This allows Relying Parties to log out
+										End-Users who have logged out of the OpenID Provider.
+									</p>
 
-			<OverviewCard>
-				<CardHeader>
-					<h2>What is OpenID Connect Session Management?</h2>
-				</CardHeader>
-				<CardBody>
-					<p>
-						OpenID Connect Session Management complements the OpenID Connect Core 1.0 specification
-						by defining how to monitor the End-User's login status at the OpenID Provider on an
-						ongoing basis. This allows Relying Parties to log out End-Users who have logged out of
-						the OpenID Provider.
-					</p>
+									<InteractiveSection>
+										<h3> Key Benefits</h3>
+										<div
+											style={{
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+												gap: '1rem',
+												marginTop: '1rem',
+											}}
+										>
+											<div
+												style={{
+													padding: '1rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '2px solid #e2e8f0',
+												}}
+											>
+												<FiShield
+													style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												/>
+												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+													Enhanced Security
+												</h4>
+												<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+													Real-time session monitoring prevents unauthorized access
+												</p>
+											</div>
+											<div
+												style={{
+													padding: '1rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '2px solid #e2e8f0',
+												}}
+											>
+												<FiUsers
+													style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												/>
+												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Better UX</h4>
+												<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+													Seamless logout across multiple applications
+												</p>
+											</div>
+											<div
+												style={{
+													padding: '1rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '2px solid #e2e8f0',
+												}}
+											>
+												<FiMonitor
+													style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+												/>
+												<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+													Centralized Control
+												</h4>
+												<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+													Manage sessions from a single identity provider
+												</p>
+											</div>
+										</div>
+									</InteractiveSection>
 
-					<InteractiveSection>
-						<h3> Key Benefits</h3>
-						<div
-							style={{
-								display: 'grid',
-								gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-								gap: '1rem',
-								marginTop: '1rem',
-							}}
-						>
-							<div
-								style={{
-									padding: '1rem',
-									background: 'white',
-									borderRadius: '0.5rem',
-									border: '2px solid #e2e8f0',
-								}}
-							>
-								<FiShield
-									style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-								/>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Enhanced Security</h4>
-								<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-									Real-time session monitoring prevents unauthorized access
-								</p>
-							</div>
-							<div
-								style={{
-									padding: '1rem',
-									background: 'white',
-									borderRadius: '0.5rem',
-									border: '2px solid #e2e8f0',
-								}}
-							>
-								<FiUsers style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }} />
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Better UX</h4>
-								<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-									Seamless logout across multiple applications
-								</p>
-							</div>
-							<div
-								style={{
-									padding: '1rem',
-									background: 'white',
-									borderRadius: '0.5rem',
-									border: '2px solid #e2e8f0',
-								}}
-							>
-								<FiMonitor
-									style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-								/>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Centralized Control</h4>
-								<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-									Manage sessions from a single identity provider
-								</p>
-							</div>
-						</div>
-					</InteractiveSection>
-
-					<div
-						style={{
-							marginTop: '1.5rem',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '1rem',
-							flexWrap: 'wrap',
-						}}
-					>
-						<strong>Specification:</strong> OpenID Connect Session Management 1.0
-						<a
-							href="https://openid.net/specs/openid-connect-session-1_0.html"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{
-								color: '#3b82f6',
-								textDecoration: 'none',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								padding: '0.5rem 1rem',
-								background: '#eff6ff',
-								borderRadius: '0.5rem',
-								border: '1px solid #dbeafe',
-							}}
-						>
-							<FiExternalLink />
-							View on openid.net
-						</a>
-					</div>
-				</CardBody>
-			</OverviewCard>
+									<div
+										style={{
+											marginTop: '1.5rem',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '1rem',
+											flexWrap: 'wrap',
+										}}
+									>
+										<strong>Specification:</strong> OpenID Connect Session Management 1.0
+										<a
+											href="https://openid.net/specs/openid-connect-session-1_0.html"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												color: '#3b82f6',
+												textDecoration: 'none',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+												padding: '0.5rem 1rem',
+												background: '#eff6ff',
+												borderRadius: '0.5rem',
+												border: '1px solid #dbeafe',
+											}}
+										>
+											<FiExternalLink />
+											View on openid.net
+										</a>
+									</div>
+								</CardBody>
+							</OverviewCard>
 						</div>
 					</CollapsibleHeader>
 
-			<CollapsibleSection title=" Session Management Flows" defaultOpen={true}>
-				<div style={{ marginTop: '1rem' }}>
-					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
-						Explore the different session management flows available in OpenID Connect. Each flow
-						serves a specific purpose for monitoring and managing user sessions across applications.
-					</p>
+					<CollapsibleSection title=" Session Management Flows" defaultOpen={true}>
+						<div style={{ marginTop: '1rem' }}>
+							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+								Explore the different session management flows available in OpenID Connect. Each
+								flow serves a specific purpose for monitoring and managing user sessions across
+								applications.
+							</p>
 
-					<FlowGrid>
-						{/* Session Creation */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiUsers />
-								</FlowIcon>
-								<FlowTitle>
-									Creating and Updating Sessions
-									<PingOneBadge>PingOne</PingOneBadge>
-								</FlowTitle>
-								<FlowDescription>
-									In OpenID Connect, the session at the RP typically starts when the RP validates
-									the End-User's ID Token. The OP returns a session_state parameter for session
-									management.
-								</FlowDescription>
+							<FlowGrid>
+								{/* Session Creation */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiUsers />
+										</FlowIcon>
+										<FlowTitle>
+											Creating and Updating Sessions
+											<PingOneBadge>PingOne</PingOneBadge>
+										</FlowTitle>
+										<FlowDescription>
+											In OpenID Connect, the session at the RP typically starts when the RP
+											validates the End-User's ID Token. The OP returns a session_state parameter
+											for session management.
+										</FlowDescription>
 
-								{renderFlowDiagram([
-									{ name: 'User', role: 'End User', icon: <FiUsers /> },
-									{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-									{
-										name: 'PingOne',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
-											</div>
-										),
-									},
-								])}
+										{renderFlowDiagram([
+											{ name: 'User', role: 'End User', icon: <FiUsers /> },
+											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{
+												name: 'PingOne',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+										])}
 
-								<DemoButton
-									onClick={() =>
-										setActiveDemo(activeDemo === 'session-creation' ? null : 'session-creation')
-									}
-								>
-									<FiPlay />
-									{activeDemo === 'session-creation' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+										<DemoButton
+											onClick={() =>
+												setActiveDemo(activeDemo === 'session-creation' ? null : 'session-creation')
+											}
+										>
+											<FiPlay />
+											{activeDemo === 'session-creation' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-								{activeDemo === 'session-creation' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>User Authentication</StepTitle>
-												<StepDescription>
-													User completes authentication flow and receives authorization code
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'session-creation' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>User Authentication</StepTitle>
+														<StepDescription>
+															User completes authentication flow and receives authorization code
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>Token Exchange</StepTitle>
-												<StepDescription>
-													RP exchanges authorization code for ID token and session_state
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>Token Exchange</StepTitle>
+														<StepDescription>
+															RP exchanges authorization code for ID token and session_state
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>Session Establishment</StepTitle>
-												<StepDescription>
-													RP creates local session and stores session_state for monitoring
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>Session Establishment</StepTitle>
+														<StepDescription>
+															RP creates local session and stores session_state for monitoring
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'Authentication Response with session_state',
-											`// PingOne authentication response
+												{renderCodeExample(
+													'Authentication Response with session_state',
+													`// PingOne authentication response
 {
   "code": "authorization_code",
   "state": "xyz123",
@@ -624,12 +633,12 @@ const OIDCSessionManagement = () => {
 // session_state is REQUIRED if session management is supported
 // It represents the End-User's login state at the OP
 // Format: base64url(sha256(client_id + origin + OP_session_state + salt))`,
-											'session-state-response'
-										)}
+													'session-state-response'
+												)}
 
-										{renderCodeExample(
-											'Session State Validation',
-											`// Validate session state on RP
+												{renderCodeExample(
+													'Session State Validation',
+													`// Validate session state on RP
 function validateSessionState(sessionState, clientId, origin, opSessionState) {
   const salt = 'your-salt-value'; // From OP configuration
   const expected = base64url(sha256(clientId + origin + opSessionState + salt));
@@ -643,119 +652,119 @@ if (validateSessionState(sessionState, clientId, origin, opSessionState)) {
   console.log('Session state mismatch - user may have logged out');
   redirectToLogin();
 }`,
-											'session-state-validation'
-										)}
-									</div>
-								)}
-
-								<PingOneNote>
-									<FiInfo />
-									<div>
-										<h4>PingOne Configuration</h4>
-										<p>
-											Enable session management in your PingOne application configuration. The
-											session_state parameter will be automatically included in authentication
-											responses.
-										</p>
-									</div>
-								</PingOneNote>
-							</CardBody>
-						</FlowCard>
-
-						{/* Session Status Change Notification */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiMonitor />
-								</FlowIcon>
-								<FlowTitle>Session Status Change Notification</FlowTitle>
-								<FlowDescription>
-									The RP can monitor session status changes using iframes. The OP iframe
-									communicates logout requests to the RP iframe, enabling real-time session
-									monitoring.
-								</FlowDescription>
-
-								{renderFlowDiagram([
-									{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-									{ name: 'OP iframe', role: 'Session Monitor', icon: <FiShield /> },
-									{
-										name: 'OP',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
+													'session-state-validation'
+												)}
 											</div>
-										),
-									},
-								])}
+										)}
 
-								<DemoButton
-									onClick={() =>
-										setActiveDemo(
-											activeDemo === 'session-notification' ? null : 'session-notification'
-										)
-									}
-								>
-									<FiPlay />
-									{activeDemo === 'session-notification' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+										<PingOneNote>
+											<FiInfo />
+											<div>
+												<h4>PingOne Configuration</h4>
+												<p>
+													Enable session management in your PingOne application configuration. The
+													session_state parameter will be automatically included in authentication
+													responses.
+												</p>
+											</div>
+										</PingOneNote>
+									</CardBody>
+								</FlowCard>
 
-								{activeDemo === 'session-notification' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>Setup Monitoring iframes</StepTitle>
-												<StepDescription>
-													RP creates hidden iframes for session monitoring and OP creates iframe for
-													status changes
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+								{/* Session Status Change Notification */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiMonitor />
+										</FlowIcon>
+										<FlowTitle>Session Status Change Notification</FlowTitle>
+										<FlowDescription>
+											The RP can monitor session status changes using iframes. The OP iframe
+											communicates logout requests to the RP iframe, enabling real-time session
+											monitoring.
+										</FlowDescription>
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>Session Status Check</StepTitle>
-												<StepDescription>
-													RP iframe polls OP to check current session status
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{renderFlowDiagram([
+											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{ name: 'OP iframe', role: 'Session Monitor', icon: <FiShield /> },
+											{
+												name: 'OP',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+										])}
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>Logout Detection</StepTitle>
-												<StepDescription>
-													When user logs out, OP sends logout notification to RP iframe
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										<DemoButton
+											onClick={() =>
+												setActiveDemo(
+													activeDemo === 'session-notification' ? null : 'session-notification'
+												)
+											}
+										>
+											<FiPlay />
+											{activeDemo === 'session-notification' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-										<FlowStep>
-											<StepNumber>4</StepNumber>
-											<StepContent>
-												<StepTitle>RP Logout</StepTitle>
-												<StepDescription>
-													RP receives notification and logs out user from application
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'session-notification' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>Setup Monitoring iframes</StepTitle>
+														<StepDescription>
+															RP creates hidden iframes for session monitoring and OP creates iframe
+															for status changes
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'iframe Session Monitoring',
-											`// RP iframe for session monitoring
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>Session Status Check</StepTitle>
+														<StepDescription>
+															RP iframe polls OP to check current session status
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>Logout Detection</StepTitle>
+														<StepDescription>
+															When user logs out, OP sends logout notification to RP iframe
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>4</StepNumber>
+													<StepContent>
+														<StepTitle>RP Logout</StepTitle>
+														<StepDescription>
+															RP receives notification and logs out user from application
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												{renderCodeExample(
+													'iframe Session Monitoring',
+													`// RP iframe for session monitoring
 <iframe src="https://op.example.com/check_session"
         id="op"
         style="display:none">
@@ -778,12 +787,12 @@ window.addEventListener('message', function(event) {
     window.location.href = '/login';
   }
 });`,
-											'iframe-session-monitoring'
+													'iframe-session-monitoring'
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<CodeBlock>{`// RP iframe for session monitoring
+										<CodeBlock>{`// RP iframe for session monitoring
 <iframe src="https://op.example.com/check_session"
         id="op"
         style="display:none">
@@ -794,108 +803,108 @@ window.addEventListener('message', function(event) {
         id="rp"
         style="display:none">
 </iframe>`}</CodeBlock>
-								<SecurityNote>
-									<FiShield />
-									<div>
-										<h4>Security Consideration</h4>
-										<p>
-											User agents may block access to third-party content, affecting iframe-based
-											session monitoring.
-										</p>
-									</div>
-								</SecurityNote>
-							</CardBody>
-						</FlowCard>
-
-						{/* RP-Initiated Logout */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiLogOut />
-								</FlowIcon>
-								<FlowTitle>RP-Initiated Logout</FlowTitle>
-								<FlowDescription>
-									Relying Parties can initiate logout by redirecting the End-User to the OP's end
-									session endpoint. This allows RPs to log out users from all sessions across
-									multiple applications.
-								</FlowDescription>
-
-								{renderFlowDiagram([
-									{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-									{ name: 'User', role: 'End User', icon: <FiUsers /> },
-									{
-										name: 'OP',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
+										<SecurityNote>
+											<FiShield />
+											<div>
+												<h4>Security Consideration</h4>
+												<p>
+													User agents may block access to third-party content, affecting
+													iframe-based session monitoring.
+												</p>
 											</div>
-										),
-									},
-								])}
+										</SecurityNote>
+									</CardBody>
+								</FlowCard>
 
-								<DemoButton
-									onClick={() => setActiveDemo(activeDemo === 'rp-logout' ? null : 'rp-logout')}
-								>
-									<FiPlay />
-									{activeDemo === 'rp-logout' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+								{/* RP-Initiated Logout */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiLogOut />
+										</FlowIcon>
+										<FlowTitle>RP-Initiated Logout</FlowTitle>
+										<FlowDescription>
+											Relying Parties can initiate logout by redirecting the End-User to the OP's
+											end session endpoint. This allows RPs to log out users from all sessions
+											across multiple applications.
+										</FlowDescription>
 
-								{activeDemo === 'rp-logout' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>User Requests Logout</StepTitle>
-												<StepDescription>
-													User clicks logout button in RP application
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{renderFlowDiagram([
+											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{ name: 'User', role: 'End User', icon: <FiUsers /> },
+											{
+												name: 'OP',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+										])}
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>RP Redirects to OP</StepTitle>
-												<StepDescription>
-													RP redirects user to OP's end session endpoint with logout parameters
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										<DemoButton
+											onClick={() => setActiveDemo(activeDemo === 'rp-logout' ? null : 'rp-logout')}
+										>
+											<FiPlay />
+											{activeDemo === 'rp-logout' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>OP Logs Out User</StepTitle>
-												<StepDescription>
-													OP terminates user session and redirects back to RP
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'rp-logout' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>User Requests Logout</StepTitle>
+														<StepDescription>
+															User clicks logout button in RP application
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>4</StepNumber>
-											<StepContent>
-												<StepTitle>RP Confirms Logout</StepTitle>
-												<StepDescription>
-													RP receives confirmation and logs out user from application
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>RP Redirects to OP</StepTitle>
+														<StepDescription>
+															RP redirects user to OP's end session endpoint with logout parameters
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'RP-Initiated Logout Implementation',
-											`// RP-initiated logout
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>OP Logs Out User</StepTitle>
+														<StepDescription>
+															OP terminates user session and redirects back to RP
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>4</StepNumber>
+													<StepContent>
+														<StepTitle>RP Confirms Logout</StepTitle>
+														<StepDescription>
+															RP receives confirmation and logs out user from application
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												{renderCodeExample(
+													'RP-Initiated Logout Implementation',
+													`// RP-initiated logout
 function initiateLogout() {
   const idToken = localStorage.getItem('id_token');
   const postLogoutUri = encodeURIComponent('https://rp.example.com/logged_out');
@@ -929,122 +938,122 @@ function handlePostLogoutRedirect() {
     window.location.href = '/login';
   }
 }`,
-											'rp-initiated-logout'
+													'rp-initiated-logout'
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<CodeBlock>{`// RP-initiated logout
+										<CodeBlock>{`// RP-initiated logout
 GET /endsession?
   id_token_hint=eyJhbGciOiJSUzI1NiIs...
   &post_logout_redirect_uri=https://rp.example.com/logged_out
   &state=xyz789`}</CodeBlock>
-								<PingOneNote>
-									<FiInfo />
-									<div>
-										<h4>PingOne Support</h4>
-										<p>
-											PingOne supports RP-initiated logout with configurable post-logout redirect
-											URIs.
-										</p>
-									</div>
-								</PingOneNote>
-							</CardBody>
-						</FlowCard>
-
-						{/* Front-Channel Logout */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiRefreshCw />
-								</FlowIcon>
-								<FlowTitle>Front-Channel Logout</FlowTitle>
-								<FlowDescription>
-									Front-channel logout uses the User Agent to communicate logout requests from the
-									OP to RPs. This enables immediate logout across multiple applications without
-									polling.
-								</FlowDescription>
-
-								{renderFlowDiagram([
-									{
-										name: 'OP',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
+										<PingOneNote>
+											<FiInfo />
+											<div>
+												<h4>PingOne Support</h4>
+												<p>
+													PingOne supports RP-initiated logout with configurable post-logout
+													redirect URIs.
+												</p>
 											</div>
-										),
-									},
-									{ name: 'User Agent', role: 'Browser', icon: <FiMonitor /> },
-									{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-								])}
+										</PingOneNote>
+									</CardBody>
+								</FlowCard>
 
-								<DemoButton
-									onClick={() =>
-										setActiveDemo(
-											activeDemo === 'front-channel-logout' ? null : 'front-channel-logout'
-										)
-									}
-								>
-									<FiPlay />
-									{activeDemo === 'front-channel-logout' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+								{/* Front-Channel Logout */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiRefreshCw />
+										</FlowIcon>
+										<FlowTitle>Front-Channel Logout</FlowTitle>
+										<FlowDescription>
+											Front-channel logout uses the User Agent to communicate logout requests from
+											the OP to RPs. This enables immediate logout across multiple applications
+											without polling.
+										</FlowDescription>
 
-								{activeDemo === 'front-channel-logout' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>User Logs Out at OP</StepTitle>
-												<StepDescription>
-													User initiates logout at the OpenID Provider
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{renderFlowDiagram([
+											{
+												name: 'OP',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+											{ name: 'User Agent', role: 'Browser', icon: <FiMonitor /> },
+											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+										])}
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>OP Generates Logout URLs</StepTitle>
-												<StepDescription>
-													OP creates logout URLs for all registered RPs with active sessions
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										<DemoButton
+											onClick={() =>
+												setActiveDemo(
+													activeDemo === 'front-channel-logout' ? null : 'front-channel-logout'
+												)
+											}
+										>
+											<FiPlay />
+											{activeDemo === 'front-channel-logout' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>Browser Loads Logout Pages</StepTitle>
-												<StepDescription>
-													User Agent loads logout URLs for each RP in hidden iframes
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'front-channel-logout' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>User Logs Out at OP</StepTitle>
+														<StepDescription>
+															User initiates logout at the OpenID Provider
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>4</StepNumber>
-											<StepContent>
-												<StepTitle>RPs Process Logout</StepTitle>
-												<StepDescription>
-													Each RP receives logout request and terminates user session
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>OP Generates Logout URLs</StepTitle>
+														<StepDescription>
+															OP creates logout URLs for all registered RPs with active sessions
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'Front-Channel Logout Implementation',
-											`// OP logout page that triggers front-channel logout
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>Browser Loads Logout Pages</StepTitle>
+														<StepDescription>
+															User Agent loads logout URLs for each RP in hidden iframes
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>4</StepNumber>
+													<StepContent>
+														<StepTitle>RPs Process Logout</StepTitle>
+														<StepDescription>
+															Each RP receives logout request and terminates user session
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												{renderCodeExample(
+													'Front-Channel Logout Implementation',
+													`// OP logout page that triggers front-channel logout
 <!DOCTYPE html>
 <html>
 <head>
@@ -1098,123 +1107,123 @@ app.get('/logout', (req, res) => {
     </html>
   \`);
 });`,
-											'front-channel-logout'
+													'front-channel-logout'
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<CodeBlock>{`// Front-channel logout request
+										<CodeBlock>{`// Front-channel logout request
 GET /logout?
   iss=https://op.example.com
   &sid=abc123def456
   &iat=1516239022`}</CodeBlock>
-								<PingOneNote>
-									<FiInfo />
-									<div>
-										<h4>PingOne Support</h4>
-										<p>
-											PingOne supports front-channel logout for immediate session termination across
-											applications.
-										</p>
-									</div>
-								</PingOneNote>
-							</CardBody>
-						</FlowCard>
-
-						{/* Back-Channel Logout */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiShield />
-								</FlowIcon>
-								<FlowTitle>Back-Channel Logout</FlowTitle>
-								<FlowDescription>
-									Back-channel logout uses direct communication between the OP and RPs being logged
-									out. This is more reliable than front-channel logout but requires server-to-server
-									communication.
-								</FlowDescription>
-
-								{renderFlowDiagram([
-									{
-										name: 'OP',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
+										<PingOneNote>
+											<FiInfo />
+											<div>
+												<h4>PingOne Support</h4>
+												<p>
+													PingOne supports front-channel logout for immediate session termination
+													across applications.
+												</p>
 											</div>
-										),
-									},
-									{ name: 'RP1', role: 'Relying Party 1', icon: <FiMonitor /> },
-									{ name: 'RP2', role: 'Relying Party 2', icon: <FiMonitor /> },
-								])}
+										</PingOneNote>
+									</CardBody>
+								</FlowCard>
 
-								<DemoButton
-									onClick={() =>
-										setActiveDemo(
-											activeDemo === 'back-channel-logout' ? null : 'back-channel-logout'
-										)
-									}
-								>
-									<FiPlay />
-									{activeDemo === 'back-channel-logout' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+								{/* Back-Channel Logout */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiShield />
+										</FlowIcon>
+										<FlowTitle>Back-Channel Logout</FlowTitle>
+										<FlowDescription>
+											Back-channel logout uses direct communication between the OP and RPs being
+											logged out. This is more reliable than front-channel logout but requires
+											server-to-server communication.
+										</FlowDescription>
 
-								{activeDemo === 'back-channel-logout' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>User Logs Out at OP</StepTitle>
-												<StepDescription>
-													User initiates logout at the OpenID Provider
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{renderFlowDiagram([
+											{
+												name: 'OP',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+											{ name: 'RP1', role: 'Relying Party 1', icon: <FiMonitor /> },
+											{ name: 'RP2', role: 'Relying Party 2', icon: <FiMonitor /> },
+										])}
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>OP Generates Logout Tokens</StepTitle>
-												<StepDescription>
-													OP creates logout tokens for all registered RPs with active sessions
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										<DemoButton
+											onClick={() =>
+												setActiveDemo(
+													activeDemo === 'back-channel-logout' ? null : 'back-channel-logout'
+												)
+											}
+										>
+											<FiPlay />
+											{activeDemo === 'back-channel-logout' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>OP Sends Logout Requests</StepTitle>
-												<StepDescription>
-													OP sends POST requests with logout tokens to each RP's backchannel_logout
-													endpoint
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'back-channel-logout' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>User Logs Out at OP</StepTitle>
+														<StepDescription>
+															User initiates logout at the OpenID Provider
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>4</StepNumber>
-											<StepContent>
-												<StepTitle>RPs Process Logout</StepTitle>
-												<StepDescription>
-													Each RP validates the logout token and terminates the user session
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>OP Generates Logout Tokens</StepTitle>
+														<StepDescription>
+															OP creates logout tokens for all registered RPs with active sessions
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'Back-Channel Logout Implementation',
-											`// OP sends logout request to RP
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>OP Sends Logout Requests</StepTitle>
+														<StepDescription>
+															OP sends POST requests with logout tokens to each RP's
+															backchannel_logout endpoint
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>4</StepNumber>
+													<StepContent>
+														<StepTitle>RPs Process Logout</StepTitle>
+														<StepDescription>
+															Each RP validates the logout token and terminates the user session
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												{renderCodeExample(
+													'Back-Channel Logout Implementation',
+													`// OP sends logout request to RP
 async function sendBackchannelLogout(rpEndpoint, logoutToken) {
   try {
     const response = await fetch(rpEndpoint, {
@@ -1266,12 +1275,12 @@ app.post('/backchannel_logout', async (req, res) => {
     res.status(400).send('Invalid logout token');
   }
 });`,
-											'back-channel-logout'
+													'back-channel-logout'
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<CodeBlock>{`// Back-channel logout request
+										<CodeBlock>{`// Back-channel logout request
 POST /backchannel_logout
 Content-Type: application/json
 
@@ -1281,112 +1290,114 @@ Content-Type: application/json
   "iat": 1516239022,
   "jti": "logout_token_123"
 }`}</CodeBlock>
-								<PingOneNote>
-									<FiInfo />
-									<div>
-										<h4>PingOne Support</h4>
-										<p>
-											PingOne supports back-channel logout for reliable server-to-server logout
-											communication.
-										</p>
-									</div>
-								</PingOneNote>
-							</CardBody>
-						</FlowCard>
-
-						{/* Session Validation */}
-						<FlowCard>
-							<CardBody>
-								<FlowIcon>
-									<FiCheck />
-								</FlowIcon>
-								<FlowTitle>Session Validation</FlowTitle>
-								<FlowDescription>
-									RPs can validate session state by comparing the session_state parameter with the
-									current session state calculated using the Client ID, origin URL, and OP User
-									Agent state.
-								</FlowDescription>
-
-								{renderFlowDiagram([
-									{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
-									{ name: 'Session State', role: 'Validation', icon: <FiCheck /> },
-									{
-										name: 'OP',
-										role: 'OpenID Provider',
-										icon: (
-											<div
-												style={{
-													background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-													color: 'white',
-													borderRadius: '4px',
-													padding: '0.25rem',
-													fontSize: '0.75rem',
-													fontWeight: 'bold',
-												}}
-											>
-												P1
+										<PingOneNote>
+											<FiInfo />
+											<div>
+												<h4>PingOne Support</h4>
+												<p>
+													PingOne supports back-channel logout for reliable server-to-server logout
+													communication.
+												</p>
 											</div>
-										),
-									},
-								])}
+										</PingOneNote>
+									</CardBody>
+								</FlowCard>
 
-								<DemoButton
-									onClick={() =>
-										setActiveDemo(activeDemo === 'session-validation' ? null : 'session-validation')
-									}
-								>
-									<FiPlay />
-									{activeDemo === 'session-validation' ? 'Hide' : 'Show'} Implementation
-								</DemoButton>
+								{/* Session Validation */}
+								<FlowCard>
+									<CardBody>
+										<FlowIcon>
+											<FiCheck />
+										</FlowIcon>
+										<FlowTitle>Session Validation</FlowTitle>
+										<FlowDescription>
+											RPs can validate session state by comparing the session_state parameter with
+											the current session state calculated using the Client ID, origin URL, and OP
+											User Agent state.
+										</FlowDescription>
 
-								{activeDemo === 'session-validation' && (
-									<div>
-										<h4>Step-by-Step Process:</h4>
-										<FlowStep>
-											<StepNumber>1</StepNumber>
-											<StepContent>
-												<StepTitle>RP Receives Session State</StepTitle>
-												<StepDescription>
-													RP receives session_state parameter from OP during authentication
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{renderFlowDiagram([
+											{ name: 'RP', role: 'Relying Party', icon: <FiMonitor /> },
+											{ name: 'Session State', role: 'Validation', icon: <FiCheck /> },
+											{
+												name: 'OP',
+												role: 'OpenID Provider',
+												icon: (
+													<div
+														style={{
+															background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+															color: 'white',
+															borderRadius: '4px',
+															padding: '0.25rem',
+															fontSize: '0.75rem',
+															fontWeight: 'bold',
+														}}
+													>
+														P1
+													</div>
+												),
+											},
+										])}
 
-										<FlowStep>
-											<StepNumber>2</StepNumber>
-											<StepContent>
-												<StepTitle>Calculate Expected State</StepTitle>
-												<StepDescription>
-													RP calculates expected session state using Client ID, origin URL, and OP
-													User Agent state
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										<DemoButton
+											onClick={() =>
+												setActiveDemo(
+													activeDemo === 'session-validation' ? null : 'session-validation'
+												)
+											}
+										>
+											<FiPlay />
+											{activeDemo === 'session-validation' ? 'Hide' : 'Show'} Implementation
+										</DemoButton>
 
-										<FlowStep>
-											<StepNumber>3</StepNumber>
-											<StepContent>
-												<StepTitle>Compare Session States</StepTitle>
-												<StepDescription>
-													RP compares received session_state with calculated expected state
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+										{activeDemo === 'session-validation' && (
+											<div>
+												<h4>Step-by-Step Process:</h4>
+												<FlowStep>
+													<StepNumber>1</StepNumber>
+													<StepContent>
+														<StepTitle>RP Receives Session State</StepTitle>
+														<StepDescription>
+															RP receives session_state parameter from OP during authentication
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										<FlowStep>
-											<StepNumber>4</StepNumber>
-											<StepContent>
-												<StepTitle>Handle State Mismatch</StepTitle>
-												<StepDescription>
-													If states don't match, RP may need to check session status with OP or
-													redirect to login
-												</StepDescription>
-											</StepContent>
-										</FlowStep>
+												<FlowStep>
+													<StepNumber>2</StepNumber>
+													<StepContent>
+														<StepTitle>Calculate Expected State</StepTitle>
+														<StepDescription>
+															RP calculates expected session state using Client ID, origin URL, and
+															OP User Agent state
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
 
-										{renderCodeExample(
-											'Session State Validation Implementation',
-											`// Session state validation
+												<FlowStep>
+													<StepNumber>3</StepNumber>
+													<StepContent>
+														<StepTitle>Compare Session States</StepTitle>
+														<StepDescription>
+															RP compares received session_state with calculated expected state
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												<FlowStep>
+													<StepNumber>4</StepNumber>
+													<StepContent>
+														<StepTitle>Handle State Mismatch</StepTitle>
+														<StepDescription>
+															If states don't match, RP may need to check session status with OP or
+															redirect to login
+														</StepDescription>
+													</StepContent>
+												</FlowStep>
+
+												{renderCodeExample(
+													'Session State Validation Implementation',
+													`// Session state validation
 function calculateSessionState(clientId, origin, opSessionState, salt) {
   const crypto = require('crypto');
   
@@ -1432,12 +1443,12 @@ function base64url(buffer) {
     .replace(///g, '_')
     .replace(/=/g, '');
 }`,
-											'session-validation'
+													'session-validation'
+												)}
+											</div>
 										)}
-									</div>
-								)}
 
-								<CodeBlock>{`// Session state validation
+										<CodeBlock>{`// Session state validation
 const expectedSessionState = calculateSessionState(
   clientId,
   originUrl,
@@ -1448,97 +1459,97 @@ if (sessionState !== expectedSessionState) {
   // Session has changed, user should re-authenticate
   redirectToLogin();
 }`}</CodeBlock>
-								<SecurityNote>
-									<FiShield />
-									<div>
-										<h4>Security Note</h4>
-										<p>
-											Session state validation prevents session fixation attacks and ensures session
-											integrity.
-										</p>
-									</div>
-								</SecurityNote>
-							</CardBody>
-						</FlowCard>
-					</FlowGrid>
-				</div>
-			</CollapsibleSection>
+										<SecurityNote>
+											<FiShield />
+											<div>
+												<h4>Security Note</h4>
+												<p>
+													Session state validation prevents session fixation attacks and ensures
+													session integrity.
+												</p>
+											</div>
+										</SecurityNote>
+									</CardBody>
+								</FlowCard>
+							</FlowGrid>
+						</div>
+					</CollapsibleSection>
 
-			<CollapsibleSection title=" Implementation Considerations" defaultOpen={false}>
-				<div style={{ marginTop: '1rem' }}>
-					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
-						Understanding the technical details and best practices for implementing OIDC session
-						management in your applications.
-					</p>
-
-					<ImplementationCard>
-						<CardHeader>
-							<h3> Session State Calculation</h3>
-						</CardHeader>
-						<CardBody>
-							<p>
-								The Session State value is calculated on the server and recalculated by the OP
-								iframe in the User Agent. It's based on a salted cryptographic hash of:
+					<CollapsibleSection title=" Implementation Considerations" defaultOpen={false}>
+						<div style={{ marginTop: '1rem' }}>
+							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+								Understanding the technical details and best practices for implementing OIDC session
+								management in your applications.
 							</p>
 
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
-										Client ID
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										The OAuth client identifier
+							<ImplementationCard>
+								<CardHeader>
+									<h3> Session State Calculation</h3>
+								</CardHeader>
+								<CardBody>
+									<p>
+										The Session State value is calculated on the server and recalculated by the OP
+										iframe in the User Agent. It's based on a salted cryptographic hash of:
 									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
-										Origin URL
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										The origin URL of the Authentication Response
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
-										OP User Agent State
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										The OpenID Provider's User Agent state
-									</p>
-								</div>
-							</div>
 
-							{renderCodeExample(
-								'Session State Calculation Algorithm',
-								`// Session State calculation formula
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
+												Client ID
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												The OAuth client identifier
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
+												Origin URL
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												The origin URL of the Authentication Response
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b', fontSize: '1rem' }}>
+												OP User Agent State
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												The OpenID Provider's User Agent state
+											</p>
+										</div>
+									</div>
+
+									{renderCodeExample(
+										'Session State Calculation Algorithm',
+										`// Session State calculation formula
 function calculateSessionState(clientId, origin, opUserAgentState, salt) {
   const input = clientId + origin + opUserAgentState + salt;
   const hash = sha256(input);
@@ -1553,171 +1564,174 @@ const salt = 'your-salt-value';
 
 const sessionState = calculateSessionState(clientId, origin, opUserAgentState, salt);
 console.log('Calculated session state:', sessionState);`,
-								'session-state-calculation'
-							)}
-						</CardBody>
-					</ImplementationCard>
+										'session-state-calculation'
+									)}
+								</CardBody>
+							</ImplementationCard>
 
-					<WarningCard>
-						<CardHeader>
-							<h3> Iframe Communication Limitations</h3>
-						</CardHeader>
-						<CardBody>
-							<p>
-								Session monitoring relies on iframe communication between the OP and RP. This
-								approach has some limitations:
-							</p>
+							<WarningCard>
+								<CardHeader>
+									<h3> Iframe Communication Limitations</h3>
+								</CardHeader>
+								<CardBody>
+									<p>
+										Session monitoring relies on iframe communication between the OP and RP. This
+										approach has some limitations:
+									</p>
 
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-										Third-party Content Blocking
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Modern browsers may block iframe access
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-										Cross-origin Restrictions
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Same-origin policy limitations
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>User Privacy</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Users may disable third-party cookies
-									</p>
-								</div>
-							</div>
-						</CardBody>
-					</WarningCard>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Third-party Content Blocking
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Modern browsers may block iframe access
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Cross-origin Restrictions
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Same-origin policy limitations
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>User Privacy</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Users may disable third-party cookies
+											</p>
+										</div>
+									</div>
+								</CardBody>
+							</WarningCard>
 
-					<ImplementationCard>
-						<CardHeader>
-							<h3> Alternative Approaches</h3>
-						</CardHeader>
-						<CardBody>
-							<p>
-								When iframe-based session monitoring isn't suitable, consider these alternatives:
-							</p>
+							<ImplementationCard>
+								<CardHeader>
+									<h3> Alternative Approaches</h3>
+								</CardHeader>
+								<CardBody>
+									<p>
+										When iframe-based session monitoring isn't suitable, consider these
+										alternatives:
+									</p>
 
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiRefreshCw
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Polling</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Periodically check session status via API calls
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiMonitor
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>WebSockets</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Real-time session status updates
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiUsers
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Server-Sent Events</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Push-based session notifications
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiCheck
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Token Refresh</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Use token expiration for session management
-									</p>
-								</div>
-							</div>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiRefreshCw
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Polling</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Periodically check session status via API calls
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiMonitor
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>WebSockets</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Real-time session status updates
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiUsers
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Server-Sent Events
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Push-based session notifications
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiCheck
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Token Refresh</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Use token expiration for session management
+											</p>
+										</div>
+									</div>
 
-							{renderCodeExample(
-								'Polling-based Session Monitoring',
-								`// Alternative: Polling-based session monitoring
+									{renderCodeExample(
+										'Polling-based Session Monitoring',
+										`// Alternative: Polling-based session monitoring
 class SessionMonitor {
   constructor(apiEndpoint, interval = 30000) {
     this.apiEndpoint = apiEndpoint;
@@ -1759,382 +1773,396 @@ class SessionMonitor {
 // Usage
 const sessionMonitor = new SessionMonitor('https://api.yourapp.com');
 sessionMonitor.startPolling();`,
-								'polling-session-monitoring'
-							)}
-						</CardBody>
-					</ImplementationCard>
-				</div>
-			</CollapsibleSection>
+										'polling-session-monitoring'
+									)}
+								</CardBody>
+							</ImplementationCard>
+						</div>
+					</CollapsibleSection>
 
-			<CollapsibleSection title=" PingOne Session Management Features" defaultOpen={true}>
-				<div style={{ marginTop: '1rem' }}>
-					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
-						PingOne provides comprehensive session management capabilities aligned with OpenID
-						Connect standards.
-					</p>
+					<CollapsibleSection title=" PingOne Session Management Features" defaultOpen={true}>
+						<div style={{ marginTop: '1rem' }}>
+							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+								PingOne provides comprehensive session management capabilities aligned with OpenID
+								Connect standards.
+							</p>
 
-					<ImplementationCard>
-						<CardHeader>
-							<h3> Supported Logout Flows</h3>
-						</CardHeader>
-						<CardBody>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiLogOut
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>RP-Initiated Logout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Applications can initiate user logout
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiRefreshCw
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Front-Channel Logout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Immediate logout across multiple applications
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiShield
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Back-Channel Logout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Reliable server-to-server logout communication
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiMonitor
-										style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Monitoring</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Real-time session status tracking
-									</p>
-								</div>
-							</div>
-						</CardBody>
-					</ImplementationCard>
+							<ImplementationCard>
+								<CardHeader>
+									<h3> Supported Logout Flows</h3>
+								</CardHeader>
+								<CardBody>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiLogOut
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												RP-Initiated Logout
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Applications can initiate user logout
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiRefreshCw
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Front-Channel Logout
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Immediate logout across multiple applications
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiShield
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Back-Channel Logout
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Reliable server-to-server logout communication
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiMonitor
+												style={{ color: '#10b981', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Session Monitoring
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Real-time session status tracking
+											</p>
+										</div>
+									</div>
+								</CardBody>
+							</ImplementationCard>
 
-					<ImplementationCard>
-						<CardHeader>
-							<h3> Configuration Options</h3>
-						</CardHeader>
-						<CardBody>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiArrowRight
-										style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-										Post-Logout Redirect URIs
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Configure where users go after logout
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiMonitor
-										style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Timeout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Configurable session duration
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiRefreshCw
-										style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Idle Timeout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Automatic logout after inactivity
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #e2e8f0',
-									}}
-								>
-									<FiUsers
-										style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-										Multi-Session Support
-									</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Manage multiple concurrent sessions
-									</p>
-								</div>
-							</div>
+							<ImplementationCard>
+								<CardHeader>
+									<h3> Configuration Options</h3>
+								</CardHeader>
+								<CardBody>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiArrowRight
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Post-Logout Redirect URIs
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Configure where users go after logout
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiMonitor
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Timeout</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Configurable session duration
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiRefreshCw
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Idle Timeout</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Automatic logout after inactivity
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #e2e8f0',
+											}}
+										>
+											<FiUsers
+												style={{ color: '#3b82f6', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Multi-Session Support
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Manage multiple concurrent sessions
+											</p>
+										</div>
+									</div>
 
-							<PingOneNote>
-								<FiInfo />
-								<div>
-									<h4>Best Practice</h4>
-									<p>
-										Implement both front-channel and back-channel logout for comprehensive session
-										management coverage.
-									</p>
-								</div>
-							</PingOneNote>
-						</CardBody>
-					</ImplementationCard>
-				</div>
-			</CollapsibleSection>
+									<PingOneNote>
+										<FiInfo />
+										<div>
+											<h4>Best Practice</h4>
+											<p>
+												Implement both front-channel and back-channel logout for comprehensive
+												session management coverage.
+											</p>
+										</div>
+									</PingOneNote>
+								</CardBody>
+							</ImplementationCard>
+						</div>
+					</CollapsibleSection>
 
-			<CollapsibleSection title=" Security Best Practices" defaultOpen={false}>
-				<div style={{ marginTop: '1rem' }}>
-					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
-						Essential security considerations and best practices for implementing OIDC session
-						management securely.
-					</p>
+					<CollapsibleSection title=" Security Best Practices" defaultOpen={false}>
+						<div style={{ marginTop: '1rem' }}>
+							<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
+								Essential security considerations and best practices for implementing OIDC session
+								management securely.
+							</p>
 
-					<WarningCard>
-						<CardHeader>
-							<h3> Session Security</h3>
-						</CardHeader>
-						<CardBody>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Secure Session State</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Use cryptographically strong session state values
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>HTTPS Only</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Always use HTTPS for session management endpoints
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiCheck
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Token Validation</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Validate all tokens and session state parameters
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiUsers
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Logout Confirmation</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Confirm logout actions to prevent accidental logouts
-									</p>
-								</div>
-							</div>
-						</CardBody>
-					</WarningCard>
+							<WarningCard>
+								<CardHeader>
+									<h3> Session Security</h3>
+								</CardHeader>
+								<CardBody>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Secure Session State
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Use cryptographically strong session state values
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>HTTPS Only</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Always use HTTPS for session management endpoints
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiCheck
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Token Validation</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Validate all tokens and session state parameters
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiUsers
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Logout Confirmation
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Confirm logout actions to prevent accidental logouts
+											</p>
+										</div>
+									</div>
+								</CardBody>
+							</WarningCard>
 
-					<WarningCard>
-						<CardHeader>
-							<h3> Implementation Security</h3>
-						</CardHeader>
-						<CardBody>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-									gap: '1rem',
-									margin: '1.5rem 0',
-								}}
-							>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>CSRF Protection</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Implement CSRF tokens for logout requests
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiShield
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Origin Validation</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Validate origin headers for security
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiMonitor
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Timeout</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Implement reasonable session timeouts
-									</p>
-								</div>
-								<div
-									style={{
-										padding: '1rem',
-										background: 'white',
-										borderRadius: '0.5rem',
-										border: '2px solid #fbbf24',
-									}}
-								>
-									<FiUsers
-										style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
-									/>
-									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Audit Logging</h4>
-									<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
-										Log all session management events
-									</p>
-								</div>
-							</div>
+							<WarningCard>
+								<CardHeader>
+									<h3> Implementation Security</h3>
+								</CardHeader>
+								<CardBody>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+											margin: '1.5rem 0',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>CSRF Protection</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Implement CSRF tokens for logout requests
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiShield
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
+												Origin Validation
+											</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Validate origin headers for security
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiMonitor
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Session Timeout</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Implement reasonable session timeouts
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												background: 'white',
+												borderRadius: '0.5rem',
+												border: '2px solid #fbbf24',
+											}}
+										>
+											<FiUsers
+												style={{ color: '#f59e0b', fontSize: '1.5rem', marginBottom: '0.5rem' }}
+											/>
+											<h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>Audit Logging</h4>
+											<p style={{ margin: 0, color: '#64748b', fontSize: '0.9rem' }}>
+												Log all session management events
+											</p>
+										</div>
+									</div>
 
-							<SecurityNote>
-								<FiShield />
-								<div>
-									<h4>Security Warning</h4>
-									<p>
-										Always validate session state and implement proper CSRF protection for logout
-										endpoints.
-									</p>
-								</div>
-							</SecurityNote>
-						</CardBody>
-					</WarningCard>
-				</div>
-			</CollapsibleSection>
-			</ContentWrapper>
-		</PageContainer>
+									<SecurityNote>
+										<FiShield />
+										<div>
+											<h4>Security Warning</h4>
+											<p>
+												Always validate session state and implement proper CSRF protection for
+												logout endpoints.
+											</p>
+										</div>
+									</SecurityNote>
+								</CardBody>
+							</WarningCard>
+						</div>
+					</CollapsibleSection>
+				</ContentWrapper>
+			</PageContainer>
 		</WhiteContainer>
 	);
 };

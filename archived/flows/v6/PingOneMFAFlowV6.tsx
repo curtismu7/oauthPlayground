@@ -5,6 +5,7 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import JSONHighlighter from '../../components/JSONHighlighter';
+import { WorkerTokenStatusLabel } from '../../components/WorkerTokenStatusLabel';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertTriangle,
@@ -37,7 +38,6 @@ import PingOneMfaService, {
 import { V6FlowService } from '../../services/v6FlowService';
 import { useV6CollapsibleSections } from '../../services/v6StepManagementService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { WorkerTokenStatusLabel } from '../../components/WorkerTokenStatusLabel';
 
 // Styled Components
 const Container = styled.div`
@@ -1513,7 +1513,15 @@ const PingOneMFAFlowV6: React.FC = () => {
 								</div>
 
 								{/* Get Worker Token Button */}
-								<div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.35rem' }}>
+								<div
+									style={{
+										marginBottom: '1rem',
+										display: 'flex',
+										flexDirection: 'column',
+										alignItems: 'flex-start',
+										gap: '0.35rem',
+									}}
+								>
 									<ActionButton
 										$variant="primary"
 										onClick={getWorkerToken}

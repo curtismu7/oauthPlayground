@@ -288,8 +288,6 @@ const HelperText = styled.p`
 	margin: 0 0 1rem;
 `;
 
-
-
 const _SectionDivider = styled.hr`
 	border: none;
 	border-top: 1px solid #e5e7eb;

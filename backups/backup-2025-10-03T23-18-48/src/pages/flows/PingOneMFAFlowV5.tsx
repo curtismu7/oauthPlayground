@@ -3,22 +3,22 @@
 
 import React, { useState } from 'react';
 import {
+	FiCheckCircle,
+	FiChevronDown,
 	FiInfo,
 	FiKey,
-	FiShield,
-	FiCheckCircle,
-	FiSmartphone,
-	FiMail,
 	FiLock,
+	FiMail,
 	FiPhone,
-	FiChevronDown,
+	FiShield,
+	FiSmartphone,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 
 const STEP_METADATA = [
 	{
@@ -164,7 +164,7 @@ const CollapsibleTitle = styled.span`
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	transition: transform 0.2s ease;
-	transform: ${props => props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)'};
+	transform: ${(props) => (props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 `;
 
 const CollapsibleContent = styled.div`
@@ -178,7 +178,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	margin-bottom: 1.5rem;
 	display: flex;
 	gap: 1rem;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
 				return '#fef3c7';
@@ -188,7 +188,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 				return '#eff6ff';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$variant) {
 			case 'warning':
 				return '#f59e0b';
@@ -229,12 +229,12 @@ const MfaMethodGrid = styled.div`
 `;
 
 const MfaMethodCard = styled.div<{ $selected?: boolean }>`
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#e5e7eb'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	background: ${props => props.$selected ? '#eff6ff' : 'white'};
+	background: ${(props) => (props.$selected ? '#eff6ff' : 'white')};
 
 	&:hover {
 		border-color: #3b82f6;
@@ -279,11 +279,11 @@ const Button = styled.button<{
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+	cursor: ${(props) => (props.$disabled ? 'not-allowed' : 'pointer')};
 	transition: all 0.2s ease;
-	opacity: ${props => props.$disabled ? 0.6 : 1};
+	opacity: ${(props) => (props.$disabled ? 0.6 : 1)};
 
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'primary':
 				return `
@@ -336,7 +336,7 @@ const StatusCard = styled.div<{ $status: 'pending' | 'success' | 'error' }>`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$status) {
 			case 'success':
 				return '#d1fae5';
@@ -346,7 +346,7 @@ const StatusCard = styled.div<{ $status: 'pending' | 'success' | 'error' }>`
 				return '#f3f4f6';
 		}
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$status) {
 			case 'success':
 				return '#065f46';
@@ -373,10 +373,30 @@ const PingOneMFAFlowV5: React.FC = () => {
 	});
 
 	const mfaMethods = [
-		{ id: 'sms', label: 'SMS Verification', icon: <FiSmartphone />, description: 'Receive a code via SMS' },
-		{ id: 'email', label: 'Email Verification', icon: <FiMail />, description: 'Receive a code via email' },
-		{ id: 'totp', label: 'TOTP Authenticator', icon: <FiLock />, description: 'Use your authenticator app' },
-		{ id: 'push', label: 'Push Notification', icon: <FiPhone />, description: 'Approve via mobile app' },
+		{
+			id: 'sms',
+			label: 'SMS Verification',
+			icon: <FiSmartphone />,
+			description: 'Receive a code via SMS',
+		},
+		{
+			id: 'email',
+			label: 'Email Verification',
+			icon: <FiMail />,
+			description: 'Receive a code via email',
+		},
+		{
+			id: 'totp',
+			label: 'TOTP Authenticator',
+			icon: <FiLock />,
+			description: 'Use your authenticator app',
+		},
+		{
+			id: 'push',
+			label: 'Push Notification',
+			icon: <FiPhone />,
+			description: 'Approve via mobile app',
+		},
 	];
 
 	const handleDeviceRegistration = () => {
@@ -412,9 +432,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 	};
 
 	const toggleSection = (sectionKey: IntroSectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[sectionKey]: !prev[sectionKey]
+			[sectionKey]: !prev[sectionKey],
 		}));
 	};
 
@@ -428,8 +448,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>PingOne MFA Flow Overview</InfoTitle>
 								<InfoText>
-									This flow demonstrates how to integrate multi-factor authentication with PingOne MFA services.
-									You'll learn about device registration, MFA method selection, and token exchange with MFA context.
+									This flow demonstrates how to integrate multi-factor authentication with PingOne
+									MFA services. You'll learn about device registration, MFA method selection, and
+									token exchange with MFA context.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -478,7 +499,8 @@ const PingOneMFAFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Device Registration</InfoTitle>
 								<InfoText>
-									Register your device with PingOne MFA services to enable multi-factor authentication methods.
+									Register your device with PingOne MFA services to enable multi-factor
+									authentication methods.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -493,7 +515,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 									</div>
 								</StatusCard>
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(0)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(0)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={handleDeviceRegistration}>
 										<FiKey />
 										Register Device
@@ -510,7 +534,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 									</div>
 								</StatusCard>
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(0)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(0)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(2)}>
 										<FiShield />
 										Continue to MFA Selection
@@ -529,7 +555,8 @@ const PingOneMFAFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Select MFA Method</InfoTitle>
 								<InfoText>
-									Choose your preferred multi-factor authentication method. You can change this later.
+									Choose your preferred multi-factor authentication method. You can change this
+									later.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -549,10 +576,12 @@ const PingOneMFAFlowV5: React.FC = () => {
 						</MfaMethodGrid>
 
 						<ActionRow>
-							<Button $variant="outline" onClick={() => setCurrentStep(1)}>Back</Button>
+							<Button $variant="outline" onClick={() => setCurrentStep(1)}>
+								Back
+							</Button>
 							<Button $variant="primary" onClick={handleMfaSelection}>
 								<FiShield />
-								Continue with {mfaMethods.find(m => m.id === selectedMfaMethod)?.label}
+								Continue with {mfaMethods.find((m) => m.id === selectedMfaMethod)?.label}
 							</Button>
 						</ActionRow>
 					</div>
@@ -577,11 +606,16 @@ const PingOneMFAFlowV5: React.FC = () => {
 									<FiInfo />
 									<div>
 										<strong>Verification Required</strong>
-										<p>Complete the MFA verification using {mfaMethods.find(m => m.id === selectedMfaMethod)?.label}.</p>
+										<p>
+											Complete the MFA verification using{' '}
+											{mfaMethods.find((m) => m.id === selectedMfaMethod)?.label}.
+										</p>
 									</div>
 								</StatusCard>
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(2)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={handleMfaVerification}>
 										<FiShield />
 										Verify MFA
@@ -598,7 +632,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 									</div>
 								</StatusCard>
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(2)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={handleTokenExchange}>
 										<FiKey />
 										Exchange for Tokens
@@ -617,7 +653,8 @@ const PingOneMFAFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Tokens Received</InfoTitle>
 								<InfoText>
-									You have successfully completed the PingOne MFA flow and received tokens with MFA context.
+									You have successfully completed the PingOne MFA flow and received tokens with MFA
+									context.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -632,7 +669,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 									</div>
 								</StatusCard>
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(3)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(3)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(5)}>
 										<FiCheckCircle />
 										View Results
@@ -651,7 +690,8 @@ const PingOneMFAFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>MFA Flow Complete</InfoTitle>
 								<InfoText>
-									Congratulations! You have successfully completed the PingOne MFA flow demonstration.
+									Congratulations! You have successfully completed the PingOne MFA flow
+									demonstration.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -681,8 +721,12 @@ const PingOneMFAFlowV5: React.FC = () => {
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>V5</VersionBadge>
-							<StepHeaderTitle>{STEP_METADATA[currentStep]?.title || 'Unknown Step'}</StepHeaderTitle>
-							<StepHeaderSubtitle>{STEP_METADATA[currentStep]?.subtitle || 'No description available'}</StepHeaderSubtitle>
+							<StepHeaderTitle>
+								{STEP_METADATA[currentStep]?.title || 'Unknown Step'}
+							</StepHeaderTitle>
+							<StepHeaderSubtitle>
+								{STEP_METADATA[currentStep]?.subtitle || 'No description available'}
+							</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{currentStep + 1}</StepNumber>
@@ -690,9 +734,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 						</StepHeaderRight>
 					</StepHeader>
 
-					<StepContentWrapper>
-						{renderStepContent()}
-					</StepContentWrapper>
+					<StepContentWrapper>{renderStepContent()}</StepContentWrapper>
 				</MainCard>
 			</ContentWrapper>
 

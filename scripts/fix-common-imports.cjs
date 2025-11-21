@@ -30,7 +30,7 @@ const resolveModulePath = (fromFile, specifier) => {
 	}
 
 	const baseDir = path.dirname(fromFile);
-	let tentative = path.resolve(baseDir, specifier);
+	const tentative = path.resolve(baseDir, specifier);
 
 	if (fileExists(tentative)) {
 		return tentative;
@@ -70,7 +70,7 @@ const getExportInfo = (filePath) => {
 		sourceText,
 		ts.ScriptTarget.Latest,
 		true,
-		filePath.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+		filePath.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
 	);
 
 	const info = {
@@ -123,10 +123,7 @@ const getExportInfo = (filePath) => {
 				if (node.name && ts.isIdentifier(node.name)) {
 					addValue(node.name.text);
 				}
-			} else if (
-				ts.isInterfaceDeclaration(node) ||
-				ts.isTypeAliasDeclaration(node)
-			) {
+			} else if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
 				addType(node.name.text);
 			} else if (
 				ts.isFunctionDeclaration(node) ||
@@ -182,10 +179,10 @@ const fixCommonImports = () => {
 		sourceText,
 		ts.ScriptTarget.Latest,
 		true,
-		ts.ScriptKind.TS,
+		ts.ScriptKind.TS
 	);
 
-	let updatedText = sourceText;
+	const updatedText = sourceText;
 	const replacements = [];
 
 	sourceFile.statements.forEach((node) => {
@@ -217,7 +214,9 @@ const fixCommonImports = () => {
 		const missingSpecifiers = [];
 
 		node.exportClause.elements.forEach((specifier) => {
-			const propertyName = specifier.propertyName ? specifier.propertyName.text : specifier.name.text;
+			const propertyName = specifier.propertyName
+				? specifier.propertyName.text
+				: specifier.name.text;
 			const exportName = specifier.name.text;
 
 			if (propertyName === 'default') {
@@ -252,13 +251,13 @@ const fixCommonImports = () => {
 
 		if (valueSpecifiers.length > 0) {
 			newLines.push(
-				`${indent}export { ${valueSpecifiers.join(', ')} } from '${moduleSpecifierText}';`,
+				`${indent}export { ${valueSpecifiers.join(', ')} } from '${moduleSpecifierText}';`
 			);
 		}
 
 		if (typeSpecifiers.length > 0) {
 			newLines.push(
-				`${indent}export type { ${typeSpecifiers.join(', ')} } from '${moduleSpecifierText}';`,
+				`${indent}export type { ${typeSpecifiers.join(', ')} } from '${moduleSpecifierText}';`
 			);
 		}
 
@@ -303,4 +302,3 @@ const fixCommonImports = () => {
 };
 
 fixCommonImports();
-

@@ -8,33 +8,38 @@ export const STEP_CONFIGS = [
 	{
 		title: 'Step 0: Setup & Credentials',
 		subtitle: 'Configure PingOne application credentials and redirect URIs',
-		description: 'Provide the PingOne environment, client details, and redirect URIs required for hybrid flow testing.'
+		description:
+			'Provide the PingOne environment, client details, and redirect URIs required for hybrid flow testing.',
 	},
 	{
 		title: 'Step 1: Hybrid Variant Selection',
 		subtitle: 'Choose the hybrid response type for this run',
-		description: 'Select between code + ID token, code + access token, or the complete hybrid response.'
+		description:
+			'Select between code + ID token, code + access token, or the complete hybrid response.',
 	},
 	{
 		title: 'Step 2: Authorization Request',
 		subtitle: 'Generate the hybrid authorization URL',
-		description: 'Build an authorization request using the selected hybrid variant and PKCE parameters.'
+		description:
+			'Build an authorization request using the selected hybrid variant and PKCE parameters.',
 	},
 	{
 		title: 'Step 3: Authorization Response',
 		subtitle: 'Process returned fragment tokens and authorization code',
-		description: 'Capture immediate tokens from the URL fragment and validate the hybrid response content.'
+		description:
+			'Capture immediate tokens from the URL fragment and validate the hybrid response content.',
 	},
 	{
 		title: 'Step 4: Code Exchange & Token Validation',
 		subtitle: 'Exchange the authorization code and inspect tokens',
-		description: 'Perform the back-channel token exchange, merge tokens, and run token validation helpers.'
+		description:
+			'Perform the back-channel token exchange, merge tokens, and run token validation helpers.',
 	},
 	{
 		title: 'Step 5: Flow Completion',
 		subtitle: 'Review results and next steps',
-		description: 'Summarize the hybrid run, explore next steps, and launch token tooling.'
-	}
+		description: 'Summarize the hybrid run, explore next steps, and launch token tooling.',
+	},
 ];
 
 export const STEP_METADATA = FlowStateService.createStepMetadata(STEP_CONFIGS);

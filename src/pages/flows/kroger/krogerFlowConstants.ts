@@ -17,12 +17,13 @@ export const SUCCESS_MESSAGES = {
 };
 
 export const ERROR_MESSAGES = {
-	missingCredentials: 'Client ID and Client Secret are required. Configure your Authorization Code client first.',
+	missingCredentials:
+		'Client ID and Client Secret are required. Configure your Authorization Code client first.',
 	missingEnvironment: 'Configure your PingOne environment before attempting authentication.',
 	missingWorkerToken: 'Generate a PingOne worker token before managing MFA devices.',
 	redirectlessFailed: 'Redirectless authentication failed. Please try again.',
-	tokenExchangeFailed: 'Failed to exchange authorization code for tokens. Verify your client credentials.',
-	userLookupFailed: 'Unable to locate the PingOne user. Ensure the account exists and your worker token includes user read scope.',
+	tokenExchangeFailed:
+		'Failed to exchange authorization code for tokens. Verify your client credentials.',
+	userLookupFailed:
+		'Unable to locate the PingOne user. Ensure the account exists and your worker token includes user read scope.',
 };
-
-

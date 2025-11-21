@@ -1,6 +1,6 @@
+import type { OAuthTokens } from '../types/storage';
 import { logger } from '../utils/logger';
 import { oauthStorage } from '../utils/storage';
-import type { OAuthTokens } from '../types/storage';
 
 export interface TokenRefreshConfig {
 	tokenEndpoint: string;

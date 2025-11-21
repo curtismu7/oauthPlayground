@@ -8,10 +8,10 @@ import FlowCredentials from '../../components/FlowCredentials';
 import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { config } from '../../services/config';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { config } from '../../services/config';
 import { ResponseMode } from '../../services/responseModeService';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 
 const Page = styled.div`
   display: flex;

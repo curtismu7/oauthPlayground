@@ -52,12 +52,19 @@ export const FlowWithCodeExamples: React.FC = () => {
 			<StepContainer>
 				<StepTitle>Step 1: Generate Authorization URL</StepTitle>
 				<StepDescription>
-					Create the authorization URL that users will visit to authenticate. 
-					This URL contains your client ID, redirect URI, and requested scopes.
+					Create the authorization URL that users will visit to authenticate. This URL contains your
+					client ID, redirect URI, and requested scopes.
 				</StepDescription>
-				
+
 				{/* Your existing step content here */}
-				<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', marginBottom: '1rem' }}>
+				<div
+					style={{
+						background: '#f3f4f6',
+						padding: '1rem',
+						borderRadius: '6px',
+						marginBottom: '1rem',
+					}}
+				>
 					<p>Your existing step UI components go here...</p>
 					<p>Buttons, forms, inputs, etc.</p>
 				</div>
@@ -75,12 +82,19 @@ export const FlowWithCodeExamples: React.FC = () => {
 			<StepContainer>
 				<StepTitle>Step 2: Handle Authorization Callback</StepTitle>
 				<StepDescription>
-					Process the authorization code returned from the callback URL. 
-					Extract the code and state parameters from the URL.
+					Process the authorization code returned from the callback URL. Extract the code and state
+					parameters from the URL.
 				</StepDescription>
-				
+
 				{/* Your existing step content here */}
-				<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', marginBottom: '1rem' }}>
+				<div
+					style={{
+						background: '#f3f4f6',
+						padding: '1rem',
+						borderRadius: '6px',
+						marginBottom: '1rem',
+					}}
+				>
 					<p>Your existing step UI components go here...</p>
 					<p>Callback handling, URL parsing, etc.</p>
 				</div>
@@ -98,12 +112,19 @@ export const FlowWithCodeExamples: React.FC = () => {
 			<StepContainer>
 				<StepTitle>Step 3: Exchange Code for Token</StepTitle>
 				<StepDescription>
-					Exchange the authorization code for access and ID tokens by making 
-					a POST request to the token endpoint.
+					Exchange the authorization code for access and ID tokens by making a POST request to the
+					token endpoint.
 				</StepDescription>
-				
+
 				{/* Your existing step content here */}
-				<div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', marginBottom: '1rem' }}>
+				<div
+					style={{
+						background: '#f3f4f6',
+						padding: '1rem',
+						borderRadius: '6px',
+						marginBottom: '1rem',
+					}}
+				>
 					<p>Your existing step UI components go here...</p>
 					<p>Token exchange logic, error handling, etc.</p>
 				</div>
@@ -122,11 +143,3 @@ export const FlowWithCodeExamples: React.FC = () => {
 };
 
 export default FlowWithCodeExamples;
-
-
-
-
-
-
-
-

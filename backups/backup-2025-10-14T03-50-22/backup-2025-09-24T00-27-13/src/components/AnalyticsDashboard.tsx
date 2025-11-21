@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiBarChart3,
-	FiTrendingUp,
-	FiUsers,
-	FiClock,
-	FiShield,
 	FiAlertTriangle,
+	FiBarChart3,
+	FiClock,
 	FiDownload,
 	FiRefreshCw,
+	FiShield,
+	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
-import { useAnalytics } from '../hooks/useAnalytics';
+import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 // Styled components
 const DashboardContainer = styled.div`

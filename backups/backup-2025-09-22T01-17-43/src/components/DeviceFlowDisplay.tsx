@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCopy, FiExternalLink, FiQrCode, FiRefreshCw, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiQrCode } from 'react-icons/fi';
-import { deviceFlowService, DeviceFlowState } from '../services/deviceFlowService';
+import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
 

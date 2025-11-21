@@ -1,7 +1,7 @@
 import React from 'react';
+import { FiCode, FiInfo, FiLock, FiSettings, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody, CardFooter } from '../components/Card';
-import { FiCode, FiLock, FiUser, FiSettings, FiInfo } from 'react-icons/fi';
+import { Card, CardBody, CardFooter, CardHeader } from '../components/Card';
 import { useAuth } from '../contexts/AuthContext';
 
 const DashboardContainer = styled.div`

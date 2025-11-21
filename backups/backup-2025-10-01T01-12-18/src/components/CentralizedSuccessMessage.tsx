@@ -1,7 +1,7 @@
 // src/components/CentralizedSuccessMessage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiX } from 'react-icons/fi';
 
 /**
  * Centralized success and error message system

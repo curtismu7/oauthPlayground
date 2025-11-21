@@ -6,14 +6,14 @@ import CollapsibleSection from '../components/CollapsibleSection';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import StandardMessage from '../components/StandardMessage';
 import UISettingsModal from '../components/UISettingsModal';
+import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { usePageScroll } from '../hooks/usePageScroll';
 import type { OpenIDConfiguration } from '../services/discoveryService';
-import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
-import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
+import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const ConfigurationContainer = styled.div`
 	max-width: 1400px;
@@ -2631,12 +2631,12 @@ const Configuration = () => {
 				</div>
 			</CollapsibleSection>showDiscoveryPanel && (
 				<DiscoveryPanel
-					onConfigurationDiscovered={handleConfigurationDiscovered}
+					onConfigurationDiscovered=handleConfigurationDiscovered
 					onClose={() => setShowDiscoveryPanel(false)}
 				/>
 			)
 			<UISettingsModal
-				isOpen={isUISettingsModalOpen}
+				isOpen=isUISettingsModalOpen
 				onClose={() => setIsUISettingsModalOpen(false)}
 			/>
 		</ConfigurationContainer>

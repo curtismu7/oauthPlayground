@@ -2,13 +2,19 @@
 // VIZIO Smart TV Style Device Authorization Flow Interface
 // Designed to look like actual VIZIO V-Series 4K TV
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiPlay, FiPause, FiVolume2 } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiPlay,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import InlineTokenDisplay from './InlineTokenDisplay';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
@@ -44,7 +50,7 @@ const VizioTVContainer = styled.div`
 // VIZIO TV Screen
 const TVScreen = styled.div<{ $showContent?: boolean }>`
   background: ${({ $showContent }) =>
-    $showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
+		$showContent ? 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)' : '#000000'};
   border: 3px solid #1f2937;
   border-radius: 0.75rem;
   padding: ${({ $showContent }) => ($showContent ? '2rem' : '3rem')};
@@ -97,9 +103,9 @@ const StatusIndicator = styled.div<{ $active: boolean; $color: string }>`
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 12px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 12px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -136,15 +142,20 @@ const SmartCastTitle = styled.div`
 `;
 
 const SmartCastStatus = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#10b981';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#10b981';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
   color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
@@ -249,7 +260,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -301,168 +312,163 @@ const SuccessMessage = styled.div`
 `;
 
 interface VizioTVDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('VizioTVDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('VizioTVDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('VizioTVDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'SmartCast Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'SmartCast Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  // VIZIO SmartCast apps
-  const smartCastApps = [
-    { label: 'Netflix', icon: '🎬', color: '#e50914' },
-    { label: 'Disney+', icon: '🏰', color: '#113ccf' },
-    { label: 'Hulu', icon: '📺', color: '#1ce783' },
-    { label: 'Prime Video', icon: '📹', color: '#00a8e1' },
-    { label: 'YouTube TV', icon: '📺', color: '#ff0000' },
-    { label: 'Apple TV+', icon: '🍎', color: '#000000' },
-    { label: 'HBO Max', icon: '🎭', color: '#673ab7' },
-    { label: 'SmartCast', icon: '⚙️', color: '#64748b' }
-  ];
+	// VIZIO SmartCast apps
+	const smartCastApps = [
+		{ label: 'Netflix', icon: '🎬', color: '#e50914' },
+		{ label: 'Disney+', icon: '🏰', color: '#113ccf' },
+		{ label: 'Hulu', icon: '📺', color: '#1ce783' },
+		{ label: 'Prime Video', icon: '📹', color: '#00a8e1' },
+		{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
+		{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
+		{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
+		{ label: 'SmartCast', icon: '⚙️', color: '#64748b' },
+	];
 
-  return (
-    <>
-    <VizioTVContainer>
-      {/* VIZIO TV Screen */}
-      <TVScreen $showContent={true}>
-        {/* VIZIO Branding */}
-        <VizioBranding>
-          <VizioLogo>VIZIO</VizioLogo>
-          <VizioModel>V-Series 4K</VizioModel>
-        </VizioBranding>
+	return (
+		<>
+			<VizioTVContainer>
+				{/* VIZIO TV Screen */}
+				<TVScreen $showContent={true}>
+					{/* VIZIO Branding */}
+					<VizioBranding>
+						<VizioLogo>VIZIO</VizioLogo>
+						<VizioModel>V-Series 4K</VizioModel>
+					</VizioBranding>
 
-        {/* Status Indicators */}
-        <StatusIndicators>
-          <StatusIndicator $active={true} $color="#10b981" />
-          <StatusIndicator $active={true} $color="#3b82f6" />
-          <StatusIndicator $active={state.status === 'authorized'} $color="#f59e0b" />
-        </StatusIndicators>
+					{/* Status Indicators */}
+					<StatusIndicators>
+						<StatusIndicator $active={true} $color="#10b981" />
+						<StatusIndicator $active={true} $color="#3b82f6" />
+						<StatusIndicator $active={state.status === 'authorized'} $color="#f59e0b" />
+					</StatusIndicators>
 
-        {/* SmartCast Interface */}
-        <SmartCastInterface>
-          <SmartCastHeader>
-            <SmartCastTitle>
-              <FiPlay />
-              SmartCast Home
-            </SmartCastTitle>
-            <SmartCastStatus $status={state.status}>
-              {getStatusIcon()}
-              {getStatusText()}
-            </SmartCastStatus>
-          </SmartCastHeader>
+					{/* SmartCast Interface */}
+					<SmartCastInterface>
+						<SmartCastHeader>
+							<SmartCastTitle>
+								<FiPlay />
+								SmartCast Home
+							</SmartCastTitle>
+							<SmartCastStatus $status={state.status}>
+								{getStatusIcon()}
+								{getStatusText()}
+							</SmartCastStatus>
+						</SmartCastHeader>
 
-          {/* App Grid */}
-          <AppGrid>
-            {smartCastApps.map((app) => (
-              <AppIcon key={app.label} $color={app.color}>
-                <span style={{ fontSize: '1.5rem' }}>{app.icon}</span>
-                <AppLabel>{app.label}</AppLabel>
-              </AppIcon>
-            ))}
-          </AppGrid>
+						{/* App Grid */}
+						<AppGrid>
+							{smartCastApps.map((app) => (
+								<AppIcon key={app.label} $color={app.color}>
+									<span style={{ fontSize: '1.5rem' }}>{app.icon}</span>
+									<AppLabel>{app.label}</AppLabel>
+								</AppIcon>
+							))}
+						</AppGrid>
 
-          {/* Authorization Code Display */}
-          <AuthCodeDisplay>
-            {deviceFlowService.formatUserCode(state.userCode)}
-          </AuthCodeDisplay>
-        </SmartCastInterface>
+						{/* Authorization Code Display */}
+						<AuthCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</AuthCodeDisplay>
+					</SmartCastInterface>
 
-        {/* QR Code Section */}
-        <QRCodeSection>
-          <QRTitle>Connect with VIZIO SmartCast Mobile</QRTitle>
-          <QRSubtitle>
-            Scan this QR code with your phone to complete setup
-          </QRSubtitle>
-          <QRCodeContainer>
-            <QRCodeSVG
-              value={state.verificationUriComplete}
-              size={180}
-              bgColor="#ffffff"
-              fgColor="#1f2937"
-              level="H"
-              includeMargin={true}
-            />
-          </QRCodeContainer>
-          <ActionButtons>
-            <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-              <FiCopy /> Copy Code
-            </ActionButton>
-            <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-              <FiExternalLink /> Open App
-            </ActionButton>
-          </ActionButtons>
-        </QRCodeSection>
+					{/* QR Code Section */}
+					<QRCodeSection>
+						<QRTitle>Connect with VIZIO SmartCast Mobile</QRTitle>
+						<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+						<QRCodeContainer>
+							<QRCodeSVG
+								value={state.verificationUriComplete}
+								size={180}
+								bgColor="#ffffff"
+								fgColor="#1f2937"
+								level="H"
+								includeMargin={true}
+							/>
+						</QRCodeContainer>
+						<ActionButtons>
+							<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+								<FiCopy /> Copy Code
+							</ActionButton>
+							<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+								<FiExternalLink /> Open App
+							</ActionButton>
+						</ActionButtons>
+					</QRCodeSection>
 
-        {/* Success Display */}
-        {state.status === 'authorized' && state.tokens && (
-          <SuccessDisplay>
-            <SuccessTitle>
-              <FiCheckCircle />
-              SmartCast Connected Successfully!
-            </SuccessTitle>
-            <SuccessMessage>
-              Your VIZIO TV is now connected and ready to stream your favorite content.
-            </SuccessMessage>
-          </SuccessDisplay>
-        )}
-      </TVScreen>
+					{/* Success Display */}
+					{state.status === 'authorized' && state.tokens && (
+						<SuccessDisplay>
+							<SuccessTitle>
+								<FiCheckCircle />
+								SmartCast Connected Successfully!
+							</SuccessTitle>
+							<SuccessMessage>
+								Your VIZIO TV is now connected and ready to stream your favorite content.
+							</SuccessMessage>
+						</SuccessDisplay>
+					)}
+				</TVScreen>
+			</VizioTVContainer>
 
-    </VizioTVContainer>
-
-    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
-    <StandardizedTokenDisplay 
-      tokens={state.tokens}
-      backgroundColor="rgba(0, 0, 0, 0.2)"
-      borderColor="#3a3a3c"
-      headerTextColor="#ffffff"
-    />
-    </>
-  );
+			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+			<StandardizedTokenDisplay
+				tokens={state.tokens}
+				backgroundColor="rgba(0, 0, 0, 0.2)"
+				borderColor="#3a3a3c"
+				headerTextColor="#ffffff"
+			/>
+		</>
+	);
 };
 
 export default VizioTVDeviceFlow;

@@ -2,9 +2,9 @@
 // Client Credentials flow doesn't use browser redirect response modes - show learn-only notice
 
 import React from 'react';
-import { FiInfo, FiExternalLink } from 'react-icons/fi';
-import styled from 'styled-components';
+import { FiExternalLink, FiInfo } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
 // Styled Components
 const Container = styled.div`

@@ -64,7 +64,7 @@ export class RedirectlessAuthService {
 	]);
 
 	private static getStoragePrefix(flowKey?: string): string {
-		return flowKey || this.DEFAULT_STORAGE_PREFIX;
+		return flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 	}
 
 	private static updatePendingResume(
@@ -76,7 +76,7 @@ export class RedirectlessAuthService {
 			flowId: string;
 		}>
 	): void {
-		const storagePrefix = this.getStoragePrefix(flowKey);
+		const storagePrefix = RedirectlessAuthService.getStoragePrefix(flowKey);
 		const raw = sessionStorage.getItem(`${storagePrefix}_pending_resume`);
 		if (!raw) {
 			return;
@@ -101,22 +101,24 @@ export class RedirectlessAuthService {
 		if (!status) {
 			return false;
 		}
-		return this.CREDENTIAL_REQUIRED_STATUSES.has(status.toUpperCase());
+		return RedirectlessAuthService.CREDENTIAL_REQUIRED_STATUSES.has(status.toUpperCase());
 	}
 
 	private static indicatesMfa(status?: string | null): boolean {
 		if (!status) {
 			return false;
 		}
-		return this.MFA_REQUIRED_STATUSES.has(status.toUpperCase());
+		return RedirectlessAuthService.MFA_REQUIRED_STATUSES.has(status.toUpperCase());
 	}
 
 	/**
 	 * Start a redirectless authorization flow
 	 */
-	static async startAuthorization(config: RedirectlessAuthConfig): Promise<RedirectlessFlowResponse> {
+	static async startAuthorization(
+		config: RedirectlessAuthConfig
+	): Promise<RedirectlessFlowResponse> {
 		const { credentials, flowKey } = config;
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		// Generate PKCE codes
 		const { generateCodeVerifier, generateCodeChallenge } = await import('../utils/oauth');
@@ -159,7 +161,9 @@ export class RedirectlessAuthService {
 			requestBody.redirectUri = credentials.redirectUri;
 		}
 
-		console.log(`[RedirectlessAuthService] Starting authorization flow for ${flowKey || 'default'}`);
+		console.log(
+			`[RedirectlessAuthService] Starting authorization flow for ${flowKey || 'default'}`
+		);
 		console.log(`[RedirectlessAuthService] 🐛 DEBUG - Request details:`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'MISSING',
@@ -194,7 +198,7 @@ export class RedirectlessAuthService {
 				responseText: errorText,
 				responseHeaders: Object.fromEntries(response.headers.entries()),
 			});
-			
+
 			let errorBody;
 			try {
 				errorBody = JSON.parse(errorText);
@@ -214,15 +218,20 @@ export class RedirectlessAuthService {
 			flowId: flowData.flowId,
 			status: flowData.status,
 			hasResumeUrl: !!flowData.resumeUrl,
-			hasSessionId: !!(flowData as unknown as { _sessionId?: string })._sessionId || !!flowData.sessionId,
+			hasSessionId:
+				!!(flowData as unknown as { _sessionId?: string })._sessionId || !!flowData.sessionId,
 		});
 
 		// Store flow data for resume
 		if (flowData.flowId && flowData.resumeUrl) {
 			// Server returns _sessionId (with underscore) - extract it from response
-			const sessionId = (flowData as unknown as { _sessionId?: string })._sessionId || flowData.sessionId;
-			console.log(`[RedirectlessAuthService] Storing resume data with sessionId:`, sessionId ? `${sessionId.substring(0, 8)}...` : 'MISSING');
-			
+			const sessionId =
+				(flowData as unknown as { _sessionId?: string })._sessionId || flowData.sessionId;
+			console.log(
+				`[RedirectlessAuthService] Storing resume data with sessionId:`,
+				sessionId ? `${sessionId.substring(0, 8)}...` : 'MISSING'
+			);
+
 			const pendingResumeData = {
 				resumeUrl: flowData.resumeUrl,
 				flowId: flowData.flowId,
@@ -232,7 +241,9 @@ export class RedirectlessAuthService {
 			};
 			sessionStorage.setItem(`${storagePrefix}_pending_resume`, JSON.stringify(pendingResumeData));
 		} else {
-			console.warn(`[RedirectlessAuthService] Missing flowId or resumeUrl - cannot store resume data`);
+			console.warn(
+				`[RedirectlessAuthService] Missing flowId or resumeUrl - cannot store resume data`
+			);
 		}
 
 		return flowData;
@@ -297,7 +308,7 @@ export class RedirectlessAuthService {
 		const result = (await response.json()) as Record<string, any>;
 
 		if (result.resumeUrl || result._sessionId) {
-			this.updatePendingResume(flowKey, {
+			RedirectlessAuthService.updatePendingResume(flowKey, {
 				resumeUrl: result.resumeUrl,
 				sessionId: result._sessionId,
 			});
@@ -314,7 +325,7 @@ export class RedirectlessAuthService {
 		config: RedirectlessAuthConfig
 	): Promise<void> {
 		const { flowKey } = config;
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const _storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		// Extract sign-on page URL from _links
 		const signOnPageUrl =
@@ -332,13 +343,17 @@ export class RedirectlessAuthService {
 		console.log(`[RedirectlessAuthService] Flow details:`, {
 			flowId: flowResponse.flowId,
 			status: flowResponse.status,
-			hasSessionId: !!(flowResponse as unknown as { _sessionId?: string })._sessionId || !!flowResponse.sessionId,
+			hasSessionId:
+				!!(flowResponse as unknown as { _sessionId?: string })._sessionId ||
+				!!flowResponse.sessionId,
 			signOnPageUrl,
 		});
-		
+
 		// CRITICAL: Redirect immediately to prevent flow expiration
 		// PingOne flows expire after ~15 minutes, so we need to redirect ASAP
-		console.log(`[RedirectlessAuthService] ⚠️ IMPORTANT: Redirecting immediately to prevent flow expiration`);
+		console.log(
+			`[RedirectlessAuthService] ⚠️ IMPORTANT: Redirecting immediately to prevent flow expiration`
+		);
 
 		// Call optional callback
 		if (config.onSignOnPageRequired) {
@@ -354,7 +369,7 @@ export class RedirectlessAuthService {
 	 */
 	static async resumeFlow(config: RedirectlessAuthConfig): Promise<string | null> {
 		const { credentials, flowKey } = config;
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		// Get pending resume data
 		const pendingResumeRaw = sessionStorage.getItem(`${storagePrefix}_pending_resume`);
@@ -383,16 +398,18 @@ export class RedirectlessAuthService {
 			flowId: resumeData.flowId,
 			hasResumeUrl: !!resumeData.resumeUrl,
 			hasSessionId: !!resumeData.sessionId,
-			sessionIdPreview: resumeData.sessionId ? `${resumeData.sessionId.substring(0, 8)}...` : 'MISSING',
+			sessionIdPreview: resumeData.sessionId
+				? `${resumeData.sessionId.substring(0, 8)}...`
+				: 'MISSING',
 		});
 
 		// CRITICAL: Validate sessionId exists before resume (matches PingOneAuthentication pattern)
 		if (!resumeData.sessionId) {
 			console.error(`[RedirectlessAuthService] ❌ Missing sessionId before resume step. Aborting.`);
-			console.error(`[RedirectlessAuthService] Backend must manage PingOne cookies server-side and return _sessionId.`);
-			throw new Error(
-				'PingOne session context is missing. Please restart the redirectless flow.'
+			console.error(
+				`[RedirectlessAuthService] Backend must manage PingOne cookies server-side and return _sessionId.`
 			);
+			throw new Error('PingOne session context is missing. Please restart the redirectless flow.');
 		}
 
 		const requestBody = {
@@ -430,33 +447,43 @@ export class RedirectlessAuthService {
 				responseHeaders: Object.fromEntries(response.headers.entries()),
 				resumeUrl: requestBody.resumeUrl,
 				hasSessionId: !!requestBody.sessionId,
-				sessionIdPreview: requestBody.sessionId ? `${requestBody.sessionId.substring(0, 8)}...` : 'MISSING',
+				sessionIdPreview: requestBody.sessionId
+					? `${requestBody.sessionId.substring(0, 8)}...`
+					: 'MISSING',
 			});
-			
+
 			let errorBody;
 			try {
 				errorBody = JSON.parse(errorText);
 			} catch {
 				errorBody = { error: 'parse_failed', raw_response: errorText };
 			}
-			
+
 			// Extract error details from PingOne response
 			const errorCode = errorBody?.error_code || errorBody?.error || 'UNKNOWN_ERROR';
-			const errorDescription = errorBody?.error_description || errorBody?.message || errorBody?.error || `Resume failed (status ${response.status})`;
+			const errorDescription =
+				errorBody?.error_description ||
+				errorBody?.message ||
+				errorBody?.error ||
+				`Resume failed (status ${response.status})`;
 			const pingoneError = errorBody?.pingone_error || errorBody?.details;
-			
+
 			// Check if this is a flow expiration/timeout error
-			const isFlowExpired = errorCode === 'NOT_FOUND' || 
-			                      errorDescription?.includes('does not exist') ||
-			                      errorDescription?.includes('timeout') ||
-			                      errorDescription?.includes('expired') ||
-			                      pingoneError?.details?.some((d: { message?: string }) => d?.message?.includes('does not exist') || d?.message?.includes('timeout'));
-			
+			const isFlowExpired =
+				errorCode === 'NOT_FOUND' ||
+				errorDescription?.includes('does not exist') ||
+				errorDescription?.includes('timeout') ||
+				errorDescription?.includes('expired') ||
+				pingoneError?.details?.some(
+					(d: { message?: string }) =>
+						d?.message?.includes('does not exist') || d?.message?.includes('timeout')
+				);
+
 			if (isFlowExpired) {
 				const friendlyMessage = `The authentication flow expired. Flows expire after ~15 minutes. Please start a new flow by clicking "Start Login" again.`;
 				throw new Error(friendlyMessage);
 			}
-			
+
 			// For other errors, use the error description from PingOne
 			throw new Error(errorDescription);
 		}
@@ -471,8 +498,8 @@ export class RedirectlessAuthService {
 		const authCode =
 			resumeResult.code ||
 			resumeResult.authorizeResponse?.code ||
-			(resumeResult as unknown as { authorizeResponse?: { code?: string } })
-				?.authorizeResponse?.code ||
+			(resumeResult as unknown as { authorizeResponse?: { code?: string } })?.authorizeResponse
+				?.code ||
 			null;
 
 		if (authCode) {
@@ -498,73 +525,82 @@ export class RedirectlessAuthService {
 	 * Extract authorization code from JSON response on page (when PingOne returns JSON directly)
 	 */
 	static extractCodeFromPageJson(flowKey?: string): { code: string; state: string } | null {
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		try {
 			console.log(`[RedirectlessAuthService] 🔍 Checking page for completed flow JSON...`);
 			console.log(`[RedirectlessAuthService] 🔍 Current URL:`, window.location.href);
 			console.log(`[RedirectlessAuthService] 🔍 Page hostname:`, window.location.hostname);
-			
+
 			// Check if page content contains JSON
 			const pageText = document.body?.textContent || document.documentElement?.textContent || '';
 			console.log(`[RedirectlessAuthService] 🔍 Page content preview:`, pageText.substring(0, 200));
-			
+
 			if (!pageText.trim()) {
 				console.log(`[RedirectlessAuthService] 🔍 No page content found`);
 				return null;
 			}
 
 			let flowData: any = null;
-			
+
 			// Method 1: Try parsing entire text as JSON (if it's pure JSON)
 			if (pageText.trim().startsWith('{') && pageText.trim().endsWith('}')) {
 				try {
 					flowData = JSON.parse(pageText.trim());
 					console.log(`[RedirectlessAuthService] ✅ Page is pure JSON:`, {
 						status: flowData?.status,
-						hasAuthorizeResponse: !!(flowData?.authorizeResponse),
+						hasAuthorizeResponse: !!flowData?.authorizeResponse,
 						hasCode: !!(flowData?.authorizeResponse?.code || flowData?.code),
 					});
 				} catch (parseError) {
 					console.log(`[RedirectlessAuthService] 🔍 Failed to parse as pure JSON:`, parseError);
 				}
 			}
-			
+
 			// Method 2: If not pure JSON, search for JSON patterns within HTML content
 			if (!flowData && pageText.includes('authorizeResponse')) {
 				console.log(`[RedirectlessAuthService] 🔍 Searching for JSON patterns in HTML content...`);
-				
+
 				// Find JSON objects that contain "authorizeResponse" and "COMPLETED"
-				const jsonMatches = pageText.match(/\{[\s\S]*?"status"\s*:\s*"COMPLETED"[\s\S]*?"authorizeResponse"[\s\S]*?\}/g);
-				
+				const jsonMatches = pageText.match(
+					/\{[\s\S]*?"status"\s*:\s*"COMPLETED"[\s\S]*?"authorizeResponse"[\s\S]*?\}/g
+				);
+
 				if (jsonMatches && jsonMatches.length > 0) {
 					try {
 						flowData = JSON.parse(jsonMatches[0]);
 						console.log(`[RedirectlessAuthService] ✅ Extracted JSON from HTML content:`, {
 							matchLength: jsonMatches[0].length,
 							status: flowData?.status,
-							hasAuthorizeResponse: !!(flowData?.authorizeResponse),
+							hasAuthorizeResponse: !!flowData?.authorizeResponse,
 						});
 					} catch (extractError) {
 						console.warn(`[RedirectlessAuthService] Failed to parse extracted JSON:`, extractError);
 					}
 				} else {
-					console.log(`[RedirectlessAuthService] 🔍 No COMPLETED + authorizeResponse JSON patterns found`);
+					console.log(
+						`[RedirectlessAuthService] 🔍 No COMPLETED + authorizeResponse JSON patterns found`
+					);
 				}
 			}
 
 			// Method 3: Fallback - search for any JSON with authorizeResponse
 			if (!flowData && pageText.includes('authorizeResponse')) {
-				console.log(`[RedirectlessAuthService] 🔍 Fallback: searching for any authorizeResponse JSON...`);
-				
+				console.log(
+					`[RedirectlessAuthService] 🔍 Fallback: searching for any authorizeResponse JSON...`
+				);
+
 				const broadMatches = pageText.match(/\{[\s\S]*?"authorizeResponse"[\s\S]*?\}/g);
 				if (broadMatches && broadMatches.length > 0) {
 					try {
 						flowData = JSON.parse(broadMatches[0]);
-						console.log(`[RedirectlessAuthService] ✅ Found JSON with authorizeResponse (fallback):`, {
-							status: flowData?.status,
-							hasCode: !!(flowData?.authorizeResponse?.code),
-						});
+						console.log(
+							`[RedirectlessAuthService] ✅ Found JSON with authorizeResponse (fallback):`,
+							{
+								status: flowData?.status,
+								hasCode: !!flowData?.authorizeResponse?.code,
+							}
+						);
 					} catch (extractError) {
 						console.warn(`[RedirectlessAuthService] Fallback extraction failed:`, extractError);
 					}
@@ -582,14 +618,20 @@ export class RedirectlessAuthService {
 
 			if (flowData?.status === 'COMPLETED') {
 				// First try: authorizeResponse.code (pi.flow format) - same as PingOne auth
-				if (flowData.authorizeResponse?.code && typeof flowData.authorizeResponse.code === 'string') {
+				if (
+					flowData.authorizeResponse?.code &&
+					typeof flowData.authorizeResponse.code === 'string'
+				) {
 					authCode = flowData.authorizeResponse.code;
 					authState = flowData.authorizeResponse.state || '';
-					console.log('✅ [RedirectlessAuthService] Found code in authorizeResponse.code (pi.flow format):', {
-						codeLength: authCode.length,
-						codePreview: `${authCode.substring(0, 20)}...`,
-						state: authState ? `${authState.substring(0, 30)}...` : 'none',
-					});
+					console.log(
+						'✅ [RedirectlessAuthService] Found code in authorizeResponse.code (pi.flow format):',
+						{
+							codeLength: authCode.length,
+							codePreview: `${authCode.substring(0, 20)}...`,
+							state: authState ? `${authState.substring(0, 30)}...` : 'none',
+						}
+					);
 				}
 				// Second try: direct code field
 				else if (flowData.code && typeof flowData.code === 'string' && flowData.code !== 'null') {
@@ -624,11 +666,10 @@ export class RedirectlessAuthService {
 
 			console.log(`[RedirectlessAuthService] 🔍 JSON found but no authorization code:`, {
 				status: flowData?.status,
-				hasAuthorizeResponse: !!(flowData?.authorizeResponse),
-				hasDirectCode: !!(flowData?.code),
+				hasAuthorizeResponse: !!flowData?.authorizeResponse,
+				hasDirectCode: !!flowData?.code,
 				keys: Object.keys(flowData),
 			});
-
 		} catch (error) {
 			console.error(`[RedirectlessAuthService] Error extracting code from page JSON:`, error);
 		}
@@ -642,7 +683,7 @@ export class RedirectlessAuthService {
 	static async completeFlow(config: RedirectlessAuthConfig): Promise<string | null> {
 		try {
 			// Step 1: Start authorization
-			const flowResponse = await this.startAuthorization(config);
+			const flowResponse = await RedirectlessAuthService.startAuthorization(config);
 			const flowId = flowResponse.flowId || (flowResponse as Record<string, any>)?.id;
 
 			if (!flowId) {
@@ -662,23 +703,23 @@ export class RedirectlessAuthService {
 				return code;
 			}
 
-			if (this.indicatesMfa(flowResponse.status)) {
+			if (RedirectlessAuthService.indicatesMfa(flowResponse.status)) {
 				throw new Error(
-					'PingOne responded with an MFA requirement. Complete the MFA step via the Flow API (mfa.check / otp.check) before resuming (see PingOne workflow Step 7: Assign the MFA sign-on policy).',
+					'PingOne responded with an MFA requirement. Complete the MFA step via the Flow API (mfa.check / otp.check) before resuming (see PingOne workflow Step 7: Assign the MFA sign-on policy).'
 				);
 			}
 
-			if (this.requiresCredentialSubmission(flowResponse.status)) {
+			if (RedirectlessAuthService.requiresCredentialSubmission(flowResponse.status)) {
 				const username = config.credentials.username?.trim();
 				const password = config.credentials.password;
 
 				if (!username || !password) {
 					throw new Error(
-						'PingOne requires username/password for this redirectless flow, but no credentials were provided. Pass credentials to RedirectlessAuthService.completeFlow().',
+						'PingOne requires username/password for this redirectless flow, but no credentials were provided. Pass credentials to RedirectlessAuthService.completeFlow().'
 					);
 				}
 
-				const credentialResponse = await this.submitCredentials({
+				const credentialResponse = await RedirectlessAuthService.submitCredentials({
 					flowKey: config.flowKey,
 					environmentId: config.credentials.environmentId,
 					flowId,
@@ -689,20 +730,16 @@ export class RedirectlessAuthService {
 					clientSecret: config.credentials.clientSecret,
 				});
 
-				if (this.indicatesMfa(credentialResponse.status)) {
+				if (RedirectlessAuthService.indicatesMfa(credentialResponse.status)) {
 					throw new Error(
-						'PingOne sign-on policy requires MFA after password verification. Extend the flow to call mfa.check / otp.check (see PingOne workflow Step 7: Assign the MFA sign-on policy).',
+						'PingOne sign-on policy requires MFA after password verification. Extend the flow to call mfa.check / otp.check (see PingOne workflow Step 7: Assign the MFA sign-on policy).'
 					);
 				}
 
 				const directCode =
-					credentialResponse.authorizeResponse?.code ||
-					credentialResponse.code ||
-					null;
+					credentialResponse.authorizeResponse?.code || credentialResponse.code || null;
 				const directState =
-					credentialResponse.authorizeResponse?.state ||
-					credentialResponse.state ||
-					'';
+					credentialResponse.authorizeResponse?.state || credentialResponse.state || '';
 
 				if (directCode) {
 					if (config.onAuthCodeReceived) {
@@ -713,13 +750,13 @@ export class RedirectlessAuthService {
 			}
 
 			// Step 3: Resume the flow to retrieve the authorization code
-			const resumedCode = await this.resumeFlow(config);
+			const resumedCode = await RedirectlessAuthService.resumeFlow(config);
 			if (resumedCode) {
 				return resumedCode;
 			}
 
 			throw new Error(
-				'PingOne did not return an authorization code after resume. Verify policy assignments and follow the redirectless workflow library steps (see PingOne workflow Step 7: Assign the MFA sign-on policy).',
+				'PingOne did not return an authorization code after resume. Verify policy assignments and follow the redirectless workflow library steps (see PingOne workflow Step 7: Assign the MFA sign-on policy).'
 			);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -740,7 +777,7 @@ export class RedirectlessAuthService {
 	 */
 	static async handlePendingResume(config: RedirectlessAuthConfig): Promise<string | null> {
 		const { flowKey } = config;
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const _storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		// Check if we're back on our app (not on PingOne's domain)
 		const currentUrl = window.location.href;
@@ -749,7 +786,7 @@ export class RedirectlessAuthService {
 
 		if (!isOnOurApp) {
 			// Still on PingOne's domain - try to extract JSON from page
-			const extracted = this.extractCodeFromPageJson(flowKey);
+			const extracted = RedirectlessAuthService.extractCodeFromPageJson(flowKey);
 			if (extracted) {
 				if (config.onAuthCodeReceived) {
 					await config.onAuthCodeReceived(extracted.code, extracted.state);
@@ -761,12 +798,12 @@ export class RedirectlessAuthService {
 
 		// We're back on our app - resume the flow
 		try {
-			return await this.resumeFlow(config);
+			return await RedirectlessAuthService.resumeFlow(config);
 		} catch (error) {
 			console.error(`[RedirectlessAuthService] Resume failed:`, error);
 
 			// Fallback: try to extract from page JSON
-			const extracted = this.extractCodeFromPageJson(flowKey);
+			const extracted = RedirectlessAuthService.extractCodeFromPageJson(flowKey);
 			if (extracted) {
 				if (config.onAuthCodeReceived) {
 					await config.onAuthCodeReceived(extracted.code, extracted.state);
@@ -786,7 +823,7 @@ export class RedirectlessAuthService {
 	 * Get stored authorization code from sessionStorage
 	 */
 	static getStoredAuthCode(flowKey?: string): { code: string; state: string } | null {
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 		const code = sessionStorage.getItem(`${storagePrefix}_auth_code`);
 		const state = sessionStorage.getItem(`${storagePrefix}_state`);
 
@@ -801,7 +838,7 @@ export class RedirectlessAuthService {
 	 * Clear all stored flow data
 	 */
 	static async clearFlowData(flowKey?: string): Promise<void> {
-		const storagePrefix = flowKey || this.DEFAULT_STORAGE_PREFIX;
+		const storagePrefix = flowKey || RedirectlessAuthService.DEFAULT_STORAGE_PREFIX;
 
 		sessionStorage.removeItem(`${storagePrefix}_pending_resume`);
 		sessionStorage.removeItem(`${storagePrefix}_auth_code`);
@@ -817,4 +854,3 @@ export class RedirectlessAuthService {
 		}
 	}
 }
-

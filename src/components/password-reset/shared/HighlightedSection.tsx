@@ -2,7 +2,7 @@
 // Component to highlight new sections that appear, drawing user attention
 
 import React, { useEffect, useState } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 
 const pulseGlow = keyframes`
 	0%, 100% {
@@ -25,22 +25,23 @@ const slideIn = keyframes`
 `;
 
 const HighlightContainer = styled.div<{ $isNew: boolean }>`
-	animation: ${props => props.$isNew ? slideIn : 'none'} 0.3s ease-out;
-	border: ${props => props.$isNew ? '3px solid #3B82F6' : '2px solid transparent'};
+	animation: ${(props) => (props.$isNew ? slideIn : 'none')} 0.3s ease-out;
+	border: ${(props) => (props.$isNew ? '3px solid #3B82F6' : '2px solid transparent')};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
-	background: ${props => props.$isNew 
-		? 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)' 
-		: 'transparent'};
+	background: ${(props) =>
+		props.$isNew ? 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)' : 'transparent'};
 	position: relative;
 	transition: all 0.5s ease-out;
 	
-	${props => props.$isNew && css`
+	${(props) =>
+		props.$isNew &&
+		css`
 		animation: ${slideIn} 0.3s ease-out, ${pulseGlow} 2s ease-in-out 3;
 	`}
 	
 	&::before {
-		content: ${props => props.$isNew ? '"👉 Complete this section"' : '""'};
+		content: ${(props) => (props.$isNew ? '"👉 Complete this section"' : '""')};
 		position: absolute;
 		top: -12px;
 		left: 20px;
@@ -53,7 +54,7 @@ const HighlightContainer = styled.div<{ $isNew: boolean }>`
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-		opacity: ${props => props.$isNew ? 1 : 0};
+		opacity: ${(props) => (props.$isNew ? 1 : 0)};
 		transition: opacity 0.3s ease-out;
 	}
 `;

@@ -88,12 +88,12 @@ export default defineConfig(({ mode }) => {
 						proxy.on('error', (err) => {
 							console.log('Proxy error:', err.message);
 						});
-						
+
 						// Add connection handling
 						proxy.on('proxyReq', (proxyReq) => {
 							proxyReq.setTimeout(10000);
 						});
-						
+
 						proxy.on('proxyRes', (proxyRes) => {
 							proxyRes.setTimeout(10000);
 						});

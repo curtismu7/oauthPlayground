@@ -1,267 +1,267 @@
-import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
-import { FiMessageCircle, FiX, FiSend, FiExternalLink } from 'react-icons/fi';
-import { aiAgentService } from '../services/aiAgentService';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiExternalLink, FiMessageCircle, FiSend, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { aiAgentService } from '../services/aiAgentService';
 
 interface Message {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  links?: Array<{
-    title: string;
-    path: string;
-    type: string;
-    external?: boolean;
-  }>;
-  timestamp: Date;
+	id: string;
+	type: 'user' | 'assistant';
+	content: string;
+	links?: Array<{
+		title: string;
+		path: string;
+		type: string;
+		external?: boolean;
+	}>;
+	timestamp: Date;
 }
 
 const AIAssistant: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [includeApiDocs, setIncludeApiDocs] = useState(false);
-  const [includeSpecs, setIncludeSpecs] = useState(false);
-  const [includeWorkflows, setIncludeWorkflows] = useState(false);
-  const [includeUserGuide, setIncludeUserGuide] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'assistant',
-      content: 'Hi! I\'m your OAuth Playground assistant. I can help you:\n\n• Find the right OAuth flow for your needs\n• Explain OAuth and OIDC concepts\n• Guide you through configuration\n• Troubleshoot issues\n\nWhat would you like to know?',
-      timestamp: new Date()
-    }
-  ]);
-  const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
+	const [isOpen, setIsOpen] = useState(false);
+	const [includeApiDocs, setIncludeApiDocs] = useState(false);
+	const [includeSpecs, setIncludeSpecs] = useState(false);
+	const [includeWorkflows, setIncludeWorkflows] = useState(false);
+	const [includeUserGuide, setIncludeUserGuide] = useState(false);
+	const [messages, setMessages] = useState<Message[]>([
+		{
+			id: '1',
+			type: 'assistant',
+			content:
+				"Hi! I'm your OAuth Playground assistant. I can help you:\n\n• Find the right OAuth flow for your needs\n• Explain OAuth and OIDC concepts\n• Guide you through configuration\n• Troubleshoot issues\n\nWhat would you like to know?",
+			timestamp: new Date(),
+		},
+	]);
+	const [input, setInput] = useState('');
+	const [isTyping, setIsTyping] = useState(false);
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+	const navigate = useNavigate();
 
-  useEffect(() => {
-    if (messages.length === 0) {
-      return;
-    }
+	useEffect(() => {
+		if (messages.length === 0) {
+			return;
+		}
 
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+		messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+	}, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
+	const handleSend = async () => {
+		if (!input.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: input,
-      timestamp: new Date()
-    };
+		const userMessage: Message = {
+			id: Date.now().toString(),
+			type: 'user',
+			content: input,
+			timestamp: new Date(),
+		};
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsTyping(true);
+		setMessages((prev) => [...prev, userMessage]);
+		setInput('');
+		setIsTyping(true);
 
-    // Simulate slight delay for more natural feel
-    setTimeout(() => {
-      const { answer, relatedLinks } = aiAgentService.getAnswer(input, { 
-        includeApiDocs,
-        includeSpecs,
-        includeWorkflows,
-        includeUserGuide
-      });
+		// Simulate slight delay for more natural feel
+		setTimeout(() => {
+			const { answer, relatedLinks } = aiAgentService.getAnswer(input, {
+				includeApiDocs,
+				includeSpecs,
+				includeWorkflows,
+				includeUserGuide,
+			});
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: answer,
-        links: relatedLinks.map(link => ({
-          title: link.title,
-          path: link.path,
-          type: link.type,
-          external: link.external
-        })),
-        timestamp: new Date()
-      };
+			const assistantMessage: Message = {
+				id: (Date.now() + 1).toString(),
+				type: 'assistant',
+				content: answer,
+				links: relatedLinks.map((link) => ({
+					title: link.title,
+					path: link.path,
+					type: link.type,
+					external: link.external,
+				})),
+				timestamp: new Date(),
+			};
 
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsTyping(false);
-    }, 500);
-  };
+			setMessages((prev) => [...prev, assistantMessage]);
+			setIsTyping(false);
+		}, 500);
+	};
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
+	const handleKeyPress = (e: React.KeyboardEvent) => {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSend();
+		}
+	};
 
-  const handleLinkClick = (path: string, external?: boolean) => {
-    if (external) {
-      window.open(path, '_blank', 'noopener,noreferrer');
-    } else {
-      navigate(path);
-      setIsOpen(false);
-    }
-  };
+	const handleLinkClick = (path: string, external?: boolean) => {
+		if (external) {
+			window.open(path, '_blank', 'noopener,noreferrer');
+		} else {
+			navigate(path);
+			setIsOpen(false);
+		}
+	};
 
-  const quickQuestions = [
-    'How do I configure Authorization Code flow?',
-    'What\'s the difference between OAuth and OIDC?',
-    'Which flow should I use?',
-    'How do I test device flows?',
-    'What is PKCE?'
-  ];
+	const quickQuestions = [
+		'How do I configure Authorization Code flow?',
+		"What's the difference between OAuth and OIDC?",
+		'Which flow should I use?',
+		'How do I test device flows?',
+		'What is PKCE?',
+	];
 
-  return (
-    <>
-      {/* Floating Button */}
-      {!isOpen && (
-        <FloatingButton onClick={() => setIsOpen(true)} aria-label="Open AI Assistant">
-          <FiMessageCircle size={24} />
-          <Pulse />
-        </FloatingButton>
-      )}
+	return (
+		<>
+			{/* Floating Button */}
+			{!isOpen && (
+				<FloatingButton onClick={() => setIsOpen(true)} aria-label="Open AI Assistant">
+					<FiMessageCircle size={24} />
+					<Pulse />
+				</FloatingButton>
+			)}
 
-      {/* Chat Window */}
-      {isOpen && (
-        <ChatWindow>
-          <ChatHeader>
-            <HeaderContent>
-              <AssistantIcon>🤖</AssistantIcon>
-              <HeaderText>
-                <HeaderTitle>OAuth Assistant</HeaderTitle>
-                <HeaderSubtitle>Ask me anything about OAuth & OIDC</HeaderSubtitle>
-              </HeaderText>
-            </HeaderContent>
-            <HeaderActions>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    checked={includeApiDocs}
-                    onChange={(e) => setIncludeApiDocs(e.target.checked)}
-                    aria-label="Include PingOne API docs"
-                  />
-                  <ToggleText>APIs</ToggleText>
-                </ToggleLabel>
-              </ToggleContainer>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    checked={includeSpecs}
-                    onChange={(e) => setIncludeSpecs(e.target.checked)}
-                    aria-label="Include OAuth/OIDC specifications"
-                  />
-                  <ToggleText>Specs</ToggleText>
-                </ToggleLabel>
-              </ToggleContainer>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    checked={includeWorkflows}
-                    onChange={(e) => setIncludeWorkflows(e.target.checked)}
-                    aria-label="Include PingOne workflows"
-                  />
-                  <ToggleText>Workflows</ToggleText>
-                </ToggleLabel>
-              </ToggleContainer>
-              <ToggleContainer>
-                <ToggleLabel>
-                  <ToggleCheckbox
-                    type="checkbox"
-                    checked={includeUserGuide}
-                    onChange={(e) => setIncludeUserGuide(e.target.checked)}
-                    aria-label="Include User Guide"
-                  />
-                  <ToggleText>Guide</ToggleText>
-                </ToggleLabel>
-              </ToggleContainer>
-              <CloseButton onClick={() => setIsOpen(false)} aria-label="Close assistant">
-                <FiX size={20} />
-              </CloseButton>
-            </HeaderActions>
-          </ChatHeader>
+			{/* Chat Window */}
+			{isOpen && (
+				<ChatWindow>
+					<ChatHeader>
+						<HeaderContent>
+							<AssistantIcon>🤖</AssistantIcon>
+							<HeaderText>
+								<HeaderTitle>OAuth Assistant</HeaderTitle>
+								<HeaderSubtitle>Ask me anything about OAuth & OIDC</HeaderSubtitle>
+							</HeaderText>
+						</HeaderContent>
+						<HeaderActions>
+							<ToggleContainer>
+								<ToggleLabel>
+									<ToggleCheckbox
+										type="checkbox"
+										checked={includeApiDocs}
+										onChange={(e) => setIncludeApiDocs(e.target.checked)}
+										aria-label="Include PingOne API docs"
+									/>
+									<ToggleText>APIs</ToggleText>
+								</ToggleLabel>
+							</ToggleContainer>
+							<ToggleContainer>
+								<ToggleLabel>
+									<ToggleCheckbox
+										type="checkbox"
+										checked={includeSpecs}
+										onChange={(e) => setIncludeSpecs(e.target.checked)}
+										aria-label="Include OAuth/OIDC specifications"
+									/>
+									<ToggleText>Specs</ToggleText>
+								</ToggleLabel>
+							</ToggleContainer>
+							<ToggleContainer>
+								<ToggleLabel>
+									<ToggleCheckbox
+										type="checkbox"
+										checked={includeWorkflows}
+										onChange={(e) => setIncludeWorkflows(e.target.checked)}
+										aria-label="Include PingOne workflows"
+									/>
+									<ToggleText>Workflows</ToggleText>
+								</ToggleLabel>
+							</ToggleContainer>
+							<ToggleContainer>
+								<ToggleLabel>
+									<ToggleCheckbox
+										type="checkbox"
+										checked={includeUserGuide}
+										onChange={(e) => setIncludeUserGuide(e.target.checked)}
+										aria-label="Include User Guide"
+									/>
+									<ToggleText>Guide</ToggleText>
+								</ToggleLabel>
+							</ToggleContainer>
+							<CloseButton onClick={() => setIsOpen(false)} aria-label="Close assistant">
+								<FiX size={20} />
+							</CloseButton>
+						</HeaderActions>
+					</ChatHeader>
 
-          <MessagesContainer>
-            {messages.map(message => (
-              <MessageWrapper key={message.id} $isUser={message.type === 'user'}>
-                <MessageBubble $isUser={message.type === 'user'}>
-                  <MessageContent>{message.content}</MessageContent>
-                  {message.links && message.links.length > 0 && (
-                    <LinksContainer>
-                      <LinksTitle>Related Resources:</LinksTitle>
-                      {message.links.map((link, idx) => (
-                        <LinkItem key={idx} onClick={() => handleLinkClick(link.path, link.external)}>
-                          <LinkIcon $type={link.type}>
-                            {link.type === 'flow' && '🔄'}
-                            {link.type === 'feature' && '⚡'}
-                            {link.type === 'doc' && '📖'}
-                            {link.type === 'api' && '🔌'}
-                            {link.type === 'spec' && '📋'}
-                            {link.type === 'workflow' && '🔀'}
-                            {link.type === 'guide' && '📚'}
-                          </LinkIcon>
-                          <LinkText>{link.title}</LinkText>
-                          <FiExternalLink size={14} />
-                        </LinkItem>
-                      ))}
-                    </LinksContainer>
-                  )}
-                </MessageBubble>
-              </MessageWrapper>
-            ))}
+					<MessagesContainer>
+						{messages.map((message) => (
+							<MessageWrapper key={message.id} $isUser={message.type === 'user'}>
+								<MessageBubble $isUser={message.type === 'user'}>
+									<MessageContent>{message.content}</MessageContent>
+									{message.links && message.links.length > 0 && (
+										<LinksContainer>
+											<LinksTitle>Related Resources:</LinksTitle>
+											{message.links.map((link, idx) => (
+												<LinkItem
+													key={idx}
+													onClick={() => handleLinkClick(link.path, link.external)}
+												>
+													<LinkIcon $type={link.type}>
+														{link.type === 'flow' && '🔄'}
+														{link.type === 'feature' && '⚡'}
+														{link.type === 'doc' && '📖'}
+														{link.type === 'api' && '🔌'}
+														{link.type === 'spec' && '📋'}
+														{link.type === 'workflow' && '🔀'}
+														{link.type === 'guide' && '📚'}
+													</LinkIcon>
+													<LinkText>{link.title}</LinkText>
+													<FiExternalLink size={14} />
+												</LinkItem>
+											))}
+										</LinksContainer>
+									)}
+								</MessageBubble>
+							</MessageWrapper>
+						))}
 
-            {isTyping && (
-              <MessageWrapper $isUser={false}>
-                <MessageBubble $isUser={false}>
-                  <TypingIndicator>
-                    <Dot delay={0} />
-                    <Dot delay={0.2} />
-                    <Dot delay={0.4} />
-                  </TypingIndicator>
-                </MessageBubble>
-              </MessageWrapper>
-            )}
+						{isTyping && (
+							<MessageWrapper $isUser={false}>
+								<MessageBubble $isUser={false}>
+									<TypingIndicator>
+										<Dot delay={0} />
+										<Dot delay={0.2} />
+										<Dot delay={0.4} />
+									</TypingIndicator>
+								</MessageBubble>
+							</MessageWrapper>
+						)}
 
-            {messages.length === 1 && (
-              <QuickQuestionsContainer>
-                <QuickQuestionsTitle>Quick questions:</QuickQuestionsTitle>
-                {quickQuestions.map((question, idx) => (
-                  <QuickQuestionButton
-                    key={idx}
-                    onClick={() => {
-                      setInput(question);
-                      setTimeout(() => handleSend(), 100);
-                    }}
-                  >
-                    {question}
-                  </QuickQuestionButton>
-                ))}
-              </QuickQuestionsContainer>
-            )}
+						{messages.length === 1 && (
+							<QuickQuestionsContainer>
+								<QuickQuestionsTitle>Quick questions:</QuickQuestionsTitle>
+								{quickQuestions.map((question, idx) => (
+									<QuickQuestionButton
+										key={idx}
+										onClick={() => {
+											setInput(question);
+											setTimeout(() => handleSend(), 100);
+										}}
+									>
+										{question}
+									</QuickQuestionButton>
+								))}
+							</QuickQuestionsContainer>
+						)}
 
-            <div ref={messagesEndRef} />
-          </MessagesContainer>
+						<div ref={messagesEndRef} />
+					</MessagesContainer>
 
-          <InputContainer>
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask about OAuth flows, features, or configuration..."
-              aria-label="Message input"
-            />
-            <SendButton 
-              onClick={handleSend} 
-              disabled={!input.trim()}
-              aria-label="Send message"
-            >
-              <FiSend size={18} />
-            </SendButton>
-          </InputContainer>
-        </ChatWindow>
-      )}
-    </>
-  );
+					<InputContainer>
+						<Input
+							value={input}
+							onChange={(e) => setInput(e.target.value)}
+							onKeyPress={handleKeyPress}
+							placeholder="Ask about OAuth flows, features, or configuration..."
+							aria-label="Message input"
+						/>
+						<SendButton onClick={handleSend} disabled={!input.trim()} aria-label="Send message">
+							<FiSend size={18} />
+						</SendButton>
+					</InputContainer>
+				</ChatWindow>
+			)}
+		</>
+	);
 };
 
 // Styled Components
@@ -431,17 +431,16 @@ const MessagesContainer = styled.div`
 
 const MessageWrapper = styled.div<{ $isUser: boolean }>`
   display: flex;
-  justify-content: ${props => props.$isUser ? 'flex-end' : 'flex-start'};
+  justify-content: ${(props) => (props.$isUser ? 'flex-end' : 'flex-start')};
 `;
 
 const MessageBubble = styled.div<{ $isUser: boolean }>`
   max-width: 80%;
   padding: 12px 16px;
   border-radius: 16px;
-  background: ${props => props.$isUser 
-    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    : 'white'};
-  color: ${props => props.$isUser ? 'white' : '#333'};
+  background: ${(props) =>
+		props.$isUser ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'white'};
+  color: ${(props) => (props.$isUser ? 'white' : '#333')};
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -506,7 +505,7 @@ const Dot = styled.div<{ delay: number }>`
   border-radius: 50%;
   background: #999;
   animation: bounce 1.4s infinite ease-in-out;
-  animation-delay: ${props => props.delay}s;
+  animation-delay: ${(props) => props.delay}s;
 
   @keyframes bounce {
     0%, 80%, 100% {

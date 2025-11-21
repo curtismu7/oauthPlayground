@@ -3,7 +3,6 @@
 // Demonstrates PingOne's new "Always accept ACS URL in signed SAML 2.0 AuthnRequest" feature
 
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
@@ -17,13 +16,14 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowCompletionService } from '../../services/flowCompletionService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { samlService as SAMLService } from '../../services/samlService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { useSamlSpFlowController } from '../../hooks/useSamlSpFlowController';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { samlService as SAMLService } from '../../services/samlService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components
 const Container = styled.div`
@@ -49,32 +49,44 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'
 	display: flex;
 	gap: 1rem;
 	padding: 1.5rem;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$variant) {
-			case 'warning': return '#fef3c7';
-			case 'success': return '#f0fdf4';
-			case 'error': return '#fef2f2';
-			default: return '#eff6ff';
+			case 'warning':
+				return '#fef3c7';
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			default:
+				return '#eff6ff';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$variant) {
-			case 'warning': return '#fbbf24';
-			case 'success': return '#bbf7d0';
-			case 'error': return '#fca5a5';
-			default: return '#bfdbfe';
+			case 'warning':
+				return '#fbbf24';
+			case 'success':
+				return '#bbf7d0';
+			case 'error':
+				return '#fca5a5';
+			default:
+				return '#bfdbfe';
 		}
 	}};
 	border-radius: 0.75rem;
 	margin: 1.5rem 0;
 	font-size: 0.875rem;
 	line-height: 1.6;
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$variant) {
-			case 'warning': return '#78350f';
-			case 'success': return '#065f46';
-			case 'error': return '#991b1b';
-			default: return '#1e40af';
+			case 'warning':
+				return '#78350f';
+			case 'success':
+				return '#065f46';
+			case 'error':
+				return '#991b1b';
+			default:
+				return '#1e40af';
 		}
 	}};
 `;
@@ -194,7 +206,9 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 	align-items: center;
 	gap: 0.5rem;
 
-	${props => props.$variant === 'primary' ? `
+	${(props) =>
+		props.$variant === 'primary'
+			? `
 		background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 		color: white;
 		border: none;
@@ -204,7 +218,9 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 		}
-	` : props.$variant === 'success' ? `
+	`
+			: props.$variant === 'success'
+				? `
 		background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 		color: white;
 		border: none;
@@ -214,7 +230,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>
 			transform: translateY(-1px);
 			box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 		}
-	` : `
+	`
+				: `
 		background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
 		color: white;
 		border: none;
@@ -288,17 +305,18 @@ interface SAMLAuthnRequest {
 // Main Component
 const completionConfig = {
 	flowName: 'SAML Service Provider (Dynamic ACS)',
-	flowDescription: 'You configured a SAML SP application and processed an AuthnRequest with dynamic ACS URL support.',
+	flowDescription:
+		'You configured a SAML SP application and processed an AuthnRequest with dynamic ACS URL support.',
 	completedSteps: [
 		{ completed: true, description: 'Configured SAML SP application with dynamic ACS URL setting' },
 		{ completed: true, description: 'Processed signed SAML AuthnRequest with embedded ACS URL' },
-		{ completed: true, description: 'Validated and accepted dynamic ACS URL from signed request' }
+		{ completed: true, description: 'Validated and accepted dynamic ACS URL from signed request' },
 	],
 	nextSteps: [
 		'Implement SAML Response generation with appropriate NameID and attributes',
 		'Configure SAML metadata exchange with Identity Provider',
-		'Test end-to-end SAML authentication flow'
-	]
+		'Test end-to-end SAML authentication flow',
+	],
 };
 
 const SAMLServiceProviderFlowV1: React.FC = () => {
@@ -312,7 +330,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		authnRequest: false,
 		validation: false,
 		response: false,
-		completion: false
+		completion: false,
 	});
 
 	const controller = useSamlSpFlowController();
@@ -347,8 +365,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	const isAdminConfigured = Boolean(
 		pingOneAdminCredentials.environmentId &&
-		pingOneAdminCredentials.clientId &&
-		pingOneAdminCredentials.clientSecret
+			pingOneAdminCredentials.clientId &&
+			pingOneAdminCredentials.clientSecret
 	);
 
 	// AuthnRequest processing
@@ -360,9 +378,9 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 	// Toggle section handler
 	const toggleSection = useCallback((section: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	}, []);
 
@@ -393,8 +411,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 	);
 
 	const handleSavePingOneAdmin = useCallback(async () => {
-		if (!pingOneAdminCredentials.environmentId || !pingOneAdminCredentials.clientId || !pingOneAdminCredentials.clientSecret) {
-			v4ToastManager.showWarning('Provide environment ID, client ID, and client secret before saving.');
+		if (
+			!pingOneAdminCredentials.environmentId ||
+			!pingOneAdminCredentials.clientId ||
+			!pingOneAdminCredentials.clientSecret
+		) {
+			v4ToastManager.showWarning(
+				'Provide environment ID, client ID, and client secret before saving.'
+			);
 			return;
 		}
 
@@ -430,7 +454,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			const app = await fetchPingOneApplication(pingOneAppIdInput.trim());
 			if (app) {
 				v4ToastManager.showSuccess('Loaded PingOne application details.');
-				updateConfig(prev => ({
+				updateConfig((prev) => ({
 					...prev,
 					pingOneApplicationId: app.id,
 					pingOneApplicationName: app.name,
@@ -468,7 +492,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			const app = await syncDynamicAcsWithPingOne(syncPayload);
 			if (app) {
 				v4ToastManager.showSuccess('PingOne application updated successfully.');
-				updateConfig(prev => ({
+				updateConfig((prev) => ({
 					...prev,
 					pingOneApplicationId: app.id,
 					pingOneApplicationName: app.name,
@@ -482,7 +506,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 		} finally {
 			setIsSyncingPingOne(false);
 		}
-	}, [pingOneAppIdInput, samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest, syncDynamicAcsWithPingOne, updateConfig]);
+	}, [
+		pingOneAppIdInput,
+		samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest,
+		syncDynamicAcsWithPingOne,
+		updateConfig,
+	]);
 
 	// Generate sample AuthnRequest with dynamic ACS URL
 	const generateSampleAuthnRequest = useCallback(() => {
@@ -493,7 +522,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			spEntityId: samlConfig.entityId,
 			nameIdPolicyFormat: samlConfig.nameIdFormat,
 			forceAuthn: false,
-			isPassive: false
+			isPassive: false,
 		});
 
 		setAuthnRequestXml(sampleAuthnRequest);
@@ -524,7 +553,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			v4ToastManager.showError('Failed to process AuthnRequest');
 			setValidationResult({
 				isValid: false,
-				errors: [error instanceof Error ? error.message : 'Unknown error']
+				errors: [error instanceof Error ? error.message : 'Unknown error'],
 			});
 		} finally {
 			setIsProcessing(false);
@@ -546,8 +575,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					email: 'user@example.com',
 					firstName: 'John',
 					lastName: 'Doe',
-					groups: ['users', 'admins']
-				}
+					groups: ['users', 'admins'],
+				},
 			});
 
 			setSamlResponse(response);
@@ -572,8 +601,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<div>
 						<InfoTitle>SAML 2.0 Service Provider Configuration</InfoTitle>
 						<InfoText>
-							Configure your SAML SP application settings. The new PingOne feature allows
-							accepting ACS URLs dynamically from signed AuthnRequests.
+							Configure your SAML SP application settings. The new PingOne feature allows accepting
+							ACS URLs dynamically from signed AuthnRequests.
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -583,7 +612,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<Input
 						type="url"
 						value={samlConfig.entityId}
-						onChange={(e) => updateConfig(prev => ({ ...prev, entityId: e.target.value }))}
+						onChange={(e) => updateConfig((prev) => ({ ...prev, entityId: e.target.value }))}
 						placeholder="https://sp.example.com/metadata"
 					/>
 					<Helper>Unique identifier for your SAML SP application</Helper>
@@ -593,13 +622,15 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<Label>Assertion Consumer Service URLs (Fixed)</Label>
 					<TextArea
 						value={samlConfig.acsUrls.join('\n')}
-						onChange={(e) => updateConfig(prev => ({
-							...prev,
-							acsUrls: e.target.value
-								.split('\n')
-								.map(url => url.trim())
-								.filter(Boolean),
-						}))}
+						onChange={(e) =>
+							updateConfig((prev) => ({
+								...prev,
+								acsUrls: e.target.value
+									.split('\n')
+									.map((url) => url.trim())
+									.filter(Boolean),
+							}))
+						}
 						placeholder="https://sp.example.com/saml/acs\nhttps://sp.example.com/saml/acs/backup"
 					/>
 					<Helper>One URL per line. These are your configured ACS URLs.</Helper>
@@ -610,7 +641,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<Input
 						type="url"
 						value={samlConfig.ssoUrl}
-						onChange={(e) => updateConfig(prev => ({ ...prev, ssoUrl: e.target.value }))}
+						onChange={(e) => updateConfig((prev) => ({ ...prev, ssoUrl: e.target.value }))}
 						placeholder="https://sp.example.com/saml/sso"
 					/>
 					<Helper>URL where users are redirected for SSO initiation</Helper>
@@ -621,7 +652,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<Input
 						type="text"
 						value={samlConfig.nameIdFormat}
-						onChange={(e) => updateConfig(prev => ({ ...prev, nameIdFormat: e.target.value }))}
+						onChange={(e) => updateConfig((prev) => ({ ...prev, nameIdFormat: e.target.value }))}
 						placeholder="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
 					/>
 					<Helper>SAML Name ID format to request from IdP</Helper>
@@ -631,23 +662,23 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 					<Checkbox
 						id="enableDynamicAcs"
 						checked={samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest}
-						onChange={(e) => updateConfig(prev => ({
-							...prev,
-							enableAlwaysAcceptAcsUrlInSignedAuthnRequest: e.target.checked,
-						}))}
+						onChange={(e) =>
+							updateConfig((prev) => ({
+								...prev,
+								enableAlwaysAcceptAcsUrlInSignedAuthnRequest: e.target.checked,
+							}))
+						}
 					/>
 					<div>
 						<CheckboxLabel htmlFor="enableDynamicAcs">
 							<strong>Always accept ACS URL in signed SAML 2.0 AuthnRequest</strong>
-							<TooltipIcon
-								title="PingOne only honors the embedded ACS URL when this toggle is on and the AuthnRequest signature matches the configured IdP certificate."
-							>
+							<TooltipIcon title="PingOne only honors the embedded ACS URL when this toggle is on and the AuthnRequest signature matches the configured IdP certificate.">
 								<FiInfo size={16} />
 							</TooltipIcon>
 						</CheckboxLabel>
 						<Helper style={{ marginTop: '0.25rem' }}>
-							When enabled, the SP will accept ACS URLs specified in signed AuthnRequests,
-							even if they don't match the configured ACS URLs. This is the new PingOne feature.
+							When enabled, the SP will accept ACS URLs specified in signed AuthnRequests, even if
+							they don't match the configured ACS URLs. This is the new PingOne feature.
 						</Helper>
 					</div>
 				</CheckboxGroup>
@@ -660,8 +691,13 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							Make sure these settings are in place before testing dynamic ACS URLs:
 						</InfoText>
 						<ol style={{ paddingLeft: '1.25rem', marginTop: '0.5rem', color: '#374151' }}>
-							<li>Enable <strong>Always accept ACS URL in signed AuthnRequest</strong> in the PingOne app.</li>
-							<li>Upload the IdP signing certificate so PingOne can verify AuthnRequest signatures.</li>
+							<li>
+								Enable <strong>Always accept ACS URL in signed AuthnRequest</strong> in the PingOne
+								app.
+							</li>
+							<li>
+								Upload the IdP signing certificate so PingOne can verify AuthnRequest signatures.
+							</li>
 							<li>Keep at least one static ACS URL configured for fallback and metadata.</li>
 						</ol>
 					</div>
@@ -702,8 +738,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				<div>
 					<InfoTitle>Sync with PingOne SAML Application</InfoTitle>
 					<InfoText>
-						Use your PingOne admin credentials to load or update the SAML application that should always accept
-						dynamic ACS URLs in signed AuthnRequests.
+						Use your PingOne admin credentials to load or update the SAML application that should
+						always accept dynamic ACS URLs in signed AuthnRequests.
 					</InfoText>
 				</div>
 			</InfoBox>
@@ -741,11 +777,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				<Helper>The client secret is stored locally for this demo only.</Helper>
 			</FormGroup>
 
-			<Button
-				onClick={handleSavePingOneAdmin}
-				$variant="primary"
-				disabled={isSavingAdmin}
-			>
+			<Button onClick={handleSavePingOneAdmin} $variant="primary" disabled={isSavingAdmin}>
 				{isSavingAdmin ? (
 					<>
 						<FiRefreshCw className="rotate" /> Saving…
@@ -764,13 +796,12 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				<div>
 					<InfoTitle>PingOne Application</InfoTitle>
 					<InfoText>
-						Enter the SAML application ID you want to manage. Once loaded you can verify or toggle the
+						Enter the SAML application ID you want to manage. Once loaded you can verify or toggle
+						the
 						<em>Always accept ACS URL</em> capability.
 					</InfoText>
 					{hasSavedConfig && lastSavedAt && (
-						<Helper>
-							Configuration last saved {new Date(lastSavedAt).toLocaleString()}.
-						</Helper>
+						<Helper>Configuration last saved {new Date(lastSavedAt).toLocaleString()}.</Helper>
 					)}
 				</div>
 			</InfoBox>
@@ -820,7 +851,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 			{!isAdminConfigured && (
 				<Helper style={{ color: '#dc2626', marginTop: '0.75rem' }}>
-					Provide all PingOne admin credentials above before attempting to load or sync the application.
+					Provide all PingOne admin credentials above before attempting to load or sync the
+					application.
 				</Helper>
 			)}
 
@@ -901,10 +933,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							<ParameterValue>{parsedAuthnRequest.issuer}</ParameterValue>
 
 							<ParameterLabel>Requested ACS URL</ParameterLabel>
-							<ParameterValue>{parsedAuthnRequest.assertionConsumerServiceURL || 'Not specified'}</ParameterValue>
+							<ParameterValue>
+								{parsedAuthnRequest.assertionConsumerServiceURL || 'Not specified'}
+							</ParameterValue>
 
 							<ParameterLabel>Name ID Policy Format</ParameterLabel>
-							<ParameterValue>{parsedAuthnRequest.nameIdPolicy?.format || 'Not specified'}</ParameterValue>
+							<ParameterValue>
+								{parsedAuthnRequest.nameIdPolicy?.format || 'Not specified'}
+							</ParameterValue>
 
 							<ParameterLabel>Force Authn</ParameterLabel>
 							<ParameterValue>{parsedAuthnRequest.forceAuthn ? 'Yes' : 'No'}</ParameterValue>
@@ -924,11 +960,11 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				<CollapsibleHeader
 					title="ACS URL Validation"
 					icon={<FiShield />}
-					theme={validationResult.isValid ? "green" : "orange"}
+					theme={validationResult.isValid ? 'green' : 'orange'}
 					defaultCollapsed={collapsedSections.validation}
 					showArrow={true}
 				>
-					<InfoBox $variant={validationResult.isValid ? "success" : "warning"}>
+					<InfoBox $variant={validationResult.isValid ? 'success' : 'warning'}>
 						{validationResult.isValid ? <FiCheckCircle size={20} /> : <FiAlertTriangle size={20} />}
 						<div>
 							<InfoTitle>
@@ -937,8 +973,7 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							<InfoText>
 								{validationResult.isValid
 									? 'The ACS URL from the signed AuthnRequest has been validated and accepted.'
-									: 'The ACS URL validation failed. Check the details below.'
-								}
+									: 'The ACS URL validation failed. Check the details below.'}
 							</InfoText>
 						</div>
 					</InfoBox>
@@ -950,10 +985,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 						<ParameterGrid>
 							<ParameterLabel>Dynamic ACS Enabled</ParameterLabel>
-							<ParameterValue>{samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest ? 'Yes' : 'No'}</ParameterValue>
+							<ParameterValue>
+								{samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest ? 'Yes' : 'No'}
+							</ParameterValue>
 
 							<ParameterLabel>Requested ACS URL</ParameterLabel>
-							<ParameterValue>{parsedAuthnRequest?.assertionConsumerServiceURL || 'None'}</ParameterValue>
+							<ParameterValue>
+								{parsedAuthnRequest?.assertionConsumerServiceURL || 'None'}
+							</ParameterValue>
 
 							<ParameterLabel>Configured ACS URLs</ParameterLabel>
 							<ParameterValue>{samlConfig.acsUrls.join(', ')}</ParameterValue>
@@ -961,7 +1000,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							<ParameterLabel>ACS URL in Config</ParameterLabel>
 							<ParameterValue>
 								{samlConfig.acsUrls.includes(parsedAuthnRequest?.assertionConsumerServiceURL || '')
-									? 'Yes' : 'No'}
+									? 'Yes'
+									: 'No'}
 							</ParameterValue>
 
 							<ParameterLabel>Validation Result</ParameterLabel>
@@ -969,7 +1009,14 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						</ParameterGrid>
 
 						{validationResult.explanation && (
-							<div style={{ marginTop: '1rem', padding: '1rem', background: '#f9fafb', borderRadius: '0.25rem' }}>
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f9fafb',
+									borderRadius: '0.25rem',
+								}}
+							>
 								<strong>Explanation:</strong>
 								<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#374151' }}>
 									{validationResult.explanation}
@@ -978,7 +1025,15 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						)}
 
 						{validationResult.errors && validationResult.errors.length > 0 && (
-							<div style={{ marginTop: '1rem', padding: '1rem', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '0.25rem' }}>
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#fef2f2',
+									border: '1px solid #fca5a5',
+									borderRadius: '0.25rem',
+								}}
+							>
 								<strong>Errors:</strong>
 								<ul style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#dc2626' }}>
 									{validationResult.errors.map((error: string, index: number) => (
@@ -1007,8 +1062,8 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 						<div>
 							<InfoTitle>SAML Response Generation</InfoTitle>
 							<InfoText>
-								Generate a SAML Response to complete the authentication flow.
-								The response will be sent to the validated ACS URL.
+								Generate a SAML Response to complete the authentication flow. The response will be
+								sent to the validated ACS URL.
 							</InfoText>
 						</div>
 					</InfoBox>
@@ -1024,24 +1079,28 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 							<div style={{ marginBottom: '1rem' }}>
 								<strong>SAML Response XML:</strong>
 							</div>
-							<pre style={{
-								color: '#111827',
-								fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-								fontSize: '0.875rem',
-								lineHeight: '1.5',
-								margin: 0,
-								whiteSpace: 'pre-wrap',
-								wordBreak: 'break-word',
-								maxHeight: '400px',
-								overflowY: 'auto'
-							}}>
+							<pre
+								style={{
+									color: '#111827',
+									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+									fontSize: '0.875rem',
+									lineHeight: '1.5',
+									margin: 0,
+									whiteSpace: 'pre-wrap',
+									wordBreak: 'break-word',
+									maxHeight: '400px',
+									overflowY: 'auto',
+								}}
+							>
 								{samlResponse}
 							</pre>
-							<div style={{
-								marginTop: '1rem',
-								display: 'flex',
-								gap: '0.5rem'
-							}}>
+							<div
+								style={{
+									marginTop: '1rem',
+									display: 'flex',
+									gap: '0.5rem',
+								}}
+							>
 								<Button
 									onClick={() => copyToClipboard(samlResponse, 'SAML Response')}
 									$variant="secondary"
@@ -1062,16 +1121,16 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 			config={{
 				...completionConfig,
 				onStartNewFlow: () => {
-					setCollapsedSections(prev => ({
+					setCollapsedSections((prev) => ({
 						...prev,
 						response: true,
-						completion: false
+						completion: false,
 					}));
 					setAuthnRequestXml('');
 					setParsedAuthnRequest(null);
 					setValidationResult(null);
 					setSamlResponse('');
-				}
+				},
 			}}
 			collapsed={collapsedSections.completion}
 			onToggleCollapsed={() => toggleSection('completion')}

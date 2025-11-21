@@ -1,10 +1,14 @@
 // src/components/PresetSelector.tsx
 // Preset selection component for the Application Generator
 
-import React, { useState, useEffect } from 'react';
-import { FiSettings, FiStar, FiUser, FiInfo, FiCheck, FiX } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { presetManagerService, type ConfigurationPreset, type BuilderAppType, PRESET_CATEGORIES } from '../services/presetManagerService';
+import {
+	type BuilderAppType,
+	type ConfigurationPreset,
+	presetManagerService,
+} from '../services/presetManagerService';
 import { performAutoMigration } from '../utils/presetMigration';
 
 const Container = styled.div`
@@ -58,8 +62,8 @@ const PresetGrid = styled.div`
 `;
 
 const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custom' }>`
-  background: ${({ selected }) => selected ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : 'white'};
-  border: 2px solid ${({ selected, theme }) => selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)'};
+  background: ${({ selected }) => (selected ? 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)' : 'white')};
+  border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'rgba(148, 163, 184, 0.25)')};
   border-radius: 0.75rem;
   padding: 1.25rem;
   cursor: pointer;
@@ -72,7 +76,9 @@ const PresetCard = styled.div<{ selected: boolean; category: 'built-in' | 'custo
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   }
 
-  ${({ category }) => category === 'built-in' && `
+  ${({ category }) =>
+		category === 'built-in' &&
+		`
     &::before {
       content: '';
       position: absolute;
@@ -106,8 +112,8 @@ const PresetBadge = styled.span<{ category: 'built-in' | 'custom' }>`
   font-weight: 500;
   padding: 0.25rem 0.5rem;
   border-radius: 0.375rem;
-  background: ${({ category }) => category === 'built-in' ? '#d1fae5' : '#fef3c7'};
-  color: ${({ category }) => category === 'built-in' ? '#065f46' : '#92400e'};
+  background: ${({ category }) => (category === 'built-in' ? '#d1fae5' : '#fef3c7')};
+  color: ${({ category }) => (category === 'built-in' ? '#065f46' : '#92400e')};
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -134,27 +140,27 @@ const MetaTag = styled.span<{ variant: 'security' | 'type' | 'tag' }>`
   font-weight: 500;
   
   ${({ variant }) => {
-    switch (variant) {
-      case 'security':
-        return `
+		switch (variant) {
+			case 'security':
+				return `
           background: #fef2f2;
           color: #991b1b;
           border: 1px solid #fecaca;
         `;
-      case 'type':
-        return `
+			case 'type':
+				return `
           background: #eff6ff;
           color: #1e40af;
           border: 1px solid #bfdbfe;
         `;
-      case 'tag':
-        return `
+			case 'tag':
+				return `
           background: #f3f4f6;
           color: #374151;
           border: 1px solid #d1d5db;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const PresetActions = styled.div`
@@ -178,13 +184,16 @@ const SelectButton = styled.button<{ selected: boolean }>`
   align-items: center;
   gap: 0.5rem;
 
-  ${({ selected, theme }) => selected ? `
+  ${({ selected, theme }) =>
+		selected
+			? `
     background: ${theme.colors.primary};
     color: white;
     &:hover {
       background: ${theme.colors.primaryDark};
     }
-  ` : `
+  `
+			: `
     background: white;
     color: ${theme.colors.gray700};
     border-color: #d1d5db;
@@ -231,7 +240,7 @@ const FilterSection = styled.div`
 `;
 
 const FilterButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => prop !== 'active',
+	shouldForwardProp: (prop) => prop !== 'active',
 })<{ active: boolean }>`
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
@@ -241,11 +250,14 @@ const FilterButton = styled.button.withConfig({
   transition: all 0.2s;
   border: 1px solid #d1d5db;
   
-  ${({ active, theme }) => active ? `
+  ${({ active, theme }) =>
+		active
+			? `
     background: ${theme.colors.primary};
     color: white;
     border-color: ${theme.colors.primary};
-  ` : `
+  `
+			: `
     background: white;
     color: #374151;
     &:hover {
@@ -256,224 +268,228 @@ const FilterButton = styled.button.withConfig({
 `;
 
 interface PresetSelectorProps {
-  selectedAppType: BuilderAppType | null;
-  selectedPreset: string | null;
-  onPresetSelect: (presetId: string | null) => void;
-  onPresetApply: (presetId: string) => void;
+	selectedAppType: BuilderAppType | null;
+	selectedPreset: string | null;
+	onPresetSelect: (presetId: string | null) => void;
+	onPresetApply: (presetId: string) => void;
 }
 
 export const PresetSelector: React.FC<PresetSelectorProps> = ({
-  selectedAppType,
-  selectedPreset,
-  onPresetSelect,
-  onPresetApply
+	selectedAppType,
+	selectedPreset,
+	onPresetSelect,
+	onPresetApply,
 }) => {
-  const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
-  const [filter, setFilter] = useState<'all' | 'built-in' | 'custom'>('all');
-  const [loading, setLoading] = useState(true);
+	const [presets, setPresets] = useState<ConfigurationPreset[]>([]);
+	const [filter, setFilter] = useState<'all' | 'built-in' | 'custom'>('all');
+	const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadPresets();
-  }, []);
+	useEffect(() => {
+		loadPresets();
+	}, [loadPresets]);
 
-  const loadPresets = async () => {
-    try {
-      setLoading(true);
-      
-      // Perform auto-migration if needed
-      const migrationResult = performAutoMigration();
-      if (!migrationResult.success) {
-        console.warn('[PresetSelector] Migration warnings:', migrationResult.warnings);
-      }
+	const loadPresets = async () => {
+		try {
+			setLoading(true);
 
-      // Load all presets
-      const allPresets = presetManagerService.getAllPresets();
-      setPresets(allPresets);
-    } catch (error) {
-      console.error('[PresetSelector] Failed to load presets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+			// Perform auto-migration if needed
+			const migrationResult = performAutoMigration();
+			if (!migrationResult.success) {
+				console.warn('[PresetSelector] Migration warnings:', migrationResult.warnings);
+			}
 
-  const filteredPresets = presets.filter(preset => {
-    // Filter by app type if selected
-    if (selectedAppType && preset.appType !== selectedAppType) {
-      return false;
-    }
-    
-    // Filter by category
-    if (filter !== 'all' && preset.category !== filter) {
-      return false;
-    }
-    
-    return true;
-  });
+			// Load all presets
+			const allPresets = presetManagerService.getAllPresets();
+			setPresets(allPresets);
+		} catch (error) {
+			console.error('[PresetSelector] Failed to load presets:', error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const groupedPresets = filteredPresets.reduce((groups, preset) => {
-    const category = preset.category;
-    if (!groups[category]) {
-      groups[category] = [];
-    }
-    groups[category].push(preset);
-    return groups;
-  }, {} as Record<string, ConfigurationPreset[]>);
+	const filteredPresets = presets.filter((preset) => {
+		// Filter by app type if selected
+		if (selectedAppType && preset.appType !== selectedAppType) {
+			return false;
+		}
 
-  const handlePresetClick = (presetId: string) => {
-    if (selectedPreset === presetId) {
-      // Deselect if already selected
-      onPresetSelect(null);
-    } else {
-      // Select and apply preset
-      onPresetSelect(presetId);
-      onPresetApply(presetId);
-    }
-  };
+		// Filter by category
+		if (filter !== 'all' && preset.category !== filter) {
+			return false;
+		}
 
-  if (loading) {
-    return (
-      <Container>
-        <Header>
-          <FiSettings />
-          <Title>Configuration Presets</Title>
-        </Header>
-        <Description>Loading presets...</Description>
-      </Container>
-    );
-  }
+		return true;
+	});
 
-  return (
-    <Container>
-      <Header>
-        <FiSettings />
-        <Title>Configuration Presets</Title>
-      </Header>
-      
-      <Description>
-        Choose from predefined configuration templates or your custom presets to quickly set up applications with best practices.
-        {selectedAppType ? (
-          <strong style={{ color: '#ef4444' }}> Templates are filtered for {selectedAppType.replace(/_/g, ' ')} applications.</strong>
-        ) : (
-          <strong> Select an application type above to see relevant templates.</strong>
-        )}
-      </Description>
+	const groupedPresets = filteredPresets.reduce(
+		(groups, preset) => {
+			const category = preset.category;
+			if (!groups[category]) {
+				groups[category] = [];
+			}
+			groups[category].push(preset);
+			return groups;
+		},
+		{} as Record<string, ConfigurationPreset[]>
+	);
 
-      <FilterSection>
-        <FilterButton 
-          active={filter === 'all'} 
-          onClick={() => setFilter('all')}
-        >
-          All Presets ({filteredPresets.length})
-        </FilterButton>
-        <FilterButton 
-          active={filter === 'built-in'} 
-          onClick={() => setFilter('built-in')}
-        >
-          Built-in ({presets.filter(p => p.category === 'built-in' && (!selectedAppType || p.appType === selectedAppType)).length})
-        </FilterButton>
-        <FilterButton 
-          active={filter === 'custom'} 
-          onClick={() => setFilter('custom')}
-        >
-          Custom ({presets.filter(p => p.category === 'custom' && (!selectedAppType || p.appType === selectedAppType)).length})
-        </FilterButton>
-      </FilterSection>
+	const handlePresetClick = (presetId: string) => {
+		if (selectedPreset === presetId) {
+			// Deselect if already selected
+			onPresetSelect(null);
+		} else {
+			// Select and apply preset
+			onPresetSelect(presetId);
+			onPresetApply(presetId);
+		}
+	};
 
-      {filteredPresets.length === 0 ? (
-        <EmptyState>
-          <FiSettings />
-          <div>
-            {selectedAppType 
-              ? `No presets available for ${selectedAppType.replace(/_/g, ' ')}`
-              : 'No presets available'
-            }
-          </div>
-          {filter === 'custom' && (
-            <div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
-              Create custom presets by configuring an application and saving it as a template.
-            </div>
-          )}
-        </EmptyState>
-      ) : (
-        Object.entries(groupedPresets).map(([category, categoryPresets]) => (
-          <CategorySection key={category}>
-            <CategoryTitle>
-              {category === 'built-in' ? <FiStar /> : <FiUser />}
-              {category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
-              <span style={{ color: '#6b7280', fontWeight: 'normal' }}>
-                ({categoryPresets.length})
-              </span>
-            </CategoryTitle>
-            
-            <PresetGrid>
-              {categoryPresets.map(preset => (
-                <PresetCard
-                  key={preset.id}
-                  selected={selectedPreset === preset.id}
-                  category={preset.category}
-                  onClick={() => handlePresetClick(preset.id)}
-                >
-                  <PresetHeader>
-                    <PresetName>{preset.name}</PresetName>
-                    <PresetBadge category={preset.category}>
-                      {preset.category === 'built-in' ? <FiStar size={12} /> : <FiUser size={12} />}
-                      {preset.category === 'built-in' ? 'Built-in' : 'Custom'}
-                    </PresetBadge>
-                  </PresetHeader>
-                  
-                  <PresetDescription>
-                    {preset.description}
-                  </PresetDescription>
-                  
-                  <PresetMeta>
-                    <MetaTag variant="security">
-                      {preset.metadata.securityLevel}
-                    </MetaTag>
-                    <MetaTag variant="type">
-                      {preset.appType.replace(/_/g, ' ')}
-                    </MetaTag>
-                    {preset.metadata.tags.slice(0, 2).map(tag => (
-                      <MetaTag key={tag} variant="tag">
-                        {tag}
-                      </MetaTag>
-                    ))}
-                  </PresetMeta>
-                  
-                  <PresetActions>
-                    <SelectButton 
-                      selected={selectedPreset === preset.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePresetClick(preset.id);
-                      }}
-                    >
-                      {selectedPreset === preset.id ? (
-                        <>
-                          <FiCheck size={16} />
-                          Selected
-                        </>
-                      ) : (
-                        'Select Preset'
-                      )}
-                    </SelectButton>
-                    
-                    <InfoButton
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // TODO: Show preset details modal
-                        console.log('Show preset details:', preset);
-                      }}
-                      title="View preset details"
-                    >
-                      <FiInfo size={16} />
-                    </InfoButton>
-                  </PresetActions>
-                </PresetCard>
-              ))}
-            </PresetGrid>
-          </CategorySection>
-        ))
-      )}
-    </Container>
-  );
+	if (loading) {
+		return (
+			<Container>
+				<Header>
+					<FiSettings />
+					<Title>Configuration Presets</Title>
+				</Header>
+				<Description>Loading presets...</Description>
+			</Container>
+		);
+	}
+
+	return (
+		<Container>
+			<Header>
+				<FiSettings />
+				<Title>Configuration Presets</Title>
+			</Header>
+
+			<Description>
+				Choose from predefined configuration templates or your custom presets to quickly set up
+				applications with best practices.
+				{selectedAppType ? (
+					<strong style={{ color: '#ef4444' }}>
+						{' '}
+						Templates are filtered for {selectedAppType.replace(/_/g, ' ')} applications.
+					</strong>
+				) : (
+					<strong> Select an application type above to see relevant templates.</strong>
+				)}
+			</Description>
+
+			<FilterSection>
+				<FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>
+					All Presets ({filteredPresets.length})
+				</FilterButton>
+				<FilterButton active={filter === 'built-in'} onClick={() => setFilter('built-in')}>
+					Built-in (
+					{
+						presets.filter(
+							(p) =>
+								p.category === 'built-in' && (!selectedAppType || p.appType === selectedAppType)
+						).length
+					}
+					)
+				</FilterButton>
+				<FilterButton active={filter === 'custom'} onClick={() => setFilter('custom')}>
+					Custom (
+					{
+						presets.filter(
+							(p) => p.category === 'custom' && (!selectedAppType || p.appType === selectedAppType)
+						).length
+					}
+					)
+				</FilterButton>
+			</FilterSection>
+
+			{filteredPresets.length === 0 ? (
+				<EmptyState>
+					<FiSettings />
+					<div>
+						{selectedAppType
+							? `No presets available for ${selectedAppType.replace(/_/g, ' ')}`
+							: 'No presets available'}
+					</div>
+					{filter === 'custom' && (
+						<div style={{ fontSize: '0.875rem', marginTop: '0.5rem' }}>
+							Create custom presets by configuring an application and saving it as a template.
+						</div>
+					)}
+				</EmptyState>
+			) : (
+				Object.entries(groupedPresets).map(([category, categoryPresets]) => (
+					<CategorySection key={category}>
+						<CategoryTitle>
+							{category === 'built-in' ? <FiStar /> : <FiUser />}
+							{category === 'built-in' ? 'Built-in Presets' : 'Custom Presets'}
+							<span style={{ color: '#6b7280', fontWeight: 'normal' }}>
+								({categoryPresets.length})
+							</span>
+						</CategoryTitle>
+
+						<PresetGrid>
+							{categoryPresets.map((preset) => (
+								<PresetCard
+									key={preset.id}
+									selected={selectedPreset === preset.id}
+									category={preset.category}
+									onClick={() => handlePresetClick(preset.id)}
+								>
+									<PresetHeader>
+										<PresetName>{preset.name}</PresetName>
+										<PresetBadge category={preset.category}>
+											{preset.category === 'built-in' ? <FiStar size={12} /> : <FiUser size={12} />}
+											{preset.category === 'built-in' ? 'Built-in' : 'Custom'}
+										</PresetBadge>
+									</PresetHeader>
+
+									<PresetDescription>{preset.description}</PresetDescription>
+
+									<PresetMeta>
+										<MetaTag variant="security">{preset.metadata.securityLevel}</MetaTag>
+										<MetaTag variant="type">{preset.appType.replace(/_/g, ' ')}</MetaTag>
+										{preset.metadata.tags.slice(0, 2).map((tag) => (
+											<MetaTag key={tag} variant="tag">
+												{tag}
+											</MetaTag>
+										))}
+									</PresetMeta>
+
+									<PresetActions>
+										<SelectButton
+											selected={selectedPreset === preset.id}
+											onClick={(e) => {
+												e.stopPropagation();
+												handlePresetClick(preset.id);
+											}}
+										>
+											{selectedPreset === preset.id ? (
+												<>
+													<FiCheck size={16} />
+													Selected
+												</>
+											) : (
+												'Select Preset'
+											)}
+										</SelectButton>
+
+										<InfoButton
+											onClick={(e) => {
+												e.stopPropagation();
+												// TODO: Show preset details modal
+												console.log('Show preset details:', preset);
+											}}
+											title="View preset details"
+										>
+											<FiInfo size={16} />
+										</InfoButton>
+									</PresetActions>
+								</PresetCard>
+							))}
+						</PresetGrid>
+					</CategorySection>
+				))
+			)}
+		</Container>
+	);
 };

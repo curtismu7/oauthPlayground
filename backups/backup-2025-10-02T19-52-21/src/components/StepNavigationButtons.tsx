@@ -1,6 +1,6 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiRefreshCw, FiMove } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiMove, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {

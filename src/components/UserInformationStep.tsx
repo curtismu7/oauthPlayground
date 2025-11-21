@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -7,7 +7,7 @@ import {
 	FiEye,
 	FiUser,
 } from 'react-icons/fi';
-import styled, { keyframes, css } from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -320,11 +320,11 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 		try {
 			await onFetchUserInfo();
 			v4ToastManager.showSuccess('✓ User information fetched successfully!', {
-				description: 'Check the UserInfo Response section below'
+				description: 'Check the UserInfo Response section below',
 			});
 			// Auto-collapse overview to focus on results
-			setCollapsedSections(prev => ({ ...prev, userInfoOverview: true }));
-		} catch (error) {
+			setCollapsedSections((prev) => ({ ...prev, userInfoOverview: true }));
+		} catch (_error) {
 			v4ToastManager.showError('Failed to fetch user information');
 		} finally {
 			setIsLoading(false);
@@ -392,28 +392,27 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 								<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 									<FiCheckCircle size={18} /> UserInfo Response
 								</span>
-								{justFetched && (
-									<AnimatedBadge>
-										✓ JUST FETCHED!
-									</AnimatedBadge>
-								)}
+								{justFetched && <AnimatedBadge>✓ JUST FETCHED!</AnimatedBadge>}
 							</ResultsHeading>
 							<HelperText>
-								{userInfo ? 
-									'User information successfully retrieved. Copy the claims or open token management tools for deeper inspection.' :
-									'Click "Fetch User Info" above to retrieve user information from PingOne.'
-								}
+								{userInfo
+									? 'User information successfully retrieved. Copy the claims or open token management tools for deeper inspection.'
+									: 'Click "Fetch User Info" above to retrieve user information from PingOne.'}
 							</HelperText>
 							{userInfo ? (
-								<GeneratedContentBox style={{
-									border: justFetched ? '2px solid #10b981' : undefined,
-									boxShadow: justFetched ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : undefined,
-									transition: 'all 0.3s ease'
-								}}>
-									<GeneratedLabel style={{ 
-										backgroundColor: justFetched ? '#10b981' : primaryColor,
-										transition: 'background-color 0.3s ease'
-									}}>
+								<GeneratedContentBox
+									style={{
+										border: justFetched ? '2px solid #10b981' : undefined,
+										boxShadow: justFetched ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : undefined,
+										transition: 'all 0.3s ease',
+									}}
+								>
+									<GeneratedLabel
+										style={{
+											backgroundColor: justFetched ? '#10b981' : primaryColor,
+											transition: 'background-color 0.3s ease',
+										}}
+									>
 										✓ User Info Successfully Fetched
 									</GeneratedLabel>
 									<CodeBlock>{JSON.stringify(userInfo, null, 2)}</CodeBlock>

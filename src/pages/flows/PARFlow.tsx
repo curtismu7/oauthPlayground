@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../services/parService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -311,23 +311,25 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 	const generateCodeChallenge = useCallback(async () => {
 		try {
 			// Import OAuth utilities for proper PKCE generation
-			const { generateCodeVerifier, generateCodeChallenge: generateChallenge } = await import('../../utils/oauth');
-			
+			const { generateCodeVerifier, generateCodeChallenge: generateChallenge } = await import(
+				'../../utils/oauth'
+			);
+
 			const codeVerifier = generateCodeVerifier();
 			const codeChallenge = await generateChallenge(codeVerifier);
-			
-			setFormData((prev) => ({ 
-				...prev, 
+
+			setFormData((prev) => ({
+				...prev,
 				codeChallenge,
-				codeVerifier // Store the verifier for later use
+				codeVerifier, // Store the verifier for later use
 			}));
-			
+
 			console.log('🔐 [PAR Flow] Generated PKCE codes:', {
 				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
 				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
-				method: 'S256'
+				method: 'S256',
 			});
-			
+
 			return { codeVerifier, codeChallenge };
 		} catch (error) {
 			console.error('❌ [PAR Flow] Failed to generate PKCE codes:', error);
@@ -347,7 +349,8 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 		{
 			id: 'step-0',
 			title: 'Generate PKCE Parameters',
-			description: 'Generate secure PKCE (Proof Key for Code Exchange) parameters for enhanced security.',
+			description:
+				'Generate secure PKCE (Proof Key for Code Exchange) parameters for enhanced security.',
 			code: `// 🔐 Generate PKCE Parameters
 // PKCE (RFC 7636) provides additional security for authorization code flows
 
@@ -369,14 +372,16 @@ console.log('Generated PKCE parameters:', {
 			execute: async () => {
 				logger.info('PARFlow', 'Generating PKCE parameters');
 				setDemoStatus('loading');
-				
+
 				try {
 					await generateCodeChallenge();
 					setDemoStatus('success');
 					logger.success('PARFlow', 'PKCE parameters generated successfully');
 				} catch (error) {
 					setDemoStatus('error');
-					setError(`Failed to generate PKCE parameters: ${error instanceof Error ? error.message : 'Unknown error'}`);
+					setError(
+						`Failed to generate PKCE parameters: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
 					logger.error('PARFlow', 'PKCE generation failed', error);
 				}
 			},

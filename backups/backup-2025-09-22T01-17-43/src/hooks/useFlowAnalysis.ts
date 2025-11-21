@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
-	flowAnalyzer,
-	FlowRecommendation,
 	FlowComparisonResult,
 	FlowMetrics,
+	FlowRecommendation,
+	flowAnalyzer,
 } from '../utils/flowAnalysis';
 import { logger } from '../utils/logger';
 

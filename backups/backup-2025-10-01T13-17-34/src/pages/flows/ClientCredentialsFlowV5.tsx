@@ -1,28 +1,28 @@
 // src/pages/flows/ClientCredentialsFlowV5.tsx
 // OAuth 2.0 Client Credentials Flow - V5 Implementation
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertCircle,
 	FiCheckCircle,
+	FiChevronDown,
 	FiClock,
 	FiCopy,
+	FiExternalLink,
 	FiInfo,
 	FiKey,
-	FiRefreshCw,
-	FiShield,
-	FiAlertCircle,
-	FiChevronDown,
-	FiExternalLink,
-	FiZap,
 	FiLock,
+	FiRefreshCw,
 	FiServer,
+	FiShield,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { ClientAuthMethod, useClientCredentialsFlow } from '../../hooks/useClientCredentialsFlow';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { useClientCredentialsFlow, ClientAuthMethod } from '../../hooks/useClientCredentialsFlow';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`

@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import {
 	HelperText,
@@ -14,11 +17,8 @@ import {
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import { FlowHeader } from '../../services/flowHeaderService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 

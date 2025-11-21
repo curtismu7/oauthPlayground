@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiEye, FiEyeOff, FiMove } from 'react-icons/fi';
+import styled from 'styled-components';
 
 // Kroger Brand Colors
 const KROGER_COLORS = {
-  red: '#E31837',
-  darkRed: '#C41E3A',
-  blue: '#0066CC',
-  darkBlue: '#004499',
-  green: '#00A651',
-  darkGreen: '#008A42',
-  yellow: '#FFD700',
-  white: '#FFFFFF',
-  lightGray: '#F5F5F5',
-  darkGray: '#333333',
-  black: '#000000'
+	red: '#E31837',
+	darkRed: '#C41E3A',
+	blue: '#0066CC',
+	darkBlue: '#004499',
+	green: '#00A651',
+	darkGreen: '#008A42',
+	yellow: '#FFD700',
+	white: '#FFFFFF',
+	lightGray: '#F5F5F5',
+	darkGray: '#333333',
+	black: '#000000',
 };
 
 const clampChannel = (value: number) => Math.min(255, Math.max(0, value));
@@ -24,7 +24,10 @@ const normalizeHex = (color: string): string | null => {
 	if (!color.startsWith('#')) return null;
 	const raw = color.slice(1);
 	if (raw.length === 3) {
-		return raw.split('').map((char) => char + char).join('');
+		return raw
+			.split('')
+			.map((char) => char + char)
+			.join('');
 	}
 	if (raw.length === 6) {
 		return raw;
@@ -148,7 +151,10 @@ const LogoContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-const LogoMark = styled.div<{ $backgroundColor?: string | undefined; $borderColor?: string | undefined }>`
+const LogoMark = styled.div<{
+	$backgroundColor?: string | undefined;
+	$borderColor?: string | undefined;
+}>`
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -180,7 +186,10 @@ const Subtitle = styled.div<{ $color?: string | undefined }>`
   font-weight: 400;
 `;
 
-const Content = styled.div<{ $contentBackground?: string | undefined; $contentTextColor?: string | undefined }>`
+const Content = styled.div<{
+	$contentBackground?: string | undefined;
+	$contentTextColor?: string | undefined;
+}>`
   padding: 32px 28px;
   background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
   color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
@@ -370,8 +379,8 @@ const LoadingSpinner = styled.span`
 `;
 
 export interface KrogerLoginCredentials {
-  username: string;
-  password: string;
+	username: string;
+	password: string;
 }
 
 export interface KrogerBrandingOverrides {
@@ -400,300 +409,325 @@ export interface KrogerLoginPopupProps {
 }
 
 const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
-  isOpen,
-  onClose,
-  onLogin,
-  overrides,
-  onOpenDavinciStudio,
+	isOpen,
+	onClose,
+	onLogin,
+	overrides,
 }) => {
-  const DEFAULT_USERNAME = 'curtis7';
-  const DEFAULT_PASSWORD = 'Wolverine7&';
+	const DEFAULT_USERNAME = 'curtis7';
+	const DEFAULT_PASSWORD = 'Wolverine7&';
 
-  const [username, setUsername] = useState(DEFAULT_USERNAME);
-  const [password, setPassword] = useState(DEFAULT_PASSWORD);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const usernameRef = useRef<HTMLInputElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragOffset = useRef({ x: 0, y: 0 });
+	const [username, setUsername] = useState(DEFAULT_USERNAME);
+	const [password, setPassword] = useState(DEFAULT_PASSWORD);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [showPassword, setShowPassword] = useState(false);
+	const usernameRef = useRef<HTMLInputElement>(null);
+	const popupRef = useRef<HTMLDivElement>(null);
+	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const [isDragging, setIsDragging] = useState(false);
+	const dragOffset = useRef({ x: 0, y: 0 });
 
-  const clampPosition = useCallback((x: number, y: number) => {
-    if (typeof window === 'undefined') {
-      return { x, y };
-    }
+	const clampPosition = useCallback((x: number, y: number) => {
+		if (typeof window === 'undefined') {
+			return { x, y };
+		}
 
-    const width = popupRef.current?.offsetWidth || 420;
-    const height = popupRef.current?.offsetHeight || 520;
-    const padding = 16;
-    const maxX = Math.max(window.innerWidth - width - padding, padding);
-    const maxY = Math.max(window.innerHeight - height - padding, padding);
-    const clampedX = Math.min(Math.max(x, padding), maxX);
-    const clampedY = Math.min(Math.max(y, padding), maxY);
-    return { x: clampedX, y: clampedY };
-  }, []);
+		const width = popupRef.current?.offsetWidth || 420;
+		const height = popupRef.current?.offsetHeight || 520;
+		const padding = 16;
+		const maxX = Math.max(window.innerWidth - width - padding, padding);
+		const maxY = Math.max(window.innerHeight - height - padding, padding);
+		const clampedX = Math.min(Math.max(x, padding), maxX);
+		const clampedY = Math.min(Math.max(y, padding), maxY);
+		return { x: clampedX, y: clampedY };
+	}, []);
 
-  const handleDragStart = useCallback((event: React.MouseEvent) => {
-    if (!popupRef.current) return;
-    const rect = popupRef.current.getBoundingClientRect();
-    dragOffset.current = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    };
-    setIsDragging(true);
-  }, []);
+	const handleDragStart = useCallback((event: React.MouseEvent) => {
+		if (!popupRef.current) return;
+		const rect = popupRef.current.getBoundingClientRect();
+		dragOffset.current = {
+			x: event.clientX - rect.left,
+			y: event.clientY - rect.top,
+		};
+		setIsDragging(true);
+	}, []);
 
-  const handleDragMove = useCallback((event: MouseEvent) => {
-    if (!isDragging) return;
-    const newPos = clampPosition(
-      event.clientX - dragOffset.current.x,
-      event.clientY - dragOffset.current.y
-    );
-    setPosition(newPos);
-  }, [clampPosition, isDragging]);
+	const handleDragMove = useCallback(
+		(event: MouseEvent) => {
+			if (!isDragging) return;
+			const newPos = clampPosition(
+				event.clientX - dragOffset.current.x,
+				event.clientY - dragOffset.current.y
+			);
+			setPosition(newPos);
+		},
+		[clampPosition, isDragging]
+	);
 
-  const handleDragEnd = useCallback(() => {
-    setIsDragging(false);
-  }, []);
+	const handleDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
 
-  // Focus username field when popup opens
-  useEffect(() => {
-    if (!isOpen || typeof window === 'undefined') return;
+	// Focus username field when popup opens
+	useEffect(() => {
+		if (!isOpen || typeof window === 'undefined') return;
 
-    const centerModal = () => {
-      if (!popupRef.current) return;
-      const rect = popupRef.current.getBoundingClientRect();
-      const width = rect.width || popupRef.current.offsetWidth || 420;
-      const height = rect.height || popupRef.current.offsetHeight || 520;
-      const centeredPosition = clampPosition(
-        Math.round((window.innerWidth - width) / 2),
-        Math.round((window.innerHeight - height) / 2)
-      );
-      setPosition(centeredPosition);
-    };
+		const centerModal = () => {
+			if (!popupRef.current) return;
+			const rect = popupRef.current.getBoundingClientRect();
+			const width = rect.width || popupRef.current.offsetWidth || 420;
+			const height = rect.height || popupRef.current.offsetHeight || 520;
+			const centeredPosition = clampPosition(
+				Math.round((window.innerWidth - width) / 2),
+				Math.round((window.innerHeight - height) / 2)
+			);
+			setPosition(centeredPosition);
+		};
 
-    // Allow the modal to render before measuring
-    requestAnimationFrame(() => {
-      centerModal();
-      if (usernameRef.current) {
-        usernameRef.current.focus();
-      }
-    });
-  }, [clampPosition, isOpen]);
+		// Allow the modal to render before measuring
+		requestAnimationFrame(() => {
+			centerModal();
+			if (usernameRef.current) {
+				usernameRef.current.focus();
+			}
+		});
+	}, [clampPosition, isOpen]);
 
-  // Reset form when popup closes
-  useEffect(() => {
-    if (!isOpen) {
-      setUsername(DEFAULT_USERNAME);
-      setPassword(DEFAULT_PASSWORD);
-      setError(null);
-      setIsLoading(false);
-      setShowPassword(false);
-    }
-  }, [isOpen]);
+	// Reset form when popup closes
+	useEffect(() => {
+		if (!isOpen) {
+			setUsername(DEFAULT_USERNAME);
+			setPassword(DEFAULT_PASSWORD);
+			setError(null);
+			setIsLoading(false);
+			setShowPassword(false);
+		}
+	}, [isOpen]);
 
-  useEffect(() => {
-    if (!isDragging) {
-      return;
-    }
+	useEffect(() => {
+		if (!isDragging) {
+			return;
+		}
 
-    document.addEventListener('mousemove', handleDragMove);
-    document.addEventListener('mouseup', handleDragEnd);
+		document.addEventListener('mousemove', handleDragMove);
+		document.addEventListener('mouseup', handleDragEnd);
 
-    return () => {
-      document.removeEventListener('mousemove', handleDragMove);
-      document.removeEventListener('mouseup', handleDragEnd);
-    };
-  }, [handleDragEnd, handleDragMove, isDragging]);
+		return () => {
+			document.removeEventListener('mousemove', handleDragMove);
+			document.removeEventListener('mouseup', handleDragEnd);
+		};
+	}, [handleDragEnd, handleDragMove, isDragging]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Prevent double-submission
-    if (isLoading) {
-      console.log('🔍 [KrogerLoginPopup] Already processing, ignoring duplicate submission');
-      return;
-    }
-    
-    if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password');
-      return;
-    }
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 
-    setIsLoading(true);
-    setError(null);
+		// Prevent double-submission
+		if (isLoading) {
+			console.log('🔍 [KrogerLoginPopup] Already processing, ignoring duplicate submission');
+			return;
+		}
 
-    try {
-      await onLogin({ username: username.trim(), password });
-      // Success - the parent component will handle closing and navigation
-      // Popup should stay closed (parent closes it before calling onLogin)
-      // Don't reset anything - parent handles all state
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-      setIsLoading(false); // Only reset on error so user can try again
-      // Popup stays closed - user must use "Start Over" to restart flow
-    }
-  };
+		if (!username.trim() || !password.trim()) {
+			setError('Please enter both username and password');
+			return;
+		}
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      onClose();
-    }
-  };
+		setIsLoading(true);
+		setError(null);
 
-  const branding = useMemo(() => ({
-    title: overrides?.title ?? 'Custom Login App',
-    subtitle: overrides?.subtitle ?? 'Sign in with your Custom Login App',
-    primaryColor: overrides?.primaryColor,
-    secondaryColor: overrides?.secondaryColor,
-    headerBackgroundImage: overrides?.headerBackgroundImage,
-    logoUrl: overrides?.logoUrl,
-    logoText: overrides?.logoText,
-    wordmarkColor: overrides?.wordmarkColor,
-    subtitleColor: overrides?.subtitleColor,
-    logoBackgroundColor: overrides?.logoBackgroundColor,
-    logoBorderColor: overrides?.logoBorderColor,
-    contentBackground: overrides?.contentBackground,
-    contentTextColor: overrides?.contentTextColor,
-    formAccentColor: overrides?.formAccentColor,
-  }), [overrides]);
+		try {
+			await onLogin({ username: username.trim(), password });
+			// Success - the parent component will handle closing and navigation
+			// Popup should stay closed (parent closes it before calling onLogin)
+			// Don't reset anything - parent handles all state
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+			setIsLoading(false); // Only reset on error so user can try again
+			// Popup stays closed - user must use "Start Over" to restart flow
+		}
+	};
 
-  if (!isOpen) return null;
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === 'Escape' && !isLoading) {
+			onClose();
+		}
+	};
 
-  return (
-    <PopupOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <PopupContainer
-        onKeyDown={handleKeyDown}
-        ref={popupRef}
-        $isDragging={isDragging}
-        $position={position}
-      >
-        <CloseButton onClick={onClose} aria-label="Close">
-          ×
-        </CloseButton>
-        
-        <Header
-          onMouseDown={handleDragStart}
-          $primaryColor={branding.primaryColor}
-          $secondaryColor={branding.secondaryColor}
-          $backgroundImage={branding.headerBackgroundImage}
-        >
-          <DragHandleBar />
-          <DragHint>
-            <FiMove size={14} /> Drag Window
-          </DragHint>
-          <LogoContainer>
-            <LogoMark $backgroundColor={branding.logoBackgroundColor} $borderColor={branding.logoBorderColor}>
-              {branding.logoUrl ? (
-                <LogoImage src={branding.logoUrl} alt="Brand logo" />
-              ) : (
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill={branding.primaryColor ?? KROGER_COLORS.red}/>
-                  <path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="#ffffff"/>
-                </svg>
-              )}
-            </LogoMark>
-            <BrandWordmark $color={branding.wordmarkColor}>{branding.logoText ?? branding.title}</BrandWordmark>
-          </LogoContainer>
-          <Subtitle $color={branding.subtitleColor}>{branding.subtitle}</Subtitle>
-        </Header>
+	const branding = useMemo(
+		() => ({
+			title: overrides?.title ?? 'Custom Login App',
+			subtitle: overrides?.subtitle ?? 'Sign in with your Custom Login App',
+			primaryColor: overrides?.primaryColor,
+			secondaryColor: overrides?.secondaryColor,
+			headerBackgroundImage: overrides?.headerBackgroundImage,
+			logoUrl: overrides?.logoUrl,
+			logoText: overrides?.logoText,
+			wordmarkColor: overrides?.wordmarkColor,
+			subtitleColor: overrides?.subtitleColor,
+			logoBackgroundColor: overrides?.logoBackgroundColor,
+			logoBorderColor: overrides?.logoBorderColor,
+			contentBackground: overrides?.contentBackground,
+			contentTextColor: overrides?.contentTextColor,
+			formAccentColor: overrides?.formAccentColor,
+		}),
+		[overrides]
+	);
 
-        <Content $contentBackground={branding.contentBackground} $contentTextColor={branding.contentTextColor}>
-          {onOpenDavinciStudio && (
-            <div
-              style={{
-                background: hexToRgba(branding.formAccentColor ?? KROGER_COLORS.blue, 0.08),
-                border: `1px solid ${hexToRgba(branding.formAccentColor ?? KROGER_COLORS.blue, 0.18)}`,
-                borderRadius: '10px',
-                padding: '1rem',
-                marginBottom: '1.5rem',
-              }}
-            >
-              <p style={{ margin: 0, fontWeight: 600 }}>🎨 Customize this experience in DaVinci Design Studio</p>
-              <p style={{ margin: '0.5rem 0 1rem', fontSize: '0.85rem' }}>
-                Launch the PingOne DaVinci Design Studio extension to change the logo, colors, and messaging in real time.
-              </p>
-              <button
-                type="button"
-                onClick={onOpenDavinciStudio}
-                style={{
-                  background: branding.formAccentColor ?? KROGER_COLORS.blue,
-                  color: '#ffffff',
-                  border: 'none',
-                  padding: '0.55rem 1.1rem',
-                  borderRadius: '9999px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Open DaVinci Design Studio
-              </button>
-            </div>
-          )}
-          {error && <ErrorMessage>{error}</ErrorMessage>}
-          
-          <Form onSubmit={handleSubmit}>
-            <InputGroup>
-              <Label htmlFor="kroger-username">Username or Email</Label>
-              <InputWrapper>
-                <Input
-                  id="kroger-username"
-                  ref={usernameRef}
-                  type="text"
-                  placeholder="Enter your username or email"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="username"
-                  $accentColor={branding.formAccentColor}
-                />
-              </InputWrapper>
-            </InputGroup>
+	if (!isOpen) return null;
 
-            <InputGroup>
-              <Label htmlFor="kroger-password">Password</Label>
-              <InputWrapper>
-                <PasswordInput
-                  id="kroger-password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                  autoComplete="current-password"
-                  $accentColor={branding.formAccentColor}
-                />
-                <PasswordToggleButton
-                  type="button"
-                  onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
-                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                </PasswordToggleButton>
-              </InputWrapper>
-            </InputGroup>
+	return (
+		<PopupOverlay
+			onClick={(e) => {
+				// Prevent closing during login process
+				if (isLoading) return;
+				if (e.target === e.currentTarget) {
+					onClose();
+				}
+			}}
+		>
+			<PopupContainer
+				onClick={(e) => e.stopPropagation()}
+				onKeyDown={handleKeyDown}
+				ref={popupRef}
+				$isDragging={isDragging}
+				$position={position}
+			>
+				<CloseButton
+					onClick={() => {
+						// Prevent closing during login process
+						if (!isLoading) {
+							onClose();
+						}
+					}}
+					aria-label="Close"
+					disabled={isLoading}
+					style={{ opacity: isLoading ? 0.5 : 1, cursor: isLoading ? 'not-allowed' : 'pointer' }}
+				>
+					×
+				</CloseButton>
 
-            <LoginButton type="submit" disabled={isLoading} $accentColor={branding.formAccentColor}>
-              {isLoading && <LoadingSpinner />}
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </LoginButton>
-            <CancelLink type="button" onClick={onClose}>
-              Cancel
-            </CancelLink>
-          </Form>
-        </Content>
+				<Header
+					onMouseDown={handleDragStart}
+					$primaryColor={branding.primaryColor}
+					$secondaryColor={branding.secondaryColor}
+					$backgroundImage={branding.headerBackgroundImage}
+				>
+					<DragHandleBar />
+					<DragHint>
+						<FiMove size={14} /> Drag Window
+					</DragHint>
+					<LogoContainer>
+						<LogoMark
+							$backgroundColor={branding.logoBackgroundColor}
+							$borderColor={branding.logoBorderColor}
+						>
+							{branding.logoUrl ? (
+								<LogoImage src={branding.logoUrl} alt="Brand logo" />
+							) : (
+								<svg
+									width="28"
+									height="28"
+									viewBox="0 0 24 24"
+									fill="none"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z"
+										fill={branding.primaryColor ?? KROGER_COLORS.red}
+									/>
+									<path
+										d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
+										fill="#ffffff"
+									/>
+								</svg>
+							)}
+						</LogoMark>
+						<BrandWordmark $color={branding.wordmarkColor}>
+							{branding.logoText ?? branding.title}
+						</BrandWordmark>
+					</LogoContainer>
+					<Subtitle $color={branding.subtitleColor}>{branding.subtitle}</Subtitle>
+				</Header>
 
-        <Footer>
-          <FooterText>
-            This is a demo login page for testing purposes.<br />
-            Your credentials are used for OAuth flow demonstration only.
-          </FooterText>
-        </Footer>
-      </PopupContainer>
-    </PopupOverlay>
-  );
+				<Content
+					$contentBackground={branding.contentBackground}
+					$contentTextColor={branding.contentTextColor}
+				>
+					{error && <ErrorMessage>{error}</ErrorMessage>}
+
+					<Form onSubmit={handleSubmit}>
+						<InputGroup>
+							<Label htmlFor="kroger-username">Username or Email</Label>
+							<InputWrapper>
+								<Input
+									id="kroger-username"
+									ref={usernameRef}
+									type="text"
+									placeholder="Enter your username or email"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									disabled={isLoading}
+									autoComplete="username"
+									$accentColor={branding.formAccentColor}
+								/>
+							</InputWrapper>
+						</InputGroup>
+
+						<InputGroup>
+							<Label htmlFor="kroger-password">Password</Label>
+							<InputWrapper>
+								<PasswordInput
+									id="kroger-password"
+									type={showPassword ? 'text' : 'password'}
+									placeholder="Enter your password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									disabled={isLoading}
+									autoComplete="current-password"
+									$accentColor={branding.formAccentColor}
+								/>
+								<PasswordToggleButton
+									type="button"
+									onClick={() => setShowPassword((prev) => !prev)}
+									aria-label={showPassword ? 'Hide password' : 'Show password'}
+								>
+									{showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+								</PasswordToggleButton>
+							</InputWrapper>
+						</InputGroup>
+
+						<LoginButton type="submit" disabled={isLoading} $accentColor={branding.formAccentColor}>
+							{isLoading && <LoadingSpinner />}
+							{isLoading ? 'Signing In...' : 'Sign In'}
+						</LoginButton>
+						<CancelLink
+							type="button"
+							onClick={() => {
+								if (!isLoading) {
+									onClose();
+								}
+							}}
+							style={{
+								opacity: isLoading ? 0.5 : 1,
+								cursor: isLoading ? 'not-allowed' : 'pointer',
+							}}
+						>
+							Cancel
+						</CancelLink>
+					</Form>
+				</Content>
+
+				<Footer>
+					<FooterText>
+						This is a demo login page for testing purposes.
+						<br />
+						Your credentials are used for OAuth flow demonstration only.
+					</FooterText>
+				</Footer>
+			</PopupContainer>
+		</PopupOverlay>
+	);
 };
 
 export default KrogerLoginPopup;

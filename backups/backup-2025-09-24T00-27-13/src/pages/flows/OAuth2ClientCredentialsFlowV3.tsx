@@ -1,38 +1,37 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiServer,
-	FiKey,
-	FiShield,
-	FiCheckCircle,
-	FiCopy,
-	FiRefreshCw,
 	FiAlertTriangle,
-	FiGlobe,
-	FiSettings,
-	FiUser,
-	FiClock,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
+	FiClock,
+	FiCopy,
 	FiEye,
 	FiEyeOff,
+	FiGlobe,
+	FiKey,
+	FiRefreshCw,
+	FiServer,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
-import { usePerformanceTracking } from '../../hooks/useAnalytics';
-import { logger } from '../../utils/logger';
-import { copyToClipboard } from '../../utils/clipboard';
-import { discoveryService } from '../../services/discoveryService';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import { InfoBox } from '../../components/steps/CommonSteps';
-import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
-import TokenDisplay from '../../components/TokenDisplay';
+import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
 import ColorCodedURL from '../../components/ColorCodedURL';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
+import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps/CommonSteps';
+import TokenDisplay from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { usePerformanceTracking } from '../../hooks/useAnalytics';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { discoveryService } from '../../services/discoveryService';
+import { copyToClipboard } from '../../utils/clipboard';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 // Types
 interface ClientCredentialsCredentials {

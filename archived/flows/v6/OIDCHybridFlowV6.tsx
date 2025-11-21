@@ -5,14 +5,19 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import type { DisplayMode } from '../../components/DisplayParameterSelector';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useHybridFlowController } from '../../hooks/useHybridFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
 	FiBook,
@@ -22,13 +27,6 @@ import {
 	FiShield,
 	FiZap,
 } from '../../services/commonImportsService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-
-import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
-import type { DisplayMode } from '../../components/DisplayParameterSelector';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
-import { AuthenticationModalService } from '../../services/authenticationModalService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
 import { EducationalContentService } from '../../services/educationalContentService.tsx';
@@ -49,6 +47,7 @@ import {
 import { UISettingsService } from '../../services/uiSettingsService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components
 const Container = styled.div`

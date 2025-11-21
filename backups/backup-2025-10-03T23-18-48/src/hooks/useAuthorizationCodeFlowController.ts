@@ -19,7 +19,7 @@ import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
-import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
+import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
@@ -471,7 +471,7 @@ export const useAuthorizationCodeFlowController = (
 			const possibleKeys = [
 				`${persistKey}-app-config`,
 				`${flowKey}-app-config`,
-				'pingone-app-config' // fallback
+				'pingone-app-config', // fallback
 			];
 
 			for (const configKey of possibleKeys) {
@@ -480,7 +480,7 @@ export const useAuthorizationCodeFlowController = (
 					pingOneConfig = JSON.parse(storedConfig);
 					console.log('🔧 [useAuthorizationCodeFlowController] Loaded PingOne config:', {
 						key: configKey,
-						config: pingOneConfig
+						config: pingOneConfig,
 					});
 					break;
 				}
@@ -493,7 +493,9 @@ export const useAuthorizationCodeFlowController = (
 
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
-			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
+			console.log(
+				'🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request'
+			);
 			try {
 				// Import PAR service dynamically to avoid circular dependencies
 				const { PARService } = await import('../services/parService');
@@ -545,7 +547,10 @@ export const useAuthorizationCodeFlowController = (
 					client_id: credentials.clientId,
 				});
 
-				console.log('🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:', url);
+				console.log(
+					'🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:',
+					url
+				);
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
 				showGlobalError(
@@ -746,7 +751,9 @@ export const useAuthorizationCodeFlowController = (
 				environment_id: credentials.environmentId.trim(),
 				code_verifier: pkceCodes.codeVerifier.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
 			};
 
 			// Handle JWT-based authentication methods
@@ -972,7 +979,9 @@ export const useAuthorizationCodeFlowController = (
 				client_id: credentials.clientId.trim(),
 				environment_id: credentials.environmentId.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
 			};
 
 			// Handle JWT-based authentication methods

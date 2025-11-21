@@ -1,8 +1,8 @@
 // src/utils/credentialManager.ts
 
+import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
-import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../services/oidcDiscoveryService';
 
 export interface PermanentCredentials {
 	environmentId: string;
@@ -338,7 +338,10 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri !== undefined ? credentials.redirectUri : getCallbackUrlForFlow('oidc-implicit-v3'),
+					redirectUri:
+						credentials.redirectUri !== undefined
+							? credentials.redirectUri
+							: getCallbackUrlForFlow('oidc-implicit-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -350,7 +353,7 @@ class CredentialManager {
 				console.log('📥 [CredentialManager] Loaded implicit flow credentials:', {
 					hasRedirectUri: !!credentials.redirectUri,
 					redirectUri: credentials.redirectUri,
-					fullResult: result
+					fullResult: result,
 				});
 
 				return result;

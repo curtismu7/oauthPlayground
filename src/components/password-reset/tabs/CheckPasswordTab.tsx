@@ -12,6 +12,7 @@ import {
 import { checkPassword } from '../../../services/passwordResetService';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 import { PasswordInput } from '../shared/PasswordInput';
+import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
 import {
 	Alert,
@@ -26,7 +27,6 @@ import {
 } from '../shared/PasswordResetSharedComponents';
 import { UserLookupForm } from '../shared/UserLookupForm';
 import { type PingOneUser } from '../shared/useUserLookup';
-import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 
 interface CheckPasswordTabProps {
 	environmentId: string;

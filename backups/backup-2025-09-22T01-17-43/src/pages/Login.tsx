@@ -1,26 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import { useEffect, useState } from 'react';
 import {
-	FiCopy,
-	FiCheck,
-	FiEye,
-	FiEyeOff,
-	FiEdit,
-	FiCheckCircle,
 	FiAlertCircle,
-	FiLogIn,
+	FiCheck,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
+	FiCopy,
+	FiEdit,
+	FiEye,
+	FiEyeOff,
+	FiLogIn,
 } from 'react-icons/fi';
-import { useAuth } from '../contexts/NewAuthContext';
-import { config } from '../services/config';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import packageJson from '../../package.json';
-import Spinner from '../components/Spinner';
-import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { credentialManager } from '../utils/credentialManager';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
 import DebugCredentials from '../components/DebugCredentials';
+import Spinner from '../components/Spinner';
+import { useAuth } from '../contexts/NewAuthContext';
+import { config } from '../services/config';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { credentialManager } from '../utils/credentialManager';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';

@@ -12,16 +12,16 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
-import { getRecentActivity } from '../utils/activityTracker';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { comprehensiveDiscoveryService } from '../services/comprehensiveDiscoveryService';
+import { FLOW_CONFIGS } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 import type { ActivityItem } from '../utils/activityTracker';
+import { getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FLOW_CONFIGS } from '../services/flowHeaderService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import PageLayoutService from '../services/pageLayoutService';
-import { comprehensiveDiscoveryService } from '../services/comprehensiveDiscoveryService';
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
 const pageConfig = {
@@ -34,8 +34,11 @@ const pageConfig = {
 	flowId: 'dashboard', // Enables FlowHeader integration
 };
 
-const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-	PageLayoutService.createPageLayout(pageConfig);
+const {
+	PageContainer,
+	ContentWrapper,
+	FlowHeader: LayoutFlowHeader,
+} = PageLayoutService.createPageLayout(pageConfig);
 
 // Content card for sections (no border/shadow when inside CollapsibleHeader)
 const ContentCard = styled.div`
@@ -77,7 +80,7 @@ const FlowCategoryTitle = styled.h3<{ $color?: string }>`
   font-size: 1rem;
   font-weight: 600;
   margin-bottom: 1rem;
-  color: ${props => props.$color || '#1f2937'};
+  color: ${(props) => props.$color || '#1f2937'};
 `;
 
 const FlowItem = styled.div<{ $bgColor?: string; $borderColor?: string }>`
@@ -86,9 +89,9 @@ const FlowItem = styled.div<{ $bgColor?: string; $borderColor?: string }>`
   align-items: center;
   padding: 0.5rem;
   margin-bottom: 0.5rem;
-  background-color: ${props => props.$bgColor || '#f8fafc'};
+  background-color: ${(props) => props.$bgColor || '#f8fafc'};
   border-radius: 0.375rem;
-  border: 1px solid ${props => props.$borderColor || '#e2e8f0'};
+  border: 1px solid ${(props) => props.$borderColor || '#e2e8f0'};
   
   span {
     font-size: 0.875rem;
@@ -117,8 +120,8 @@ const ApiEndpointCard = styled.div`
 
 const MethodBadge = styled.span<{ $method: string }>`
   padding: 0.25rem 0.5rem;
-  background-color: ${props => props.$method === 'GET' ? '#dbeafe' : '#dcfce7'};
-  color: ${props => props.$method === 'GET' ? '#1e40af' : '#166534'};
+  background-color: ${(props) => (props.$method === 'GET' ? '#dbeafe' : '#dcfce7')};
+  color: ${(props) => (props.$method === 'GET' ? '#1e40af' : '#166534')};
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -174,7 +177,9 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
   font-size: 0.875rem;
   transition: all 0.2s ease;
 
-  ${props => props.$variant === 'primary' ? `
+  ${(props) =>
+		props.$variant === 'primary'
+			? `
     background: #3b82f6;
     color: white;
     border: 1px solid #2563eb;
@@ -184,7 +189,8 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
-  ` : `
+  `
+			: `
     background: #f3f4f6;
     color: #374151;
     border: 1px solid #d1d5db;
@@ -212,15 +218,15 @@ const ActivityItem = styled.li<{ $isLast?: boolean }>`
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border-bottom: ${props => props.$isLast ? 'none' : '1px solid #e5e7eb'};
+  border-bottom: ${(props) => (props.$isLast ? 'none' : '1px solid #e5e7eb')};
 `;
 
 const ActivityIcon = styled.div<{ $success: boolean }>`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: ${props => props.$success ? '#dcfce7' : '#fee2e2'};
-  color: ${props => props.$success ? '#166534' : '#dc2626'};
+  background-color: ${(props) => (props.$success ? '#dcfce7' : '#fee2e2')};
+  color: ${(props) => (props.$success ? '#166534' : '#dc2626')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -323,17 +329,17 @@ const Dashboard = () => {
 
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState({
-		systemStatus: false,      // Start expanded
-		credentialStatus: false,  // Start expanded
-		apiEndpoints: true,       // Start collapsed
-		quickAccess: false,       // Start expanded
-		recentActivity: false,    // Start expanded
+		systemStatus: false, // Start expanded
+		credentialStatus: false, // Start expanded
+		apiEndpoints: true, // Start collapsed
+		quickAccess: false, // Start expanded
+		recentActivity: false, // Start expanded
 	});
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	}, []);
 
@@ -481,322 +487,323 @@ const Dashboard = () => {
 					collapsed={collapsedSections.systemStatus}
 					onToggle={() => toggleSection('systemStatus')}
 				>
-				<ContentCard>
-				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', justifyContent: 'flex-end' }}>
-					<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
-						<FiRefreshCw
-							size={16}
-							style={{
-								animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-							}}
-						/>
-						Refresh
-					</RefreshButton>
-				</div>
-
-				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-					<StatusBadge
-						$status={hasSavedCredentials ? 'active' : 'error'}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							padding: '0.75rem 1rem',
-							fontSize: '0.9rem',
-						}}
-					>
-						<FiCheckCircle />
-						{hasSavedCredentials ? 'Global Configuration Ready' : 'Configuration Missing'}
-					</StatusBadge>
-				</div>
-
-				{/* Server Status Details */}
-				<ServerStatusGrid>
-					<ServerCard>
+					<ContentCard>
 						<div
 							style={{
 								display: 'flex',
-								alignItems: 'center',
 								gap: '0.5rem',
-								marginBottom: '0.75rem',
+								marginBottom: '1rem',
+								justifyContent: 'flex-end',
 							}}
 						>
+							<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+								<FiRefreshCw
+									size={16}
+									style={{
+										animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+									}}
+								/>
+								Refresh
+							</RefreshButton>
+						</div>
+
+						<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
 							<StatusBadge
-								$status={
-									serverStatus.frontend === 'online'
-										? 'active'
-										: serverStatus.frontend === 'checking'
-											? 'pending'
-											: 'error'
-								}
-							>
-								{serverStatus.frontend === 'online'
-									? 'Online'
-									: serverStatus.frontend === 'checking'
-										? 'Checking...'
-										: 'Offline'}
-							</StatusBadge>
-							<div style={{ fontWeight: '600', color: '#333' }}>Frontend Server</div>
-						</div>
-						<div style={{ fontSize: '0.875rem', color: '#666' }}>
-							<FiGlobe style={{ marginRight: '0.25rem' }} />
-							<strong>URL:</strong> https://localhost:3000
-						</div>
-					</ServerCard>
-
-					<ServerCard>
-						<div
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								marginBottom: '0.75rem',
-							}}
-						>
-							<StatusBadge
-								$status={
-									serverStatus.backend === 'online'
-										? 'active'
-										: serverStatus.backend === 'checking'
-											? 'pending'
-											: 'error'
-								}
-							>
-								{serverStatus.backend === 'online'
-									? 'Online'
-									: serverStatus.backend === 'checking'
-										? 'Checking...'
-										: 'Offline'}
-							</StatusBadge>
-							<div style={{ fontWeight: '600', color: '#333' }}>Backend API</div>
-						</div>
-						<div style={{ fontSize: '0.875rem', color: '#666' }}>
-							<FiKey style={{ marginRight: '0.25rem' }} />
-							<strong>URL:</strong> https://localhost:3001
-						</div>
-					</ServerCard>
-				</ServerStatusGrid>
-			</ContentCard>
-			</CollapsibleHeader>
-
-			{/* Flow Credential Status */}
-			<CollapsibleHeader
-				title="V5 Flow Credential Status"
-				subtitle="Configuration status for all OAuth and OIDC flows"
-				icon={<FiKey />}
-				defaultCollapsed={collapsedSections.credentialStatus}
-				collapsed={collapsedSections.credentialStatus}
-				onToggle={() => toggleSection('credentialStatus')}
-			>
-			<ContentCard>
-				<FlowGrid>
-					{/* OAuth 2.0 V5 Flows */}
-					<FlowCategory>
-						<FlowCategoryTitle $color="#dc2626">
-							OAuth 2.0 V5 Flows
-						</FlowCategoryTitle>
-						<div>
-							{Object.entries(FLOW_CONFIGS)
-								.filter(([, config]) => config.flowType === 'oauth')
-								.map(([flowId, config]) => ({ id: flowId, name: config.title }))
-								.map((flow) => {
-									const status = getFlowStatus(flow.id);
-									return (
-										<FlowItem
-											key={flow.id}
-											$bgColor="#fef2f2"
-											$borderColor="#fecaca"
-										>
-											<span>{flow.name}</span>
-											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
-												{status?.hasCredentials ? 'Configured' : 'Missing'}
-											</StatusBadge>
-										</FlowItem>
-									);
-								})}
-						</div>
-					</FlowCategory>
-
-					{/* OIDC V5 Flows */}
-					<FlowCategory>
-						<FlowCategoryTitle $color="#059669">
-							OIDC V5 Flows
-						</FlowCategoryTitle>
-						<div>
-							{Object.entries(FLOW_CONFIGS)
-								.filter(([, config]) => config.flowType === 'oidc')
-								.map(([flowId, config]) => ({ id: flowId, name: config.title }))
-								.map((flow) => {
-									const status = getFlowStatus(flow.id);
-									return (
-										<FlowItem
-											key={flow.id}
-											$bgColor="#f0fdf4"
-											$borderColor="#bbf7d0"
-										>
-											<span>{flow.name}</span>
-											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
-												{status?.hasCredentials ? 'Configured' : 'Missing'}
-											</StatusBadge>
-										</FlowItem>
-									);
-								})}
-						</div>
-					</FlowCategory>
-				</FlowGrid>
-			</ContentCard>
-			</CollapsibleHeader>
-
-			{/* API Endpoints */}
-			<CollapsibleHeader
-				title="Available API Endpoints"
-				subtitle="Backend API endpoints for OAuth/OIDC operations"
-				icon={<FiLink />}
-				defaultCollapsed={collapsedSections.apiEndpoints}
-				collapsed={collapsedSections.apiEndpoints}
-				onToggle={() => toggleSection('apiEndpoints')}
-			>
-			<ContentCard>
-				<ApiGrid>
-					{apiEndpoints.map((endpoint, index) => (
-						<ApiEndpointCard key={index}>
-							<div
+								$status={hasSavedCredentials ? 'active' : 'error'}
 								style={{
 									display: 'flex',
 									alignItems: 'center',
 									gap: '0.5rem',
-									marginBottom: '0.5rem',
+									padding: '0.75rem 1rem',
+									fontSize: '0.9rem',
 								}}
 							>
-								<MethodBadge $method={endpoint.method}>
-									{endpoint.method}
-								</MethodBadge>
-								<code style={{ fontSize: '0.875rem', fontWeight: '500' }}>{endpoint.path}</code>
-							</div>
-							<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>{endpoint.desc}</p>
-						</ApiEndpointCard>
-					))}
-				</ApiGrid>
-			</ContentCard>
-			</CollapsibleHeader>
+								<FiCheckCircle />
+								{hasSavedCredentials ? 'Global Configuration Ready' : 'Configuration Missing'}
+							</StatusBadge>
+						</div>
 
-			{/* Quick Access Flows */}
-			<CollapsibleHeader
-				title="Quick Access Flows"
-				subtitle="Explore OAuth 2.0 and OpenID Connect flows"
-				icon={<FiZap />}
-				defaultCollapsed={collapsedSections.quickAccess}
-				collapsed={collapsedSections.quickAccess}
-				onToggle={() => toggleSection('quickAccess')}
-			>
-			<ContentCard>
-				<div style={{ marginBottom: '1rem' }}>
-					<p style={{ color: '#666', fontSize: '0.95rem' }}>
-						Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code
-						with PKCE).
-					</p>
-				</div>
-
-				<QuickAccessGrid>
-					<FlowCard>
-						<h3>OAuth 2.0</h3>
-						<p>
-							Standards-based authorization flows. Recommended: Authorization Code (with PKCE for
-							public clients).
-						</p>
-						<FlowButtonsContainer>
-							<FlowLink href="/flows/oauth-authorization-code-v5" $variant="primary">
-								Authorization Code V5
-							</FlowLink>
-							<FlowLink href="/flows/client-credentials-v5" $variant="secondary">
-								Client Credentials V5
-							</FlowLink>
-							<FlowLink href="/flows/device-authorization-v5" $variant="secondary">
-								Device Code V5
-							</FlowLink>
-							<FlowLink href="/flows/oauth-implicit-v5" $variant="secondary">
-								Implicit V5 (legacy)
-							</FlowLink>
-						</FlowButtonsContainer>
-					</FlowCard>
-
-					<FlowCard>
-						<h3>OpenID Connect</h3>
-						<p>Identity layer on top of OAuth 2.0.</p>
-						<FlowButtonsContainer>
-							<FlowLink href="/flows/oidc-authorization-code-v5" $variant="primary" style={{ background: '#10b981', borderColor: '#059669' }}>
-								OIDC Authorization Code V5
-							</FlowLink>
-							<FlowLink href="/flows/oidc-implicit-v5" $variant="secondary">
-								OIDC Implicit V5
-							</FlowLink>
-							<FlowLink href="/flows/ciba-v5" $variant="secondary">
-								CIBA Flow V5
-							</FlowLink>
-						</FlowButtonsContainer>
-					</FlowCard>
-
-					<FlowCard>
-						<h3>PingOne Flows</h3>
-						<p>PingOne-specific authentication and authorization flows.</p>
-						<FlowButtonsContainer>
-							<FlowLink href="/flows/worker-token-v5" $variant="primary" style={{ background: '#f97316', borderColor: '#ea580c' }}>
-								Worker Token V5
-							</FlowLink>
-							<FlowLink href="/flows/pingone-par-v5" $variant="secondary">
-								PingOne PAR V5
-							</FlowLink>
-							<FlowLink href="/flows/redirectless-flow-v5" $variant="secondary">
-								Redirectless Flow V5
-							</FlowLink>
-						</FlowButtonsContainer>
-					</FlowCard>
-				</QuickAccessGrid>
-			</ContentCard>
-			</CollapsibleHeader>
-
-			{/* Recent Activity */}
-			<CollapsibleHeader
-				title="Recent Activity"
-				subtitle="Latest OAuth flow runs, credential updates, and API interactions"
-				icon={<FiActivity />}
-				defaultCollapsed={collapsedSections.recentActivity}
-				collapsed={collapsedSections.recentActivity}
-				onToggle={() => toggleSection('recentActivity')}
-			>
-			<ContentCard>
-				<ActivityList>
-					<ul>
-						{recentActivity.length === 0 ? (
-							<EmptyState>
-								<FiActivity size={48} />
-								<p>No recent activity</p>
-								<p style={{ fontSize: '0.875rem' }}>Complete an OAuth flow to see activity here</p>
-							</EmptyState>
-						) : (
-							recentActivity.slice(0, 10).map((activity, index) => (
-								<ActivityItem 
-									key={activity.id || index}
-									$isLast={index >= recentActivity.length - 1}
+						{/* Server Status Details */}
+						<ServerStatusGrid>
+							<ServerCard>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '0.75rem',
+									}}
 								>
-									<ActivityIcon $success={activity.success}>
-										{activity.success ? '✓' : '✗'}
-									</ActivityIcon>
-									<ActivityContent>
-										<ActivityAction>
-											{formatActivityAction(activity.action)}
-										</ActivityAction>
-										<ActivityTime>
-											{new Date(activity.timestamp).toLocaleString()}
-										</ActivityTime>
-									</ActivityContent>
-								</ActivityItem>
-							))
-						)}
-					</ul>
-				</ActivityList>
-			</ContentCard>
-			</CollapsibleHeader>
+									<StatusBadge
+										$status={
+											serverStatus.frontend === 'online'
+												? 'active'
+												: serverStatus.frontend === 'checking'
+													? 'pending'
+													: 'error'
+										}
+									>
+										{serverStatus.frontend === 'online'
+											? 'Online'
+											: serverStatus.frontend === 'checking'
+												? 'Checking...'
+												: 'Offline'}
+									</StatusBadge>
+									<div style={{ fontWeight: '600', color: '#333' }}>Frontend Server</div>
+								</div>
+								<div style={{ fontSize: '0.875rem', color: '#666' }}>
+									<FiGlobe style={{ marginRight: '0.25rem' }} />
+									<strong>URL:</strong> https://localhost:3000
+								</div>
+							</ServerCard>
+
+							<ServerCard>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '0.75rem',
+									}}
+								>
+									<StatusBadge
+										$status={
+											serverStatus.backend === 'online'
+												? 'active'
+												: serverStatus.backend === 'checking'
+													? 'pending'
+													: 'error'
+										}
+									>
+										{serverStatus.backend === 'online'
+											? 'Online'
+											: serverStatus.backend === 'checking'
+												? 'Checking...'
+												: 'Offline'}
+									</StatusBadge>
+									<div style={{ fontWeight: '600', color: '#333' }}>Backend API</div>
+								</div>
+								<div style={{ fontSize: '0.875rem', color: '#666' }}>
+									<FiKey style={{ marginRight: '0.25rem' }} />
+									<strong>URL:</strong> https://localhost:3001
+								</div>
+							</ServerCard>
+						</ServerStatusGrid>
+					</ContentCard>
+				</CollapsibleHeader>
+
+				{/* Flow Credential Status */}
+				<CollapsibleHeader
+					title="V5 Flow Credential Status"
+					subtitle="Configuration status for all OAuth and OIDC flows"
+					icon={<FiKey />}
+					defaultCollapsed={collapsedSections.credentialStatus}
+					collapsed={collapsedSections.credentialStatus}
+					onToggle={() => toggleSection('credentialStatus')}
+				>
+					<ContentCard>
+						<FlowGrid>
+							{/* OAuth 2.0 V5 Flows */}
+							<FlowCategory>
+								<FlowCategoryTitle $color="#dc2626">OAuth 2.0 V5 Flows</FlowCategoryTitle>
+								<div>
+									{Object.entries(FLOW_CONFIGS)
+										.filter(([, config]) => config.flowType === 'oauth')
+										.map(([flowId, config]) => ({ id: flowId, name: config.title }))
+										.map((flow) => {
+											const status = getFlowStatus(flow.id);
+											return (
+												<FlowItem key={flow.id} $bgColor="#fef2f2" $borderColor="#fecaca">
+													<span>{flow.name}</span>
+													<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
+														{status?.hasCredentials ? 'Configured' : 'Missing'}
+													</StatusBadge>
+												</FlowItem>
+											);
+										})}
+								</div>
+							</FlowCategory>
+
+							{/* OIDC V5 Flows */}
+							<FlowCategory>
+								<FlowCategoryTitle $color="#059669">OIDC V5 Flows</FlowCategoryTitle>
+								<div>
+									{Object.entries(FLOW_CONFIGS)
+										.filter(([, config]) => config.flowType === 'oidc')
+										.map(([flowId, config]) => ({ id: flowId, name: config.title }))
+										.map((flow) => {
+											const status = getFlowStatus(flow.id);
+											return (
+												<FlowItem key={flow.id} $bgColor="#f0fdf4" $borderColor="#bbf7d0">
+													<span>{flow.name}</span>
+													<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
+														{status?.hasCredentials ? 'Configured' : 'Missing'}
+													</StatusBadge>
+												</FlowItem>
+											);
+										})}
+								</div>
+							</FlowCategory>
+						</FlowGrid>
+					</ContentCard>
+				</CollapsibleHeader>
+
+				{/* API Endpoints */}
+				<CollapsibleHeader
+					title="Available API Endpoints"
+					subtitle="Backend API endpoints for OAuth/OIDC operations"
+					icon={<FiLink />}
+					defaultCollapsed={collapsedSections.apiEndpoints}
+					collapsed={collapsedSections.apiEndpoints}
+					onToggle={() => toggleSection('apiEndpoints')}
+				>
+					<ContentCard>
+						<ApiGrid>
+							{apiEndpoints.map((endpoint, index) => (
+								<ApiEndpointCard key={index}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<MethodBadge $method={endpoint.method}>{endpoint.method}</MethodBadge>
+										<code style={{ fontSize: '0.875rem', fontWeight: '500' }}>{endpoint.path}</code>
+									</div>
+									<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+										{endpoint.desc}
+									</p>
+								</ApiEndpointCard>
+							))}
+						</ApiGrid>
+					</ContentCard>
+				</CollapsibleHeader>
+
+				{/* Quick Access Flows */}
+				<CollapsibleHeader
+					title="Quick Access Flows"
+					subtitle="Explore OAuth 2.0 and OpenID Connect flows"
+					icon={<FiZap />}
+					defaultCollapsed={collapsedSections.quickAccess}
+					collapsed={collapsedSections.quickAccess}
+					onToggle={() => toggleSection('quickAccess')}
+				>
+					<ContentCard>
+						<div style={{ marginBottom: '1rem' }}>
+							<p style={{ color: '#666', fontSize: '0.95rem' }}>
+								Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth
+								Code with PKCE).
+							</p>
+						</div>
+
+						<QuickAccessGrid>
+							<FlowCard>
+								<h3>OAuth 2.0</h3>
+								<p>
+									Standards-based authorization flows. Recommended: Authorization Code (with PKCE
+									for public clients).
+								</p>
+								<FlowButtonsContainer>
+									<FlowLink href="/flows/oauth-authorization-code-v5" $variant="primary">
+										Authorization Code V5
+									</FlowLink>
+									<FlowLink href="/flows/client-credentials-v5" $variant="secondary">
+										Client Credentials V5
+									</FlowLink>
+									<FlowLink href="/flows/device-authorization-v5" $variant="secondary">
+										Device Code V5
+									</FlowLink>
+									<FlowLink href="/flows/oauth-implicit-v5" $variant="secondary">
+										Implicit V5 (legacy)
+									</FlowLink>
+								</FlowButtonsContainer>
+							</FlowCard>
+
+							<FlowCard>
+								<h3>OpenID Connect</h3>
+								<p>Identity layer on top of OAuth 2.0.</p>
+								<FlowButtonsContainer>
+									<FlowLink
+										href="/flows/oidc-authorization-code-v5"
+										$variant="primary"
+										style={{ background: '#10b981', borderColor: '#059669' }}
+									>
+										OIDC Authorization Code V5
+									</FlowLink>
+									<FlowLink href="/flows/oidc-implicit-v5" $variant="secondary">
+										OIDC Implicit V5
+									</FlowLink>
+									<FlowLink href="/flows/ciba-v5" $variant="secondary">
+										CIBA Flow V5
+									</FlowLink>
+								</FlowButtonsContainer>
+							</FlowCard>
+
+							<FlowCard>
+								<h3>PingOne Flows</h3>
+								<p>PingOne-specific authentication and authorization flows.</p>
+								<FlowButtonsContainer>
+									<FlowLink
+										href="/flows/worker-token-v5"
+										$variant="primary"
+										style={{ background: '#f97316', borderColor: '#ea580c' }}
+									>
+										Worker Token V5
+									</FlowLink>
+									<FlowLink href="/flows/pingone-par-v5" $variant="secondary">
+										PingOne PAR V5
+									</FlowLink>
+									<FlowLink href="/flows/redirectless-flow-v5" $variant="secondary">
+										Redirectless Flow V5
+									</FlowLink>
+								</FlowButtonsContainer>
+							</FlowCard>
+						</QuickAccessGrid>
+					</ContentCard>
+				</CollapsibleHeader>
+
+				{/* Recent Activity */}
+				<CollapsibleHeader
+					title="Recent Activity"
+					subtitle="Latest OAuth flow runs, credential updates, and API interactions"
+					icon={<FiActivity />}
+					defaultCollapsed={collapsedSections.recentActivity}
+					collapsed={collapsedSections.recentActivity}
+					onToggle={() => toggleSection('recentActivity')}
+				>
+					<ContentCard>
+						<ActivityList>
+							<ul>
+								{recentActivity.length === 0 ? (
+									<EmptyState>
+										<FiActivity size={48} />
+										<p>No recent activity</p>
+										<p style={{ fontSize: '0.875rem' }}>
+											Complete an OAuth flow to see activity here
+										</p>
+									</EmptyState>
+								) : (
+									recentActivity.slice(0, 10).map((activity, index) => (
+										<ActivityItem
+											key={activity.id || index}
+											$isLast={index >= recentActivity.length - 1}
+										>
+											<ActivityIcon $success={activity.success}>
+												{activity.success ? '✓' : '✗'}
+											</ActivityIcon>
+											<ActivityContent>
+												<ActivityAction>{formatActivityAction(activity.action)}</ActivityAction>
+												<ActivityTime>{new Date(activity.timestamp).toLocaleString()}</ActivityTime>
+											</ActivityContent>
+										</ActivityItem>
+									))
+								)}
+							</ul>
+						</ActivityList>
+					</ContentCard>
+				</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
 	);

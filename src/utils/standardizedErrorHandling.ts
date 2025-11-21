@@ -48,7 +48,7 @@ export class StandardizedErrorHandler {
 			error,
 			error_description: description,
 			error_uri: errorUri,
-			state
+			state,
 		};
 	}
 
@@ -61,13 +61,13 @@ export class StandardizedErrorHandler {
 			error_description: 'An unexpected error occurred',
 			timestamp: Date.now(),
 			flow_name: context?.flowName || 'unknown',
-			step: context?.step || 'unknown'
+			step: context?.step || 'unknown',
 		};
 
 		// Handle HTTP errors
 		if (error.response?.data) {
 			const { error: errorCode, error_description, error_uri, state } = error.response.data;
-			
+
 			errorDetails.error = errorCode || 'server_error';
 			errorDetails.error_description = error_description || 'An error occurred';
 			errorDetails.error_uri = error_uri;
@@ -75,9 +75,9 @@ export class StandardizedErrorHandler {
 			errorDetails.correlation_id = error.response.headers?.['x-correlation-id'];
 
 			// Log error
-			this.errorLog.push(errorDetails);
+			StandardizedErrorHandler.errorLog.push(errorDetails);
 
-			return this.createErrorResponse(
+			return StandardizedErrorHandler.createErrorResponse(
 				errorDetails.error,
 				errorDetails.error_description,
 				errorDetails.state,
@@ -97,9 +97,9 @@ export class StandardizedErrorHandler {
 		}
 
 		// Log error
-		this.errorLog.push(errorDetails);
+		StandardizedErrorHandler.errorLog.push(errorDetails);
 
-		return this.createErrorResponse(
+		return StandardizedErrorHandler.createErrorResponse(
 			errorDetails.error,
 			errorDetails.error_description
 		);
@@ -109,8 +109,8 @@ export class StandardizedErrorHandler {
 	 * Handle OIDC specific errors
 	 */
 	static handleOIDCError(error: any, context?: ErrorContext): StandardizedErrorResponse {
-		const oauthError = this.handleOAuthError(error, context);
-		
+		const oauthError = StandardizedErrorHandler.handleOAuthError(error, context);
+
 		// Add OIDC-specific error handling
 		if (error.code === 'ID_TOKEN_VALIDATION_FAILED') {
 			oauthError.error = 'invalid_token';
@@ -147,7 +147,7 @@ export class StandardizedErrorHandler {
 			'access_denied',
 			'unsupported_response_type',
 			'server_error',
-			'temporarily_unavailable'
+			'temporarily_unavailable',
 		];
 
 		if (!validErrorCodes.includes(response.error)) {
@@ -162,16 +162,20 @@ export class StandardizedErrorHandler {
 	 */
 	static getErrorDescription(errorCode: string): string {
 		const descriptions: Record<string, string> = {
-			'invalid_request': 'The request is missing a required parameter, includes an invalid parameter value, or is otherwise malformed',
-			'invalid_client': 'Client authentication failed',
-			'invalid_grant': 'The provided authorization grant is invalid, expired, or revoked',
-			'unauthorized_client': 'The client is not authorized to request an authorization code using this method',
-			'unsupported_grant_type': 'The authorization grant type is not supported by the authorization server',
-			'invalid_scope': 'The requested scope is invalid, unknown, or malformed',
-			'access_denied': 'The resource owner or authorization server denied the request',
-			'unsupported_response_type': 'The authorization server does not support obtaining an authorization code using this method',
-			'server_error': 'The authorization server encountered an unexpected condition',
-			'temporarily_unavailable': 'The authorization server is currently unable to handle the request'
+			invalid_request:
+				'The request is missing a required parameter, includes an invalid parameter value, or is otherwise malformed',
+			invalid_client: 'Client authentication failed',
+			invalid_grant: 'The provided authorization grant is invalid, expired, or revoked',
+			unauthorized_client:
+				'The client is not authorized to request an authorization code using this method',
+			unsupported_grant_type:
+				'The authorization grant type is not supported by the authorization server',
+			invalid_scope: 'The requested scope is invalid, unknown, or malformed',
+			access_denied: 'The resource owner or authorization server denied the request',
+			unsupported_response_type:
+				'The authorization server does not support obtaining an authorization code using this method',
+			server_error: 'The authorization server encountered an unexpected condition',
+			temporarily_unavailable: 'The authorization server is currently unable to handle the request',
 		};
 
 		return descriptions[errorCode] || 'An error occurred';
@@ -181,8 +185,9 @@ export class StandardizedErrorHandler {
 	 * Create user-friendly error message
 	 */
 	static createUserFriendlyError(error: StandardizedErrorResponse): string {
-		const baseMessage = error.error_description || this.getErrorDescription(error.error);
-		
+		const baseMessage =
+			error.error_description || StandardizedErrorHandler.getErrorDescription(error.error);
+
 		// Add context-specific messages
 		switch (error.error) {
 			case 'invalid_request':
@@ -208,10 +213,10 @@ export class StandardizedErrorHandler {
 			...error,
 			timestamp: Date.now(),
 			flow_name: context?.flowName || 'unknown',
-			step: context?.step || 'unknown'
+			step: context?.step || 'unknown',
 		};
 
-		this.errorLog.push(errorDetails);
+		StandardizedErrorHandler.errorLog.push(errorDetails);
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
@@ -220,7 +225,7 @@ export class StandardizedErrorHandler {
 				description: errorDetails.error_description,
 				flow: errorDetails.flow_name,
 				step: errorDetails.step,
-				context
+				context,
 			});
 		}
 	}
@@ -234,12 +239,12 @@ export class StandardizedErrorHandler {
 		errorsByFlow: Record<string, number>;
 		recentErrors: OAuth2ErrorDetails[];
 	} {
-		const totalErrors = this.errorLog.length;
+		const totalErrors = StandardizedErrorHandler.errorLog.length;
 		const errorsByCode: Record<string, number> = {};
 		const errorsByFlow: Record<string, number> = {};
-		const recentErrors = this.errorLog.slice(-10); // Last 10 errors
+		const recentErrors = StandardizedErrorHandler.errorLog.slice(-10); // Last 10 errors
 
-		this.errorLog.forEach(error => {
+		StandardizedErrorHandler.errorLog.forEach((error) => {
 			errorsByCode[error.error] = (errorsByCode[error.error] || 0) + 1;
 			errorsByFlow[error.flow_name] = (errorsByFlow[error.flow_name] || 0) + 1;
 		});
@@ -248,7 +253,7 @@ export class StandardizedErrorHandler {
 			totalErrors,
 			errorsByCode,
 			errorsByFlow,
-			recentErrors
+			recentErrors,
 		};
 	}
 
@@ -256,14 +261,14 @@ export class StandardizedErrorHandler {
 	 * Clear error log
 	 */
 	static clearErrorLog(): void {
-		this.errorLog = [];
+		StandardizedErrorHandler.errorLog = [];
 	}
 
 	/**
 	 * Export error log
 	 */
 	static exportErrorLog(): string {
-		return JSON.stringify(this.errorLog, null, 2);
+		return JSON.stringify(StandardizedErrorHandler.errorLog, null, 2);
 	}
 
 	/**
@@ -271,43 +276,43 @@ export class StandardizedErrorHandler {
 	 */
 	static createScenarioError(scenario: string, context?: ErrorContext): StandardizedErrorResponse {
 		const scenarios: Record<string, StandardizedErrorResponse> = {
-			'invalid_credentials': {
+			invalid_credentials: {
 				error: 'invalid_client',
-				error_description: 'Invalid client credentials provided'
+				error_description: 'Invalid client credentials provided',
 			},
-			'missing_redirect_uri': {
+			missing_redirect_uri: {
 				error: 'invalid_request',
-				error_description: 'Missing or invalid redirect_uri parameter'
+				error_description: 'Missing or invalid redirect_uri parameter',
 			},
-			'invalid_scope': {
+			invalid_scope: {
 				error: 'invalid_scope',
-				error_description: 'Invalid or unsupported scope requested'
+				error_description: 'Invalid or unsupported scope requested',
 			},
-			'state_mismatch': {
+			state_mismatch: {
 				error: 'invalid_request',
-				error_description: 'State parameter mismatch'
+				error_description: 'State parameter mismatch',
 			},
-			'nonce_mismatch': {
+			nonce_mismatch: {
 				error: 'invalid_request',
-				error_description: 'Nonce parameter mismatch'
+				error_description: 'Nonce parameter mismatch',
 			},
-			'token_expired': {
+			token_expired: {
 				error: 'invalid_grant',
-				error_description: 'Token has expired'
+				error_description: 'Token has expired',
 			},
-			'network_error': {
+			network_error: {
 				error: 'temporarily_unavailable',
-				error_description: 'Network error occurred'
-			}
+				error_description: 'Network error occurred',
+			},
 		};
 
 		const error = scenarios[scenario] || {
 			error: 'server_error',
-			error_description: 'An unexpected error occurred'
+			error_description: 'An unexpected error occurred',
 		};
 
 		// Log the error
-		this.logError(error, context);
+		StandardizedErrorHandler.logError(error, context);
 
 		return error;
 	}

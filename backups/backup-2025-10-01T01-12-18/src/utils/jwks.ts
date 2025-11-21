@@ -1,5 +1,5 @@
 // src/utils/jwks.ts - Core JWKS functionality for multi-flow reuse
-import { jwtVerify, createRemoteJWKSet, JWTPayload, JWTVerifyOptions } from 'jose';
+import { createRemoteJWKSet, JWTPayload, JWTVerifyOptions, jwtVerify } from 'jose';
 import { logger } from './logger';
 
 // Re-export types for convenience

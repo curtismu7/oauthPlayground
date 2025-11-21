@@ -1,13 +1,13 @@
 // Example usage of ApiCallDisplayService
 
-import { ApiCallDisplayService, type ApiCallData } from './apiCallDisplayService';
+import { type ApiCallData, ApiCallDisplayService } from './apiCallDisplayService';
 
 // Example API call data
 const apiCall: ApiCallData = {
 	method: 'POST',
 	url: 'https://api.pingone.com/v1/environments/{envId}/users',
 	headers: {
-		'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+		Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
 		'Content-Type': 'application/json',
 	},
 	body: {

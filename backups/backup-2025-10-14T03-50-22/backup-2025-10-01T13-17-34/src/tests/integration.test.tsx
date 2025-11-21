@@ -2,16 +2,16 @@
  * Integration tests for secureTokenStorage with UI components
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import {
-	storeOAuthTokens,
-	getOAuthTokens,
-	clearOAuthTokens,
-	hasValidOAuthTokens,
-} from '../utils/tokenStorage';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { secureTokenStorage } from '../utils/secureTokenStorage';
+import {
+	clearOAuthTokens,
+	getOAuthTokens,
+	hasValidOAuthTokens,
+	storeOAuthTokens,
+} from '../utils/tokenStorage';
 
 // Mock sessionStorage for testing
 const mockSessionStorage = {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { FiCheckCircle, FiClock, FiInfo, FiXCircle } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiInfo, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 
 const StatusContainer = styled.div`

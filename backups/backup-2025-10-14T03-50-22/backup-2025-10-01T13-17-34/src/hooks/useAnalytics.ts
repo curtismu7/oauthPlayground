@@ -1,21 +1,21 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
+	AnalyticsEvent,
+	AnalyticsEventType,
 	analyticsManager,
+	PerformanceMetrics,
+	setCustomProperties,
+	setUserId,
+	trackCustom,
+	trackError,
 	trackEvent,
-	trackPageView,
-	trackFlowStart,
 	trackFlowComplete,
 	trackFlowError,
-	trackUserAction,
+	trackFlowStart,
+	trackPageView,
 	trackPerformanceMetric,
 	trackSecurityEvent,
-	trackError,
-	trackCustom,
-	setUserId,
-	setCustomProperties,
-	AnalyticsEventType,
-	AnalyticsEvent,
-	PerformanceMetrics,
+	trackUserAction,
 	UserBehavior,
 } from '../utils/analytics';
 import { logger } from '../utils/logger';

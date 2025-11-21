@@ -2,25 +2,25 @@
 // V7.1 Flow Navigation - Step navigation and flow control
 
 import React from 'react';
+import { FiChevronLeft, FiChevronRight, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiChevronLeft, FiChevronRight, FiRefreshCw, FiHome } from 'react-icons/fi';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
-import { UI_CONSTANTS } from '../constants/uiConstants';
 import { STEP_METADATA } from '../constants/stepMetadata';
+import { UI_CONSTANTS } from '../constants/uiConstants';
 
 interface FlowNavigationProps {
-  currentStep: number;
-  totalSteps: number;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  isComplete: boolean;
-  onStepChange: (step: number) => void;
-  onReset: () => void;
-  onGoHome?: () => void;
-  stepCompletion?: Record<number, boolean>;
-  showStepButtons?: boolean;
-  showResetButton?: boolean;
-  showHomeButton?: boolean;
+	currentStep: number;
+	totalSteps: number;
+	canGoBack: boolean;
+	canGoForward: boolean;
+	isComplete: boolean;
+	onStepChange: (step: number) => void;
+	onReset: () => void;
+	onGoHome?: () => void;
+	stepCompletion?: Record<number, boolean>;
+	showStepButtons?: boolean;
+	showResetButton?: boolean;
+	showHomeButton?: boolean;
 }
 
 const NavigationContainer = styled.div`
@@ -59,28 +59,27 @@ const StepButton = styled.button<{ $active: boolean; $completed: boolean }>`
   width: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_SIZE};
   height: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_SIZE};
   border-radius: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_BORDER_RADIUS};
-  border: 2px solid ${props => 
-    props.$active ? '#3b82f6' : 
-    props.$completed ? '#10b981' : '#e5e7eb'
-  };
-  background: ${props => 
-    props.$active ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 
-    props.$completed ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'transparent'
-  };
-  color: ${props => 
-    props.$active ? '#ffffff' : 
-    props.$completed ? '#ffffff' : '#6b7280'
-  };
+  border: 2px solid ${(props) =>
+		props.$active ? '#3b82f6' : props.$completed ? '#10b981' : '#e5e7eb'};
+  background: ${(props) =>
+		props.$active
+			? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+			: props.$completed
+				? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+				: 'transparent'};
+  color: ${(props) => (props.$active ? '#ffffff' : props.$completed ? '#ffffff' : '#6b7280')};
   font-size: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_FONT_SIZE};
   font-weight: ${UI_CONSTANTS.NAVIGATION.STEP_BUTTON_FONT_WEIGHT};
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
   &:hover {
-    background: ${props => 
-      props.$active ? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' : 
-      props.$completed ? 'linear-gradient(135deg, #059669 0%, #047857 100%)' : '#e5e7eb'
-    };
+    background: ${(props) =>
+			props.$active
+				? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)'
+				: props.$completed
+					? 'linear-gradient(135deg, #059669 0%, #047857 100%)'
+					: '#e5e7eb'};
     transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
   }
   
@@ -108,9 +107,9 @@ const NavButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background: ${UI_CONSTANTS.BUTTON.PRIMARY_BACKGROUND};
           color: ${UI_CONSTANTS.BUTTON.PRIMARY_COLOR};
           box-shadow: ${UI_CONSTANTS.BUTTON.PRIMARY_SHADOW};
@@ -124,8 +123,8 @@ const NavButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }
             transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_ACTIVE};
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: ${UI_CONSTANTS.BUTTON.SECONDARY_BACKGROUND};
           color: ${UI_CONSTANTS.BUTTON.SECONDARY_COLOR};
           border: ${UI_CONSTANTS.BUTTON.SECONDARY_BORDER};
@@ -134,8 +133,8 @@ const NavButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }
             background: ${UI_CONSTANTS.BUTTON.SECONDARY_HOVER_BACKGROUND};
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: ${UI_CONSTANTS.STATUS.ERROR_COLOR};
           color: ${UI_CONSTANTS.COLORS.WHITE};
           
@@ -143,10 +142,10 @@ const NavButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }
             background: ${UI_CONSTANTS.COLORS.GRAY_700};
           }
         `;
-      default:
-        return '';
-    }
-  }}
+			default:
+				return '';
+		}
+	}}
   
   &:disabled {
     opacity: 0.5;
@@ -167,7 +166,7 @@ const ProgressBar = styled.div`
 const ProgressFill = styled.div<{ $progress: number }>`
   height: 100%;
   background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
-  width: ${props => props.$progress}%;
+  width: ${(props) => props.$progress}%;
   transition: width ${UI_CONSTANTS.ANIMATION.DURATION_SLOW} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
 `;
 
@@ -192,118 +191,100 @@ const StepProgress = styled.div`
 `;
 
 export const FlowNavigation: React.FC<FlowNavigationProps> = ({
-  currentStep,
-  totalSteps,
-  canGoBack,
-  canGoForward,
-  isComplete,
-  onStepChange,
-  onReset,
-  onGoHome,
-  stepCompletion = {},
-  showStepButtons = true,
-  showResetButton = true,
-  showHomeButton = true,
+	currentStep,
+	totalSteps,
+	canGoBack,
+	canGoForward,
+	isComplete,
+	onStepChange,
+	onReset,
+	onGoHome,
+	stepCompletion = {},
+	showStepButtons = true,
+	showResetButton = true,
+	showHomeButton = true,
 }) => {
-  const progress = ((currentStep + 1) / totalSteps) * 100;
-  const currentStepConfig = STEP_METADATA[`STEP_${currentStep}` as keyof typeof STEP_METADATA];
+	const progress = ((currentStep + 1) / totalSteps) * 100;
+	const currentStepConfig = STEP_METADATA[`STEP_${currentStep}` as keyof typeof STEP_METADATA];
 
-  const handleGoBack = () => {
-    if (canGoBack) {
-      onStepChange(currentStep - 1);
-    }
-  };
+	const handleGoBack = () => {
+		if (canGoBack) {
+			onStepChange(currentStep - 1);
+		}
+	};
 
-  const handleGoForward = () => {
-    if (canGoForward) {
-      onStepChange(currentStep + 1);
-    }
-  };
+	const handleGoForward = () => {
+		if (canGoForward) {
+			onStepChange(currentStep + 1);
+		}
+	};
 
-  const handleGoHome = () => {
-    if (onGoHome) {
-      onGoHome();
-    } else {
-      window.location.href = '/';
-    }
-  };
+	const handleGoHome = () => {
+		if (onGoHome) {
+			onGoHome();
+		} else {
+			window.location.href = '/';
+		}
+	};
 
-  return (
-    <NavigationContainer>
-      <NavigationLeft>
-        {showStepButtons && (
-          <StepButtons>
-            {Array.from({ length: totalSteps }, (_, index) => (
-              <StepButton
-                key={index}
-                $active={index === currentStep}
-                $completed={stepCompletion[index] === true}
-                onClick={() => onStepChange(index)}
-                title={`Step ${index + 1}: ${STEP_METADATA[`STEP_${index}` as keyof typeof STEP_METADATA]?.title || `Step ${index + 1}`}`}
-              >
-                {index + 1}
-              </StepButton>
-            ))}
-          </StepButtons>
-        )}
-        
-        <NavButton
-          $variant="secondary"
-          onClick={handleGoBack}
-          disabled={!canGoBack}
-        >
-          <FiChevronLeft />
-          Back
-        </NavButton>
-      </NavigationLeft>
+	return (
+		<NavigationContainer>
+			<NavigationLeft>
+				{showStepButtons && (
+					<StepButtons>
+						{Array.from({ length: totalSteps }, (_, index) => (
+							<StepButton
+								key={index}
+								$active={index === currentStep}
+								$completed={stepCompletion[index] === true}
+								onClick={() => onStepChange(index)}
+								title={`Step ${index + 1}: ${STEP_METADATA[`STEP_${index}` as keyof typeof STEP_METADATA]?.title || `Step ${index + 1}`}`}
+							>
+								{index + 1}
+							</StepButton>
+						))}
+					</StepButtons>
+				)}
 
-      <StepInfo>
-        <StepTitle>
-          {currentStepConfig?.title || `Step ${currentStep + 1}`}
-        </StepTitle>
-        <StepProgress>
-          {currentStep + 1} of {totalSteps}
-        </StepProgress>
-      </StepInfo>
+				<NavButton $variant="secondary" onClick={handleGoBack} disabled={!canGoBack}>
+					<FiChevronLeft />
+					Back
+				</NavButton>
+			</NavigationLeft>
 
-      <ProgressBar>
-        <ProgressFill $progress={progress} />
-      </ProgressBar>
+			<StepInfo>
+				<StepTitle>{currentStepConfig?.title || `Step ${currentStep + 1}`}</StepTitle>
+				<StepProgress>
+					{currentStep + 1} of {totalSteps}
+				</StepProgress>
+			</StepInfo>
 
-      <NavigationRight>
-        <NavButton
-          $variant="primary"
-          onClick={handleGoForward}
-          disabled={!canGoForward}
-        >
-          Next
-          <FiChevronRight />
-        </NavButton>
+			<ProgressBar>
+				<ProgressFill $progress={progress} />
+			</ProgressBar>
 
-        {showResetButton && (
-          <NavButton
-            $variant="secondary"
-            onClick={onReset}
-            title="Reset Flow"
-          >
-            <FiRefreshCw />
-            Reset
-          </NavButton>
-        )}
+			<NavigationRight>
+				<NavButton $variant="primary" onClick={handleGoForward} disabled={!canGoForward}>
+					Next
+					<FiChevronRight />
+				</NavButton>
 
-        {showHomeButton && (
-          <NavButton
-            $variant="secondary"
-            onClick={handleGoHome}
-            title="Go Home"
-          >
-            <FiHome />
-            Home
-          </NavButton>
-        )}
-      </NavigationRight>
-    </NavigationContainer>
-  );
+				{showResetButton && (
+					<NavButton $variant="secondary" onClick={onReset} title="Reset Flow">
+						<FiRefreshCw />
+						Reset
+					</NavButton>
+				)}
+
+				{showHomeButton && (
+					<NavButton $variant="secondary" onClick={handleGoHome} title="Go Home">
+						<FiHome />
+						Home
+					</NavButton>
+				)}
+			</NavigationRight>
+		</NavigationContainer>
+	);
 };
 
 export default FlowNavigation;

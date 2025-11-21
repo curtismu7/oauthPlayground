@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiAlertCircle, FiHome, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertCircle, FiRefreshCw, FiHome } from 'react-icons/fi';
 
 interface UserFriendlyErrorProps {
 	title?: string;

@@ -1,8 +1,7 @@
 // src/utils/preCommitSafeguards.ts
 // Pre-commit safeguards to prevent regressions
 
-import { flowTestSuite, TestSuiteResult } from './flowTestSuite';
-import { regressionSafeguards } from './regressionSafeguards';
+import { flowTestSuite } from './flowTestSuite';
 
 export interface PreCommitConfig {
 	enableAutomatedTesting: boolean;
@@ -38,19 +37,16 @@ export class PreCommitSafeguards {
 	private config: PreCommitConfig;
 	private results: PreCommitResult | null = null;
 
-	constructor(config: PreCommitConfig = {
-		enableAutomatedTesting: true,
-		enableLinting: true,
-		enableTypeChecking: true,
-		enableFlowValidation: true,
-		criticalFlows: [
-			'authorization-code-v7',
-			'hybrid-v7',
-			'client-credentials-v7',
-			'implicit-v7'
-		],
-		blockOnFailure: true
-	}) {
+	constructor(
+		config: PreCommitConfig = {
+			enableAutomatedTesting: true,
+			enableLinting: true,
+			enableTypeChecking: true,
+			enableFlowValidation: true,
+			criticalFlows: ['authorization-code-v7', 'hybrid-v7', 'client-credentials-v7', 'implicit-v7'],
+			blockOnFailure: true,
+		}
+	) {
 		this.config = config;
 	}
 
@@ -59,7 +55,7 @@ export class PreCommitSafeguards {
 	 */
 	async runPreCommitChecks(): Promise<PreCommitResult> {
 		console.log('[Pre-Commit Safeguards] Running pre-commit checks...');
-		
+
 		const checks: Array<{
 			name: string;
 			passed: boolean;
@@ -140,13 +136,13 @@ export class PreCommitSafeguards {
 				totalChecks,
 				passedChecks,
 				failedChecks,
-				criticalFailures
+				criticalFailures,
 			},
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		};
 
 		console.log('[Pre-Commit Safeguards] Pre-commit checks completed:', this.results.summary);
-		
+
 		if (!this.results.passed) {
 			console.error('[Pre-Commit Safeguards] ❌ Pre-commit checks failed!');
 			this.logFailureDetails();
@@ -168,41 +164,40 @@ export class PreCommitSafeguards {
 	}> {
 		const startTime = Date.now();
 		const name = 'Linting Check';
-		
+
 		try {
 			// In a real implementation, this would run ESLint
 			// For now, we'll simulate the check
 			console.log('[Pre-Commit Safeguards] Running linting check...');
-			
+
 			// Simulate linting process
-			await new Promise(resolve => setTimeout(resolve, 100));
-			
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
 			// Check for common linting issues
 			const hasLintingErrors = this.checkForLintingErrors();
-			
+
 			const duration = Date.now() - startTime;
-			
+
 			if (hasLintingErrors) {
 				return {
 					name,
 					passed: false,
 					error: 'Linting errors found',
-					duration
+					duration,
 				};
 			}
 
 			return {
 				name,
 				passed: true,
-				duration
+				duration,
 			};
-
 		} catch (error) {
 			return {
 				name,
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 		}
 	}
@@ -218,39 +213,38 @@ export class PreCommitSafeguards {
 	}> {
 		const startTime = Date.now();
 		const name = 'Type Checking';
-		
+
 		try {
 			console.log('[Pre-Commit Safeguards] Running type checking...');
-			
+
 			// Simulate type checking process
-			await new Promise(resolve => setTimeout(resolve, 200));
-			
+			await new Promise((resolve) => setTimeout(resolve, 200));
+
 			// Check for TypeScript errors
 			const hasTypeErrors = this.checkForTypeErrors();
-			
+
 			const duration = Date.now() - startTime;
-			
+
 			if (hasTypeErrors) {
 				return {
 					name,
 					passed: false,
 					error: 'TypeScript errors found',
-					duration
+					duration,
 				};
 			}
 
 			return {
 				name,
 				passed: true,
-				duration
+				duration,
 			};
-
 		} catch (error) {
 			return {
 				name,
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 		}
 	}
@@ -266,37 +260,36 @@ export class PreCommitSafeguards {
 	}> {
 		const startTime = Date.now();
 		const name = 'Flow Validation';
-		
+
 		try {
 			console.log('[Pre-Commit Safeguards] Running flow validation...');
-			
+
 			// Run flow test suite
 			const testResults = await flowTestSuite.runTestSuite();
-			
+
 			const duration = Date.now() - startTime;
-			
+
 			if (!testResults.overallPassed) {
-				const failedFlows = testResults.flows.filter(flow => !flow.passed);
+				const failedFlows = testResults.flows.filter((flow) => !flow.passed);
 				return {
 					name,
 					passed: false,
-					error: `Flow validation failed for: ${failedFlows.map(f => f.flowName).join(', ')}`,
-					duration
+					error: `Flow validation failed for: ${failedFlows.map((f) => f.flowName).join(', ')}`,
+					duration,
 				};
 			}
 
 			return {
 				name,
 				passed: true,
-				duration
+				duration,
 			};
-
 		} catch (error) {
 			return {
 				name,
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 		}
 	}
@@ -312,10 +305,10 @@ export class PreCommitSafeguards {
 	}> {
 		const startTime = Date.now();
 		const name = 'Automated Tests';
-		
+
 		try {
 			console.log('[Pre-Commit Safeguards] Running automated tests...');
-			
+
 			// Run critical flow tests
 			const criticalFlowResults = await Promise.all(
 				this.config.criticalFlows.map(async (flowName) => {
@@ -323,32 +316,31 @@ export class PreCommitSafeguards {
 					return { flowName, result };
 				})
 			);
-			
+
 			const failedFlows = criticalFlowResults.filter(({ result }) => !result?.overallPassed);
-			
+
 			const duration = Date.now() - startTime;
-			
+
 			if (failedFlows.length > 0) {
 				return {
 					name,
 					passed: false,
-					error: `Critical flows failed: ${failedFlows.map(f => f.flowName).join(', ')}`,
-					duration
+					error: `Critical flows failed: ${failedFlows.map((f) => f.flowName).join(', ')}`,
+					duration,
 				};
 			}
 
 			return {
 				name,
 				passed: true,
-				duration
+				duration,
 			};
-
 		} catch (error) {
 			return {
 				name,
 				passed: false,
 				error: error instanceof Error ? error.message : 'Unknown error',
-				duration: Date.now() - startTime
+				duration: Date.now() - startTime,
 			};
 		}
 	}
@@ -379,8 +371,8 @@ export class PreCommitSafeguards {
 
 		console.error('\n[Pre-Commit Safeguards] Failure Details:');
 		console.error('=====================================');
-		
-		this.results.checks.forEach(check => {
+
+		this.results.checks.forEach((check) => {
 			if (!check.passed) {
 				console.error(`❌ ${check.name}: ${check.error || 'Failed'}`);
 			} else {
@@ -422,23 +414,26 @@ export class PreCommitSafeguards {
 			return {
 				overall: 'critical',
 				checks: [],
-				blocked: true
+				blocked: true,
 			};
 		}
 
-		const checks = this.results.checks.map(check => ({
+		const checks = this.results.checks.map((check) => ({
 			name: check.name,
-			status: check.passed ? 'healthy' : 'critical' as 'healthy' | 'warning' | 'critical'
+			status: check.passed ? 'healthy' : ('critical' as 'healthy' | 'warning' | 'critical'),
 		}));
 
-		const overall: 'healthy' | 'warning' | 'critical' = 
-			this.results.summary.criticalFailures > 0 ? 'critical' :
-			this.results.summary.failedChecks > 0 ? 'warning' : 'healthy';
+		const overall: 'healthy' | 'warning' | 'critical' =
+			this.results.summary.criticalFailures > 0
+				? 'critical'
+				: this.results.summary.failedChecks > 0
+					? 'warning'
+					: 'healthy';
 
 		return {
 			overall,
 			checks,
-			blocked: this.shouldBlockCommit()
+			blocked: this.shouldBlockCommit(),
 		};
 	}
 }

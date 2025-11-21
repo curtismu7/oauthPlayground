@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
 	FiCheckCircle,
 	FiCopy,
@@ -14,19 +14,19 @@ import {
 	FiTerminal,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import PageLayoutService from '../services/pageLayoutService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { credentialManager } from '../utils/credentialManager';
 import JsonEditor from '../components/JsonEditor';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { credentialManager } from '../utils/credentialManager';
 
-const Container = styled.div`
+const _Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
 
@@ -266,7 +266,7 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
 	}}
 `;
 
-const CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missing' }>`
+const _CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missing' }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
@@ -310,15 +310,24 @@ const AdvancedConfiguration = () => {
 		flowId: 'pingone-defaults', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// Load defaults from credentialManager
 	const currentDefaults = credentialManager.loadAuthzFlowCredentials();
-	
+
 	const [environmentId, setEnvironmentId] = useState(currentDefaults.environmentId || '');
-	const [redirectUri, setRedirectUri] = useState(currentDefaults.redirectUri || 'https://localhost:3000/authz-callback');
-	const [selectedScopes, setSelectedScopes] = useState(new Set(currentDefaults.scope ? currentDefaults.scope.split(' ') : ['openid', 'profile', 'email']));
+	const [redirectUri, setRedirectUri] = useState(
+		currentDefaults.redirectUri || 'https://localhost:3000/authz-callback'
+	);
+	const [selectedScopes, setSelectedScopes] = useState(
+		new Set(
+			currentDefaults.scope ? currentDefaults.scope.split(' ') : ['openid', 'profile', 'email']
+		)
+	);
 	const [customScopes, setCustomScopes] = useState(['']);
 	const [customClaims, setCustomClaims] = useState(['']);
 	const [saved, setSaved] = useState(false);
@@ -516,399 +525,426 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 		...customScopes.filter((scope) => scope.trim() !== ''),
 	];
 
-	const allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
+	const _allClaims = [...standardClaims, ...customClaims.filter((claim) => claim.trim() !== '')];
 
 	// Check current credentials status
 	const currentCredentials = credentialManager.loadAuthzFlowCredentials();
 	const hasCredentials = currentCredentials.environmentId && currentCredentials.clientId;
-	const credentialStatus = hasCredentials ? 'complete' : 'missing';
+	const _credentialStatus = hasCredentials ? 'complete' : 'missing';
 
 	return (
 		<PageContainer>
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			{/* PingOne Defaults Configuration */}
-			<CollapsibleHeader
-				title="PingOne Default Settings"
-				subtitle="Set default values for Environment ID, Redirect URI, and Scopes that will be used across all flows"
-				icon={<FiSettings />}
-				defaultCollapsed={false}
-			>
-				<div style={{ padding: '1.5rem' }}>
-					<InfoBox $type="info" style={{ marginBottom: '1.5rem' }}>
-						<FiInfo />
-						<div>
-							<strong>About Default Settings</strong>
-							<p>These defaults will be automatically populated in all OAuth and OIDC flows, saving you time during configuration.</p>
-						</div>
-					</InfoBox>
-
-					{/* Environment ID Input */}
-					<div style={{ marginBottom: '1.5rem' }}>
-						<label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>
-							Environment ID
-						</label>
-						<input
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="e.g., 12345678-1234-1234-1234-123456789012"
-							style={{
-								width: '100%',
-								padding: '0.75rem',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '0.95rem',
-								fontFamily: 'monospace'
-							}}
-						/>
-						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
-							Your PingOne Environment ID (GUID format)
-						</p>
-					</div>
-
-					{/* Redirect URI Input */}
-					<div style={{ marginBottom: '1.5rem' }}>
-						<label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>
-							Default Redirect URI
-						</label>
-						<input
-							type="text"
-							value={redirectUri}
-							onChange={(e) => setRedirectUri(e.target.value)}
-							placeholder="https://localhost:3000/authz-callback"
-							style={{
-								width: '100%',
-								padding: '0.75rem',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '0.95rem',
-								fontFamily: 'monospace'
-							}}
-						/>
-						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
-							Default callback URL for OAuth flows
-						</p>
-					</div>
-
-					{/* Save Button */}
-					<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-						<button
-							onClick={() => {
-								// Save defaults
-								const scopes = Array.from(selectedScopes).concat(customScopes.filter(s => s.trim())).join(' ');
-								credentialManager.saveAuthzFlowCredentials({
-									...currentDefaults,
-									environmentId,
-									redirectUri,
-									scope: scopes
-								});
-								setSaved(true);
-								setTimeout(() => setSaved(false), 3000);
-							}}
-							style={{
-								padding: '0.75rem 1.5rem',
-								backgroundColor: '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								cursor: 'pointer',
-								fontSize: '1rem',
-								fontWeight: '500',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								transition: 'background-color 0.2s'
-							}}
-							onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
-							onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
-						>
-							<FiSave />
-							Save Defaults
-						</button>
-						
-						{saved && (
-							<div style={{
-								padding: '0.75rem 1rem',
-								backgroundColor: '#d1fae5',
-								color: '#065f46',
-								borderRadius: '6px',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem'
-							}}>
-								<FiCheckCircle />
-								Defaults saved successfully!
+				{/* PingOne Defaults Configuration */}
+				<CollapsibleHeader
+					title="PingOne Default Settings"
+					subtitle="Set default values for Environment ID, Redirect URI, and Scopes that will be used across all flows"
+					icon={<FiSettings />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<InfoBox $type="info" style={{ marginBottom: '1.5rem' }}>
+							<FiInfo />
+							<div>
+								<strong>About Default Settings</strong>
+								<p>
+									These defaults will be automatically populated in all OAuth and OIDC flows, saving
+									you time during configuration.
+								</p>
 							</div>
-						)}
-					</div>
-				</div>
-			</CollapsibleHeader>
+						</InfoBox>
 
-			{/* Default Scopes Configuration */}
-			<CollapsibleHeader
-				title="Default OAuth Scopes"
-				subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
-				icon={<FiShield />}
-				defaultCollapsed={false}
-			>
-				<div style={{ padding: '1.5rem' }}>
-			<ConfigGrid>
-				{/* OAuth Scopes Configuration */}
-				<ConfigSection>
-					<CardHeader>
-						<h2>
-							<FiShield />
-							OAuth Scopes
-						</h2>
-						<p>Configure the permissions your application requests</p>
-					</CardHeader>
-					<CardBody>
+						{/* Environment ID Input */}
 						<div style={{ marginBottom: '1.5rem' }}>
-							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Standard Scopes
-							</h3>
-							{predefinedScopes.map((scope) => (
-								<ScopeItem
-									key={scope.id}
-									active={selectedScopes.has(scope.id)}
-									onClick={() => toggleScope(scope.id)}
-									style={{ cursor: 'pointer' }}
+							<label
+								style={{
+									display: 'block',
+									fontWeight: '600',
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
+								Environment ID
+							</label>
+							<input
+								type="text"
+								value={environmentId}
+								onChange={(e) => setEnvironmentId(e.target.value)}
+								placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+								style={{
+									width: '100%',
+									padding: '0.75rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '0.95rem',
+									fontFamily: 'monospace',
+								}}
+							/>
+							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+								Your PingOne Environment ID (GUID format)
+							</p>
+						</div>
+
+						{/* Redirect URI Input */}
+						<div style={{ marginBottom: '1.5rem' }}>
+							<label
+								style={{
+									display: 'block',
+									fontWeight: '600',
+									marginBottom: '0.5rem',
+									color: '#1f2937',
+								}}
+							>
+								Default Redirect URI
+							</label>
+							<input
+								type="text"
+								value={redirectUri}
+								onChange={(e) => setRedirectUri(e.target.value)}
+								placeholder="https://localhost:3000/authz-callback"
+								style={{
+									width: '100%',
+									padding: '0.75rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '0.95rem',
+									fontFamily: 'monospace',
+								}}
+							/>
+							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+								Default callback URL for OAuth flows
+							</p>
+						</div>
+
+						{/* Save Button */}
+						<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+							<button
+								onClick={() => {
+									// Save defaults
+									const scopes = Array.from(selectedScopes)
+										.concat(customScopes.filter((s) => s.trim()))
+										.join(' ');
+									credentialManager.saveAuthzFlowCredentials({
+										...currentDefaults,
+										environmentId,
+										redirectUri,
+										scope: scopes,
+									});
+									setSaved(true);
+									setTimeout(() => setSaved(false), 3000);
+								}}
+								style={{
+									padding: '0.75rem 1.5rem',
+									backgroundColor: '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '1rem',
+									fontWeight: '500',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									transition: 'background-color 0.2s',
+								}}
+								onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+								onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
+							>
+								<FiSave />
+								Save Defaults
+							</button>
+
+							{saved && (
+								<div
+									style={{
+										padding: '0.75rem 1rem',
+										backgroundColor: '#d1fae5',
+										color: '#065f46',
+										borderRadius: '6px',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
 								>
+									<FiCheckCircle />
+									Defaults saved successfully!
+								</div>
+							)}
+						</div>
+					</div>
+				</CollapsibleHeader>
+
+				{/* Default Scopes Configuration */}
+				<CollapsibleHeader
+					title="Default OAuth Scopes"
+					subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
+					icon={<FiShield />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<ConfigGrid>
+							{/* OAuth Scopes Configuration */}
+							<ConfigSection>
+								<CardHeader>
+									<h2>
+										<FiShield />
+										OAuth Scopes
+									</h2>
+									<p>Configure the permissions your application requests</p>
+								</CardHeader>
+								<CardBody>
+									<div style={{ marginBottom: '1.5rem' }}>
+										<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
+											Standard Scopes
+										</h3>
+										{predefinedScopes.map((scope) => (
+											<ScopeItem
+												key={scope.id}
+												active={selectedScopes.has(scope.id)}
+												onClick={() => toggleScope(scope.id)}
+												style={{ cursor: 'pointer' }}
+											>
+												<div>
+													<div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>
+														{scope.label}
+													</div>
+													<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+														{scope.description}
+													</div>
+												</div>
+												<div
+													style={{
+														width: '20px',
+														height: '20px',
+														borderRadius: '50%',
+														border: '2px solid #d1d5db',
+														backgroundColor: selectedScopes.has(scope.id) ? '#3b82f6' : 'white',
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'center',
+													}}
+												>
+													{selectedScopes.has(scope.id) && (
+														<div style={{ color: 'white', fontSize: '12px' }}></div>
+													)}
+												</div>
+											</ScopeItem>
+										))}
+									</div>
+
 									<div>
-										<div style={{ fontWeight: '500', marginBottom: '0.25rem' }}>{scope.label}</div>
-										<div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-											{scope.description}
+										<div
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												marginBottom: '1rem',
+											}}
+										>
+											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Scopes</h3>
+											<AddButton onClick={addCustomScope}>
+												<FiPlus size={16} />
+												Add Scope
+											</AddButton>
+										</div>
+										{customScopes.map((scope, index) => (
+											<div
+												key={index}
+												style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}
+											>
+												<ClaimInput
+													placeholder="Enter custom scope (e.g., read:contacts)"
+													value={scope}
+													onChange={(e) => updateCustomScope(index, e.target.value)}
+												/>
+												<RemoveButton onClick={() => removeCustomScope(index)}>
+													<FiMinus size={16} />
+												</RemoveButton>
+											</div>
+										))}
+									</div>
+								</CardBody>
+							</ConfigSection>
+
+							{/* OpenID Connect Claims Configuration */}
+							<ConfigSection>
+								<CardHeader>
+									<h2>
+										<FiEye />
+										OpenID Connect Claims
+									</h2>
+									<p>Configure the user information your application receives</p>
+								</CardHeader>
+								<CardBody>
+									<div style={{ marginBottom: '1.5rem' }}>
+										<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
+											Standard Claims (Included by default)
+										</h3>
+										<div
+											style={{
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+												gap: '0.5rem',
+											}}
+										>
+											{standardClaims.map((claim) => (
+												<div
+													key={claim}
+													style={{
+														padding: '0.5rem',
+														backgroundColor: '#dbeafe',
+														border: '1px solid #3b82f6',
+														borderRadius: '0.25rem',
+														fontSize: '0.75rem',
+														fontFamily: 'monospace',
+														textAlign: 'center',
+														color: '#1e40af',
+													}}
+												>
+													{claim}
+												</div>
+											))}
 										</div>
 									</div>
+
+									<div>
+										<div
+											style={{
+												display: 'flex',
+												justifyContent: 'space-between',
+												alignItems: 'center',
+												marginBottom: '1rem',
+											}}
+										>
+											<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Claims</h3>
+											<AddButton onClick={addCustomClaim}>
+												<FiPlus size={16} />
+												Add Claim
+											</AddButton>
+										</div>
+										{customClaims.map((claim, index) => (
+											<ClaimItem key={index}>
+												<FiEdit size={16} style={{ color: '#6b7280' }} />
+												<ClaimInput
+													placeholder="Enter custom claim (e.g., department)"
+													value={claim}
+													onChange={(e) => updateCustomClaim(index, e.target.value)}
+												/>
+												<RemoveButton onClick={() => removeCustomClaim(index)}>
+													<FiMinus size={16} />
+												</RemoveButton>
+											</ClaimItem>
+										))}
+									</div>
+								</CardBody>
+							</ConfigSection>
+						</ConfigGrid>
+					</div>
+				</CollapsibleHeader>
+
+				{/* Configuration Preview */}
+				<CollapsibleHeader
+					title="Configuration Preview"
+					subtitle="Review your default configuration and copy the JSON for use in your applications"
+					icon={<FiSave />}
+					defaultCollapsed={true}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<PreviewSection>
+							<CardHeader>
+								<h2>
+									<FiSave />
+									Configuration Preview
+								</h2>
+								<p>Review your configuration and generate code snippets for your application</p>
+							</CardHeader>
+							<CardBody>
+								<div style={{ marginBottom: '1.5rem' }}>
+									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										Requested Scopes
+									</h3>
 									<div
 										style={{
-											width: '20px',
-											height: '20px',
-											borderRadius: '50%',
-											border: '2px solid #d1d5db',
-											backgroundColor: selectedScopes.has(scope.id) ? '#3b82f6' : 'white',
+											fontFamily: 'monospace',
+											fontSize: '0.875rem',
+											color: '#059669',
+											backgroundColor: '#f0fdf4',
+											padding: '0.5rem',
+											borderRadius: '0.25rem',
+										}}
+									>
+										{allScopes.join(' ')}
+									</div>
+								</div>
+
+								<div style={{ marginBottom: '1.5rem' }}>
+									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										Live Configuration JSON
+									</h3>
+									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+										This JSON updates automatically as you modify scopes and claims. Each scope is
+										color-coded for easy identification.
+									</p>
+									<JsonEditor
+										value={configurationObject}
+										scopeColors={scopeColors}
+										height="300px"
+										readOnly={true}
+									/>
+								</div>
+
+								<div style={{ marginBottom: '1.5rem' }}>
+									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										<FiTerminal />
+										Generated Configuration Code
+									</h3>
+									<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+										Copy this code snippet to integrate your custom configuration into your
+										application.
+									</p>
+									<CodeBlockWithCopy label="config">{generateConfigSnippet()}</CodeBlockWithCopy>
+								</div>
+
+								<InfoBox $type="info">
+									<strong>Integration Tip:</strong> Use the generated configuration in your OAuth
+									flows. The scopes will be included in authorization requests, and claims will be
+									requested from the UserInfo endpoint.
+								</InfoBox>
+
+								<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+									<SaveButton onClick={saveConfiguration}>
+										<FiSave />
+										{saved ? 'Configuration Saved!' : 'Save Configuration'}
+									</SaveButton>
+									<button
+										onClick={resetToDefaults}
+										style={{
 											display: 'flex',
 											alignItems: 'center',
-											justifyContent: 'center',
+											gap: '0.5rem',
+											padding: '0.75rem 1.5rem',
+											backgroundColor: '#ef4444',
+											color: 'white',
+											border: 'none',
+											borderRadius: '0.5rem',
+											cursor: 'pointer',
+											fontSize: '1rem',
+											fontWeight: '500',
+											transition: 'background-color 0.2s',
 										}}
+										onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
+										onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
 									>
-										{selectedScopes.has(scope.id) && (
-											<div style={{ color: 'white', fontSize: '12px' }}></div>
-										)}
-									</div>
-								</ScopeItem>
-							))}
-						</div>
-
-						<div>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									marginBottom: '1rem',
-								}}
-							>
-								<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Scopes</h3>
-								<AddButton onClick={addCustomScope}>
-									<FiPlus size={16} />
-									Add Scope
-								</AddButton>
-							</div>
-							{customScopes.map((scope, index) => (
-								<div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-									<ClaimInput
-										placeholder="Enter custom scope (e.g., read:contacts)"
-										value={scope}
-										onChange={(e) => updateCustomScope(index, e.target.value)}
-									/>
-									<RemoveButton onClick={() => removeCustomScope(index)}>
-										<FiMinus size={16} />
-									</RemoveButton>
+										<FiRotateCcw />
+										Reset to Defaults
+									</button>
 								</div>
-							))}
-						</div>
-					</CardBody>
-				</ConfigSection>
-
-				{/* OpenID Connect Claims Configuration */}
-				<ConfigSection>
-					<CardHeader>
-						<h2>
-							<FiEye />
-							OpenID Connect Claims
-						</h2>
-						<p>Configure the user information your application receives</p>
-					</CardHeader>
-					<CardBody>
-						<div style={{ marginBottom: '1.5rem' }}>
-							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>
-								Standard Claims (Included by default)
-							</h3>
-							<div
-								style={{
-									display: 'grid',
-									gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
-									gap: '0.5rem',
-								}}
-							>
-								{standardClaims.map((claim) => (
-									<div
-										key={claim}
-										style={{
-											padding: '0.5rem',
-											backgroundColor: '#dbeafe',
-											border: '1px solid #3b82f6',
-											borderRadius: '0.25rem',
-											fontSize: '0.75rem',
-											fontFamily: 'monospace',
-											textAlign: 'center',
-											color: '#1e40af',
-										}}
-									>
-										{claim}
-									</div>
-								))}
-							</div>
-						</div>
-
-						<div>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									marginBottom: '1rem',
-								}}
-							>
-								<h3 style={{ fontSize: '1.125rem', fontWeight: '600' }}>Custom Claims</h3>
-								<AddButton onClick={addCustomClaim}>
-									<FiPlus size={16} />
-									Add Claim
-								</AddButton>
-							</div>
-							{customClaims.map((claim, index) => (
-								<ClaimItem key={index}>
-									<FiEdit size={16} style={{ color: '#6b7280' }} />
-									<ClaimInput
-										placeholder="Enter custom claim (e.g., department)"
-										value={claim}
-										onChange={(e) => updateCustomClaim(index, e.target.value)}
-									/>
-									<RemoveButton onClick={() => removeCustomClaim(index)}>
-										<FiMinus size={16} />
-									</RemoveButton>
-								</ClaimItem>
-							))}
-						</div>
-					</CardBody>
-				</ConfigSection>
-			</ConfigGrid>
-				</div>
-			</CollapsibleHeader>
-
-			{/* Configuration Preview */}
-			<CollapsibleHeader
-				title="Configuration Preview"
-				subtitle="Review your default configuration and copy the JSON for use in your applications"
-				icon={<FiSave />}
-				defaultCollapsed={true}
-			>
-				<div style={{ padding: '1.5rem' }}>
-			<PreviewSection>
-				<CardHeader>
-					<h2>
-						<FiSave />
-						Configuration Preview
-					</h2>
-					<p>Review your configuration and generate code snippets for your application</p>
-				</CardHeader>
-				<CardBody>
-					<div style={{ marginBottom: '1.5rem' }}>
-						<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-							Requested Scopes
-						</h3>
-						<div
-							style={{
-								fontFamily: 'monospace',
-								fontSize: '0.875rem',
-								color: '#059669',
-								backgroundColor: '#f0fdf4',
-								padding: '0.5rem',
-								borderRadius: '0.25rem',
-							}}
-						>
-							{allScopes.join(' ')}
-						</div>
+							</CardBody>
+						</PreviewSection>
 					</div>
-
-					<div style={{ marginBottom: '1.5rem' }}>
-						<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-							Live Configuration JSON
-						</h3>
-						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-							This JSON updates automatically as you modify scopes and claims. Each scope is
-							color-coded for easy identification.
-						</p>
-						<JsonEditor
-							value={configurationObject}
-							scopeColors={scopeColors}
-							height="300px"
-							readOnly={true}
-						/>
-					</div>
-
-					<div style={{ marginBottom: '1.5rem' }}>
-						<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-							<FiTerminal />
-							Generated Configuration Code
-						</h3>
-						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-							Copy this code snippet to integrate your custom configuration into your application.
-						</p>
-						<CodeBlockWithCopy label="config">{generateConfigSnippet()}</CodeBlockWithCopy>
-					</div>
-
-					<InfoBox $type="info">
-						<strong>Integration Tip:</strong> Use the generated configuration in your OAuth flows.
-						The scopes will be included in authorization requests, and claims will be requested from
-						the UserInfo endpoint.
-					</InfoBox>
-
-					<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-						<SaveButton onClick={saveConfiguration}>
-							<FiSave />
-							{saved ? 'Configuration Saved!' : 'Save Configuration'}
-						</SaveButton>
-						<button
-							onClick={resetToDefaults}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								padding: '0.75rem 1.5rem',
-								backgroundColor: '#ef4444',
-								color: 'white',
-								border: 'none',
-								borderRadius: '0.5rem',
-								cursor: 'pointer',
-								fontSize: '1rem',
-								fontWeight: '500',
-								transition: 'background-color 0.2s',
-							}}
-							onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
-							onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
-						>
-							<FiRotateCcw />
-							Reset to Defaults
-						</button>
-					</div>
-				</CardBody>
-			</PreviewSection>
-				</div>
-			</CollapsibleHeader>
+				</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
 	);

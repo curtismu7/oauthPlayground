@@ -2,9 +2,7 @@
 // Thin wrapper for embedding ResponseModeSelector in Implicit flows
 
 import React from 'react';
-import ResponseModeSelector, {
-	type ResponseModeSelectorProps,
-} from '../../../components/response-modes/ResponseModeSelector';
+import ResponseModeSelector from '../../../components/response-modes/ResponseModeSelector';
 
 interface ImplicitResponseModesProps {
 	responseType: 'token' | 'id_token' | 'token id_token';

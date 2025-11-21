@@ -2,697 +2,711 @@
 // PingOne Authentication Service for complete MFA flow integration
 
 import { logger } from '../utils/logger';
-import { validateCredentials } from '../utils/validation';
 
 export interface LoginCredentials {
-  username: string;
-  password: string;
-  environmentId: string;
+	username: string;
+	password: string;
+	environmentId: string;
 }
 
 export interface AuthenticationResult {
-  success: boolean;
-  accessToken?: string;
-  refreshToken?: string;
-  sessionId?: string;
-  userId?: string;
-  expiresAt?: Date;
-  error?: AuthenticationError;
-  mfaRequired?: boolean;
-  flowId?: string;
+	success: boolean;
+	accessToken?: string;
+	refreshToken?: string;
+	sessionId?: string;
+	userId?: string;
+	expiresAt?: Date;
+	error?: AuthenticationError;
+	mfaRequired?: boolean;
+	flowId?: string;
 }
 
 export interface AuthenticationError {
-  code: string;
-  message: string;
-  details?: string;
-  retryable?: boolean;
-  suggestedAction?: string;
+	code: string;
+	message: string;
+	details?: string;
+	retryable?: boolean;
+	suggestedAction?: string;
 }
 
 export interface SessionValidation {
-  valid: boolean;
-  userId?: string;
-  expiresAt?: Date;
-  permissions?: string[];
-  mfaCompleted?: boolean;
-  error?: string;
+	valid: boolean;
+	userId?: string;
+	expiresAt?: Date;
+	permissions?: string[];
+	mfaCompleted?: boolean;
+	error?: string;
 }
 
 export interface TokenRefresh {
-  success: boolean;
-  accessToken?: string;
-  refreshToken?: string;
-  expiresAt?: Date;
-  error?: string;
+	success: boolean;
+	accessToken?: string;
+	refreshToken?: string;
+	expiresAt?: Date;
+	error?: string;
 }
 
 export interface EnvironmentConfig {
-  environmentId: string;
-  authUrl: string;
-  apiUrl: string;
-  mfaUrl: string;
-  region: string;
-  issuer: string;
+	environmentId: string;
+	authUrl: string;
+	apiUrl: string;
+	mfaUrl: string;
+	region: string;
+	issuer: string;
 }
 
 export interface AuthenticationSession {
-  sessionId: string;
-  userId: string;
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: Date;
-  refreshExpiresAt: Date;
-  
-  // Session metadata
-  ipAddress?: string;
-  userAgent?: string;
-  createdAt: Date;
-  lastActivity: Date;
-  
-  // MFA status
-  mfaCompleted: boolean;
-  mfaDeviceUsed?: string;
-  mfaTimestamp?: Date;
-  
-  // Security flags
-  riskScore?: number;
-  requiresReauth: boolean;
-  securityFlags: string[];
+	sessionId: string;
+	userId: string;
+	accessToken: string;
+	refreshToken: string;
+	expiresAt: Date;
+	refreshExpiresAt: Date;
+
+	// Session metadata
+	ipAddress?: string;
+	userAgent?: string;
+	createdAt: Date;
+	lastActivity: Date;
+
+	// MFA status
+	mfaCompleted: boolean;
+	mfaDeviceUsed?: string;
+	mfaTimestamp?: Date;
+
+	// Security flags
+	riskScore?: number;
+	requiresReauth: boolean;
+	securityFlags: string[];
 }
 
 class PingOneAuthService {
-  private static readonly TOKEN_STORAGE_KEY = 'pingone_auth_session';
-  private static readonly SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
-  private static readonly REFRESH_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes before expiry
+	private static readonly TOKEN_STORAGE_KEY = 'pingone_auth_session';
+	private static readonly SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
-  /**
-   * Authenticate user with PingOne using username and password
-   */
-  static async authenticate(credentials: LoginCredentials): Promise<AuthenticationResult> {
-    try {
-      logger.info('PingOneAuthService', 'Starting authentication', {
-        username: credentials.username,
-        environmentId: credentials.environmentId
-      });
+	/**
+	 * Authenticate user with PingOne using username and password
+	 */
+	static async authenticate(credentials: LoginCredentials): Promise<AuthenticationResult> {
+		try {
+			logger.info('PingOneAuthService', 'Starting authentication', {
+				username: credentials.username,
+				environmentId: credentials.environmentId,
+			});
 
-      // Validate input credentials
-      const validation = this.validateCredentials(credentials);
-      if (!validation.valid) {
-        return {
-          success: false,
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: 'Invalid credentials provided',
-            details: validation.errors.join(', '),
-            retryable: true,
-            suggestedAction: 'Please check your username, password, and environment ID'
-          }
-        };
-      }
+			// Validate input credentials
+			const validation = PingOneAuthService.validateCredentials(credentials);
+			if (!validation.valid) {
+				return {
+					success: false,
+					error: {
+						code: 'INVALID_CREDENTIALS',
+						message: 'Invalid credentials provided',
+						details: validation.errors.join(', '),
+						retryable: true,
+						suggestedAction: 'Please check your username, password, and environment ID',
+					},
+				};
+			}
 
-      // Get environment configuration
-      const envConfig = await this.getEnvironmentConfig(credentials.environmentId);
-      if (!envConfig) {
-        return {
-          success: false,
-          error: {
-            code: 'INVALID_ENVIRONMENT',
-            message: 'Invalid environment configuration',
-            retryable: false,
-            suggestedAction: 'Please verify the environment ID is correct'
-          }
-        };
-      }
+			// Get environment configuration
+			const envConfig = await PingOneAuthService.getEnvironmentConfig(credentials.environmentId);
+			if (!envConfig) {
+				return {
+					success: false,
+					error: {
+						code: 'INVALID_ENVIRONMENT',
+						message: 'Invalid environment configuration',
+						retryable: false,
+						suggestedAction: 'Please verify the environment ID is correct',
+					},
+				};
+			}
 
-      // Perform authentication request to PingOne
-      const authResponse = await this.performAuthentication(credentials, envConfig);
-      
-      if (authResponse.success && authResponse.accessToken) {
-        // Create and store session
-        const session = await this.createSession(authResponse, envConfig);
-        
-        logger.info('PingOneAuthService', 'Authentication successful', {
-          userId: authResponse.userId,
-          sessionId: session.sessionId,
-          mfaRequired: authResponse.mfaRequired
-        });
+			// Perform authentication request to PingOne
+			const authResponse = await PingOneAuthService.performAuthentication(credentials, envConfig);
 
-        return {
-          ...authResponse,
-          sessionId: session.sessionId
-        };
-      }
+			if (authResponse.success && authResponse.accessToken) {
+				// Create and store session
+				const session = await PingOneAuthService.createSession(authResponse, envConfig);
 
-      return authResponse;
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Authentication failed', {
-        username: credentials.username,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+				logger.info('PingOneAuthService', 'Authentication successful', {
+					userId: authResponse.userId,
+					sessionId: session.sessionId,
+					mfaRequired: authResponse.mfaRequired,
+				});
 
-      return {
-        success: false,
-        error: {
-          code: 'AUTHENTICATION_ERROR',
-          message: 'Authentication request failed',
-          details: error instanceof Error ? error.message : 'Unknown error',
-          retryable: true,
-          suggestedAction: 'Please try again or check your network connection'
-        }
-      };
-    }
-  }
+				return {
+					...authResponse,
+					sessionId: session.sessionId,
+				};
+			}
 
-  /**
-   * Validate current session and token
-   */
-  static async validateSession(token: string): Promise<SessionValidation> {
-    try {
-      const session = this.getStoredSession();
-      if (!session) {
-        return { valid: false, error: 'No active session found' };
-      }
+			return authResponse;
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Authentication failed', {
+				username: credentials.username,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-      // Check if session is expired
-      if (new Date() > session.expiresAt) {
-        // Try to refresh token
-        const refreshResult = await this.refreshToken(session.refreshToken);
-        if (!refreshResult.success) {
-          this.clearSession();
-          return { valid: false, error: 'Session expired and refresh failed' };
-        }
-        
-        // Update session with new tokens
-        session.accessToken = refreshResult.accessToken!;
-        session.refreshToken = refreshResult.refreshToken!;
-        session.expiresAt = refreshResult.expiresAt!;
-        this.storeSession(session);
-      }
+			return {
+				success: false,
+				error: {
+					code: 'AUTHENTICATION_ERROR',
+					message: 'Authentication request failed',
+					details: error instanceof Error ? error.message : 'Unknown error',
+					retryable: true,
+					suggestedAction: 'Please try again or check your network connection',
+				},
+			};
+		}
+	}
 
-      // Validate token with PingOne
-      const validation = await this.validateTokenWithPingOne(session.accessToken);
-      
-      return {
-        valid: validation.valid,
-        userId: session.userId,
-        expiresAt: session.expiresAt,
-        mfaCompleted: session.mfaCompleted,
-        permissions: validation.permissions,
-        error: validation.error
-      };
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Session validation failed', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      return {
-        valid: false,
-        error: 'Session validation failed'
-      };
-    }
-  }
+	/**
+	 * Validate current session and token
+	 */
+	static async validateSession(_token: string): Promise<SessionValidation> {
+		try {
+			const session = PingOneAuthService.getStoredSession();
+			if (!session) {
+				return { valid: false, error: 'No active session found' };
+			}
 
-  /**
-   * Refresh authentication token
-   */
-  static async refreshToken(refreshToken: string): Promise<TokenRefresh> {
-    try {
-      logger.info('PingOneAuthService', 'Refreshing authentication token');
+			// Check if session is expired
+			if (new Date() > session.expiresAt) {
+				// Try to refresh token
+				const refreshResult = await PingOneAuthService.refreshToken(session.refreshToken);
+				if (!refreshResult.success) {
+					PingOneAuthService.clearSession();
+					return { valid: false, error: 'Session expired and refresh failed' };
+				}
 
-      const session = this.getStoredSession();
-      if (!session) {
-        return {
-          success: false,
-          error: 'No active session to refresh'
-        };
-      }
+				// Update session with new tokens
+				session.accessToken = refreshResult.accessToken!;
+				session.refreshToken = refreshResult.refreshToken!;
+				session.expiresAt = refreshResult.expiresAt!;
+				PingOneAuthService.storeSession(session);
+			}
 
-      // Check if refresh token is still valid
-      if (new Date() > session.refreshExpiresAt) {
-        this.clearSession();
-        return {
-          success: false,
-          error: 'Refresh token expired, please re-authenticate'
-        };
-      }
+			// Validate token with PingOne
+			const validation = await PingOneAuthService.validateTokenWithPingOne(session.accessToken);
 
-      // Make refresh request to PingOne
-      const refreshResponse = await this.performTokenRefresh(refreshToken, session);
-      
-      if (refreshResponse.success) {
-        logger.info('PingOneAuthService', 'Token refresh successful');
-      }
+			return {
+				valid: validation.valid,
+				userId: session.userId,
+				expiresAt: session.expiresAt,
+				mfaCompleted: session.mfaCompleted,
+				permissions: validation.permissions,
+				error: validation.error,
+			};
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Session validation failed', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-      return refreshResponse;
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Token refresh failed', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+			return {
+				valid: false,
+				error: 'Session validation failed',
+			};
+		}
+	}
 
-      return {
-        success: false,
-        error: 'Token refresh request failed'
-      };
-    }
-  }
+	/**
+	 * Refresh authentication token
+	 */
+	static async refreshToken(refreshToken: string): Promise<TokenRefresh> {
+		try {
+			logger.info('PingOneAuthService', 'Refreshing authentication token');
 
-  /**
-   * Logout and clear session
-   */
-  static async logout(sessionId?: string): Promise<void> {
-    try {
-      const session = this.getStoredSession();
-      if (session) {
-        logger.info('PingOneAuthService', 'Logging out user', {
-          userId: session.userId,
-          sessionId: session.sessionId
-        });
+			const session = PingOneAuthService.getStoredSession();
+			if (!session) {
+				return {
+					success: false,
+					error: 'No active session to refresh',
+				};
+			}
 
-        // Revoke tokens with PingOne
-        await this.revokeTokens(session);
-      }
+			// Check if refresh token is still valid
+			if (new Date() > session.refreshExpiresAt) {
+				PingOneAuthService.clearSession();
+				return {
+					success: false,
+					error: 'Refresh token expired, please re-authenticate',
+				};
+			}
 
-      // Clear local session
-      this.clearSession();
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Logout failed', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      
-      // Clear session even if revocation fails
-      this.clearSession();
-    }
-  }
+			// Make refresh request to PingOne
+			const refreshResponse = await PingOneAuthService.performTokenRefresh(refreshToken, session);
 
-  /**
-   * Get environment configuration for PingOne
-   */
-  static async getEnvironmentConfig(environmentId?: string): Promise<EnvironmentConfig | null> {
-    try {
-      if (!environmentId) {
-        // Use default environment from config
-        environmentId = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID;
-      }
+			if (refreshResponse.success) {
+				logger.info('PingOneAuthService', 'Token refresh successful');
+			}
 
-      if (!environmentId) {
-        return null;
-      }
+			return refreshResponse;
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Token refresh failed', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-      // Determine region and URLs based on environment ID
-      const region = this.determineRegion(environmentId);
-      
-      return {
-        environmentId,
-        authUrl: `https://auth.pingone.${region}`,
-        apiUrl: `https://api.pingone.${region}`,
-        mfaUrl: `https://api.pingone.${region}/v1/environments/${environmentId}/mfa`,
-        region,
-        issuer: `https://auth.pingone.${region}/${environmentId}/as`
-      };
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Failed to get environment config', {
-        environmentId,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return null;
-    }
-  }
+			return {
+				success: false,
+				error: 'Token refresh request failed',
+			};
+		}
+	}
 
-  /**
-   * Get current authentication session
-   */
-  static getCurrentSession(): AuthenticationSession | null {
-    return this.getStoredSession();
-  }
+	/**
+	 * Logout and clear session
+	 */
+	static async logout(_sessionId?: string): Promise<void> {
+		try {
+			const session = PingOneAuthService.getStoredSession();
+			if (session) {
+				logger.info('PingOneAuthService', 'Logging out user', {
+					userId: session.userId,
+					sessionId: session.sessionId,
+				});
 
-  /**
-   * Check if user is currently authenticated
-   */
-  static isAuthenticated(): boolean {
-    const session = this.getStoredSession();
-    if (!session) return false;
-    
-    // Check if session is not expired
-    return new Date() < session.expiresAt;
-  }
+				// Revoke tokens with PingOne
+				await PingOneAuthService.revokeTokens(session);
+			}
 
-  /**
-   * Mark MFA as completed for current session
-   */
-  static markMFACompleted(deviceId: string): void {
-    const session = this.getStoredSession();
-    if (session) {
-      session.mfaCompleted = true;
-      session.mfaDeviceUsed = deviceId;
-      session.mfaTimestamp = new Date();
-      session.lastActivity = new Date();
-      this.storeSession(session);
-      
-      logger.info('PingOneAuthService', 'MFA marked as completed', {
-        userId: session.userId,
-        deviceId
-      });
-    }
-  }
+			// Clear local session
+			PingOneAuthService.clearSession();
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Logout failed', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-  // Private helper methods
+			// Clear session even if revocation fails
+			PingOneAuthService.clearSession();
+		}
+	}
 
-  private static validateCredentials(credentials: LoginCredentials): { valid: boolean; errors: string[] } {
-    const errors: string[] = [];
+	/**
+	 * Get environment configuration for PingOne
+	 */
+	static async getEnvironmentConfig(environmentId?: string): Promise<EnvironmentConfig | null> {
+		try {
+			if (!environmentId) {
+				// Use default environment from config
+				environmentId = import.meta.env.VITE_PINGONE_ENVIRONMENT_ID;
+			}
 
-    if (!credentials.username?.trim()) {
-      errors.push('Username is required');
-    }
+			if (!environmentId) {
+				return null;
+			}
 
-    if (!credentials.password?.trim()) {
-      errors.push('Password is required');
-    }
+			// Determine region and URLs based on environment ID
+			const region = PingOneAuthService.determineRegion(environmentId);
 
-    if (!credentials.environmentId?.trim()) {
-      errors.push('Environment ID is required');
-    }
+			return {
+				environmentId,
+				authUrl: `https://auth.pingone.${region}`,
+				apiUrl: `https://api.pingone.${region}`,
+				mfaUrl: `https://api.pingone.${region}/v1/environments/${environmentId}/mfa`,
+				region,
+				issuer: `https://auth.pingone.${region}/${environmentId}/as`,
+			};
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Failed to get environment config', {
+				environmentId,
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			return null;
+		}
+	}
 
-    // PingOne accepts both usernames and email addresses
-    // Only validate email format if the username contains @ (suggesting it should be an email)
-    if (credentials.username && credentials.username.includes('@') && !this.isValidEmail(credentials.username)) {
-      errors.push('Username appears to be an email address but format is invalid');
-    }
+	/**
+	 * Get current authentication session
+	 */
+	static getCurrentSession(): AuthenticationSession | null {
+		return PingOneAuthService.getStoredSession();
+	}
 
-    return {
-      valid: errors.length === 0,
-      errors
-    };
-  }
+	/**
+	 * Check if user is currently authenticated
+	 */
+	static isAuthenticated(): boolean {
+		const session = PingOneAuthService.getStoredSession();
+		if (!session) return false;
 
-  private static isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
+		// Check if session is not expired
+		return new Date() < session.expiresAt;
+	}
 
-  /**
-   * Perform authentication using OAuth 2.0 Resource Owner Password Credentials Grant
-   * 
-   * EDUCATIONAL NOTE: This uses the "password" grant type (grant_type: 'password'), which is:
-   * - Part of OAuth 2.0 (RFC 6749) - Section 4.3
-   * - Deprecated in OAuth 2.1 (removed for security reasons)
-   * - Still useful for learning: demonstrates direct credential exchange
-   * - NOT recommended for production: credentials sent directly to auth server
-   * - Better alternatives: Authorization Code Flow with PKCE (for interactive) or Client Credentials (for M2M)
-   * 
-   * How it works:
-   * 1. Client sends username + password directly to token endpoint
-   * 2. Auth server validates credentials
-   * 3. Auth server returns access token (and optionally refresh token)
-   * 
-   * Security concerns:
-   * - Credentials sent over network (even if HTTPS)
-   * - No authorization step - user can't control which resources app accesses
-   * - If compromised, attacker gets direct access to user account
-   * 
-   * This implementation is for TRAINING PURPOSES to teach OAuth 2.0 concepts.
-   */
-  private static async performAuthentication(
-    credentials: LoginCredentials, 
-    envConfig: EnvironmentConfig
-  ): Promise<AuthenticationResult> {
-    // This would make actual API calls to PingOne
-    // For now, implementing a mock that simulates real behavior
-    
-    // OAuth 2.0 Token Endpoint - where tokens are issued
-    // Format: https://auth.pingone.{region}/{environmentId}/as/token
-    const authUrl = `${envConfig.authUrl}/${envConfig.environmentId}/as/token`;
-    
-    // OAuth 2.0 Request Body - Resource Owner Password Credentials Grant (RFC 6749 Section 4.3)
-    // grant_type: 'password' - indicates we're using password grant flow
-    // username/password: User credentials (sent directly - security risk, hence deprecated)
-    // client_id/client_secret: App credentials (identifies which app is making request)
-    // scope: Requested permissions (openid = OIDC, profile = user profile, email = email address)
-    const requestBody = {
-      grant_type: 'password', // OAuth 2.0 password grant (deprecated in OAuth 2.1)
-      username: credentials.username,
-      password: credentials.password,
-      client_id: import.meta.env.VITE_PINGONE_CLIENT_ID,
-      client_secret: import.meta.env.VITE_PINGONE_CLIENT_SECRET,
-      scope: 'openid profile email' // OIDC scopes: openid (required for OIDC), profile, email
-    };
+	/**
+	 * Mark MFA as completed for current session
+	 */
+	static markMFACompleted(deviceId: string): void {
+		const session = PingOneAuthService.getStoredSession();
+		if (session) {
+			session.mfaCompleted = true;
+			session.mfaDeviceUsed = deviceId;
+			session.mfaTimestamp = new Date();
+			session.lastActivity = new Date();
+			PingOneAuthService.storeSession(session);
 
-    const response = await fetch(authUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      },
-      body: new URLSearchParams(requestBody)
-    });
+			logger.info('PingOneAuthService', 'MFA marked as completed', {
+				userId: session.userId,
+				deviceId,
+			});
+		}
+	}
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      
-      return {
-        success: false,
-        error: {
-          code: errorData.error || 'AUTHENTICATION_FAILED',
-          message: errorData.error_description || 'Authentication failed',
-          retryable: response.status >= 500 || response.status === 429,
-          suggestedAction: this.getAuthErrorSuggestion(response.status, errorData.error)
-        }
-      };
-    }
+	// Private helper methods
 
-    const tokenData = await response.json();
-    
-    return {
-      success: true,
-      accessToken: tokenData.access_token,
-      refreshToken: tokenData.refresh_token,
-      userId: this.extractUserIdFromToken(tokenData.access_token),
-      expiresAt: new Date(Date.now() + (tokenData.expires_in * 1000)),
-      mfaRequired: false, // Will be determined by subsequent MFA checks
-      flowId: this.generateFlowId()
-    };
-  }
+	private static validateCredentials(credentials: LoginCredentials): {
+		valid: boolean;
+		errors: string[];
+	} {
+		const errors: string[] = [];
 
-  private static async createSession(
-    authResult: AuthenticationResult, 
-    envConfig: EnvironmentConfig
-  ): Promise<AuthenticationSession> {
-    const sessionId = this.generateSessionId();
-    const now = new Date();
-    
-    const session: AuthenticationSession = {
-      sessionId,
-      userId: authResult.userId!,
-      accessToken: authResult.accessToken!,
-      refreshToken: authResult.refreshToken!,
-      expiresAt: authResult.expiresAt!,
-      refreshExpiresAt: new Date(now.getTime() + (7 * 24 * 60 * 60 * 1000)), // 7 days
-      
-      createdAt: now,
-      lastActivity: now,
-      
-      mfaCompleted: false,
-      requiresReauth: false,
-      securityFlags: []
-    };
+		if (!credentials.username?.trim()) {
+			errors.push('Username is required');
+		}
 
-    // Add security metadata
-    if (typeof window !== 'undefined') {
-      session.userAgent = navigator.userAgent;
-      // IP address would be determined server-side in real implementation
-    }
+		if (!credentials.password?.trim()) {
+			errors.push('Password is required');
+		}
 
-    this.storeSession(session);
-    return session;
-  }
+		if (!credentials.environmentId?.trim()) {
+			errors.push('Environment ID is required');
+		}
 
-  private static async validateTokenWithPingOne(token: string): Promise<{ valid: boolean; permissions?: string[]; error?: string }> {
-    try {
-      // In real implementation, this would validate with PingOne introspection endpoint
-      // For now, basic JWT validation
-      const payload = this.decodeJWTPayload(token);
-      if (!payload) {
-        return { valid: false, error: 'Invalid token format' };
-      }
+		// PingOne accepts both usernames and email addresses
+		// Only validate email format if the username contains @ (suggesting it should be an email)
+		if (
+			credentials.username?.includes('@') &&
+			!PingOneAuthService.isValidEmail(credentials.username)
+		) {
+			errors.push('Username appears to be an email address but format is invalid');
+		}
 
-      const now = Math.floor(Date.now() / 1000);
-      if (payload.exp && payload.exp < now) {
-        return { valid: false, error: 'Token expired' };
-      }
+		return {
+			valid: errors.length === 0,
+			errors,
+		};
+	}
 
-      return {
-        valid: true,
-        permissions: payload.scope?.split(' ') || []
-      };
-    } catch (error) {
-      return {
-        valid: false,
-        error: 'Token validation failed'
-      };
-    }
-  }
+	private static isValidEmail(email: string): boolean {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	}
 
-  private static async performTokenRefresh(refreshToken: string, session: AuthenticationSession): Promise<TokenRefresh> {
-    // Mock implementation - would make real API call to PingOne
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const newAccessToken = this.generateMockToken(session.userId);
-      const expiresAt = new Date(Date.now() + this.SESSION_TIMEOUT_MS);
-      
-      return {
-        success: true,
-        accessToken: newAccessToken,
-        refreshToken: refreshToken, // Refresh token typically doesn't change
-        expiresAt
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Token refresh failed'
-      };
-    }
-  }
+	/**
+	 * Perform authentication using OAuth 2.0 Resource Owner Password Credentials Grant
+	 *
+	 * EDUCATIONAL NOTE: This uses the "password" grant type (grant_type: 'password'), which is:
+	 * - Part of OAuth 2.0 (RFC 6749) - Section 4.3
+	 * - Deprecated in OAuth 2.1 (removed for security reasons)
+	 * - Still useful for learning: demonstrates direct credential exchange
+	 * - NOT recommended for production: credentials sent directly to auth server
+	 * - Better alternatives: Authorization Code Flow with PKCE (for interactive) or Client Credentials (for M2M)
+	 *
+	 * How it works:
+	 * 1. Client sends username + password directly to token endpoint
+	 * 2. Auth server validates credentials
+	 * 3. Auth server returns access token (and optionally refresh token)
+	 *
+	 * Security concerns:
+	 * - Credentials sent over network (even if HTTPS)
+	 * - No authorization step - user can't control which resources app accesses
+	 * - If compromised, attacker gets direct access to user account
+	 *
+	 * This implementation is for TRAINING PURPOSES to teach OAuth 2.0 concepts.
+	 */
+	private static async performAuthentication(
+		credentials: LoginCredentials,
+		envConfig: EnvironmentConfig
+	): Promise<AuthenticationResult> {
+		// This would make actual API calls to PingOne
+		// For now, implementing a mock that simulates real behavior
 
-  private static async revokeTokens(session: AuthenticationSession): Promise<void> {
-    // In real implementation, would call PingOne revocation endpoint
-    logger.info('PingOneAuthService', 'Tokens revoked', {
-      userId: session.userId,
-      sessionId: session.sessionId
-    });
-  }
+		// OAuth 2.0 Token Endpoint - where tokens are issued
+		// Format: https://auth.pingone.{region}/{environmentId}/as/token
+		const authUrl = `${envConfig.authUrl}/${envConfig.environmentId}/as/token`;
 
-  private static determineRegion(environmentId: string): string {
-    // Simple region determination based on environment ID patterns
-    // In real implementation, this might involve API discovery
-    if (environmentId.includes('eu')) return 'eu';
-    if (environmentId.includes('asia')) return 'asia';
-    return 'com'; // Default to North America
-  }
+		// OAuth 2.0 Request Body - Resource Owner Password Credentials Grant (RFC 6749 Section 4.3)
+		// grant_type: 'password' - indicates we're using password grant flow
+		// username/password: User credentials (sent directly - security risk, hence deprecated)
+		// client_id/client_secret: App credentials (identifies which app is making request)
+		// scope: Requested permissions (openid = OIDC, profile = user profile, email = email address)
+		const requestBody = {
+			grant_type: 'password', // OAuth 2.0 password grant (deprecated in OAuth 2.1)
+			username: credentials.username,
+			password: credentials.password,
+			client_id: import.meta.env.VITE_PINGONE_CLIENT_ID,
+			client_secret: import.meta.env.VITE_PINGONE_CLIENT_SECRET,
+			scope: 'openid profile email', // OIDC scopes: openid (required for OIDC), profile, email
+		};
 
-  private static getAuthErrorSuggestion(status: number, errorCode?: string): string {
-    switch (status) {
-      case 401:
-        return 'Please check your username and password';
-      case 403:
-        return 'Account may be locked or disabled';
-      case 404:
-        return 'Please verify the environment ID is correct';
-      case 429:
-        return 'Too many attempts, please wait before trying again';
-      case 500:
-      case 502:
-      case 503:
-        return 'PingOne service temporarily unavailable, please try again later';
-      default:
-        return 'Please check your credentials and try again';
-    }
-  }
+		const response = await fetch(authUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				Accept: 'application/json',
+			},
+			body: new URLSearchParams(requestBody),
+		});
 
-  private static extractUserIdFromToken(token: string): string {
-    const payload = this.decodeJWTPayload(token);
-    return payload?.sub || this.generateUserId();
-  }
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
 
-  private static decodeJWTPayload(token: string): any {
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) return null;
-      
-      const payload = parts[1];
-      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
-      return JSON.parse(decoded);
-    } catch {
-      return null;
-    }
-  }
+			return {
+				success: false,
+				error: {
+					code: errorData.error || 'AUTHENTICATION_FAILED',
+					message: errorData.error_description || 'Authentication failed',
+					retryable: response.status >= 500 || response.status === 429,
+					suggestedAction: PingOneAuthService.getAuthErrorSuggestion(
+						response.status,
+						errorData.error
+					),
+				},
+			};
+		}
 
-  private static generateFlowId(): string {
-    return `flow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+		const tokenData = await response.json();
 
-  private static generateSessionId(): string {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+		return {
+			success: true,
+			accessToken: tokenData.access_token,
+			refreshToken: tokenData.refresh_token,
+			userId: PingOneAuthService.extractUserIdFromToken(tokenData.access_token),
+			expiresAt: new Date(Date.now() + tokenData.expires_in * 1000),
+			mfaRequired: false, // Will be determined by subsequent MFA checks
+			flowId: PingOneAuthService.generateFlowId(),
+		};
+	}
 
-  private static generateUserId(): string {
-    return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
+	private static async createSession(
+		authResult: AuthenticationResult,
+		_envConfig: EnvironmentConfig
+	): Promise<AuthenticationSession> {
+		const sessionId = PingOneAuthService.generateSessionId();
+		const now = new Date();
 
-  private static generateMockToken(userId: string): string {
-    // Generate a mock JWT-like token for development
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-    const payload = btoa(JSON.stringify({
-      sub: userId,
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 1800, // 30 minutes
-      scope: 'openid profile email'
-    }));
-    const signature = btoa('mock_signature');
-    
-    return `${header}.${payload}.${signature}`;
-  }
+		const session: AuthenticationSession = {
+			sessionId,
+			userId: authResult.userId!,
+			accessToken: authResult.accessToken!,
+			refreshToken: authResult.refreshToken!,
+			expiresAt: authResult.expiresAt!,
+			refreshExpiresAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days
 
-  // Session storage methods
+			createdAt: now,
+			lastActivity: now,
 
-  private static storeSession(session: AuthenticationSession): void {
-    try {
-      if (typeof window !== 'undefined') {
-        const sessionData = {
-          ...session,
-          expiresAt: session.expiresAt.toISOString(),
-          refreshExpiresAt: session.refreshExpiresAt.toISOString(),
-          createdAt: session.createdAt.toISOString(),
-          lastActivity: session.lastActivity.toISOString(),
-          mfaTimestamp: session.mfaTimestamp?.toISOString()
-        };
-        
-        localStorage.setItem(this.TOKEN_STORAGE_KEY, JSON.stringify(sessionData));
-      }
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Failed to store session', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  }
+			mfaCompleted: false,
+			requiresReauth: false,
+			securityFlags: [],
+		};
 
-  private static getStoredSession(): AuthenticationSession | null {
-    try {
-      if (typeof window === 'undefined') return null;
-      
-      const stored = localStorage.getItem(this.TOKEN_STORAGE_KEY);
-      if (!stored) return null;
-      
-      const sessionData = JSON.parse(stored);
-      
-      return {
-        ...sessionData,
-        expiresAt: new Date(sessionData.expiresAt),
-        refreshExpiresAt: new Date(sessionData.refreshExpiresAt),
-        createdAt: new Date(sessionData.createdAt),
-        lastActivity: new Date(sessionData.lastActivity),
-        mfaTimestamp: sessionData.mfaTimestamp ? new Date(sessionData.mfaTimestamp) : undefined
-      };
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Failed to retrieve session', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return null;
-    }
-  }
+		// Add security metadata
+		if (typeof window !== 'undefined') {
+			session.userAgent = navigator.userAgent;
+			// IP address would be determined server-side in real implementation
+		}
 
-  private static clearSession(): void {
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(this.TOKEN_STORAGE_KEY);
-      }
-    } catch (error) {
-      logger.error('PingOneAuthService', 'Failed to clear session', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  }
+		PingOneAuthService.storeSession(session);
+		return session;
+	}
+
+	private static async validateTokenWithPingOne(
+		token: string
+	): Promise<{ valid: boolean; permissions?: string[]; error?: string }> {
+		try {
+			// In real implementation, this would validate with PingOne introspection endpoint
+			// For now, basic JWT validation
+			const payload = PingOneAuthService.decodeJWTPayload(token);
+			if (!payload) {
+				return { valid: false, error: 'Invalid token format' };
+			}
+
+			const now = Math.floor(Date.now() / 1000);
+			if (payload.exp && payload.exp < now) {
+				return { valid: false, error: 'Token expired' };
+			}
+
+			return {
+				valid: true,
+				permissions: payload.scope?.split(' ') || [],
+			};
+		} catch (_error) {
+			return {
+				valid: false,
+				error: 'Token validation failed',
+			};
+		}
+	}
+
+	private static async performTokenRefresh(
+		refreshToken: string,
+		session: AuthenticationSession
+	): Promise<TokenRefresh> {
+		// Mock implementation - would make real API call to PingOne
+		try {
+			// Simulate API delay
+			await new Promise((resolve) => setTimeout(resolve, 100));
+
+			const newAccessToken = PingOneAuthService.generateMockToken(session.userId);
+			const expiresAt = new Date(Date.now() + PingOneAuthService.SESSION_TIMEOUT_MS);
+
+			return {
+				success: true,
+				accessToken: newAccessToken,
+				refreshToken: refreshToken, // Refresh token typically doesn't change
+				expiresAt,
+			};
+		} catch (_error) {
+			return {
+				success: false,
+				error: 'Token refresh failed',
+			};
+		}
+	}
+
+	private static async revokeTokens(session: AuthenticationSession): Promise<void> {
+		// In real implementation, would call PingOne revocation endpoint
+		logger.info('PingOneAuthService', 'Tokens revoked', {
+			userId: session.userId,
+			sessionId: session.sessionId,
+		});
+	}
+
+	private static determineRegion(environmentId: string): string {
+		// Simple region determination based on environment ID patterns
+		// In real implementation, this might involve API discovery
+		if (environmentId.includes('eu')) return 'eu';
+		if (environmentId.includes('asia')) return 'asia';
+		return 'com'; // Default to North America
+	}
+
+	private static getAuthErrorSuggestion(status: number, _errorCode?: string): string {
+		switch (status) {
+			case 401:
+				return 'Please check your username and password';
+			case 403:
+				return 'Account may be locked or disabled';
+			case 404:
+				return 'Please verify the environment ID is correct';
+			case 429:
+				return 'Too many attempts, please wait before trying again';
+			case 500:
+			case 502:
+			case 503:
+				return 'PingOne service temporarily unavailable, please try again later';
+			default:
+				return 'Please check your credentials and try again';
+		}
+	}
+
+	private static extractUserIdFromToken(token: string): string {
+		const payload = PingOneAuthService.decodeJWTPayload(token);
+		return payload?.sub || PingOneAuthService.generateUserId();
+	}
+
+	private static decodeJWTPayload(token: string): any {
+		try {
+			const parts = token.split('.');
+			if (parts.length !== 3) return null;
+
+			const payload = parts[1];
+			const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+			return JSON.parse(decoded);
+		} catch {
+			return null;
+		}
+	}
+
+	private static generateFlowId(): string {
+		return `flow_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+	}
+
+	private static generateSessionId(): string {
+		return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+	}
+
+	private static generateUserId(): string {
+		return `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+	}
+
+	private static generateMockToken(userId: string): string {
+		// Generate a mock JWT-like token for development
+		const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+		const payload = btoa(
+			JSON.stringify({
+				sub: userId,
+				iat: Math.floor(Date.now() / 1000),
+				exp: Math.floor(Date.now() / 1000) + 1800, // 30 minutes
+				scope: 'openid profile email',
+			})
+		);
+		const signature = btoa('mock_signature');
+
+		return `${header}.${payload}.${signature}`;
+	}
+
+	// Session storage methods
+
+	private static storeSession(session: AuthenticationSession): void {
+		try {
+			if (typeof window !== 'undefined') {
+				const sessionData = {
+					...session,
+					expiresAt: session.expiresAt.toISOString(),
+					refreshExpiresAt: session.refreshExpiresAt.toISOString(),
+					createdAt: session.createdAt.toISOString(),
+					lastActivity: session.lastActivity.toISOString(),
+					mfaTimestamp: session.mfaTimestamp?.toISOString(),
+				};
+
+				localStorage.setItem(PingOneAuthService.TOKEN_STORAGE_KEY, JSON.stringify(sessionData));
+			}
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Failed to store session', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+		}
+	}
+
+	private static getStoredSession(): AuthenticationSession | null {
+		try {
+			if (typeof window === 'undefined') return null;
+
+			const stored = localStorage.getItem(PingOneAuthService.TOKEN_STORAGE_KEY);
+			if (!stored) return null;
+
+			const sessionData = JSON.parse(stored);
+
+			return {
+				...sessionData,
+				expiresAt: new Date(sessionData.expiresAt),
+				refreshExpiresAt: new Date(sessionData.refreshExpiresAt),
+				createdAt: new Date(sessionData.createdAt),
+				lastActivity: new Date(sessionData.lastActivity),
+				mfaTimestamp: sessionData.mfaTimestamp ? new Date(sessionData.mfaTimestamp) : undefined,
+			};
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Failed to retrieve session', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			return null;
+		}
+	}
+
+	private static clearSession(): void {
+		try {
+			if (typeof window !== 'undefined') {
+				localStorage.removeItem(PingOneAuthService.TOKEN_STORAGE_KEY);
+			}
+		} catch (error) {
+			logger.error('PingOneAuthService', 'Failed to clear session', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+		}
+	}
 }
 
 export default PingOneAuthService;

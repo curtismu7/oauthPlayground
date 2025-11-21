@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
+import { FiAlertCircle, FiPlay } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle } from 'react-icons/fi';
-import PageTitle from '../../components/PageTitle';
-import TokenDisplayComponent from '../../components/TokenDisplay';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import PageTitle from '../../components/PageTitle';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import Typewriter from '../../components/Typewriter';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
-import Typewriter from '../../components/Typewriter';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import FlowCredentials from '../../components/FlowCredentials';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Page = styled.div`
   display: flex;

@@ -1,42 +1,42 @@
 // src/pages/flows/OIDCHybridFlowV3.tsx - OIDC 1.0 Hybrid Flow V3
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiKey,
-	FiGlobe,
-	FiShield,
-	FiCheckCircle,
 	FiAlertTriangle,
+	FiCheckCircle,
 	FiCopy,
-	FiSettings,
-	FiRefreshCw,
-	FiUser,
+	FiExternalLink,
 	FiEye,
 	FiEyeOff,
-	FiExternalLink,
+	FiGlobe,
 	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps/CommonSteps';
+import TokenDisplay from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
-import { logger } from '../../utils/logger';
-import { copyToClipboard } from '../../utils/clipboard';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { copyToClipboard } from '../../utils/clipboard';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { logger } from '../../utils/logger';
 import {
-	generateRandomString,
-	generateCodeVerifier,
 	generateCodeChallenge,
+	generateCodeVerifier,
+	generateRandomString,
 } from '../../utils/oauth';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import { InfoBox, FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
-import TokenDisplay from '../../components/TokenDisplay';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
 
 // Styled components
 const Container = styled.div`

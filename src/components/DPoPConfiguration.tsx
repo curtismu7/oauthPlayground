@@ -5,9 +5,9 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiShield, FiKey, FiInfo, FiCheckCircle, FiAlertCircle, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { DPoPService, DPoPStatus, type DPoPConfig } from '../services/dpopService';
+import { type DPoPConfig, DPoPService, DPoPStatus } from '../services/dpopService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DPoPConfigurationProps {
@@ -180,7 +180,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 	onEnabledChange,
 	config = {},
 	onConfigChange,
-	className
+	className,
 }) => {
 	const [status, setStatus] = useState(DPoPStatus.getStatus());
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -191,19 +191,25 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 
 	useEffect(() => {
 		refreshStatus();
-	}, [refreshStatus, enabled]);
+	}, [refreshStatus]);
 
-	const handleEnabledChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		onEnabledChange(e.target.checked);
-	}, [onEnabledChange]);
+	const handleEnabledChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			onEnabledChange(e.target.checked);
+		},
+		[onEnabledChange]
+	);
 
-	const handleAlgorithmChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newConfig: DPoPConfig = {
-			algorithm: e.target.value as 'ES256' | 'RS256',
-			...(e.target.value === 'ES256' ? { namedCurve: 'P-256' } : { keySize: 2048 })
-		};
-		onConfigChange?.(newConfig);
-	}, [onConfigChange]);
+	const handleAlgorithmChange = useCallback(
+		(e: React.ChangeEvent<HTMLSelectElement>) => {
+			const newConfig: DPoPConfig = {
+				algorithm: e.target.value as 'ES256' | 'RS256',
+				...(e.target.value === 'ES256' ? { namedCurve: 'P-256' } : { keySize: 2048 }),
+			};
+			onConfigChange?.(newConfig);
+		},
+		[onConfigChange]
+	);
 
 	const handleGenerateKeyPair = useCallback(async () => {
 		if (!status.supported) {
@@ -232,8 +238,8 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 					<Title>DPoP Not Supported</Title>
 				</Header>
 				<Description>
-					DPoP (Demonstration of Proof of Possession) requires modern browser support for Web Crypto API.
-					Please use a recent version of Chrome, Firefox, Safari, or Edge.
+					DPoP (Demonstration of Proof of Possession) requires modern browser support for Web Crypto
+					API. Please use a recent version of Chrome, Firefox, Safari, or Edge.
 				</Description>
 			</Container>
 		);
@@ -245,10 +251,10 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 				<FiShield color="#10b981" />
 				<Title>DPoP (Demonstration of Proof of Possession)</Title>
 			</Header>
-			
+
 			<Description>
-				DPoP provides cryptographic proof that the client possesses the private key corresponding to the public key.
-				This prevents token replay attacks and enhances security for OAuth flows.
+				DPoP provides cryptographic proof that the client possesses the private key corresponding to
+				the public key. This prevents token replay attacks and enhances security for OAuth flows.
 			</Description>
 
 			<CheckboxContainer>
@@ -258,9 +264,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 					checked={enabled}
 					onChange={handleEnabledChange}
 				/>
-				<CheckboxLabel htmlFor="dpop-enabled">
-					Enable DPoP for this flow
-				</CheckboxLabel>
+				<CheckboxLabel htmlFor="dpop-enabled">Enable DPoP for this flow</CheckboxLabel>
 			</CheckboxContainer>
 
 			{enabled && (
@@ -288,7 +292,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 								)}
 							</StatusValue>
 						</StatusItem>
-						
+
 						<StatusItem>
 							<StatusLabel>Key Pair:</StatusLabel>
 							<StatusValue>
@@ -299,7 +303,7 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 								)}
 							</StatusValue>
 						</StatusItem>
-						
+
 						{status.hasKeyPair && (
 							<StatusItem>
 								<StatusLabel>Algorithm:</StatusLabel>
@@ -331,9 +335,9 @@ const DPoPConfiguration: React.FC<DPoPConfigurationProps> = ({
 						<InfoContent>
 							<InfoTitle>How DPoP Works</InfoTitle>
 							<InfoText>
-								DPoP creates a cryptographic proof for each HTTP request using a private key.
-								The authorization server can verify this proof to ensure the request comes from
-								the legitimate client, preventing token theft and replay attacks.
+								DPoP creates a cryptographic proof for each HTTP request using a private key. The
+								authorization server can verify this proof to ensure the request comes from the
+								legitimate client, preventing token theft and replay attacks.
 							</InfoText>
 						</InfoContent>
 					</InfoBox>

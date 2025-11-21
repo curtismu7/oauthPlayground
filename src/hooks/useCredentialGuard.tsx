@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
-import { CredentialGuardService, type CredentialGuardOptions } from '../services/credentialGuardService';
-import { ModalPresentationService } from '../services/modalPresentationService';
+import { useCallback, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { CredentialGuardService } from '../services/credentialGuardService';
+import { ModalPresentationService } from '../services/modalPresentationService';
 
 export interface UseCredentialGuardOptions {
 	requiredFields: string[];
@@ -12,7 +12,10 @@ export interface UseCredentialGuardOptions {
 export interface UseCredentialGuardReturn {
 	showMissingCredentialsModal: boolean;
 	missingCredentialFields: string[];
-	checkCredentialsAndProceed: (credentials: StepCredentials | null | undefined, onProceed: () => void) => void;
+	checkCredentialsAndProceed: (
+		credentials: StepCredentials | null | undefined,
+		onProceed: () => void
+	) => void;
 	closeModal: () => void;
 	CredentialGuardModal: React.FC;
 }
@@ -21,31 +24,35 @@ export interface UseCredentialGuardReturn {
  * Hook for credential validation with modal display
  * Prevents users from advancing to step 1+ without required credentials
  */
-export const useCredentialGuard = (options: UseCredentialGuardOptions): UseCredentialGuardReturn => {
+export const useCredentialGuard = (
+	options: UseCredentialGuardOptions
+): UseCredentialGuardReturn => {
 	const { requiredFields, fieldLabels = {}, flowName = 'this flow' } = options;
-	
+
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 
-	const checkCredentialsAndProceed = useCallback((
-		credentials: StepCredentials | null | undefined,
-		onProceed: () => void
-	) => {
-		const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(credentials, {
-			requiredFields,
-			fieldLabels,
-		});
+	const checkCredentialsAndProceed = useCallback(
+		(credentials: StepCredentials | null | undefined, onProceed: () => void) => {
+			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(credentials, {
+				requiredFields,
+				fieldLabels,
+			});
 
-		if (!canProceed) {
-			setMissingCredentialFields(missingFields);
-			setShowMissingCredentialsModal(true);
-			console.warn(`🚫 [${flowName}] Blocked navigation due to missing required credentials:`, { missingFields });
-			return;
-		}
+			if (!canProceed) {
+				setMissingCredentialFields(missingFields);
+				setShowMissingCredentialsModal(true);
+				console.warn(`🚫 [${flowName}] Blocked navigation due to missing required credentials:`, {
+					missingFields,
+				});
+				return;
+			}
 
-		// Credentials are valid, proceed
-		onProceed();
-	}, [requiredFields, fieldLabels, flowName]);
+			// Credentials are valid, proceed
+			onProceed();
+		},
+		[requiredFields, fieldLabels, flowName]
+	);
 
 	const closeModal = useCallback(() => {
 		setShowMissingCredentialsModal(false);
@@ -79,9 +86,18 @@ export const useCredentialGuard = (options: UseCredentialGuardOptions): UseCrede
 							</li>
 						))}
 					</ul>
-					<div style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '0.5rem' }}>
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '0.75rem',
+							backgroundColor: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '0.5rem',
+						}}
+					>
 						<p style={{ margin: 0, fontSize: '0.875rem', color: '#dc2626' }}>
-							<strong>Note:</strong> Please fill in all required fields above before proceeding to the next step.
+							<strong>Note:</strong> Please fill in all required fields above before proceeding to
+							the next step.
 						</p>
 					</div>
 				</div>

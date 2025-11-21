@@ -3,16 +3,16 @@
 // Based on useAuthorizationCodeFlowController but simplified for Implicit flow
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { showGlobalError, showGlobalSuccess } from './useNotifications';
-import { credentialManager } from '../utils/credentialManager';
-import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { useFlowStepManager } from '../utils/flowStepSystem';
-import { useAuthorizationFlowScroll } from './usePageScroll';
-import { storeOAuthTokens } from '../utils/tokenStorage';
-import { trackTokenOperation } from '../utils/activityTracker';
-import { enhancedDebugger } from '../utils/enhancedDebug';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { trackTokenOperation } from '../utils/activityTracker';
+import { getCallbackUrlForFlow } from '../utils/callbackUrls';
+import { credentialManager } from '../utils/credentialManager';
+import { enhancedDebugger } from '../utils/enhancedDebug';
+import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
+import { storeOAuthTokens } from '../utils/tokenStorage';
+import { showGlobalError, showGlobalSuccess } from './useNotifications';
+import { useAuthorizationFlowScroll } from './usePageScroll';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {

@@ -562,9 +562,14 @@ export class EnhancedApiCallDisplayService {
 		options: ApiCallDisplayOptions = {}
 	): string {
 		const curlCommand = EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
-		const formattedCall = EnhancedApiCallDisplayService.formatApiCallText(apiCall, options.prettyPrint);
+		const formattedCall = EnhancedApiCallDisplayService.formatApiCallText(
+			apiCall,
+			options.prettyPrint
+		);
 		const responseSummary = EnhancedApiCallDisplayService.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
+		const timingInfo = apiCall.duration
+			? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration)
+			: undefined;
 
 		let display = '🚀 API Call Details\n';
 		display += '='.repeat(50) + '\n\n';

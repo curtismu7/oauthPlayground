@@ -2,16 +2,16 @@
 // V5.0.0 JWT Bearer Token Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiLock } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiLock, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

@@ -2,22 +2,22 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
-	FiInfo,
-	FiLock,
-	FiShield,
-	FiUser,
-	FiKey,
 	FiCheckCircle,
-	FiRefreshCw,
 	FiCopy,
 	FiEye,
 	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPasswordFlowV5';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const PageContainer = styled.div`

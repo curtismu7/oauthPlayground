@@ -1,26 +1,45 @@
 // src/pages/PingOneAuditActivities.tsx
 // PingOne Audit Activities viewer with filtering - matching Identity Metrics page design
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
-import { 
-	FiActivity, FiFilter, FiRefreshCw, FiX, FiDatabase, FiCheckCircle, 
-	FiClock, FiShield, FiKey, FiAlertCircle, FiInfo, FiBarChart2, FiEye,
-	FiUser, FiServer, FiGlobe, FiCopy, FiCheck
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+	FiActivity,
+	FiAlertCircle,
+	FiBarChart2,
+	FiCheck,
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiDatabase,
+	FiEye,
+	FiFilter,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiServer,
+	FiShield,
+	FiUser,
+	FiX,
 } from 'react-icons/fi';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { apiRequestModalService } from '../services/apiRequestModalService';
+import styled from 'styled-components';
+import ApiCallList from '../components/ApiCallList';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { apiCallTrackerService } from '../services/apiCallTrackerService';
+import { apiRequestModalService } from '../services/apiRequestModalService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
-	max-width: 1100px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem 4rem;
 	display: flex;
 	flex-direction: column;
 	gap: 1.75rem;
+	width: 100%;
 `;
 
 const HeaderCard = styled.div`
@@ -55,8 +74,8 @@ const Subtitle = styled.p`
 
 const LayoutGrid = styled.div`
 	display: grid;
-	grid-template-columns: 360px 1fr;
-	gap: 1.75rem;
+	grid-template-columns: 280px 1fr;
+	gap: 2rem;
 
 	@media (max-width: 1080px) {
 		grid-template-columns: 1fr;
@@ -99,7 +118,6 @@ const Label = styled.label`
 	align-items: center;
 	gap: 0.35rem;
 `;
-
 
 const Select = styled.select`
 	width: 100%;
@@ -247,12 +265,15 @@ const ActivityCard = styled.div<{ $clickable?: boolean }>`
 	transition: all 0.2s ease;
 
 	&:hover {
-		${({ $clickable }) => $clickable ? `
+		${({ $clickable }) =>
+			$clickable
+				? `
 			border-color: #667eea;
 			background: #f0f4ff;
 			box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
 			transform: translateY(-1px);
-		` : ''}
+		`
+				: ''}
 	}
 `;
 
@@ -531,50 +552,83 @@ const PingOneAuditActivities: React.FC = () => {
 	const [auditResponse, setAuditResponse] = useState<AuditResponse | null>(null);
 
 	// Worker token state
-	const [workerToken, setWorkerToken] = useState<string>(() => localStorage.getItem('worker_token_audit') || '');
+	const [workerToken, setWorkerToken] = useState<string>(() => getAnyWorkerToken() || '');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const hasWorkerToken = !!workerToken;
+
+	// Environment ID state - load from storage
+	const [environmentId, setEnvironmentId] = useState<string>(() => {
+		const credsStr = localStorage.getItem('worker_credentials');
+		const creds = credsStr ? JSON.parse(credsStr) : null;
+		return creds?.environmentId || '';
+	});
+	// Check for global token - use state for re-renders, but also check directly for accuracy
+	const currentToken = getAnyWorkerToken() || workerToken || '';
+	const hasWorkerToken = !!currentToken;
 
 	// Filter state
 	const [actionType, setActionType] = useState('');
-	const [resultStatus, setResultStatus] = useState('');
 	const [limit, setLimit] = useState('25');
+	const [actorId, setActorId] = useState('');
+	const [actorType, setActorType] = useState<'user' | 'client'>('user');
+	const [correlationId, setCorrelationId] = useState('');
+
+	// View mode: 'list' or 'single'
+	const [viewMode, setViewMode] = useState<'list' | 'single'>('list');
+	const [singleActivityId, setSingleActivityId] = useState('');
 
 	// Detail modal state
 	const [selectedActivity, setSelectedActivity] = useState<AuditActivity | null>(null);
 	const [copiedJson, setCopiedJson] = useState(false);
 
-	// Check for existing worker token on mount
+	// Check for existing worker token on mount and listen for updates
 	useEffect(() => {
-		const token = localStorage.getItem('worker_token_audit') || '';
-		const expiresAt = localStorage.getItem('worker_token_audit_expires_at') || '';
-		
-		if (token && expiresAt) {
-			const isExpired = Date.now() > parseInt(expiresAt);
-			if (!isExpired) {
-				setWorkerToken(token);
-				console.log('[Audit Activities] Found valid worker token in localStorage');
-			} else {
-				console.log('[Audit Activities] Worker token expired, clearing');
-				localStorage.removeItem('worker_token_audit');
-				localStorage.removeItem('worker_token_audit_expires_at');
-			}
-		}
-	}, []);
-
-	// Listen for worker token updates
-	useEffect(() => {
-		const handleTokenUpdate = () => {
-			const token = localStorage.getItem('worker_token_audit') || '';
+		const checkWorkerToken = () => {
+			const token = getAnyWorkerToken() || '';
 			setWorkerToken(token);
+			if (token) {
+				console.log('[Audit Activities] Found worker token');
+			}
+		};
+
+		// Check on mount
+		checkWorkerToken();
+
+		// Listen for storage events (token updated in another tab/window)
+		const handleStorageChange = (e: StorageEvent) => {
+			// Check if any worker token key changed
+			if (e.key?.startsWith('worker_token') || e.key?.startsWith('pingone_worker_token')) {
+				checkWorkerToken();
+			}
+		};
+
+		// Listen for custom events (token updated in same tab)
+		const handleWorkerTokenUpdate = () => {
+			checkWorkerToken();
 			console.log('[Audit Activities] Worker token updated via custom event');
 		};
 
-		window.addEventListener('workerTokenAuditUpdated', handleTokenUpdate);
-		return () => window.removeEventListener('workerTokenAuditUpdated', handleTokenUpdate);
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
+		window.addEventListener('workerTokenAuditUpdated', handleWorkerTokenUpdate);
+
+		// Poll for token changes (in case storage events don't fire in same tab)
+		const pollInterval = setInterval(checkWorkerToken, 1000);
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
+			window.removeEventListener('workerTokenAuditUpdated', handleWorkerTokenUpdate);
+			clearInterval(pollInterval);
+		};
 	}, []);
 
 	const handleClearWorkerToken = () => {
+		// Clear common worker token keys
+		localStorage.removeItem('worker_token');
+		localStorage.removeItem('worker_token_expires_at');
+		localStorage.removeItem('pingone_worker_token');
+		localStorage.removeItem('pingone_worker_token_worker-token-v7');
+		// Clear page-specific keys for backward compatibility
 		localStorage.removeItem('worker_token_audit');
 		localStorage.removeItem('worker_token_audit_expires_at');
 		setWorkerToken('');
@@ -587,12 +641,11 @@ const PingOneAuditActivities: React.FC = () => {
 
 	// Execute the actual API call (called after user confirms in modal)
 	const executeApiCall = useCallback(async () => {
-		// Load credentials from worker_credentials
+		// Load region from worker_credentials
 		const workerCredsStr = localStorage.getItem('worker_credentials');
 		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const environmentId = workerCreds?.environmentId || '';
 		const region = (workerCreds?.region as string) || 'us';
-		const effectiveWorkerToken = localStorage.getItem('worker_token_audit') || '';
+		const effectiveWorkerToken = getAnyWorkerToken() || '';
 
 		setLoading(true);
 		setError(null);
@@ -600,18 +653,45 @@ const PingOneAuditActivities: React.FC = () => {
 		console.log('[Audit Activities] 🌍 Making API request with region:', region);
 		console.log('[Audit Activities] 📦 Environment ID:', environmentId.trim());
 
+		let callId: string | null = null;
+
 		try {
 			// Build filter string
-			// Note: PingOne Audit API does not support 'gt' operator for createdAt
-			// We'll filter by action.type and result.status only, and rely on order=createdAt DESC and limit for recent activities
+			// Note: PingOne Audit API limitations:
+			// - Does not support 'gt' operator for createdAt
+			// - Does not support result.status filtering
+			// - Does not support actors.user.username or actors.user.email
+			// - Does not support resources[id eq ...] syntax
+			// We can only filter by: action.type, actors.user.id, actors.client.id, and correlationId
 			const filters: string[] = [];
 
 			if (actionType) {
 				filters.push(`action.type eq "${actionType}"`);
 			}
 
-			if (resultStatus) {
-				filters.push(`result.status eq "${resultStatus}"`);
+			// Note: result.status filtering is NOT supported by PingOne Audit API
+			// Causes error: "Attribute 'result.status' is not supported in filter"
+			// if (resultStatus) {
+			// 	filters.push(`result.status eq "${resultStatus}"`);
+			// }
+
+			if (actorId) {
+				// Filter by the selected actor type (only ID is supported by PingOne API)
+				if (actorType === 'user') {
+					filters.push(`actors.user.id eq "${actorId}"`);
+				} else {
+					filters.push(`actors.client.id eq "${actorId}"`);
+				}
+			}
+
+			// Note: Resource ID filtering is not supported by PingOne API
+			// Causes backend error: "Cannot invoke textValue() because getComparisonValue() is null"
+			// if (resourceId) {
+			// 	filters.push(`resources[id eq "${resourceId}"]`);
+			// }
+
+			if (correlationId) {
+				filters.push(`correlationId eq "${correlationId}"`);
 			}
 
 			const filterParam = filters.length > 0 ? filters.join(' and ') : undefined;
@@ -628,15 +708,34 @@ const PingOneAuditActivities: React.FC = () => {
 			const domain = regionDomains[region.toLowerCase()] || 'api.pingone.com';
 			const baseUrl = `https://${domain}/v1`;
 
-			const url = new URL(`${baseUrl}/environments/${environmentId.trim()}/activities`);
-			if (filterParam) url.searchParams.append('filter', filterParam);
-			url.searchParams.append('limit', limit);
-			url.searchParams.append('order', 'createdAt DESC');
+			let urlString: string;
 
-			const response = await fetch(url.toString(), {
+			if (viewMode === 'single' && singleActivityId.trim()) {
+				// GET single activity by ID
+				urlString = `${baseUrl}/environments/${environmentId.trim()}/activities/${singleActivityId.trim()}`;
+			} else {
+				// GET list of activities with filters
+				const url = new URL(`${baseUrl}/environments/${environmentId.trim()}/activities`);
+				if (filterParam) url.searchParams.append('filter', filterParam);
+				url.searchParams.append('limit', limit);
+				url.searchParams.append('order', 'createdAt DESC');
+				urlString = url.toString();
+			}
+
+			// Track API call
+			callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: urlString,
+				headers: {
+					Authorization: `Bearer ${effectiveWorkerToken.substring(0, 20)}...`,
+					'Content-Type': 'application/json',
+				},
+			});
+
+			const response = await fetch(urlString, {
 				method: 'GET',
 				headers: {
-					'Authorization': `Bearer ${effectiveWorkerToken}`,
+					Authorization: `Bearer ${effectiveWorkerToken}`,
 					'Content-Type': 'application/json',
 				},
 			});
@@ -646,53 +745,116 @@ const PingOneAuditActivities: React.FC = () => {
 					throw new Error('PERMISSIONS_ERROR');
 				}
 				const problem = await response.json().catch(() => ({}));
-				throw new Error(problem.message || problem.error_description || response.statusText);
+				const errorMessage = problem.message || problem.error_description || response.statusText;
+				// Check if the error is about unsupported filter attributes
+				if (
+					errorMessage &&
+					typeof errorMessage === 'string' &&
+					errorMessage.includes('not supported in filter')
+				) {
+					throw new Error(`Invalid Filter: ${errorMessage}`);
+				}
+				throw new Error(errorMessage);
 			}
 
-			const data: AuditResponse = await response.json();
-			const activitiesList = data._embedded?.activities || [];
-			setActivities(activitiesList);
-			// Use _count if available, otherwise use count, or fall back to activities length
-			const apiCount = data._count ?? data.count;
-			setTotalCount(apiCount && apiCount > 0 ? apiCount : activitiesList.length);
-			setAuditResponse(data);
+			const data: AuditResponse | AuditActivity = await response.json();
+
+			let retrievedCount = 0;
+
+			// Handle single activity response vs list response
+			if (viewMode === 'single' && singleActivityId.trim()) {
+				// Single activity response
+				const singleActivity = data as AuditActivity;
+				setActivities([singleActivity]);
+				setTotalCount(1);
+				setAuditResponse({
+					_embedded: { activities: [singleActivity] },
+					count: 1,
+					_count: 1,
+				});
+				retrievedCount = 1;
+			} else {
+				// List response
+				const listData = data as AuditResponse;
+				const activitiesList = listData._embedded?.activities || [];
+				setActivities(activitiesList);
+				// Use _count if available, otherwise use count, or fall back to activities length
+				const apiCount = listData._count ?? listData.count;
+				setTotalCount(apiCount && apiCount > 0 ? apiCount : activitiesList.length);
+				setAuditResponse(listData);
+				retrievedCount = activitiesList.length;
+			}
+
 			setLastUpdated(new Date().toISOString());
-			v4ToastManager.showSuccess(`Retrieved ${activitiesList.length} audit activities`);
+
+			// Update API call tracking with response
+			apiCallTrackerService.updateApiCallResponse(callId, {
+				status: response.status,
+				statusText: response.statusText,
+				data: data,
+				headers: Object.fromEntries(response.headers.entries()),
+			});
+
+			v4ToastManager.showSuccess(
+				`Retrieved ${retrievedCount} audit ${retrievedCount === 1 ? 'activity' : 'activities'}`
+			);
 		} catch (err) {
 			console.error('[Audit Activities] Fetch failed:', err);
 			setActivities([]);
 			setTotalCount(0);
 			setAuditResponse(null);
 			setLastUpdated(null);
+
+			// Update API call tracking with error
+			if (callId) {
+				apiCallTrackerService.updateApiCallResponse(callId, {
+					status: err instanceof Error && err.message === 'PERMISSIONS_ERROR' ? 403 : 500,
+					statusText: err instanceof Error ? err.message : 'Unknown error',
+					error: err instanceof Error ? err.message : 'Unexpected error',
+				});
+			}
+
 			if (err instanceof Error && err.message === 'PERMISSIONS_ERROR') {
-				setError('Worker token lacks required permissions. Ensure your Worker App has the "p1:read:audit" scope.');
+				setError(
+					'Worker token lacks required permissions. Ensure your Worker App has the "p1:read:audit" scope.'
+				);
 			} else {
 				setError(err instanceof Error ? err.message : 'Unexpected error querying audit activities');
 			}
 		} finally {
 			setLoading(false);
 		}
-		}, [actionType, resultStatus, limit]);
+	}, [
+		actionType,
+		actorId,
+		actorType,
+		correlationId,
+		limit,
+		viewMode,
+		singleActivityId,
+		environmentId,
+	]);
 
 	// Show educational modal before making the API call
 	const handleFetch = useCallback(async () => {
-		// Load credentials from worker_credentials
+		// Load region from worker_credentials
 		const workerCredsStr = localStorage.getItem('worker_credentials');
 		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
-		const environmentId = workerCreds?.environmentId || '';
 		const region = (workerCreds?.region as string) || 'us';
 
 		if (!environmentId.trim()) {
-			setError('Environment ID is required. Please generate a worker token first.');
+			setError(
+				'Environment ID is required. Please enter your PingOne Environment ID in the field above, or click "Get Worker Token" to automatically load it from your credentials.'
+			);
 			return;
 		}
 
-		const effectiveWorkerToken = localStorage.getItem('worker_token_audit') || undefined;
+		const effectiveWorkerToken = getAnyWorkerToken() || undefined;
 
 		console.log('[Audit Activities] 🔍 Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
-			tokenPreview: effectiveWorkerToken ? effectiveWorkerToken.substring(0, 20) + '...' : 'none',
-			environmentId: environmentId.substring(0, 20) + '...',
+			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
+			environmentId: `${environmentId.substring(0, 20)}...`,
 		});
 
 		if (!effectiveWorkerToken) {
@@ -710,16 +872,41 @@ const PingOneAuditActivities: React.FC = () => {
 			asia: 'https://api.pingone.asia',
 		};
 		const baseUrl = regionMap[region.toLowerCase()] || regionMap.na;
-		
-			// Build filter string
-			// Note: PingOne Audit API does not support 'gt' operator for createdAt
-			// We filter by action.type and result.status only, and rely on order=createdAt DESC for recent activities
+
+		let pingOneApiUrl: string;
+
+		if (viewMode === 'single' && singleActivityId.trim()) {
+			// Single activity endpoint
+			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activities/${singleActivityId.trim()}`;
+		} else {
+			// Build filter string for list endpoint
+			// Note: PingOne Audit API limitations:
+			// - Does not support 'gt' operator for createdAt
+			// - Does not support result.status filtering
+			// - Does not support actors.user.username or actors.user.email
+			// - Does not support resources[id eq ...] syntax
+			// We can only filter by: action.type, actors.user.id, actors.client.id, and correlationId
 			const filters: string[] = [];
 			if (actionType) {
 				filters.push(`action.type eq "${actionType}"`);
 			}
-			if (resultStatus) {
-				filters.push(`result.status eq "${resultStatus}"`);
+			// Note: result.status filtering is NOT supported by PingOne Audit API
+			// if (resultStatus) {
+			// 	filters.push(`result.status eq "${resultStatus}"`);
+			// }
+			if (actorId) {
+				if (actorType === 'user') {
+					filters.push(`actors.user.id eq "${actorId}"`);
+				} else {
+					filters.push(`actors.client.id eq "${actorId}"`);
+				}
+			}
+			// Note: Resource ID filtering is not supported by PingOne API
+			// if (resourceId) {
+			// 	filters.push(`resources[id eq "${resourceId}"]`);
+			// }
+			if (correlationId) {
+				filters.push(`correlationId eq "${correlationId}"`);
 			}
 
 			const queryParams = new URLSearchParams();
@@ -729,16 +916,26 @@ const PingOneAuditActivities: React.FC = () => {
 			queryParams.append('limit', limit);
 			queryParams.append('order', 'createdAt DESC');
 
-			const pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activities?${queryParams.toString()}`;
-			
-			const educationalNotes = [
-				'This endpoint returns audit events from your PingOne environment',
-				'Uses OData filtering syntax for action.type and result.status',
-				'Note: Time-based filtering (createdAt gt) is not supported by the PingOne API',
-				'Results are ordered by createdAt in descending order (newest first)',
-				'Requires p1:read:audit scope in your worker token',
-				'Use filters to narrow down activities by action type or result status'
-			];
+			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activities?${queryParams.toString()}`;
+		}
+
+		const educationalNotes =
+			viewMode === 'single' && singleActivityId.trim()
+				? [
+						'Retrieves a single audit activity by its unique ID',
+						'Returns detailed information about the specific activity',
+						'Requires p1:read:audit scope in your worker token',
+						'Useful for deep-diving into specific audit events',
+					]
+				: [
+						'This endpoint returns audit events from your PingOne environment',
+						'Uses OData filtering syntax for action.type, actors.user.id, actors.client.id, and correlationId',
+						'Note: PingOne API does NOT support filtering by result.status, actors.user.username, actors.user.email, or resources',
+						'Note: Time-based filtering (createdAt gt) is also not supported',
+						'Results are ordered by createdAt in descending order (newest first)',
+						'Requires p1:read:audit scope in your worker token',
+						'Use filters to narrow down activities by action type, actor ID, or correlation ID',
+					];
 
 		// Show educational modal
 		apiRequestModalService.showModal({
@@ -746,14 +943,24 @@ const PingOneAuditActivities: React.FC = () => {
 			method: 'GET',
 			url: pingOneApiUrl,
 			headers: {
-				'Authorization': `Bearer ${effectiveWorkerToken}`,
-				'Accept': 'application/json',
+				Authorization: `Bearer ${effectiveWorkerToken}`,
+				Accept: 'application/json',
 			},
 			description: 'Retrieve audit activities from your PingOne environment with filtering',
 			educationalNotes,
 			onProceed: executeApiCall,
 		});
-		}, [actionType, resultStatus, limit, executeApiCall]);
+	}, [
+		actionType,
+		actorId,
+		actorType,
+		correlationId,
+		limit,
+		viewMode,
+		singleActivityId,
+		environmentId,
+		executeApiCall,
+	]);
 
 	const formattedResponse = useMemo<JSONData | null>(() => {
 		if (!auditResponse) return null;
@@ -764,10 +971,10 @@ const PingOneAuditActivities: React.FC = () => {
 	const summary = useMemo(() => {
 		if (!activities || activities.length === 0) return null;
 
-		const successCount = activities.filter(a => a.result?.status === 'success').length;
-		const failureCount = activities.filter(a => a.result?.status === 'failure').length;
-		const uniqueActionTypes = new Set(activities.map(a => a.action.type)).size;
-		const uniqueUsers = new Set(activities.map(a => a.actors?.user?.id).filter(Boolean)).size;
+		const successCount = activities.filter((a) => a.result?.status === 'success').length;
+		const failureCount = activities.filter((a) => a.result?.status === 'failure').length;
+		const uniqueActionTypes = new Set(activities.map((a) => a.action.type)).size;
+		const uniqueUsers = new Set(activities.map((a) => a.actors?.user?.id).filter(Boolean)).size;
 
 		return {
 			total: activities.length,
@@ -823,7 +1030,15 @@ const PingOneAuditActivities: React.FC = () => {
 			return (
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 					{value.map((item, idx) => (
-						<div key={idx} style={{ padding: '0.5rem', background: '#f8fafc', borderRadius: '0.375rem', border: '1px solid #e2e8f0' }}>
+						<div
+							key={idx}
+							style={{
+								padding: '0.5rem',
+								background: '#f8fafc',
+								borderRadius: '0.375rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
 							{typeof item === 'object' ? (
 								<DetailValue $isCode>{JSON.stringify(item, null, 2)}</DetailValue>
 							) : (
@@ -845,7 +1060,9 @@ const PingOneAuditActivities: React.FC = () => {
 					<Title>PingOne Audit Activities</Title>
 				</TitleRow>
 				<Subtitle>
-					Query and analyze audit events from your PingOne environment. Track user actions, system events, and security activities. Requires <strong>p1:read:audit</strong> scope.
+					Query and analyze audit events from your PingOne environment. Retrieve activities by ID,
+					filter by action type, status, actor, resource, or correlation ID. Track user actions,
+					system events, and security activities. Requires <strong>p1:read:audit</strong> scope.
 				</Subtitle>
 				{!hasWorkerToken && (
 					<WarningBanner>
@@ -865,13 +1082,42 @@ const PingOneAuditActivities: React.FC = () => {
 			<LayoutGrid>
 				<Card>
 					<SectionTitle>
-						<FiShield /> Authentication & Worker Token
+						<FiShield /> Authentication & Configuration
 					</SectionTitle>
 
+					<FieldGroup>
+						<Label>Environment ID</Label>
+						<input
+							type="text"
+							value={environmentId}
+							onChange={(e) => setEnvironmentId(e.target.value)}
+							placeholder="Enter PingOne Environment ID (e.g., 12345678-1234-1234-1234-123456789abc)"
+							style={{
+								width: '100%',
+								padding: '0.75rem 0.85rem',
+								borderRadius: '0.75rem',
+								border: `1px solid ${!environmentId.trim() ? '#f59e0b' : '#cbd5f5'}`,
+								background: !environmentId.trim() ? '#fffbeb' : '#f8fafc',
+								fontSize: '0.92rem',
+								fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+							}}
+						/>
+						{!environmentId.trim() ? (
+							<Hint style={{ color: '#d97706', fontWeight: 600 }}>
+								⚠️ Environment ID is required. Enter it manually or click "Get Worker Token" below to
+								auto-fill.
+							</Hint>
+						) : (
+							<Hint>
+								Your PingOne Environment ID (automatically loaded from worker credentials)
+							</Hint>
+						)}
+					</FieldGroup>
+
 					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner 
-							token={workerToken} 
-							tokenExpiryKey="worker_token_audit_expires_at"
+						<WorkerTokenDetectedBanner
+							token={currentToken}
+							tokenExpiryKey="worker_token_expires_at"
 						/>
 					) : (
 						<WarningBanner style={{ marginBottom: '1rem' }}>
@@ -880,7 +1126,8 @@ const PingOneAuditActivities: React.FC = () => {
 								<div style={{ flex: 1 }}>
 									<strong>No Worker Token Found</strong>
 									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Click the button below to open the Worker Token modal and generate a token with the required credentials.
+										Click the button below to open the Worker Token modal and generate a token with
+										the required credentials.
 									</p>
 								</div>
 							</div>
@@ -888,11 +1135,11 @@ const PingOneAuditActivities: React.FC = () => {
 					)}
 
 					<ButtonRow>
-						<PrimaryButton 
+						<PrimaryButton
 							onClick={handleGetWorkerToken}
 							type="button"
 							style={{
-								background: hasWorkerToken ? '#9ca3af' : undefined,
+								background: hasWorkerToken ? '#10b981' : undefined,
 								cursor: 'pointer',
 								color: 'white',
 							}}
@@ -908,10 +1155,7 @@ const PingOneAuditActivities: React.FC = () => {
 							)}
 						</PrimaryButton>
 						{hasWorkerToken && (
-							<DangerButton 
-								onClick={handleClearWorkerToken}
-								type="button"
-							>
+							<DangerButton onClick={handleClearWorkerToken} type="button">
 								<FiX /> Clear Token
 							</DangerButton>
 						)}
@@ -920,58 +1164,197 @@ const PingOneAuditActivities: React.FC = () => {
 
 				<Card>
 					<SectionTitle>
-						<FiFilter /> Filter Configuration
+						<FiFilter /> Query Configuration
 					</SectionTitle>
 
 					<FieldGroup>
-						<Label>Action Type</Label>
-						<Select value={actionType} onChange={(e) => setActionType(e.target.value)}>
-							<option value="">All Actions</option>
-							<option value="USER.CREATED">User Created</option>
-							<option value="USER.UPDATED">User Updated</option>
-							<option value="USER.DELETED">User Deleted</option>
-							<option value="USER.ACCESS_ALLOWED">User Access Allowed</option>
-							<option value="USER.ACCESS_DENIED">User Access Denied</option>
-							<option value="SESSION.CREATED">Session Created</option>
-							<option value="SESSION.DELETED">Session Deleted</option>
-							<option value="APPLICATION.CREATED">Application Created</option>
-							<option value="APPLICATION.UPDATED">Application Updated</option>
-							<option value="APPLICATION.DELETED">Application Deleted</option>
-							<option value="ROLE_ASSIGNMENT.CREATED">Role Assignment Created</option>
-							<option value="ROLE_ASSIGNMENT.DELETED">Role Assignment Deleted</option>
+						<Label>View Mode</Label>
+						<Select
+							value={viewMode}
+							onChange={(e) => {
+								setViewMode(e.target.value as 'list' | 'single');
+								// Clear filters when switching modes
+								if (e.target.value === 'single') {
+									setActionType('');
+									setActorId('');
+									setActorType('user');
+									setCorrelationId('');
+								} else {
+									setSingleActivityId('');
+								}
+							}}
+						>
+							<option value="list">List Activities (with filters)</option>
+							<option value="single">Get Single Activity by ID</option>
 						</Select>
+						<Hint>Choose whether to list multiple activities or retrieve a specific one by ID</Hint>
 					</FieldGroup>
 
-					<FieldGroup>
-						<Label>Result Status</Label>
-						<Select value={resultStatus} onChange={(e) => setResultStatus(e.target.value)}>
-							<option value="">All Statuses</option>
-							<option value="success">Success</option>
-							<option value="failure">Failure</option>
-						</Select>
-					</FieldGroup>
+					{viewMode === 'single' ? (
+						<FieldGroup>
+							<Label>Activity ID</Label>
+							<input
+								type="text"
+								value={singleActivityId}
+								onChange={(e) => setSingleActivityId(e.target.value)}
+								placeholder="Enter activity ID (e.g., 12345678-1234-1234-1234-123456789abc)"
+								style={{
+									width: '100%',
+									padding: '0.75rem 0.85rem',
+									borderRadius: '0.75rem',
+									border: '1px solid #cbd5f5',
+									background: '#f8fafc',
+									fontSize: '0.92rem',
+									fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+								}}
+							/>
+							<Hint>Enter the unique ID of the activity you want to retrieve</Hint>
+						</FieldGroup>
+					) : (
+						<>
+							<FieldGroup>
+								<Label>Action Type</Label>
+								<Select value={actionType} onChange={(e) => setActionType(e.target.value)}>
+									<option value="">All Actions</option>
+									<optgroup label="User Actions">
+										<option value="USER.CREATED">User Created</option>
+										<option value="USER.UPDATED">User Updated</option>
+										<option value="USER.DELETED">User Deleted</option>
+										<option value="USER.ACCESS_ALLOWED">User Access Allowed</option>
+										<option value="USER.ACCESS_DENIED">User Access Denied</option>
+									</optgroup>
+									<optgroup label="Session Actions">
+										<option value="SESSION.CREATED">Session Created</option>
+										<option value="SESSION.DELETED">Session Deleted</option>
+									</optgroup>
+									<optgroup label="Application Actions">
+										<option value="APPLICATION.CREATED">Application Created</option>
+										<option value="APPLICATION.UPDATED">Application Updated</option>
+										<option value="APPLICATION.DELETED">Application Deleted</option>
+									</optgroup>
+									<optgroup label="Token Actions">
+										<option value="TOKEN.CREATED">Token Created</option>
+										<option value="TOKEN.REVOKED">Token Revoked</option>
+									</optgroup>
+									<optgroup label="Authentication">
+										<option value="AUTHENTICATION.SUCCESS">Authentication Success</option>
+										<option value="AUTHENTICATION.FAILURE">Authentication Failure</option>
+									</optgroup>
+									<optgroup label="Role Actions">
+										<option value="ROLE_ASSIGNMENT.CREATED">Role Assignment Created</option>
+										<option value="ROLE_ASSIGNMENT.DELETED">Role Assignment Deleted</option>
+									</optgroup>
+								</Select>
+								<Hint>Filter by specific action type (e.g., USER.CREATED, SESSION.CREATED)</Hint>
+							</FieldGroup>
 
-					<FieldGroup>
-						<Label>Limit</Label>
-						<Select value={limit} onChange={(e) => setLimit(e.target.value)}>
-							<option value="10">10 activities</option>
-							<option value="25">25 activities</option>
-							<option value="50">50 activities</option>
-							<option value="100">100 activities</option>
-						</Select>
-						<Hint>Maximum number of activities to retrieve (ordered by newest first)</Hint>
-					</FieldGroup>
-					<FieldGroup>
-						<Label style={{ color: '#6b7280', fontSize: '0.75rem', fontWeight: 'normal' }}>
-							Note: Time-based filtering is not supported by the PingOne Audit API. Results are ordered by newest first.
-						</Label>
-					</FieldGroup>
+							<FieldGroup>
+								<Label>Actor Type</Label>
+								<Select
+									value={actorType}
+									onChange={(e) => setActorType(e.target.value as 'user' | 'client')}
+								>
+									<option value="user">User</option>
+									<option value="client">Client (Application)</option>
+								</Select>
+								<Hint>Select whether to filter by user ID or client (application) ID</Hint>
+							</FieldGroup>
+
+							<FieldGroup>
+								<Label>{actorType === 'user' ? 'User ID' : 'Client ID'}</Label>
+								<input
+									type="text"
+									value={actorId}
+									onChange={(e) => setActorId(e.target.value)}
+									placeholder={
+										actorType === 'user' ? 'Enter user ID (UUID)' : 'Enter client ID (UUID)'
+									}
+									style={{
+										width: '100%',
+										padding: '0.75rem 0.85rem',
+										borderRadius: '0.75rem',
+										border: '1px solid #cbd5f5',
+										background: '#f8fafc',
+										fontSize: '0.92rem',
+										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+									}}
+								/>
+								<Hint>
+									{actorType === 'user'
+										? 'Filter by user UUID (Note: username and email filtering not supported by PingOne API)'
+										: 'Filter by client (application) UUID'}
+								</Hint>
+							</FieldGroup>
+
+							<FieldGroup>
+								<Label>Correlation ID</Label>
+								<input
+									type="text"
+									value={correlationId}
+									onChange={(e) => setCorrelationId(e.target.value)}
+									placeholder="e.g., abc123-correlation-id"
+									style={{
+										width: '100%',
+										padding: '0.75rem 0.85rem',
+										borderRadius: '0.75rem',
+										border: '1px solid #cbd5f5',
+										background: '#f8fafc',
+										fontSize: '0.92rem',
+										fontFamily: "'Monaco', 'Menlo', 'Courier New', monospace",
+									}}
+								/>
+								<Hint>
+									Filter by correlation ID to track related activities across multiple audit events
+								</Hint>
+							</FieldGroup>
+
+							<FieldGroup>
+								<Label>Limit</Label>
+								<Select value={limit} onChange={(e) => setLimit(e.target.value)}>
+									<option value="10">10 activities</option>
+									<option value="25">25 activities</option>
+									<option value="50">50 activities</option>
+									<option value="100">100 activities</option>
+									<option value="500">500 activities</option>
+									<option value="1000">1000 activities</option>
+								</Select>
+								<Hint>Maximum number of activities to retrieve (ordered by newest first)</Hint>
+							</FieldGroup>
+							<FieldGroup>
+								<Label style={{ color: '#6b7280', fontSize: '0.75rem', fontWeight: 'normal' }}>
+									Note: Time-based filtering is not supported by the PingOne Audit API. Results are
+									ordered by newest first.
+								</Label>
+							</FieldGroup>
+						</>
+					)}
 
 					<ButtonRow>
-						<PrimaryButton onClick={handleFetch} disabled={!hasWorkerToken || loading}>
+						<PrimaryButton
+							onClick={handleFetch}
+							disabled={
+								!hasWorkerToken ||
+								loading ||
+								!environmentId.trim() ||
+								(viewMode === 'single' && !singleActivityId.trim())
+							}
+							title={
+								!environmentId.trim()
+									? 'Environment ID is required'
+									: !hasWorkerToken
+										? 'Worker token is required'
+										: viewMode === 'single' && !singleActivityId.trim()
+											? 'Activity ID is required'
+											: ''
+							}
+						>
 							{loading ? (
 								<>
 									<FiRefreshCw className="spin" /> Fetching…
+								</>
+							) : viewMode === 'single' ? (
+								<>
+									<FiEye /> Get Activity
 								</>
 							) : (
 								<>
@@ -980,15 +1363,21 @@ const PingOneAuditActivities: React.FC = () => {
 							)}
 						</PrimaryButton>
 
-						<SecondaryButton 
-							type="button" 
+						<SecondaryButton
+							type="button"
 							onClick={() => {
-								setActionType('');
-								setResultStatus('');
-								setLimit('25');
+								if (viewMode === 'single') {
+									setSingleActivityId('');
+								} else {
+									setActionType('');
+									setActorId('');
+									setActorType('user');
+									setCorrelationId('');
+									setLimit('25');
+								}
 							}}
 						>
-							<FiX /> Reset Filters
+							<FiX /> {viewMode === 'single' ? 'Clear ID' : 'Reset Filters'}
 						</SecondaryButton>
 					</ButtonRow>
 
@@ -1003,43 +1392,134 @@ const PingOneAuditActivities: React.FC = () => {
 						{auditResponse ? (
 							<>
 								{summary && (
-									<Card style={{ border: '1px solid #667eea', background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)' }}>
+									<Card
+										style={{
+											border: '1px solid #667eea',
+											background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+										}}
+									>
 										<SectionTitle>
 											<FiBarChart2 /> Summary Statistics
 										</SectionTitle>
-										<div style={{ 
-											display: 'grid', 
-											gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-											gap: '1rem',
-											marginTop: '1rem'
-										}}>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Activities</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>{summary.total}</div>
+										<div
+											style={{
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+												gap: '1rem',
+												marginTop: '1rem',
+											}}
+										>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Total Activities
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+													{summary.total}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Successful</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>{summary.success}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Successful
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#10b981' }}>
+													{summary.success}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Failed</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ef4444' }}>{summary.failure}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Failed
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#ef4444' }}>
+													{summary.failure}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Action Types</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>{summary.uniqueActionTypes}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Action Types
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+													{summary.uniqueActionTypes}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Unique Users</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>{summary.uniqueUsers}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Unique Users
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#6366f1' }}>
+													{summary.uniqueUsers}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #c4b5fd' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Total Count</div>
-												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#6366f1' }}>{totalCount.toLocaleString()}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #c4b5fd',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Total Count
+												</div>
+												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#6366f1' }}>
+													{totalCount.toLocaleString()}
+												</div>
 											</div>
 										</div>
 										{lastUpdated && (
-											<Hint style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #c4b5fd' }}>
+											<Hint
+												style={{
+													marginTop: '1rem',
+													paddingTop: '1rem',
+													borderTop: '1px solid #c4b5fd',
+												}}
+											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
 											</Hint>
 										)}
@@ -1049,16 +1529,21 @@ const PingOneAuditActivities: React.FC = () => {
 								{activities.length > 0 && (
 									<Card style={{ border: '1px solid #e2e8f0', background: '#ffffff' }}>
 										<SectionTitle>
-											<FiActivity /> Activity Details {totalCount > activities.length ? `(${activities.length} of ${totalCount})` : `(${activities.length})`}
+											<FiActivity /> Activity Details{' '}
+											{totalCount > activities.length
+												? `(${activities.length} of ${totalCount})`
+												: `(${activities.length})`}
 										</SectionTitle>
-										<div style={{ 
-											display: 'flex', 
-											flexDirection: 'column', 
-											gap: '0.75rem',
-											maxHeight: '400px',
-											overflowY: 'auto',
-											padding: '0.5rem'
-										}}>
+										<div
+											style={{
+												display: 'flex',
+												flexDirection: 'column',
+												gap: '0.75rem',
+												maxHeight: '400px',
+												overflowY: 'auto',
+												padding: '0.5rem',
+											}}
+										>
 											{activities.map((activity) => (
 												<ActivityCard
 													key={activity.id}
@@ -1067,18 +1552,41 @@ const PingOneAuditActivities: React.FC = () => {
 												>
 													<ActivityRow>
 														<ActivityMain>
-															<div style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+															<div
+																style={{
+																	fontWeight: 600,
+																	color: '#1e293b',
+																	fontSize: '0.9rem',
+																	marginBottom: '0.25rem',
+																}}
+															>
 																{activity.action.type}
 															</div>
 															{activity.action.description && (
-																<div style={{ fontSize: '0.8rem', color: '#4b5563', marginBottom: '0.5rem' }}>
+																<div
+																	style={{
+																		fontSize: '0.8rem',
+																		color: '#4b5563',
+																		marginBottom: '0.5rem',
+																	}}
+																>
 																	{activity.action.description}
 																</div>
 															)}
 															<ActivityDetails>
 																{activity.result?.status && (
-																	<DetailBadge $color={activity.result.status?.toLowerCase() === 'success' ? '#d1fae5' : '#fee2e2'}>
-																		{activity.result.status === 'success' ? <FiCheckCircle size={12} /> : <FiAlertCircle size={12} />}
+																	<DetailBadge
+																		$color={
+																			activity.result.status?.toLowerCase() === 'success'
+																				? '#d1fae5'
+																				: '#fee2e2'
+																		}
+																	>
+																		{activity.result.status === 'success' ? (
+																			<FiCheckCircle size={12} />
+																		) : (
+																			<FiAlertCircle size={12} />
+																		)}
 																		{activity.result.status.toUpperCase()}
 																	</DetailBadge>
 																)}
@@ -1097,7 +1605,8 @@ const PingOneAuditActivities: React.FC = () => {
 																{activity.resources && activity.resources.length > 0 && (
 																	<DetailBadge $color="#fef3c7">
 																		<FiDatabase size={12} />
-																		{activity.resources.length} resource{activity.resources.length !== 1 ? 's' : ''}
+																		{activity.resources.length} resource
+																		{activity.resources.length !== 1 ? 's' : ''}
 																	</DetailBadge>
 																)}
 																{activity.ipAddress && (
@@ -1109,11 +1618,21 @@ const PingOneAuditActivities: React.FC = () => {
 															</ActivityDetails>
 														</ActivityMain>
 														<ActivityMeta>
-															<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+															<div
+																style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+															>
 																<FiClock size={12} />
 																{formatTimestamp(activity.createdAt)}
 															</div>
-															<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.25rem', color: '#667eea' }}>
+															<div
+																style={{
+																	display: 'flex',
+																	alignItems: 'center',
+																	gap: '0.25rem',
+																	marginTop: '0.25rem',
+																	color: '#667eea',
+																}}
+															>
 																<FiEye size={12} />
 																<span style={{ fontSize: '0.7rem' }}>View Details</span>
 															</div>
@@ -1150,34 +1669,39 @@ const PingOneAuditActivities: React.FC = () => {
 				isOpen={showWorkerTokenModal}
 				onClose={() => setShowWorkerTokenModal(false)}
 				onContinue={() => {
-					const token = localStorage.getItem('worker_token_audit') || '';
+					const token = getAnyWorkerToken() || '';
 					setWorkerToken(token);
+					// Update environment ID from credentials
+					const credsStr = localStorage.getItem('worker_credentials');
+					const creds = credsStr ? JSON.parse(credsStr) : null;
+					if (creds?.environmentId) {
+						setEnvironmentId(creds.environmentId);
+					}
 					setShowWorkerTokenModal(false);
 					if (token) {
-						v4ToastManager.showSuccess('Worker token generated successfully. Ready to query audit activities.');
+						v4ToastManager.showSuccess(
+							'Worker token generated successfully. Ready to query audit activities.'
+						);
 					} else {
 						v4ToastManager.showError('Worker token was not detected. Please try generating again.');
 					}
 				}}
 				flowType="pingone-audit-activities"
-				environmentId={(() => {
-					const creds = localStorage.getItem('worker_credentials');
-					return creds ? JSON.parse(creds).environmentId : '';
-				})()}
+				environmentId={environmentId}
 				skipCredentialsStep={true}
 				prefillCredentials={(() => {
 					const credsStr = localStorage.getItem('worker_credentials');
 					const creds = credsStr ? JSON.parse(credsStr) : null;
 					return {
-						environmentId: creds?.environmentId || '',
+						environmentId: environmentId || creds?.environmentId || '',
 						clientId: creds?.clientId || '',
 						clientSecret: creds?.clientSecret || '',
 						region: (creds?.region as string) || 'us',
 						scopes: 'p1:read:audit',
 					};
 				})()}
-				tokenStorageKey="worker_token_audit"
-				tokenExpiryKey="worker_token_audit_expires_at"
+				tokenStorageKey="worker_token"
+				tokenExpiryKey="worker_token_expires_at"
 			/>
 
 			{/* Activity Detail Modal */}
@@ -1224,10 +1748,15 @@ const PingOneAuditActivities: React.FC = () => {
 										</DetailSectionTitle>
 										<DetailGrid>
 											<DetailLabel>Status</DetailLabel>
-											<DetailValue style={{
-												color: selectedActivity.result.status?.toLowerCase() === 'success' ? '#10b981' : '#ef4444',
-												fontWeight: 600
-											}}>
+											<DetailValue
+												style={{
+													color:
+														selectedActivity.result.status?.toLowerCase() === 'success'
+															? '#10b981'
+															: '#ef4444',
+													fontWeight: 600,
+												}}
+											>
 												{selectedActivity.result.status?.toUpperCase() || 'Unknown'}
 											</DetailValue>
 											{selectedActivity.result.description && (
@@ -1333,7 +1862,15 @@ const PingOneAuditActivities: React.FC = () => {
 										</DetailSectionTitle>
 										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 											{selectedActivity.resources.map((resource, idx) => (
-												<div key={idx} style={{ padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+												<div
+													key={idx}
+													style={{
+														padding: '0.75rem',
+														background: '#f8fafc',
+														borderRadius: '0.5rem',
+														border: '1px solid #e2e8f0',
+													}}
+												>
 													<DetailGrid>
 														{resource.type && (
 															<>
@@ -1361,7 +1898,9 @@ const PingOneAuditActivities: React.FC = () => {
 								)}
 
 								{/* Request Context */}
-								{(selectedActivity.ipAddress || selectedActivity.userAgent || selectedActivity.correlationId) && (
+								{(selectedActivity.ipAddress ||
+									selectedActivity.userAgent ||
+									selectedActivity.correlationId) && (
 									<DetailSection>
 										<DetailSectionTitle>
 											<FiGlobe /> Request Context
@@ -1468,7 +2007,16 @@ const PingOneAuditActivities: React.FC = () => {
 									<DetailSectionTitle>
 										<FiDatabase /> Complete JSON
 									</DetailSectionTitle>
-									<div style={{ maxHeight: '400px', overflow: 'auto', padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+									<div
+										style={{
+											maxHeight: '400px',
+											overflow: 'auto',
+											padding: '1rem',
+											background: '#f8fafc',
+											borderRadius: '0.5rem',
+											border: '1px solid #e2e8f0',
+										}}
+									>
 										<JSONHighlighter data={selectedActivity as JSONData} />
 									</div>
 								</DetailSection>
@@ -1486,6 +2034,9 @@ const PingOneAuditActivities: React.FC = () => {
 					)}
 				</DetailModalContent>
 			</DetailModalOverlay>
+
+			{/* API Call Display at the bottom */}
+			<ApiCallList title="API Calls to PingOne" showLegend={true} />
 		</PageContainer>
 	);
 };

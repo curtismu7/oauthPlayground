@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { FiAlertCircle, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiX, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { PingOneErrorInterpreter } from '../utils/pingoneErrorInterpreter';
 

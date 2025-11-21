@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/NewAuthContext';
+import { FiBook, FiCheckCircle, FiCode, FiEye, FiLock, FiPlay, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiPlay, FiBook, FiCode, FiLock, FiSettings, FiEye, FiCheckCircle } from 'react-icons/fi';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import InteractiveTutorial from '../components/InteractiveTutorial';
 import OAuthUtilities from '../components/OAuthUtilities';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import { useAuth } from '../contexts/NewAuthContext';
 
 const Container = styled.div`
   max-width: 1200px;

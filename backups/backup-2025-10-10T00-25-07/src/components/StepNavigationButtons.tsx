@@ -1,7 +1,7 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiRefreshCw, FiMove } from 'react-icons/fi';
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FiArrowLeft, FiArrowRight, FiMove, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
@@ -247,9 +247,9 @@ export const StepNavigationButtons = ({
 	}, [isDragging, handleDragMove, handleDragEnd]);
 
 	return (
-		<StepNavigation 
-			ref={stepperRef} 
-			$position={position} 
+		<StepNavigation
+			ref={stepperRef}
+			$position={position}
 			$isDragging={isDragging}
 			onMouseDown={handleDragStart}
 		>
@@ -262,21 +262,21 @@ export const StepNavigationButtons = ({
 				))}
 			</StepIndicator>
 			<NavigationButtons>
-				<NavButton 
+				<NavButton
 					onClick={(e) => {
 						e.stopPropagation();
 						onPrevious();
-					}} 
-					$variant="outline" 
+					}}
+					$variant="outline"
 					disabled={isFirstStep}
 				>
 					<FiArrowLeft /> Previous
 				</NavButton>
-				<NavButton 
+				<NavButton
 					onClick={(e) => {
 						e.stopPropagation();
 						onReset();
-					}} 
+					}}
 					$variant="danger"
 				>
 					<FiRefreshCw /> Reset Flow

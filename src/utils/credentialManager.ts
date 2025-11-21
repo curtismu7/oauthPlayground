@@ -1,8 +1,8 @@
 // src/utils/credentialManager.ts
 
+import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
-import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../services/oidcDiscoveryService';
 
 export interface PermanentCredentials {
 	environmentId: string;
@@ -293,13 +293,17 @@ class CredentialManager {
 	 * Save implicit flow-specific credentials with variant support
 	 * These are separate from configuration and authz flow credentials
 	 */
-	saveImplicitFlowCredentials(credentials: Partial<PermanentCredentials>, variant?: 'oauth' | 'oidc'): boolean {
+	saveImplicitFlowCredentials(
+		credentials: Partial<PermanentCredentials>,
+		variant?: 'oauth' | 'oidc'
+	): boolean {
 		try {
-			const storageKey = variant === 'oauth' 
-				? this.IMPLICIT_OAUTH_CREDENTIALS_KEY 
-				: variant === 'oidc' 
-					? this.IMPLICIT_OIDC_CREDENTIALS_KEY 
-					: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
+			const storageKey =
+				variant === 'oauth'
+					? this.IMPLICIT_OAUTH_CREDENTIALS_KEY
+					: variant === 'oidc'
+						? this.IMPLICIT_OIDC_CREDENTIALS_KEY
+						: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
 
 			const existing = this.loadImplicitFlowCredentials(variant);
 			const updated = {
@@ -342,18 +346,22 @@ class CredentialManager {
 	 */
 	loadImplicitFlowCredentials(variant?: 'oauth' | 'oidc'): PermanentCredentials {
 		try {
-			const storageKey = variant === 'oauth' 
-				? this.IMPLICIT_OAUTH_CREDENTIALS_KEY 
-				: variant === 'oidc' 
-					? this.IMPLICIT_OIDC_CREDENTIALS_KEY 
-					: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
+			const storageKey =
+				variant === 'oauth'
+					? this.IMPLICIT_OAUTH_CREDENTIALS_KEY
+					: variant === 'oidc'
+						? this.IMPLICIT_OIDC_CREDENTIALS_KEY
+						: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
 
 			let stored = localStorage.getItem(storageKey);
 
 			// If variant-specific key doesn't exist, fall back to generic key for backward compatibility
 			if (!stored && variant) {
 				stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
-				console.log('📥 [CredentialManager] Falling back to generic implicit credentials key for variant:', variant);
+				console.log(
+					'📥 [CredentialManager] Falling back to generic implicit credentials key for variant:',
+					variant
+				);
 			}
 
 			if (stored) {
@@ -363,7 +371,10 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri !== undefined ? credentials.redirectUri : getCallbackUrlForFlow('oidc-implicit-v3'),
+					redirectUri:
+						credentials.redirectUri !== undefined
+							? credentials.redirectUri
+							: getCallbackUrlForFlow('oidc-implicit-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -377,7 +388,7 @@ class CredentialManager {
 					variant: variant || 'generic',
 					hasRedirectUri: !!credentials.redirectUri,
 					redirectUri: credentials.redirectUri,
-					fullResult: result
+					fullResult: result,
 				});
 
 				return result;
@@ -748,7 +759,7 @@ class CredentialManager {
 				console.error(' [CredentialManager] localStorage is not available');
 				return false;
 			}
-			
+
 			const existing = this.loadPermanentCredentials();
 			const updated = {
 				...existing,
@@ -950,7 +961,7 @@ class CredentialManager {
 				console.error(' [CredentialManager] sessionStorage is not available');
 				return false;
 			}
-			
+
 			const existing = this.loadSessionCredentials();
 			const updated = {
 				...existing,
@@ -1055,7 +1066,7 @@ class CredentialManager {
 		console.group(`🚨 [CREDENTIAL CONTAMINATION] saveAllCredentials called`);
 		console.log(`📋 Credentials being saved globally:`, credentials);
 		console.log(`📋 This will overwrite pingone_permanent_credentials for ALL flows!`);
-		
+
 		const permanentSuccess = this.savePermanentCredentials({
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,

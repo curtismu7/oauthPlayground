@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { FiUser, FiLogOut, FiSettings, FiRefreshCw, FiInfo, FiExternalLink } from 'react-icons/fi';
 import { OidcClient } from '@pingidentity-developers-experience/ping-oidc-client-sdk';
+import React, { useEffect, useRef, useState } from 'react';
+import { FiExternalLink, FiInfo, FiLogOut, FiRefreshCw, FiSettings, FiUser } from 'react-icons/fi';
+import styled from 'styled-components';
 
 // Styled Components
 const Container = styled.div`

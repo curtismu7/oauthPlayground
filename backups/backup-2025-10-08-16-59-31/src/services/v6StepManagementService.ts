@@ -1,7 +1,7 @@
 // src/services/v6StepManagementService.ts
 /**
  * V6 Step Management Service
- * 
+ *
  * Provides standardized step management utilities
  * - Step validation logic
  * - Step navigation helpers
@@ -10,7 +10,7 @@
  * - Collapsible section state
  */
 
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export interface StepMetadata {
 	id?: string;
@@ -231,5 +231,3 @@ export function useV6StepManagement<T>(config: {
 }
 
 export default V6StepManagementService;
-
-

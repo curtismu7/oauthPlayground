@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiClock, FiLoader } from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiClock, FiLoader } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 // Animations

@@ -2,14 +2,31 @@
 // Read Password State Tab Component
 
 import React from 'react';
-import { FiAlertCircle, FiBook, FiExternalLink, FiRefreshCw, FiLock, FiUnlock, FiCheckCircle, FiXCircle, FiClock } from '../../../services/commonImportsService';
-import { Card, Alert, DocumentationSection, DocumentationLink, Button, SpinningIcon } from '../shared/PasswordResetSharedComponents';
-import { UserLookupForm } from '../shared/UserLookupForm';
-import { type PingOneUser } from '../shared/useUserLookup';
+import styled from 'styled-components';
+import {
+	FiAlertCircle,
+	FiBook,
+	FiCheckCircle,
+	FiClock,
+	FiExternalLink,
+	FiLock,
+	FiRefreshCw,
+	FiUnlock,
+	FiXCircle,
+} from '../../../services/commonImportsService';
 import { readPasswordState } from '../../../services/passwordResetService';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 import { ColoredJsonDisplay } from '../../ColoredJsonDisplay';
-import styled from 'styled-components';
+import {
+	Alert,
+	Button,
+	Card,
+	DocumentationLink,
+	DocumentationSection,
+	SpinningIcon,
+} from '../shared/PasswordResetSharedComponents';
+import { UserLookupForm } from '../shared/UserLookupForm';
+import { type PingOneUser } from '../shared/useUserLookup';
 
 const StateDisplayContainer = styled.div`
 	background: linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%);
@@ -59,20 +76,28 @@ const StateLabel = styled.div`
 const StateValue = styled.div<{ $status?: 'good' | 'warning' | 'error' | 'neutral' }>`
 	font-size: 1rem;
 	font-weight: 600;
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$status) {
-			case 'good': return '#065F46';
-			case 'warning': return '#92400E';
-			case 'error': return '#991B1B';
-			default: return '#1F2937';
+			case 'good':
+				return '#065F46';
+			case 'warning':
+				return '#92400E';
+			case 'error':
+				return '#991B1B';
+			default:
+				return '#1F2937';
 		}
 	}};
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$status) {
-			case 'good': return '#D1FAE5';
-			case 'warning': return '#FEF3C7';
-			case 'error': return '#FEE2E2';
-			default: return '#F3F4F6';
+			case 'good':
+				return '#D1FAE5';
+			case 'warning':
+				return '#FEF3C7';
+			case 'error':
+				return '#FEE2E2';
+			default:
+				return '#F3F4F6';
 		}
 	}};
 	padding: 0.5rem;
@@ -107,7 +132,9 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 				v4ToastManager.showError(result.errorDescription || 'Failed to read password state');
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to read password state');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to read password state'
+			);
 		} finally {
 			setLoading(false);
 		}
@@ -120,24 +147,29 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 
 	return (
 		<Card>
-			<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Read Password State</h2>
-			
+			<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+				Read Password State
+			</h2>
+
 			<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 				<FiAlertCircle />
 				<div>
 					<strong>How This Works:</strong>
 					<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-						<strong>Requires:</strong> Worker token<br/>
-						<strong>Method:</strong> GET (no special Content-Type header)<br/>
-						Retrieve the current password state information for a user, including lock status, expiration, and change requirements.
+						<strong>Requires:</strong> Worker token
+						<br />
+						<strong>Method:</strong> GET (no special Content-Type header)
+						<br />
+						Retrieve the current password state information for a user, including lock status,
+						expiration, and change requirements.
 					</p>
 				</div>
 			</Alert>
-			
+
 			<DocumentationSection>
-				<DocumentationLink 
-					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-					target="_blank" 
+				<DocumentationLink
+					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+					target="_blank"
 					rel="noopener noreferrer"
 				>
 					<FiBook />
@@ -152,13 +184,17 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 				onUserFound={setUser}
 			/>
 
-			{user && user.id && (
+			{user?.id && (
 				<>
 					<Button onClick={handleReadState} disabled={loading} style={{ marginTop: '1rem' }}>
 						{loading ? <SpinningIcon /> : <FiRefreshCw />}
 						{loading ? 'Reading...' : 'Read Password State'}
 					</Button>
-					<Button $variant="secondary" onClick={handleReset} style={{ marginTop: '1rem', marginLeft: '0.5rem' }}>
+					<Button
+						$variant="secondary"
+						onClick={handleReset}
+						style={{ marginTop: '1rem', marginLeft: '0.5rem' }}
+					>
 						Reset
 					</Button>
 
@@ -169,7 +205,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 									<FiLock />
 									Password State Information
 								</StateTitle>
-								
+
 								<StateGrid>
 									{/* Status */}
 									{passwordState.status && (
@@ -183,7 +219,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Force Change */}
 									{passwordState.forceChange !== undefined && (
 										<StateItem>
@@ -196,7 +232,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Last Changed */}
 									{passwordState.lastChangedAt && (
 										<StateItem>
@@ -209,7 +245,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Expires At */}
 									{passwordState.expiresAt && (
 										<StateItem>
@@ -222,7 +258,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Locked */}
 									{passwordState.locked !== undefined && (
 										<StateItem>
@@ -235,7 +271,7 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Failed Attempts */}
 									{passwordState.failedAttempts !== undefined && (
 										<StateItem>
@@ -243,12 +279,14 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 												<FiXCircle />
 												Failed Login Attempts
 											</StateLabel>
-											<StateValue $status={Number(passwordState.failedAttempts) > 0 ? 'warning' : 'good'}>
+											<StateValue
+												$status={Number(passwordState.failedAttempts) > 0 ? 'warning' : 'good'}
+											>
 												{String(passwordState.failedAttempts)}
 											</StateValue>
 										</StateItem>
 									)}
-									
+
 									{/* Remaining Attempts */}
 									{passwordState.remainingAttempts !== undefined && (
 										<StateItem>
@@ -256,14 +294,16 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 												<FiAlertCircle />
 												Remaining Attempts
 											</StateLabel>
-											<StateValue $status={Number(passwordState.remainingAttempts) < 3 ? 'warning' : 'good'}>
+											<StateValue
+												$status={Number(passwordState.remainingAttempts) < 3 ? 'warning' : 'good'}
+											>
 												{String(passwordState.remainingAttempts)}
 											</StateValue>
 										</StateItem>
 									)}
 								</StateGrid>
 							</StateDisplayContainer>
-							
+
 							<div style={{ marginTop: '1.5rem' }}>
 								<ColoredJsonDisplay
 									data={passwordState}
@@ -281,4 +321,3 @@ export const ReadStateTab: React.FC<ReadStateTabProps> = ({ environmentId, worke
 		</Card>
 	);
 };
-

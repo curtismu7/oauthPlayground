@@ -1,7 +1,15 @@
 // src/components/PingOneWorkerInfo.tsx
 import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiServer,
+	FiShield,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiServer, FiKey, FiShield, FiLock, FiAlertTriangle, FiCheckCircle, FiRefreshCw } from 'react-icons/fi';
 
 const Container = styled.div`
 	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
@@ -48,24 +56,36 @@ const Description = styled.p`
 `;
 
 const InfoBox = styled.div<{ $color?: string }>`
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$color) {
-			case 'blue': return '#eff6ff';
-			case 'purple': return '#faf5ff';
-			case 'green': return '#f0fdf4';
-			case 'orange': return '#fff7ed';
-			case 'red': return '#fef2f2';
-			default: return '#eff6ff';
+			case 'blue':
+				return '#eff6ff';
+			case 'purple':
+				return '#faf5ff';
+			case 'green':
+				return '#f0fdf4';
+			case 'orange':
+				return '#fff7ed';
+			case 'red':
+				return '#fef2f2';
+			default:
+				return '#eff6ff';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$color) {
-			case 'blue': return '#bfdbfe';
-			case 'purple': return '#e9d5ff';
-			case 'green': return '#bbf7d0';
-			case 'orange': return '#fed7aa';
-			case 'red': return '#fecaca';
-			default: return '#bfdbfe';
+			case 'blue':
+				return '#bfdbfe';
+			case 'purple':
+				return '#e9d5ff';
+			case 'green':
+				return '#bbf7d0';
+			case 'orange':
+				return '#fed7aa';
+			case 'red':
+				return '#fecaca';
+			default:
+				return '#bfdbfe';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -81,22 +101,32 @@ const Grid = styled.div`
 `;
 
 const Card = styled.div<{ $color?: string }>`
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$color) {
-			case 'blue': return 'linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)';
-			case 'green': return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-			case 'orange': return '#fff7ed';
-			case 'red': return '#fef2f2';
-			default: return '#f9fafb';
+			case 'blue':
+				return 'linear-gradient(135deg, #eff6ff 0%, #ffffff 100%)';
+			case 'green':
+				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+			case 'orange':
+				return '#fff7ed';
+			case 'red':
+				return '#fef2f2';
+			default:
+				return '#f9fafb';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$color) {
-			case 'blue': return '#bfdbfe';
-			case 'green': return '#86efac';
-			case 'orange': return '#fed7aa';
-			case 'red': return '#fecaca';
-			default: return '#e5e7eb';
+			case 'blue':
+				return '#bfdbfe';
+			case 'green':
+				return '#86efac';
+			case 'orange':
+				return '#fed7aa';
+			case 'red':
+				return '#fecaca';
+			default:
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -243,14 +273,20 @@ const QuickRefItem = styled.div`
 `;
 
 const IconWrapper = styled.div<{ $color?: string }>`
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$color) {
-			case 'blue': return '#4f46e5';
-			case 'purple': return '#8b5cf6';
-			case 'green': return '#10b981';
-			case 'orange': return '#fb923c';
-			case 'red': return '#dc2626';
-			default: return '#4f46e5';
+			case 'blue':
+				return '#4f46e5';
+			case 'purple':
+				return '#8b5cf6';
+			case 'green':
+				return '#10b981';
+			case 'orange':
+				return '#fb923c';
+			case 'red':
+				return '#dc2626';
+			default:
+				return '#4f46e5';
 		}
 	}};
 	flex-shrink: 0;
@@ -268,12 +304,15 @@ const PingOneWorkerInfo: React.FC = () => {
 					<div>
 						<Title>PingOne Worker Application & Token Usage</Title>
 						<Description>
-							A Worker application is an admin-level, non-interactive application connection to PingOne that acts on behalf of administrators to interact with PingOne APIs programmatically.
+							A Worker application is an admin-level, non-interactive application connection to
+							PingOne that acts on behalf of administrators to interact with PingOne APIs
+							programmatically.
 						</Description>
 					</div>
 				</Header>
 				<InfoBox $color="blue">
-					<strong>In Simple Terms:</strong> Think of it as a service account or machine identity that performs administrative tasks without requiring a human user to be present.
+					<strong>In Simple Terms:</strong> Think of it as a service account or machine identity
+					that performs administrative tasks without requiring a human user to be present.
 				</InfoBox>
 			</Section>
 
@@ -290,7 +329,8 @@ const PingOneWorkerInfo: React.FC = () => {
 							API Management
 						</CardTitle>
 						<CardText>
-							Create, read, update, and delete PingOne resources (users, groups, applications, environments)
+							Create, read, update, and delete PingOne resources (users, groups, applications,
+							environments)
 						</CardText>
 					</Card>
 					<Card $color="blue">
@@ -308,7 +348,8 @@ const PingOneWorkerInfo: React.FC = () => {
 							Integration
 						</CardTitle>
 						<CardText>
-							Connect external systems to PingOne for provisioning, authentication flows, and administrative operations
+							Connect external systems to PingOne for provisioning, authentication flows, and
+							administrative operations
 						</CardText>
 					</Card>
 					<Card $color="blue">
@@ -331,9 +372,11 @@ const PingOneWorkerInfo: React.FC = () => {
 				</Title>
 				<InfoBox $color="purple">
 					<Description>
-						Worker apps obtain access tokens via OAuth 2.0 Client Credentials Flow. Access tokens are JSON Web Tokens (JWTs) that authorize calls to PingOne Platform APIs.
+						Worker apps obtain access tokens via OAuth 2.0 Client Credentials Flow. Access tokens
+						are JSON Web Tokens (JWTs) that authorize calls to PingOne Platform APIs.
 					</Description>
-					<strong>⏱️ Token Validity:</strong> Access tokens are valid for 1 hour, after which a new token must be requested.
+					<strong>⏱️ Token Validity:</strong> Access tokens are valid for 1 hour, after which a new
+					token must be requested.
 				</InfoBox>
 
 				<Subtitle>Token Acquisition Flow:</Subtitle>
@@ -347,7 +390,9 @@ const PingOneWorkerInfo: React.FC = () => {
 				</FlowStep>
 				<FlowStep>
 					<StepNumber>3</StepNumber>
-					<StepText>Receives an access token (JWT) with permissions based on assigned roles</StepText>
+					<StepText>
+						Receives an access token (JWT) with permissions based on assigned roles
+					</StepText>
 				</FlowStep>
 				<FlowStep>
 					<StepNumber>4</StepNumber>
@@ -393,7 +438,8 @@ const PingOneWorkerInfo: React.FC = () => {
 					Role-Based Permissions
 				</Title>
 				<InfoBox $color="orange">
-					Worker applications have no roles by default. Roles must be assigned after creation to grant specific permissions.
+					Worker applications have no roles by default. Roles must be assigned after creation to
+					grant specific permissions.
 				</InfoBox>
 
 				<Subtitle>Common Roles Assigned to Worker Apps:</Subtitle>
@@ -463,17 +509,13 @@ const PingOneWorkerInfo: React.FC = () => {
 						<IconWrapper $color="red">
 							<FiCheckCircle size={20} />
 						</IconWrapper>
-						<BestPracticeText>
-							Monitor Worker app API usage for anomalies
-						</BestPracticeText>
+						<BestPracticeText>Monitor Worker app API usage for anomalies</BestPracticeText>
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
 							<FiCheckCircle size={20} />
 						</IconWrapper>
-						<BestPracticeText>
-							Implement IP whitelisting when possible
-						</BestPracticeText>
+						<BestPracticeText>Implement IP whitelisting when possible</BestPracticeText>
 					</BestPracticeItem>
 					<BestPracticeItem>
 						<IconWrapper $color="red">
@@ -501,7 +543,8 @@ const PingOneWorkerInfo: React.FC = () => {
 						<div>
 							<CriticalTitle>Critical Security Note</CriticalTitle>
 							<CriticalText>
-								Worker app credentials apply only to the Worker app itself, not to PingOne admin users. Admin users need separate role assignments to perform the same actions.
+								Worker app credentials apply only to the Worker app itself, not to PingOne admin
+								users. Admin users need separate role assignments to perform the same actions.
 							</CriticalText>
 						</div>
 					</CriticalNote>

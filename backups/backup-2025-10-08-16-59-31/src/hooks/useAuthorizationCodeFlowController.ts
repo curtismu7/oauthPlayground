@@ -19,7 +19,7 @@ import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
-import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
+import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
@@ -467,12 +467,15 @@ export const useAuthorizationCodeFlowController = (
 		}
 
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== AUTHORIZATION URL GENERATION =====');
-		console.log('🔧 [useAuthorizationCodeFlowController] Using redirect URI:', credentials.redirectUri);
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] Using redirect URI:',
+			credentials.redirectUri
+		);
 		console.log('🔧 [useAuthorizationCodeFlowController] Full credentials:', {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			redirectUri: credentials.redirectUri,
-			scope: credentials.scope
+			scope: credentials.scope,
 		});
 
 		if (!pkceCodes.codeVerifier || !pkceCodes.codeChallenge) {
@@ -489,7 +492,7 @@ export const useAuthorizationCodeFlowController = (
 			const possibleKeys = [
 				`${persistKey}-app-config`,
 				`${flowKey}-app-config`,
-				'pingone-app-config' // fallback
+				'pingone-app-config', // fallback
 			];
 
 			for (const configKey of possibleKeys) {
@@ -498,7 +501,7 @@ export const useAuthorizationCodeFlowController = (
 					pingOneConfig = JSON.parse(storedConfig);
 					console.log('🔧 [useAuthorizationCodeFlowController] Loaded PingOne config:', {
 						key: configKey,
-						config: pingOneConfig
+						config: pingOneConfig,
 					});
 					break;
 				}
@@ -511,7 +514,9 @@ export const useAuthorizationCodeFlowController = (
 
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
-			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
+			console.log(
+				'🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request'
+			);
 			try {
 				// Import PAR service dynamically to avoid circular dependencies
 				const { PARService } = await import('../services/parService');
@@ -563,7 +568,10 @@ export const useAuthorizationCodeFlowController = (
 					client_id: credentials.clientId,
 				});
 
-				console.log('🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:', url);
+				console.log(
+					'🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:',
+					url
+				);
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
 				showGlobalError('PAR request failed', {
@@ -617,7 +625,10 @@ export const useAuthorizationCodeFlowController = (
 
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== FINAL AUTHORIZATION URL =====');
 		console.log('🔧 [useAuthorizationCodeFlowController] Generated URL:', url);
-		console.log('🔧 [useAuthorizationCodeFlowController] URL parameters:', Object.fromEntries(new URLSearchParams(url.split('?')[1] || '')));
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] URL parameters:',
+			Object.fromEntries(new URLSearchParams(url.split('?')[1] || ''))
+		);
 
 		setAuthUrl(url);
 
@@ -774,7 +785,9 @@ export const useAuthorizationCodeFlowController = (
 				environment_id: credentials.environmentId.trim(),
 				code_verifier: pkceCodes.codeVerifier.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
 			};
 
 			// Handle JWT-based authentication methods
@@ -841,36 +854,37 @@ export const useAuthorizationCodeFlowController = (
 				body: JSON.stringify(requestBody),
 			});
 
-		if (!response.ok) {
-			const errorText = await response.text();
-			
-			// Parse error details
-			let errorDetails = errorText;
-			let userMessage = 'Token exchange failed';
-			
-			try {
-				const errorJson = JSON.parse(errorText);
-				if (errorJson.error === 'invalid_grant') {
-					if (errorJson.error_description?.includes('expired or invalid')) {
-						userMessage = 'Authorization code expired or already used';
-						errorDetails = 'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
-					} else {
-						userMessage = errorJson.error_description || 'Invalid authorization code';
-						errorDetails = errorJson.error_description || errorText;
+			if (!response.ok) {
+				const errorText = await response.text();
+
+				// Parse error details
+				let errorDetails = errorText;
+				let userMessage = 'Token exchange failed';
+
+				try {
+					const errorJson = JSON.parse(errorText);
+					if (errorJson.error === 'invalid_grant') {
+						if (errorJson.error_description?.includes('expired or invalid')) {
+							userMessage = 'Authorization code expired or already used';
+							errorDetails =
+								'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
+						} else {
+							userMessage = errorJson.error_description || 'Invalid authorization code';
+							errorDetails = errorJson.error_description || errorText;
+						}
 					}
+				} catch (e) {
+					// If not JSON, use the raw error text
 				}
-			} catch (e) {
-				// If not JSON, use the raw error text
+
+				// Show user-friendly error message
+				showGlobalError(userMessage, {
+					description: errorDetails,
+					meta: { status: response.status, action: 'exchangeTokens' },
+				});
+
+				throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
 			}
-			
-			// Show user-friendly error message
-			showGlobalError(userMessage, {
-				description: errorDetails,
-				meta: { status: response.status, action: 'exchangeTokens' }
-			});
-			
-			throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
-		}
 
 			const tokenData = await response.json();
 			setTokens(tokenData);
@@ -925,7 +939,8 @@ export const useAuthorizationCodeFlowController = (
 				});
 			} else if (errorMessage.includes('401')) {
 				showGlobalError('Unauthorized', {
-					description: 'Authentication failed. Please verify your PingOne credentials and application configuration.',
+					description:
+						'Authentication failed. Please verify your PingOne credentials and application configuration.',
 					meta: { phase: 'tokenExchange', errorCode: 'unauthorized' },
 				});
 			} else {
@@ -1039,7 +1054,9 @@ export const useAuthorizationCodeFlowController = (
 				client_id: credentials.clientId.trim(),
 				environment_id: credentials.environmentId.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
 			};
 
 			// Handle JWT-based authentication methods
@@ -1190,9 +1207,9 @@ export const useAuthorizationCodeFlowController = (
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		sessionStorage.removeItem(pkceStorageKey);
 		showGlobalSuccess('Flow reset', {
-		description: 'Start the authorization sequence again.',
-		meta: { action: 'resetFlow' },
-	});
+			description: 'Start the authorization sequence again.',
+			meta: { action: 'resetFlow' },
+		});
 	}, [clearStepResults, stepManager, stopPopupWatch]);
 
 	const setAuthCodeManually = useCallback(

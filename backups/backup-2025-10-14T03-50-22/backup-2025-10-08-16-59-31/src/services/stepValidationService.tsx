@@ -1,5 +1,5 @@
 // src/services/stepValidationService.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -52,20 +52,20 @@ export const StepValidationModal: React.FC<StepValidationProps> = ({
 
 	const handleValidation = useCallback(() => {
 		const missingFields = validateStep();
-		
+
 		if (missingFields.length > 0) {
 			// Show toast message
 			v4ToastManager.showError(`Missing required fields: ${missingFields.join(', ')}`);
-			
+
 			// Set validation errors for modal
 			setValidationErrors(missingFields);
-			
+
 			// Call validation fail callback
 			config.onValidationFail?.(missingFields);
-			
+
 			return false; // Validation failed
 		}
-		
+
 		// Call validation pass callback
 		config.onValidationPass?.();
 		return true; // Validation passed
@@ -103,13 +103,10 @@ export const useStepValidation = () => {
 	const [showValidationModal, setShowValidationModal] = useState(false);
 	const [validationConfig, setValidationConfig] = useState<StepValidationConfig | null>(null);
 
-	const validateAndProceed = useCallback((
-		config: StepValidationConfig,
-		onProceed: () => void
-	) => {
+	const validateAndProceed = useCallback((config: StepValidationConfig, onProceed: () => void) => {
 		// Check if validation passes immediately
 		const missingFields: string[] = [];
-		
+
 		config.rules.forEach((rule) => {
 			if (rule.required) {
 				const value = rule.value;
@@ -128,7 +125,7 @@ export const useStepValidation = () => {
 				onValidationFail: (errors) => {
 					// User stays on current step
 					console.log('Validation failed:', errors);
-				}
+				},
 			});
 			setShowValidationModal(true);
 			return false; // Validation failed, don't proceed
@@ -159,7 +156,7 @@ export const useStepValidation = () => {
 					closeValidationModal();
 				}}
 			/>
-		) : null
+		) : null,
 	};
 };
 
@@ -171,26 +168,26 @@ export const StepValidationService = {
 			field: 'environmentId',
 			value: credentials.environmentId,
 			required: true,
-			label: 'Environment ID'
+			label: 'Environment ID',
 		},
 		{
 			field: 'clientId',
 			value: credentials.clientId,
 			required: true,
-			label: 'Client ID'
+			label: 'Client ID',
 		},
 		{
 			field: 'clientSecret',
 			value: credentials.clientSecret,
 			required: true,
-			label: 'Client Secret'
+			label: 'Client Secret',
 		},
 		{
 			field: 'redirectUri',
 			value: credentials.redirectUri,
 			required: true,
-			label: 'Redirect URI'
-		}
+			label: 'Redirect URI',
+		},
 	],
 
 	// Create validation rules for PKCE step
@@ -199,14 +196,14 @@ export const StepValidationService = {
 			field: 'codeVerifier',
 			value: pkceCodes.codeVerifier,
 			required: true,
-			label: 'PKCE Code Verifier'
+			label: 'PKCE Code Verifier',
 		},
 		{
 			field: 'codeChallenge',
 			value: pkceCodes.codeChallenge,
 			required: true,
-			label: 'PKCE Code Challenge'
-		}
+			label: 'PKCE Code Challenge',
+		},
 	],
 
 	// Create validation rules for authorization step
@@ -215,18 +212,15 @@ export const StepValidationService = {
 			field: 'authUrl',
 			value: authUrl,
 			required: true,
-			label: 'Authorization URL'
+			label: 'Authorization URL',
 		},
 		{
 			field: 'codeVerifier',
 			value: codeVerifier,
 			required: true,
-			label: 'PKCE Code Verifier'
-		}
-	]
+			label: 'PKCE Code Verifier',
+		},
+	],
 };
 
 export default StepValidationService;
-
-
-

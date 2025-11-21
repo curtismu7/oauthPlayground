@@ -1,18 +1,18 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import {
-	FiBookOpen,
-	FiCode,
-	FiShield,
-	FiUsers,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiInfo,
 	FiArrowRight,
+	FiBookOpen,
+	FiCheckCircle,
+	FiCode,
+	FiInfo,
+	FiShield,
 	FiTrendingUp,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 
 const Container = styled.div`
   max-width: 1200px;

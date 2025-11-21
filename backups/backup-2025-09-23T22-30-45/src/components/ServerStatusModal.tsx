@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiGlobe, FiRefreshCw, FiServer, FiX, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiX, FiCheckCircle, FiXCircle, FiRefreshCw, FiServer, FiGlobe } from 'react-icons/fi';
 
 interface ServerStatusModalProps {
 	isOpen: boolean;

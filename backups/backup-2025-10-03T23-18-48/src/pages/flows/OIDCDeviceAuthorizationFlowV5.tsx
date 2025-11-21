@@ -27,12 +27,12 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -46,8 +46,6 @@ const FlowContent = styled.div`
 	margin: 0 auto;
 	padding: 0 1rem;
 `;
-
-
 
 const _StepBadge = styled.span`
 	background: rgba(22, 163, 74, 0.2);

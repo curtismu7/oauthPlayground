@@ -4,8 +4,8 @@
  */
 
 export class NextJsTemplates {
-  static authorization(config: any): string {
-    return `// Next.js - Authorization Flow
+	static authorization(config: any): string {
+		return `// Next.js - Authorization Flow
 // pages/api/auth/login.ts (API Route)
 import type { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
@@ -123,10 +123,10 @@ export const LoginButton = () => {
     </button>
   );
 };`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// Next.js - Worker Token API Route
+	static workerToken(config: any): string {
+		return `// Next.js - Worker Token API Route
 // pages/api/worker-token.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -216,10 +216,10 @@ export const useWorkerToken = () => {
 
   return { token, loading, error };
 };`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// Next.js - Device Selection
+	static deviceSelection(config: any): string {
+		return `// Next.js - Device Selection
 // pages/api/devices/list.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -318,10 +318,10 @@ export const DeviceList = ({ userId, accessToken }: { userId: string; accessToke
     </div>
   );
 };`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// Next.js - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// Next.js - MFA Challenge
 // pages/api/mfa/challenge.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -417,10 +417,10 @@ export const ChallengeButton = ({
     </button>
   );
 };`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// Next.js - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// Next.js - MFA Verification
 // pages/api/mfa/verify.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -536,10 +536,10 @@ export const VerificationForm = ({
     </form>
   );
 };`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// Next.js - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// Next.js - Device Registration
 // pages/api/devices/register.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 
@@ -685,5 +685,5 @@ export const RegisterDeviceForm = ({
     </form>
   );
 };`;
-  }
+	}
 }

@@ -5,83 +5,52 @@ import {
 	FiHelpCircle,
 	FiLock,
 	FiPlay,
+	FiSettings,
 	FiShield,
 	FiTool,
-	FiUsers,
-	FiKey,
-	FiSettings,
-	FiGlobe,
-	FiCheckCircle,
-	FiAlertTriangle,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
-import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { FlowUIService } from '../services/flowUIService';
-import PageLayoutService from '../services/pageLayoutService';
-
-const DocumentationContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
-
-const Section = styled.section`
-  margin-bottom: 3rem;
-  
-  h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    align-items: center;
-    color: ${({ theme }) => theme.colors.gray800};
-    
-    svg {
-      margin-right: 0.75rem;
-      color: ${({ theme }) => theme.colors.primary};
-    }
-  }
-`;
 
 const CardGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 24px;
+  margin-bottom: 0;
 `;
 
 const DocCard = styled(Link)`
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  padding: 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
   transition: transform 0.2s, box-shadow 0.2s;
   text-decoration: none;
   color: inherit;
-  border: 1px solid ${({ theme }) => theme.colors.gray200};
+  border: 1px solid #e2e8f0;
   
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border-color: ${({ theme }) => theme.colors.primary}40;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #3b82f6;
   }
   
   h3 {
     font-size: 1.1rem;
     margin-bottom: 0.75rem;
-    color: ${({ theme }) => theme.colors.primary};
+    color: #1f2937;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
   
   p {
-    color: ${({ theme }) => theme.colors.gray600};
+    color: #6b7280;
     font-size: 0.95rem;
-    line-height: 1.6;
+    line-height: 1.5;
     margin-bottom: 0;
   }
 `;
@@ -125,17 +94,18 @@ const CodeBlock = styled.pre`
 `;
 
 const QuickStartBanner = styled.div`
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryLight});
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 0;
   text-align: center;
 
   h2 {
     font-size: 1.75rem;
     margin-bottom: 1rem;
     color: white;
+    font-weight: 700;
   }
 
   p {
@@ -168,22 +138,23 @@ const QuickStartButton = styled(Link)`
 const FeatureHighlight = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
+  gap: 24px;
+  margin: 0;
 `;
 
 const FeatureCard = styled.div`
-  background: white;
-  border: 2px solid ${({ theme }) => theme.colors.gray200};
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 24px;
   text-align: center;
   transition: all 0.2s;
 
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
+    border-color: #3b82f6;
     transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.md};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
   .icon {
@@ -206,12 +177,14 @@ const FeatureCard = styled.div`
   h3 {
     font-size: 1.25rem;
     margin-bottom: 0.75rem;
-    color: ${({ theme }) => theme.colors.gray900};
+    color: #1f2937;
+    font-weight: 600;
   }
 
   p {
-    color: ${({ theme }) => theme.colors.gray600};
+    color: #6b7280;
     margin-bottom: 1rem;
+    line-height: 1.5;
   }
 `;
 
@@ -249,38 +222,78 @@ const Documentation = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'PingOne SSO Documentation', force: true });
 
-	// UI Settings integration
-	const { settings } = useUISettings();
-
-	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
-	const pageConfig = {
-		flowType: 'documentation' as const,
-		theme: 'blue' as const,
-		maxWidth: '72rem', // Wider for documentation content
-		showHeader: true,
-		showFooter: false,
-		responsive: true,
-		flowId: 'pingone-sso-documentation', // Enables FlowHeader integration
-	};
-
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
-
 	return (
-		<PageContainer>
-			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+		<div
+			style={{
+				maxWidth: '1200px',
+				margin: '0 auto',
+				padding: '2rem',
+				background: '#f8fafc',
+				minHeight: '100vh',
+			}}
+		>
+			{/* Header with Unified Flow Design */}
+			<div
+				style={{
+					marginBottom: '32px',
+					padding: '24px',
+					background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+					borderRadius: '12px',
+					color: '#0c4a6e',
+					position: 'relative',
+					overflow: 'hidden',
+				}}
+			>
+				{/* Decorative background pattern */}
+				<div
+					style={{
+						position: 'absolute',
+						top: 0,
+						right: 0,
+						width: '300px',
+						height: '100%',
+						background:
+							'radial-gradient(circle at top right, rgba(255,255,255,0.3) 0%, transparent 70%)',
+						pointerEvents: 'none',
+					}}
+				/>
 
+				<h1
+					style={{
+						fontSize: '32px',
+						fontWeight: '700',
+						margin: '0 0 8px 0',
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					📚 PingOne SSO Documentation
+				</h1>
+				<p
+					style={{
+						fontSize: '16px',
+						margin: 0,
+						opacity: 0.9,
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					Complete guide to implementing Single Sign-On with PingOne Identity Platform
+				</p>
+			</div>
+
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
-					title="PingOne SSO Documentation"
-					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
-					icon={<FiUsers />}
+					title="Quick Start"
+					subtitle="Jump into interactive tutorials and start learning PingOne SSO implementation"
+					icon={<FiPlay />}
 					defaultCollapsed={false}
 				>
 					<QuickStartBanner>
 						<h2>Ready to Implement PingOne SSO?</h2>
 						<p>
-							Jump into our interactive tutorials and start learning PingOne SSO implementation with hands-on examples
+							Jump into our interactive tutorials and start learning PingOne SSO implementation with
+							hands-on examples
 						</p>
 						<QuickStartButton to="/tutorials">
 							<FiPlay size={16} />
@@ -288,7 +301,9 @@ const Documentation = () => {
 						</QuickStartButton>
 					</QuickStartBanner>
 				</CollapsibleHeader>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="PingOne SSO Overview"
 					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
@@ -296,27 +311,30 @@ const Documentation = () => {
 					defaultCollapsed={false}
 				>
 					<p>
-						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO) with PingOne Identity Platform. 
-						Whether you're integrating with web applications, mobile apps, or enterprise systems, you'll find the resources you need 
-						to build secure, standards-compliant SSO solutions.
+						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO)
+						with PingOne Identity Platform. Whether you're integrating with web applications, mobile
+						apps, or enterprise systems, you'll find the resources you need to build secure,
+						standards-compliant SSO solutions.
 					</p>
 
 					<div
 						style={{
 							background: '#f0f9ff',
 							border: '1px solid #bae6fd',
-							borderRadius: '0.5rem',
-							padding: '1.5rem',
+							borderRadius: '8px',
+							padding: '24px',
 							marginTop: '1rem',
 						}}
 					>
 						<h3 style={{ marginTop: 0, color: '#0c4a6e' }}>PingOne SSO Implementation Guide:</h3>
 						<ul style={{ marginBottom: 0, color: '#0369a1' }}>
 							<li>
-								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and applications
+								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and
+								applications
 							</li>
 							<li>
-								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for secure SSO
+								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for
+								secure SSO
 							</li>
 							<li>
 								<strong>User Authentication:</strong> PingOne login flows and user management
@@ -339,45 +357,49 @@ const Documentation = () => {
 						</ul>
 					</div>
 				</CollapsibleHeader>
+			</div>
 
-			<FeatureHighlight>
-				<FeatureCard>
-					<div className="icon tutorials">
-						<FiPlay />
-					</div>
-					<h3>Interactive Tutorials</h3>
-					<p>Step-by-step guided learning with real examples and immediate feedback</p>
-					<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
-				</FeatureCard>
+			<div style={{ marginBottom: '24px' }}>
+				<FeatureHighlight>
+					<FeatureCard>
+						<div className="icon tutorials">
+							<FiPlay />
+						</div>
+						<h3>Interactive Tutorials</h3>
+						<p>Step-by-step guided learning with real examples and immediate feedback</p>
+						<FeatureButton to="/tutorials">Try Tutorials</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon flows">
-						<FiCode />
-					</div>
-					<h3>OAuth Flows</h3>
-					<p>Explore different OAuth 2.0 grant types with live implementations</p>
-					<FeatureButton to="/flows">View Flows</FeatureButton>
-				</FeatureCard>
+					<FeatureCard>
+						<div className="icon flows">
+							<FiCode />
+						</div>
+						<h3>OAuth Flows</h3>
+						<p>Explore different OAuth 2.0 grant types with live implementations</p>
+						<FeatureButton to="/flows">View Flows</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon security">
-						<FiShield />
-					</div>
-					<h3>Security Guide</h3>
-					<p>Learn security best practices and common pitfalls to avoid</p>
-					<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
-				</FeatureCard>
+					<FeatureCard>
+						<div className="icon security">
+							<FiShield />
+						</div>
+						<h3>Security Guide</h3>
+						<p>Learn security best practices and common pitfalls to avoid</p>
+						<FeatureButton to="/documentation#security">Security Tips</FeatureButton>
+					</FeatureCard>
 
-				<FeatureCard>
-					<div className="icon tools">
-						<FiTool />
-					</div>
-					<h3>Developer Tools</h3>
-					<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
-					<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
-				</FeatureCard>
-			</FeatureHighlight>
+					<FeatureCard>
+						<div className="icon tools">
+							<FiTool />
+						</div>
+						<h3>Developer Tools</h3>
+						<p>JWT decoder, PKCE generator, and other useful OAuth utilities</p>
+						<FeatureButton to="/tutorials?tab=utilities">Use Tools</FeatureButton>
+					</FeatureCard>
+				</FeatureHighlight>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="PingOne SSO Getting Started"
 					subtitle="Essential resources for implementing PingOne Single Sign-On"
@@ -395,7 +417,8 @@ const Documentation = () => {
 								PingOne SSO Basics <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Learn the fundamental concepts of PingOne SSO, including environments, applications, and user management.
+								Learn the fundamental concepts of PingOne SSO, including environments, applications,
+								and user management.
 							</p>
 						</DocCard>
 
@@ -404,7 +427,8 @@ const Documentation = () => {
 								PingOne OpenID Connect <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Understand how PingOne implements OpenID Connect for enterprise SSO and user authentication.
+								Understand how PingOne implements OpenID Connect for enterprise SSO and user
+								authentication.
 							</p>
 						</DocCard>
 
@@ -413,12 +437,15 @@ const Documentation = () => {
 								PingOne Environment Setup <FiExternalLink size={16} />
 							</h3>
 							<p>
-								Step-by-step instructions for configuring your PingOne environment, applications, and SSO policies.
+								Step-by-step instructions for configuring your PingOne environment, applications,
+								and SSO policies.
 							</p>
 						</DocCard>
 					</CardGrid>
 				</CollapsibleHeader>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="PingOne SSO Flows"
 					subtitle="OAuth 2.0 and OpenID Connect flows optimized for PingOne SSO implementation"
@@ -426,41 +453,45 @@ const Documentation = () => {
 					defaultCollapsed={false}
 				>
 					<p>
-						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for different SSO scenarios. 
-						Choose the right flow based on your application type and security requirements.
+						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for
+						different SSO scenarios. Choose the right flow based on your application type and
+						security requirements.
 					</p>
 
 					<CardGrid>
 						<DocCard to="/flows/oauth-authorization-code-v5">
 							<h3>PingOne Authorization Code SSO</h3>
 							<p>
-								The most secure PingOne SSO flow for server-side applications with confidential client credentials.
+								The most secure PingOne SSO flow for server-side applications with confidential
+								client credentials.
 							</p>
 						</DocCard>
 
 						<DocCard to="/flows/oidc-authorization-code-v5">
 							<h3>PingOne OIDC SSO Flow</h3>
 							<p>
-								Enhanced PingOne SSO with OpenID Connect for user authentication and identity information.
+								Enhanced PingOne SSO with OpenID Connect for user authentication and identity
+								information.
 							</p>
 						</DocCard>
 
 						<DocCard to="/flows/client-credentials-v5">
 							<h3>PingOne Service-to-Service</h3>
-							<p>
-								PingOne machine-to-machine authentication for backend services and API access.
-							</p>
+							<p>PingOne machine-to-machine authentication for backend services and API access.</p>
 						</DocCard>
 
 						<DocCard to="/flows/oidc-device-authorization-v6">
 							<h3>PingOne Device SSO</h3>
 							<p>
-								PingOne SSO for devices with limited input capabilities like smart TVs and IoT devices.
+								PingOne SSO for devices with limited input capabilities like smart TVs and IoT
+								devices.
 							</p>
 						</DocCard>
 					</CardGrid>
 				</CollapsibleHeader>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="PingOne SSO Security"
 					subtitle="Security best practices and recommendations for PingOne SSO implementation"
@@ -472,37 +503,37 @@ const Documentation = () => {
 						protect against common vulnerabilities and ensure enterprise-grade security.
 					</p>
 
-				<div
-					style={{
-						background: '#fef2f2',
-						border: '1px solid #fecaca',
-						borderRadius: '0.5rem',
-						padding: '1rem',
-						marginBottom: '1.5rem',
-					}}
-				>
-					<p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
-						<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
-						authentication data. Always follow these security guidelines to protect your users and
-						applications.
-					</p>
-				</div>
+					<div
+						style={{
+							background: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '8px',
+							padding: '16px',
+							marginBottom: '1.5rem',
+						}}
+					>
+						<p style={{ margin: 0, color: '#dc2626', fontWeight: '500' }}>
+							<strong> Security Warning:</strong> OAuth 2.0 and OpenID Connect handle sensitive
+							authentication data. Always follow these security guidelines to protect your users and
+							applications.
+						</p>
+					</div>
 
-				<div style={{ marginTop: '1.5rem' }}>
-					<h3>Always Use HTTPS</h3>
-					<p>
-						All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect tokens
-						and sensitive data in transit.
-					</p>
+					<div style={{ marginTop: '1.5rem' }}>
+						<h3>Always Use HTTPS</h3>
+						<p>
+							All OAuth 2.0 and OpenID Connect endpoints must be accessed over HTTPS to protect
+							tokens and sensitive data in transit.
+						</p>
 
-					<h3>Validate ID Tokens</h3>
-					<p>
-						Always validate ID tokens to ensure they are properly signed, not expired, and issued by
-						a trusted identity provider.
-					</p>
+						<h3>Validate ID Tokens</h3>
+						<p>
+							Always validate ID tokens to ensure they are properly signed, not expired, and issued
+							by a trusted identity provider.
+						</p>
 
-					<CodeBlock>
-						<code>{`// Example ID token validation
+						<CodeBlock>
+							<code>{`// Example ID token validation
 const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the token signature
   // Check the token expiration (exp claim)
@@ -510,22 +541,24 @@ const validateIdToken = (idToken, clientId, issuer) => {
   // Verify the audience (aud claim)
   // Check the nonce (if used)
 };`}</code>
-					</CodeBlock>
+						</CodeBlock>
 
-					<h3>Secure Token Storage</h3>
-					<p>
-						Store tokens securely based on your application type. For web applications, use
-						HTTP-only cookies or secure browser storage with appropriate security flags.
-					</p>
+						<h3>Secure Token Storage</h3>
+						<p>
+							Store tokens securely based on your application type. For web applications, use
+							HTTP-only cookies or secure browser storage with appropriate security flags.
+						</p>
 
-					<h3>Use PKCE for Public Clients</h3>
-					<p>
-						Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
-						authorization code interception attacks.
-					</p>
-				</div>
+						<h3>Use PKCE for Public Clients</h3>
+						<p>
+							Always use PKCE (Proof Key for Code Exchange) for public clients to protect against
+							authorization code interception attacks.
+						</p>
+					</div>
 				</CollapsibleHeader>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="Common Issues & Troubleshooting"
 					subtitle="Solutions to the most common OAuth 2.0 and OpenID Connect implementation issues"
@@ -542,15 +575,15 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						style={{
 							background: '#f0f9ff',
 							border: '1px solid #bae6fd',
-							borderRadius: '0.5rem',
-							padding: '1rem',
+							borderRadius: '8px',
+							padding: '16px',
 							marginBottom: '1.5rem',
 						}}
 					>
 						<p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
 							<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
-							Double-check your client settings, redirect URIs, and scopes before diving into complex
-							debugging.
+							Double-check your client settings, redirect URIs, and scopes before diving into
+							complex debugging.
 						</p>
 					</div>
 
@@ -569,8 +602,8 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						<p>
 							<strong>Error:</strong> "Invalid client"
 							<br />
-							<strong>Solution:</strong> Verify that your client ID and client secret are correct and
-							that your application is properly configured in PingOne.
+							<strong>Solution:</strong> Verify that your client ID and client secret are correct
+							and that your application is properly configured in PingOne.
 						</p>
 
 						<h3>Invalid Grant</h3>
@@ -586,14 +619,15 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						</ul>
 					</div>
 				</CollapsibleHeader>
+			</div>
 
+			<div style={{ marginBottom: '24px' }}>
 				<CollapsibleHeader
 					title="PingOne SSO Resources"
 					subtitle="Additional resources and external links for PingOne SSO implementation"
 					icon={<FiExternalLink />}
 					defaultCollapsed={false}
 				>
-
 					<div style={{ marginTop: '1.5rem' }}>
 						<p>Explore these PingOne-specific resources for SSO implementation:</p>
 
@@ -651,8 +685,8 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						</ul>
 					</div>
 				</CollapsibleHeader>
-			</ContentWrapper>
-		</PageContainer>
+			</div>
+		</div>
 	);
 };
 

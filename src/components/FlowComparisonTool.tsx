@@ -3,8 +3,9 @@ import {
 	FiArrowRight,
 	FiCheckCircle,
 	FiClock,
-	FiCode,
 	FiExternalLink,
+	FiGitBranch,
+	FiInfo,
 	FiMinus,
 	FiPlus,
 	FiShield,
@@ -12,15 +13,12 @@ import {
 	FiTarget,
 	FiUser,
 	FiXCircle,
-	FiGitBranch,
-	FiInfo,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { credentialManager } from '../utils/credentialManager';
 import { Card, CardBody, CardHeader } from './Card';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { FlowUIService } from '../services/flowUIService';
 
 interface FlowComparison {
 	id: string;
@@ -63,8 +61,7 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
   border-radius: 0.5rem;
   background-color: ${({ $selected, $added }) =>
 		$added ? '#fef2f2' : $selected ? '#fef2f2' : 'white'};
-  color: ${({ $selected, $added }) =>
-		$added ? '#dc2626' : $selected ? '#dc2626' : '#374151'};
+  color: ${({ $selected, $added }) => ($added ? '#dc2626' : $selected ? '#dc2626' : '#374151')};
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
@@ -557,7 +554,7 @@ const FlowComparisonTool: React.FC = () => {
 			<CollapsibleHeader
 				title="Flow Selection"
 				subtitle="Choose up to 4 OAuth flows to compare side by side"
-            icon={<FiGitBranch />}
+				icon={<FiGitBranch />}
 				defaultCollapsed={false}
 			>
 				<FlowSelector>
@@ -586,13 +583,13 @@ const FlowComparisonTool: React.FC = () => {
 					defaultCollapsed={false}
 				>
 					<EmptyState>
-                 <div className="empty-icon">
-                   <FiGitBranch />
-                 </div>
+						<div className="empty-icon">
+							<FiGitBranch />
+						</div>
 						<h3>Select Flows to Compare</h3>
 						<p>
-							Choose up to 4 OAuth flows from the options above to see a detailed comparison of their
-							features, security levels, and use cases.
+							Choose up to 4 OAuth flows from the options above to see a detailed comparison of
+							their features, security levels, and use cases.
 						</p>
 					</EmptyState>
 				</CollapsibleHeader>

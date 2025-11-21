@@ -2,58 +2,60 @@
 // Rich Authorization Requests (RAR) Flow - V6 Implementation with Service Architecture
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiCheckCircle,
+	FiChevronDown,
 	FiCode,
 	FiExternalLink,
-	FiKey,
-	FiRefreshCw,
-	FiZap,
-	FiPlus,
-	FiTrash2,
 	FiInfo,
-	FiShield,
+	FiKey,
+	FiPlus,
+	FiRefreshCw,
 	FiSettings,
-	FiChevronDown,
+	FiShield,
+	FiTrash2,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import AuthorizationDetailsEditor from '../../components/AuthorizationDetailsEditor';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import RARExampleSelector from '../../components/RARExampleSelector';
+import RARValidationDisplay from '../../components/RARValidationDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import { createOAuthTemplate } from '../../services/enhancedApiCallDisplayService';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import RARService, { type AuthorizationDetail } from '../../services/rarService';
-import { FlowStorageService } from '../../services/flowStorageService';
-import AuthorizationDetailsEditor from '../../components/AuthorizationDetailsEditor';
-import RARExampleSelector from '../../components/RARExampleSelector';
-import RARValidationDisplay from '../../components/RARValidationDisplay';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
+	createOAuthTemplate,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowStorageService } from '../../services/flowStorageService';
+import RARService, { type AuthorizationDetail } from '../../services/rarService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import {
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
 	RAR_EDUCATION,
+	STEP_METADATA,
 } from './config/RARFlow.config';
 
 // Styled Components
@@ -458,7 +460,7 @@ export const RARFlowV6: React.FC = () => {
 	usePageScroll({ pageName: 'RAR Flow V6', force: true });
 
 	// Use service for state initialization
-	const [currentStep, setCurrentStep] = useState(() => 
+	const [currentStep, setCurrentStep] = useState(() =>
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep('rar-v6')
 	);
 
@@ -517,7 +519,10 @@ export const RARFlowV6: React.FC = () => {
 		// Load authorization details from FlowStorageService first (preferred)
 		const saved = FlowStorageService.AdvancedParameters.get('rar-v5');
 		if (saved && saved.authorizationDetails) {
-			console.log('💾 [RAR-V5] Loaded authorization details from FlowStorageService:', saved.authorizationDetails);
+			console.log(
+				'💾 [RAR-V5] Loaded authorization details from FlowStorageService:',
+				saved.authorizationDetails
+			);
 			return saved.authorizationDetails;
 		}
 
@@ -597,7 +602,7 @@ export const RARFlowV6: React.FC = () => {
 				console.warn('[RAR-V5] Failed to save credentials to localStorage:', error);
 			}
 		}, 500); // Debounce by 500ms
-		
+
 		return () => clearTimeout(debounceTimer);
 	}, [credentials]);
 
@@ -606,13 +611,19 @@ export const RARFlowV6: React.FC = () => {
 		try {
 			// Save to FlowStorageService (preferred)
 			FlowStorageService.AdvancedParameters.set('rar-v5', {
-				authorizationDetails
+				authorizationDetails,
 			});
-			console.log('💾 [RAR-V5] Authorization details saved to FlowStorageService:', authorizationDetails);
+			console.log(
+				'💾 [RAR-V5] Authorization details saved to FlowStorageService:',
+				authorizationDetails
+			);
 
 			// Also save to localStorage for backward compatibility
 			localStorage.setItem('rar-v5-authorization-details', JSON.stringify(authorizationDetails));
-			console.log('💾 [RAR-V5] Authorization details saved to localStorage (legacy):', authorizationDetails);
+			console.log(
+				'💾 [RAR-V5] Authorization details saved to localStorage (legacy):',
+				authorizationDetails
+			);
 		} catch (error) {
 			console.warn('[RAR-V5] Failed to save authorization details:', error);
 		}
@@ -765,8 +776,6 @@ export const RARFlowV6: React.FC = () => {
 
 		window.open('/token-management', '_blank');
 	}, [tokens, credentials, currentStep]);
-
-
 
 	// Generate authorization URL
 	const handleGenerateAuthUrl = useCallback(() => {
@@ -1119,25 +1128,28 @@ export const RARFlowV6: React.FC = () => {
 											<CodeBlock>{JSON.stringify(tokens.authorization_details, null, 2)}</CodeBlock>
 											<div style={{ marginTop: '1rem' }}>
 												<RARValidationDisplay
-													authorizationDetails={Array.isArray(tokens.authorization_details) 
-														? tokens.authorization_details 
-														: typeof tokens.authorization_details === 'string' 
-															? JSON.parse(tokens.authorization_details)
-															: []
+													authorizationDetails={
+														Array.isArray(tokens.authorization_details)
+															? tokens.authorization_details
+															: typeof tokens.authorization_details === 'string'
+																? JSON.parse(tokens.authorization_details)
+																: []
 													}
 													showScopeValidation={false}
 												/>
 											</div>
 										</>
 									) : (
-										<div style={{ 
-											padding: '1rem', 
-											background: '#f9fafb', 
-											border: '1px solid #e5e7eb', 
-											borderRadius: '6px',
-											color: '#6b7280',
-											fontSize: '0.875rem'
-										}}>
+										<div
+											style={{
+												padding: '1rem',
+												background: '#f9fafb',
+												border: '1px solid #e5e7eb',
+												borderRadius: '6px',
+												color: '#6b7280',
+												fontSize: '0.875rem',
+											}}
+										>
 											No authorization details found in token response
 										</div>
 									)}
@@ -1159,11 +1171,17 @@ export const RARFlowV6: React.FC = () => {
 										onIntrospectToken={async (token: string) => {
 											// Enhanced token introspection with 500ms delay and client secret check
 											// Wait 500ms for PingOne to register token
-											await new Promise(resolve => setTimeout(resolve, 500));
+											await new Promise((resolve) => setTimeout(resolve, 500));
 
 											// Check for required client secret for introspection
-											if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-												throw new Error('Client secret required for token introspection. Please configure your credentials first.');
+											if (
+												!credentials.environmentId ||
+												!credentials.clientId ||
+												!credentials.clientSecret
+											) {
+												throw new Error(
+													'Client secret required for token introspection. Please configure your credentials first.'
+												);
 											}
 
 											const request = {

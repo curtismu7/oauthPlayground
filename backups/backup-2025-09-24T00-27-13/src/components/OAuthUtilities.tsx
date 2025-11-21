@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { FiAlertCircle, FiCheck, FiCopy, FiEye, FiKey, FiRefreshCw, FiTool } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiTool, FiKey, FiEye, FiCopy, FiRefreshCw, FiCheck, FiAlertCircle } from 'react-icons/fi';
-import { Card, CardHeader, CardBody } from './Card';
-import { parseJwt, generateRandomString, generateCodeChallenge } from '../utils/oauth';
+import { generateCodeChallenge, generateRandomString, parseJwt } from '../utils/oauth';
+import { Card, CardBody, CardHeader } from './Card';
 
 const UtilitiesContainer = styled.div`
   display: grid;

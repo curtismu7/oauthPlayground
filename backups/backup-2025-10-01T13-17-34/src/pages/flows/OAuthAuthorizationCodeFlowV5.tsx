@@ -20,7 +20,6 @@ import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { FlowWalkthrough } from '../../components/FlowWalkthrough';
 import {
 	ExplanationHeading,
@@ -45,9 +44,10 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { applyClientAuthentication } from '../../utils/clientAuthentication';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { applyClientAuthentication } from '../../utils/clientAuthentication';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },

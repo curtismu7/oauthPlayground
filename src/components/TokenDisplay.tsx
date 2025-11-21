@@ -197,7 +197,10 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
-const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | 'refresh' | 'info' }>`
+const TokenValue = styled.pre<{
+	$isMasked?: boolean;
+	$type?: 'access' | 'id' | 'refresh' | 'info';
+}>`
   margin: 0;
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
   font-size: 1.08rem;
@@ -314,7 +317,7 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 	};
 
 	const toggleMask = (key: string) => {
-		setMaskedStates(prev => {
+		setMaskedStates((prev) => {
 			const current = prev[key] ?? false;
 			const next = !current;
 			announce(`${key} ${next ? 'masked' : 'unmasked'}`);

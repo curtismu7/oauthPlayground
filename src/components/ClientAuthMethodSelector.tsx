@@ -2,8 +2,8 @@
 // Token Endpoint Authentication Method Selector for OAuth/OIDC flows
 
 import React from 'react';
+import { FiInfo, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiShield, FiInfo } from 'react-icons/fi';
 import { ClientAuthMethod, getAuthMethodSecurityLevel } from '../utils/clientAuthentication';
 
 export interface ClientAuthMethodSelectorProps {
@@ -58,22 +58,32 @@ const Select = styled.select`
 const Description = styled.div<{ $level: string }>`
 	margin-top: 0.5rem;
 	padding: 0.75rem;
-	background-color: ${props => {
+	background-color: ${(props) => {
 		switch (props.$level) {
-			case 'Highest': return '#ecfdf5';
-			case 'High': return '#eff6ff';
-			case 'Medium': return '#fffbeb';
-			case 'Low': return '#fef2f2';
-			default: return '#f3f4f6';
+			case 'Highest':
+				return '#ecfdf5';
+			case 'High':
+				return '#eff6ff';
+			case 'Medium':
+				return '#fffbeb';
+			case 'Low':
+				return '#fef2f2';
+			default:
+				return '#f3f4f6';
 		}
 	}};
-	border-left: 3px solid ${props => {
+	border-left: 3px solid ${(props) => {
 		switch (props.$level) {
-			case 'Highest': return '#10b981';
-			case 'High': return '#3b82f6';
-			case 'Medium': return '#f59e0b';
-			case 'Low': return '#ef4444';
-			default: return '#9ca3af';
+			case 'Highest':
+				return '#10b981';
+			case 'High':
+				return '#3b82f6';
+			case 'Medium':
+				return '#f59e0b';
+			case 'Low':
+				return '#ef4444';
+			default:
+				return '#9ca3af';
 		}
 	}};
 	border-radius: 0.375rem;
@@ -90,13 +100,18 @@ const SecurityBadge = styled.span<{ $level: string }>`
 	border-radius: 0.25rem;
 	font-size: 0.6875rem;
 	font-weight: 600;
-	background-color: ${props => {
+	background-color: ${(props) => {
 		switch (props.$level) {
-			case 'Highest': return '#10b981';
-			case 'High': return '#3b82f6';
-			case 'Medium': return '#f59e0b';
-			case 'Low': return '#ef4444';
-			default: return '#9ca3af';
+			case 'Highest':
+				return '#10b981';
+			case 'High':
+				return '#3b82f6';
+			case 'Medium':
+				return '#f59e0b';
+			case 'Low':
+				return '#ef4444';
+			default:
+				return '#9ca3af';
 		}
 	}};
 	color: #ffffff;
@@ -125,11 +140,11 @@ const ALL_METHODS: ClientAuthMethod[] = [
 ];
 
 const METHOD_LABELS: Record<ClientAuthMethod, string> = {
-	'none': 'None (Public Client)',
-	'client_secret_basic': 'Client Secret Basic',
-	'client_secret_post': 'Client Secret Post',
-	'client_secret_jwt': 'Client Secret JWT',
-	'private_key_jwt': 'Private Key JWT',
+	none: 'None (Public Client)',
+	client_secret_basic: 'Client Secret Basic',
+	client_secret_post: 'Client Secret Post',
+	client_secret_jwt: 'Client Secret JWT',
+	private_key_jwt: 'Private Key JWT',
 };
 
 const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
@@ -162,7 +177,14 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 
 			{showDescription && securityInfo && (
 				<Description $level={securityInfo.level}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							marginBottom: '0.375rem',
+						}}
+					>
 						<SecurityBadge $level={securityInfo.level}>
 							{securityInfo.icon} {securityInfo.level} Security
 						</SecurityBadge>
@@ -174,8 +196,8 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 			<HelperText>
 				<FiInfo />
 				<span>
-					Specifies how the client authenticates with the token endpoint. 
-					Public clients (SPAs, mobile apps) use "None". Confidential clients use secret or JWT-based methods.
+					Specifies how the client authenticates with the token endpoint. Public clients (SPAs,
+					mobile apps) use "None". Confidential clients use secret or JWT-based methods.
 				</span>
 			</HelperText>
 		</Container>
@@ -183,4 +205,3 @@ const ClientAuthMethodSelector: React.FC<ClientAuthMethodSelectorProps> = ({
 };
 
 export default ClientAuthMethodSelector;
-
