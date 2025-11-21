@@ -1,8 +1,8 @@
 // src/services/copyButtonService.tsx
 // Standardized copy button service with black popup and green checkmark
 
-import React, { useState, useCallback } from 'react';
-import { FiCopy, FiCheck } from 'react-icons/fi';
+import React, { useCallback, useState } from 'react';
+import { FiCheck, FiCopy } from 'react-icons/fi';
 import styled, { keyframes } from 'styled-components';
 
 export interface CopyButtonProps {
@@ -85,54 +85,52 @@ const CopyButton = styled.button<{
   transition: all 0.2s ease;
   position: relative;
   background-color: ${({ $copied, $variant }) => {
-    if ($copied) return '#10b981';
-    if ($variant === 'primary') return '#3b82f6';
-    if ($variant === 'secondary') return '#6b7280';
-    return 'transparent';
-  }};
+		if ($copied) return '#10b981';
+		if ($variant === 'primary') return '#3b82f6';
+		if ($variant === 'secondary') return '#6b7280';
+		return 'transparent';
+	}};
   color: ${({ $copied, $variant }) => {
-    if ($copied) return 'white';
-    if ($variant === 'outline') return '#374151';
-    return 'white';
-  }};
+		if ($copied) return 'white';
+		if ($variant === 'outline') return '#374151';
+		return 'white';
+	}};
   border: ${({ $variant, $copied }) => {
-    if ($copied) return '1px solid #10b981';
-    if ($variant === 'outline') return '1px solid #d1d5db';
-    return 'none';
-  }};
+		if ($copied) return '1px solid #10b981';
+		if ($variant === 'outline') return '1px solid #d1d5db';
+		return 'none';
+	}};
 
   ${({ $size }) => {
-    switch ($size) {
-      case 'sm':
-        return `
+		switch ($size) {
+			case 'sm':
+				return `
           padding: 0.375rem 0.5rem;
           font-size: 0.75rem;
         `;
-      case 'lg':
-        return `
+			case 'lg':
+				return `
           padding: 0.75rem 1rem;
           font-size: 1rem;
         `;
-      default: // md
-        return `
+			default: // md
+				return `
           padding: 0.5rem 0.75rem;
           font-size: 0.875rem;
         `;
-    }
-  }}
+		}
+	}}
 
   &:hover {
     background-color: ${({ $copied, $variant }) => {
-      if ($copied) return '#059669';
-      if ($variant === 'primary') return '#2563eb';
-      if ($variant === 'secondary') return '#4b5563';
-      return '#f9fafb';
-    }};
+			if ($copied) return '#059669';
+			if ($variant === 'primary') return '#2563eb';
+			if ($variant === 'secondary') return '#4b5563';
+			return '#f9fafb';
+		}};
     transform: ${({ $copied }) => ($copied ? 'none' : 'translateY(-1px)')};
     box-shadow: ${({ $copied }) =>
-      $copied
-        ? '0 2px 4px rgba(16, 185, 129, 0.3)'
-        : '0 4px 8px rgba(0, 0, 0, 0.1)'};
+			$copied ? '0 2px 4px rgba(16, 185, 129, 0.3)' : '0 4px 8px rgba(0, 0, 0, 0.1)'};
   }
 
   &:focus {
@@ -146,91 +144,91 @@ const CopyButton = styled.button<{
 
   svg {
     width: ${({ $size }) => {
-      switch ($size) {
-        case 'sm':
-          return '14px';
-        case 'lg':
-          return '18px';
-        default:
-          return '16px';
-      }
-    }};
+			switch ($size) {
+				case 'sm':
+					return '14px';
+				case 'lg':
+					return '18px';
+				default:
+					return '16px';
+			}
+		}};
     height: ${({ $size }) => {
-      switch ($size) {
-        case 'sm':
-          return '14px';
-        case 'lg':
-          return '18px';
-        default:
-          return '16px';
-      }
-    }};
+			switch ($size) {
+				case 'sm':
+					return '14px';
+				case 'lg':
+					return '18px';
+				default:
+					return '16px';
+			}
+		}};
   }
 `;
 
 // Icon component that switches between copy and check
 const CopyIcon: React.FC<{ copied: boolean }> = ({ copied }) => {
-  return copied ? <FiCheck /> : <FiCopy />;
+	return copied ? <FiCheck /> : <FiCopy />;
 };
 
 // Main copy button component
 export const CopyButtonService: React.FC<CopyButtonProps> = ({
-  text,
-  label = 'Copy',
-  size = 'md',
-  variant = 'primary',
-  showLabel = true,
-  className,
+	text,
+	label = 'Copy',
+	size = 'md',
+	variant = 'primary',
+	showLabel = true,
+	className,
 }) => {
-  const [isCopied, setIsCopied] = useState(false);
-  const [showTooltip, setShowTooltip] = useState(false);
+	const [isCopied, setIsCopied] = useState(false);
+	const [showTooltip, setShowTooltip] = useState(false);
 
-  const handleCopy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setIsCopied(true);
-      setShowTooltip(true);
+	const handleCopy = useCallback(async () => {
+		try {
+			await navigator.clipboard.writeText(text);
+			setIsCopied(true);
+			setShowTooltip(true);
 
-      // Reset after 2 seconds
-      setTimeout(() => {
-        setIsCopied(false);
-        setShowTooltip(false);
-      }, 2000);
-    } catch (err) {
-      console.error('Failed to copy text:', err);
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setIsCopied(true);
-        setShowTooltip(true);
-        setTimeout(() => {
-          setIsCopied(false);
-          setShowTooltip(false);
-        }, 2000);
-      } catch (fallbackErr) {
-        console.error('Fallback copy failed:', fallbackErr);
-      }
-      document.body.removeChild(textArea);
-    }
-  }, [text]);
+			// Reset after 2 seconds
+			setTimeout(() => {
+				setIsCopied(false);
+				setShowTooltip(false);
+			}, 2000);
+		} catch (err) {
+			console.error('Failed to copy text:', err);
+			// Fallback for older browsers
+			const textArea = document.createElement('textarea');
+			textArea.value = text;
+			document.body.appendChild(textArea);
+			textArea.select();
+			try {
+				document.execCommand('copy');
+				setIsCopied(true);
+				setShowTooltip(true);
+				setTimeout(() => {
+					setIsCopied(false);
+					setShowTooltip(false);
+				}, 2000);
+			} catch (fallbackErr) {
+				console.error('Fallback copy failed:', fallbackErr);
+			}
+			document.body.removeChild(textArea);
+		}
+	}, [text]);
 
-  const handleMouseEnter = useCallback(() => {
-    if (!isCopied) {
-      setShowTooltip(true);
-    }
-  }, [isCopied]);
+	const handleMouseEnter = useCallback(() => {
+		if (!isCopied) {
+			setShowTooltip(true);
+		}
+	}, [isCopied]);
 
-  const handleMouseLeave = useCallback(() => {
-    if (!isCopied) {
-      setShowTooltip(false);
-    }
-  }, [isCopied]);
+	const handleMouseLeave = useCallback(() => {
+		if (!isCopied) {
+			setShowTooltip(false);
+		}
+	}, [isCopied]);
 
-  	return (
+	return (
 		<CopyButtonContainer className={className}>
 			<CopyTooltip $visible={showTooltip} $copied={isCopied}>
 				{isCopied ? 'Copied!' : `${label} item`}
@@ -274,35 +272,14 @@ export const createCopyButton = (
 // Pre-configured copy buttons for common scenarios
 export const CopyButtonVariants = {
 	identifier: (text: string, label: string) => (
-		<CopyButtonService
-			text={text}
-			label={label}
-			size="sm"
-			variant="outline"
-			showLabel={false}
-		/>
+		<CopyButtonService text={text} label={label} size="sm" variant="outline" showLabel={false} />
 	),
 
 	url: (text: string, label: string) => (
-		<CopyButtonService
-			text={text}
-			label={label}
-			size="md"
-			variant="primary"
-			showLabel={true}
-		/>
+		<CopyButtonService text={text} label={label} size="md" variant="primary" showLabel={true} />
 	),
 
 	token: (text: string, label: string) => (
-		<CopyButtonService
-			text={text}
-			label={label}
-			size="sm"
-			variant="secondary"
-			showLabel={false}
-		/>
+		<CopyButtonService text={text} label={label} size="sm" variant="secondary" showLabel={false} />
 	),
 };
-
-
-

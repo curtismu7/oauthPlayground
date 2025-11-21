@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
+import React, { useEffect, useState } from 'react';
 import { FiAlertCircle } from 'react-icons/fi';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
-import { URLParamExplainer } from '../../components/URLParamExplainer';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import TokenDisplayComponent from '../../components/TokenDisplay';
+import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import {
 	BaseOAuthFlow,
 	Container,
-	useOAuthFlowBase,
 	getPingOneEnvVars,
+	useOAuthFlowBase,
 } from '../../components/BaseOAuthFlow';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import { OAuthFlowErrorBoundary } from '../../components/OAuthFlowErrorBoundary';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import { URLParamExplainer } from '../../components/URLParamExplainer';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import {
 	buildOAuthURL,
-	handleOAuthFlowError,
-	storeOAuthTokensSafely,
-	generateState,
 	generateNonce,
-	logOAuthFlowEvent,
+	generateState,
 	getOAuthFlowDescription,
 	getOAuthFlowUseCases,
+	handleOAuthFlowError,
+	logOAuthFlowEvent,
+	storeOAuthTokensSafely,
 } from '../../utils/flowUtils';
-import { OAuthFlowErrorBoundary } from '../../components/OAuthFlowErrorBoundary';
 
 // Styled components specific to this flow
 const ErrorMessage = styled.div`

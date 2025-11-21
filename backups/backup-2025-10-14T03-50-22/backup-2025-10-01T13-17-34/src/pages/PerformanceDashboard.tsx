@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
 	FiActivity,
-	FiTrendingUp,
-	FiTrendingDown,
-	FiZap,
-	FiDownload,
 	FiClock,
+	FiDownload,
 	FiMonitor,
+	FiTrendingDown,
+	FiTrendingUp,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { PerformanceMonitor } from '../components/PerformanceMonitor';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';

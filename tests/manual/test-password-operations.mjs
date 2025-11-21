@@ -8,9 +8,9 @@ const TEST_USER_ID = '5adc497b-dde7-44c6-a003-9b84f8038ff9'; // curtis7
 
 async function getWorkerToken() {
 	console.log('🔑 Getting worker token...');
-	
+
 	const tokenUrl = `https://auth.pingone.com/${ENV_ID}/as/token`;
-	
+
 	const response = await fetch(tokenUrl, {
 		method: 'POST',
 		headers: {
@@ -22,14 +22,14 @@ async function getWorkerToken() {
 			client_secret: CLIENT_SECRET,
 		}),
 	});
-	
+
 	const data = await response.json();
-	
+
 	if (!response.ok) {
 		console.error('❌ Failed to get worker token:', data);
 		return null;
 	}
-	
+
 	console.log('✅ Worker token obtained\n');
 	return data.access_token;
 }
@@ -38,7 +38,7 @@ async function testGetPasswordState(workerToken) {
 	console.log('='.repeat(70));
 	console.log('🧪 Test 1: Get Password State');
 	console.log('='.repeat(70));
-	
+
 	try {
 		const response = await fetch(
 			`http://localhost:3001/api/pingone/password/state?environmentId=${ENV_ID}&userId=${TEST_USER_ID}&workerToken=${workerToken}`,
@@ -49,11 +49,11 @@ async function testGetPasswordState(workerToken) {
 				},
 			}
 		);
-		
+
 		const data = await response.json();
-		
+
 		console.log(`Status: ${response.status} ${response.statusText}`);
-		
+
 		if (response.ok && data.success) {
 			console.log('✅ Password state retrieved successfully');
 			console.log('Password State:', JSON.stringify(data.passwordState, null, 2));
@@ -72,7 +72,7 @@ async function testForcePasswordChange(workerToken) {
 	console.log('='.repeat(70));
 	console.log('🧪 Test 2: Force Password Change');
 	console.log('='.repeat(70));
-	
+
 	try {
 		const response = await fetch('http://localhost:3001/api/pingone/password/force-change', {
 			method: 'POST',
@@ -85,11 +85,11 @@ async function testForcePasswordChange(workerToken) {
 				workerToken: workerToken,
 			}),
 		});
-		
+
 		const data = await response.json();
-		
+
 		console.log(`Status: ${response.status} ${response.statusText}`);
-		
+
 		if (response.ok && data.success) {
 			console.log('✅ Password change forced successfully');
 			console.log('Message:', data.message);
@@ -114,9 +114,9 @@ async function testSetPassword(workerToken) {
 	console.log('='.repeat(70));
 	console.log('🧪 Test 3: Set Password (Admin)');
 	console.log('='.repeat(70));
-	
+
 	const newPassword = 'TempPass123!@#';
-	
+
 	try {
 		const response = await fetch('http://localhost:3001/api/pingone/password/set', {
 			method: 'PUT',
@@ -132,11 +132,11 @@ async function testSetPassword(workerToken) {
 				bypassPasswordPolicy: false,
 			}),
 		});
-		
+
 		const data = await response.json();
-		
+
 		console.log(`Status: ${response.status} ${response.statusText}`);
-		
+
 		if (response.ok && data.success) {
 			console.log('✅ Password set successfully');
 			console.log('Message:', data.message);
@@ -159,7 +159,7 @@ async function testUnlockPassword(workerToken) {
 	console.log('='.repeat(70));
 	console.log('🧪 Test 4: Unlock Password');
 	console.log('='.repeat(70));
-	
+
 	try {
 		const response = await fetch('http://localhost:3001/api/pingone/password/unlock', {
 			method: 'POST',
@@ -172,11 +172,11 @@ async function testUnlockPassword(workerToken) {
 				workerToken: workerToken,
 			}),
 		});
-		
+
 		const data = await response.json();
-		
+
 		console.log(`Status: ${response.status} ${response.statusText}`);
-		
+
 		if (response.ok && data.success) {
 			console.log('✅ Password unlocked successfully');
 			console.log('Message:', data.message);
@@ -196,20 +196,20 @@ async function main() {
 	console.log('Environment ID:', ENV_ID);
 	console.log('Test User: curtis7 (ID:', TEST_USER_ID + ')');
 	console.log('');
-	
+
 	const workerToken = await getWorkerToken();
-	
+
 	if (!workerToken) {
 		console.log('\n⚠️  Cannot proceed without worker token.');
 		process.exit(1);
 	}
-	
+
 	// Run tests
 	await testGetPasswordState(workerToken);
 	await testForcePasswordChange(workerToken);
 	await testSetPassword(workerToken);
 	await testUnlockPassword(workerToken);
-	
+
 	console.log('='.repeat(70));
 	console.log('✅ All password operation tests completed');
 	console.log('='.repeat(70));
@@ -227,7 +227,7 @@ async function main() {
 	console.log('  - Proper verifyPolicy handling');
 }
 
-main().catch(error => {
+main().catch((error) => {
 	console.error('Fatal error:', error);
 	process.exit(1);
 });

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiSearch,
-	FiCheckCircle,
 	FiAlertCircle,
-	FiRefreshCw,
-	FiGlobe,
-	FiX,
 	FiCheck,
+	FiCheckCircle,
+	FiGlobe,
+	FiRefreshCw,
+	FiSearch,
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { discoveryService, OpenIDConfiguration } from '../services/discoveryService';
-import { logger } from '../utils/logger';
 import { credentialManager } from '../utils/credentialManager';
+import { logger } from '../utils/logger';
+import { showFlowError, showFlowSuccess } from './CentralizedSuccessMessage';
 import CopyIcon from './CopyIcon';
-import { showFlowSuccess, showFlowError } from './CentralizedSuccessMessage';
 
 interface DiscoveryPanelProps {
 	onConfigurationDiscovered: (config: OpenIDConfiguration, environmentId: string) => void;

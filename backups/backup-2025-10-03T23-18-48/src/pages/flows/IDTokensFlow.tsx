@@ -7,8 +7,8 @@ import FlowCredentials from '../../components/FlowCredentials';
 import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { getOAuthTokens } from '../../utils/tokenStorage';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { getOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

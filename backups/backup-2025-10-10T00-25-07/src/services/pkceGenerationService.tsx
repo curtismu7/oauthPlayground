@@ -1,9 +1,9 @@
 // src/services/pkceGenerationService.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiCopy, FiKey, FiRefreshCw } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiKey, FiRefreshCw, FiCheckCircle, FiAlertCircle, FiCopy } from 'react-icons/fi';
-import { UISettingsService } from './uiSettingsService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { UISettingsService } from './uiSettingsService';
 
 // Styled components
 const PKCESection = styled.div`
@@ -71,27 +71,22 @@ const PKCESubtitle = styled.p`
 `;
 
 const GenerateButton = styled.button<{ $isGenerating: boolean; $disabled: boolean }>`
-	background: ${({ $disabled }) => 
-		$disabled 
+	background: ${({ $disabled }) =>
+		$disabled
 			? 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)'
-			: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
-	};
-	color: ${({ $disabled }) => $disabled ? '#9ca3af' : 'white'};
+			: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'};
+	color: ${({ $disabled }) => ($disabled ? '#9ca3af' : 'white')};
 	border: none;
 	border-radius: 0.5rem;
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
-	cursor: ${({ $disabled }) => $disabled ? 'not-allowed' : 'pointer'};
+	cursor: ${({ $disabled }) => ($disabled ? 'not-allowed' : 'pointer')};
 	transition: all 0.2s ease;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	box-shadow: ${({ $disabled }) => 
-		$disabled 
-			? 'none' 
-			: '0 4px 12px rgba(59, 130, 246, 0.3)'
-	};
+	box-shadow: ${({ $disabled }) => ($disabled ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)')};
 
 	&:hover:not(:disabled) {
 		background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
@@ -239,12 +234,14 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 
 	const handleGeneratePKCE = useCallback(async () => {
 		console.log('[PKCEGenerationService] handleGeneratePKCE called');
-		
+
 		if (!credentials.clientId || !credentials.environmentId) {
 			console.log('[PKCEGenerationService] Missing credentials, aborting');
 			setStatus('error');
 			setStatusMessage('Missing Client ID or Environment ID. Please configure credentials first.');
-			v4ToastManager.showError('Missing Client ID or Environment ID. Please configure credentials first.');
+			v4ToastManager.showError(
+				'Missing Client ID or Environment ID. Please configure credentials first.'
+			);
 			return;
 		}
 
@@ -265,7 +262,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 			console.log('[PKCEGenerationService] Calling controller.generatePkceCodes()...');
 			await controller.generatePkceCodes();
 			console.log('[PKCEGenerationService] PKCE generation completed successfully');
-			
+
 			setStatus('success');
 			setStatusMessage('PKCE codes generated successfully!');
 			v4ToastManager.showSuccess('PKCE codes generated!');
@@ -284,7 +281,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		console.log('[PKCEGenerationService] Auto-generation check:', {
 			isAutoGenerateEnabled,
 			hasExistingPKCE: !!controller?.pkceCodes?.codeVerifier,
-			shouldAutoGenerate: isAutoGenerateEnabled && !controller?.pkceCodes?.codeVerifier
+			shouldAutoGenerate: isAutoGenerateEnabled && !controller?.pkceCodes?.codeVerifier,
 		});
 
 		if (isAutoGenerateEnabled && !controller?.pkceCodes?.codeVerifier) {
@@ -320,9 +317,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		<PKCESection>
 			<PKCEHeader>
 				<HeaderContent>
-					<HeaderIcon $status={isGenerating ? 'generating' : status}>
-						{getStatusIcon()}
-					</HeaderIcon>
+					<HeaderIcon $status={isGenerating ? 'generating' : status}>{getStatusIcon()}</HeaderIcon>
 					<HeaderText>
 						<PKCETitle>PKCE Generation</PKCETitle>
 						<PKCESubtitle>
@@ -359,7 +354,9 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 						<PKCEValue>
 							<span>{controller.pkceCodes.codeVerifier}</span>
 							<CopyButton
-								onClick={() => handleCopyToClipboard(controller.pkceCodes.codeVerifier, 'Code Verifier')}
+								onClick={() =>
+									handleCopyToClipboard(controller.pkceCodes.codeVerifier, 'Code Verifier')
+								}
 								title="Copy Code Verifier"
 							>
 								<FiCopy size={12} />
@@ -375,7 +372,9 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 						<PKCEValue>
 							<span>{controller.pkceCodes.codeChallenge}</span>
 							<CopyButton
-								onClick={() => handleCopyToClipboard(controller.pkceCodes.codeChallenge, 'Code Challenge')}
+								onClick={() =>
+									handleCopyToClipboard(controller.pkceCodes.codeChallenge, 'Code Challenge')
+								}
 								title="Copy Code Challenge"
 							>
 								<FiCopy size={12} />

@@ -3,23 +3,23 @@
 
 import React, { useState } from 'react';
 import {
+	FiCheckCircle,
+	FiChevronDown,
 	FiInfo,
 	FiKey,
-	FiShield,
-	FiCheckCircle,
-	FiSmartphone,
-	FiMail,
 	FiLock,
+	FiMail,
 	FiPhone,
-	FiChevronDown,
+	FiShield,
+	FiSmartphone,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 
 const STEP_METADATA = [
 	{
@@ -48,7 +48,12 @@ const STEP_METADATA = [
 	},
 ] as const;
 
-type IntroSectionKey = 'overview' | 'credentials' | 'results' | 'mfaOverview' | 'mfaDetails'
+type IntroSectionKey =
+	| 'overview'
+	| 'credentials'
+	| 'results'
+	| 'mfaOverview'
+	| 'mfaDetails'
 	| 'flowSummary'; // Step X
 
 const Container = styled.div`
@@ -375,7 +380,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 		results: false,
 		mfaOverview: false,
 		mfaDetails: false,
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 

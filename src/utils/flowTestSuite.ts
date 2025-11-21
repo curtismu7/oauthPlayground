@@ -1,8 +1,8 @@
 // src/utils/flowTestSuite.ts
 // Comprehensive test suite for all OAuth/OIDC flows
 
-import { regressionSafeguards, FlowTestResult, RegressionTestSuite } from './regressionSafeguards';
 import { StepCredentials } from '../types/flowTypes';
+import { FlowTestResult, RegressionTestSuite, regressionSafeguards } from './regressionSafeguards';
 
 export interface FlowTestConfig {
 	flowName: string;
@@ -46,7 +46,7 @@ export class FlowTestSuite {
 	 */
 	private initializeDefaultTests(): void {
 		// ===== V7 OAuth 2.0 Flows =====
-		
+
 		// Authorization Code Flow V7
 		this.testConfigs.push({
 			flowName: 'oauth-authorization-code-v7',
@@ -61,14 +61,14 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should generate authorization URL',
 				'Should handle authorization code exchange',
-				'Should validate tokens'
+				'Should validate tokens',
 			],
-			criticalSteps: ['authorization-url', 'token-exchange', 'token-validation']
+			criticalSteps: ['authorization-url', 'token-exchange', 'token-validation'],
 		});
 
 		// Implicit Flow V7
@@ -85,14 +85,14 @@ export class FlowTestSuite {
 				grantType: 'implicit',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: '',
-				clientAuthMethod: 'none'
+				clientAuthMethod: 'none',
 			},
 			expectedBehavior: [
 				'Should generate implicit authorization URL',
 				'Should process fragment tokens',
-				'Should validate ID token'
+				'Should validate ID token',
 			],
-			criticalSteps: ['authorization-url', 'fragment-processing', 'id-token-validation']
+			criticalSteps: ['authorization-url', 'fragment-processing', 'id-token-validation'],
 		});
 
 		// Device Authorization Flow V7
@@ -109,14 +109,14 @@ export class FlowTestSuite {
 				grantType: 'urn:ietf:params:oauth:grant-type:device_code',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should initiate device authorization',
 				'Should handle device code polling',
-				'Should exchange device code for tokens'
+				'Should exchange device code for tokens',
 			],
-			criticalSteps: ['device-authorization', 'device-code-polling', 'token-exchange']
+			criticalSteps: ['device-authorization', 'device-code-polling', 'token-exchange'],
 		});
 
 		// Client Credentials Flow V7
@@ -133,14 +133,14 @@ export class FlowTestSuite {
 				grantType: 'client_credentials',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should authenticate with client credentials',
 				'Should request access token',
-				'Should validate token response'
+				'Should validate token response',
 			],
-			criticalSteps: ['client-authentication', 'token-request', 'token-validation']
+			criticalSteps: ['client-authentication', 'token-request', 'token-validation'],
 		});
 
 		// Resource Owner Password Credentials Flow V7
@@ -157,14 +157,14 @@ export class FlowTestSuite {
 				grantType: 'password',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should authenticate with username/password',
 				'Should request access token',
-				'Should validate token response'
+				'Should validate token response',
 			],
-			criticalSteps: ['user-authentication', 'token-request', 'token-validation']
+			criticalSteps: ['user-authentication', 'token-request', 'token-validation'],
 		});
 
 		// Token Exchange Flow V7
@@ -181,14 +181,14 @@ export class FlowTestSuite {
 				grantType: 'urn:ietf:params:oauth:grant-type:token-exchange',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should exchange existing token for new token',
 				'Should validate token exchange request',
-				'Should return new token'
+				'Should return new token',
 			],
-			criticalSteps: ['token-exchange-request', 'token-validation', 'new-token-response']
+			criticalSteps: ['token-exchange-request', 'token-validation', 'new-token-response'],
 		});
 
 		// JWT Bearer Token Flow V7
@@ -205,14 +205,14 @@ export class FlowTestSuite {
 				grantType: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should authenticate with JWT assertion',
 				'Should validate JWT signature',
-				'Should exchange JWT for access token'
+				'Should exchange JWT for access token',
 			],
-			criticalSteps: ['jwt-assertion', 'jwt-validation', 'token-exchange']
+			criticalSteps: ['jwt-assertion', 'jwt-validation', 'token-exchange'],
 		});
 
 		// ===== V7 OIDC Flows =====
@@ -231,14 +231,14 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should generate OIDC authorization URL',
 				'Should handle authorization code exchange',
-				'Should validate ID token and access token'
+				'Should validate ID token and access token',
 			],
-			criticalSteps: ['authorization-url', 'token-exchange', 'id-token-validation']
+			criticalSteps: ['authorization-url', 'token-exchange', 'id-token-validation'],
 		});
 
 		// OIDC Implicit Flow V7
@@ -255,14 +255,14 @@ export class FlowTestSuite {
 				grantType: 'implicit',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: '',
-				clientAuthMethod: 'none'
+				clientAuthMethod: 'none',
 			},
 			expectedBehavior: [
 				'Should generate OIDC implicit authorization URL',
 				'Should process fragment tokens',
-				'Should validate ID token'
+				'Should validate ID token',
 			],
-			criticalSteps: ['authorization-url', 'fragment-processing', 'id-token-validation']
+			criticalSteps: ['authorization-url', 'fragment-processing', 'id-token-validation'],
 		});
 
 		// OIDC Hybrid Flow V7
@@ -279,15 +279,20 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should generate OIDC hybrid authorization URL',
 				'Should process fragment tokens',
 				'Should exchange authorization code',
-				'Should merge tokens'
+				'Should merge tokens',
 			],
-			criticalSteps: ['authorization-url', 'fragment-processing', 'token-exchange', 'token-merging']
+			criticalSteps: [
+				'authorization-url',
+				'fragment-processing',
+				'token-exchange',
+				'token-merging',
+			],
 		});
 
 		// OIDC Device Authorization Flow V7
@@ -304,14 +309,14 @@ export class FlowTestSuite {
 				grantType: 'urn:ietf:params:oauth:grant-type:device_code',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should initiate OIDC device authorization',
 				'Should handle device code polling',
-				'Should exchange device code for ID token and access token'
+				'Should exchange device code for ID token and access token',
 			],
-			criticalSteps: ['device-authorization', 'device-code-polling', 'token-exchange']
+			criticalSteps: ['device-authorization', 'device-code-polling', 'token-exchange'],
 		});
 
 		// OIDC CIBA Flow V7
@@ -328,14 +333,14 @@ export class FlowTestSuite {
 				grantType: 'urn:openid:params:grant-type:ciba',
 				authorizationEndpoint: '',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should initiate CIBA authentication',
 				'Should handle backchannel authentication',
-				'Should exchange CIBA grant for tokens'
+				'Should exchange CIBA grant for tokens',
 			],
-			criticalSteps: ['ciba-initiation', 'backchannel-auth', 'token-exchange']
+			criticalSteps: ['ciba-initiation', 'backchannel-auth', 'token-exchange'],
 		});
 
 		// ===== V7 PingOne Specific Flows =====
@@ -354,14 +359,14 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should create PAR request',
 				'Should handle PAR authorization',
-				'Should exchange authorization code for tokens'
+				'Should exchange authorization code for tokens',
 			],
-			criticalSteps: ['par-request', 'par-authorization', 'token-exchange']
+			criticalSteps: ['par-request', 'par-authorization', 'token-exchange'],
 		});
 
 		// PingOne MFA Flow V7
@@ -378,14 +383,14 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should initiate MFA authentication',
 				'Should handle MFA challenges',
-				'Should complete MFA flow'
+				'Should complete MFA flow',
 			],
-			criticalSteps: ['mfa-initiation', 'mfa-challenges', 'mfa-completion']
+			criticalSteps: ['mfa-initiation', 'mfa-challenges', 'mfa-completion'],
 		});
 
 		// ===== V7 Mock Flows =====
@@ -404,14 +409,14 @@ export class FlowTestSuite {
 				grantType: 'authorization_code',
 				authorizationEndpoint: 'https://auth.pingone.com/as/authorize',
 				tokenEndpoint: 'https://auth.pingone.com/as/token',
-				clientAuthMethod: 'client_secret_post'
+				clientAuthMethod: 'client_secret_post',
 			},
 			expectedBehavior: [
 				'Should handle Rich Authorization Requests',
 				'Should process RAR parameters',
-				'Should validate RAR authorization'
+				'Should validate RAR authorization',
 			],
-			criticalSteps: ['rar-request', 'rar-validation', 'authorization']
+			criticalSteps: ['rar-request', 'rar-validation', 'authorization'],
 		});
 	}
 
@@ -420,7 +425,7 @@ export class FlowTestSuite {
 	 */
 	async runTestSuite(): Promise<TestSuiteResult> {
 		console.log('[Flow Test Suite] Starting comprehensive test suite...');
-		
+
 		const flows: Array<{
 			flowName: string;
 			passed: boolean;
@@ -436,7 +441,7 @@ export class FlowTestSuite {
 		// Test each flow configuration
 		for (const config of this.testConfigs) {
 			console.log(`[Flow Test Suite] Testing ${config.flowName}...`);
-			
+
 			try {
 				// Run validation suite
 				const testSuite = await regressionSafeguards.runValidationSuite(
@@ -447,14 +452,14 @@ export class FlowTestSuite {
 
 				// Check for critical failures
 				const criticalFailuresList = testSuite.tests
-					.filter(test => !test.passed && config.criticalSteps?.includes(test.step))
-					.map(test => test.step);
+					.filter((test) => !test.passed && config.criticalSteps?.includes(test.step))
+					.map((test) => test.step);
 
 				const flowResult = {
 					flowName: config.flowName,
 					passed: testSuite.overallPassed,
 					tests: testSuite.tests,
-					criticalFailures: criticalFailuresList
+					criticalFailures: criticalFailuresList,
 				};
 
 				flows.push(flowResult);
@@ -470,21 +475,25 @@ export class FlowTestSuite {
 					criticalFailures++;
 				}
 
-				console.log(`[Flow Test Suite] ${config.flowName}: ${testSuite.overallPassed ? 'PASSED' : 'FAILED'}`);
+				console.log(
+					`[Flow Test Suite] ${config.flowName}: ${testSuite.overallPassed ? 'PASSED' : 'FAILED'}`
+				);
 				if (criticalFailuresList.length > 0) {
-					console.error(`[Flow Test Suite] Critical failures in ${config.flowName}:`, criticalFailuresList);
+					console.error(
+						`[Flow Test Suite] Critical failures in ${config.flowName}:`,
+						criticalFailuresList
+					);
 				}
-
 			} catch (error) {
 				console.error(`[Flow Test Suite] Error testing ${config.flowName}:`, error);
-				
+
 				flows.push({
 					flowName: config.flowName,
 					passed: false,
 					tests: [],
-					criticalFailures: ['test-execution-error']
+					criticalFailures: ['test-execution-error'],
 				});
-				
+
 				totalFlows++;
 				failedFlows++;
 				criticalFailures++;
@@ -499,9 +508,9 @@ export class FlowTestSuite {
 				totalFlows,
 				passedFlows,
 				failedFlows,
-				criticalFailures
+				criticalFailures,
 			},
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		};
 
 		console.log('[Flow Test Suite] Test suite completed:', this.results.summary);
@@ -512,7 +521,7 @@ export class FlowTestSuite {
 	 * Run tests for a specific flow
 	 */
 	async runFlowTest(flowName: string): Promise<RegressionTestSuite | null> {
-		const config = this.testConfigs.find(c => c.flowName === flowName);
+		const config = this.testConfigs.find((c) => c.flowName === flowName);
 		if (!config) {
 			console.error(`[Flow Test Suite] No configuration found for flow: ${flowName}`);
 			return null;
@@ -553,14 +562,14 @@ export class FlowTestSuite {
 			return {
 				overall: 'warning',
 				flows: [],
-				criticalIssues: ['No test results available']
+				criticalIssues: ['No test results available'],
 			};
 		}
 
 		const criticalIssues: string[] = [];
-		const flows = this.results.flows.map(flow => {
+		const flows = this.results.flows.map((flow) => {
 			let status: 'healthy' | 'warning' | 'critical' = 'healthy';
-			
+
 			if (flow.criticalFailures.length > 0) {
 				status = 'critical';
 				criticalIssues.push(`${flow.flowName}: ${flow.criticalFailures.join(', ')}`);
@@ -570,18 +579,21 @@ export class FlowTestSuite {
 
 			return {
 				name: flow.flowName,
-				status
+				status,
 			};
 		});
 
-		const overall: 'healthy' | 'warning' | 'critical' = 
-			criticalIssues.length > 0 ? 'critical' :
-			this.results.summary.failedFlows > 0 ? 'warning' : 'healthy';
+		const overall: 'healthy' | 'warning' | 'critical' =
+			criticalIssues.length > 0
+				? 'critical'
+				: this.results.summary.failedFlows > 0
+					? 'warning'
+					: 'healthy';
 
 		return {
 			overall,
 			flows,
-			criticalIssues
+			criticalIssues,
 		};
 	}
 
@@ -594,7 +606,7 @@ export class FlowTestSuite {
 		}
 
 		const { summary, flows } = this.results;
-		
+
 		let report = `# Flow Test Suite Report\n\n`;
 		report += `**Generated:** ${new Date(this.results.timestamp).toISOString()}\n\n`;
 		report += `## Summary\n\n`;
@@ -602,16 +614,16 @@ export class FlowTestSuite {
 		report += `- **Passed:** ${summary.passedFlows}\n`;
 		report += `- **Failed:** ${summary.failedFlows}\n`;
 		report += `- **Critical Failures:** ${summary.criticalFailures}\n\n`;
-		
+
 		report += `## Flow Results\n\n`;
-		flows.forEach(flow => {
+		flows.forEach((flow) => {
 			report += `### ${flow.flowName}\n`;
 			report += `- **Status:** ${flow.passed ? '✅ PASSED' : '❌ FAILED'}\n`;
 			if (flow.criticalFailures.length > 0) {
 				report += `- **Critical Failures:** ${flow.criticalFailures.join(', ')}\n`;
 			}
 			report += `- **Tests:** ${flow.tests.length}\n`;
-			report += `- **Passed Tests:** ${flow.tests.filter(t => t.passed).length}\n\n`;
+			report += `- **Passed Tests:** ${flow.tests.filter((t) => t.passed).length}\n\n`;
 		});
 
 		return report;

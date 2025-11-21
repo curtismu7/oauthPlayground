@@ -1,11 +1,11 @@
 // src/components/CompactApplicationPicker.tsx
 // Compact version of application picker for use in modals
 
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiRefreshCw, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSearch, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
-import { fetchApplications } from '../services/pingOneApplicationService';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
+import { fetchApplications } from '../services/pingOneApplicationService';
 
 const Container = styled.div`
 	display: flex;
@@ -208,7 +208,7 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
-	const loadApplications = async () => {
+	const loadApplications = useCallback(async () => {
 		if (!environmentId || !workerToken) {
 			setError('Environment ID and Worker Token are required');
 			return;
@@ -229,11 +229,11 @@ export const CompactApplicationPicker: React.FC<CompactApplicationPickerProps> =
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [environmentId, workerToken]);
 
 	useEffect(() => {
 		loadApplications();
-	}, [environmentId, workerToken]);
+	}, [loadApplications]);
 
 	useEffect(() => {
 		if (!searchQuery.trim()) {

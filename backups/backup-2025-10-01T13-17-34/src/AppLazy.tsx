@@ -1,10 +1,10 @@
-import React, { useState, useEffect, Suspense } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import styled, { ThemeProvider, DefaultTheme } from 'styled-components';
+import React, { Suspense, useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
+import { LazyLoadingFallback } from './components/LazyLoadingFallback';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { GlobalStyle, theme } from './styles/global';
-import { LazyLoadingFallback } from './components/LazyLoadingFallback';
 import { logger } from './utils/logger';
 
 // Lazy load all components

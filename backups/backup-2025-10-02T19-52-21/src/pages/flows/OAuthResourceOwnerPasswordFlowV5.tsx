@@ -2,16 +2,16 @@
 // V5.0.0 OAuth Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

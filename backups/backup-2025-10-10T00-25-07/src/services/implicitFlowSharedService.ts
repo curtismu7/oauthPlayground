@@ -1,16 +1,16 @@
 // src/services/implicitFlowSharedService.ts
 /**
  * Implicit Flow Shared Service
- * 
+ *
  * Consolidates ALL shared logic between OAuth Implicit V5 and OIDC Implicit V5
  * to ensure perfect synchronization. Any update here automatically applies to both flows.
  */
 
 import { useCallback, useState } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { validateForStep } from './credentialsValidationService';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { validateForStep } from './credentialsValidationService';
 
 export type ImplicitFlowVariant = 'oauth' | 'oidc';
 
@@ -59,9 +59,8 @@ export class SessionStorageManager {
 	 * Save PingOne app configuration to session storage
 	 */
 	static savePingOneConfig(variant: ImplicitFlowVariant, config: PingOneApplicationState): void {
-		const key = variant === 'oauth' 
-			? 'oauth-implicit-v5-app-config' 
-			: 'oidc-implicit-v5-app-config';
+		const key =
+			variant === 'oauth' ? 'oauth-implicit-v5-app-config' : 'oidc-implicit-v5-app-config';
 		sessionStorage.setItem(key, JSON.stringify(config));
 		console.log(`[SessionStorageManager] ${variant.toUpperCase()} PingOne config saved`);
 	}
@@ -70,9 +69,8 @@ export class SessionStorageManager {
 	 * Load PingOne app configuration from session storage
 	 */
 	static loadPingOneConfig(variant: ImplicitFlowVariant): PingOneApplicationState | null {
-		const key = variant === 'oauth' 
-			? 'oauth-implicit-v5-app-config' 
-			: 'oidc-implicit-v5-app-config';
+		const key =
+			variant === 'oauth' ? 'oauth-implicit-v5-app-config' : 'oidc-implicit-v5-app-config';
 		const stored = sessionStorage.getItem(key);
 		return stored ? JSON.parse(stored) : null;
 	}
@@ -189,15 +187,18 @@ export class ImplicitFlowValidationManager {
 
 		if (!validation.isValid) {
 			// Format field names for display
-			const fieldNames = validation.missingFields.map(f => {
+			const fieldNames = validation.missingFields.map((f) => {
 				switch (f) {
-					case 'environmentId': return 'Environment ID';
-					case 'clientId': return 'Client ID';
-					case 'redirectUri': return 'Redirect URI';
-					case 'scope': return variant === 'oidc' 
-						? 'Scope (must include openid)' 
-						: 'Scope';
-					default: return f;
+					case 'environmentId':
+						return 'Environment ID';
+					case 'clientId':
+						return 'Client ID';
+					case 'redirectUri':
+						return 'Redirect URI';
+					case 'scope':
+						return variant === 'oidc' ? 'Scope (must include openid)' : 'Scope';
+					default:
+						return f;
 				}
 			});
 
@@ -295,9 +296,10 @@ export class ImplicitFlowCredentialsHandlers {
 			controller.setCredentials(updated);
 			setCredentials(updated);
 			console.log(`[${variant.toUpperCase()} Implicit V5] Redirect URI updated:`, value);
-			
+
 			// Auto-save redirect URI to persist across refreshes
-			controller.saveCredentials()
+			controller
+				.saveCredentials()
 				.then(() => {
 					ImplicitFlowToastManager.showRedirectUriSaved();
 				})
@@ -310,10 +312,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create scopes change handler
 	 */
-	static createScopesHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createScopesHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, scope: value, scopes: value };
 			controller.setCredentials(updated);
@@ -324,10 +323,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create login hint change handler
 	 */
-	static createLoginHintHandler(
-		controller: any,
-		setCredentials: (creds: StepCredentials) => void
-	) {
+	static createLoginHintHandler(controller: any, setCredentials: (creds: StepCredentials) => void) {
 		return (value: string) => {
 			const updated = { ...controller.credentials, loginHint: value };
 			controller.setCredentials(updated);
@@ -338,10 +334,7 @@ export class ImplicitFlowCredentialsHandlers {
 	/**
 	 * Create save credentials handler
 	 */
-	static createSaveHandler(
-		variant: ImplicitFlowVariant,
-		controller: any
-	) {
+	static createSaveHandler(variant: ImplicitFlowVariant, controller: any) {
 		return async () => {
 			try {
 				await controller.saveCredentials();
@@ -417,11 +410,14 @@ export class ImplicitFlowAuthorizationManager {
 
 			// Generate the URL
 			await controller.generateAuthorizationUrl();
-			
+
 			ImplicitFlowToastManager.showAuthUrlGenerated();
 			return true;
 		} catch (error) {
-			console.error(`[${variant.toUpperCase()}ImplicitFlowV5] Failed to generate authorization URL:`, error);
+			console.error(
+				`[${variant.toUpperCase()}ImplicitFlowV5] Failed to generate authorization URL:`,
+				error
+			);
 			ImplicitFlowToastManager.showAuthUrlGenerationFailed(error);
 			return false;
 		}
@@ -494,7 +490,7 @@ export class ImplicitFlowDefaults {
 	static getOAuthDefaults(): Partial<StepCredentials> {
 		return {
 			redirectUri: 'https://localhost:3000/oauth-implicit-callback',
-			scope: '',  // OAuth doesn't require openid scope
+			scope: '', // OAuth doesn't require openid scope
 			scopes: '',
 			responseType: 'token',
 			clientAuthMethod: 'none',
@@ -632,7 +628,7 @@ export class ImplicitFlowTokenFragmentProcessor {
 	): boolean {
 		const hash = window.location.hash;
 		console.log('[TokenFragmentProcessor] Checking for tokens in hash:', hash);
-		
+
 		if (!hash?.includes('access_token')) {
 			console.log('[TokenFragmentProcessor] No access_token found in hash, returning false');
 			return false;
@@ -642,11 +638,11 @@ export class ImplicitFlowTokenFragmentProcessor {
 
 		// Extract and set tokens
 		controller.setTokensFromFragment(hash);
-		
+
 		// Navigate to token response step (Step 3: Token Response = index 2)
 		console.log('[TokenFragmentProcessor] Setting current step to 2 (Step 3: Token Response)');
 		setCurrentStep(2);
-		
+
 		// Show success feedback
 		ImplicitFlowToastManager.showTokensReceived();
 		setShowSuccessModal(true);
@@ -654,7 +650,9 @@ export class ImplicitFlowTokenFragmentProcessor {
 		// Clean up URL
 		window.history.replaceState({}, '', window.location.pathname);
 
-		console.log('[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)');
+		console.log(
+			'[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)'
+		);
 		return true;
 	}
 }
@@ -672,7 +670,9 @@ export class ImplicitFlowStepRestoration {
 		// Check if we have tokens in the URL fragment first (highest priority)
 		const hash = window.location.hash;
 		if (hash?.includes('access_token')) {
-			console.log('[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)');
+			console.log(
+				'[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)'
+			);
 			return 2; // Step 3: Token Response
 		}
 
@@ -684,7 +684,7 @@ export class ImplicitFlowStepRestoration {
 			console.log('[StepRestoration] Restoring to step:', step);
 			return step;
 		}
-		
+
 		console.log('[StepRestoration] No restore_step found, returning step 0');
 		return 0;
 	}
@@ -757,7 +757,7 @@ export class ImplicitFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = false;
 			});
 			return updated;
@@ -773,7 +773,7 @@ export class ImplicitFlowCollapsibleSectionsManager {
 	): void {
 		setCollapsedSections((prev) => {
 			const updated = { ...prev };
-			sections.forEach(section => {
+			sections.forEach((section) => {
 				updated[section] = true;
 			});
 			return updated;
@@ -834,9 +834,11 @@ export class ImplicitFlowResponseTypeEnforcer {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		const expectedType = ImplicitFlowResponseTypeEnforcer.getExpectedResponseType(variant);
-		
+
 		if (credentials.responseType !== expectedType) {
-			console.log(`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`);
+			console.log(
+				`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`
+			);
 			setCredentials({
 				...credentials,
 				responseType: expectedType,
@@ -859,7 +861,10 @@ export class ImplicitFlowCredentialsSync {
 		setCredentials: (creds: StepCredentials) => void
 	): void {
 		if (controllerCredentials) {
-			console.log(`[${variant.toUpperCase()} Implicit V5] Syncing credentials from controller:`, controllerCredentials);
+			console.log(
+				`[${variant.toUpperCase()} Implicit V5] Syncing credentials from controller:`,
+				controllerCredentials
+			);
 			setCredentials(controllerCredentials);
 		}
 	}
@@ -887,4 +892,3 @@ export const ImplicitFlowSharedService = {
 };
 
 export default ImplicitFlowSharedService;
-

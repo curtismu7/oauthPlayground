@@ -19,33 +19,33 @@ import {
 	FiSmartphone,
 	FiZap,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowCredentials from '../../components/FlowCredentials';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
-import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { themeService } from '../../services/themeService';
 import {
-	TokenIntrospectionService,
 	IntrospectionApiCallData,
+	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import FlowCredentials from '../../components/FlowCredentials';
-import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import { usePageScroll } from '../../hooks/usePageScroll';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -1332,7 +1332,12 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 						clientId: newClientId,
 					});
 					// Auto-save if we have both environmentId and clientId
-					if (deviceFlow.credentials?.environmentId && newClientId && deviceFlow.credentials.environmentId.trim() && newClientId.trim()) {
+					if (
+						deviceFlow.credentials?.environmentId &&
+						newClientId &&
+						deviceFlow.credentials.environmentId.trim() &&
+						newClientId.trim()
+					) {
 						deviceFlow.saveCredentials();
 						v4ToastManager.showSuccess('Credentials auto-saved');
 					}

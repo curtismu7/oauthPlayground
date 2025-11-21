@@ -3,12 +3,12 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import RingDoorbellDeviceFlow from './RingDoorbellDeviceFlow';
-import VizioTVDeviceFlow from './VizioTVDeviceFlow';
-import SonyGameControllerDeviceFlow from './SonyGameControllerDeviceFlow';
-import BoseSmartSpeakerDeviceFlow from './BoseSmartSpeakerDeviceFlow';
-import SquarePOSDeviceFlow from './SquarePOSDeviceFlow';
 import AirportKioskDeviceFlow from './AirportKioskDeviceFlow';
+import BoseSmartSpeakerDeviceFlow from './BoseSmartSpeakerDeviceFlow';
+import RingDoorbellDeviceFlow from './RingDoorbellDeviceFlow';
+import SonyGameControllerDeviceFlow from './SonyGameControllerDeviceFlow';
+import SquarePOSDeviceFlow from './SquarePOSDeviceFlow';
+import VizioTVDeviceFlow from './VizioTVDeviceFlow';
 
 const MockContainer = styled.div`
   padding: 2rem;
@@ -67,87 +67,87 @@ const DeviceDescription = styled.p`
 `;
 
 const MockDeviceFlow: React.FC = () => {
-  const [selectedDevice, setSelectedDevice] = useState<string>('ring-doorbell');
+	const [_selectedDevice, _setSelectedDevice] = useState<string>('ring-doorbell');
 
-  // Mock device flow state
-  const mockState = {
-    status: 'pending' as const,
-    userCode: 'ABCD-EFGH',
-    deviceCode: 'mock-device-code-12345',
-    verificationUri: 'https://example.com/device',
-    verificationUriComplete: 'https://example.com/device?user_code=ABCD-EFGH',
-    interval: 5,
-    expiresIn: 600,
-    tokens: null,
-  };
+	// Mock device flow state
+	const mockState = {
+		status: 'pending' as const,
+		userCode: 'ABCD-EFGH',
+		deviceCode: 'mock-device-code-12345',
+		verificationUri: 'https://example.com/device',
+		verificationUriComplete: 'https://example.com/device?user_code=ABCD-EFGH',
+		interval: 5,
+		expiresIn: 600,
+		tokens: null,
+	};
 
-  const mockProps = {
-    state: mockState,
-    onStateUpdate: () => {},
-    onComplete: () => {},
-    onError: () => {},
-  };
+	const mockProps = {
+		state: mockState,
+		onStateUpdate: () => {},
+		onComplete: () => {},
+		onError: () => {},
+	};
 
-  const devices = [
-    {
-      id: 'ring-doorbell',
-      name: 'Ring Doorbell',
-      description: 'Smart home security device with camera and doorbell button',
-      component: <RingDoorbellDeviceFlow {...mockProps} />,
-    },
-    {
-      id: 'vizio-tv',
-      name: 'Vizio TV',
-      description: 'Smart TV with streaming apps and SmartCast interface',
-      component: <VizioTVDeviceFlow {...mockProps} />,
-    },
-    {
-      id: 'sony-controller',
-      name: 'Sony Controller',
-      description: 'PlayStation DualSense controller with gaming interface',
-      component: <SonyGameControllerDeviceFlow {...mockProps} />,
-    },
-    {
-      id: 'bose-speaker',
-      name: 'Bose Speaker',
-      description: 'Smart speaker with music apps and voice control',
-      component: <BoseSmartSpeakerDeviceFlow {...mockProps} />,
-    },
-    {
-      id: 'square-pos',
-      name: 'Square POS',
-      description: 'Point of sale terminal with payment processing',
-      component: <SquarePOSDeviceFlow {...mockProps} />,
-    },
-    {
-      id: 'airport-kiosk',
-      name: 'Airport Kiosk',
-      description: 'Airport check-in kiosk with boarding pass interface',
-      component: <AirportKioskDeviceFlow {...mockProps} />,
-    },
-  ];
+	const devices = [
+		{
+			id: 'ring-doorbell',
+			name: 'Ring Doorbell',
+			description: 'Smart home security device with camera and doorbell button',
+			component: <RingDoorbellDeviceFlow {...mockProps} />,
+		},
+		{
+			id: 'vizio-tv',
+			name: 'Vizio TV',
+			description: 'Smart TV with streaming apps and SmartCast interface',
+			component: <VizioTVDeviceFlow {...mockProps} />,
+		},
+		{
+			id: 'sony-controller',
+			name: 'Sony Controller',
+			description: 'PlayStation DualSense controller with gaming interface',
+			component: <SonyGameControllerDeviceFlow {...mockProps} />,
+		},
+		{
+			id: 'bose-speaker',
+			name: 'Bose Speaker',
+			description: 'Smart speaker with music apps and voice control',
+			component: <BoseSmartSpeakerDeviceFlow {...mockProps} />,
+		},
+		{
+			id: 'square-pos',
+			name: 'Square POS',
+			description: 'Point of sale terminal with payment processing',
+			component: <SquarePOSDeviceFlow {...mockProps} />,
+		},
+		{
+			id: 'airport-kiosk',
+			name: 'Airport Kiosk',
+			description: 'Airport check-in kiosk with boarding pass interface',
+			component: <AirportKioskDeviceFlow {...mockProps} />,
+		},
+	];
 
-  return (
-    <MockContainer>
-      <Header>
-        <Title>Realistic Device Components Showcase</Title>
-        <Subtitle>
-          Each device is designed to look like actual hardware with authentic branding, 
-          realistic interfaces, and proper user experience patterns.
-        </Subtitle>
-      </Header>
+	return (
+		<MockContainer>
+			<Header>
+				<Title>Realistic Device Components Showcase</Title>
+				<Subtitle>
+					Each device is designed to look like actual hardware with authentic branding, realistic
+					interfaces, and proper user experience patterns.
+				</Subtitle>
+			</Header>
 
-      <DeviceGrid>
-        {devices.map((device) => (
-          <DeviceCard key={device.id}>
-            <DeviceTitle>{device.name}</DeviceTitle>
-            <DeviceDescription>{device.description}</DeviceDescription>
-            {device.component}
-          </DeviceCard>
-        ))}
-      </DeviceGrid>
-    </MockContainer>
-  );
+			<DeviceGrid>
+				{devices.map((device) => (
+					<DeviceCard key={device.id}>
+						<DeviceTitle>{device.name}</DeviceTitle>
+						<DeviceDescription>{device.description}</DeviceDescription>
+						{device.component}
+					</DeviceCard>
+				))}
+			</DeviceGrid>
+		</MockContainer>
+	);
 };
 
 export default MockDeviceFlow;

@@ -458,7 +458,14 @@ export class FlowStepService {
 		theme: string = 'blue'
 	): StepConfig[] {
 		return steps.map((step, index) =>
-			FlowStepService.createStepConfig(index, step.title, step.subtitle, flowType, controller, theme)
+			FlowStepService.createStepConfig(
+				index,
+				step.title,
+				step.subtitle,
+				flowType,
+				controller,
+				theme
+			)
 		);
 	}
 }

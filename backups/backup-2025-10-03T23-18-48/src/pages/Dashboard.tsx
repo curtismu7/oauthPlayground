@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
-import { getRecentActivity } from '../utils/activityTracker';
+import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
 import type { ActivityItem } from '../utils/activityTracker';
+import { getRecentActivity } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;
@@ -243,7 +243,10 @@ const Dashboard = () => {
 		if (!action) {
 			return 'Activity';
 		}
-		return action.replace(/Successfully\s+Implcit\s+Flow\s+Token/gi, 'Successfully Obtained Implicit Flow Token');
+		return action.replace(
+			/Successfully\s+Implcit\s+Flow\s+Token/gi,
+			'Successfully Obtained Implicit Flow Token'
+		);
 	};
 
 	return (
@@ -772,7 +775,8 @@ const Dashboard = () => {
 					<div>
 						<CardTitle>Recent Activity</CardTitle>
 						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
-							Latest OAuth flow runs, credential updates, and API interactions performed in this playground.
+							Latest OAuth flow runs, credential updates, and API interactions performed in this
+							playground.
 						</p>
 					</div>
 				</CardHeader>
@@ -826,8 +830,8 @@ const Dashboard = () => {
 					</ul>
 				</div>
 			</ContentCard>
-	</DashboardContainer>
-);
+		</DashboardContainer>
+	);
 };
 
 export default Dashboard;

@@ -2,18 +2,16 @@
 // Reusable UI service for consistent worker token management across pages
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiKey, FiRefreshCw } from 'react-icons/fi';
+import styled from 'styled-components';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 
 // Styled components for consistent worker token UI
 const WorkerTokenButton = styled.button<{ $variant?: 'primary' | 'success' | 'warning' }>`
 	padding: 0.75rem 1.5rem;
-	background: ${({ $variant }) => 
-		$variant === 'success' ? '#10b981' : 
-		$variant === 'warning' ? '#f59e0b' : 
-		'#3b82f6'};
+	background: ${({ $variant }) =>
+		$variant === 'success' ? '#10b981' : $variant === 'warning' ? '#f59e0b' : '#3b82f6'};
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -26,10 +24,8 @@ const WorkerTokenButton = styled.button<{ $variant?: 'primary' | 'success' | 'wa
 	transition: all 0.2s ease;
 	
 	&:hover {
-		background: ${({ $variant }) => 
-			$variant === 'success' ? '#059669' : 
-			$variant === 'warning' ? '#d97706' : 
-			'#2563eb'};
+		background: ${({ $variant }) =>
+			$variant === 'success' ? '#059669' : $variant === 'warning' ? '#d97706' : '#2563eb'};
 	}
 	
 	&:disabled {
@@ -61,13 +57,13 @@ interface WorkerTokenUIProps {
 	// Worker token state
 	workerToken: string;
 	workerTokenExpiresAt?: number;
-	
+
 	// Modal state
 	showModal: boolean;
 	onShowModal: () => void;
 	onCloseModal: () => void;
 	onModalContinue: () => void;
-	
+
 	// Configuration
 	flowType?: string;
 	environmentId?: string;
@@ -81,13 +77,13 @@ interface WorkerTokenUIProps {
 	};
 	tokenStorageKey?: string;
 	tokenExpiryKey?: string;
-	
+
 	// Optional clear token handler
 	onClearToken?: () => void;
-	
+
 	// Banner customization
 	bannerMessage?: string;
-	
+
 	// Button customization
 	generateButtonText?: string;
 	readyButtonText?: string;
@@ -103,14 +99,14 @@ export const renderWorkerTokenBanner = (
 	customMessage?: string
 ) => {
 	if (!workerToken) return null;
-	
-	const defaultMessage = workerTokenExpiresAt 
+
+	const defaultMessage = workerTokenExpiresAt
 		? `Your existing worker token will be used automatically. Token expires at ${new Date(workerTokenExpiresAt).toLocaleString()}.`
 		: 'Your existing worker token will be used automatically. Worker token credentials below are only needed if the token expires.';
-	
+
 	return (
-		<WorkerTokenDetectedBanner 
-			token={workerToken} 
+		<WorkerTokenDetectedBanner
+			token={workerToken}
 			tokenExpiryKey={tokenExpiryKey}
 			message={customMessage || defaultMessage}
 		/>
@@ -130,24 +126,14 @@ export const renderWorkerTokenButton = (
 ) => {
 	const hasToken = !!workerToken;
 	const isExpired = workerTokenExpiresAt ? Date.now() > workerTokenExpiresAt : false;
-	
-	const buttonText = hasToken && !isExpired 
-		? readyButtonText 
-		: isExpired 
-			? refreshButtonText 
-			: generateButtonText;
-	
-	const variant = hasToken && !isExpired 
-		? 'success' 
-		: isExpired 
-			? 'warning' 
-			: 'primary';
-	
+
+	const buttonText =
+		hasToken && !isExpired ? readyButtonText : isExpired ? refreshButtonText : generateButtonText;
+
+	const variant = hasToken && !isExpired ? 'success' : isExpired ? 'warning' : 'primary';
+
 	return (
-		<WorkerTokenButton 
-			$variant={variant}
-			onClick={onShowModal}
-		>
+		<WorkerTokenButton $variant={variant} onClick={onShowModal}>
 			{hasToken && !isExpired ? <FiKey /> : <FiRefreshCw />}
 			{buttonText}
 		</WorkerTokenButton>
@@ -157,17 +143,10 @@ export const renderWorkerTokenButton = (
 /**
  * Renders clear token button
  */
-export const renderClearTokenButton = (
-	workerToken: string,
-	onClearToken: () => void
-) => {
+export const renderClearTokenButton = (workerToken: string, onClearToken: () => void) => {
 	if (!workerToken) return null;
-	
-	return (
-		<ClearTokenButton onClick={onClearToken}>
-			Clear Token
-		</ClearTokenButton>
-	);
+
+	return <ClearTokenButton onClick={onClearToken}>Clear Token</ClearTokenButton>;
 };
 
 /**
@@ -196,9 +175,17 @@ export const WorkerTokenUI: React.FC<WorkerTokenUIProps> = ({
 		<>
 			{/* Banner */}
 			{renderWorkerTokenBanner(workerToken, workerTokenExpiresAt, bannerMessage)}
-			
+
 			{/* Buttons */}
-			<div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap', marginTop: '1rem' }}>
+			<div
+				style={{
+					display: 'flex',
+					gap: '1rem',
+					alignItems: 'center',
+					flexWrap: 'wrap',
+					marginTop: '1rem',
+				}}
+			>
 				{renderWorkerTokenButton(
 					workerToken,
 					workerTokenExpiresAt,
@@ -207,10 +194,10 @@ export const WorkerTokenUI: React.FC<WorkerTokenUIProps> = ({
 					readyButtonText,
 					refreshButtonText
 				)}
-				
+
 				{onClearToken && renderClearTokenButton(workerToken, onClearToken)}
 			</div>
-			
+
 			{/* Modal */}
 			{showModal && (
 				<WorkerTokenModal
@@ -236,15 +223,15 @@ export const useWorkerTokenState = (
 	tokenStorageKey: string = 'worker_token',
 	tokenExpiryKey: string = 'worker_token_expires_at'
 ) => {
-	const [workerToken, setWorkerToken] = React.useState<string>(() => 
-		localStorage.getItem(tokenStorageKey) || ''
+	const [workerToken, setWorkerToken] = React.useState<string>(
+		() => localStorage.getItem(tokenStorageKey) || ''
 	);
 	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = React.useState<number | undefined>(() => {
 		const expiresAt = localStorage.getItem(tokenExpiryKey);
 		return expiresAt ? parseInt(expiresAt, 10) : undefined;
 	});
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = React.useState(false);
-	
+
 	// Listen for token updates
 	React.useEffect(() => {
 		const handleTokenUpdate = () => {
@@ -253,23 +240,23 @@ export const useWorkerTokenState = (
 			setWorkerToken(token);
 			setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
 		};
-		
+
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 		window.addEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
-		
+
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 			window.removeEventListener('workerTokenMetricsUpdated', handleTokenUpdate);
 		};
 	}, [tokenStorageKey, tokenExpiryKey]);
-	
+
 	const clearWorkerToken = () => {
 		localStorage.removeItem(tokenStorageKey);
 		localStorage.removeItem(tokenExpiryKey);
 		setWorkerToken('');
 		setWorkerTokenExpiresAt(undefined);
 	};
-	
+
 	const handleModalContinue = () => {
 		const token = localStorage.getItem(tokenStorageKey) || '';
 		const expiresAt = localStorage.getItem(tokenExpiryKey);
@@ -277,7 +264,7 @@ export const useWorkerTokenState = (
 		setWorkerTokenExpiresAt(expiresAt ? parseInt(expiresAt, 10) : undefined);
 		setShowWorkerTokenModal(false);
 	};
-	
+
 	return {
 		workerToken,
 		workerTokenExpiresAt,
@@ -288,4 +275,3 @@ export const useWorkerTokenState = (
 		clearWorkerToken,
 	};
 };
-

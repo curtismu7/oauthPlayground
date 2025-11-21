@@ -499,7 +499,13 @@ const AIGlossary: React.FC = () => {
 						'AI systems that can autonomously plan, reason, make decisions, and execute actions over extended periods without continuous human supervision. Agentic AI goes beyond reactive systems by maintaining goals, adapting to changing conditions, learning from outcomes, and coordinating multiple capabilities to achieve complex objectives. These systems exhibit agency - the ability to act independently while being accountable for their actions.',
 					example:
 						'Autonomous research assistants that plan experiments, gather data, analyze results, and write reports; AI software developers that understand requirements, design architectures, write code, test implementations, and deploy applications; or AI traders that monitor markets, assess risks, execute trades, and manage portfolios across multiple time zones.',
-					relatedTerms: ['AI Agent', 'Autonomous Systems', 'Planning', 'Tool Use', 'Multi-Agent Systems'],
+					relatedTerms: [
+						'AI Agent',
+						'Autonomous Systems',
+						'Planning',
+						'Tool Use',
+						'Multi-Agent Systems',
+					],
 				},
 			],
 		},
@@ -698,7 +704,12 @@ const AIGlossary: React.FC = () => {
 						'An open standard for access delegation commonly used for token-based authentication and authorization on the internet. OAuth 2.0 enables third-party applications to obtain limited access to an HTTP service, either on behalf of a resource owner or by allowing the third-party application to obtain access on its own behalf.',
 					example:
 						'When you log into a website using your Google account, OAuth 2.0 is the protocol that allows the website to access your Google profile information without you sharing your Google password directly.',
-					relatedTerms: ['Authorization Code Flow', 'Client Credentials Flow', 'OpenID Connect', 'JWT'],
+					relatedTerms: [
+						'Authorization Code Flow',
+						'Client Credentials Flow',
+						'OpenID Connect',
+						'JWT',
+					],
 				},
 				{
 					term: 'OpenID Connect (OIDC)',
@@ -738,7 +749,12 @@ const AIGlossary: React.FC = () => {
 						'An OAuth 2.0 extension (RFC 8628) designed for devices with limited input capabilities, such as smart TVs, gaming consoles, or IoT devices. The device displays a code that users enter on a separate device (phone/computer) to complete authentication.',
 					example:
 						'Smart TV apps that display a code for you to enter on your phone, gaming consoles that require authentication through a web browser, or IoT devices that need user authorization without keyboards.',
-					relatedTerms: ['OAuth 2.0', 'Device Authorization', 'Input-Constrained Devices', 'Polling'],
+					relatedTerms: [
+						'OAuth 2.0',
+						'Device Authorization',
+						'Input-Constrained Devices',
+						'Polling',
+					],
 				},
 				{
 					term: 'Implicit Flow',
@@ -1037,7 +1053,8 @@ const AIGlossary: React.FC = () => {
 				},
 			],
 		},
-	];	const filteredData = glossaryData
+	];
+	const filteredData = glossaryData
 		.map((category) => ({
 			...category,
 			terms: category.terms.filter(

@@ -117,9 +117,13 @@ const buildBasicAuthHeader = (clientId: string, clientSecret: string): string =>
 	throw new Error('No available base64 encoder.');
 };
 
-const resolveLogoutUrl = (options: BuildLogoutUrlOptions, usePlaceholders = false): string | null => {
+const resolveLogoutUrl = (
+	options: BuildLogoutUrlOptions,
+	usePlaceholders = false
+): string | null => {
 	const issuerBase = normalizeIssuer(options.issuer, options.environmentId);
-	const finalIssuer = issuerBase ?? (usePlaceholders ? `${DEFAULT_DOMAIN}/{environmentId}/as` : null);
+	const finalIssuer =
+		issuerBase ?? (usePlaceholders ? `${DEFAULT_DOMAIN}/{environmentId}/as` : null);
 	if (!finalIssuer) {
 		return null;
 	}
@@ -138,7 +142,9 @@ const resolveLogoutUrl = (options: BuildLogoutUrlOptions, usePlaceholders = fals
 			url.searchParams.set('client_id', clientId);
 		}
 
-		const redirectUri = options.postLogoutRedirectUri ?? (usePlaceholders ? '{{post_logout_redirect_uri}}' : undefined);
+		const redirectUri =
+			options.postLogoutRedirectUri ??
+			(usePlaceholders ? '{{post_logout_redirect_uri}}' : undefined);
 		if (redirectUri) {
 			url.searchParams.set('post_logout_redirect_uri', redirectUri);
 		}
@@ -162,11 +168,11 @@ const clearClientStorage = (options?: StorageClearOptions) => {
 
 	const localKeys = options?.clearAllLocal
 		? Object.keys({ ...(window.localStorage ?? {}) })
-		: options?.localKeys ?? DEFAULT_STORAGE_KEYS.local;
+		: (options?.localKeys ?? DEFAULT_STORAGE_KEYS.local);
 
 	const sessionKeys = options?.clearAllSession
 		? Object.keys({ ...(window.sessionStorage ?? {}) })
-		: options?.sessionKeys ?? DEFAULT_STORAGE_KEYS.session;
+		: (options?.sessionKeys ?? DEFAULT_STORAGE_KEYS.session);
 
 	if (window.localStorage) {
 		localKeys.forEach((key) => {
@@ -211,11 +217,12 @@ const buildSummary = (result: Omit<SessionTerminationResult, 'summary'>): string
 
 	const managementDetails = result.management.payload
 		? JSON.stringify(result.management.payload, null, 2)
-		: result.management.error ?? 'No session termination attempted (missing user context or credentials)';
+		: (result.management.error ??
+			'No session termination attempted (missing user context or credentials)');
 
 	const logoutDetails = result.logout.payload
 		? JSON.stringify(result.logout.payload, null, 2)
-		: result.logout.error ?? 'Logout endpoint not called (missing ID token or issuer)';
+		: (result.logout.error ?? 'Logout endpoint not called (missing ID token or issuer)');
 
 	return `🚪 SESSION TERMINATION REPORT\nExecuted: ${new Date(result.timestamp).toLocaleString()}\n\n✅ ACTIONS PERFORMED:\n• PingOne Session Termination: ${managementStatus}\n• Browser Logout: ${logoutStatus}\n• Local storage cleared: ${clearedLocal}\n• Session storage cleared: ${clearedSession}\n\n🔌 MANAGEMENT API RESPONSE:\n${managementDetails}\n\n🌐 OIDC LOGOUT RESPONSE:\n${logoutDetails}\n\n🌐 LOGOUT URL:\n${result.logoutUrl ?? 'No logout URL generated'}\n\n🔐 USER CONTEXT:\n• Subject: ${result.userId ?? 'Unknown'}\n• Environment ID: ${result.management.endpoint ?? 'n/a'}\n\n⚠️ NEXT STEPS:\n• User must re-authenticate to regain access\n• All previous tokens should be considered invalid\n• New authorization flow is required for continued use`;
 };
@@ -384,9 +391,10 @@ export const terminateSession = async (
 		};
 	}
 
-	const clearedStorageKeys = options.clearClientStorage === false
-		? { local: [], session: [] }
-		: clearClientStorage(options.storageOptions);
+	const clearedStorageKeys =
+		options.clearClientStorage === false
+			? { local: [], session: [] }
+			: clearClientStorage(options.storageOptions);
 
 	const resultWithoutSummary: Omit<SessionTerminationResult, 'summary'> = {
 		timestamp,

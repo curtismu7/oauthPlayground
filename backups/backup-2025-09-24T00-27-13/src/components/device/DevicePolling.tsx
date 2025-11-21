@@ -1,12 +1,12 @@
 // Device polling component for OIDC Device Code flow
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiClock, FiLoader, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiLoader, FiCheckCircle, FiXCircle, FiClock, FiAlertCircle } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
-import { pollTokenEndpoint } from '../../utils/deviceCode';
-import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 import { DeviceCodeTokens } from '../../types/deviceCode';
+import { pollTokenEndpoint } from '../../utils/deviceCode';
+import { logger } from '../../utils/logger';
+import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../utils/polling';
 
 interface DevicePollingProps {
 	deviceCode: string;

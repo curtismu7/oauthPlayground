@@ -2,7 +2,6 @@
 // V7 Unified OAuth/OIDC Authorization Code Flow - Single implementation supporting both variants
 
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -20,19 +19,17 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import ConfigurationBackup from '../../components/ConfigurationBackup';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import ConfigurationBackup from '../../components/ConfigurationBackup';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService.tsx';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -44,27 +41,36 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import FlowCredentialService from '../../services/flowCredentialService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowStorageService } from '../../services/flowStorageService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { PKCEGenerationService } from '../../services/pkceGenerationService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { PKCEGenerationService } from '../../services/pkceGenerationService';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
-import { CopyButtonService } from '../../services/copyButtonService';
-import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import { FlowStorageService } from '../../services/flowStorageService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
+	STEP_METADATA,
 } from './config/OAuthAuthzCodeFlowV6.config';
-import FlowCredentialService from '../../services/flowCredentialService';
 
 type StepCompletionState = Record<number, boolean>;
 type FlowVariant = 'oauth' | 'oidc';
@@ -155,24 +161,14 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	transition: all 0.2s ease;
 	min-width: 140px;
 	
-	background: ${({ $selected }) => 
-		$selected 
-			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-			: 'transparent'
-	};
+	background: ${({ $selected }) =>
+		$selected ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' : 'transparent'};
 	color: ${({ $selected }) => ($selected ? '#ffffff' : '#64748b')};
-	box-shadow: ${({ $selected }) => 
-		$selected 
-			? '0 2px 8px rgba(59, 130, 246, 0.3)' 
-			: 'none'
-	};
+	box-shadow: ${({ $selected }) => ($selected ? '0 2px 8px rgba(59, 130, 246, 0.3)' : 'none')};
 
 	&:hover {
-		background: ${({ $selected }) => 
-			$selected 
-				? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' 
-				: '#f1f5f9'
-		};
+		background: ${({ $selected }) =>
+			$selected ? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' : '#f1f5f9'};
 		transform: ${({ $selected }) => ($selected ? 'translateY(-1px)' : 'none')};
 	}
 `;
@@ -335,7 +331,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	// V7 Flow State
 	const [selectedVariant, setSelectedVariant] = useState<FlowVariant>('oidc');
-	
+
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7 - Unified', force: true });
 
@@ -360,29 +356,32 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 
 	// V7 Variant Change Handler
-	const handleVariantChange = useCallback((variant: FlowVariant) => {
-		console.log('🔄 [V7] Switching variant:', variant);
-		setSelectedVariant(variant);
-		controller.setFlowVariant(variant);
-		
-		// Update credentials based on variant
-		const updatedCredentials = {
-			...controller.credentials,
-			scope: variant === 'oidc' ? 'openid profile email' : '',
-			scopes: variant === 'oidc' ? 'openid profile email' : '',
-		};
-		
-		controller.setCredentials(updatedCredentials);
-		controller.setFlowConfig({
-			...controller.flowConfig,
-			enableOIDC: variant === 'oidc',
-		});
-		
-		// Reset to step 0 when switching variants
-		setCurrentStep(0);
-		
-		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} variant`);
-	}, [controller]);
+	const handleVariantChange = useCallback(
+		(variant: FlowVariant) => {
+			console.log('🔄 [V7] Switching variant:', variant);
+			setSelectedVariant(variant);
+			controller.setFlowVariant(variant);
+
+			// Update credentials based on variant
+			const updatedCredentials = {
+				...controller.credentials,
+				scope: variant === 'oidc' ? 'openid profile email' : '',
+				scopes: variant === 'oidc' ? 'openid profile email' : '',
+			};
+
+			controller.setCredentials(updatedCredentials);
+			controller.setFlowConfig({
+				...controller.flowConfig,
+				enableOIDC: variant === 'oidc',
+			});
+
+			// Reset to step 0 when switching variants
+			setCurrentStep(0);
+
+			v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} variant`);
+		},
+		[controller]
+	);
 
 	// Get variant-specific metadata
 	const getVariantMetadata = useCallback((variant: FlowVariant) => {
@@ -395,8 +394,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					'ID Token for user identity',
 					'Access Token for API calls',
 					'Built-in security with nonce',
-					'Standardized user info endpoint'
-				]
+					'Standardized user info endpoint',
+				],
 			};
 		} else {
 			return {
@@ -407,8 +406,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					'Access Token for API calls',
 					'Custom scopes only',
 					'Lightweight implementation',
-					'Maximum compatibility'
-				]
+					'Maximum compatibility',
+				],
 			};
 		}
 	}, []);
@@ -416,9 +415,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const currentMetadata = getVariantMetadata(selectedVariant);
 
 	// Toggle section handler
-	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	// Render variant selector
 	const renderVariantSelector = () => (
@@ -457,20 +455,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			'Handle Authorization Callback',
 			'Exchange Code for Tokens',
 		];
-		
+
 		if (variant === 'oidc') {
-			return [
-				...baseSteps,
-				'Validate ID Token',
-				'Fetch User Information',
-				'Token Management'
-			];
+			return [...baseSteps, 'Validate ID Token', 'Fetch User Information', 'Token Management'];
 		} else {
-			return [
-				...baseSteps,
-				'Token Introspection',
-				'Token Management'
-			];
+			return [...baseSteps, 'Token Introspection', 'Token Management'];
 		}
 	}, []);
 
@@ -484,40 +473,45 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					<>
 						{renderVariantSelector()}
 						{renderVariantDescription()}
-						
+
 						<InfoBox $variant="info">
 							<FiInfo size={20} />
 							<div>
 								<InfoTitle>Flow Steps Preview</InfoTitle>
 								<InfoText>
-									This {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} flow will guide you through {currentSteps.length} steps:
+									This {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} flow will guide you
+									through {currentSteps.length} steps:
 								</InfoText>
 								<div style={{ marginTop: '0.5rem' }}>
 									{currentSteps.map((step, index) => (
-										<div key={index} style={{ 
-											fontSize: '0.875rem', 
-											color: '#64748b', 
-											marginBottom: '0.25rem',
-											paddingLeft: '1rem'
-										}}>
+										<div
+											key={index}
+											style={{
+												fontSize: '0.875rem',
+												color: '#64748b',
+												marginBottom: '0.25rem',
+												paddingLeft: '1rem',
+											}}
+										>
 											{index + 1}. {step}
 										</div>
 									))}
 								</div>
 							</div>
 						</InfoBox>
-						
+
 						<InfoBox $variant={selectedVariant === 'oidc' ? 'info' : 'warning'}>
 							<FiShield size={20} />
 							<div>
 								<InfoTitle>
-									{selectedVariant === 'oidc' ? 'OIDC Enhancements Enabled' : 'OAuth 2.0 Mode Active'}
+									{selectedVariant === 'oidc'
+										? 'OIDC Enhancements Enabled'
+										: 'OAuth 2.0 Mode Active'}
 								</InfoTitle>
 								<InfoText>
-									{selectedVariant === 'oidc' 
+									{selectedVariant === 'oidc'
 										? 'The flow will now request an ID token, include the `openid` scope automatically, and expose additional OpenID Connect configuration options.'
-										: 'Pure OAuth 2.0 mode - only access tokens will be requested. No identity features or ID tokens will be included.'
-									}
+										: 'Pure OAuth 2.0 mode - only access tokens will be requested. No identity features or ID tokens will be included.'}
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -528,7 +522,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								aria-expanded={!collapsedSections.variantComparison}
 							>
 								<CollapsibleTitle>
-									<FiInfo /> {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} vs {selectedVariant === 'oidc' ? 'OAuth 2.0' : 'OIDC'} Comparison
+									<FiInfo /> {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} vs{' '}
+									{selectedVariant === 'oidc' ? 'OAuth 2.0' : 'OIDC'} Comparison
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.variantComparison}>
 									<FiChevronDown />
@@ -542,10 +537,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 											<div>
 												<InfoTitle>OpenID Connect</InfoTitle>
 												<InfoText>
-													<strong>Tokens:</strong> Access Token + ID Token<br/>
-													<strong>Purpose:</strong> Authentication + Authorization<br/>
-													<strong>Scopes:</strong> openid required + custom scopes<br/>
-													<strong>User Info:</strong> Built-in via ID token or /userinfo endpoint<br/>
+													<strong>Tokens:</strong> Access Token + ID Token
+													<br />
+													<strong>Purpose:</strong> Authentication + Authorization
+													<br />
+													<strong>Scopes:</strong> openid required + custom scopes
+													<br />
+													<strong>User Info:</strong> Built-in via ID token or /userinfo endpoint
+													<br />
 													<strong>Security:</strong> Nonce parameter for replay protection
 												</InfoText>
 											</div>
@@ -555,10 +554,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 											<div>
 												<InfoTitle>OAuth 2.0</InfoTitle>
 												<InfoText>
-													<strong>Tokens:</strong> Access Token only<br/>
-													<strong>Purpose:</strong> Authorization only<br/>
-													<strong>Scopes:</strong> Custom scopes only<br/>
-													<strong>User Info:</strong> Custom implementation required<br/>
+													<strong>Tokens:</strong> Access Token only
+													<br />
+													<strong>Purpose:</strong> Authorization only
+													<br />
+													<strong>Scopes:</strong> Custom scopes only
+													<br />
+													<strong>User Info:</strong> Custom implementation required
+													<br />
 													<strong>Security:</strong> PKCE for code interception protection
 												</InfoText>
 											</div>
@@ -598,13 +601,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										<FiAlertCircle size={20} />
 										<div>
 											<InfoTitle>
-												{selectedVariant === 'oidc' ? 'OIDC + PKCE Security' : 'OAuth 2.0 + PKCE Security'}
+												{selectedVariant === 'oidc'
+													? 'OIDC + PKCE Security'
+													: 'OAuth 2.0 + PKCE Security'}
 											</InfoTitle>
 											<InfoText>
-												{selectedVariant === 'oidc' 
+												{selectedVariant === 'oidc'
 													? 'OIDC adds an additional layer of security with the nonce parameter in the ID token, combined with PKCE for authorization code protection. This provides comprehensive protection against replay attacks and code interception.'
-													: 'OAuth 2.0 with PKCE provides strong protection against authorization code interception. Since there\'s no ID token, PKCE is your primary defense against malicious apps intercepting authorization codes.'
-												}
+													: "OAuth 2.0 with PKCE provides strong protection against authorization code interception. Since there's no ID token, PKCE is your primary defense against malicious apps intercepting authorization codes."}
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -618,7 +622,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								aria-expanded={!collapsedSections.features}
 							>
 								<CollapsibleTitle>
-									<FiPackage /> {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} Features & Benefits
+									<FiPackage /> {selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'} Features &
+									Benefits
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.features}>
 									<FiChevronDown />
@@ -626,21 +631,32 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.features && (
 								<CollapsibleContent>
-									<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+											gap: '1rem',
+										}}
+									>
 										{currentMetadata.features.map((feature, index) => (
-											<div key={index} style={{
-												padding: '1rem',
-												background: selectedVariant === 'oidc' ? '#f0f9ff' : '#fef3c7',
-												border: `1px solid ${selectedVariant === 'oidc' ? '#0ea5e9' : '#f59e0b'}`,
-												borderRadius: '0.5rem'
-											}}>
-												<div style={{ 
-													display: 'flex', 
-													alignItems: 'center', 
-													gap: '0.5rem',
-													color: selectedVariant === 'oidc' ? '#0c4a6e' : '#92400e',
-													fontWeight: '600'
-												}}>
+											<div
+												key={index}
+												style={{
+													padding: '1rem',
+													background: selectedVariant === 'oidc' ? '#f0f9ff' : '#fef3c7',
+													border: `1px solid ${selectedVariant === 'oidc' ? '#0ea5e9' : '#f59e0b'}`,
+													borderRadius: '0.5rem',
+												}}
+											>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+														color: selectedVariant === 'oidc' ? '#0c4a6e' : '#92400e',
+														fontWeight: '600',
+													}}
+												>
 													<FiCheckCircle size={16} />
 													{feature}
 												</div>
@@ -665,15 +681,24 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.tokens && (
 								<CollapsibleContent>
-									<div style={{ display: 'grid', gridTemplateColumns: selectedVariant === 'oidc' ? '1fr 1fr' : '1fr', gap: '1rem' }}>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: selectedVariant === 'oidc' ? '1fr 1fr' : '1fr',
+											gap: '1rem',
+										}}
+									>
 										<InfoBox $variant="success">
 											<FiCheckCircle size={20} />
 											<div>
 												<InfoTitle>Access Token</InfoTitle>
 												<InfoText>
-													<strong>Purpose:</strong> API Authorization<br/>
-													<strong>Format:</strong> JWT or opaque token<br/>
-													<strong>Lifetime:</strong> Typically 1 hour<br/>
+													<strong>Purpose:</strong> API Authorization
+													<br />
+													<strong>Format:</strong> JWT or opaque token
+													<br />
+													<strong>Lifetime:</strong> Typically 1 hour
+													<br />
 													<strong>Usage:</strong> Bearer token for API calls
 												</InfoText>
 											</div>
@@ -684,9 +709,12 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 												<div>
 													<InfoTitle>ID Token</InfoTitle>
 													<InfoText>
-														<strong>Purpose:</strong> User Authentication<br/>
-														<strong>Format:</strong> Signed JWT<br/>
-														<strong>Lifetime:</strong> Typically 1 hour<br/>
+														<strong>Purpose:</strong> User Authentication
+														<br />
+														<strong>Format:</strong> Signed JWT
+														<br />
+														<strong>Lifetime:</strong> Typically 1 hour
+														<br />
 														<strong>Usage:</strong> User identity information
 													</InfoText>
 												</div>
@@ -698,10 +726,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Security Note</InfoTitle>
 											<InfoText>
-												{selectedVariant === 'oidc' 
+												{selectedVariant === 'oidc'
 													? 'Both tokens will be returned in the token exchange response. The ID token contains user identity claims, while the access token is used for API calls.'
-													: 'Only an access token will be returned. For user information, you\'ll need to call a custom user info endpoint or include user data in the access token claims.'
-												}
+													: "Only an access token will be returned. For user information, you'll need to call a custom user info endpoint or include user data in the access token claims."}
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -709,9 +736,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
+						<EnhancedFlowWalkthrough
+							flowId={
+								selectedVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+							}
+						/>
 						<FlowSequenceDisplay flowType="authorization-code" />
-						<EnhancedFlowInfoCard flowId={selectedVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
+						<EnhancedFlowInfoCard
+							flowId={
+								selectedVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+							}
+						/>
 					</>
 				);
 			default:
@@ -734,9 +769,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<StepHeaderTitle>
 								{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code
 							</StepHeaderTitle>
-							<StepHeaderSubtitle>
-								{currentMetadata.subtitle}
-							</StepHeaderSubtitle>
+							<StepHeaderSubtitle>{currentMetadata.subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{currentStep + 1}</StepNumber>
@@ -744,9 +777,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 						</StepHeaderRight>
 					</StepHeader>
 
-					<StepContentWrapper>
-						{renderStepContent()}
-					</StepContentWrapper>
+					<StepContentWrapper>{renderStepContent()}</StepContentWrapper>
 				</MainCard>
 			</ContentWrapper>
 		</Container>

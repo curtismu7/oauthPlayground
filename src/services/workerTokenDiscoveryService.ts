@@ -1,10 +1,9 @@
 // src/services/workerTokenDiscoveryService.ts
 // Comprehensive OIDC Discovery Service for Worker Token Flows
 
-import { ComprehensiveDiscoveryService } from './comprehensiveDiscoveryService';
-import { oidcDiscoveryService } from './oidcDiscoveryService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
+import { ComprehensiveDiscoveryService } from './comprehensiveDiscoveryService';
 
 export interface WorkerTokenDiscoveryConfig {
 	environmentId: string;
@@ -13,6 +12,17 @@ export interface WorkerTokenDiscoveryConfig {
 	clientSecret?: string;
 	timeout?: number;
 	enableCaching?: boolean;
+}
+
+interface WorkerTokenDiscoveryDocument {
+	issuer?: string;
+	token_endpoint?: string;
+	introspection_endpoint?: string;
+	userinfo_endpoint?: string;
+	jwks_uri?: string;
+	scopes_supported?: string[];
+	grant_types_supported?: string[];
+	response_types_supported?: string[];
 }
 
 export interface WorkerTokenDiscoveryResult {
@@ -28,7 +38,7 @@ export interface WorkerTokenDiscoveryResult {
 	supportedResponseTypes?: string[];
 	error?: string;
 	cached?: boolean;
-	discoveryDocument?: any;
+	discoveryDocument?: WorkerTokenDiscoveryDocument;
 }
 
 class WorkerTokenDiscoveryService {
@@ -88,18 +98,20 @@ class WorkerTokenDiscoveryService {
 			}
 
 			// Extract worker token specific endpoints and configuration
+			const document = discoveryResult.document as WorkerTokenDiscoveryDocument;
+
 			const result: WorkerTokenDiscoveryResult = {
 				success: true,
 				environmentId,
-				issuerUrl: discoveryResult.document.issuer,
-				tokenEndpoint: discoveryResult.document.token_endpoint,
-				introspectionEndpoint: discoveryResult.document.introspection_endpoint,
-				userInfoEndpoint: discoveryResult.document.userinfo_endpoint,
-				jwksUri: discoveryResult.document.jwks_uri,
-				scopes: this.extractWorkerTokenScopes(discoveryResult.document),
-				supportedGrantTypes: discoveryResult.document.grant_types_supported || ['client_credentials'],
-				supportedResponseTypes: discoveryResult.document.response_types_supported || [],
-				discoveryDocument: discoveryResult.document,
+				issuerUrl: document.issuer,
+				tokenEndpoint: document.token_endpoint,
+				introspectionEndpoint: document.introspection_endpoint,
+				userInfoEndpoint: document.userinfo_endpoint,
+				jwksUri: document.jwks_uri,
+				scopes: this.extractWorkerTokenScopes(document),
+				supportedGrantTypes: document.grant_types_supported ?? ['client_credentials'],
+				supportedResponseTypes: document.response_types_supported ?? [],
+				discoveryDocument: document,
 				cached: discoveryResult.cached || false,
 			};
 
@@ -142,7 +154,7 @@ class WorkerTokenDiscoveryService {
 	/**
 	 * Extract worker token specific scopes from discovery document
 	 */
-	private extractWorkerTokenScopes(document: any): string[] {
+	private extractWorkerTokenScopes(document: WorkerTokenDiscoveryDocument): string[] {
 		const defaultWorkerScopes = [
 			'p1:read:user',
 			'p1:update:user',
@@ -151,12 +163,13 @@ class WorkerTokenDiscoveryService {
 		];
 
 		// Get supported scopes from discovery document
-		const supportedScopes = document.scopes_supported || [];
-		
+		const supportedScopes = document.scopes_supported ?? [];
+
 		// Filter for PingOne worker token scopes
-		const workerScopes = supportedScopes.filter((scope: string) => 
-			scope.startsWith('p1:') && 
-			(scope.includes('user') || scope.includes('device') || scope.includes('application'))
+		const workerScopes = supportedScopes.filter(
+			(scope: string) =>
+				scope.startsWith('p1:') &&
+				(scope.includes('user') || scope.includes('device') || scope.includes('application'))
 		);
 
 		// Return worker scopes if found, otherwise return defaults

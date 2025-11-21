@@ -16,12 +16,14 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import ContextualHelp from '../../components/ContextualHelp';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import FlowIntro from '../../components/flow/FlowIntro';
 import ImplicitSafetySummary from '../../components/flow/ImplicitSafetySummary';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { FormField, FormInput, FormLabel } from '../../components/steps/CommonSteps';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
@@ -31,14 +33,12 @@ import {
 	showGlobalSuccess,
 	showGlobalWarning,
 } from '../../hooks/useNotifications';
+import { ResponseMode } from '../../services/responseModeService';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { credentialManager } from '../../utils/credentialManager';
 import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { logger } from '../../utils/logger';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -497,8 +497,8 @@ const ImplicitFlowV3: React.FC = () => {
 												<strong>No Refresh Tokens:</strong> Cannot securely refresh expired tokens
 											</li>
 											<li>
-												<strong>CSRF Vulnerabilities:</strong> Susceptible to cross-site request forgery
-												attacks
+												<strong>CSRF Vulnerabilities:</strong> Susceptible to cross-site request
+												forgery attacks
 											</li>
 											<li>
 												<strong>No Client Authentication:</strong> Cannot verify client identity

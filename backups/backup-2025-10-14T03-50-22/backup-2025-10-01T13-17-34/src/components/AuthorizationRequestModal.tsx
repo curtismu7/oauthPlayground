@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiExternalLink, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import ColorCodedURL from './ColorCodedURL';
 
 interface AuthorizationRequestModalProps {

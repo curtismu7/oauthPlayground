@@ -4,8 +4,8 @@
  * Follows OAuth 2.0 security best practices
  */
 
-import { OAuthTokens } from './tokenStorage';
 import { logger } from './logger';
+import { OAuthTokens } from './tokenStorage';
 
 // Simple encryption/decryption for client-side storage
 // In production, consider using a more robust encryption library

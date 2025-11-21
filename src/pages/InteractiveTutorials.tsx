@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
 	FiBookOpen,
 	FiClock,
@@ -19,14 +19,14 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CardBody } from '../components/Card';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import TutorialTextFormatter from '../components/TutorialTextFormatter';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import TutorialTextFormatter from '../components/TutorialTextFormatter';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import PageLayoutService from '../services/pageLayoutService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import TutorialDisplayService, { TutorialConfig, TutorialStep } from '../services/tutorialDisplayService';
+import PageLayoutService from '../services/pageLayoutService';
+import TutorialDisplayService, { TutorialConfig } from '../services/tutorialDisplayService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Tutorial type definitions
 interface TutorialStep {
@@ -54,13 +54,13 @@ type TutorialPingOneConfig = {
 	redirectUri: string;
 };
 
-const Container = styled.div`
+const _Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
 
-const ConfigurationBox = styled.div`
+const _ConfigurationBox = styled.div`
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border: 1px solid #e2e8f0;
   border-radius: 1rem;
@@ -69,7 +69,7 @@ const ConfigurationBox = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 `;
 
-const ConfigHeader = styled.div`
+const _ConfigHeader = styled.div`
   text-align: center;
   margin-bottom: 2rem;
 
@@ -172,7 +172,7 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
 
@@ -391,8 +391,11 @@ const InteractiveTutorials = () => {
 		flowId: 'interactive-tutorials', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// UI Settings integration
 	useUISettings();
@@ -406,7 +409,7 @@ const InteractiveTutorials = () => {
 	const [clientSecret, setClientSecret] = useState('');
 	const [pingoneAuthUrl, setPingoneAuthUrl] = useState('https://auth.pingone.com');
 	const [redirectUri, setRedirectUri] = useState('');
-	const [configCollapsed, setConfigCollapsed] = useState(false);
+	const [_configCollapsed, setConfigCollapsed] = useState(false);
 
 	const buildConfig = useCallback(
 		(overrides: Partial<TutorialPingOneConfig> = {}): TutorialPingOneConfig => ({
@@ -527,13 +530,10 @@ const InteractiveTutorials = () => {
 		const config = buildConfig();
 		// For demo purposes, only require environmentId and clientId
 		// Users can still start tutorials with minimal configuration
-		return (
-			config.environmentId.trim() &&
-			config.clientId.trim()
-		);
+		return config.environmentId.trim() && config.clientId.trim();
 	};
 
-	const handleFieldChange = useCallback(
+	const _handleFieldChange = useCallback(
 		(field: keyof TutorialPingOneConfig, value: string) => {
 			setConfigCollapsed(false);
 			switch (field) {
@@ -565,7 +565,7 @@ const InteractiveTutorials = () => {
 
 	// Convert tutorials to V6 format
 	const convertToV6Tutorials = (tutorials: Tutorial[]): TutorialConfig[] => {
-		return tutorials.map(tutorial => ({
+		return tutorials.map((tutorial) => ({
 			id: tutorial.id,
 			title: tutorial.title,
 			description: tutorial.description,
@@ -576,14 +576,16 @@ const InteractiveTutorials = () => {
 					<div>
 						<p style={{ marginBottom: '16px', lineHeight: '1.6' }}>{step.content}</p>
 						{step.code && (
-							<pre style={{ 
-								background: '#f8fafc', 
-								padding: '16px', 
-								borderRadius: '8px', 
-								overflow: 'auto',
-								fontSize: '14px',
-								lineHeight: '1.5'
-							}}>
+							<pre
+								style={{
+									background: '#f8fafc',
+									padding: '16px',
+									borderRadius: '8px',
+									overflow: 'auto',
+									fontSize: '14px',
+									lineHeight: '1.5',
+								}}
+							>
 								{step.code}
 							</pre>
 						)}
@@ -3826,283 +3828,282 @@ export default App;`,
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<CollapsibleHeader
-				title="PingOne Configuration"
-				subtitle="Configure your PingOne environment details to see real examples in the tutorials"
-				icon={<FiKey />}
-				defaultCollapsed={true}
-			>
-				<div style={{ padding: '1.5rem' }}>
+				<CollapsibleHeader
+					title="PingOne Configuration"
+					subtitle="Configure your PingOne environment details to see real examples in the tutorials"
+					icon={<FiKey />}
+					defaultCollapsed={true}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<ConfigGrid>
+							<ConfigField>
+								<ConfigLabel>
+									<FiServer size={16} />
+									Environment ID
+								</ConfigLabel>
+								<ConfigInput
+									type="text"
+									value={environmentId}
+									onChange={(e) => setEnvironmentId(e.target.value)}
+									placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+								/>
+								<ConfigStatus>Your PingOne environment identifier</ConfigStatus>
+							</ConfigField>
 
-				<ConfigGrid>
-					<ConfigField>
-						<ConfigLabel>
-							<FiServer size={16} />
-							Environment ID
-						</ConfigLabel>
-						<ConfigInput
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="e.g., 12345678-1234-1234-1234-123456789012"
-						/>
-						<ConfigStatus>Your PingOne environment identifier</ConfigStatus>
-					</ConfigField>
+							<ConfigField>
+								<ConfigLabel>
+									<FiUser size={16} />
+									Client ID
+								</ConfigLabel>
+								<ConfigInput
+									type="text"
+									value={clientId}
+									onChange={(e) => setClientId(e.target.value)}
+									placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+								/>
+								<ConfigStatus>Your OAuth client application ID</ConfigStatus>
+							</ConfigField>
 
-					<ConfigField>
-						<ConfigLabel>
-							<FiUser size={16} />
-							Client ID
-						</ConfigLabel>
-						<ConfigInput
-							type="text"
-							value={clientId}
-							onChange={(e) => setClientId(e.target.value)}
-							placeholder="e.g., 12345678-1234-1234-1234-123456789012"
-						/>
-						<ConfigStatus>Your OAuth client application ID</ConfigStatus>
-					</ConfigField>
+							<ConfigField>
+								<ConfigLabel>
+									<FiShield size={16} />
+									Client Secret
+								</ConfigLabel>
+								<ConfigInput
+									type="password"
+									value={clientSecret}
+									onChange={(e) => setClientSecret(e.target.value)}
+									placeholder="e.g., abc123def456..."
+								/>
+								<ConfigStatus>Your OAuth client secret (keep secure)</ConfigStatus>
+							</ConfigField>
 
-					<ConfigField>
-						<ConfigLabel>
-							<FiShield size={16} />
-							Client Secret
-						</ConfigLabel>
-						<ConfigInput
-							type="password"
-							value={clientSecret}
-							onChange={(e) => setClientSecret(e.target.value)}
-							placeholder="e.g., abc123def456..."
-						/>
-						<ConfigStatus>Your OAuth client secret (keep secure)</ConfigStatus>
-					</ConfigField>
+							<ConfigField>
+								<ConfigLabel>
+									<FiGlobe size={16} />
+									PingOne Auth URL
+								</ConfigLabel>
+								<ConfigInput
+									type="url"
+									value={pingoneAuthUrl}
+									onChange={(e) => setPingoneAuthUrl(e.target.value)}
+									placeholder="https://auth.pingone.com"
+								/>
+								<ConfigStatus>Your PingOne authorization server URL</ConfigStatus>
+							</ConfigField>
 
-					<ConfigField>
-						<ConfigLabel>
-							<FiGlobe size={16} />
-							PingOne Auth URL
-						</ConfigLabel>
-						<ConfigInput
-							type="url"
-							value={pingoneAuthUrl}
-							onChange={(e) => setPingoneAuthUrl(e.target.value)}
-							placeholder="https://auth.pingone.com"
-						/>
-						<ConfigStatus>Your PingOne authorization server URL</ConfigStatus>
-					</ConfigField>
+							<ConfigField>
+								<ConfigLabel>
+									<FiExternalLink size={16} />
+									Redirect URI
+								</ConfigLabel>
+								<ConfigInput
+									type="url"
+									value={redirectUri}
+									onChange={(e) => setRedirectUri(e.target.value)}
+									placeholder="https://your-app.com/callback"
+								/>
+								<ConfigStatus>Your application's callback URL</ConfigStatus>
+							</ConfigField>
+						</ConfigGrid>
 
-					<ConfigField>
-						<ConfigLabel>
-							<FiExternalLink size={16} />
-							Redirect URI
-						</ConfigLabel>
-						<ConfigInput
-							type="url"
-							value={redirectUri}
-							onChange={(e) => setRedirectUri(e.target.value)}
-							placeholder="https://your-app.com/callback"
-						/>
-						<ConfigStatus>Your application's callback URL</ConfigStatus>
-					</ConfigField>
-				</ConfigGrid>
+						<ConfigActions>
+							<ActionButton $variant="primary" onClick={saveConfiguration}>
+								<FiSave size={16} />
+								Save Configuration
+							</ActionButton>
+							<ActionButton $variant="secondary" onClick={clearConfiguration}>
+								<FiTrash2 size={16} />
+								Clear All
+							</ActionButton>
+						</ConfigActions>
+					</div>
+				</CollapsibleHeader>
 
-				<ConfigActions>
-					<ActionButton $variant="primary" onClick={saveConfiguration}>
-						<FiSave size={16} />
-						Save Configuration
-					</ActionButton>
-					<ActionButton $variant="secondary" onClick={clearConfiguration}>
-						<FiTrash2 size={16} />
-						Clear All
-					</ActionButton>
-				</ConfigActions>
-				</div>
-			</CollapsibleHeader>
+				<CollapsibleHeader
+					title="Interactive Tutorials"
+					subtitle="Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect"
+					icon={<FiBookOpen />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						{TutorialDisplayService.createTutorialDisplay({
+							theme: 'blue',
+							primaryColor: '#3b82f6',
+						})({
+							tutorials: convertToV6Tutorials(tutorials),
+							onTutorialStart: (tutorial) => {
+								console.log('Starting tutorial:', tutorial.title);
+								v4ToastManager.showSuccess(`Starting ${tutorial.title}`);
+							},
+							onTutorialComplete: (tutorial) => {
+								console.log('Completed tutorial:', tutorial.title);
+								v4ToastManager.showSuccess(`Congratulations! You completed ${tutorial.title}`);
+								setCompletedTutorials((prev) => new Set([...prev, tutorial.id]));
+							},
+						})}
+					</div>
+				</CollapsibleHeader>
 
-			<CollapsibleHeader
-				title="Interactive Tutorials"
-				subtitle="Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect"
-				icon={<FiBookOpen />}
-				defaultCollapsed={false}
-			>
-				<div style={{ padding: '1.5rem' }}>
-					{TutorialDisplayService.createTutorialDisplay({
-						theme: 'blue',
-						primaryColor: '#3b82f6'
-					})({
-						tutorials: convertToV6Tutorials(tutorials),
-						onTutorialStart: (tutorial) => {
-							console.log('Starting tutorial:', tutorial.title);
-							v4ToastManager.showSuccess(`Starting ${tutorial.title}`);
-						},
-						onTutorialComplete: (tutorial) => {
-							console.log('Completed tutorial:', tutorial.title);
-							v4ToastManager.showSuccess(`Congratulations! You completed ${tutorial.title}`);
-							setCompletedTutorials(prev => new Set([...prev, tutorial.id]));
-						}
-					})}
-				</div>
-			</CollapsibleHeader>
+				{/* Legacy Tutorial Grid - Keep for now */}
+				<TutorialGrid>
+					{tutorials.map((tutorial) => {
+						const progress = completedTutorials.has(tutorial.id)
+							? 100
+							: selectedTutorial?.id === tutorial.id
+								? Math.round((currentStep / tutorial.steps.length) * 100)
+								: 0;
 
-			{/* Legacy Tutorial Grid - Keep for now */}
-			<TutorialGrid>
-				{tutorials.map((tutorial) => {
-					const progress = completedTutorials.has(tutorial.id)
-						? 100
-						: selectedTutorial?.id === tutorial.id
-							? Math.round((currentStep / tutorial.steps.length) * 100)
-							: 0;
+						return (
+							<div
+								key={tutorial.id}
+								style={{
+									background: 'white',
+									borderRadius: '0.5rem',
+									boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
+									padding: '1.5rem',
+									cursor: 'pointer',
+									transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+									height: 'fit-content',
+								}}
+								onClick={(e) => {
+									console.log(' Tutorial card clicked:', tutorial.title);
+									e.preventDefault();
+									startTutorial(tutorial);
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.transform = 'translateY(-4px)';
+									e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
+								}}
+							>
+								<CardBody style={{ textAlign: 'center' }}>
+									<TutorialIcon className={tutorial.difficulty}>
+										<tutorial.icon size={32} />
+									</TutorialIcon>
 
-					return (
-						<div
-							key={tutorial.id}
-							style={{
-								background: 'white',
-								borderRadius: '0.5rem',
-								boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1)',
-								padding: '1.5rem',
-								cursor: 'pointer',
-								transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-								height: 'fit-content',
-							}}
-							onClick={(e) => {
-								console.log(' Tutorial card clicked:', tutorial.title);
-								e.preventDefault();
-								startTutorial(tutorial);
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.transform = 'translateY(-4px)';
-								e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.15)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-								e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1)';
-							}}
-						>
-							<CardBody style={{ textAlign: 'center' }}>
-								<TutorialIcon className={tutorial.difficulty}>
-									<tutorial.icon size={32} />
-								</TutorialIcon>
+									<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										{tutorial.title}
+									</h3>
 
-								<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-									{tutorial.title}
-								</h3>
+									<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
+										{tutorial.description}
+									</p>
 
-								<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
-									{tutorial.description}
-								</p>
+									<DifficultyBadge className={tutorial.difficulty}>
+										<FiStar size={12} />
+										{tutorial.difficulty.charAt(0).toUpperCase() + tutorial.difficulty.slice(1)}
+									</DifficultyBadge>
 
-								<DifficultyBadge className={tutorial.difficulty}>
-									<FiStar size={12} />
-									{tutorial.difficulty.charAt(0).toUpperCase() + tutorial.difficulty.slice(1)}
-								</DifficultyBadge>
-
-								<div
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '0.5rem',
-										marginBottom: '1rem',
-									}}
-								>
-									<FiClock size={14} style={{ color: '#6b7280' }} />
-									<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-										{tutorial.duration}
-									</span>
-								</div>
-
-								{progress > 0 && (
-									<div style={{ marginBottom: '1rem' }}>
-										<div
-											style={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												marginBottom: '0.5rem',
-											}}
-										>
-											<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Progress</span>
-											<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{progress}%</span>
-										</div>
-										<ProgressBar>
-											<ProgressFill $progress={progress} />
-										</ProgressBar>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											gap: '0.5rem',
+											marginBottom: '1rem',
+										}}
+									>
+										<FiClock size={14} style={{ color: '#6b7280' }} />
+										<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+											{tutorial.duration}
+										</span>
 									</div>
-								)}
 
-								<StartButton
-									disabled={!isConfigurationComplete()}
-									onClick={(e) => {
-										console.log(' Tutorial card clicked:', tutorial.title);
-										e.preventDefault();
-										if (isConfigurationComplete()) {
-											startTutorial(tutorial);
+									{progress > 0 && (
+										<div style={{ marginBottom: '1rem' }}>
+											<div
+												style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													marginBottom: '0.5rem',
+												}}
+											>
+												<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Progress</span>
+												<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>{progress}%</span>
+											</div>
+											<ProgressBar>
+												<ProgressFill $progress={progress} />
+											</ProgressBar>
+										</div>
+									)}
+
+									<StartButton
+										disabled={!isConfigurationComplete()}
+										onClick={(e) => {
+											console.log(' Tutorial card clicked:', tutorial.title);
+											e.preventDefault();
+											if (isConfigurationComplete()) {
+												startTutorial(tutorial);
+											} else {
+												v4ToastManager.showWarning(
+													'Please configure your Environment ID and Client ID to start tutorials'
+												);
+											}
+										}}
+										style={{
+											opacity: !isConfigurationComplete() ? 0.5 : 1,
+											cursor: !isConfigurationComplete() ? 'not-allowed' : 'pointer',
+										}}
+									>
+										<FiPlay size={16} />
+										{completedTutorials.has(tutorial.id) ? 'Review Tutorial' : 'Start Tutorial'}
+									</StartButton>
+								</CardBody>
+							</div>
+						);
+					})}
+				</TutorialGrid>
+
+				{/* Tutorial Modal */}
+				{selectedTutorial && (
+					<TutorialModal>
+						<ModalContent>
+							<ModalHeader>
+								<h2>{selectedTutorial.title}</h2>
+								<CloseButton onClick={() => setSelectedTutorial(null)}>
+									<FiX size={20} />
+								</CloseButton>
+							</ModalHeader>
+
+							<StepContainer>
+								<StepHeader>
+									<div className="step-number">{currentStep + 1}</div>
+									<h3>{selectedTutorial.steps[currentStep].title}</h3>
+								</StepHeader>
+
+								<StepContent>{renderStepContent(selectedTutorial.steps[currentStep])}</StepContent>
+
+								<StepNavigationButtons
+									currentStep={currentStep}
+									totalSteps={selectedTutorial.steps.length}
+									onPrevious={prevStep}
+									onReset={() => {
+										setCurrentStep(0);
+										v4ToastManager.showSuccess('Tutorial reset to beginning');
+									}}
+									onNext={() => {
+										if (currentStep === selectedTutorial.steps.length - 1) {
+											completeTutorial();
 										} else {
-											v4ToastManager.showWarning(
-												'Please configure your Environment ID and Client ID to start tutorials'
-											);
+											nextStep();
 										}
 									}}
-									style={{
-										opacity: !isConfigurationComplete() ? 0.5 : 1,
-										cursor: !isConfigurationComplete() ? 'not-allowed' : 'pointer',
-									}}
-								>
-									<FiPlay size={16} />
-									{completedTutorials.has(tutorial.id) ? 'Review Tutorial' : 'Start Tutorial'}
-								</StartButton>
-							</CardBody>
-						</div>
-					);
-				})}
-			</TutorialGrid>
-
-			{/* Tutorial Modal */}
-			{selectedTutorial && (
-				<TutorialModal>
-					<ModalContent>
-						<ModalHeader>
-							<h2>{selectedTutorial.title}</h2>
-							<CloseButton onClick={() => setSelectedTutorial(null)}>
-								<FiX size={20} />
-							</CloseButton>
-						</ModalHeader>
-
-						<StepContainer>
-							<StepHeader>
-								<div className="step-number">{currentStep + 1}</div>
-								<h3>{selectedTutorial.steps[currentStep].title}</h3>
-							</StepHeader>
-
-							<StepContent>{renderStepContent(selectedTutorial.steps[currentStep])}</StepContent>
-
-							<StepNavigationButtons
-								currentStep={currentStep}
-								totalSteps={selectedTutorial.steps.length}
-								onPrevious={prevStep}
-								onReset={() => {
-									setCurrentStep(0);
-									v4ToastManager.showSuccess('Tutorial reset to beginning');
-								}}
-								onNext={() => {
-									if (currentStep === selectedTutorial.steps.length - 1) {
-										completeTutorial();
-									} else {
-										nextStep();
+									canNavigateNext={true}
+									isFirstStep={currentStep === 0}
+									nextButtonText={
+										currentStep === selectedTutorial.steps.length - 1
+											? 'Complete Tutorial'
+											: 'Next Step'
 									}
-								}}
-								canNavigateNext={true}
-								isFirstStep={currentStep === 0}
-								nextButtonText={
-									currentStep === selectedTutorial.steps.length - 1
-										? 'Complete Tutorial'
-										: 'Next Step'
-								}
-							/>
-						</StepContainer>
-					</ModalContent>
-				</TutorialModal>
-			)}
+								/>
+							</StepContainer>
+						</ModalContent>
+					</TutorialModal>
+				)}
 			</ContentWrapper>
 		</PageContainer>
 	);

@@ -1,8 +1,8 @@
 // src/utils/credentialManager.ts
 
+import { type OIDCDiscoveryDocument, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
-import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../services/oidcDiscoveryService';
 
 export interface PermanentCredentials {
 	environmentId: string;
@@ -1158,20 +1158,25 @@ class CredentialManager {
 	/**
 	 * Discover OIDC endpoints from issuer URL and update credentials
 	 */
-	async discoverAndUpdateCredentials(issuerUrl: string, clientId: string, clientSecret?: string, redirectUri?: string): Promise<{
+	async discoverAndUpdateCredentials(
+		issuerUrl: string,
+		clientId: string,
+		clientSecret?: string,
+		redirectUri?: string
+	): Promise<{
 		success: boolean;
 		credentials?: PermanentCredentials;
 		error?: string;
 	}> {
 		try {
 			logger.info('Starting OIDC discovery for issuer:', issuerUrl);
-			
+
 			const discoveryResult = await oidcDiscoveryService.discover({ issuerUrl });
-			
+
 			if (!discoveryResult.success || !discoveryResult.document) {
 				return {
 					success: false,
-					error: discoveryResult.error || 'Discovery failed'
+					error: discoveryResult.error || 'Discovery failed',
 				};
 			}
 
@@ -1189,7 +1194,9 @@ class CredentialManager {
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
-				scopes: credentials.supportedScopes.includes('openid') ? ['openid', 'profile', 'email'] : ['read', 'write'],
+				scopes: credentials.supportedScopes.includes('openid')
+					? ['openid', 'profile', 'email']
+					: ['read', 'write'],
 				authEndpoint: credentials.authorizationEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,
@@ -1199,7 +1206,7 @@ class CredentialManager {
 				loginHint: '',
 				issuerUrl: credentials.issuerUrl,
 				discoveredEndpoints: discoveryResult.document,
-				lastDiscoveryTime: Date.now()
+				lastDiscoveryTime: Date.now(),
 			};
 
 			// Save the discovered credentials
@@ -1208,14 +1215,13 @@ class CredentialManager {
 			logger.info('Successfully discovered and saved OIDC endpoints');
 			return {
 				success: true,
-				credentials: permanentCredentials
+				credentials: permanentCredentials,
 			};
-
 		} catch (error) {
 			logger.error('OIDC discovery failed:', String(error));
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : 'Discovery failed'
+				error: error instanceof Error ? error.message : 'Discovery failed',
 			};
 		}
 	}
@@ -1231,7 +1237,7 @@ class CredentialManager {
 		// Discovery is valid for 24 hours
 		const DISCOVERY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 		const now = Date.now();
-		return (now - credentials.lastDiscoveryTime) < DISCOVERY_CACHE_DURATION;
+		return now - credentials.lastDiscoveryTime < DISCOVERY_CACHE_DURATION;
 	}
 
 	/**
@@ -1243,7 +1249,7 @@ class CredentialManager {
 		}
 
 		logger.info('Discovery expired, refreshing endpoints for:', credentials.issuerUrl);
-		
+
 		const result = await this.discoverAndUpdateCredentials(
 			credentials.issuerUrl,
 			credentials.clientId,
@@ -1281,7 +1287,7 @@ class CredentialManager {
 				return {
 					...credentials,
 					issuerUrl: `https://auth.pingone.com/${environmentId}`,
-					lastDiscoveryTime: Date.now() // Mark as discovered now
+					lastDiscoveryTime: Date.now(), // Mark as discovered now
 				};
 			}
 		}

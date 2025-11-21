@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiSave, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { Card, CardBody, CardHeader } from '../components/Card';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;

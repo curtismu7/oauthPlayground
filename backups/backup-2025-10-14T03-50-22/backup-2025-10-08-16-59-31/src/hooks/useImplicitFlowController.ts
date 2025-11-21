@@ -165,14 +165,19 @@ const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCre
 		'openid';
 
 	// Properly handle redirect URI - only use fallback if truly undefined
-	const fallbackFlowType = flowKey || (variant === 'oidc' ? 'oidc-implicit-v5' : 'oauth-implicit-v5');
-	const redirectUri = urlRedirect || (loaded.redirectUri !== undefined ? loaded.redirectUri : getCallbackUrlForFlow(fallbackFlowType));
+	const fallbackFlowType =
+		flowKey || (variant === 'oidc' ? 'oidc-implicit-v5' : 'oauth-implicit-v5');
+	const redirectUri =
+		urlRedirect ||
+		(loaded.redirectUri !== undefined
+			? loaded.redirectUri
+			: getCallbackUrlForFlow(fallbackFlowType));
 
 	console.log('🔍 [useImplicitFlowController] loadInitialCredentials:', {
 		urlRedirect,
 		loadedRedirectUri: loaded.redirectUri,
 		finalRedirectUri: redirectUri,
-		hasLoadedRedirectUri: loaded.redirectUri !== undefined
+		hasLoadedRedirectUri: loaded.redirectUri !== undefined,
 	});
 
 	return {
@@ -363,7 +368,7 @@ export const useImplicitFlowController = (
 		params.set('scope', credentials.scope || credentials.scopes || 'openid');
 		params.set('state', finalState);
 		params.set('nonce', finalNonce);
-		
+
 		// Add response_mode parameter (default to fragment for implicit flow)
 		params.set('response_mode', credentials.responseMode || 'fragment');
 

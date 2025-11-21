@@ -2,9 +2,9 @@
 // Enhanced FlowWalkthrough component using the FlowWalkthroughService
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiChevronDown, FiGlobe } from 'react-icons/fi';
-import { FlowWalkthroughService, FlowWalkthroughConfig } from '../services/FlowWalkthroughService';
+import styled from 'styled-components';
+import { FlowWalkthroughConfig, FlowWalkthroughService } from '../services/FlowWalkthroughService';
 
 export interface EnhancedFlowWalkthroughProps {
 	flowId: string;

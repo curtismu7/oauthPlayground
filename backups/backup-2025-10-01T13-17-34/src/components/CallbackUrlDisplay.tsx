@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiCopy,
-	FiExternalLink,
-	FiCheck,
 	FiAlertTriangle,
+	FiCheck,
 	FiChevronDown,
 	FiChevronRight,
+	FiCopy,
+	FiExternalLink,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import {
-	getCallbackUrlForFlow,
-	getCallbackDescription,
 	flowRequiresRedirectUri,
+	getCallbackDescription,
+	getCallbackUrlForFlow,
 } from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface CollapsibleIconProps {
 	isExpanded: boolean;

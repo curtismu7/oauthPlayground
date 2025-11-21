@@ -1,13 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import {
-	FiCheckCircle,
-	FiChevronDown,
-	FiCopy,
-	FiEye,
-	FiKey,
-	FiRefreshCw,
-	FiShield,
-} from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown, FiCopy, FiEye, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { themeService } from '../services/themeService';
@@ -416,9 +408,10 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 														fontWeight: 'bold',
 													}}
 												>
-													{introspectionResults.active 
-														? '✅ Active' 
-														: introspectionResults.exp && Date.now() >= introspectionResults.exp * 1000
+													{introspectionResults.active
+														? '✅ Active'
+														: introspectionResults.exp &&
+																Date.now() >= introspectionResults.exp * 1000
 															? '❌ Expired'
 															: '❌ Inactive'}
 												</ParameterValue>
@@ -496,8 +489,6 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 					)}
 				</CollapsibleSection>
 			)}
-
-
 		</>
 	);
 };

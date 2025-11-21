@@ -1,68 +1,67 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV3.tsx - Clean reusable implementation
 
-import React, { useState, useCallback } from 'react';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import CentralizedSuccessMessage, {
-	showFlowSuccess,
-	showFlowError,
-} from '../../components/CentralizedSuccessMessage';
-import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
+import React, { useCallback, useState } from 'react';
 import {
-	createCredentialsStep,
-	createPKCEStep,
-	createAuthUrlStep,
-	createUserAuthorizationStep,
-	createCallbackHandlingStep,
-	createTokenExchangeStep,
-	createTokenValidationStep,
-	createUserInfoStep,
-	StepCredentials,
-	PKCECodes,
-} from '../../components/steps/CommonSteps';
-import {
-	FiKey,
-	FiShield,
-	FiUser,
 	FiCheckCircle,
 	FiCopy,
+	FiKey,
 	FiRotateCcw,
 	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { copyToClipboard } from '../../utils/clipboard';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { credentialManager } from '../../utils/credentialManager';
-import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import { validateIdToken } from '../../utils/oauth';
-import {
-	applyClientAuthentication,
-	getAuthMethodSecurityLevel,
-} from '../../utils/clientAuthentication';
-import PingOneConfigSection from '../../components/PingOneConfigSection';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import OAuthErrorHelper from '../../components/OAuthErrorHelper';
-import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
-import {
-	validateOIDCCompliance,
-	generateComplianceReport,
-	validateIdTokenCompliance,
-} from '../../utils/oidcCompliance';
-import EnhancedErrorRecovery from '../../utils/errorRecovery';
-import {
-	usePerformanceMonitor,
-	useMemoizedComputation,
-	useOptimizedCallback,
-} from '../../utils/performance';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
-import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
+import CentralizedSuccessMessage, {
+	showFlowError,
+	showFlowSuccess,
+} from '../../components/CentralizedSuccessMessage';
+import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
+import { FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
 import {
 	InlineDocumentation,
 	QuickReference,
 	TroubleshootingGuide,
 } from '../../components/InlineDocumentation';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
+import PingOneConfigSection from '../../components/PingOneConfigSection';
+import {
+	createAuthUrlStep,
+	createCallbackHandlingStep,
+	createCredentialsStep,
+	createPKCEStep,
+	createTokenExchangeStep,
+	createTokenValidationStep,
+	createUserAuthorizationStep,
+	createUserInfoStep,
+	PKCECodes,
+	StepCredentials,
+} from '../../components/steps/CommonSteps';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import {
+	applyClientAuthentication,
+	getAuthMethodSecurityLevel,
+} from '../../utils/clientAuthentication';
+import { copyToClipboard } from '../../utils/clipboard';
+import { credentialManager } from '../../utils/credentialManager';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import EnhancedErrorRecovery from '../../utils/errorRecovery';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
+import {
+	generateComplianceReport,
+	validateIdTokenCompliance,
+	validateOIDCCompliance,
+} from '../../utils/oidcCompliance';
+import {
+	useMemoizedComputation,
+	useOptimizedCallback,
+	usePerformanceMonitor,
+} from '../../utils/performance';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
 
 const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 	const authContext = useAuth();

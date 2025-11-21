@@ -199,7 +199,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				body: params.toString(),
 			});
 
-			console.log(`${LOG_PREFIX} [INFO] Response status: ${response.status} ${response.statusText}`);
+			console.log(
+				`${LOG_PREFIX} [INFO] Response status: ${response.status} ${response.statusText}`
+			);
 
 			if (!response.ok) {
 				const errorText = await response.text();

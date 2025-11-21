@@ -1,14 +1,14 @@
 // src/services/v6FlowService.tsx
 /**
  * V6 Flow Service - Comprehensive Service Bundle
- * 
+ *
  * Combines all V6 services into a single, easy-to-use export
  * Use this as the primary import for building V6 flows
- * 
+ *
  * Usage:
  * ```tsx
  * import { V6FlowService } from '../../services/v6FlowService';
- * 
+ *
  * const {
  *   Layout,
  *   Collapsible,
@@ -18,11 +18,11 @@
  * ```
  */
 
-import { V6FlowLayoutService, type ThemeColor } from './v6FlowLayoutService';
 import { V6CollapsibleSectionService } from './v6CollapsibleSectionService';
-import { V6InfoComponentsService } from './v6InfoComponentsService';
 import { V6FlowCardsService } from './v6FlowCardsService';
-import { V6StepManagementService, useV6StepManagement } from './v6StepManagementService';
+import { type ThemeColor, V6FlowLayoutService } from './v6FlowLayoutService';
+import { V6InfoComponentsService } from './v6InfoComponentsService';
+import { useV6StepManagement, V6StepManagementService } from './v6StepManagementService';
 
 export class V6FlowService {
 	/**
@@ -32,16 +32,16 @@ export class V6FlowService {
 		return {
 			// Layout components
 			Layout: V6FlowLayoutService.createFlowLayout(theme),
-			
+
 			// Collapsible components
 			Collapsible: V6CollapsibleSectionService.createCollapsibleComponents(theme),
-			
+
 			// Info components
 			Info: V6InfoComponentsService.createInfoComponents(),
-			
+
 			// Card components
 			Cards: V6FlowCardsService.createFlowCards(theme),
-			
+
 			// Theme colors
 			theme: V6FlowLayoutService.getTheme(theme),
 		};
@@ -80,16 +80,14 @@ export {
 	useV6StepManagement,
 };
 
+export type { SuitabilityVariant } from './v6FlowCardsService';
 // Export types
 export type { ThemeColor } from './v6FlowLayoutService';
 export type { InfoVariant } from './v6InfoComponentsService';
-export type { SuitabilityVariant } from './v6FlowCardsService';
 export type {
+	CollapsibleSectionState,
 	StepMetadata,
 	StepValidationResult,
-	CollapsibleSectionState,
 } from './v6StepManagementService';
 
 export default V6FlowService;
-
-

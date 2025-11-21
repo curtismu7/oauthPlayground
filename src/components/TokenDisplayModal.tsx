@@ -3,10 +3,10 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiX, FiCopy, FiEye, FiEyeOff, FiKey } from '../services/commonImportsService';
-import { DraggableModal } from './DraggableModal';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { FiCopy, FiEye, FiEyeOff, FiKey } from '../services/commonImportsService';
 import { decodeJWT, isJWT } from '../utils/jwtDecoder';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { DraggableModal } from './DraggableModal';
 
 interface TokenDisplayModalProps {
 	isOpen: boolean;
@@ -132,7 +132,9 @@ const TokenValue = styled.div<{ $masked?: boolean }>`
 	max-height: 150px;
 	overflow-y: auto;
 	
-	${({ $masked }) => $masked && `
+	${({ $masked }) =>
+		$masked &&
+		`
 		filter: blur(4px);
 		user-select: none;
 		cursor: not-allowed;

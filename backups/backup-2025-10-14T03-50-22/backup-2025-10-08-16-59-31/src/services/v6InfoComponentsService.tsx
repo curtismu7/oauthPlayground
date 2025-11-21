@@ -1,7 +1,7 @@
 // src/services/v6InfoComponentsService.tsx
 /**
  * V6 Info Components Service
- * 
+ *
  * Provides standardized info boxes, titles, and text components
  * - Multiple variants (success, info, warning, danger)
  * - Consistent styling
@@ -109,5 +109,3 @@ export class V6InfoComponentsService {
 }
 
 export default V6InfoComponentsService;
-
-

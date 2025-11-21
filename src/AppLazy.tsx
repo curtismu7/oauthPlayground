@@ -18,46 +18,17 @@ const PageChangeSpinner = React.lazy(() => import('./components/PageChangeSpinne
 
 // Lazy load pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const Flows = React.lazy(() => import('./pages/FlowsLazy'));
-const Configuration = React.lazy(() => import('./pages/Configuration'));
-const Documentation = React.lazy(() => import('./pages/Documentation'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Callback = React.lazy(() => import('./pages/Callback'));
 const AuthorizationCallback = React.lazy(() => import('./pages/AuthorizationCallback'));
-const TokenManagement = React.lazy(() => import('./pages/TokenManagement'));
-const OIDCOverview = React.lazy(() => import('./pages/docs/OIDCOverview'));
-const AIGlossary = React.lazy(() => import('./pages/AIGlossary'));
-const EmergingAIStandards = React.lazy(() => import('./pages/EmergingAIStandards'));
-const ComprehensiveOAuthEducation = React.lazy(() => import('./pages/ComprehensiveOAuthEducation'));
-const AIAgentOverview = React.lazy(() => import('./pages/AIAgentOverview'));
 const AIPersonalAgentOAuth = React.lazy(() => import('./pages/AIPersonalAgentOAuth'));
-const AdvancedConfiguration = React.lazy(() => import('./pages/AdvancedConfiguration'));
-const InteractiveTutorials = React.lazy(() => import('./pages/InteractiveTutorials'));
 const OAuth21 = React.lazy(() => import('./pages/OAuth21'));
 const OIDCSessionManagement = React.lazy(() => import('./pages/OIDCSessionManagement'));
-const OIDC = React.lazy(() => import('./pages/OIDC'));
-const OAuthOIDCTraining = React.lazy(() => import('./pages/OAuthOIDCTraining'));
 const PingOneAuthentication = React.lazy(() => import('./pages/PingOneAuthentication'));
-const PingOneAuthenticationCallback = React.lazy(() => import('./pages/PingOneAuthenticationCallback'));
+const PingOneAuthenticationCallback = React.lazy(
+	() => import('./pages/PingOneAuthenticationCallback')
+);
 const PingOneAuthenticationResult = React.lazy(() => import('./pages/PingOneAuthenticationResult'));
-
-// Lazy load OAuth flow components
-const AuthorizationCodeFlow = React.lazy(() => import('./pages/flows/AuthorizationCodeFlow'));
-const ImplicitGrantFlow = React.lazy(() => import('./pages/flows/ImplicitGrantFlow'));
-const ClientCredentialsFlow = React.lazy(() => import('./pages/flows/ClientCredentialsFlow'));
-const WorkerTokenFlow = React.lazy(() => import('./pages/flows/WorkerTokenFlow'));
-const DeviceCodeFlow = React.lazy(() => import('./pages/flows/DeviceCodeFlow'));
-const HybridFlow = React.lazy(() => import('./pages/flows/HybridFlow'));
-const UserInfoFlow = React.lazy(() => import('./pages/flows/UserInfoFlow'));
-const IDTokensFlow = React.lazy(() => import('./pages/flows/IDTokensFlow'));
-
-// V5 Flow Components
-const OAuthAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OAuthAuthorizationCodeFlowV5'));
-const OIDCAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OIDCAuthorizationCodeFlowV5'));
-const OAuthImplicitFlowV5 = React.lazy(() => import('./pages/flows/OAuthImplicitFlowV5'));
-const OIDCImplicitFlowV5 = React.lazy(() => import('./pages/flows/OIDCImplicitFlowV5'));
-const ClientCredentialsFlowV5 = React.lazy(() => import('./pages/flows/ClientCredentialsFlowV5'));
-const DeviceAuthorizationFlowV6 = React.lazy(() => import('./pages/flows/DeviceAuthorizationFlowV6'));
 
 const AppContainer = styled.div`
   display: flex;
@@ -93,8 +64,8 @@ const ScrollToTop: React.FC = () => {
 			'/flows/ciba-v6',
 			// Add other flows that should preserve scroll position
 		];
-		
-		if (skipAutoScroll.some(path => pathname.includes(path))) {
+
+		if (skipAutoScroll.some((path) => pathname.includes(path))) {
 			console.log('🌍 [ScrollToTop] Skipping auto-scroll for:', pathname);
 			return;
 		}
@@ -120,10 +91,12 @@ const ScrollToTop: React.FC = () => {
 			// Double-check the no-scroll attribute before delayed scroll
 			const noScrollElementDelayed = document.querySelector('[data-no-auto-scroll="true"]');
 			if (noScrollElementDelayed) {
-				console.log('🌍 [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting');
+				console.log(
+					'🌍 [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting'
+				);
 				return;
 			}
-			
+
 			window.scrollTo(0, 0);
 			if (mainContent) {
 				mainContent.scrollTo(0, 0);

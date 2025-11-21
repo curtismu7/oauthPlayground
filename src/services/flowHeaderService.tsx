@@ -23,19 +23,21 @@ export interface FlowHeaderConfig {
 	};
 }
 
-const HeaderContainer = styled.div<{ 
+const HeaderContainer = styled.div<{
 	$flowType: FlowHeaderConfig['flowType'];
 	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
 }>`
 	background: ${({ $flowType, $securityFeatures }) => {
 		// Check if high security features are enabled
-		const hasHighSecurity = $securityFeatures?.highSecurityMode || 
+		const hasHighSecurity =
+			$securityFeatures?.highSecurityMode ||
 			($securityFeatures?.jwksEnabled && $securityFeatures?.parEnabled);
-		
+
 		// Check if any security features are enabled
-		const hasSecurityFeatures = $securityFeatures?.jwksEnabled || 
-			$securityFeatures?.parEnabled || 
-			$securityFeatures?.jarEnabled || 
+		const hasSecurityFeatures =
+			$securityFeatures?.jwksEnabled ||
+			$securityFeatures?.parEnabled ||
+			$securityFeatures?.jarEnabled ||
 			$securityFeatures?.dpopEnabled;
 
 		// Base colors by flow type
@@ -44,7 +46,7 @@ const HeaderContainer = styled.div<{
 			oidc: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
 			pingone: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
 			documentation: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-			default: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)'
+			default: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)',
 		};
 
 		// Security-enhanced colors (darker, more professional)
@@ -53,7 +55,7 @@ const HeaderContainer = styled.div<{
 			oidc: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
 			pingone: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
 			documentation: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
-			default: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
+			default: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
 		};
 
 		// High security colors (premium, gold accents)
@@ -62,7 +64,7 @@ const HeaderContainer = styled.div<{
 			oidc: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
 			pingone: 'linear-gradient(135deg, #92400e 0%, #78350f 100%)',
 			documentation: 'linear-gradient(135deg, #581c87 0%, #4c1d95 100%)',
-			default: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)'
+			default: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)',
 		};
 
 		// Return appropriate color based on security level
@@ -103,7 +105,7 @@ const HeaderContainer = styled.div<{
   }
 `;
 
-const HeaderBadge = styled.div<{ 
+const HeaderBadge = styled.div<{
 	$flowType: FlowHeaderConfig['flowType'];
 	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
 }>`
@@ -111,11 +113,13 @@ const HeaderBadge = styled.div<{
   align-items: center;
   gap: 0.5rem;
   background: ${({ $securityFeatures }) => {
-		const hasHighSecurity = $securityFeatures?.highSecurityMode || 
+		const hasHighSecurity =
+			$securityFeatures?.highSecurityMode ||
 			($securityFeatures?.jwksEnabled && $securityFeatures?.parEnabled);
-		const hasSecurityFeatures = $securityFeatures?.jwksEnabled || 
-			$securityFeatures?.parEnabled || 
-			$securityFeatures?.jarEnabled || 
+		const hasSecurityFeatures =
+			$securityFeatures?.jwksEnabled ||
+			$securityFeatures?.parEnabled ||
+			$securityFeatures?.jarEnabled ||
 			$securityFeatures?.dpopEnabled;
 
 		if (hasHighSecurity) {
@@ -135,6 +139,7 @@ const HeaderBadge = styled.div<{
   letter-spacing: 0.5px;
   margin-bottom: 0.25rem;
   border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 `;
 
 const StatusBadge = styled.span<{ $type: 'experimental' | 'deprecated' }>`
@@ -159,7 +164,8 @@ const HeaderTitle = styled.h1`
   font-weight: 700;
   margin: 0;
   line-height: 1.2;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
   @media (max-width: 768px) {
     font-size: 1.25rem;
@@ -169,9 +175,10 @@ const HeaderTitle = styled.h1`
 const HeaderSubtitle = styled.p`
   font-size: 0.9rem;
   margin: 0;
-  opacity: 0.9;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.5;
   max-width: 800px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     font-size: 0.8rem;
@@ -184,7 +191,7 @@ const VersionDisplay = styled.div`
   padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
   font-size: 0.8rem;
-  opacity: 0.8;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 500;
 `;
 
@@ -449,7 +456,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		flowType: 'documentation',
 		title: 'Environment ID Input Demo',
 		subtitle:
-			'Simplified PingOne configuration. Just enter your environment ID, select your region, and we\'ll construct the issuer URL and discover all OIDC endpoints automatically.',
+			"Simplified PingOne configuration. Just enter your environment ID, select your region, and we'll construct the issuer URL and discover all OIDC endpoints automatically.",
 		icon: '🔧',
 	},
 	'oidc-overview': {
@@ -571,7 +578,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V6',
 		icon: '🛡️',
 	},
-	'rar': {
+	rar: {
 		flowType: 'oauth',
 		title: 'Rich Authorization Requests (RAR) Flow',
 		subtitle:
@@ -627,7 +634,8 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	'saml-bearer': {
 		flowType: 'pingone',
 		title: 'SAML Bearer Assertion Flow (Mock)',
-		subtitle: 'Educational implementation of RFC 7522 SAML Bearer Assertion for OAuth token exchange. Mock implementation since PingOne does not support SAML Bearer assertions.',
+		subtitle:
+			'Educational implementation of RFC 7522 SAML Bearer Assertion for OAuth token exchange. Mock implementation since PingOne does not support SAML Bearer assertions.',
 		icon: '🛡️',
 	},
 };
@@ -690,7 +698,9 @@ export const getFlowConfigsByType = (
 };
 
 // Utility function to create security features config from PingOne application state
-export const createSecurityFeaturesConfig = (pingOneConfig: any): FlowHeaderConfig['securityFeatures'] => {
+export const createSecurityFeaturesConfig = (
+	pingOneConfig: any
+): FlowHeaderConfig['securityFeatures'] => {
 	if (!pingOneConfig) return undefined;
 
 	return {
@@ -698,26 +708,21 @@ export const createSecurityFeaturesConfig = (pingOneConfig: any): FlowHeaderConf
 		parEnabled: pingOneConfig.requirePushedAuthorizationRequest || false,
 		jarEnabled: pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED' || false,
 		dpopEnabled: pingOneConfig.enableDPoP || false,
-		highSecurityMode: (
-			pingOneConfig.enableJWKS && 
-			pingOneConfig.requirePushedAuthorizationRequest &&
-			pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'
-		) || false
+		highSecurityMode:
+			(pingOneConfig.enableJWKS &&
+				pingOneConfig.requirePushedAuthorizationRequest &&
+				pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED') ||
+			false,
 	};
 };
 
 // Utility function to create a flow header with security features
 export const createFlowHeaderWithSecurity = (
-	flowId: string, 
+	flowId: string,
 	pingOneConfig?: any
 ): React.ReactElement => {
 	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig);
-	return (
-		<FlowHeader 
-			flowId={flowId} 
-			customConfig={{ securityFeatures }}
-		/>
-	);
+	return <FlowHeader flowId={flowId} customConfig={{ securityFeatures }} />;
 };
 
 export default {

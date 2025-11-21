@@ -1,17 +1,17 @@
 // src/components/OAuthErrorHelper.tsx
 import React from 'react';
-import styled from 'styled-components';
 import {
 	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiGlobe,
+	FiRefreshCw,
 	FiSettings,
 	FiShield,
-	FiGlobe,
-	FiCheckCircle,
-	FiExternalLink,
-	FiCopy,
-	FiRefreshCw,
 	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const ErrorContainer = styled.div`
   background: #fef2f2;

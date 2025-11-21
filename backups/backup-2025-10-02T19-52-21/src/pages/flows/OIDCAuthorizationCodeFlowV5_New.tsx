@@ -1028,7 +1028,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			hasControllerAuthCode: !!controller.authCode,
 			hasLocalAuthCode: !!localAuthCode,
 		});
-		
+
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
 			console.log('❌ [DEBUG] No authorization code available');
@@ -2338,8 +2338,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 													disabled: !(controller.authCode || localAuthCode),
 													controllerAuthCode: controller.authCode,
 													localAuthCode: localAuthCode,
-													hasCredentials: !!(controller.credentials.clientId && controller.credentials.clientSecret && controller.credentials.environmentId),
-													hasPkce: !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge),
+													hasCredentials: !!(
+														controller.credentials.clientId &&
+														controller.credentials.clientSecret &&
+														controller.credentials.environmentId
+													),
+													hasPkce: !!(
+														controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge
+													),
 												});
 												handleExchangeTokens();
 											}}

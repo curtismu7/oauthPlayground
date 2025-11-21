@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+	sanitizeInput,
+	sanitizeOAuthConfig,
+	sanitizeUrl,
+	VALIDATION_MESSAGES,
+	VALIDATION_PATTERNS,
 	Validator,
-	validateOAuthConfig,
-	validateTokenRequest,
 	validateAuthorizationRequest,
 	validateForm,
-	sanitizeInput,
-	sanitizeUrl,
-	sanitizeOAuthConfig,
+	validateOAuthConfig,
+	validateTokenRequest,
 	validateWithErrorHandling,
-	VALIDATION_PATTERNS,
-	VALIDATION_MESSAGES,
 } from '../utils/validation';
 
 // Mock the error handler

@@ -598,12 +598,12 @@ export class UnifiedFlowLayoutService {
 	 */
 	static getThemeColors(theme: string): ExtendedThemeConfig {
 		const themeMap: Record<string, ThemeColor> = {
-			'green': 'green',
-			'orange': 'orange',
-			'blue': 'blue',
-			'purple': 'purple',
-			'red': 'red',
-			'teal': 'teal',
+			green: 'green',
+			orange: 'orange',
+			blue: 'blue',
+			purple: 'purple',
+			red: 'red',
+			teal: 'teal',
 		};
 
 		const mappedTheme = themeMap[theme] || 'blue';
@@ -665,14 +665,16 @@ export class UnifiedFlowLayoutService {
 			},
 		};
 
-		return configs[flowType] || {
-			flowType,
-			theme: 'blue',
-			stepCount: 4,
-			hasPkce: false,
-			hasTokenExchange: false,
-			hasUserInfo: false,
-		};
+		return (
+			configs[flowType] || {
+				flowType,
+				theme: 'blue',
+				stepCount: 4,
+				hasPkce: false,
+				hasTokenExchange: false,
+				hasUserInfo: false,
+			}
+		);
 	}
 
 	// ==========================================

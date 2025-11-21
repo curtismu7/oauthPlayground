@@ -4,7 +4,7 @@
 /**
  * Checks for a worker token in multiple possible storage locations.
  * Returns the first valid token found, or null if none exist.
- * 
+ *
  * Checks in order:
  * 1. worker_token (legacy/generic key)
  * 2. pingone_worker_token (alternative generic key)
@@ -25,7 +25,7 @@ export function getAnyWorkerToken(): string | null {
 
 	for (const key of commonKeys) {
 		const token = localStorage.getItem(key);
-		if (token && token.trim()) {
+		if (token?.trim()) {
 			return token.trim();
 		}
 	}
@@ -33,15 +33,16 @@ export function getAnyWorkerToken(): string | null {
 	// Check for any flow-specific worker token keys
 	try {
 		const allKeys = Object.keys(localStorage);
-		const workerTokenKey = allKeys.find(key => 
-			key.startsWith('pingone_worker_token_') && 
-			!key.includes('expires_at') &&
-			!key.includes('credentials')
+		const workerTokenKey = allKeys.find(
+			(key) =>
+				key.startsWith('pingone_worker_token_') &&
+				!key.includes('expires_at') &&
+				!key.includes('credentials')
 		);
 
 		if (workerTokenKey) {
 			const token = localStorage.getItem(workerTokenKey);
-			if (token && token.trim()) {
+			if (token?.trim()) {
 				return token.trim();
 			}
 		}
@@ -71,10 +72,11 @@ export function getAllWorkerTokenKeys(): string[] {
 
 	try {
 		const allKeys = Object.keys(localStorage);
-		return allKeys.filter(key => 
-			(key === 'worker_token' || key.startsWith('pingone_worker_token_')) &&
-			!key.includes('expires_at') &&
-			!key.includes('credentials')
+		return allKeys.filter(
+			(key) =>
+				(key === 'worker_token' || key.startsWith('pingone_worker_token_')) &&
+				!key.includes('expires_at') &&
+				!key.includes('credentials')
 		);
 	} catch (error) {
 		console.warn('[workerTokenDetection] Error getting all keys:', error);

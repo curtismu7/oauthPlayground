@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { FiCheckCircle, FiGlobe, FiInfo, FiSearch } from 'react-icons/fi';
+import { FiCheckCircle, FiGlobe, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -14,7 +14,7 @@ const PageContainer = styled.div`
   padding: 2rem;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   margin-bottom: 2rem;
   
   h1 {

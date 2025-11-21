@@ -1,7 +1,7 @@
 // src/services/authenticationModalService.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiExternalLink, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiShield, FiExternalLink, FiX, FiInfo, FiCheckCircle } from 'react-icons/fi';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -219,7 +219,6 @@ const FlowText = styled.div`
 	}
 `;
 
-
 const ModalActions = styled.div`
 	display: flex;
 	gap: 1rem;
@@ -330,17 +329,21 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 		}
 	};
 
-	const safeAuthUrl = isValidUrl(authUrl) ? authUrl : 'https://auth.pingone.com/placeholder/as/authorize?client_id=placeholder&redirect_uri=placeholder&response_type=code&scope=openid';
+	const safeAuthUrl = isValidUrl(authUrl)
+		? authUrl
+		: 'https://auth.pingone.com/placeholder/as/authorize?client_id=placeholder&redirect_uri=placeholder&response_type=code&scope=openid';
 
 	const handleContinue = async () => {
 		// Validate URL before proceeding
 		if (!isValidUrl(authUrl)) {
-			v4ToastManager.showError('Invalid authorization URL. Please generate the authorization URL first.');
+			v4ToastManager.showError(
+				'Invalid authorization URL. Please generate the authorization URL first.'
+			);
 			return;
 		}
 
 		setIsRedirecting(true);
-		
+
 		try {
 			if (redirectMode === 'popup') {
 				// Open in a centered popup window
@@ -348,19 +351,19 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				const height = 700;
 				const left = window.screen.width / 2 - width / 2;
 				const top = window.screen.height / 2 - height / 2;
-				
+
 				window.open(
 					authUrl,
 					'PingOneAuth',
 					`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
 				);
-				
+
 				v4ToastManager.showSuccess('Authentication popup opened successfully!');
 			} else {
 				// Redirect current tab
 				window.location.href = authUrl;
 			}
-			
+
 			onClose();
 		} catch (error) {
 			console.error('Failed to open authentication:', error);
@@ -422,9 +425,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 			<ModalContainer>
 				<ModalHeader>
 					<HeaderContent>
-						<HeaderIcon>
-							{flowInfo.icon}
-						</HeaderIcon>
+						<HeaderIcon>{flowInfo.icon}</HeaderIcon>
 						<HeaderText>
 							<ModalTitle>Ready to Authenticate?</ModalTitle>
 							<ModalSubtitle>{flowInfo.title}</ModalSubtitle>
@@ -438,7 +439,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				<ModalContent>
 					<DescriptionSection>
 						<DescriptionText>
-							{description || `You're about to be redirected to PingOne for authentication. This will open in a ${redirectMode === 'popup' ? 'new popup window' : 'redirect your current tab'}.`}
+							{description ||
+								`You're about to be redirected to PingOne for authentication. This will open in a ${redirectMode === 'popup' ? 'new popup window' : 'redirect your current tab'}.`}
 						</DescriptionText>
 					</DescriptionSection>
 
@@ -451,13 +453,14 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						</FlowText>
 					</FlowInfo>
 
-
 					<SecurityNotice>
 						<SecurityIcon>
 							<FiShield size={16} />
 						</SecurityIcon>
 						<SecurityText>
-							<strong>Security Notice:</strong> This authentication is handled securely through PingOne's authorization server. Your credentials are never shared with this application.
+							<strong>Security Notice:</strong> This authentication is handled securely through
+							PingOne's authorization server. Your credentials are never shared with this
+							application.
 						</SecurityText>
 					</SecurityNotice>
 
@@ -469,29 +472,31 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 									Authorization URL
 								</UrlTitle>
 								<UrlSubtitle>
-									{isValidUrl(authUrl) 
+									{isValidUrl(authUrl)
 										? 'Generated authorization URL ready for authentication'
-										: 'Please generate the authorization URL first'
-									}
+										: 'Please generate the authorization URL first'}
 								</UrlSubtitle>
 							</div>
 						</UrlHeader>
 						{!isValidUrl(authUrl) && (
-							<div style={{
-								background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-								border: '1px solid #f59e0b',
-								borderRadius: '0.5rem',
-								padding: '1rem',
-								marginBottom: '1rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.75rem'
-							}}>
+							<div
+								style={{
+									background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+									border: '1px solid #f59e0b',
+									borderRadius: '0.5rem',
+									padding: '1rem',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.75rem',
+								}}
+							>
 								<div style={{ color: '#d97706' }}>
 									<FiInfo size={16} />
 								</div>
 								<div style={{ color: '#92400e', fontSize: '0.875rem', lineHeight: '1.5' }}>
-									<strong>Authorization URL Required:</strong> Please complete the previous steps to generate the authorization URL before proceeding with authentication.
+									<strong>Authorization URL Required:</strong> Please complete the previous steps to
+									generate the authorization URL before proceeding with authentication.
 								</div>
 							</div>
 						)}
@@ -508,8 +513,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						<ActionButton $variant="secondary" onClick={handleCancel}>
 							Cancel
 						</ActionButton>
-						<ActionButton 
-							$variant="primary" 
+						<ActionButton
+							$variant="primary"
 							onClick={handleContinue}
 							disabled={isRedirecting || !isValidUrl(authUrl)}
 						>

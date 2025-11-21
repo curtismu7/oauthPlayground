@@ -3,9 +3,9 @@
 // Used in: Interactive Diagrams page, Flow Comparison
 // Purpose: Provides professional, interactive flow visualizations
 
+import mermaid from 'mermaid';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import mermaid from 'mermaid';
 
 export interface FlowDiagramConfig {
 	id: string;
@@ -139,12 +139,12 @@ const ControlButton = styled.button<{ $active?: boolean }>`
 	cursor: pointer;
 	transition: all 0.2s ease;
 	border: 1px solid #d1d5db;
-	background: ${props => props.$active ? '#3b82f6' : 'white'};
-	color: ${props => props.$active ? 'white' : '#374151'};
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#374151')};
 
 	&:hover {
-		background: ${props => props.$active ? '#2563eb' : '#f3f4f6'};
-		border-color: ${props => props.$active ? '#2563eb' : '#9ca3af'};
+		background: ${(props) => (props.$active ? '#2563eb' : '#f3f4f6')};
+		border-color: ${(props) => (props.$active ? '#2563eb' : '#9ca3af')};
 	}
 `;
 
@@ -204,7 +204,7 @@ sequenceDiagram
 				description: 'User attempts to access a protected resource',
 				actor: 'user',
 				action: 'Access protected resource',
-				details: 'The user clicks on a protected resource in the client application.'
+				details: 'The user clicks on a protected resource in the client application.',
 			},
 			{
 				id: '2',
@@ -212,7 +212,8 @@ sequenceDiagram
 				description: 'Client redirects user to authorization server',
 				actor: 'client',
 				action: 'Redirect to authorization endpoint',
-				details: 'The client redirects the user to the authorization server with the necessary parameters.'
+				details:
+					'The client redirects the user to the authorization server with the necessary parameters.',
 			},
 			{
 				id: '3',
@@ -220,7 +221,7 @@ sequenceDiagram
 				description: 'User authenticates with authorization server',
 				actor: 'user',
 				action: 'User authentication',
-				details: 'The user provides credentials to prove their identity.'
+				details: 'The user provides credentials to prove their identity.',
 			},
 			{
 				id: '4',
@@ -228,7 +229,7 @@ sequenceDiagram
 				description: 'User grants permission to client',
 				actor: 'user',
 				action: 'User consent',
-				details: 'The user reviews and approves the requested permissions.'
+				details: 'The user reviews and approves the requested permissions.',
 			},
 			{
 				id: '5',
@@ -236,7 +237,8 @@ sequenceDiagram
 				description: 'Server returns authorization code',
 				actor: 'authorization-server',
 				action: 'Authorization code',
-				details: 'The authorization server redirects back to the client with an authorization code.'
+				details:
+					'The authorization server redirects back to the client with an authorization code.',
 			},
 			{
 				id: '6',
@@ -244,7 +246,8 @@ sequenceDiagram
 				description: 'Client exchanges code for tokens',
 				actor: 'client',
 				action: 'Exchange code for tokens',
-				details: 'The client makes a backend request to exchange the authorization code for access and refresh tokens.'
+				details:
+					'The client makes a backend request to exchange the authorization code for access and refresh tokens.',
 			},
 			{
 				id: '7',
@@ -252,7 +255,7 @@ sequenceDiagram
 				description: 'Server returns access and refresh tokens',
 				actor: 'authorization-server',
 				action: 'Access token + refresh token',
-				details: 'The authorization server returns the requested tokens to the client.'
+				details: 'The authorization server returns the requested tokens to the client.',
 			},
 			{
 				id: '8',
@@ -260,7 +263,7 @@ sequenceDiagram
 				description: 'Client accesses protected resource',
 				actor: 'client',
 				action: 'Access protected resource',
-				details: 'The client uses the access token to request the protected resource.'
+				details: 'The client uses the access token to request the protected resource.',
 			},
 			{
 				id: '9',
@@ -268,9 +271,9 @@ sequenceDiagram
 				description: 'Resource server returns data',
 				actor: 'resource-server',
 				action: 'Protected resource data',
-				details: 'The resource server validates the token and returns the requested data.'
-			}
-		]
+				details: 'The resource server validates the token and returns the requested data.',
+			},
+		],
 	},
 	'oidc-authorization-code': {
 		diagram: `
@@ -304,7 +307,7 @@ sequenceDiagram
 				description: 'User attempts to access a protected resource',
 				actor: 'user',
 				action: 'Access protected resource',
-				details: 'The user clicks on a protected resource in the client application.'
+				details: 'The user clicks on a protected resource in the client application.',
 			},
 			{
 				id: '2',
@@ -312,7 +315,8 @@ sequenceDiagram
 				description: 'Client redirects user to authorization server',
 				actor: 'client',
 				action: 'Redirect to authorization endpoint',
-				details: 'The client redirects the user to the authorization server with OpenID Connect specific parameters including nonce.'
+				details:
+					'The client redirects the user to the authorization server with OpenID Connect specific parameters including nonce.',
 			},
 			{
 				id: '3',
@@ -320,7 +324,7 @@ sequenceDiagram
 				description: 'User authenticates with authorization server',
 				actor: 'user',
 				action: 'User authentication',
-				details: 'The user provides credentials to prove their identity.'
+				details: 'The user provides credentials to prove their identity.',
 			},
 			{
 				id: '4',
@@ -328,7 +332,8 @@ sequenceDiagram
 				description: 'User grants permission to client',
 				actor: 'user',
 				action: 'User consent',
-				details: 'The user reviews and approves the requested permissions including identity information.'
+				details:
+					'The user reviews and approves the requested permissions including identity information.',
 			},
 			{
 				id: '5',
@@ -336,7 +341,8 @@ sequenceDiagram
 				description: 'Server returns authorization code',
 				actor: 'authorization-server',
 				action: 'Authorization code',
-				details: 'The authorization server redirects back to the client with an authorization code.'
+				details:
+					'The authorization server redirects back to the client with an authorization code.',
 			},
 			{
 				id: '6',
@@ -344,7 +350,8 @@ sequenceDiagram
 				description: 'Client exchanges code for tokens',
 				actor: 'client',
 				action: 'Exchange code for tokens',
-				details: 'The client makes a backend request to exchange the authorization code for access, ID, and refresh tokens.'
+				details:
+					'The client makes a backend request to exchange the authorization code for access, ID, and refresh tokens.',
 			},
 			{
 				id: '7',
@@ -352,7 +359,8 @@ sequenceDiagram
 				description: 'Server returns access, ID, and refresh tokens',
 				actor: 'authorization-server',
 				action: 'Access token + ID token + refresh token',
-				details: 'The authorization server returns the requested tokens including the ID token with user identity information.'
+				details:
+					'The authorization server returns the requested tokens including the ID token with user identity information.',
 			},
 			{
 				id: '8',
@@ -360,7 +368,7 @@ sequenceDiagram
 				description: 'Client accesses protected resource',
 				actor: 'client',
 				action: 'Access protected resource',
-				details: 'The client uses the access token to request the protected resource.'
+				details: 'The client uses the access token to request the protected resource.',
 			},
 			{
 				id: '9',
@@ -368,9 +376,9 @@ sequenceDiagram
 				description: 'Resource server returns data',
 				actor: 'resource-server',
 				action: 'Protected resource data',
-				details: 'The resource server validates the token and returns the requested data.'
-			}
-		]
+				details: 'The resource server validates the token and returns the requested data.',
+			},
+		],
 	},
 	'oauth-implicit': {
 		diagram: `
@@ -396,7 +404,7 @@ sequenceDiagram
 				description: 'User attempts to access a protected resource',
 				actor: 'user',
 				action: 'Access protected resource',
-				details: 'The user clicks on a protected resource in the client application.'
+				details: 'The user clicks on a protected resource in the client application.',
 			},
 			{
 				id: '2',
@@ -404,7 +412,8 @@ sequenceDiagram
 				description: 'Client redirects user to authorization server',
 				actor: 'client',
 				action: 'Redirect to authorization endpoint',
-				details: 'The client redirects the user to the authorization server with response_type=token.'
+				details:
+					'The client redirects the user to the authorization server with response_type=token.',
 			},
 			{
 				id: '3',
@@ -412,7 +421,7 @@ sequenceDiagram
 				description: 'User authenticates with authorization server',
 				actor: 'user',
 				action: 'User authentication',
-				details: 'The user provides credentials to prove their identity.'
+				details: 'The user provides credentials to prove their identity.',
 			},
 			{
 				id: '4',
@@ -420,7 +429,7 @@ sequenceDiagram
 				description: 'User grants permission to client',
 				actor: 'user',
 				action: 'User consent',
-				details: 'The user reviews and approves the requested permissions.'
+				details: 'The user reviews and approves the requested permissions.',
 			},
 			{
 				id: '5',
@@ -428,9 +437,10 @@ sequenceDiagram
 				description: 'Server returns access token directly',
 				actor: 'authorization-server',
 				action: 'Access token',
-				details: 'The authorization server redirects back to the client with the access token in the URL fragment.'
-			}
-		]
+				details:
+					'The authorization server redirects back to the client with the access token in the URL fragment.',
+			},
+		],
 	},
 	'oauth-client-credentials': {
 		diagram: `
@@ -456,7 +466,8 @@ sequenceDiagram
 				description: 'Client requests access token',
 				actor: 'client',
 				action: 'Request access token',
-				details: 'The client makes a direct request to the authorization server using client credentials.'
+				details:
+					'The client makes a direct request to the authorization server using client credentials.',
 			},
 			{
 				id: '2',
@@ -464,7 +475,8 @@ sequenceDiagram
 				description: 'Server returns access token',
 				actor: 'authorization-server',
 				action: 'Access token',
-				details: 'The authorization server validates the client credentials and returns an access token.'
+				details:
+					'The authorization server validates the client credentials and returns an access token.',
 			},
 			{
 				id: '3',
@@ -472,7 +484,7 @@ sequenceDiagram
 				description: 'Client accesses protected resource',
 				actor: 'client',
 				action: 'Access protected resource',
-				details: 'The client uses the access token to request the protected resource.'
+				details: 'The client uses the access token to request the protected resource.',
 			},
 			{
 				id: '4',
@@ -480,10 +492,10 @@ sequenceDiagram
 				description: 'Resource server returns data',
 				actor: 'resource-server',
 				action: 'Protected resource data',
-				details: 'The resource server validates the token and returns the requested data.'
-			}
-		]
-	}
+				details: 'The resource server validates the token and returns the requested data.',
+			},
+		],
+	},
 };
 
 export class InteractiveFlowDiagramService {
@@ -496,9 +508,10 @@ export class InteractiveFlowDiagramService {
 			useEffect(() => {
 				const renderDiagram = async () => {
 					if (diagramRef.current) {
-						const definition = flowDefinitions[`${config.diagramType}-authorization-code`] || 
-										  flowDefinitions['oauth-authorization-code'];
-						
+						const definition =
+							flowDefinitions[`${config.diagramType}-authorization-code`] ||
+							flowDefinitions['oauth-authorization-code'];
+
 						try {
 							const { svg } = await mermaid.render(`${config.id}-diagram`, definition.diagram);
 							diagramRef.current.innerHTML = svg;
@@ -510,13 +523,13 @@ export class InteractiveFlowDiagramService {
 				};
 
 				renderDiagram();
-			}, [currentFlow, config.id]);
+			}, [config.id, config.diagramType]);
 
 			const availableFlows = [
 				{ id: 'oauth', label: 'OAuth 2.0' },
 				{ id: 'oidc', label: 'OpenID Connect' },
 				{ id: 'implicit', label: 'Implicit (Deprecated)' },
-				{ id: 'client-credentials', label: 'Client Credentials' }
+				{ id: 'client-credentials', label: 'Client Credentials' },
 			];
 
 			const handleFlowChange = (flowType: string) => {
@@ -528,8 +541,9 @@ export class InteractiveFlowDiagramService {
 				setSelectedStep(selectedStep?.id === step.id ? null : step);
 			};
 
-			const definition = flowDefinitions[`${currentFlow}-authorization-code`] || 
-							  flowDefinitions['oauth-authorization-code'];
+			const definition =
+				flowDefinitions[`${currentFlow}-authorization-code`] ||
+				flowDefinitions['oauth-authorization-code'];
 
 			return (
 				<DiagramContainer>
@@ -539,7 +553,7 @@ export class InteractiveFlowDiagramService {
 					</DiagramHeader>
 
 					<ControlsContainer>
-						{availableFlows.map(flow => (
+						{availableFlows.map((flow) => (
 							<ControlButton
 								key={flow.id}
 								$active={currentFlow === flow.id}
@@ -557,7 +571,7 @@ export class InteractiveFlowDiagramService {
 					{config.showSteps && definition.steps && (
 						<div>
 							<h4 style={{ marginBottom: '1rem', color: '#1f2937' }}>Flow Steps:</h4>
-							{definition.steps.map((step, index) => (
+							{definition.steps.map((step, _index) => (
 								<div
 									key={step.id}
 									onClick={() => handleStepClick(step)}
@@ -572,7 +586,9 @@ export class InteractiveFlowDiagramService {
 										borderColor: selectedStep?.id === step.id ? '#3b82f6' : '#e5e7eb',
 									}}
 								>
-									<strong>{step.id}. {step.title}</strong>
+									<strong>
+										{step.id}. {step.title}
+									</strong>
 									<p style={{ margin: '0.25rem 0 0 0', color: '#6b7280', fontSize: '0.9rem' }}>
 										{step.description}
 									</p>

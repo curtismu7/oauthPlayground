@@ -123,7 +123,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: '', // Resource Owner Password doesn't use redirect URI
-				scopes: credentials.scope ? credentials.scope.split(' ').filter(s => s.trim()) : [],
+				scopes: credentials.scope ? credentials.scope.split(' ').filter((s) => s.trim()) : [],
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_basic',
 			};
@@ -207,7 +207,9 @@ export const useResourceOwnerPasswordFlowV5 = ({
 					...requestBody,
 					environmentId: credentials.environmentId,
 					clientAuthMethod: credentials.clientAuthMethod,
-					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+					...(credentials.includeX5tParameter && {
+						includeX5tParameter: credentials.includeX5tParameter,
+					}),
 				}),
 			});
 
@@ -350,7 +352,9 @@ export const useResourceOwnerPasswordFlowV5 = ({
 					...requestBody,
 					environmentId: credentials.environmentId,
 					clientAuthMethod: credentials.clientAuthMethod,
-					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+					...(credentials.includeX5tParameter && {
+						includeX5tParameter: credentials.includeX5tParameter,
+					}),
 				}),
 			});
 
@@ -429,7 +433,9 @@ export const useResourceOwnerPasswordFlowV5 = ({
 						setCredentials(parsed);
 						setHasCredentialsSaved(true);
 						if (enableDebugger) {
-							console.log('🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage');
+							console.log(
+								'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage'
+							);
 						}
 						return;
 					}
@@ -439,8 +445,8 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
 					// Safely handle scopes - check if it's an array before calling join
-					const scopeString = savedCredentials.scopes 
-						? Array.isArray(savedCredentials.scopes) 
+					const scopeString = savedCredentials.scopes
+						? Array.isArray(savedCredentials.scopes)
 							? savedCredentials.scopes.join(' ')
 							: String(savedCredentials.scopes)
 						: 'read write';
@@ -456,7 +462,9 @@ export const useResourceOwnerPasswordFlowV5 = ({
 					setHasCredentialsSaved(true);
 
 					if (enableDebugger) {
-						console.log('🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from credentialManager');
+						console.log(
+							'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from credentialManager'
+						);
 					}
 				}
 			} catch (error) {

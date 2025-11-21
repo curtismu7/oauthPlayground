@@ -20,6 +20,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -29,6 +30,7 @@ import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -41,17 +43,18 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { decodeJWTHeader } from '../../utils/jwks';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { ResponseMode } from '../../services/responseModeService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { decodeJWTHeader } from '../../utils/jwks';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -685,7 +688,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		return 0;
 	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
@@ -1006,7 +1011,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			hasControllerAuthCode: !!controller.authCode,
 			hasLocalAuthCode: !!localAuthCode,
 		});
-		
+
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
 			console.log('❌ [DEBUG] No authorization code available');
@@ -1171,7 +1176,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -1181,10 +1186,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					'authorization-code',
 					'/api/introspect-token'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -1195,7 +1200,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -2285,8 +2290,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 													disabled: !(controller.authCode || localAuthCode),
 													controllerAuthCode: controller.authCode,
 													localAuthCode: localAuthCode,
-													hasCredentials: !!(controller.credentials.clientId && controller.credentials.clientSecret && controller.credentials.environmentId),
-													hasPkce: !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge),
+													hasCredentials: !!(
+														controller.credentials.clientId &&
+														controller.credentials.clientSecret &&
+														controller.credentials.environmentId
+													),
+													hasPkce: !!(
+														controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge
+													),
 												});
 												handleExchangeTokens();
 											}}
@@ -2514,7 +2525,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2561,7 +2573,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2635,8 +2648,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					<div>
 						<InfoTitle>Response Mode Selection</InfoTitle>
 						<InfoText>
-							Choose how PingOne returns the authorization response. Different modes are 
-							optimized for different application types and security requirements.
+							Choose how PingOne returns the authorization response. Different modes are optimized
+							for different application types and security requirements.
 						</InfoText>
 					</div>
 				</InfoBox>

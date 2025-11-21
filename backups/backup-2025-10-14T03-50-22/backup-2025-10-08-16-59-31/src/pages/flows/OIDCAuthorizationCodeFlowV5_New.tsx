@@ -19,6 +19,8 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -26,6 +28,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -38,29 +41,31 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
-
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { decodeJWTHeader } from '../../utils/jwks';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
+	ConfigurationSummaryCard,
+	ConfigurationSummaryService,
+} from '../../services/configurationSummaryService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { ResponseMode } from '../../services/responseModeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { decodeJWTHeader } from '../../utils/jwks';
+import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import {
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
+	STEP_METADATA,
 } from './config/OIDCAuthzCodeFlow.config';
 
 type StepCompletionState = Record<number, boolean>;
@@ -614,7 +619,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
@@ -832,9 +839,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		]
 	);
 
-	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
@@ -928,7 +934,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			hasControllerAuthCode: !!controller.authCode,
 			hasLocalAuthCode: !!localAuthCode,
 		});
-		
+
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
 			console.log('❌ [DEBUG] No authorization code available');
@@ -1019,7 +1025,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for access token
 		if (controller.tokens?.access_token) {
 			// Use localStorage for cross-tab communication
@@ -1041,7 +1047,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for refresh token
 		if (controller.tokens?.refresh_token) {
 			// Use localStorage for cross-tab communication
@@ -1080,7 +1086,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -1090,10 +1096,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					'authorization-code',
 					'/api/introspect-token'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -1104,7 +1110,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -1245,7 +1251,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			showUserInfo: Boolean(controller.userInfo),
 			showIntrospection: Boolean(introspectionApiCall),
 			userInfo: controller.userInfo,
-			introspectionResult: introspectionApiCall?.response
+			introspectionResult: introspectionApiCall?.response,
 		};
 
 		return (
@@ -1378,134 +1384,150 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
 									{/* Environment ID Input */}
-								<ComprehensiveCredentialsService
-									// Discovery props
-									onDiscoveryComplete={(result) => {
-										console.log('[OIDC Authz V5] Discovery completed:', result);
-										// Extract environment ID from issuer URL if available
-										if (result.issuerUrl) {
-											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-											if (envIdMatch && envIdMatch[1]) {
-												controller.setCredentials({
-													...controller.credentials,
-													environmentId: envIdMatch[1],
-												});
-												// Auto-save if we have both environmentId and clientId
-												if (envIdMatch[1] && controller.credentials.clientId) {
-													controller.saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved');
+									<ComprehensiveCredentialsService
+										// Discovery props
+										onDiscoveryComplete={(result) => {
+											console.log('[OIDC Authz V5] Discovery completed:', result);
+											// Extract environment ID from issuer URL if available
+											if (result.issuerUrl) {
+												const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
+												if (envIdMatch && envIdMatch[1]) {
+													controller.setCredentials({
+														...controller.credentials,
+														environmentId: envIdMatch[1],
+													});
+													// Auto-save if we have both environmentId and clientId
+													if (envIdMatch[1] && controller.credentials.clientId) {
+														controller.saveCredentials();
+														v4ToastManager.showSuccess('Credentials auto-saved');
+													}
 												}
 											}
+										}}
+										discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+										showProviderInfo={true}
+										// Credentials props
+										environmentId={controller.credentials.environmentId || ''}
+										clientId={controller.credentials.clientId || ''}
+										clientSecret={controller.credentials.clientSecret || ''}
+										redirectUri={
+											controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'
 										}
-									}}
-									discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
-									showProviderInfo={true}
-									
-									// Credentials props
-									environmentId={controller.credentials.environmentId || ''}
-									clientId={controller.credentials.clientId || ''}
-									clientSecret={controller.credentials.clientSecret || ''}
-									redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
-									scopes={controller.credentials.scope || 'openid profile email'}
-									loginHint={controller.credentials.loginHint || ''}
-									postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-									
-									// Change handlers
-									onEnvironmentIdChange={(newEnvId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											environmentId: newEnvId,
-										});
-										if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
+										scopes={controller.credentials.scope || 'openid profile email'}
+										loginHint={controller.credentials.loginHint || ''}
+										postLogoutRedirectUri={
+											controller.credentials.postLogoutRedirectUri ||
+											'https://localhost:3000/logout-callback'
 										}
-									}}
-									onClientIdChange={(newClientId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientId: newClientId,
-										});
-										if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientSecretChange={(newClientSecret) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientSecret: newClientSecret,
-										});
-									}}
-									onScopesChange={(newScopes) => {
-										controller.setCredentials({
-											...controller.credentials,
-											scope: newScopes,
-										});
-									}}
-									onRedirectUriChange={(newRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											redirectUri: newRedirectUri,
-										});
-									}}
-									onLoginHintChange={(newLoginHint) => {
-										controller.setCredentials({
-											...controller.credentials,
-											loginHint: newLoginHint,
-										});
-									}}
-									onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											postLogoutRedirectUri: newPostLogoutRedirectUri,
-										});
-									}}
-									
-									// Save handler
-									onSave={async () => {
-										await controller.saveCredentials();
-										v4ToastManager.showSuccess('Credentials saved');
-									}}
-									hasUnsavedChanges={false}
-									isSaving={false}
-									requireClientSecret={true}
-									
-									// PingOne Advanced Configuration (integrated below)
-									pingOneAppState={pingOneConfig}
-									onPingOneAppStateChange={setPingOneConfig}
-									onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
-									hasUnsavedPingOneChanges={false}
-									isSavingPingOne={false}
-									
-									// UI config
-									title="OIDC Authorization Code Configuration"
-									subtitle="Configure your application settings and credentials"
-									showAdvancedConfig={true}
-									defaultCollapsed={false}
-								/>
-
-								{/* Configuration Summary Card - Compact */}
-								{controller.credentials.environmentId && controller.credentials.clientId && (
-									<ConfigurationSummaryCard
-										config={ConfigurationSummaryService.generateSummary(controller.credentials, 'oidc-authz')}
+										// Change handlers
+										onEnvironmentIdChange={(newEnvId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												environmentId: newEnvId,
+											});
+											if (
+												newEnvId &&
+												controller.credentials.clientId &&
+												newEnvId.trim() &&
+												controller.credentials.clientId.trim()
+											) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onClientIdChange={(newClientId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientId: newClientId,
+											});
+											if (
+												controller.credentials.environmentId &&
+												newClientId &&
+												controller.credentials.environmentId.trim() &&
+												newClientId.trim()
+											) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onClientSecretChange={(newClientSecret) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientSecret: newClientSecret,
+											});
+										}}
+										onScopesChange={(newScopes) => {
+											controller.setCredentials({
+												...controller.credentials,
+												scope: newScopes,
+											});
+										}}
+										onRedirectUriChange={(newRedirectUri) => {
+											controller.setCredentials({
+												...controller.credentials,
+												redirectUri: newRedirectUri,
+											});
+										}}
+										onLoginHintChange={(newLoginHint) => {
+											controller.setCredentials({
+												...controller.credentials,
+												loginHint: newLoginHint,
+											});
+										}}
+										onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
+											controller.setCredentials({
+												...controller.credentials,
+												postLogoutRedirectUri: newPostLogoutRedirectUri,
+											});
+										}}
+										// Save handler
 										onSave={async () => {
 											await controller.saveCredentials();
-											v4ToastManager.showSuccess('Configuration saved');
+											v4ToastManager.showSuccess('Credentials saved');
 										}}
-										onExport={async (config) => {
-											ConfigurationSummaryService.downloadConfig(config, 'oidc-authz-config.json');
-										}}
-										onImport={async (importedConfig) => {
-											controller.setCredentials(importedConfig);
-											await controller.saveCredentials();
-										}}
-										flowType="oidc-authz"
-										showAdvancedFields={false}
+										hasUnsavedChanges={false}
+										isSaving={false}
+										requireClientSecret={true}
+										// PingOne Advanced Configuration (integrated below)
+										pingOneAppState={pingOneConfig}
+										onPingOneAppStateChange={setPingOneConfig}
+										onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
+										hasUnsavedPingOneChanges={false}
+										isSavingPingOne={false}
+										// UI config
+										title="OIDC Authorization Code Configuration"
+										subtitle="Configure your application settings and credentials"
+										showAdvancedConfig={true}
+										defaultCollapsed={false}
 									/>
-								)}
 
-								{/* Response Mode Configuration */}
+									{/* Configuration Summary Card - Compact */}
+									{controller.credentials.environmentId && controller.credentials.clientId && (
+										<ConfigurationSummaryCard
+											config={ConfigurationSummaryService.generateSummary(
+												controller.credentials,
+												'oidc-authz'
+											)}
+											onSave={async () => {
+												await controller.saveCredentials();
+												v4ToastManager.showSuccess('Configuration saved');
+											}}
+											onExport={async (config) => {
+												ConfigurationSummaryService.downloadConfig(
+													config,
+													'oidc-authz-config.json'
+												);
+											}}
+											onImport={async (importedConfig) => {
+												controller.setCredentials(importedConfig);
+												await controller.saveCredentials();
+											}}
+											flowType="oidc-authz"
+											showAdvancedFields={false}
+										/>
+									)}
+
+									{/* Response Mode Configuration */}
 									<CollapsibleSection
 										title="Response Mode Configuration"
 										collapsed={collapsedSections.responseMode}
@@ -1516,13 +1538,16 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 											<div>
 												<InfoTitle>Response Mode Selection</InfoTitle>
 												<div style={{ marginTop: '0.5rem', color: '#6b7280' }}>
-													Choose how the authorization response should be returned to your application.
-													This affects how the authorization code and other parameters are delivered.
+													Choose how the authorization response should be returned to your
+													application. This affects how the authorization code and other parameters
+													are delivered.
 												</div>
 											</div>
 										</InfoBox>
 										<ResponseModeSelector
-											selectedMode={(controller.credentials.responseMode as ResponseMode) || 'query'}
+											selectedMode={
+												(controller.credentials.responseMode as ResponseMode) || 'query'
+											}
 											onModeChange={(mode) => {
 												controller.setCredentials({
 													...controller.credentials,
@@ -1534,15 +1559,12 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 											platform="web"
 										/>
 									</CollapsibleSection>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
 
 						<EnhancedFlowWalkthrough flowId="oidc-authorization-code" />
 						<FlowSequenceDisplay flowType="authorization-code" />
-
-
 					</>
 				);
 
@@ -1876,7 +1898,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 												</li>
 												<li>
 													<strong>code_challenge_method=S256</strong> - PKCE method
-											</li>
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -2174,8 +2196,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 													disabled: !(controller.authCode || localAuthCode),
 													controllerAuthCode: controller.authCode,
 													localAuthCode: localAuthCode,
-													hasCredentials: !!(controller.credentials.clientId && controller.credentials.clientSecret && controller.credentials.environmentId),
-													hasPkce: !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge),
+													hasCredentials: !!(
+														controller.credentials.clientId &&
+														controller.credentials.clientSecret &&
+														controller.credentials.environmentId
+													),
+													hasPkce: !!(
+														controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge
+													),
 												});
 												handleExchangeTokens();
 											}}
@@ -2402,7 +2430,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2449,7 +2478,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2520,8 +2550,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				<FlowHeader flowId="oidc-authorization-code-v5" />
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
-
-
 
 				<MainCard>
 					<StepHeader>

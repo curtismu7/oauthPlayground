@@ -1,9 +1,8 @@
-import winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
-
 // Create logs directory if it doesn't exist
 import fs from 'fs';
 import path from 'path';
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 const logsDir = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logsDir)) {

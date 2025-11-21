@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { FiCheckCircle } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const NextStepsList = styled.div`
 	display: flex;

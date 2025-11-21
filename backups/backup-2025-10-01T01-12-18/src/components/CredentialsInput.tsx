@@ -1,7 +1,7 @@
 // src/components/CredentialsInput.tsx
 import { useState } from 'react';
-import styled from 'styled-components';
 import { FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface CredentialsInputProps {
 	environmentId: string;

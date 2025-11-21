@@ -2,22 +2,22 @@
 // V5.0.0 OIDC Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import logger from '../../utils/logger';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -289,8 +289,8 @@ const TokenInfoValue = styled.span`
 
 const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
-	// Ensure page starts at top
-	usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
+		// Ensure page starts at top
+		usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
 
 		const restoreStep = sessionStorage.getItem('restore_step');
 		return restoreStep ? (parseInt(restoreStep, 10) as StepIndex) : 0;
@@ -305,9 +305,14 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const handleDiscoveryComplete = useCallback(
 		(discoveryResult: DiscoveryResult) => {
 			if (discoveryResult.success && discoveryResult.document) {
-				const environmentId = oidcDiscoveryService.extractEnvironmentId(discoveryResult.issuerUrl || discoveryResult.document.issuer);
+				const environmentId = oidcDiscoveryService.extractEnvironmentId(
+					discoveryResult.issuerUrl || discoveryResult.document.issuer
+				);
 
-				logger.discovery('OIDCResourceOwnerPasswordFlowV5', `Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`);
+				logger.discovery(
+					'OIDCResourceOwnerPasswordFlowV5',
+					`Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`
+				);
 
 				// Auto-populate token endpoint from discovery
 				if (discoveryResult.document.token_endpoint) {
@@ -435,7 +440,12 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 									clientId: newClientId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									credentials?.environmentId &&
+									newClientId &&
+									credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}

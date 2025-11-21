@@ -1,23 +1,23 @@
 // src/pages/flows/AuthzV4NewWindsurfFlow.tsx - Educational OAuth 2.0 Authorization Code Flow V4
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiShield,
+	FiCheckCircle,
+	FiChevronDown,
 	FiChevronLeft,
 	FiChevronRight,
-	FiChevronDown,
 	FiChevronUp,
-	FiKey,
 	FiCopy,
-	FiCheckCircle,
+	FiKey,
+	FiPlay,
+	FiShield,
 	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import PingOneAppConfig, { PingOneConfig } from '../../components/PingOneAppConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
 import { copyToClipboard as utilCopyToClipboard } from '../../utils/clipboard';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Educational Notes:
 // This flow demonstrates the OAuth 2.0 Authorization Code grant type

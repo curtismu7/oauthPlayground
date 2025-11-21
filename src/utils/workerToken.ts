@@ -54,7 +54,9 @@ export async function requestClientCredentialsToken(
 	// Safety check: Ensure we have valid scopes
 	if (!scopes || scopes.length === 0 || scopes.join(' ').trim() === '') {
 		logger.error('WORKER', 'No valid scopes provided for token request', { scopes });
-		throw new Error('No valid scopes provided. Please configure scopes for the worker token request.');
+		throw new Error(
+			'No valid scopes provided. Please configure scopes for the worker token request.'
+		);
 	}
 
 	const body = new URLSearchParams({
@@ -68,7 +70,7 @@ export async function requestClientCredentialsToken(
 	console.log('  - scope:', body.get('scope'));
 	console.log('  - client_id:', body.get('client_id'));
 	console.log('  - client_secret:', body.get('client_secret') ? '[REDACTED]' : 'not set');
-	
+
 	// Debug: Log the full body as URL-encoded string
 	console.log('🔍 [requestClientCredentialsToken] Full body string:', body.toString());
 
@@ -294,12 +296,7 @@ export function formatScopes(scopes: string): string[] {
  * Get default PingOne Management API scopes
  */
 export function getDefaultWorkerScopes(): string[] {
-	return [
-		'p1:read:user',
-		'p1:update:user',
-		'p1:read:device',
-		'p1:update:device',
-	];
+	return ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'];
 }
 
 /**

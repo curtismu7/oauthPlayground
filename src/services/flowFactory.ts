@@ -2,13 +2,11 @@
 // FlowFactory - Centralized flow creation and management
 
 import React from 'react';
-import { FlowConfigService, FlowConfig } from './flowConfigService';
-import { FlowControllerService, FlowControllerConfig } from './flowControllerService';
-import { FlowStepService, StepConfig } from './flowStepService';
-import { FlowComponentService } from './flowComponentService';
 import { FlowAnalyticsService } from './flowAnalyticsService';
+import { FlowConfig, FlowConfigService } from './flowConfigService';
+import { FlowControllerConfig } from './flowControllerService';
 import FlowStateService from './flowStateService';
-import { FlowLayoutService } from './flowLayoutService';
+import { StepConfig } from './flowStepService';
 
 export interface FlowFactoryConfig {
 	flowType: string;
@@ -60,7 +58,11 @@ export class FlowFactory {
 		};
 
 		// Create flow component
-		const flowComponent = FlowFactory.createFlowComponent(mergedConfig, flowController, enableAnalytics);
+		const flowComponent = FlowFactory.createFlowComponent(
+			mergedConfig,
+			flowController,
+			enableAnalytics
+		);
 
 		return {
 			flowComponent,
@@ -119,8 +121,8 @@ export class FlowFactory {
 	 */
 	private static createFlowComponent(
 		flowConfig: FlowConfig,
-		flowController: FlowControllerConfig,
-		enableAnalytics: boolean
+		_flowController: FlowControllerConfig,
+		_enableAnalytics: boolean
 	): React.ComponentType {
 		return () => {
 			// This would be the actual flow component implementation
