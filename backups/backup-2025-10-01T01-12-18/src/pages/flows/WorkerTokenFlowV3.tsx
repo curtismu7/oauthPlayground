@@ -2,8 +2,6 @@
 
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { useUISettings } from '../../contexts/UISettingsContext';
 import {
 	FiCheckCircle,
 	FiCopy,
@@ -31,6 +29,8 @@ import {
 } from '../../components/steps/CommonSteps';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { useUISettings } from '../../contexts/UISettingsContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	applyClientAuthentication,
 	getAuthMethodSecurityLevel,

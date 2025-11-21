@@ -15,13 +15,13 @@ const TARGET_FILE = process.argv[2];
 function analyzeFile(filePath) {
 	const content = fs.readFileSync(filePath, 'utf-8');
 	const fileName = path.basename(filePath);
-	
+
 	// Check migration status
-	const hasCollapsibleHeader = content.includes('from \'../../services/collapsibleHeaderService\'');
+	const hasCollapsibleHeader = content.includes("from '../../services/collapsibleHeaderService'");
 	const hasLocalCollapsible = content.includes('const CollapsibleSection = styled');
 	const usesFlowUIService = content.includes('FlowUIService.getFlowUIComponents');
 	const sectionCount = (content.match(/<CollapsibleSection>/g) || []).length;
-	
+
 	return {
 		fileName,
 		filePath,
@@ -29,16 +29,20 @@ function analyzeFile(filePath) {
 		hasLocalCollapsible,
 		usesFlowUIService,
 		sectionCount,
-		status: hasCollapsibleHeader ? 'migrated' : 
-		        usesFlowUIService ? 'flowui-service' :
-		        hasLocalCollapsible ? 'needs-migration' : 'no-collapsibles'
+		status: hasCollapsibleHeader
+			? 'migrated'
+			: usesFlowUIService
+				? 'flowui-service'
+				: hasLocalCollapsible
+					? 'needs-migration'
+					: 'no-collapsibles',
 	};
 }
 
 function main() {
 	console.log('\n📋 CollapsibleHeader Migration Status\n');
 	console.log('='.repeat(80));
-	
+
 	// Get files to check
 	let files = [];
 	if (TARGET_FILE) {
@@ -50,46 +54,47 @@ function main() {
 			process.exit(1);
 		}
 	} else {
-		files = fs.readdirSync(FLOWS_DIR)
-			.filter(f => f.endsWith('.tsx') && !f.includes('.backup'))
-			.map(f => path.join(FLOWS_DIR, f));
+		files = fs
+			.readdirSync(FLOWS_DIR)
+			.filter((f) => f.endsWith('.tsx') && !f.includes('.backup'))
+			.map((f) => path.join(FLOWS_DIR, f));
 	}
-	
+
 	// Analyze all files
 	const results = files.map(analyzeFile);
-	
+
 	// Group by status
-	const migrated = results.filter(r => r.status === 'migrated');
-	const needsMigration = results.filter(r => r.status === 'needs-migration');
-	const flowUIService = results.filter(r => r.status === 'flowui-service');
-	const noCollapsibles = results.filter(r => r.status === 'no-collapsibles');
-	
+	const migrated = results.filter((r) => r.status === 'migrated');
+	const needsMigration = results.filter((r) => r.status === 'needs-migration');
+	const flowUIService = results.filter((r) => r.status === 'flowui-service');
+	const noCollapsibles = results.filter((r) => r.status === 'no-collapsibles');
+
 	// Display results
 	console.log(`\n✅ Already Migrated (${migrated.length})`);
 	console.log('-'.repeat(80));
-	migrated.forEach(r => {
+	migrated.forEach((r) => {
 		console.log(`  ✓ ${r.fileName}`);
 	});
-	
+
 	console.log(`\n⏳ Needs Migration (${needsMigration.length})`);
 	console.log('-'.repeat(80));
 	needsMigration.sort((a, b) => b.sectionCount - a.sectionCount);
-	needsMigration.forEach(r => {
+	needsMigration.forEach((r) => {
 		console.log(`  🔧 ${r.fileName.padEnd(45)} (${r.sectionCount} sections)`);
 	});
-	
+
 	console.log(`\n⚠️  Uses FlowUIService (${flowUIService.length}) - Manual Migration Required`);
 	console.log('-'.repeat(80));
-	flowUIService.forEach(r => {
+	flowUIService.forEach((r) => {
 		console.log(`  ⚙️  ${r.fileName.padEnd(45)} (${r.sectionCount} sections)`);
 	});
-	
+
 	console.log(`\n➖ No Collapsibles (${noCollapsibles.length})`);
 	console.log('-'.repeat(80));
-	noCollapsibles.forEach(r => {
+	noCollapsibles.forEach((r) => {
 		console.log(`  ⊘ ${r.fileName}`);
 	});
-	
+
 	// Summary
 	console.log(`\n${'='.repeat(80)}`);
 	console.log('📊 SUMMARY');
@@ -99,10 +104,10 @@ function main() {
 	console.log(`⏳ Needs migration: ${needsMigration.length}`);
 	console.log(`⚠️  FlowUIService (manual): ${flowUIService.length}`);
 	console.log(`➖ No collapsibles: ${noCollapsibles.length}`);
-	
+
 	const totalSections = needsMigration.reduce((sum, r) => sum + r.sectionCount, 0);
 	console.log(`\n🎯 Total sections to migrate: ${totalSections}`);
-	
+
 	// Next steps
 	if (needsMigration.length > 0) {
 		console.log(`\n💡 Next Steps:`);
@@ -117,7 +122,7 @@ function main() {
 	} else {
 		console.log(`\n🎉 All flows are migrated!`);
 	}
-	
+
 	console.log('\n');
 }
 
@@ -127,4 +132,3 @@ try {
 	console.error('\n❌ Error:', error.message);
 	process.exit(1);
 }
-

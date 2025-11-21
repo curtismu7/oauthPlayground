@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import DiscoveryPanel from '../components/DiscoveryPanel';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;

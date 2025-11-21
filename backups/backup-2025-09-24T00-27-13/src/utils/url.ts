@@ -2,7 +2,7 @@
  * URL utility functions for handling OAuth 2.0 and OpenID Connect URLs
  */
 
-import { QueryParams, HashParams } from '../types/url';
+import { HashParams, QueryParams } from '../types/url';
 
 /**
  * Parse query parameters from a URL

@@ -120,7 +120,10 @@ class OAuthMetadataService {
 			// Cache the document
 			this.cacheDocument(normalizedIssuer, document);
 
-			console.log('[OAuth Metadata] Successfully discovered OAuth endpoints for:', normalizedIssuer);
+			console.log(
+				'[OAuth Metadata] Successfully discovered OAuth endpoints for:',
+				normalizedIssuer
+			);
 			return {
 				success: true,
 				document,
@@ -147,10 +150,12 @@ class OAuthMetadataService {
 			const url = new URL(issuerUrl);
 
 			// PingOne pattern: https://auth.pingone.com/{envId}
-			if (url.hostname === 'auth.pingone.com' ||
+			if (
+				url.hostname === 'auth.pingone.com' ||
 				url.hostname === 'auth.pingone.eu' ||
 				url.hostname === 'auth.pingone.asia' ||
-				url.hostname === 'auth.pingone.ca') {
+				url.hostname === 'auth.pingone.ca'
+			) {
 				const pathSegments = url.pathname.split('/').filter((segment) => segment);
 				if (pathSegments.length > 0) {
 					return pathSegments[0];
@@ -220,11 +225,13 @@ class OAuthMetadataService {
 
 			// Validate that this is a PingOne URL
 			if (!url.hostname.includes('pingone')) {
-				throw new Error(`Only PingOne issuer URLs are supported. Received: ${issuerUrl}. Please use a URL like https://auth.pingone.com/{environment-id}`);
+				throw new Error(
+					`Only PingOne issuer URLs are supported. Received: ${issuerUrl}. Please use a URL like https://auth.pingone.com/{environment-id}`
+				);
 			}
 
 			// Extract environment ID from path (e.g., /b9817c16-9910-4415-b67e-4ac687da74d9)
-			const pathParts = url.pathname.split('/').filter(part => part.length > 0);
+			const pathParts = url.pathname.split('/').filter((part) => part.length > 0);
 			const environmentId = pathParts[0];
 
 			if (!environmentId) {
@@ -331,7 +338,10 @@ class OAuthMetadataService {
 		}
 	}
 
-	private validateOAuthMetadataDocument(document: OAuthMetadataDocument, expectedIssuer: string): void {
+	private validateOAuthMetadataDocument(
+		document: OAuthMetadataDocument,
+		expectedIssuer: string
+	): void {
 		if (!document.issuer) {
 			throw new Error('OAuth metadata document missing issuer');
 		}

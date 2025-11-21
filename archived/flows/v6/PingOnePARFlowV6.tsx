@@ -1,25 +1,9 @@
 // src/pages/flows/PingOnePARFlowV5.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
-import type { DisplayMode } from '../../components/DisplayParameterSelector';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import {
-	FiAlertCircle,
-	FiBook,
-	FiCheckCircle,
-	FiCopy,
-	FiExternalLink,
-	FiInfo,
-	FiKey,
-	FiRefreshCw,
-	FiSettings,
-	FiShield,
-} from '../../services/commonImportsService';
-import { themeService } from '../../services/themeService';
-
 import styled from 'styled-components';
 import { Button } from '../../components/Button';
+import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import type { DisplayMode } from '../../components/DisplayParameterSelector';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -33,8 +17,22 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { useUISettings } from '../../hooks/useUISettings';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import {
+	FiAlertCircle,
+	FiBook,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+} from '../../services/commonImportsService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import {
 	EnhancedApiCallData,
@@ -44,6 +42,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
 import { StepValidationService, useStepValidation } from '../../services/stepValidationService';
+import { themeService } from '../../services/themeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import {
 	DEFAULT_APP_CONFIG,

@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-	serviceWorkerManager,
-	getCacheStatus,
-	getCacheSize,
-	clearAllCaches,
-	preloadResources,
-	isResourceCached,
-} from '../utils/serviceWorkerManager';
+import { useCallback, useEffect, useState } from 'react';
 import { logger } from '../utils/logger';
+import {
+	clearAllCaches,
+	getCacheSize,
+	getCacheStatus,
+	isResourceCached,
+	preloadResources,
+	serviceWorkerManager,
+} from '../utils/serviceWorkerManager';
 
 // Service worker state interface
 export interface ServiceWorkerState {

@@ -2,23 +2,23 @@
 // V5.0.0 OAuth Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -442,7 +442,12 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 							onClientIdChange={(newClientId) => {
 								updateCredentials({ ...credentials, clientId: newClientId });
 								// Auto-save if we have both environmentId and clientId
-								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									credentials?.environmentId &&
+									newClientId &&
+									credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}

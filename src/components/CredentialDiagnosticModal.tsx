@@ -2,8 +2,8 @@
 // Modal to show diagnostic information about credentials being sent
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiAlertTriangle, FiCheckCircle, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface CredentialDiagnostic {
 	field: string;
@@ -101,8 +101,8 @@ const SectionTitle = styled.h3`
 `;
 
 const DiagnosticCard = styled.div<{ $hasIssue: boolean }>`
-	background: ${props => props.$hasIssue ? '#fef2f2' : '#f0fdf4'};
-	border: 1px solid ${props => props.$hasIssue ? '#fecaca' : '#bbf7d0'};
+	background: ${(props) => (props.$hasIssue ? '#fef2f2' : '#f0fdf4')};
+	border: 1px solid ${(props) => (props.$hasIssue ? '#fecaca' : '#bbf7d0')};
 	border-radius: 8px;
 	padding: 1rem;
 	margin-bottom: 0.75rem;
@@ -124,7 +124,7 @@ const FieldName = styled.div`
 `;
 
 const StatusIcon = styled.div<{ $hasIssue: boolean }>`
-	color: ${props => props.$hasIssue ? '#dc2626' : '#16a34a'};
+	color: ${(props) => (props.$hasIssue ? '#dc2626' : '#16a34a')};
 	display: flex;
 	align-items: center;
 `;
@@ -233,7 +233,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 	transition: all 0.2s;
 	border: none;
 	
-	${props => {
+	${(props) => {
 		if (props.$variant === 'danger') {
 			return `
 				background: #dc2626;
@@ -267,11 +267,11 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 	onClose,
 	onProceed,
 	diagnostics,
-	requestDetails
+	requestDetails,
 }) => {
 	if (!isOpen) return null;
 
-	const hasIssues = diagnostics.some(d => d.isEmpty);
+	const hasIssues = diagnostics.some((d) => d.isEmpty);
 
 	return (
 		<Overlay onClick={onClose}>
@@ -295,8 +295,8 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 							<WarningContent>
 								<WarningTitle>⚠️ Empty Credentials Detected</WarningTitle>
 								<WarningMessage>
-									One or more required credentials are empty. This will likely cause authentication to fail.
-									Please review the details below to identify which values are missing.
+									One or more required credentials are empty. This will likely cause authentication
+									to fail. Please review the details below to identify which values are missing.
 								</WarningMessage>
 							</WarningContent>
 						</WarningBox>
@@ -321,9 +321,7 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 						{diagnostics.map((diagnostic, index) => (
 							<DiagnosticCard key={index} $hasIssue={diagnostic.isEmpty}>
 								<DiagnosticHeader>
-									<FieldName>
-										{diagnostic.field}
-									</FieldName>
+									<FieldName>{diagnostic.field}</FieldName>
 									<StatusIcon $hasIssue={diagnostic.isEmpty}>
 										{diagnostic.isEmpty ? (
 											<FiAlertTriangle size={20} />
@@ -349,10 +347,12 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 									</DetailRow>
 									<DetailRow>
 										<DetailLabel>Status:</DetailLabel>
-										<DetailValue style={{ 
-											color: diagnostic.isEmpty ? '#dc2626' : '#16a34a',
-											fontWeight: 'bold'
-										}}>
+										<DetailValue
+											style={{
+												color: diagnostic.isEmpty ? '#dc2626' : '#16a34a',
+												fontWeight: 'bold',
+											}}
+										>
 											{diagnostic.isEmpty ? '❌ EMPTY' : '✅ OK'}
 										</DetailValue>
 									</DetailRow>
@@ -399,5 +399,3 @@ export const CredentialDiagnosticModal: React.FC<CredentialDiagnosticModalProps>
 		</Overlay>
 	);
 };
-
-

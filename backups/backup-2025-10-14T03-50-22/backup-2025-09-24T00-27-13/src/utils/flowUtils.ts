@@ -1,6 +1,5 @@
 import { logger } from './logger';
-import { storeOAuthTokens } from './tokenStorage';
-import { OAuthTokens } from './tokenStorage';
+import { OAuthTokens, storeOAuthTokens } from './tokenStorage';
 
 // Common OAuth flow error types
 export interface OAuthFlowError {

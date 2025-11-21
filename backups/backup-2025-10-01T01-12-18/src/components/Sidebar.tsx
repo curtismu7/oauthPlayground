@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+	FiAlertTriangle,
 	FiBookOpen,
 	FiChevronDown,
 	FiChevronRight,
@@ -14,7 +15,6 @@ import {
 	FiShield,
 	FiTool,
 	FiUser,
-	FiAlertTriangle,
 	FiZap,
 } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';

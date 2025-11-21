@@ -1,17 +1,17 @@
 import React from 'react';
-import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPackage, FiPlay } from 'react-icons/fi';
+import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPlay } from 'react-icons/fi';
 import styled from 'styled-components';
-import PageLayoutService from '../services/pageLayoutService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 
-const Container = styled.div`
+const _Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
 
@@ -215,8 +215,11 @@ const SdkSampleApp: React.FC = () => {
 		flowId: 'sdk-sample-app', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	const sdks = [
 		{
@@ -311,32 +314,32 @@ const SdkSampleApp: React.FC = () => {
 									Quick Start Guide
 								</h2>
 								<p>
-									Get started with PingOne SDKs in minutes. Choose your preferred language and follow the
-									installation and setup instructions.
+									Get started with PingOne SDKs in minutes. Choose your preferred language and
+									follow the installation and setup instructions.
 								</p>
 							</CardHeader>
 
-				<div>
-					<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-						1. Install the SDK
-					</h3>
-					<CodeBlock>{`# Choose your language
+							<div>
+								<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+									1. Install the SDK
+								</h3>
+								<CodeBlock>{`# Choose your language
 npm install @pingidentity/pingone-nodejs-sdk  # Node.js
 pip install pingone-python-sdk                # Python
 # Add to pom.xml or build.gradle             # Java
 dotnet add package PingOne.DotNet.Sdk         # .NET`}</CodeBlock>
 
-					<h3
-						style={{
-							fontSize: '1.25rem',
-							fontWeight: '600',
-							marginBottom: '1rem',
-							marginTop: '2rem',
-						}}
-					>
-						2. Configure Your Application
-					</h3>
-					<CodeBlock>{`// Initialize the SDK with your credentials
+								<h3
+									style={{
+										fontSize: '1.25rem',
+										fontWeight: '600',
+										marginBottom: '1rem',
+										marginTop: '2rem',
+									}}
+								>
+									2. Configure Your Application
+								</h3>
+								<CodeBlock>{`// Initialize the SDK with your credentials
 const pingOne = new PingOneSDK({
   environmentId: process.env.PINGONE_ENVIRONMENT_ID,
   clientId: process.env.PINGONE_CLIENT_ID,
@@ -344,17 +347,17 @@ const pingOne = new PingOneSDK({
   redirectUri: process.env.PINGONE_REDIRECT_URI
 });`}</CodeBlock>
 
-					<h3
-						style={{
-							fontSize: '1.25rem',
-							fontWeight: '600',
-							marginBottom: '1rem',
-							marginTop: '2rem',
-						}}
-					>
-						3. Implement OAuth Flow
-					</h3>
-					<CodeBlock>{`// Start authorization flow
+								<h3
+									style={{
+										fontSize: '1.25rem',
+										fontWeight: '600',
+										marginBottom: '1rem',
+										marginTop: '2rem',
+									}}
+								>
+									3. Implement OAuth Flow
+								</h3>
+								<CodeBlock>{`// Start authorization flow
 app.get('/login', (req, res) => {
   const authUrl = pingOne.getAuthorizationUrl({
     scope: 'openid profile email',
@@ -369,145 +372,146 @@ app.get('/callback', async (req, res) => {
   // Store tokens and redirect to dashboard
   res.redirect('/dashboard');
 });`}</CodeBlock>
-				</div>
-			</Card>
-
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiGithub />
-						Available SDKs
-					</h2>
-					<p>Official PingOne SDKs for popular programming languages and frameworks.</p>
-				</CardHeader>
-
-				<SdkGrid>
-					{sdks.map((sdk) => (
-						<SdkCard key={sdk.id}>
-							<SdkHeader>
-								<div className="sdk-icon">{sdk.icon}</div>
-								<div className="sdk-info">
-									<h3>{sdk.name}</h3>
-									<div className="sdk-version">{sdk.version}</div>
-								</div>
-							</SdkHeader>
-
-							<SdkDescription>{sdk.description}</SdkDescription>
-
-							<FeatureList>
-								{sdk.features.map((feature, index) => (
-									<li key={index}>{feature}</li>
-								))}
-							</FeatureList>
-
-							<div style={{ marginBottom: '1rem' }}>
-								<strong>Install:</strong>
-								<CodeBlock style={{ margin: '0.5rem 0', fontSize: '0.8rem' }}>
-									{sdk.installCommand}
-								</CodeBlock>
 							</div>
+						</Card>
 
-							<SdkActions>
-								<ActionButton
-									href={sdk.docsUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									$variant="primary"
-								>
-									<FiExternalLink />
-									Documentation
-								</ActionButton>
-								<ActionButton
-									href={sdk.githubUrl}
-									target="_blank"
-									rel="noopener noreferrer"
-									$variant="secondary"
-								>
+						<Card>
+							<CardHeader>
+								<h2>
 									<FiGithub />
-									GitHub
-								</ActionButton>
-							</SdkActions>
-						</SdkCard>
-					))}
-				</SdkGrid>
-				</Card>
-					</div>
-			</CollapsibleHeader>
+									Available SDKs
+								</h2>
+								<p>Official PingOne SDKs for popular programming languages and frameworks.</p>
+							</CardHeader>
 
-			<CollapsibleHeader
-				title="Sample Applications"
-				subtitle="Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID Connect integration patterns."
-				icon={<FiDownload />}
-				defaultCollapsed={false}
-			>
-				<div style={{ padding: '1.5rem' }}>
-					<Card>
-						<CardHeader>
-							<h2>
-								<FiDownload />
-								Sample Applications
-							</h2>
-							<p>
-								Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID
-								Connect integration patterns.
-							</p>
-						</CardHeader>
+							<SdkGrid>
+								{sdks.map((sdk) => (
+									<SdkCard key={sdk.id}>
+										<SdkHeader>
+											<div className="sdk-icon">{sdk.icon}</div>
+											<div className="sdk-info">
+												<h3>{sdk.name}</h3>
+												<div className="sdk-version">{sdk.version}</div>
+											</div>
+										</SdkHeader>
 
-				<div style={{ display: 'grid', gap: '1rem' }}>
-					<div
-						style={{
-							padding: '1.5rem',
-							background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-							border: '2px solid #0ea5e9',
-							borderRadius: '0.75rem',
-						}}
-					>
-						<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-							OAuth Playground (This Application)
-						</h3>
-						<p style={{ color: '#0369a1', marginBottom: '1rem' }}>
-							Interactive web application for learning and testing OAuth 2.0 and OpenID Connect
-							flows.
-						</p>
-						<ActionButton
-							href="https://github.com/curtismu7/oauthPlayground"
-							target="_blank"
-							rel="noopener noreferrer"
-							$variant="primary"
-						>
-							<FiGithub />
-							View on GitHub
-						</ActionButton>
-					</div>
+										<SdkDescription>{sdk.description}</SdkDescription>
 
-					<div
-						style={{
-							padding: '1.5rem',
-							background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-							border: '2px solid #22c55e',
-							borderRadius: '0.75rem',
-						}}
-					>
-						<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-							Enterprise Sample Applications
-						</h3>
-						<p style={{ color: '#15803d', marginBottom: '1rem' }}>
-							Production-ready examples for enterprise applications with advanced security features.
-						</p>
-						<ActionButton
-							href="https://docs.pingidentity.com/sdks/latest/sdks/index.html#sample-applications"
-							target="_blank"
-							rel="noopener noreferrer"
-							$variant="primary"
-						>
-							<FiExternalLink />
-							View Samples
-						</ActionButton>
+										<FeatureList>
+											{sdk.features.map((feature, index) => (
+												<li key={index}>{feature}</li>
+											))}
+										</FeatureList>
+
+										<div style={{ marginBottom: '1rem' }}>
+											<strong>Install:</strong>
+											<CodeBlock style={{ margin: '0.5rem 0', fontSize: '0.8rem' }}>
+												{sdk.installCommand}
+											</CodeBlock>
+										</div>
+
+										<SdkActions>
+											<ActionButton
+												href={sdk.docsUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												$variant="primary"
+											>
+												<FiExternalLink />
+												Documentation
+											</ActionButton>
+											<ActionButton
+												href={sdk.githubUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												$variant="secondary"
+											>
+												<FiGithub />
+												GitHub
+											</ActionButton>
+										</SdkActions>
+									</SdkCard>
+								))}
+							</SdkGrid>
+						</Card>
 					</div>
-				</div>
-				</Card>
+				</CollapsibleHeader>
+
+				<CollapsibleHeader
+					title="Sample Applications"
+					subtitle="Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID Connect integration patterns."
+					icon={<FiDownload />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<Card>
+							<CardHeader>
+								<h2>
+									<FiDownload />
+									Sample Applications
+								</h2>
+								<p>
+									Download and run complete sample applications that demonstrate OAuth 2.0 and
+									OpenID Connect integration patterns.
+								</p>
+							</CardHeader>
+
+							<div style={{ display: 'grid', gap: '1rem' }}>
+								<div
+									style={{
+										padding: '1.5rem',
+										background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+										border: '2px solid #0ea5e9',
+										borderRadius: '0.75rem',
+									}}
+								>
+									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										OAuth Playground (This Application)
+									</h3>
+									<p style={{ color: '#0369a1', marginBottom: '1rem' }}>
+										Interactive web application for learning and testing OAuth 2.0 and OpenID
+										Connect flows.
+									</p>
+									<ActionButton
+										href="https://github.com/curtismu7/oauthPlayground"
+										target="_blank"
+										rel="noopener noreferrer"
+										$variant="primary"
+									>
+										<FiGithub />
+										View on GitHub
+									</ActionButton>
+								</div>
+
+								<div
+									style={{
+										padding: '1.5rem',
+										background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+										border: '2px solid #22c55e',
+										borderRadius: '0.75rem',
+									}}
+								>
+									<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+										Enterprise Sample Applications
+									</h3>
+									<p style={{ color: '#15803d', marginBottom: '1rem' }}>
+										Production-ready examples for enterprise applications with advanced security
+										features.
+									</p>
+									<ActionButton
+										href="https://docs.pingidentity.com/sdks/latest/sdks/index.html#sample-applications"
+										target="_blank"
+										rel="noopener noreferrer"
+										$variant="primary"
+									>
+										<FiExternalLink />
+										View Samples
+									</ActionButton>
+								</div>
+							</div>
+						</Card>
 					</div>
-			</CollapsibleHeader>
+				</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
 	);

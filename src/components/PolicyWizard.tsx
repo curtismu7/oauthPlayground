@@ -4,21 +4,29 @@
  * Guides users through selecting PingOne app + policy settings based on risk posture
  */
 
-import React, { useState, useMemo, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiChevronLeft,
+	FiChevronRight,
 	FiSettings,
+	FiShield,
+	FiTrendingUp,
 	FiUsers,
 	FiWifi,
-	FiShield,
-	FiChevronRight,
-	FiChevronLeft,
-	FiCheckCircle,
-	FiTrendingUp,
-	FiAlertTriangle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
-type AnswerValue = 'yes' | 'no' | 'required' | 'optional' | 'never' | 'browser' | 'native' | 'server';
+type AnswerValue =
+	| 'yes'
+	| 'no'
+	| 'required'
+	| 'optional'
+	| 'never'
+	| 'browser'
+	| 'native'
+	| 'server';
 
 interface QuestionOption {
 	value: AnswerValue;
@@ -217,7 +225,9 @@ const OptionButton = styled.button<{ $selected: boolean }>`
 	border-radius: 0.75rem;
 	border: 2px solid ${({ $selected }) => ($selected ? '#2563eb' : '#cbd5f5')};
 	background: ${({ $selected }) =>
-		$selected ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.18))' : '#ffffff'};
+		$selected
+			? 'linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(59, 130, 246, 0.18))'
+			: '#ffffff'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 22px rgba(37, 99, 235, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -271,9 +281,7 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	border-radius: 0.5rem;
 	border: ${({ $variant }) => ($variant === 'secondary' ? '2px solid #2563eb' : 'none')};
 	background: ${({ $variant }) =>
-		$variant === 'secondary'
-			? '#ffffff'
-			: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'};
+		$variant === 'secondary' ? '#ffffff' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'};
 	color: ${({ $variant }) => ($variant === 'secondary' ? '#1d4ed8' : '#ffffff')};
 	font-weight: 600;
 	cursor: pointer;
@@ -420,8 +428,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 		items.push({
 			title: 'Tighten Session Controls',
 			icon: <FiAlertTriangle />,
-			description:
-				'Shorten token lifetimes and add risk policies to match high-sensitivity data.',
+			description: 'Shorten token lifetimes and add risk policies to match high-sensitivity data.',
 			actions: [
 				'Set ID token lifetime ≤ 5 minutes; reduce refresh token TTL to ≤ 1 day.',
 				'Enable PingOne Risk policy with device, IP, and geo checks.',
@@ -435,8 +442,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 		items.push({
 			title: 'PingOne MFA Policy Mapping',
 			icon: <FiWifi />,
-			description:
-				'Create dynamic MFA policies to match risk and user experience needs.',
+			description: 'Create dynamic MFA policies to match risk and user experience needs.',
 			actions: [
 				'Configure PingOne MFA policy with primary factors (Push, TOTP, SMS fallback).',
 				'Wire adaptive rules: device reputation, velocity, and impossible travel.',
@@ -450,8 +456,7 @@ const buildRecommendations = (answers: Record<string, AnswerValue | null>): Reco
 		items.push({
 			title: 'Scoped Worker Tokens & Least Privilege',
 			icon: <FiTrendingUp />,
-			description:
-				'Issue worker tokens with limited scopes and rotate credentials automatically.',
+			description: 'Issue worker tokens with limited scopes and rotate credentials automatically.',
 			actions: [
 				'Create PingOne worker app and restrict scopes to exact API needs.',
 				'Enable scheduled rotation with the Worker Token UI service.',
@@ -545,8 +550,8 @@ const PolicyWizard: React.FC = () => {
 					Policy Wizard: PingOne Config Helper
 				</Title>
 				<Intro>
-					Answer a few quick questions and we will generate a PingOne application checklist,
-					MFA policies, and governance recommendations tailored to your risk posture.
+					Answer a few quick questions and we will generate a PingOne application checklist, MFA
+					policies, and governance recommendations tailored to your risk posture.
 				</Intro>
 			</Header>
 
@@ -586,20 +591,12 @@ const PolicyWizard: React.FC = () => {
 								Back
 							</NavButton>
 							{step < totalSteps - 1 ? (
-								<NavButton
-									type="button"
-									onClick={handleNext}
-									disabled={!isStepComplete}
-								>
+								<NavButton type="button" onClick={handleNext} disabled={!isStepComplete}>
 									Next
 									<FiChevronRight />
 								</NavButton>
 							) : (
-								<NavButton
-									type="button"
-									onClick={handleReset}
-									disabled={!isComplete}
-								>
+								<NavButton type="button" onClick={handleReset} disabled={!isComplete}>
 									Start Over
 								</NavButton>
 							)}
@@ -661,4 +658,3 @@ const PolicyWizard: React.FC = () => {
 };
 
 export default PolicyWizard;
-

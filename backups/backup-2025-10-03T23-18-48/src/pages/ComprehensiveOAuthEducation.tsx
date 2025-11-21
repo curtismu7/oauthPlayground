@@ -21,15 +21,19 @@ const Subtitle = styled.p`
 `;
 
 const ComprehensiveOAuthEducation: React.FC = () => {
-  return (
-    <Container>
-      <Title>Comprehensive OAuth Education</Title>
-      <Subtitle>
-        Master OAuth 2.0 and OpenID Connect fundamentals, flows, security best practices, and modern standards.
-      </Subtitle>
-      <p>This page is temporarily simplified for debugging. The original content will be restored once the 500 error is resolved.</p>
-    </Container>
-  );
+	return (
+		<Container>
+			<Title>Comprehensive OAuth Education</Title>
+			<Subtitle>
+				Master OAuth 2.0 and OpenID Connect fundamentals, flows, security best practices, and modern
+				standards.
+			</Subtitle>
+			<p>
+				This page is temporarily simplified for debugging. The original content will be restored
+				once the 500 error is resolved.
+			</p>
+		</Container>
+	);
 };
 
 export default ComprehensiveOAuthEducation;

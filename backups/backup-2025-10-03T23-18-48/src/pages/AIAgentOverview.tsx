@@ -429,7 +429,7 @@ const AIAgentOverview = () => {
 					<li>Basic authorization through scope-based permissions</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for full RAR support or implement custom authorization logic in your application.</p>
-			`
+			`,
 		},
 		'rar-pingfederate': {
 			title: 'RAR - PingFederate (Limited)',
@@ -442,7 +442,7 @@ const AIAgentOverview = () => {
 					<li>Policy evaluation is basic compared to full RAR spec</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for full RAR support or implement custom authorization logic.</p>
-			`
+			`,
 		},
 		'rar-pingone-advanced': {
 			title: 'RAR - PingOne Advanced (Partial)',
@@ -455,7 +455,7 @@ const AIAgentOverview = () => {
 					<li>No support for complex nested authorization requirements</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for comprehensive RAR support.</p>
-			`
+			`,
 		},
 		'dpop-pingfederate': {
 			title: 'DPoP - PingFederate (Client Auth Only)',
@@ -468,7 +468,7 @@ const AIAgentOverview = () => {
 					<li>Limited protection against token theft</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for full DPoP support or implement alternative token binding mechanisms.</p>
-			`
+			`,
 		},
 		'dpop-pingone': {
 			title: 'DPoP - PingOne (Not Available)',
@@ -481,7 +481,7 @@ const AIAgentOverview = () => {
 					<li>Basic token security only</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for full DPoP support or implement mTLS or one-time refresh tokens as alternatives.</p>
-			`
+			`,
 		},
 		'dpop-pingone-advanced': {
 			title: 'DPoP - PingOne Advanced (Client Auth Only)',
@@ -494,7 +494,7 @@ const AIAgentOverview = () => {
 					<li>Limited protection against token theft</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for full DPoP support or implement alternative token binding mechanisms.</p>
-			`
+			`,
 		},
 		'mtls-pingone': {
 			title: 'mTLS - PingOne (Client Auth Only)',
@@ -507,7 +507,7 @@ const AIAgentOverview = () => {
 					<li>Limited sender-constraining capabilities</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingFederate or PingAM for full mTLS support with certificate-bound tokens.</p>
-			`
+			`,
 		},
 		'token-exchange-pingfederate': {
 			title: 'Token Exchange - PingFederate (Limited)',
@@ -520,7 +520,7 @@ const AIAgentOverview = () => {
 					<li>Basic actor and subject token handling</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for comprehensive Token Exchange support or implement custom token exchange logic.</p>
-			`
+			`,
 		},
 		'token-exchange-pingone': {
 			title: 'Token Exchange - PingOne (Not Available)',
@@ -533,7 +533,7 @@ const AIAgentOverview = () => {
 					<li>No support for multiple token types</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for comprehensive Token Exchange support or implement refresh tokens or re-authentication for token renewal scenarios.</p>
-			`
+			`,
 		},
 		'token-exchange-pingone-advanced': {
 			title: 'Token Exchange - PingOne Advanced (Limited)',
@@ -546,7 +546,7 @@ const AIAgentOverview = () => {
 					<li>Basic actor and subject token handling</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingAM for comprehensive Token Exchange support or implement custom token exchange logic.</p>
-			`
+			`,
 		},
 		'fapi-pingone': {
 			title: 'FAPI Compliance - PingOne (Read-Only)',
@@ -559,7 +559,7 @@ const AIAgentOverview = () => {
 					<li>No support for dynamic client registration</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingFederate or PingAM for full FAPI compliance including write operations.</p>
-			`
+			`,
 		},
 		'custom-tokens-pingone': {
 			title: 'Custom Token Types - PingOne (Limited)',
@@ -572,8 +572,8 @@ const AIAgentOverview = () => {
 					<li>Basic token customization capabilities</li>
 				</ul>
 				<p><strong>Recommendation:</strong> Use PingFederate or PingAM for extensive token customization and non-standard token type support.</p>
-			`
-		}
+			`,
+		},
 	};
 
 	const showExplanation = (key: string) => {
@@ -779,16 +779,19 @@ const AIAgentOverview = () => {
 					<Card>
 						<CardBody>
 							<p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>
-								AI agents present unique challenges for identity and access management that require advanced OAuth/OIDC features:
+								AI agents present unique challenges for identity and access management that require
+								advanced OAuth/OIDC features:
 							</p>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
 								<li>
 									<strong>Autonomous Operation:</strong> AI agents often operate without direct user
-									supervision, requiring robust machine-to-machine authentication and long-lived tokens
+									supervision, requiring robust machine-to-machine authentication and long-lived
+									tokens
 								</li>
 								<li>
 									<strong>Fine-Grained Permissions:</strong> Agents need specific, granular
-									permissions to access resources and perform actions, often requiring complex authorization logic
+									permissions to access resources and perform actions, often requiring complex
+									authorization logic
 								</li>
 								<li>
 									<strong>Token Security:</strong> Long-running agents require sender-constrained
@@ -796,7 +799,8 @@ const AIAgentOverview = () => {
 								</li>
 								<li>
 									<strong>Complex Authorization:</strong> Agents may need to express complex
-									authorization requirements using Rich Authorization Requests (RAR) beyond simple scopes
+									authorization requirements using Rich Authorization Requests (RAR) beyond simple
+									scopes
 								</li>
 								<li>
 									<strong>Delegation:</strong> Agents acting on behalf of users need secure
@@ -807,29 +811,41 @@ const AIAgentOverview = () => {
 									advanced security features like certificate-bound tokens and proof-of-possession
 								</li>
 								<li>
-									<strong>Compliance:</strong> Financial and healthcare AI agents need FAPI compliance
-									and advanced security policies for regulatory requirements
+									<strong>Compliance:</strong> Financial and healthcare AI agents need FAPI
+									compliance and advanced security policies for regulatory requirements
 								</li>
 							</ul>
 
-							<h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '0.75rem',
+									color: '#1f2937',
+								}}
+							>
 								Critical Security Considerations for AI Agents:
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 								<li>
-									<strong>Token Theft Prevention:</strong> AI agents with long-lived tokens are prime targets for token theft attacks
+									<strong>Token Theft Prevention:</strong> AI agents with long-lived tokens are
+									prime targets for token theft attacks
 								</li>
 								<li>
-									<strong>Authorization Bypass:</strong> Complex AI workflows require granular permissions that simple scopes cannot provide
+									<strong>Authorization Bypass:</strong> Complex AI workflows require granular
+									permissions that simple scopes cannot provide
 								</li>
 								<li>
-									<strong>Session Management:</strong> Stateless AI agents need secure session management and token refresh mechanisms
+									<strong>Session Management:</strong> Stateless AI agents need secure session
+									management and token refresh mechanisms
 								</li>
 								<li>
-									<strong>Audit & Compliance:</strong> AI agent actions must be auditable and comply with security standards
+									<strong>Audit & Compliance:</strong> AI agent actions must be auditable and comply
+									with security standards
 								</li>
 								<li>
-									<strong>Cross-Domain Access:</strong> AI agents often need to access multiple APIs across different domains securely
+									<strong>Cross-Domain Access:</strong> AI agents often need to access multiple APIs
+									across different domains securely
 								</li>
 							</ul>
 						</CardBody>
@@ -916,540 +932,594 @@ const AIAgentOverview = () => {
 						<CardBody>
 							{/* Collapsible header for the comparison table */}
 							<div style={{ marginBottom: '1.5rem' }}>
-								<CollapsibleHeader 
+								<CollapsibleHeader
 									onClick={() => toggleSection('comparisonTable')}
-									style={{ 
-										padding: '1rem', 
-										background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 
-										borderRadius: '0.5rem', 
+									style={{
+										padding: '1rem',
+										background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+										borderRadius: '0.5rem',
 										border: '1px solid #cbd5e1',
-										marginBottom: expandedSections.comparisonTable ? '1rem' : '0'
+										marginBottom: expandedSections.comparisonTable ? '1rem' : '0',
 									}}
 								>
-									<h3 style={{ 
-										fontSize: '1.25rem', 
-										fontWeight: '600', 
-										color: '#1e293b', 
-										margin: '0', 
-										display: 'flex', 
-										alignItems: 'center', 
-										gap: '0.75rem' 
-									}}>
+									<h3
+										style={{
+											fontSize: '1.25rem',
+											fontWeight: '600',
+											color: '#1e293b',
+											margin: '0',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.75rem',
+										}}
+									>
 										<FiServer />
 										Ping Identity Product Comparison
 									</h3>
 									<CollapsibleIcon isExpanded={expandedSections.comparisonTable} />
 								</CollapsibleHeader>
-								
+
 								{/* Description - always visible */}
 								<p style={{ color: '#475569', margin: '0.5rem 0 0 0', fontSize: '0.9rem' }}>
-									Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity products, Okta, and Microsoft for AI agent authentication and authorization.
+									Compare OAuth 2.0 and OpenID Connect feature support across Ping Identity
+									products, Okta, and Microsoft for AI agent authentication and authorization.
 								</p>
 							</div>
 
 							{/* Collapsible content for the table */}
 							<CollapsibleContent $isOpen={expandedSections.comparisonTable}>
 								<ComparisonTable>
-								<thead>
-									<tr>
-										<th style={{ minWidth: '200px' }}>Feature</th>
-										<th>RFC/Spec</th>
-										<th style={{ minWidth: '120px' }}>PingOne</th>
-										<th style={{ minWidth: '120px' }}>PingFederate</th>
-										<th style={{ minWidth: '120px' }}>PingOne Advanced</th>
-										<th style={{ minWidth: '120px' }}>PingAM</th>
-										<th style={{ minWidth: '120px' }}>Okta</th>
-										<th style={{ minWidth: '120px' }}>Microsoft</th>
-										<th style={{ minWidth: '150px' }}>Alternative</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>
-											<strong>PAR</strong><br/>
-											<small style={{ color: '#64748b' }}>Pushed Authorization Requests</small>
-										</td>
-										<td>RFC 9126</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>-</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>RAR</strong><br/>
-											<small style={{ color: '#64748b' }}>Rich Authorization Requests</small>
-										</td>
-										<td>RFC 9396</td>
-										<td>
-											<StatusBadge $status="not-supported" onClick={() => showExplanation('rar-pingone')}>
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('rar-pingfederate')}>
-												<FiAlertTriangle />
-												Limited
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('rar-pingone-advanced')}>
-												<FiAlertTriangle />
-												Partial
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>Use scopes or custom claims</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>DPoP</strong><br/>
-											<small style={{ color: '#64748b' }}>Demonstrating Proof of Possession</small>
-										</td>
-										<td>RFC 9449</td>
-										<td>
-											<StatusBadge $status="not-supported" onClick={() => showExplanation('dpop-pingone')}>
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('dpop-pingfederate')}>
-												<FiAlertTriangle />
-												Client Auth Only
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('dpop-pingone-advanced')}>
-												<FiAlertTriangle />
-												Client Auth Only
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>Use mTLS or one-time refresh tokens</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>mTLS</strong><br/>
-											<small style={{ color: '#64748b' }}>Mutual TLS Authentication</small>
-										</td>
-										<td>RFC 8705</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('mtls-pingone')}>
-												<FiAlertTriangle />
-												Client Auth Only
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>Certificate-bound tokens not available</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>JAR</strong><br/>
-											<small style={{ color: '#64748b' }}>JWT-Secured Authorization Request</small>
-										</td>
-										<td>RFC 9101</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>-</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Client Credentials</strong><br/>
-											<small style={{ color: '#64748b' }}>Machine-to-Machine Grant</small>
-										</td>
-										<td>RFC 6749</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>-</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Token Exchange</strong><br/>
-											<small style={{ color: '#64748b' }}>RFC 8693 Token Exchange</small>
-										</td>
-										<td>RFC 8693</td>
-										<td>
-											<StatusBadge $status="not-supported" onClick={() => showExplanation('token-exchange-pingone')}>
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('token-exchange-pingfederate')}>
-												<FiAlertTriangle />
-												Limited
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('token-exchange-pingone-advanced')}>
-												<FiAlertTriangle />
-												Limited
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="not-supported">
-												<FiX />
-												Not Available
-											</StatusBadge>
-										</td>
-										<td>Use refresh tokens or re-auth</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Device Code</strong><br/>
-											<small style={{ color: '#64748b' }}>Device Authorization Grant</small>
-										</td>
-										<td>RFC 8628</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>-</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>OpenID Connect</strong><br/>
-											<small style={{ color: '#64748b' }}>Full OIDC Support</small>
-										</td>
-										<td>OpenID Core</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>-</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>FAPI Compliance</strong><br/>
-											<small style={{ color: '#64748b' }}>Financial-grade API</small>
-										</td>
-										<td>FAPI 1.0/2.0</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('fapi-pingone')}>
-												<FiAlertTriangle />
-												Read-Only
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>Advanced security policies</td>
-									</tr>
-									<tr>
-										<td>
-											<strong>Custom Token Types</strong><br/>
-											<small style={{ color: '#64748b' }}>Extensible Token Support</small>
-										</td>
-										<td>Various</td>
-										<td>
-											<StatusBadge $status="partial" onClick={() => showExplanation('custom-tokens-pingone')}>
-												<FiAlertTriangle />
-												Limited
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Extensible
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Extensible
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Full Support
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>
-											<StatusBadge $status="supported">
-												<FiCheckCircle />
-												Supported
-											</StatusBadge>
-										</td>
-										<td>Standard JWT/JWS/JWE tokens</td>
-									</tr>
-								</tbody>
-							</ComparisonTable>
+									<thead>
+										<tr>
+											<th style={{ minWidth: '200px' }}>Feature</th>
+											<th>RFC/Spec</th>
+											<th style={{ minWidth: '120px' }}>PingOne</th>
+											<th style={{ minWidth: '120px' }}>PingFederate</th>
+											<th style={{ minWidth: '120px' }}>PingOne Advanced</th>
+											<th style={{ minWidth: '120px' }}>PingAM</th>
+											<th style={{ minWidth: '120px' }}>Okta</th>
+											<th style={{ minWidth: '120px' }}>Microsoft</th>
+											<th style={{ minWidth: '150px' }}>Alternative</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>
+												<strong>PAR</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Pushed Authorization Requests</small>
+											</td>
+											<td>RFC 9126</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>-</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>RAR</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Rich Authorization Requests</small>
+											</td>
+											<td>RFC 9396</td>
+											<td>
+												<StatusBadge
+													$status="not-supported"
+													onClick={() => showExplanation('rar-pingone')}
+												>
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('rar-pingfederate')}
+												>
+													<FiAlertTriangle />
+													Limited
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('rar-pingone-advanced')}
+												>
+													<FiAlertTriangle />
+													Partial
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>Use scopes or custom claims</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>DPoP</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>
+													Demonstrating Proof of Possession
+												</small>
+											</td>
+											<td>RFC 9449</td>
+											<td>
+												<StatusBadge
+													$status="not-supported"
+													onClick={() => showExplanation('dpop-pingone')}
+												>
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('dpop-pingfederate')}
+												>
+													<FiAlertTriangle />
+													Client Auth Only
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('dpop-pingone-advanced')}
+												>
+													<FiAlertTriangle />
+													Client Auth Only
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>Use mTLS or one-time refresh tokens</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>mTLS</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Mutual TLS Authentication</small>
+											</td>
+											<td>RFC 8705</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('mtls-pingone')}
+												>
+													<FiAlertTriangle />
+													Client Auth Only
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>Certificate-bound tokens not available</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>JAR</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>
+													JWT-Secured Authorization Request
+												</small>
+											</td>
+											<td>RFC 9101</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>-</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>Client Credentials</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Machine-to-Machine Grant</small>
+											</td>
+											<td>RFC 6749</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>-</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>Token Exchange</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>RFC 8693 Token Exchange</small>
+											</td>
+											<td>RFC 8693</td>
+											<td>
+												<StatusBadge
+													$status="not-supported"
+													onClick={() => showExplanation('token-exchange-pingone')}
+												>
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('token-exchange-pingfederate')}
+												>
+													<FiAlertTriangle />
+													Limited
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('token-exchange-pingone-advanced')}
+												>
+													<FiAlertTriangle />
+													Limited
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="not-supported">
+													<FiX />
+													Not Available
+												</StatusBadge>
+											</td>
+											<td>Use refresh tokens or re-auth</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>Device Code</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Device Authorization Grant</small>
+											</td>
+											<td>RFC 8628</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>-</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>OpenID Connect</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Full OIDC Support</small>
+											</td>
+											<td>OpenID Core</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>-</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>FAPI Compliance</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Financial-grade API</small>
+											</td>
+											<td>FAPI 1.0/2.0</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('fapi-pingone')}
+												>
+													<FiAlertTriangle />
+													Read-Only
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>Advanced security policies</td>
+										</tr>
+										<tr>
+											<td>
+												<strong>Custom Token Types</strong>
+												<br />
+												<small style={{ color: '#64748b' }}>Extensible Token Support</small>
+											</td>
+											<td>Various</td>
+											<td>
+												<StatusBadge
+													$status="partial"
+													onClick={() => showExplanation('custom-tokens-pingone')}
+												>
+													<FiAlertTriangle />
+													Limited
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Extensible
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Extensible
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Full Support
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>
+												<StatusBadge $status="supported">
+													<FiCheckCircle />
+													Supported
+												</StatusBadge>
+											</td>
+											<td>Standard JWT/JWS/JWE tokens</td>
+										</tr>
+									</tbody>
+								</ComparisonTable>
 							</CollapsibleContent>
 						</CardBody>
 					</ComparisonSection>
@@ -1473,16 +1543,22 @@ const AIAgentOverview = () => {
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '2rem' }}>
 								<li>
-									<strong>PingOne:</strong> Best for cloud-native AI agents with standard OAuth/OIDC needs. Excellent for most AI agent scenarios with good security features.
+									<strong>PingOne:</strong> Best for cloud-native AI agents with standard OAuth/OIDC
+									needs. Excellent for most AI agent scenarios with good security features.
 								</li>
 								<li>
-									<strong>PingFederate:</strong> Enterprise-grade choice for complex federation requirements. Ideal when you need advanced security policies and extensive customization.
+									<strong>PingFederate:</strong> Enterprise-grade choice for complex federation
+									requirements. Ideal when you need advanced security policies and extensive
+									customization.
 								</li>
 								<li>
-									<strong>PingOne Advanced Services:</strong> When you need the full PingOne feature set with advanced security capabilities for high-risk AI agent deployments.
+									<strong>PingOne Advanced Services:</strong> When you need the full PingOne feature
+									set with advanced security capabilities for high-risk AI agent deployments.
 								</li>
 								<li>
-									<strong>PingAM (ForgeRock):</strong> Choose when you need the most comprehensive OAuth/OIDC support, especially for RAR, DPoP, and advanced token management features.
+									<strong>PingAM (ForgeRock):</strong> Choose when you need the most comprehensive
+									OAuth/OIDC support, especially for RAR, DPoP, and advanced token management
+									features.
 								</li>
 							</ul>
 
@@ -1520,69 +1596,107 @@ const AIAgentOverview = () => {
 							</h3>
 
 							<p style={{ lineHeight: '1.6', marginBottom: '1.5rem' }}>
-								The Model Context Protocol (MCP) represents a paradigm shift in how AI agents interact with external systems. MCP servers act as standardized interfaces that allow AI models to securely access tools, data sources, and APIs through a unified protocol.
+								The Model Context Protocol (MCP) represents a paradigm shift in how AI agents
+								interact with external systems. MCP servers act as standardized interfaces that
+								allow AI models to securely access tools, data sources, and APIs through a unified
+								protocol.
 							</p>
 
-							<h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '0.75rem',
+									color: '#1f2937',
+								}}
+							>
 								MCP Server Architecture:
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
 								<li>
-									<strong>Standardized Interface:</strong> MCP provides a common protocol for AI agents to discover and invoke capabilities across different systems
+									<strong>Standardized Interface:</strong> MCP provides a common protocol for AI
+									agents to discover and invoke capabilities across different systems
 								</li>
 								<li>
-									<strong>Capability Discovery:</strong> Servers expose their available tools and resources through standardized metadata
+									<strong>Capability Discovery:</strong> Servers expose their available tools and
+									resources through standardized metadata
 								</li>
 								<li>
-									<strong>Secure Communication:</strong> All interactions happen through authenticated and authorized channels
+									<strong>Secure Communication:</strong> All interactions happen through
+									authenticated and authorized channels
 								</li>
 								<li>
-									<strong>Resource Management:</strong> MCP handles connection pooling, session management, and resource cleanup
+									<strong>Resource Management:</strong> MCP handles connection pooling, session
+									management, and resource cleanup
 								</li>
 								<li>
 									<strong>Error Handling:</strong> Standardized error responses and retry mechanisms
 								</li>
 							</ul>
 
-							<h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '0.75rem',
+									color: '#1f2937',
+								}}
+							>
 								OAuth/OIDC Integration with MCP Servers:
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '1.5rem' }}>
 								<li>
-									<strong>Server Authentication:</strong> MCP servers authenticate using OAuth 2.0 client credentials or other methods
+									<strong>Server Authentication:</strong> MCP servers authenticate using OAuth 2.0
+									client credentials or other methods
 								</li>
 								<li>
-									<strong>Resource Authorization:</strong> Fine-grained permissions for MCP server capabilities using RAR
+									<strong>Resource Authorization:</strong> Fine-grained permissions for MCP server
+									capabilities using RAR
 								</li>
 								<li>
-									<strong>Token Management:</strong> Automatic token refresh and sender-constrained tokens for MCP sessions
+									<strong>Token Management:</strong> Automatic token refresh and sender-constrained
+									tokens for MCP sessions
 								</li>
 								<li>
-									<strong>Dynamic Registration:</strong> MCP servers can register their capabilities dynamically with authorization servers
+									<strong>Dynamic Registration:</strong> MCP servers can register their capabilities
+									dynamically with authorization servers
 								</li>
 								<li>
-									<strong>Audit Logging:</strong> All MCP server interactions are logged for compliance and debugging
+									<strong>Audit Logging:</strong> All MCP server interactions are logged for
+									compliance and debugging
 								</li>
 							</ul>
 
-							<h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.75rem', color: '#1f2937' }}>
+							<h3
+								style={{
+									fontSize: '1.1rem',
+									fontWeight: '600',
+									marginBottom: '0.75rem',
+									color: '#1f2937',
+								}}
+							>
 								Security Benefits for AI Agents:
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 								<li>
-									<strong>Isolated Execution:</strong> MCP servers run in isolated environments, preventing AI agents from directly accessing sensitive systems
+									<strong>Isolated Execution:</strong> MCP servers run in isolated environments,
+									preventing AI agents from directly accessing sensitive systems
 								</li>
 								<li>
-									<strong>Controlled Access:</strong> All tool invocations go through authenticated and authorized channels
+									<strong>Controlled Access:</strong> All tool invocations go through authenticated
+									and authorized channels
 								</li>
 								<li>
-									<strong>Standardized Security:</strong> Consistent security patterns across all AI agent integrations
+									<strong>Standardized Security:</strong> Consistent security patterns across all AI
+									agent integrations
 								</li>
 								<li>
-									<strong>Compliance Ready:</strong> Built-in audit trails and compliance reporting capabilities
+									<strong>Compliance Ready:</strong> Built-in audit trails and compliance reporting
+									capabilities
 								</li>
 								<li>
-									<strong>Scalable Architecture:</strong> MCP servers can be deployed and managed independently of AI models
+									<strong>Scalable Architecture:</strong> MCP servers can be deployed and managed
+									independently of AI models
 								</li>
 							</ul>
 						</CardBody>

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { FiClock, FiCode, FiHelpCircle, FiLock, FiPlay, FiShield, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
-import { FiPlay, FiLock, FiUser, FiClock, FiShield, FiCode, FiHelpCircle } from 'react-icons/fi';
-import { useAuth } from '../contexts/NewAuthContext';
-import type { OAuthFlow } from '../types/oauthFlows';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import FlowCategories from '../components/FlowCategories';
 import FlowRecommendationWizard from '../components/FlowRecommendationWizard';
+import { useAuth } from '../contexts/NewAuthContext';
+import type { OAuthFlow } from '../types/oauthFlows';
 
 const FlowsContainer = styled.div`
   max-width: 1200px;

@@ -1,9 +1,13 @@
 import React from 'react';
-import { useStepNavigationWithCredentials, type UseStepNavigationWithCredentialsOptions } from '../hooks/useStepNavigationWithCredentials';
-import { StepNavigationButtons } from './StepNavigationButtons';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import {
+	type UseStepNavigationWithCredentialsOptions,
+	useStepNavigationWithCredentials,
+} from '../hooks/useStepNavigationWithCredentials';
+import { StepNavigationButtons } from './StepNavigationButtons';
 
-export interface StepNavigationWithCredentialsProps extends Omit<UseStepNavigationWithCredentialsOptions, 'credentials'> {
+export interface StepNavigationWithCredentialsProps
+	extends Omit<UseStepNavigationWithCredentialsOptions, 'credentials'> {
 	credentials: StepCredentials | null | undefined;
 	onStartOver?: () => void;
 	className?: string;

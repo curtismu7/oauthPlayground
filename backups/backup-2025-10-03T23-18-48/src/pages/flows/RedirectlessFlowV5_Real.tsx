@@ -22,6 +22,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -31,6 +32,7 @@ import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -43,27 +45,37 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { ResponseMode } from '../../services/responseModeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
 import { V4ApiClient } from '../../utils/v4ApiClient';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the PingOne Redirectless Flow with pi.flow' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the PingOne Redirectless Flow with pi.flow',
+	},
 	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
 	{
 		title: 'Step 2: Authorization Request',
 		subtitle: 'Build PingOne authorization URL with response_mode=pi.flow',
 	},
-	{ title: 'Step 3: Flow Object Response', subtitle: 'Process the pi.flow response and authentication UI' },
-	{ title: 'Step 4: Direct Token Response', subtitle: 'Receive tokens directly from pi.flow response' },
+	{
+		title: 'Step 3: Flow Object Response',
+		subtitle: 'Process the pi.flow response and authentication UI',
+	},
+	{
+		title: 'Step 4: Direct Token Response',
+		subtitle: 'Receive tokens directly from pi.flow response',
+	},
 	{ title: 'Step 5: User Information', subtitle: 'Inspect ID token claims and user info' },
 	{ title: 'Step 6: Token Introspection', subtitle: 'Introspect access token and review results' },
 	{ title: 'Step 7: Flow Complete', subtitle: 'Review your results and next steps' },
@@ -791,7 +803,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		}
 
 		setIsMakingApiCall(true);
-		
+
 		try {
 			// Generate PKCE parameters
 			const codeVerifier = generateCodeVerifier();
@@ -809,7 +821,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				code_challenge: codeChallenge,
 				code_challenge_method: 'S256',
 				state: state,
-				nonce: nonce
+				nonce: nonce,
 			});
 
 			const authUrl = `https://auth.pingone.com/${pingOneConfig.environmentId}/as/authorize?${authParams.toString()}`;
@@ -819,9 +831,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json'
+					Accept: 'application/json',
 				},
-				body: authParams.toString()
+				body: authParams.toString(),
 			});
 
 			const responseData = await response.json();
@@ -832,13 +844,13 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				url: authUrl,
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json'
+					Accept: 'application/json',
 				},
 				body: authParams.toString(),
 				response: {
 					status: response.status,
 					statusText: response.statusText,
-					data: responseData
+					data: responseData,
 				},
 				timestamp: new Date(),
 				flowType: 'redirectless' as const,
@@ -847,23 +859,22 @@ const RedirectlessFlowV5Real: React.FC = () => {
 				educationalNotes: [
 					'pi.flow eliminates browser redirects by returning flow objects directly',
 					'This enables seamless authentication in SPAs and mobile apps',
-					'The response contains both flow metadata and tokens'
-				]
+					'The response contains both flow metadata and tokens',
+				],
 			};
 
 			setApiCallData(apiCall);
 			setFlowObject(responseData);
-			
+
 			if (responseData.flow) {
 				setFlowStep(responseData.flow.state || 'active');
 			}
-			
+
 			if (responseData.access_token || responseData.id_token) {
 				setFlowTokens(responseData);
 			}
 
 			v4ToastManager.showSuccess('Redirectless authorization request successful!');
-			
 		} catch (error) {
 			console.error('Redirectless auth request failed:', error);
 			v4ToastManager.showError('Failed to make redirectless authorization request');
@@ -917,9 +928,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 	}, []);
 
 	const toggleSection = useCallback((section: IntroSectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	}, []);
 
@@ -935,8 +946,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 					<div>
 						<InfoTitle>Response Mode Selection</InfoTitle>
 						<InfoText>
-							Choose how PingOne returns the authorization response. For redirectless flows, 
-							select pi.flow to receive flow objects instead of browser redirects.
+							Choose how PingOne returns the authorization response. For redirectless flows, select
+							pi.flow to receive flow objects instead of browser redirects.
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -958,8 +969,12 @@ const RedirectlessFlowV5Real: React.FC = () => {
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>V5 Real</VersionBadge>
-							<StepHeaderTitle>Step {currentStep + 1}: {STEP_METADATA[currentStep]?.title || 'Unknown Step'}</StepHeaderTitle>
-							<StepHeaderSubtitle>{STEP_METADATA[currentStep]?.subtitle || 'No description available'}</StepHeaderSubtitle>
+							<StepHeaderTitle>
+								Step {currentStep + 1}: {STEP_METADATA[currentStep]?.title || 'Unknown Step'}
+							</StepHeaderTitle>
+							<StepHeaderSubtitle>
+								{STEP_METADATA[currentStep]?.subtitle || 'No description available'}
+							</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{currentStep + 1}</StepNumber>
@@ -975,8 +990,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>Redirectless Flow Overview</InfoTitle>
 										<InfoText>
-											The redirectless flow eliminates traditional OAuth redirects by using <code>response_mode=pi.flow</code>.
-											Instead of redirects, PingOne returns a flow object that your application processes directly.
+											The redirectless flow eliminates traditional OAuth redirects by using{' '}
+											<code>response_mode=pi.flow</code>. Instead of redirects, PingOne returns a
+											flow object that your application processes directly.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1006,16 +1022,18 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>Response Mode Selection Guidelines</InfoTitle>
 										<InfoText>
-											<strong>Flows that SHOULD have response_mode:</strong><br/>
-											• Authorization Code Flow (OAuth 2.0 and OIDC)<br/>
-											• Implicit Flow<br/>
-											• Hybrid Flow (OIDC)<br/>
-											• Redirectless Flow (with pi.flow)<br/><br/>
-											<strong>Flows that should NOT have response_mode:</strong><br/>
-											• Client Credentials Flow (no user interaction, no redirects)<br/>
-											• Device Code Flow (no redirects, polling-based)<br/>
-											• Resource Owner Password Credentials (no redirects)<br/>
-											• JWT Bearer Token Flow (no redirects)
+											<strong>Flows that SHOULD have response_mode:</strong>
+											<br />• Authorization Code Flow (OAuth 2.0 and OIDC)
+											<br />• Implicit Flow
+											<br />• Hybrid Flow (OIDC)
+											<br />• Redirectless Flow (with pi.flow)
+											<br />
+											<br />
+											<strong>Flows that should NOT have response_mode:</strong>
+											<br />• Client Credentials Flow (no user interaction, no redirects)
+											<br />• Device Code Flow (no redirects, polling-based)
+											<br />• Resource Owner Password Credentials (no redirects)
+											<br />• JWT Bearer Token Flow (no redirects)
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1044,7 +1062,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 								</ParameterGrid>
 
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(0)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(0)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(2)}>
 										<FiArrowRight />
 										Continue
@@ -1061,8 +1081,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>PingOne pi.flow Response Mode</InfoTitle>
 										<InfoText>
-											The <code>response_mode=pi.flow</code> parameter tells PingOne to return a flow object 
-											instead of redirecting the user's browser. This enables redirectless OAuth flows.
+											The <code>response_mode=pi.flow</code> parameter tells PingOne to return a
+											flow object instead of redirecting the user's browser. This enables
+											redirectless OAuth flows.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1072,19 +1093,24 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>No Browser Redirect Required</InfoTitle>
 										<InfoText>
-											Unlike traditional OAuth flows, pi.flow makes a direct API call to PingOne 
-											instead of redirecting the user's browser. This eliminates the need for redirect URIs.
+											Unlike traditional OAuth flows, pi.flow makes a direct API call to PingOne
+											instead of redirecting the user's browser. This eliminates the need for
+											redirect URIs.
 										</InfoText>
 									</div>
 								</InfoBox>
 
-								<Button 
-									$variant="primary" 
+								<Button
+									$variant="primary"
 									onClick={makeRedirectlessAuthRequest}
-									disabled={isMakingApiCall || !pingOneConfig.environmentId || !pingOneConfig.clientId}
+									disabled={
+										isMakingApiCall || !pingOneConfig.environmentId || !pingOneConfig.clientId
+									}
 									style={{ marginBottom: '1rem' }}
 								>
-									{isMakingApiCall ? 'Making Request...' : 'Make Redirectless Authorization Request'}
+									{isMakingApiCall
+										? 'Making Request...'
+										: 'Make Redirectless Authorization Request'}
 								</Button>
 
 								{apiCallData && (
@@ -1093,13 +1119,16 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										options={{
 											showEducationalNotes: true,
 											showFlowContext: true,
-											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('redirectless')
+											urlHighlightRules:
+												EnhancedApiCallDisplayService.getDefaultHighlightRules('redirectless'),
 										}}
 									/>
 								)}
 
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(1)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(1)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(3)}>
 										<FiArrowRight />
 										Continue
@@ -1116,8 +1145,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>pi.flow Response Received</InfoTitle>
 										<InfoText>
-											PingOne returns a JSON flow object containing authentication UI details and flow state.
-											Your application processes this object to render the authentication interface.
+											PingOne returns a JSON flow object containing authentication UI details and
+											flow state. Your application processes this object to render the
+											authentication interface.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1126,14 +1156,18 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<CodeBlock>
 										<CodeBlockHeader>
 											<span>pi.flow Response Object (Live)</span>
-											<Button $variant="ghost" size="sm" onClick={() => handleCopy(JSON.stringify(flowObject, null, 2), 'flowObject')}>
+											<Button
+												$variant="ghost"
+												size="sm"
+												onClick={() =>
+													handleCopy(JSON.stringify(flowObject, null, 2), 'flowObject')
+												}
+											>
 												<FiCopy />
 												Copy
 											</Button>
 										</CodeBlockHeader>
-										<CodeBlockContent>
-											{JSON.stringify(flowObject, null, 2)}
-										</CodeBlockContent>
+										<CodeBlockContent>{JSON.stringify(flowObject, null, 2)}</CodeBlockContent>
 									</CodeBlock>
 								) : (
 									<InfoBox $variant="warning">
@@ -1141,7 +1175,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										<div>
 											<InfoTitle>No Flow Object Yet</InfoTitle>
 											<InfoText>
-												Make the redirectless authorization request in Step 2 to see the pi.flow response object.
+												Make the redirectless authorization request in Step 2 to see the pi.flow
+												response object.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1153,15 +1188,18 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										<div>
 											<InfoTitle>Flow State: {flowStep}</InfoTitle>
 											<InfoText>
-												The flow object contains metadata about the authentication process, including the current state 
-												and any UI elements needed to complete the authentication.
+												The flow object contains metadata about the authentication process,
+												including the current state and any UI elements needed to complete the
+												authentication.
 											</InfoText>
 										</div>
 									</InfoBox>
 								)}
 
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(2)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(2)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(4)}>
 										<FiArrowRight />
 										Continue
@@ -1178,8 +1216,9 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<div>
 										<InfoTitle>Tokens Received Directly</InfoTitle>
 										<InfoText>
-											After successful authentication, PingOne returns tokens directly in the JSON response.
-											No redirects needed - your application receives access tokens and ID tokens immediately.
+											After successful authentication, PingOne returns tokens directly in the JSON
+											response. No redirects needed - your application receives access tokens and ID
+											tokens immediately.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1188,14 +1227,18 @@ const RedirectlessFlowV5Real: React.FC = () => {
 									<CodeBlock>
 										<CodeBlockHeader>
 											<span>Direct Token Response (Live)</span>
-											<Button $variant="ghost" size="sm" onClick={() => handleCopy(JSON.stringify(flowTokens, null, 2), 'flowTokens')}>
+											<Button
+												$variant="ghost"
+												size="sm"
+												onClick={() =>
+													handleCopy(JSON.stringify(flowTokens, null, 2), 'flowTokens')
+												}
+											>
 												<FiCopy />
 												Copy
 											</Button>
 										</CodeBlockHeader>
-										<CodeBlockContent>
-											{JSON.stringify(flowTokens, null, 2)}
-										</CodeBlockContent>
+										<CodeBlockContent>{JSON.stringify(flowTokens, null, 2)}</CodeBlockContent>
 									</CodeBlock>
 								) : (
 									<InfoBox $variant="warning">
@@ -1203,7 +1246,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										<div>
 											<InfoTitle>No Tokens Yet</InfoTitle>
 											<InfoText>
-												Complete the redirectless authorization request in Step 2 to see the direct token response.
+												Complete the redirectless authorization request in Step 2 to see the direct
+												token response.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1215,15 +1259,17 @@ const RedirectlessFlowV5Real: React.FC = () => {
 										<div>
 											<InfoTitle>Token Types Available</InfoTitle>
 											<InfoText>
-												The pi.flow response can include access tokens, ID tokens, and authorization codes 
-												directly, eliminating the need for additional token exchange requests.
+												The pi.flow response can include access tokens, ID tokens, and authorization
+												codes directly, eliminating the need for additional token exchange requests.
 											</InfoText>
 										</div>
 									</InfoBox>
 								)}
 
 								<ActionRow>
-									<Button $variant="outline" onClick={() => setCurrentStep(3)}>Back</Button>
+									<Button $variant="outline" onClick={() => setCurrentStep(3)}>
+										Back
+									</Button>
 									<Button $variant="primary" onClick={() => setCurrentStep(5)}>
 										<FiArrowRight />
 										Continue
@@ -1239,8 +1285,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 								</EmptyIcon>
 								<EmptyTitle>Flow Complete!</EmptyTitle>
 								<EmptyText>
-									You have successfully completed the Redirectless Flow demonstration.
-									This flow eliminates OAuth redirects by using flow objects and direct token handling.
+									You have successfully completed the Redirectless Flow demonstration. This flow
+									eliminates OAuth redirects by using flow objects and direct token handling.
 								</EmptyText>
 								<Button $variant="outline" onClick={() => setCurrentStep(0)}>
 									Start Over
@@ -1249,7 +1295,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 						)}
 					</StepContentWrapper>
 				</MainCard>
-
 			</ContentWrapper>
 
 			<StepNavigationButtons

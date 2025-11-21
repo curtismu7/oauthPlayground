@@ -1,12 +1,12 @@
 // src/services/discoveryPersistenceService.ts
 /**
  * Discovery Persistence Service
- * 
+ *
  * Centralized service for persisting and restoring OIDC discovery data
  * across the entire application. Once a user discovers endpoints for an
  * environment, the data is saved and automatically restored anywhere in
  * the app that needs it.
- * 
+ *
  * Features:
  * - Persists discovery data to localStorage
  * - Auto-restores on component mount
@@ -47,10 +47,10 @@ export class DiscoveryPersistenceService {
 			};
 
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(cache));
-			
+
 			// Also save as last used
 			this.setLastUsedEnvironment(data.environmentId);
-			
+
 			console.log('[Discovery Persistence] Saved discovery for environment:', data.environmentId);
 		} catch (error) {
 			console.error('[Discovery Persistence] Failed to save discovery:', error);
@@ -90,7 +90,7 @@ export class DiscoveryPersistenceService {
 	getDiscoveryByIssuer(issuerUrl: string): PersistedDiscoveryData | null {
 		try {
 			const cache = this.getCache();
-			
+
 			// Find by matching issuer URL
 			for (const data of Object.values(cache)) {
 				if (data.issuerUrl === issuerUrl) {
@@ -143,7 +143,7 @@ export class DiscoveryPersistenceService {
 			// Clean up expired entries
 			const validEnvironmentIds = new Set(validDiscoveries.map((d) => d.environmentId));
 			const allEnvironmentIds = Object.keys(cache);
-			
+
 			for (const envId of allEnvironmentIds) {
 				if (!validEnvironmentIds.has(envId)) {
 					delete cache[envId];
@@ -260,7 +260,7 @@ export class DiscoveryPersistenceService {
 	importDiscoveries(jsonData: string): { success: boolean; count: number; error?: string } {
 		try {
 			const imported = JSON.parse(jsonData);
-			
+
 			if (typeof imported !== 'object' || imported === null) {
 				throw new Error('Invalid import data');
 			}
@@ -276,7 +276,7 @@ export class DiscoveryPersistenceService {
 			}
 
 			localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.getCache()));
-			
+
 			console.log('[Discovery Persistence] Imported', count, 'discoveries');
 			return { success: true, count };
 		} catch (error) {
@@ -320,9 +320,7 @@ export class DiscoveryPersistenceService {
 		const allDiscoveries = Object.values(cache);
 		const now = Date.now();
 
-		const validDiscoveries = allDiscoveries.filter(
-			(d) => now - d.timestamp < this.CACHE_DURATION
-		);
+		const validDiscoveries = allDiscoveries.filter((d) => now - d.timestamp < this.CACHE_DURATION);
 		const expiredDiscoveries = allDiscoveries.filter(
 			(d) => now - d.timestamp >= this.CACHE_DURATION
 		);
@@ -346,8 +344,3 @@ export class DiscoveryPersistenceService {
 export const discoveryPersistenceService = new DiscoveryPersistenceService();
 
 export default discoveryPersistenceService;
-
-
-
-
-

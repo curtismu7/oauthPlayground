@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiX, FiCopy, FiCheck, FiExternalLink } from 'react-icons/fi';
 import { copyToClipboard } from '../utils/clipboard';
 
 const ModalOverlay = styled.div`

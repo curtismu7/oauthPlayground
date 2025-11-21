@@ -1,20 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { FiEye, FiEyeOff, FiGlobe, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSave, FiEye, FiEyeOff, FiGlobe } from 'react-icons/fi';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+import packageJson from '../../package.json';
+import CentralizedSuccessMessage, {
+	showFlowError,
+	showFlowSuccess,
+} from '../components/CentralizedSuccessMessage';
+import CollapsibleSection from '../components/CollapsibleSection';
+import CredentialStatusPanel from '../components/CredentialStatusPanel';
 import DiscoveryPanel from '../components/DiscoveryPanel';
+import StandardMessage from '../components/StandardMessage';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { OpenIDConfiguration } from '../services/discoveryService';
+import { getSharedConfigurationStatus } from '../utils/configurationStatus';
 import { credentialManager } from '../utils/credentialManager';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
-import StandardMessage from '../components/StandardMessage';
-import CollapsibleSection from '../components/CollapsibleSection';
-import CentralizedSuccessMessage, {
-	showFlowSuccess,
-	showFlowError,
-} from '../components/CentralizedSuccessMessage';
-import CredentialStatusPanel from '../components/CredentialStatusPanel';
-import packageJson from '../../package.json';
 
 const ConfigurationContainer = styled.div`
   max-width: 800px;

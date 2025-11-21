@@ -277,7 +277,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 			setFlowInfoCard(null);
 			return;
 		}
-		
+
 		const cardData = FlowInfoService.generateFlowInfoCard(flowType);
 		setFlowInfoCard(cardData);
 	}, [flowType]);

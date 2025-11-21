@@ -1,6 +1,6 @@
 // src/hooks/usePageScroll.ts
-import { useEffect, useCallback } from 'react';
-import { scrollToTop, scrollToBottom } from '../utils/scrollManager';
+import { useCallback, useEffect } from 'react';
+import { scrollToBottom, scrollToTop } from '../utils/scrollManager';
 
 /**
  * Page scroll management hooks for consistent behavior

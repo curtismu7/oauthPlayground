@@ -2,7 +2,7 @@
 // Example presets for the Response Modes learn page
 
 import React from 'react';
-import { FiPlay, FiCopy } from 'react-icons/fi';
+import { FiCopy, FiPlay } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface ResponseModeExample {

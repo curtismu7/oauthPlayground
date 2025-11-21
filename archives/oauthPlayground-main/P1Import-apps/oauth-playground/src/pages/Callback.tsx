@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 
 const CallbackContainer = styled.div`

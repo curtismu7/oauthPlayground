@@ -1641,7 +1641,7 @@ export const FLOW_STEPS = {
 			description: 'Make API calls using the access token',
 		},
 	},
-	'implicit': {
+	implicit: {
 		step1: {
 			id: 'step1',
 			name: 'Generate Authorization URL',
@@ -1687,7 +1687,7 @@ export const FLOW_STEPS = {
 			description: 'Make API calls using the access token',
 		},
 	},
-	'rar': {
+	rar: {
 		'authorization-request': {
 			id: 'authorization-request',
 			name: 'RAR Authorization Request',
@@ -1704,7 +1704,7 @@ export const FLOW_STEPS = {
 			description: 'Make API calls using access token with RAR authorization details',
 		},
 	},
-	'par': {
+	par: {
 		'push-authorization-request': {
 			id: 'push-authorization-request',
 			name: 'Push Authorization Request',
@@ -1746,7 +1746,11 @@ export class CodeExamplesService {
 			return null;
 		}
 
-		const step = flowSteps[stepId as keyof typeof flowSteps] as { id: string; name: string; description: string };
+		const step = flowSteps[stepId as keyof typeof flowSteps] as {
+			id: string;
+			name: string;
+			description: string;
+		};
 		let examples: CodeExample[] = [
 			...getJavaScriptExamples(this.config),
 			...getTypeScriptExamples(this.config),
@@ -1776,29 +1780,31 @@ export class CodeExamplesService {
 			return [];
 		}
 
-		return Object.values(flowSteps).map((step: { id: string; name: string; description: string }) => {
-			let examples: CodeExample[] = [
-				...getJavaScriptExamples(this.config),
-				...getTypeScriptExamples(this.config),
-				...getGoExamples(this.config),
-				...getRubyExamples(this.config),
-				...getPythonExamples(this.config),
-				...getPingSDKExamples(this.config),
-			];
+		return Object.values(flowSteps).map(
+			(step: { id: string; name: string; description: string }) => {
+				let examples: CodeExample[] = [
+					...getJavaScriptExamples(this.config),
+					...getTypeScriptExamples(this.config),
+					...getGoExamples(this.config),
+					...getRubyExamples(this.config),
+					...getPythonExamples(this.config),
+					...getPingSDKExamples(this.config),
+				];
 
-			// Add flow-specific examples
-			if (flowType === 'rar') {
-				examples = [...examples, ...getRARExamples(this.config)];
-			} else if (flowType === 'par') {
-				examples = [...examples, ...getPARExamples(this.config)];
+				// Add flow-specific examples
+				if (flowType === 'rar') {
+					examples = [...examples, ...getRARExamples(this.config)];
+				} else if (flowType === 'par') {
+					examples = [...examples, ...getPARExamples(this.config)];
+				}
+
+				return {
+					stepId: step.id,
+					stepName: step.name,
+					examples,
+				};
 			}
-
-			return {
-				stepId: step.id,
-				stepName: step.name,
-				examples,
-			};
-		});
+		);
 	}
 
 	getSupportedLanguages(): SupportedLanguage[] {
@@ -1806,7 +1812,7 @@ export class CodeExamplesService {
 	}
 
 	filterExamplesByLanguage(examples: CodeExample[], languages: SupportedLanguage[]): CodeExample[] {
-		return examples.filter(example => languages.includes(example.language));
+		return examples.filter((example) => languages.includes(example.language));
 	}
 }
 
@@ -1814,14 +1820,19 @@ export class CodeExamplesService {
 export const codeExamplesService = new CodeExamplesService();
 
 // Export utility functions
-export const getCodeExamplesForStep = (flowType: string, stepId: string, config?: Partial<CodeExamplesConfig>) => {
+export const getCodeExamplesForStep = (
+	flowType: string,
+	stepId: string,
+	config?: Partial<CodeExamplesConfig>
+) => {
 	const service = new CodeExamplesService(config);
 	return service.getExamplesForStep(flowType, stepId);
 };
 
-export const getAllCodeExamplesForFlow = (flowType: string, config?: Partial<CodeExamplesConfig>) => {
+export const getAllCodeExamplesForFlow = (
+	flowType: string,
+	config?: Partial<CodeExamplesConfig>
+) => {
 	const service = new CodeExamplesService(config);
 	return service.getAllStepsForFlow(flowType);
 };
-
-

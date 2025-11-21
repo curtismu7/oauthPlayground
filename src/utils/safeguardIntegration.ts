@@ -1,10 +1,10 @@
 // src/utils/safeguardIntegration.ts
 // Comprehensive safeguard integration system
 
-import { regressionSafeguards, RegressionSafeguards } from './regressionSafeguards';
-import { flowTestSuite, FlowTestSuite } from './flowTestSuite';
-import { preCommitSafeguards, PreCommitSafeguards } from './preCommitSafeguards';
-import { errorMonitoring, ErrorMonitoring } from './errorMonitoring';
+import { errorMonitoring } from './errorMonitoring';
+import { flowTestSuite } from './flowTestSuite';
+import { preCommitSafeguards } from './preCommitSafeguards';
+import { regressionSafeguards } from './regressionSafeguards';
 
 export interface SafeguardIntegrationConfig {
 	enableRegressionTesting: boolean;
@@ -47,42 +47,44 @@ export class SafeguardIntegration {
 	private isInitialized: boolean = false;
 	private lastStatus: SafeguardStatus | null = null;
 
-	constructor(config: SafeguardIntegrationConfig = {
-		enableRegressionTesting: true,
-		enablePreCommitChecks: true,
-		enableErrorMonitoring: true,
-		enableFlowValidation: true,
-		enableAutomatedAlerts: true,
-		criticalFlows: [
-			// V7 OAuth 2.0 Flows
-			'oauth-authorization-code-v7',
-			'implicit-v7',
-			'device-authorization-v7',
-			'client-credentials-v7',
-			'oauth-ropc-v7',
-			'token-exchange-v7',
-			'jwt-bearer-token-v7',
-			
-			// V7 OIDC Flows
-			'oidc-authorization-code-v7',
-			'oidc-implicit-v7',
-			'oidc-hybrid-v7',
-			'oidc-device-authorization-v7',
-			'ciba-v7',
-			
-			// V7 PingOne Specific Flows
-			'pingone-par-v7',
-			'pingone-mfa-v7',
-			
-			// V7 Mock Flows
-			'rar-v7'
-		],
-		alertThresholds: {
-			errorRate: 0.05,
-			responseTime: 5000,
-			successRate: 0.95
+	constructor(
+		config: SafeguardIntegrationConfig = {
+			enableRegressionTesting: true,
+			enablePreCommitChecks: true,
+			enableErrorMonitoring: true,
+			enableFlowValidation: true,
+			enableAutomatedAlerts: true,
+			criticalFlows: [
+				// V7 OAuth 2.0 Flows
+				'oauth-authorization-code-v7',
+				'implicit-v7',
+				'device-authorization-v7',
+				'client-credentials-v7',
+				'oauth-ropc-v7',
+				'token-exchange-v7',
+				'jwt-bearer-token-v7',
+
+				// V7 OIDC Flows
+				'oidc-authorization-code-v7',
+				'oidc-implicit-v7',
+				'oidc-hybrid-v7',
+				'oidc-device-authorization-v7',
+				'ciba-v7',
+
+				// V7 PingOne Specific Flows
+				'pingone-par-v7',
+				'pingone-mfa-v7',
+
+				// V7 Mock Flows
+				'rar-v7',
+			],
+			alertThresholds: {
+				errorRate: 0.05,
+				responseTime: 5000,
+				successRate: 0.95,
+			},
 		}
-	}) {
+	) {
 		this.config = config;
 		this.initialize();
 	}
@@ -127,9 +129,9 @@ export class SafeguardIntegration {
 	 */
 	private setupErrorMonitoring(): void {
 		console.log('[Safeguard Integration] Setting up error monitoring...');
-		
+
 		// Add custom alert rules for critical flows
-		this.config.criticalFlows.forEach(flowName => {
+		this.config.criticalFlows.forEach((flowName) => {
 			errorMonitoring.addAlertRule({
 				id: `flow-failure-${flowName}`,
 				name: `${flowName} Failure Alert`,
@@ -139,7 +141,7 @@ export class SafeguardIntegration {
 				},
 				severity: 'high',
 				message: `Critical failures detected in ${flowName}`,
-				enabled: true
+				enabled: true,
 			});
 		});
 	}
@@ -149,9 +151,9 @@ export class SafeguardIntegration {
 	 */
 	private setupRegressionTesting(): void {
 		console.log('[Safeguard Integration] Setting up regression testing...');
-		
+
 		// Add custom test configurations for critical flows
-		this.config.criticalFlows.forEach(flowName => {
+		this.config.criticalFlows.forEach((flowName) => {
 			// This would add specific test configurations for each critical flow
 			console.log(`[Safeguard Integration] Added regression testing for ${flowName}`);
 		});
@@ -162,7 +164,7 @@ export class SafeguardIntegration {
 	 */
 	private setupPreCommitChecks(): void {
 		console.log('[Safeguard Integration] Setting up pre-commit checks...');
-		
+
 		// Configure pre-commit safeguards
 		// This would integrate with git hooks in a real implementation
 	}
@@ -172,9 +174,9 @@ export class SafeguardIntegration {
 	 */
 	private setupFlowValidation(): void {
 		console.log('[Safeguard Integration] Setting up flow validation...');
-		
+
 		// Add validation rules for critical flows
-		this.config.criticalFlows.forEach(flowName => {
+		this.config.criticalFlows.forEach((flowName) => {
 			console.log(`[Safeguard Integration] Added flow validation for ${flowName}`);
 		});
 	}
@@ -184,9 +186,12 @@ export class SafeguardIntegration {
 	 */
 	private startHealthChecks(): void {
 		// Run health checks every 5 minutes
-		setInterval(() => {
-			this.runHealthCheck();
-		}, 5 * 60 * 1000);
+		setInterval(
+			() => {
+				this.runHealthCheck();
+			},
+			5 * 60 * 1000
+		);
 
 		// Run immediate health check
 		this.runHealthCheck();
@@ -203,7 +208,7 @@ export class SafeguardIntegration {
 			regressionTesting: 'healthy' as 'healthy' | 'warning' | 'critical',
 			preCommitChecks: 'healthy' as 'healthy' | 'warning' | 'critical',
 			errorMonitoring: 'healthy' as 'healthy' | 'warning' | 'critical',
-			flowValidation: 'healthy' as 'healthy' | 'warning' | 'critical'
+			flowValidation: 'healthy' as 'healthy' | 'warning' | 'critical',
 		};
 
 		let totalTests = 0;
@@ -272,9 +277,13 @@ export class SafeguardIntegration {
 		}
 
 		// Determine overall status
-		const overall: 'healthy' | 'warning' | 'critical' = 
-			Object.values(components).some(status => status === 'critical') ? 'critical' :
-			Object.values(components).some(status => status === 'warning') ? 'warning' : 'healthy';
+		const overall: 'healthy' | 'warning' | 'critical' = Object.values(components).some(
+			(status) => status === 'critical'
+		)
+			? 'critical'
+			: Object.values(components).some((status) => status === 'warning')
+				? 'warning'
+				: 'healthy';
 
 		// Compile status
 		const status: SafeguardStatus = {
@@ -285,9 +294,9 @@ export class SafeguardIntegration {
 				passedTests,
 				failedTests,
 				criticalErrors,
-				recentErrors
+				recentErrors,
 			},
-			lastRun: Date.now()
+			lastRun: Date.now(),
 		};
 
 		this.lastStatus = status;
@@ -296,7 +305,7 @@ export class SafeguardIntegration {
 		console.log('[Safeguard Integration] Health check completed:', {
 			overall: status.overall,
 			duration: Date.now() - startTime,
-			metrics: status.metrics
+			metrics: status.metrics,
 		});
 
 		// Trigger alerts if needed
@@ -323,9 +332,9 @@ export class SafeguardIntegration {
 		}
 
 		// Low success rate alert
-		const successRate = status.metrics.totalTests > 0 ? 
-			status.metrics.passedTests / status.metrics.totalTests : 1;
-		
+		const successRate =
+			status.metrics.totalTests > 0 ? status.metrics.passedTests / status.metrics.totalTests : 1;
+
 		if (successRate < this.config.alertThresholds.successRate) {
 			console.warn('[WARNING ALERT] Low success rate detected in safeguard system');
 		}
@@ -337,7 +346,7 @@ export class SafeguardIntegration {
 	private triggerCriticalAlert(status: SafeguardStatus): void {
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll show a user notification
-		if (typeof window !== 'undefined' && window.alert) {
+		if (window?.alert) {
 			window.alert('Critical issues detected in safeguard system. Check console for details.');
 		}
 
@@ -370,14 +379,14 @@ export class SafeguardIntegration {
 				healthy: 0,
 				warning: 0,
 				critical: 0,
-				lastRun: 0
+				lastRun: 0,
 			};
 		}
 
 		const components = Object.values(this.lastStatus.components);
-		const healthy = components.filter(status => status === 'healthy').length;
-		const warning = components.filter(status => status === 'warning').length;
-		const critical = components.filter(status => status === 'critical').length;
+		const healthy = components.filter((status) => status === 'healthy').length;
+		const warning = components.filter((status) => status === 'warning').length;
+		const critical = components.filter((status) => status === 'critical').length;
 
 		return {
 			overall: this.lastStatus.overall,
@@ -385,7 +394,7 @@ export class SafeguardIntegration {
 			healthy,
 			warning,
 			critical,
-			lastRun: this.lastStatus.lastRun
+			lastRun: this.lastStatus.lastRun,
 		};
 	}
 
@@ -408,7 +417,7 @@ export class SafeguardIntegration {
 			regressionTesting: null,
 			preCommitChecks: null,
 			errorMonitoring: null,
-			flowValidation: null
+			flowValidation: null,
 		};
 
 		// Run regression testing
@@ -441,7 +450,7 @@ export class SafeguardIntegration {
 		return {
 			passed,
 			results,
-			summary
+			summary,
 		};
 	}
 
@@ -449,14 +458,18 @@ export class SafeguardIntegration {
 	 * Export safeguard data
 	 */
 	exportSafeguardData(): string {
-		return JSON.stringify({
-			config: this.config,
-			status: this.lastStatus,
-			regressionTesting: flowTestSuite.getResults(),
-			preCommitChecks: preCommitSafeguards.getResults(),
-			errorMonitoring: errorMonitoring.getErrorHistory(),
-			exportedAt: Date.now()
-		}, null, 2);
+		return JSON.stringify(
+			{
+				config: this.config,
+				status: this.lastStatus,
+				regressionTesting: flowTestSuite.getResults(),
+				preCommitChecks: preCommitSafeguards.getResults(),
+				errorMonitoring: errorMonitoring.getErrorHistory(),
+				exportedAt: Date.now(),
+			},
+			null,
+			2
+		);
 	}
 
 	/**

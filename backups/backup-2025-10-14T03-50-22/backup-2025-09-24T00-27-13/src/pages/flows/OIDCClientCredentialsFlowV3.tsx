@@ -1,34 +1,33 @@
 // src/pages/flows/OIDCClientCredentialsFlowV3.tsx - OIDC Client Credentials Flow V3
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiKey,
-	FiShield,
 	FiCheckCircle,
+	FiChevronDown,
+	FiChevronRight,
 	FiCopy,
-	FiSettings,
-	FiRefreshCw,
 	FiEye,
 	FiEyeOff,
-	FiChevronRight,
-	FiChevronDown,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
 	FiUser,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
+import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps/CommonSteps';
+import TokenDisplay from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
-import { logger } from '../../utils/logger';
 import { copyToClipboard } from '../../utils/clipboard';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { logger } from '../../utils/logger';
 import { generateRandomString } from '../../utils/oauth';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import { InfoBox } from '../../components/steps/CommonSteps';
-import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
-import TokenDisplay from '../../components/TokenDisplay';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
 
 // Styled components
 const Container = styled.div`
@@ -274,7 +273,7 @@ interface OIDCClientCredentialsTokens {
 	[key: string]: unknown;
 }
 
-type OIDCClientCredentialsFlowV3Props = {}
+type OIDCClientCredentialsFlowV3Props = {};
 
 const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = () => {
 	const authContext = useAuth();

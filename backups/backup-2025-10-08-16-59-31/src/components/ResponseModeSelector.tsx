@@ -1,13 +1,13 @@
 // src/components/ResponseModeSelector.tsx
 // Reusable response mode selector component for OAuth/OIDC flows
 
-import React, { useState, useEffect } from 'react';
-import { FiChevronDown, FiInfo, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiChevronDown, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
-	ResponseModeService,
 	ResponseMode,
 	ResponseModeInfo,
+	ResponseModeService,
 } from '../services/responseModeService';
 
 interface ResponseModeSelectorProps {
@@ -323,10 +323,12 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 			clientType
 		);
 		// Only update if the issues actually changed
-		setCompatibilityIssues(prevIssues => {
+		setCompatibilityIssues((prevIssues) => {
 			const newIssues = validation.issues;
-			if (prevIssues.length !== newIssues.length || 
-				!prevIssues.every((issue, index) => issue === newIssues[index])) {
+			if (
+				prevIssues.length !== newIssues.length ||
+				!prevIssues.every((issue, index) => issue === newIssues[index])
+			) {
 				return newIssues;
 			}
 			return prevIssues;

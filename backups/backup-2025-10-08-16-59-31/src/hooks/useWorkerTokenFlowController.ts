@@ -11,7 +11,7 @@ import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
-import { requestClientCredentialsToken, introspectToken } from '../utils/workerToken';
+import { introspectToken, requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 

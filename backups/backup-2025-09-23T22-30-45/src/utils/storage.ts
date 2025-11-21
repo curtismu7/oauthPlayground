@@ -3,12 +3,12 @@
  */
 
 import {
-	StorageInterface,
+	JsonValue,
+	OAuthConfig,
 	OAuthStorage,
 	OAuthTokenResponse,
+	StorageInterface,
 	UserInfo,
-	OAuthConfig,
-	JsonValue,
 } from '../types/storage';
 
 const STORAGE_PREFIX = 'pingone_playground_';

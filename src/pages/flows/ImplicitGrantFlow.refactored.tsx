@@ -15,6 +15,7 @@ import { OAuthFlowErrorBoundary } from '../../components/OAuthFlowErrorBoundary'
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import { URLParamExplainer } from '../../components/URLParamExplainer';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import {
 	buildOAuthURL,
@@ -26,7 +27,6 @@ import {
 	logOAuthFlowEvent,
 	storeOAuthTokensSafely,
 } from '../../utils/flowUtils';
-import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Styled components specific to this flow
 const ErrorMessage = styled.div`

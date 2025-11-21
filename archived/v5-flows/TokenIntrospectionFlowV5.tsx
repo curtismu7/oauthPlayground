@@ -4,15 +4,15 @@
 import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useTokenIntrospectionFlowController } from '../../hooks/useTokenIntrospectionFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
@@ -372,7 +372,12 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 									clientId: newClientId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									credentials?.environmentId &&
+									newClientId &&
+									credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}

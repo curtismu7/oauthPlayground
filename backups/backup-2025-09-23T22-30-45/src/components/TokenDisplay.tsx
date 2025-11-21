@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiCheck, FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 interface TokenDisplayProps {

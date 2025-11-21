@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import CollapsibleIcon from '../components/CollapsibleIcon';
-import { Card, CardHeader, CardBody } from '../components/Card';
 import {
-	FiCpu,
-	FiShield,
-	FiCheckCircle,
-	FiX,
 	FiAlertTriangle,
+	FiCheckCircle,
+	FiCpu,
 	FiInfo,
-	FiLock,
-	FiZap,
-	FiServer,
 	FiKey,
+	FiLock,
+	FiServer,
+	FiShield,
+	FiX,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
+import CollapsibleIcon from '../components/CollapsibleIcon';
 
 const Container = styled.div`
   max-width: 1200px;

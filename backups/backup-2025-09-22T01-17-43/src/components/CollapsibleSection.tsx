@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface CollapsibleSectionProps {
 	title: string;

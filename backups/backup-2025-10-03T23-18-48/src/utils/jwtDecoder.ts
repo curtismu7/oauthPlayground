@@ -17,7 +17,7 @@ export function decodeJWT(token: string): DecodedJWT | null {
 	try {
 		// Split the JWT into its three parts
 		const parts = token.split('.');
-		
+
 		if (parts.length !== 3) {
 			throw new Error('Invalid JWT format');
 		}
@@ -49,10 +49,10 @@ export function isJWT(token: string): boolean {
 	if (!token || typeof token !== 'string') {
 		return false;
 	}
-	
+
 	// JWT should have exactly 2 dots and be base64url encoded
 	const parts = token.split('.');
-	return parts.length === 3 && parts.every(part => part.length > 0);
+	return parts.length === 3 && parts.every((part) => part.length > 0);
 }
 
 /**
@@ -69,11 +69,3 @@ ${JSON.stringify(decoded.payload, null, 2)}
 
 Signature: ${decoded.signature}`;
 }
-
-
-
-
-
-
-
-

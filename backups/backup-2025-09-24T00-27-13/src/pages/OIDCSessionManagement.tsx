@@ -1,15 +1,15 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
 import {
-	FiUsers,
+	FiCheck,
+	FiInfo,
 	FiLogOut,
 	FiMonitor,
-	FiShield,
 	FiRefreshCw,
-	FiInfo,
-	FiCheck,
+	FiShield,
+	FiUsers,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import PageTitle from '../components/PageTitle';
 
 const Container = styled.div`

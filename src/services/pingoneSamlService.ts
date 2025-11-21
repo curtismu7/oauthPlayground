@@ -33,7 +33,9 @@ export class PingOneSamlService {
 	private async ensureAuthenticated(credentials: PingOneAdminCredentials): Promise<void> {
 		const { environmentId, clientId, clientSecret } = credentials;
 		if (!environmentId || !clientId || !clientSecret) {
-			throw new Error('Missing PingOne admin credentials. Please supply environment ID, client ID, and client secret.');
+			throw new Error(
+				'Missing PingOne admin credentials. Please supply environment ID, client ID, and client secret.'
+			);
 		}
 
 		if (PingOneAPI.isTokenExpired()) {
@@ -47,7 +49,9 @@ export class PingOneSamlService {
 		const { environmentId } = credentials;
 		logger.info('[PingOneSamlService]', 'Fetching SAML applications', { environmentId });
 		try {
-			const response = await PingOneAPI.request(`/v1/environments/${environmentId}/applications?type=SAML`);
+			const response = await PingOneAPI.request(
+				`/v1/environments/${environmentId}/applications?type=SAML`
+			);
 			return response._embedded?.applications ?? [];
 		} catch (error) {
 			logger.error('[PingOneSamlService]', 'Failed to fetch SAML applications', { error });
@@ -61,9 +65,14 @@ export class PingOneSamlService {
 	): Promise<PingOneSamlApp> {
 		await this.ensureAuthenticated(credentials);
 		const { environmentId } = credentials;
-		logger.info('[PingOneSamlService]', 'Fetching SAML application', { environmentId, applicationId });
+		logger.info('[PingOneSamlService]', 'Fetching SAML application', {
+			environmentId,
+			applicationId,
+		});
 		try {
-			return await PingOneAPI.request(`/v1/environments/${environmentId}/applications/${applicationId}`);
+			return await PingOneAPI.request(
+				`/v1/environments/${environmentId}/applications/${applicationId}`
+			);
 		} catch (error) {
 			logger.error('[PingOneSamlService]', 'Failed to fetch SAML application', { error });
 			throw this.normalizeError(error, 'Unable to load PingOne application');
@@ -95,10 +104,13 @@ export class PingOneSamlService {
 		}
 
 		try {
-			return await PingOneAPI.request(`/v1/environments/${environmentId}/applications/${applicationId}`, {
-				method: 'PATCH',
-				body: JSON.stringify(payload),
-			});
+			return await PingOneAPI.request(
+				`/v1/environments/${environmentId}/applications/${applicationId}`,
+				{
+					method: 'PATCH',
+					body: JSON.stringify(payload),
+				}
+			);
 		} catch (error) {
 			logger.error('[PingOneSamlService]', 'Failed to update dynamic ACS toggle', { error });
 			throw this.normalizeError(error, 'Unable to update PingOne application');

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { FiSave, FiRefreshCw, FiInfo, FiCheckCircle, FiAlertCircle, FiEdit } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiEdit, FiInfo, FiRefreshCw, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const StatusContent = styled.div`
@@ -35,7 +35,7 @@ const ActionButton = styled.button`
   }
 `;
 
-const CopyButton = styled.button`
+const _CopyButton = styled.button`
   background: #10b981;
   color: white;
   border: none;
@@ -54,136 +54,134 @@ const CopyButton = styled.button`
 `;
 
 interface EnvironmentIdPersistenceStatusProps {
-  environmentId: string;
-  onRefresh?: () => void;
+	environmentId: string;
+	onRefresh?: () => void;
 }
 
 export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceStatusProps> = ({
-  environmentId,
-  onRefresh
+	environmentId,
+	onRefresh,
 }) => {
-  const [status, setStatus] = useState<any>(null);
-  const [showEnvContent, setShowEnvContent] = useState(false);
+	const [status, setStatus] = useState<any>(null);
+	const [showEnvContent, setShowEnvContent] = useState(false);
 
-  useEffect(() => {
-    const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
-    console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
-    setStatus(persistenceStatus);
-  }, [environmentId]);
+	useEffect(() => {
+		const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
+		console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
+		setStatus(persistenceStatus);
+	}, []);
 
-  const handleCopyEnvContent = () => {
-    console.log('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
-    const envContent = environmentIdPersistenceService.generateEnvContent();
-    console.log('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
-    navigator.clipboard.writeText(envContent).then(() => {
-      console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard');
-      v4ToastManager.showSuccess('Environment content copied to clipboard!');
-    });
-  };
+	const handleCopyEnvContent = () => {
+		console.log('[EnvironmentIdPersistenceStatus] Copy .env content clicked');
+		const envContent = environmentIdPersistenceService.generateEnvContent();
+		console.log('[EnvironmentIdPersistenceStatus] Generated env content:', envContent);
+		navigator.clipboard.writeText(envContent).then(() => {
+			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard');
+			v4ToastManager.showSuccess('Environment content copied to clipboard!');
+		});
+	};
 
-  const handleUpdateEnv = () => {
-    console.log('[EnvironmentIdPersistenceStatus] Update .env clicked');
-    const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
-    console.log('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
-    navigator.clipboard.writeText(envContent).then(() => {
-      console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
-      v4ToastManager.showSuccess('Environment content copied! Paste into your .env file on a new line.');
-    });
-  };
+	const handleUpdateEnv = () => {
+		console.log('[EnvironmentIdPersistenceStatus] Update .env clicked');
+		const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
+		console.log('[EnvironmentIdPersistenceStatus] Generated env content with newline:', envContent);
+		navigator.clipboard.writeText(envContent).then(() => {
+			console.log('[EnvironmentIdPersistenceStatus] Copied to clipboard with newline');
+			v4ToastManager.showSuccess(
+				'Environment content copied! Paste into your .env file on a new line.'
+			);
+		});
+	};
 
-  const handleClearPersistence = () => {
-    console.log('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
-    environmentIdPersistenceService.clearEnvironmentId();
-    console.log('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
-    if (onRefresh) onRefresh();
-  };
+	const handleClearPersistence = () => {
+		console.log('[EnvironmentIdPersistenceStatus] Clear persistence clicked');
+		environmentIdPersistenceService.clearEnvironmentId();
+		console.log('[EnvironmentIdPersistenceStatus] Cleared from localStorage');
+		if (onRefresh) onRefresh();
+	};
 
-  if (!status) return null;
+	if (!status) return null;
 
-  return (
-    <CollapsibleHeader
-      title="Environment ID Persistence"
-      icon={<FiInfo />}
-      theme="blue"
-      defaultCollapsed={true}
-      variant="compact"
-    >
-      <StatusContent>
-        <StatusItem>
-          {status.hasStoredId ? (
-            <FiCheckCircle size={14} color="#10b981" />
-          ) : (
-            <FiAlertCircle size={14} color="#f59e0b" />
-          )}
-          <span>
-            {status.hasStoredId ? 'Stored in localStorage' : 'Not stored locally'}
-          </span>
-        </StatusItem>
+	return (
+		<CollapsibleHeader
+			title="Environment ID Persistence"
+			icon={<FiInfo />}
+			theme="blue"
+			defaultCollapsed={true}
+			variant="compact"
+		>
+			<StatusContent>
+				<StatusItem>
+					{status.hasStoredId ? (
+						<FiCheckCircle size={14} color="#10b981" />
+					) : (
+						<FiAlertCircle size={14} color="#f59e0b" />
+					)}
+					<span>{status.hasStoredId ? 'Stored in localStorage' : 'Not stored locally'}</span>
+				</StatusItem>
 
-        <StatusItem>
-          {status.hasEnvVar ? (
-            <FiCheckCircle size={14} color="#10b981" />
-          ) : (
-            <FiAlertCircle size={14} color="#f59e0b" />
-          )}
-          <span>
-            {status.hasEnvVar ? 'Available in .env' : 'Not in .env file'}
-          </span>
-        </StatusItem>
+				<StatusItem>
+					{status.hasEnvVar ? (
+						<FiCheckCircle size={14} color="#10b981" />
+					) : (
+						<FiAlertCircle size={14} color="#f59e0b" />
+					)}
+					<span>{status.hasEnvVar ? 'Available in .env' : 'Not in .env file'}</span>
+				</StatusItem>
 
-        {status.lastUpdated && (
-          <StatusItem>
-            <FiInfo size={14} />
-            <span>Last updated: {new Date(status.lastUpdated).toLocaleString()}</span>
-          </StatusItem>
-        )}
+				{status.lastUpdated && (
+					<StatusItem>
+						<FiInfo size={14} />
+						<span>Last updated: {new Date(status.lastUpdated).toLocaleString()}</span>
+					</StatusItem>
+				)}
 
-        {status.source && (
-          <StatusItem>
-            <FiInfo size={14} />
-            <span>Source: {status.source.replace('_', ' ')}</span>
-          </StatusItem>
-        )}
+				{status.source && (
+					<StatusItem>
+						<FiInfo size={14} />
+						<span>Source: {status.source.replace('_', ' ')}</span>
+					</StatusItem>
+				)}
 
-        <div style={{ marginTop: '0.5rem' }}>
-          <ActionButton onClick={() => setShowEnvContent(!showEnvContent)}>
-            <FiInfo size={12} />
-            {showEnvContent ? 'Hide' : 'Show'} .env Content
-          </ActionButton>
+				<div style={{ marginTop: '0.5rem' }}>
+					<ActionButton onClick={() => setShowEnvContent(!showEnvContent)}>
+						<FiInfo size={12} />
+						{showEnvContent ? 'Hide' : 'Show'} .env Content
+					</ActionButton>
 
-          <ActionButton onClick={handleCopyEnvContent}>
-            <FiSave size={12} />
-            Copy .env Content
-          </ActionButton>
+					<ActionButton onClick={handleCopyEnvContent}>
+						<FiSave size={12} />
+						Copy .env Content
+					</ActionButton>
 
-          <ActionButton onClick={handleUpdateEnv}>
-            <FiEdit size={12} />
-            Update .env
-          </ActionButton>
+					<ActionButton onClick={handleUpdateEnv}>
+						<FiEdit size={12} />
+						Update .env
+					</ActionButton>
 
-          <ActionButton onClick={handleClearPersistence}>
-            <FiRefreshCw size={12} />
-            Clear Storage
-          </ActionButton>
-        </div>
+					<ActionButton onClick={handleClearPersistence}>
+						<FiRefreshCw size={12} />
+						Clear Storage
+					</ActionButton>
+				</div>
 
-        {showEnvContent && (
-          <div style={{ 
-            marginTop: '0.75rem', 
-            background: '#1e293b', 
-            color: '#f1f5f9', 
-            padding: '0.75rem', 
-            borderRadius: '0.25rem',
-            fontFamily: 'monospace',
-            fontSize: '0.75rem',
-            whiteSpace: 'pre-wrap'
-          }}>
-            {environmentIdPersistenceService.generateEnvContent()}
-          </div>
-        )}
-      </StatusContent>
-    </CollapsibleHeader>
-  );
+				{showEnvContent && (
+					<div
+						style={{
+							marginTop: '0.75rem',
+							background: '#1e293b',
+							color: '#f1f5f9',
+							padding: '0.75rem',
+							borderRadius: '0.25rem',
+							fontFamily: 'monospace',
+							fontSize: '0.75rem',
+							whiteSpace: 'pre-wrap',
+						}}
+					>
+						{environmentIdPersistenceService.generateEnvContent()}
+					</div>
+				)}
+			</StatusContent>
+		</CollapsibleHeader>
+	);
 };
-
-

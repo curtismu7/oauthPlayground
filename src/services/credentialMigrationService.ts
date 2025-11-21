@@ -1,9 +1,9 @@
 // src/services/credentialMigrationService.ts
 // Migration utility for transitioning from old credential system to new system
 
+import type { FlowCredentials, WorkerTokenCredentials } from '../types/credentials';
 import { credentialStorageManager } from './credentialStorageManager';
 import { workerTokenManager } from './workerTokenManager';
-import type { FlowCredentials, WorkerTokenCredentials } from '../types/credentials';
 
 export interface MigrationReport {
 	totalOldCredentials: number;
@@ -22,10 +22,10 @@ export interface OldCredentialPattern {
 
 /**
  * Credential Migration Service
- * 
+ *
  * Detects and migrates credentials from the old storage system to the new
  * flow-specific isolated storage system.
- * 
+ *
  * Old patterns detected:
  * - Global credentialManager storage
  * - Flow-specific localStorage keys (various patterns)
@@ -35,27 +35,47 @@ export class CredentialMigrationService {
 	// Known old storage key patterns
 	private static readonly OLD_PATTERNS: OldCredentialPattern[] = [
 		// Old flow-specific keys
-		{ key: 'oauth-authorization-code-v6', flowKey: 'oauth-authorization-code-v7', description: 'OAuth Authorization Code V6' },
-		{ key: 'oidc-authorization-code-v6', flowKey: 'oidc-authorization-code-v7', description: 'OIDC Authorization Code V6' },
+		{
+			key: 'oauth-authorization-code-v6',
+			flowKey: 'oauth-authorization-code-v7',
+			description: 'OAuth Authorization Code V6',
+		},
+		{
+			key: 'oidc-authorization-code-v6',
+			flowKey: 'oidc-authorization-code-v7',
+			description: 'OIDC Authorization Code V6',
+		},
 		{ key: 'oauth-implicit-v6', flowKey: 'oauth-implicit-v7', description: 'OAuth Implicit V6' },
 		{ key: 'oidc-implicit-v6', flowKey: 'oidc-implicit-v7', description: 'OIDC Implicit V6' },
-		{ key: 'device-authorization-flow-v6', flowKey: 'device-authorization-v7', description: 'Device Authorization V6' },
-		{ key: 'client-credentials-v6', flowKey: 'client-credentials-v7', description: 'Client Credentials V6' },
+		{
+			key: 'device-authorization-flow-v6',
+			flowKey: 'device-authorization-v7',
+			description: 'Device Authorization V6',
+		},
+		{
+			key: 'client-credentials-v6',
+			flowKey: 'client-credentials-v7',
+			description: 'Client Credentials V6',
+		},
 		{ key: 'oauth-hybrid-v6', flowKey: 'oauth-hybrid-v7', description: 'OAuth Hybrid V6' },
 		{ key: 'oidc-hybrid-v6', flowKey: 'oidc-hybrid-v7', description: 'OIDC Hybrid V6' },
-		
+
 		// Worker Token
-		{ key: 'pingone_worker_token_credentials', flowKey: 'worker-token-credentials', description: 'Worker Token Credentials' },
-		
+		{
+			key: 'pingone_worker_token_credentials',
+			flowKey: 'worker-token-credentials',
+			description: 'Worker Token Credentials',
+		},
+
 		// Global credentials (will be migrated to configuration flow)
 		{ key: 'pingone_credentials', flowKey: 'configuration', description: 'Global Configuration' },
 	];
 
 	/**
 	 * Detect old credential storage
-	 * 
+	 *
 	 * Scans localStorage for old credential patterns
-	 * 
+	 *
 	 * @returns Report of detected old credentials
 	 */
 	static detectOldCredentials(): MigrationReport {
@@ -75,7 +95,7 @@ export class CredentialMigrationService {
 			if (!key) continue;
 
 			// Check against known patterns
-			const pattern = this.OLD_PATTERNS.find(p => key.includes(p.key));
+			const pattern = CredentialMigrationService.OLD_PATTERNS.find((p) => key.includes(p.key));
 			if (pattern) {
 				report.totalOldCredentials++;
 				console.log(`✅ Found old credentials: ${pattern.description} (${key})`);
@@ -99,7 +119,7 @@ export class CredentialMigrationService {
 
 	/**
 	 * Create backup of old credentials
-	 * 
+	 *
 	 * @returns Backup key for restoration
 	 */
 	static createBackup(): string {
@@ -129,7 +149,7 @@ export class CredentialMigrationService {
 
 	/**
 	 * Restore from backup
-	 * 
+	 *
 	 * @param backupKey - Backup key to restore from
 	 */
 	static restoreFromBackup(backupKey: string): boolean {
@@ -159,14 +179,13 @@ export class CredentialMigrationService {
 
 	/**
 	 * Migrate old credentials to new system
-	 * 
+	 *
 	 * @param options - Migration options
 	 * @returns Migration report
 	 */
-	static async migrateCredentials(options: {
-		createBackup?: boolean;
-		dryRun?: boolean;
-	} = {}): Promise<MigrationReport> {
+	static async migrateCredentials(
+		options: { createBackup?: boolean; dryRun?: boolean } = {}
+	): Promise<MigrationReport> {
 		const { createBackup = true, dryRun = false } = options;
 
 		console.group('🚀 [Migration] Starting credential migration');
@@ -184,7 +203,7 @@ export class CredentialMigrationService {
 		// Create backup
 		if (createBackup && !dryRun) {
 			try {
-				const backupKey = this.createBackup();
+				const backupKey = CredentialMigrationService.createBackup();
 				report.backupCreated = true;
 				report.backupKey = backupKey;
 			} catch (error) {
@@ -196,7 +215,7 @@ export class CredentialMigrationService {
 		}
 
 		// Migrate each known pattern
-		for (const pattern of this.OLD_PATTERNS) {
+		for (const pattern of CredentialMigrationService.OLD_PATTERNS) {
 			try {
 				const oldData = localStorage.getItem(pattern.key);
 				if (!oldData) {
@@ -211,7 +230,10 @@ export class CredentialMigrationService {
 				const oldCredentials = JSON.parse(oldData);
 
 				// Convert to new format
-				const newCredentials = this.convertToNewFormat(oldCredentials, pattern.flowKey);
+				const newCredentials = CredentialMigrationService.convertToNewFormat(
+					oldCredentials,
+					pattern.flowKey
+				);
 
 				if (!dryRun) {
 					// Save to new system
@@ -220,10 +242,7 @@ export class CredentialMigrationService {
 						await workerTokenManager.saveCredentials(newCredentials as WorkerTokenCredentials);
 					} else {
 						// Regular flow credentials
-						await credentialStorageManager.saveFlowCredentials(
-							pattern.flowKey,
-							newCredentials
-						);
+						await credentialStorageManager.saveFlowCredentials(pattern.flowKey, newCredentials);
 					}
 				}
 
@@ -231,7 +250,9 @@ export class CredentialMigrationService {
 				console.log(`✅ Migrated ${pattern.description} → ${pattern.flowKey}`);
 			} catch (error) {
 				console.error(`❌ Failed to migrate ${pattern.description}:`, error);
-				report.errors.push(`${pattern.description}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+				report.errors.push(
+					`${pattern.description}: ${error instanceof Error ? error.message : 'Unknown error'}`
+				);
 			}
 		}
 
@@ -248,7 +269,10 @@ export class CredentialMigrationService {
 	/**
 	 * Convert old credential format to new format
 	 */
-	private static convertToNewFormat(oldCredentials: any, flowKey: string): FlowCredentials | WorkerTokenCredentials {
+	private static convertToNewFormat(
+		oldCredentials: any,
+		flowKey: string
+	): FlowCredentials | WorkerTokenCredentials {
 		// Worker Token special case
 		if (flowKey === 'worker-token-credentials') {
 			return {
@@ -257,7 +281,12 @@ export class CredentialMigrationService {
 				clientSecret: oldCredentials.clientSecret || '',
 				scopes: oldCredentials.scopes || ['p1:read:user', 'p1:update:user'],
 				region: oldCredentials.region || 'us',
-				tokenEndpoint: oldCredentials.tokenEndpoint || this.buildTokenEndpoint(oldCredentials.environmentId, oldCredentials.region || 'us'),
+				tokenEndpoint:
+					oldCredentials.tokenEndpoint ||
+					CredentialMigrationService.buildTokenEndpoint(
+						oldCredentials.environmentId,
+						oldCredentials.region || 'us'
+					),
 			};
 		}
 
@@ -272,7 +301,8 @@ export class CredentialMigrationService {
 			tokenEndpoint: oldCredentials.tokenEndpoint,
 			userInfoEndpoint: oldCredentials.userInfoEndpoint,
 			endSessionEndpoint: oldCredentials.endSessionEndpoint,
-			clientAuthMethod: oldCredentials.clientAuthMethod || oldCredentials.tokenAuthMethod || 'client_secret_post',
+			clientAuthMethod:
+				oldCredentials.clientAuthMethod || oldCredentials.tokenAuthMethod || 'client_secret_post',
 			responseType: oldCredentials.responseType,
 			responseMode: oldCredentials.responseMode,
 			savedAt: Date.now(),
@@ -296,13 +326,13 @@ export class CredentialMigrationService {
 
 	/**
 	 * Clean up old credentials after successful migration
-	 * 
+	 *
 	 * @param report - Migration report
 	 */
 	static cleanupOldCredentials(report: MigrationReport): void {
 		console.log('🧹 [Migration] Cleaning up old credentials...');
 
-		for (const pattern of this.OLD_PATTERNS) {
+		for (const pattern of CredentialMigrationService.OLD_PATTERNS) {
 			if (report.migratedFlows.includes(pattern.flowKey)) {
 				try {
 					localStorage.removeItem(pattern.key);
@@ -318,17 +348,17 @@ export class CredentialMigrationService {
 
 	/**
 	 * Check if migration is needed
-	 * 
+	 *
 	 * @returns True if old credentials are detected
 	 */
 	static isMigrationNeeded(): boolean {
-		const report = this.detectOldCredentials();
+		const report = CredentialMigrationService.detectOldCredentials();
 		return report.totalOldCredentials > 0;
 	}
 
 	/**
 	 * Get list of available backups
-	 * 
+	 *
 	 * @returns Array of backup keys
 	 */
 	static getAvailableBackups(): string[] {
@@ -336,7 +366,7 @@ export class CredentialMigrationService {
 
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
-			if (key && key.startsWith('credential_backup_')) {
+			if (key?.startsWith('credential_backup_')) {
 				backups.push(key);
 			}
 		}

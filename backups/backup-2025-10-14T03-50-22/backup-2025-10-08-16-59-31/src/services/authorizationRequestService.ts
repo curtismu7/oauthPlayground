@@ -33,9 +33,7 @@ const DEFAULT_REGION_BASE = 'https://auth.pingone.com';
 /**
  * Resolve the PingOne authorization endpoint for a flow.
  */
-export const resolveAuthorizationEndpoint = (
-	config: AuthorizationEndpointConfig
-): string => {
+export const resolveAuthorizationEndpoint = (config: AuthorizationEndpointConfig): string => {
 	if (config.baseUrlOverride) {
 		return config.baseUrlOverride;
 	}

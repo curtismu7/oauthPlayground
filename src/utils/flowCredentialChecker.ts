@@ -362,7 +362,10 @@ export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 			flowType: 'oidc-authorization-code-v5',
 			flowName: 'Authorization Code Flow (V5) - User Identity & Authentication',
 		},
-		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow (V5) - Legacy Browser Authentication' },
+		{
+			flowType: 'oidc-implicit-v5',
+			flowName: 'Implicit Flow (V5) - Legacy Browser Authentication',
+		},
 		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow (V5) - Combined Authorization Approach' },
 		{
 			flowType: 'oidc-device-authorization-v6',

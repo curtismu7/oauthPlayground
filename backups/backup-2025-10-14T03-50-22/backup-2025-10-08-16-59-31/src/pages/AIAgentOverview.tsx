@@ -13,10 +13,10 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
-import { FlowHeader } from '../services/flowHeaderService';
 import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { PageLayoutService } from '../services/pageLayoutService';
+import { FlowHeader } from '../services/flowHeaderService';
 import { FlowUIService } from '../services/flowUIService';
+import { PageLayoutService } from '../services/pageLayoutService';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -403,8 +403,11 @@ const AIAgentOverview = () => {
 		responsive: true,
 		flowId: 'ai-agent-overview',
 	};
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	// State for collapsible sections (only for inner comparison table)
 	const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -768,13 +771,13 @@ const AIAgentOverview = () => {
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			{/* Overview Section */}
-			<V6CollapsibleHeader
-				title="Why AI Agents Need Advanced OAuth/OIDC Features"
-				subtitle="Understanding the security requirements for AI agent authentication and authorization"
-				icon={<FiInfo />}
-				defaultCollapsed={false}
-			>
+				{/* Overview Section */}
+				<V6CollapsibleHeader
+					title="Why AI Agents Need Advanced OAuth/OIDC Features"
+					subtitle="Understanding the security requirements for AI agent authentication and authorization"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
 					<Card>
 						<CardBody>
 							<p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>
@@ -849,15 +852,15 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-			</V6CollapsibleHeader>
+				</V6CollapsibleHeader>
 
-			{/* Features Grid */}
-			<V6CollapsibleHeader
-				title="Key OAuth/OIDC Features for AI Agents"
-				subtitle="Advanced features required for secure AI agent authentication and authorization"
-				icon={<FiShield />}
-				defaultCollapsed={false}
-			>
+				{/* Features Grid */}
+				<V6CollapsibleHeader
+					title="Key OAuth/OIDC Features for AI Agents"
+					subtitle="Advanced features required for secure AI agent authentication and authorization"
+					icon={<FiShield />}
+					defaultCollapsed={false}
+				>
 					<FeatureGrid>
 						{features.map((feature) => (
 							<FeatureCard
@@ -910,15 +913,15 @@ const AIAgentOverview = () => {
 							</FeatureCard>
 						))}
 					</FeatureGrid>
-			</V6CollapsibleHeader>
+				</V6CollapsibleHeader>
 
-			{/* Comparison Table */}
-			<V6CollapsibleHeader
-				title="Identity Provider Comparison for AI Agents"
-				subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
-				icon={<FiServer />}
-				defaultCollapsed={false}
-			>
+				{/* Comparison Table */}
+				<V6CollapsibleHeader
+					title="Identity Provider Comparison for AI Agents"
+					subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
+					icon={<FiServer />}
+					defaultCollapsed={false}
+				>
 					<ComparisonSection>
 						<CardBody>
 							{/* Collapsible header for the comparison table */}
@@ -1514,15 +1517,15 @@ const AIAgentOverview = () => {
 							</CollapsibleContent>
 						</CardBody>
 					</ComparisonSection>
-			</V6CollapsibleHeader>
+				</V6CollapsibleHeader>
 
-			{/* Recommendations */}
-			<V6CollapsibleHeader
-				title="Product Selection & Best Practices for AI Agents"
-				subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
-				icon={<FiCheckCircle />}
-				defaultCollapsed={false}
-			>
+				{/* Recommendations */}
+				<V6CollapsibleHeader
+					title="Product Selection & Best Practices for AI Agents"
+					subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
+					icon={<FiCheckCircle />}
+					defaultCollapsed={false}
+				>
 					<Card>
 						<CardBody>
 							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -1563,15 +1566,15 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-			</V6CollapsibleHeader>
+				</V6CollapsibleHeader>
 
-			{/* MCP Servers Section */}
-			<V6CollapsibleHeader
-				title="MCP Servers: The Future of AI Agent Integration"
-				subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
-				icon={<FiServer />}
-				defaultCollapsed={false}
-			>
+				{/* MCP Servers Section */}
+				<V6CollapsibleHeader
+					title="MCP Servers: The Future of AI Agent Integration"
+					subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
+					icon={<FiServer />}
+					defaultCollapsed={false}
+				>
 					<Card>
 						<CardBody>
 							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -1684,18 +1687,18 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-			</V6CollapsibleHeader>
+				</V6CollapsibleHeader>
 
-			{/* Popup for feature explanations */}
-			{popupData && (
-				<PopupOverlay onClick={closePopup}>
-					<PopupContent onClick={(e) => e.stopPropagation()}>
-						<CloseButton onClick={closePopup}>&times;</CloseButton>
-						<h3>{popupData.title}</h3>
-						<div dangerouslySetInnerHTML={{ __html: popupData.content }} />
-					</PopupContent>
-				</PopupOverlay>
-			)}
+				{/* Popup for feature explanations */}
+				{popupData && (
+					<PopupOverlay onClick={closePopup}>
+						<PopupContent onClick={(e) => e.stopPropagation()}>
+							<CloseButton onClick={closePopup}>&times;</CloseButton>
+							<h3>{popupData.title}</h3>
+							<div dangerouslySetInnerHTML={{ __html: popupData.content }} />
+						</PopupContent>
+					</PopupOverlay>
+				)}
 			</ContentWrapper>
 		</PageContainer>
 	);

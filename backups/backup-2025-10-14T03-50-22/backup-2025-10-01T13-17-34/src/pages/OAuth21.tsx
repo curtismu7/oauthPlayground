@@ -1,8 +1,8 @@
 import React from 'react';
+import { FiAlertTriangle, FiCheck, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
-import { FiShield, FiAlertTriangle, FiCheck, FiX, FiInfo } from 'react-icons/fi';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -18,6 +18,7 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
@@ -28,9 +29,11 @@ import {
 	FlowStepContent,
 	FlowStepNumber,
 } from '../../components/InfoBlocks';
+import NextSteps from '../../components/NextSteps';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -41,22 +44,22 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import NextSteps from '../../components/NextSteps';
+import { useUISettings } from '../../contexts/UISettingsContext';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
+import { ApiCallDisplayService } from '../../services/apiCallDisplayService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
 // New service imports for enhanced functionality
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { ApiCallDisplayService } from '../../services/apiCallDisplayService';
-import { useUISettings } from '../../contexts/UISettingsContext';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Flow configuration
 const FLOW_TYPE = 'implicit';
@@ -536,9 +539,11 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [responseMode, setResponseMode] = useState<ResponseMode>('fragment');
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		...FlowStateService.createDefaultCollapsedSections(INTRO_SECTION_KEYS),
 		apiCallDisplay: false, // Default to expanded for API call examples
@@ -715,7 +720,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				// No client secret for implicit flow (public client)
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -725,10 +730,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 					'implicit',
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -739,7 +744,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 					500,
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -947,8 +952,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 											<div>
 												<InfoTitle>Required: Fill in Credentials</InfoTitle>
 												<InfoText>
-													<strong>Environment ID</strong> and <strong>Client ID</strong> are required to continue. 
-													Fill these in above, then click "Save Configuration" before proceeding to Step 1.
+													<strong>Environment ID</strong> and <strong>Client ID</strong> are
+													required to continue. Fill these in above, then click "Save Configuration"
+													before proceeding to Step 1.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -1069,8 +1075,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 									<div>
 										<InfoTitle>Missing Required Credentials</InfoTitle>
 										<InfoText>
-											<strong>Environment ID</strong> and <strong>Client ID</strong> are required to generate the authorization URL. 
-											Please go back to Step 0 to fill in these credentials first.
+											<strong>Environment ID</strong> and <strong>Client ID</strong> are required to
+											generate the authorization URL. Please go back to Step 0 to fill in these
+											credentials first.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1286,7 +1293,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit'),
 								}}
 							/>
 						)}
@@ -1312,7 +1320,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 												<FiCode size={18} /> Test Your Access Token
 											</ResultsHeading>
 											<HelperText>
-												Use the access token to make authenticated API calls. Copy the curl command below to test your token with a PingOne API endpoint.
+												Use the access token to make authenticated API calls. Copy the curl command
+												below to test your token with a PingOne API endpoint.
 											</HelperText>
 
 											{/* API Call Display using service methods */}
@@ -1321,9 +1330,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 													method: 'GET' as const,
 													url: `https://api.pingone.com/v1/environments/${controller.credentials.environmentId || '{environmentId}'}/users/me`,
 													headers: {
-														'Authorization': `Bearer ${controller.tokens.access_token}`,
-														'Content-Type': 'application/json'
-													}
+														Authorization: `Bearer ${controller.tokens.access_token}`,
+														'Content-Type': 'application/json',
+													},
 												};
 
 												const curlCommand = ApiCallDisplayService.generateCurlCommand(apiCall);
@@ -1336,8 +1345,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 															<div>
 																<InfoTitle>Get Current User Profile</InfoTitle>
 																<InfoText>
-																	Retrieve the authenticated user's profile information using the access token.
-																	The Authorization header contains your actual access token.
+																	Retrieve the authenticated user's profile information using the
+																	access token. The Authorization header contains your actual access
+																	token.
 																</InfoText>
 															</div>
 														</InfoBox>
@@ -1345,15 +1355,22 @@ const OAuthImplicitFlowV5: React.FC = () => {
 														<GeneratedContentBox>
 															<GeneratedLabel>API Request Details</GeneratedLabel>
 															<div style={{ marginBottom: '1rem' }}>
-																<strong>Method:</strong> {sanitizedCall.method}<br/>
-																<strong>URL:</strong> {sanitizedCall.url}<br/>
+																<strong>Method:</strong> {sanitizedCall.method}
+																<br />
+																<strong>URL:</strong> {sanitizedCall.url}
+																<br />
 																<strong>Headers:</strong>
 																<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
-																	{Object.entries(sanitizedCall.headers || {}).map(([key, value]) => (
-																		<li key={key} style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
-																			{key}: {value}
-																		</li>
-																	))}
+																	{Object.entries(sanitizedCall.headers || {}).map(
+																		([key, value]) => (
+																			<li
+																				key={key}
+																				style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
+																			>
+																				{key}: {value}
+																			</li>
+																		)
+																	)}
 																</ul>
 															</div>
 														</GeneratedContentBox>
@@ -1379,10 +1396,11 @@ const OAuthImplicitFlowV5: React.FC = () => {
 												<div>
 													<InfoTitle>API Testing Tips</InfoTitle>
 													<InfoText>
-														• Replace <code>{'{environmentId}'}</code> with your actual PingOne environment ID<br/>
-														• The access token is valid for the scopes you requested<br/>
-														• Test with different API endpoints to verify token functionality<br/>
-														• Monitor token expiration and handle refresh scenarios
+														• Replace <code>{'{environmentId}'}</code> with your actual PingOne
+														environment ID
+														<br />• The access token is valid for the scopes you requested
+														<br />• Test with different API endpoints to verify token functionality
+														<br />• Monitor token expiration and handle refresh scenarios
 													</InfoText>
 												</div>
 											</InfoBox>
@@ -1416,9 +1434,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Implicit Flow Security Considerations</InfoTitle>
 											<InfoText>
-												The Implicit Flow has inherent security limitations. Tokens are exposed in the URL,
-												making them vulnerable to interception. This step demonstrates security best practices
-												and mitigation strategies.
+												The Implicit Flow has inherent security limitations. Tokens are exposed in
+												the URL, making them vulnerable to interception. This step demonstrates
+												security best practices and mitigation strategies.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1428,11 +1446,23 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Security Features Demonstrated</InfoTitle>
 											<InfoList>
-												<li><strong>Token Revocation:</strong> Ability to revoke access tokens before expiration</li>
-												<li><strong>Session Termination:</strong> End user sessions and invalidate tokens</li>
-												<li><strong>State Parameter:</strong> CSRF protection using state parameter</li>
-												<li><strong>HTTPS Only:</strong> All communications must use HTTPS</li>
-												<li><strong>Token Validation:</strong> Always validate tokens before use</li>
+												<li>
+													<strong>Token Revocation:</strong> Ability to revoke access tokens before
+													expiration
+												</li>
+												<li>
+													<strong>Session Termination:</strong> End user sessions and invalidate
+													tokens
+												</li>
+												<li>
+													<strong>State Parameter:</strong> CSRF protection using state parameter
+												</li>
+												<li>
+													<strong>HTTPS Only:</strong> All communications must use HTTPS
+												</li>
+												<li>
+													<strong>Token Validation:</strong> Always validate tokens before use
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1482,12 +1512,27 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Recommended Security Practices</InfoTitle>
 											<InfoList>
-												<li><strong>Use HTTPS:</strong> Always use HTTPS for all OAuth endpoints</li>
-												<li><strong>Validate State:</strong> Always validate the state parameter to prevent CSRF</li>
-												<li><strong>Short Token Lifetimes:</strong> Use short-lived access tokens</li>
-												<li><strong>Token Storage:</strong> Never store tokens in localStorage for production</li>
-												<li><strong>Consider PKCE:</strong> Use Authorization Code + PKCE instead of Implicit</li>
-												<li><strong>Regular Audits:</strong> Regularly audit and rotate client secrets</li>
+												<li>
+													<strong>Use HTTPS:</strong> Always use HTTPS for all OAuth endpoints
+												</li>
+												<li>
+													<strong>Validate State:</strong> Always validate the state parameter to
+													prevent CSRF
+												</li>
+												<li>
+													<strong>Short Token Lifetimes:</strong> Use short-lived access tokens
+												</li>
+												<li>
+													<strong>Token Storage:</strong> Never store tokens in localStorage for
+													production
+												</li>
+												<li>
+													<strong>Consider PKCE:</strong> Use Authorization Code + PKCE instead of
+													Implicit
+												</li>
+												<li>
+													<strong>Regular Audits:</strong> Regularly audit and rotate client secrets
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1497,9 +1542,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Critical Security Warnings</InfoTitle>
 											<InfoText>
-												<strong>⚠️ Production Warning:</strong> The Implicit Flow is deprecated by OAuth 2.1
-												specification due to security concerns. Use Authorization Code + PKCE flow for
-												new implementations.
+												<strong>⚠️ Production Warning:</strong> The Implicit Flow is deprecated by
+												OAuth 2.1 specification due to security concerns. Use Authorization Code +
+												PKCE flow for new implementations.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1531,8 +1576,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>OAuth 2.0 Implicit Flow Completed!</InfoTitle>
 											<InfoText>
-												Congratulations! You have successfully completed the OAuth 2.0 Implicit Flow demonstration.
-												This flow returned an access token directly in the URL fragment for API authorization.
+												Congratulations! You have successfully completed the OAuth 2.0 Implicit Flow
+												demonstration. This flow returned an access token directly in the URL
+												fragment for API authorization.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1579,21 +1625,29 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								<FiInfo size={20} />
 								<div>
 									<InfoTitle>Recommended Actions</InfoTitle>
-									<NextSteps steps={[
-										'Try Authorization Code + PKCE: Experience the more secure modern OAuth flow',
-										'Explore OIDC Implicit: See how OpenID Connect adds identity tokens',
-										'Test API Calls: Use your access token to call protected APIs',
-										'Review Security: Understand the limitations of Implicit Flow',
-										'Token Management: Decode and inspect your tokens in detail'
-									]} />
+									<NextSteps
+										steps={[
+											'Try Authorization Code + PKCE: Experience the more secure modern OAuth flow',
+											'Explore OIDC Implicit: See how OpenID Connect adds identity tokens',
+											'Test API Calls: Use your access token to call protected APIs',
+											'Review Security: Understand the limitations of Implicit Flow',
+											'Token Management: Decode and inspect your tokens in detail',
+										]}
+									/>
 								</div>
 							</InfoBox>
 
 							<ActionRow style={{ justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-								<Button onClick={() => window.open('/authorization-code-v5', '_blank')} $variant="primary">
+								<Button
+									onClick={() => window.open('/authorization-code-v5', '_blank')}
+									$variant="primary"
+								>
 									<FiExternalLink /> Try Auth Code + PKCE
 								</Button>
-								<Button onClick={() => window.open('/oidc-implicit-v5', '_blank')} $variant="secondary">
+								<Button
+									onClick={() => window.open('/oidc-implicit-v5', '_blank')}
+									$variant="secondary"
+								>
 									<FiExternalLink /> Try OIDC Implicit
 								</Button>
 								<Button onClick={navigateToTokenManagement} $variant="success">
@@ -1623,13 +1677,15 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<FiAlertTriangle size={20} />
 										<div>
 											<InfoTitle>Implicit Flow vs Authorization Code + PKCE</InfoTitle>
-											<NextSteps steps={[
-												'Security: Auth Code + PKCE is more secure (no token exposure)',
-												'Tokens: Auth Code provides refresh tokens for long-term access',
-												'Standards: Auth Code + PKCE is OAuth 2.1 recommended',
-												'Browser Support: Auth Code works better with modern browsers',
-												'Migration: Implicit Flow is deprecated - plan migration'
-											]} />
+											<NextSteps
+												steps={[
+													'Security: Auth Code + PKCE is more secure (no token exposure)',
+													'Tokens: Auth Code provides refresh tokens for long-term access',
+													'Standards: Auth Code + PKCE is OAuth 2.1 recommended',
+													'Browser Support: Auth Code works better with modern browsers',
+													'Migration: Implicit Flow is deprecated - plan migration',
+												]}
+											/>
 										</div>
 									</InfoBox>
 
@@ -1638,9 +1694,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Migration Benefits</InfoTitle>
 											<InfoText>
-												Migrating to Authorization Code + PKCE provides better security, refresh tokens,
-												and compliance with modern OAuth standards. Your applications will be more secure
-												and future-proof.
+												Migrating to Authorization Code + PKCE provides better security, refresh
+												tokens, and compliance with modern OAuth standards. Your applications will
+												be more secure and future-proof.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1686,7 +1742,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 					<div>
 						<InfoTitle>Response Mode Selection</InfoTitle>
 						<InfoText>
-							Choose how PingOne returns the authorization response. Implicit Flow typically uses 
+							Choose how PingOne returns the authorization response. Implicit Flow typically uses
 							fragment mode for client-side applications and SPAs.
 						</InfoText>
 					</div>

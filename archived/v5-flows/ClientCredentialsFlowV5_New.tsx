@@ -15,12 +15,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -31,22 +26,28 @@ import {
 	FlowStepContent,
 	FlowStepNumber,
 } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService'
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
+import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
 
 const STEP_METADATA = [
 	{
@@ -371,7 +372,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		completionDetails: defaultCollapsed,
 		introspectionDetails: defaultCollapsed,
 		rawJson: true, // Default to collapsed for raw JSON
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 
@@ -415,30 +416,30 @@ const ClientCredentialsFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-		const request = {
-			token: token,
-			clientId: credentials.clientId,
-			clientSecret: credentials.clientSecret,
-			tokenTypeHint: 'access_token' as const,
-		};
+			const request = {
+				token: token,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				tokenTypeHint: 'access_token' as const,
+			};
 
-		// Build introspection endpoint from credentials
-		const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+			// Build introspection endpoint from credentials
+			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 
-		try {
-			// Use the reusable service to create API call data and execute introspection
-			const result = await TokenIntrospectionService.introspectToken(
-				request,
-				'client-credentials',
-				'/api/introspect-token',
-				introspectionEndpoint,  // Pass PingOne URL as introspection endpoint
-				'client_secret_post'
-			);
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'client-credentials',
+					'/api/introspect-token',
+					introspectionEndpoint, // Pass PingOne URL as introspection endpoint
+					'client_secret_post'
+				);
 
-			// Set the API call data for display
-			setIntrospectionApiCall(result.apiCall);
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
 
-			return result.response;
+				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
 				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
@@ -545,246 +546,262 @@ const ClientCredentialsFlowV5: React.FC = () => {
 				case 0:
 					return (
 						<>
-							<CollapsibleHeader
-					title="Flow Overview"
-					icon={<FiInfo />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-											<FiInfo size={20} />
-											<div>
-												<InfoTitle>What is the Client Credentials Flow?</InfoTitle>
-												<InfoText>
-													The Client Credentials flow is used for server-to-server authentication
-													where the client application acts on its own behalf rather than on behalf
-													of a user. This is ideal for background processes, API integrations, and
-													service-to-service communication.
-												</InfoText>
-											</div>
-										</InfoBox>
+							<CollapsibleHeader title="Flow Overview" icon={<FiInfo />} defaultCollapsed={false}>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>What is the Client Credentials Flow?</InfoTitle>
+										<InfoText>
+											The Client Credentials flow is used for server-to-server authentication where
+											the client application acts on its own behalf rather than on behalf of a user.
+											This is ideal for background processes, API integrations, and
+											service-to-service communication.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-										<InfoBox $variant="success">
-											<FiShield size={20} />
-											<div>
-												<InfoTitle>Client Credentials in OIDC Context</InfoTitle>
-												<InfoText>
-													Client Credentials is very relevant in OIDC - it's just focused on{' '}
-													<strong>application identity</strong> rather than{' '}
-													<strong>user identity</strong>. Your implementation correctly handles this
-													distinction by focusing on access token acquisition for API access rather
-													than user authentication flows.
-												</InfoText>
-											</div>
-										</InfoBox>
-				</CollapsibleHeader>
+								<InfoBox $variant="success">
+									<FiShield size={20} />
+									<div>
+										<InfoTitle>Client Credentials in OIDC Context</InfoTitle>
+										<InfoText>
+											Client Credentials is very relevant in OIDC - it's just focused on{' '}
+											<strong>application identity</strong> rather than{' '}
+											<strong>user identity</strong>. Your implementation correctly handles this
+											distinction by focusing on access token acquisition for API access rather than
+											user authentication flows.
+										</InfoText>
+									</div>
+								</InfoBox>
+							</CollapsibleHeader>
 
 							<CollapsibleHeader
-					title="Configure Credentials"
-					icon={<FiKey />}
-					defaultCollapsed={false}
-				>
-					<EnvironmentIdInput
-											initialEnvironmentId={credentials.environmentId || ''}
-											onDiscoveryComplete={async (result) => {
-												if (result.success && result.document) {
-													console.log('🎯 [ClientCredentials] OIDC Discovery completed successfully');
-													// Auto-populate environment ID if it's a PingOne issuer
-													const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
-													if (envId) {
-														setCredentials({ ...credentials, environmentId: envId });
-														// Auto-save credentials if we have both environmentId and clientId
-														if (credentials?.clientId?.trim()) {
-															await saveCredentials();
-															v4ToastManager.showSuccess('Credentials auto-saved after OIDC discovery');
-														}
-													}
-													
-													// Auto-populate token endpoint if available
-													if (result.document?.token_endpoint) {
-														setCredentials({ ...credentials, tokenEndpoint: result.document.token_endpoint });
-														// Also update flow config
-														handleFlowConfigChange({ ...flowConfig, tokenEndpoint: result.document.token_endpoint });
-													}
-												}
-											}}
-											onEnvironmentIdChange={(newEnvId) => {
-												setCredentials({ ...credentials, environmentId: newEnvId });
+								title="Configure Credentials"
+								icon={<FiKey />}
+								defaultCollapsed={false}
+							>
+								<EnvironmentIdInput
+									initialEnvironmentId={credentials.environmentId || ''}
+									onDiscoveryComplete={async (result) => {
+										if (result.success && result.document) {
+											console.log('🎯 [ClientCredentials] OIDC Discovery completed successfully');
+											// Auto-populate environment ID if it's a PingOne issuer
+											const envId = oidcDiscoveryService.extractEnvironmentId(
+												result.document.issuer
+											);
+											if (envId) {
+												setCredentials({ ...credentials, environmentId: envId });
 												// Auto-save credentials if we have both environmentId and clientId
-												if (newEnvId.trim() && credentials.clientId.trim()) {
-													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
+												if (credentials?.clientId?.trim()) {
+													await saveCredentials();
+													v4ToastManager.showSuccess('Credentials auto-saved after OIDC discovery');
 												}
-											}}
-											onIssuerUrlChange={() => {}}
-											showSuggestions={true}
-											autoDiscover={false}
-										/>
-										
-										<SectionDivider />
-										
-										<CredentialsInput
-											environmentId={credentials.environmentId || ''}
-											clientId={credentials.clientId || ''}
-											clientSecret={credentials.clientSecret || ''}
-											scopes={credentials.scopes || ''}
-											onEnvironmentIdChange={(value) => {
-												setCredentials({ ...credentials, environmentId: value });
-												// Auto-save if we have both environmentId and clientId
-												if (value.trim() && credentials?.clientId?.trim()) {
-													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
-												}
-											}}
-											onClientIdChange={(value) => {
-												setCredentials({ ...credentials, clientId: value });
-												// Auto-save if we have both environmentId and clientId
-												if (credentials?.environmentId?.trim() && value.trim()) {
-													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after client ID change');
-												}
-											}}
-											onClientSecretChange={(value) => {
-												setCredentials({ ...credentials, clientSecret: value });
-												// Auto-save if we have environmentId, clientId, and now clientSecret
-												if (credentials?.environmentId?.trim() && credentials?.clientId?.trim() && value.trim()) {
-													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after client secret change');
-												}
-											}}
-											onScopesChange={(value) => setCredentials({ ...credentials, scopes: value })}
-											onCopy={handleCopy}
-											showRedirectUri={false}
-											showLoginHint={false}
-										/>
-										
-										{/* Save Button after Scopes */}
-										<ActionRow>
-											<Button
-												$variant="primary"
-												onClick={saveCredentials}
-												disabled={isSavingCredentials || !credentials.environmentId || !credentials.clientId}
-											>
-												<FiCheckCircle />
-												{isSavingCredentials ? 'Saving...' : 'Save Configuration'}
-											</Button>
-											{hasUnsavedCredentialChanges && (
-												<span style={{ fontSize: '0.875rem', color: '#f59e0b', fontStyle: 'italic' }}>
-													Unsaved changes
-												</span>
-											)}
-										</ActionRow>
-										
-										<FlowConfigurationRequirements flowType="client-credentials" />
+											}
 
-										<SectionDivider />
-				</CollapsibleHeader>
+											// Auto-populate token endpoint if available
+											if (result.document?.token_endpoint) {
+												setCredentials({
+													...credentials,
+													tokenEndpoint: result.document.token_endpoint,
+												});
+												// Also update flow config
+												handleFlowConfigChange({
+													...flowConfig,
+													tokenEndpoint: result.document.token_endpoint,
+												});
+											}
+										}
+									}}
+									onEnvironmentIdChange={(newEnvId) => {
+										setCredentials({ ...credentials, environmentId: newEnvId });
+										// Auto-save credentials if we have both environmentId and clientId
+										if (newEnvId.trim() && credentials.clientId.trim()) {
+											saveCredentials();
+											v4ToastManager.showSuccess(
+												'Credentials auto-saved after environment ID change'
+											);
+										}
+									}}
+									onIssuerUrlChange={() => {}}
+									showSuggestions={true}
+									autoDiscover={false}
+								/>
+
+								<SectionDivider />
+
+								<CredentialsInput
+									environmentId={credentials.environmentId || ''}
+									clientId={credentials.clientId || ''}
+									clientSecret={credentials.clientSecret || ''}
+									scopes={credentials.scopes || ''}
+									onEnvironmentIdChange={(value) => {
+										setCredentials({ ...credentials, environmentId: value });
+										// Auto-save if we have both environmentId and clientId
+										if (value.trim() && credentials?.clientId?.trim()) {
+											saveCredentials();
+											v4ToastManager.showSuccess(
+												'Credentials auto-saved after environment ID change'
+											);
+										}
+									}}
+									onClientIdChange={(value) => {
+										setCredentials({ ...credentials, clientId: value });
+										// Auto-save if we have both environmentId and clientId
+										if (credentials?.environmentId?.trim() && value.trim()) {
+											saveCredentials();
+											v4ToastManager.showSuccess('Credentials auto-saved after client ID change');
+										}
+									}}
+									onClientSecretChange={(value) => {
+										setCredentials({ ...credentials, clientSecret: value });
+										// Auto-save if we have environmentId, clientId, and now clientSecret
+										if (
+											credentials?.environmentId?.trim() &&
+											credentials?.clientId?.trim() &&
+											value.trim()
+										) {
+											saveCredentials();
+											v4ToastManager.showSuccess(
+												'Credentials auto-saved after client secret change'
+											);
+										}
+									}}
+									onScopesChange={(value) => setCredentials({ ...credentials, scopes: value })}
+									onCopy={handleCopy}
+									showRedirectUri={false}
+									showLoginHint={false}
+								/>
+
+								{/* Save Button after Scopes */}
+								<ActionRow>
+									<Button
+										$variant="primary"
+										onClick={saveCredentials}
+										disabled={
+											isSavingCredentials || !credentials.environmentId || !credentials.clientId
+										}
+									>
+										<FiCheckCircle />
+										{isSavingCredentials ? 'Saving...' : 'Save Configuration'}
+									</Button>
+									{hasUnsavedCredentialChanges && (
+										<span style={{ fontSize: '0.875rem', color: '#f59e0b', fontStyle: 'italic' }}>
+											Unsaved changes
+										</span>
+									)}
+								</ActionRow>
+
+								<FlowConfigurationRequirements flowType="client-credentials" />
+
+								<SectionDivider />
+							</CollapsibleHeader>
 
 							<CollapsibleHeader
-					title="Client Credentials Flow Walkthrough"
-					icon={<FiZap />}
-					defaultCollapsed={true}
-				>
-					<FlowDiagram>
-											{[
-												'Client sends credentials to token endpoint',
-												'Authorization server validates client credentials',
-												'Server issues access token directly to client',
-												'Client uses token to access protected resources',
-											].map((description, index) => (
-												<FlowStep key={description}>
-													<FlowStepNumber>{index + 1}</FlowStepNumber>
-													<FlowStepContent>
-														<strong>{description}</strong>
-													</FlowStepContent>
-												</FlowStep>
-											))}
-										</FlowDiagram>
-				</CollapsibleHeader>
+								title="Client Credentials Flow Walkthrough"
+								icon={<FiZap />}
+								defaultCollapsed={true}
+							>
+								<FlowDiagram>
+									{[
+										'Client sends credentials to token endpoint',
+										'Authorization server validates client credentials',
+										'Server issues access token directly to client',
+										'Client uses token to access protected resources',
+									].map((description, index) => (
+										<FlowStep key={description}>
+											<FlowStepNumber>{index + 1}</FlowStepNumber>
+											<FlowStepContent>
+												<strong>{description}</strong>
+											</FlowStepContent>
+										</FlowStep>
+									))}
+								</FlowDiagram>
+							</CollapsibleHeader>
 
 							<CollapsibleHeader
-					title="Authentication Methods"
-					icon={<FiShield />}
-					defaultCollapsed={true}
-				>
-					<InfoBox $variant="info">
-											<FiShield size={20} />
-											<div>
-												<InfoTitle>Client Authentication Methods</InfoTitle>
-												<InfoText>
-													The Client Credentials flow supports multiple authentication methods for
-													different security requirements and deployment scenarios.
-												</InfoText>
-											</div>
-										</InfoBox>
+								title="Authentication Methods"
+								icon={<FiShield />}
+								defaultCollapsed={true}
+							>
+								<InfoBox $variant="info">
+									<FiShield size={20} />
+									<div>
+										<InfoTitle>Client Authentication Methods</InfoTitle>
+										<InfoText>
+											The Client Credentials flow supports multiple authentication methods for
+											different security requirements and deployment scenarios.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-										<ParameterGrid>
-											<InfoBox $variant="success">
-												<FiKey size={20} />
-												<div>
-													<InfoTitle>Client Secret (Recommended for Development)</InfoTitle>
-													<InfoText>
-														Most common method using client_id and client_secret. Simple to
-														implement but requires secure secret storage.
-													</InfoText>
-													<InfoList>
-														<li>Uses HTTP Basic or POST authentication</li>
-														<li>Easy to implement and test</li>
-														<li>Requires secure secret management</li>
-														<li>Suitable for server-side applications</li>
-													</InfoList>
-												</div>
-											</InfoBox>
+								<ParameterGrid>
+									<InfoBox $variant="success">
+										<FiKey size={20} />
+										<div>
+											<InfoTitle>Client Secret (Recommended for Development)</InfoTitle>
+											<InfoText>
+												Most common method using client_id and client_secret. Simple to implement
+												but requires secure secret storage.
+											</InfoText>
+											<InfoList>
+												<li>Uses HTTP Basic or POST authentication</li>
+												<li>Easy to implement and test</li>
+												<li>Requires secure secret management</li>
+												<li>Suitable for server-side applications</li>
+											</InfoList>
+										</div>
+									</InfoBox>
 
-											<InfoBox $variant="info">
-												<FiShield size={20} />
-												<div>
-													<InfoTitle>Private Key JWT (Production Recommended)</InfoTitle>
-													<InfoText>
-														Uses asymmetric cryptography with JWT assertions signed by private key.
-														More secure than client secrets.
-													</InfoText>
-													<InfoList>
-														<li>No shared secrets to manage</li>
-														<li>Proof-of-possession security</li>
-														<li>Supports key rotation</li>
-														<li>Industry standard security</li>
-													</InfoList>
-												</div>
-											</InfoBox>
+									<InfoBox $variant="info">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>Private Key JWT (Production Recommended)</InfoTitle>
+											<InfoText>
+												Uses asymmetric cryptography with JWT assertions signed by private key. More
+												secure than client secrets.
+											</InfoText>
+											<InfoList>
+												<li>No shared secrets to manage</li>
+												<li>Proof-of-possession security</li>
+												<li>Supports key rotation</li>
+												<li>Industry standard security</li>
+											</InfoList>
+										</div>
+									</InfoBox>
 
-											<InfoBox $variant="warning">
-												<FiServer size={20} />
-												<div>
-													<InfoTitle>TLS Client Authentication</InfoTitle>
-													<InfoText>
-														Uses client certificates for mutual TLS authentication. Highest security
-														but complex to implement.
-													</InfoText>
-													<InfoList>
-														<li>Certificate-based authentication</li>
-														<li>Strong mutual authentication</li>
-														<li>Requires PKI infrastructure</li>
-														<li>Complex certificate management</li>
-													</InfoList>
-												</div>
-											</InfoBox>
-										</ParameterGrid>
+									<InfoBox $variant="warning">
+										<FiServer size={20} />
+										<div>
+											<InfoTitle>TLS Client Authentication</InfoTitle>
+											<InfoText>
+												Uses client certificates for mutual TLS authentication. Highest security but
+												complex to implement.
+											</InfoText>
+											<InfoList>
+												<li>Certificate-based authentication</li>
+												<li>Strong mutual authentication</li>
+												<li>Requires PKI infrastructure</li>
+												<li>Complex certificate management</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</ParameterGrid>
 
-										<InfoBox $variant="warning">
-											<FiAlertCircle size={20} />
-											<div>
-												<InfoTitle>Security Best Practices</InfoTitle>
-												<InfoList>
-													<li>Prefer Private Key JWT for production</li>
-													<li>Use short-lived access tokens</li>
-													<li>Implement proper token caching</li>
-													<li>Monitor token usage and revoke when needed</li>
-													<li>Never log or expose client secrets</li>
-													<li>Use HTTPS for all token requests</li>
-												</InfoList>
-											</div>
-										</InfoBox>
-				</CollapsibleHeader>
+								<InfoBox $variant="warning">
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Security Best Practices</InfoTitle>
+										<InfoList>
+											<li>Prefer Private Key JWT for production</li>
+											<li>Use short-lived access tokens</li>
+											<li>Implement proper token caching</li>
+											<li>Monitor token usage and revoke when needed</li>
+											<li>Never log or expose client secrets</li>
+											<li>Use HTTPS for all token requests</li>
+										</InfoList>
+									</div>
+								</InfoBox>
+							</CollapsibleHeader>
 
 							{/* Token Request Section - Merged from Step 1 */}
 							<SectionDivider />
@@ -941,71 +958,70 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									)}
 
 									<CollapsibleHeader
-					title="Token Analysis"
-					icon={<FiShield />}
-					defaultCollapsed={true}
-				>
-					<ResultsSection>
-													<ResultsHeading>
+										title="Token Analysis"
+										icon={<FiShield />}
+										defaultCollapsed={true}
+									>
+										<ResultsSection>
+											<ResultsHeading>
+												<FiCheckCircle />
+												Token Analysis Complete
+											</ResultsHeading>
+
+											{decodedToken ? (
+												<>
+													<InfoBox $variant="success">
 														<FiCheckCircle />
-														Token Analysis Complete
-													</ResultsHeading>
+														<div>
+															<InfoTitle>JWT Token Detected</InfoTitle>
+															<InfoText>
+																This access token is a JWT and can be decoded to view its claims.
+															</InfoText>
+														</div>
+													</InfoBox>
 
-													{decodedToken ? (
-														<>
-															<InfoBox $variant="success">
-																<FiCheckCircle />
-																<div>
-																	<InfoTitle>JWT Token Detected</InfoTitle>
-																	<InfoText>
-																		This access token is a JWT and can be decoded to view its
-																		claims.
-																	</InfoText>
-																</div>
-															</InfoBox>
-
-															<ParameterGrid>
-																<ParameterLabel>Algorithm</ParameterLabel>
-																<ParameterValue>{decodedToken.header.alg || 'N/A'}</ParameterValue>
-																<ParameterLabel>Key ID</ParameterLabel>
-																<ParameterValue>{decodedToken.header.kid || 'N/A'}</ParameterValue>
-																<ParameterLabel>Issuer</ParameterLabel>
-																<ParameterValue>{decodedToken.payload.iss || 'N/A'}</ParameterValue>
-																<ParameterLabel>Subject</ParameterLabel>
-																<ParameterValue>{decodedToken.payload.sub || 'N/A'}</ParameterValue>
-																<ParameterLabel>Audience</ParameterLabel>
-																<ParameterValue>
-																	{Array.isArray(decodedToken.payload.aud)
-																		? decodedToken.payload.aud.join(', ')
-																		: decodedToken.payload.aud || 'N/A'}
-																</ParameterValue>
-																<ParameterLabel>Expires</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.payload.exp
-																		? new Date(decodedToken.payload.exp * 1000).toLocaleString()
-																		: 'N/A'}
-																</ParameterValue>
-																<ParameterLabel>Scopes</ParameterLabel>
-																<ParameterValue>
-																	{decodedToken.payload.scope || tokens.scope || 'N/A'}
-																</ParameterValue>
-															</ParameterGrid>
-														</>
-													) : (
-														<InfoBox $variant="info">
-															<FiInfo />
-															<div>
-																<InfoTitle>Opaque Token</InfoTitle>
-																<InfoText>
-																	This access token is opaque (not a JWT). Use token introspection
-																	to retrieve metadata. Navigate to the Token Management page for
-																	introspection capabilities.
-																</InfoText>
-															</div>
-														</InfoBox>
-													)}
-												</ResultsSection>
-				</CollapsibleHeader>
+													<ParameterGrid>
+														<ParameterLabel>Algorithm</ParameterLabel>
+														<ParameterValue>{decodedToken.header.alg || 'N/A'}</ParameterValue>
+														<ParameterLabel>Key ID</ParameterLabel>
+														<ParameterValue>{decodedToken.header.kid || 'N/A'}</ParameterValue>
+														<ParameterLabel>Issuer</ParameterLabel>
+														<ParameterValue>{decodedToken.payload.iss || 'N/A'}</ParameterValue>
+														<ParameterLabel>Subject</ParameterLabel>
+														<ParameterValue>{decodedToken.payload.sub || 'N/A'}</ParameterValue>
+														<ParameterLabel>Audience</ParameterLabel>
+														<ParameterValue>
+															{Array.isArray(decodedToken.payload.aud)
+																? decodedToken.payload.aud.join(', ')
+																: decodedToken.payload.aud || 'N/A'}
+														</ParameterValue>
+														<ParameterLabel>Expires</ParameterLabel>
+														<ParameterValue>
+															{decodedToken.payload.exp
+																? new Date(decodedToken.payload.exp * 1000).toLocaleString()
+																: 'N/A'}
+														</ParameterValue>
+														<ParameterLabel>Scopes</ParameterLabel>
+														<ParameterValue>
+															{decodedToken.payload.scope || tokens.scope || 'N/A'}
+														</ParameterValue>
+													</ParameterGrid>
+												</>
+											) : (
+												<InfoBox $variant="info">
+													<FiInfo />
+													<div>
+														<InfoTitle>Opaque Token</InfoTitle>
+														<InfoText>
+															This access token is opaque (not a JWT). Use token introspection to
+															retrieve metadata. Navigate to the Token Management page for
+															introspection capabilities.
+														</InfoText>
+													</div>
+												</InfoBox>
+											)}
+										</ResultsSection>
+									</CollapsibleHeader>
 								</>
 							)}
 						</>

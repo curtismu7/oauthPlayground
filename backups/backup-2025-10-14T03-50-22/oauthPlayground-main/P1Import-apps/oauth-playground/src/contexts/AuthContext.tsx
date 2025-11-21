@@ -1,18 +1,18 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { oauthStorage } from '../utils/storage';
-import { pingOneConfig, DEFAULT_SCOPES, PKCE_CONFIG } from '../config/pingone';
+import { DEFAULT_SCOPES, PKCE_CONFIG, pingOneConfig } from '../config/pingone';
+import { AuthContextType, LoginResult, User } from '../types/oauth';
 import {
-	generateRandomString,
-	generateCodeVerifier,
-	generateCodeChallenge,
 	buildAuthUrl,
 	exchangeCodeForTokens,
-	validateIdToken,
+	generateCodeChallenge,
+	generateCodeVerifier,
+	generateRandomString,
 	getUserInfo,
 	parseUrlParams,
+	validateIdToken,
 } from '../utils/oauth';
-import { AuthContextType, User, LoginResult } from '../types/oauth';
+import { oauthStorage } from '../utils/storage';
 
 // Create the AuthContext with proper typing
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);

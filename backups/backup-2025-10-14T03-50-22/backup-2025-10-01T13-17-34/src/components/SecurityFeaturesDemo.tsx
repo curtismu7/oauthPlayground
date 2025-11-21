@@ -1,28 +1,28 @@
 // src/components/SecurityFeaturesDemo.tsx
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiShield,
-	FiKey,
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiExternalLink,
-	FiDownload,
-	FiPlay,
-	FiX,
-	FiRefreshCw,
-	FiEye,
+	FiCheckCircle,
 	FiClock,
-	FiLock,
-	FiUnlock,
+	FiDownload,
+	FiExternalLink,
+	FiEye,
 	FiGlobe,
-	FiSettings,
+	FiKey,
+	FiLock,
+	FiPlay,
 	FiPlus,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
 	FiTrash2,
+	FiUnlock,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { showGlobalSuccess } from '../hooks/useNotifications';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string; $secondaryColor: string }>`

@@ -205,37 +205,37 @@ const AppRoutes = () => {
 	// Global scroll to top on route change - FOOLPROOF
 	useEffect(() => {
 		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
-		
+
 		// Immediate scroll - multiple methods for maximum compatibility
 		window.scrollTo(0, 0);
 		document.documentElement.scrollTop = 0;
 		document.body.scrollTop = 0;
-		
+
 		// Additional scroll attempts with delays to catch late-loading content
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
 		}, 0);
-		
+
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
 		}, 50);
-		
+
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
 		}, 100);
-		
+
 		setTimeout(() => {
 			window.scrollTo(0, 0);
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
 		}, 200);
-		
+
 		// Also use the scroll manager for additional reliability
 		scrollToTop({ force: true, smooth: false });
 	}, [location.pathname]);
@@ -327,27 +327,39 @@ const AppRoutes = () => {
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
 								<Route path="mfa" element={<MFAFlow />} />
 							</Route>
-						{/* Tools & Utilities Routes */}
-						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
-						{/* V6 OAuth/OIDC Flow Routes */}
-						<Route
-							path="/flows/oauth-authorization-code-v6"
-							element={<OAuthAuthorizationCodeFlowV6 />}
-						/>
-						<Route path="/flows/oauth-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v6" replace />} />
-						<Route
-							path="/flows/oidc-authorization-code-v6"
-							element={<OIDCAuthorizationCodeFlowV6 />}
-						/>
-						<Route path="/flows/oidc-authorization-code-v5" element={<Navigate to="/flows/oidc-authorization-code-v6" replace />} />
+							{/* Tools & Utilities Routes */}
+							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
+							{/* V6 OAuth/OIDC Flow Routes */}
+							<Route
+								path="/flows/oauth-authorization-code-v6"
+								element={<OAuthAuthorizationCodeFlowV6 />}
+							/>
+							<Route
+								path="/flows/oauth-authorization-code-v5"
+								element={<Navigate to="/flows/oauth-authorization-code-v6" replace />}
+							/>
+							<Route
+								path="/flows/oidc-authorization-code-v6"
+								element={<OIDCAuthorizationCodeFlowV6 />}
+							/>
+							<Route
+								path="/flows/oidc-authorization-code-v5"
+								element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
+							/>
 							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
-							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
+							<Route
+								path="/flows/oauth-implicit-v5"
+								element={<Navigate to="/flows/oauth-implicit-v6" replace />}
+							/>
 							<Route
 								path="/flows/oauth-implicit-completion"
 								element={<OAuthImplicitFlowCompletion />}
 							/>
 							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
-							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
+							<Route
+								path="/flows/oidc-implicit-v5"
+								element={<Navigate to="/flows/oidc-implicit-v6" replace />}
+							/>
 							<Route
 								path="/flows/device-authorization-v5"
 								element={<DeviceAuthorizationFlowV5 />}
@@ -358,16 +370,26 @@ const AppRoutes = () => {
 							/>
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 							<Route path="/flows/client-credentials-v6" element={<ClientCredentialsFlowV6 />} />
-							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
+							<Route
+								path="/flows/client-credentials-v5"
+								element={<Navigate to="/flows/client-credentials-v6" replace />}
+							/>
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
-							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
-							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
+							<Route
+								path="/flows/hybrid-v5"
+								element={<Navigate to="/flows/oidc-hybrid-v6" replace />}
+							/>
+							<Route
+								path="/flows/oidc-hybrid-v5"
+								element={<Navigate to="/flows/oidc-hybrid-v6" replace />}
+							/>
 							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 							<Route path="/flows/redirectless-v6-real" element={<RedirectlessFlowV6Real />} />
-							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} /> {/* Redirect V5 to V6 */}
+							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} />{' '}
+							{/* Redirect V5 to V6 */}
 							{/* V3/V4 routes backed up - use V5 versions instead */}
 							<Route path="/flows/par" element={<PARFlow />} />
 							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
@@ -382,7 +404,8 @@ const AppRoutes = () => {
 							/>
 							{/* PingOne PAR Flow - V6 (upgraded with services) */}
 							<Route path="/flows/pingone-par-v6" element={<PingOnePARFlowV6 />} />
-							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} /> {/* Redirect V5 to V6 */}
+							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} />{' '}
+							{/* Redirect V5 to V6 */}
 							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
 							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
@@ -440,13 +463,19 @@ const AppRoutes = () => {
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
-							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
+							<Route
+								path="/flows/oauth-implicit-v5"
+								element={<Navigate to="/flows/oauth-implicit-v6" replace />}
+							/>
 							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
-							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
-						<Route
-							path="/flows/oidc-authorization-code-v5"
-							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
-						/>
+							<Route
+								path="/flows/oidc-implicit-v5"
+								element={<Navigate to="/flows/oidc-implicit-v6" replace />}
+							/>
+							<Route
+								path="/flows/oidc-authorization-code-v5"
+								element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
+							/>
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route
 								path="/flows/oidc-device-authorization-v5"

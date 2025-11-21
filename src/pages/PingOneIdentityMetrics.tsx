@@ -2,28 +2,29 @@
 // Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import styled from 'styled-components';
 import {
+	FiAlertCircle,
 	FiBarChart2,
 	FiCalendar,
+	FiCheckCircle,
 	FiClock,
 	FiDatabase,
 	FiInfo,
+	FiKey,
 	FiRefreshCw,
 	FiShield,
-	FiKey,
-	FiAlertCircle,
-	FiCheckCircle,
-	FiX
+	FiX,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
 import { apiRequestModalService } from '../services/apiRequestModalService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 const PageContainer = styled.div`
-	max-width: 1100px;
+	max-width: 90rem;
 	margin: 0 auto;
 	padding: 2rem 1.5rem 4rem;
 	display: flex;
@@ -428,15 +429,15 @@ const PingOneIdentityMetrics: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [metrics, setMetrics] = useState<IdentityCountResponse | null>(null);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-	const [workerToken, setWorkerToken] = useState<string>(() => localStorage.getItem('worker_token_metrics') || '');
+	const [workerToken, setWorkerToken] = useState<string>(() => getAnyWorkerToken() || '');
 	const hasWorkerToken = !!workerToken;
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showPermissionsErrorModal, setShowPermissionsErrorModal] = useState(false);
 
-	// Listen for worker token updates (using dedicated metrics token)
+	// Listen for worker token updates (using global worker token)
 	useEffect(() => {
 		const checkWorkerToken = () => {
-			const token = localStorage.getItem('worker_token_metrics') || '';
+			const token = getAnyWorkerToken() || '';
 			setWorkerToken(token);
 		};
 
@@ -445,21 +446,24 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 		// Listen for storage events (token updated in another tab/window)
 		const handleStorageChange = (e: StorageEvent) => {
-			if (e.key === 'worker_token_metrics' || e.key === 'worker_token_metrics_expires_at') {
+			// Check if any worker token key changed
+			if (e.key?.startsWith('worker_token') || e.key?.startsWith('pingone_worker_token')) {
 				checkWorkerToken();
 			}
 		};
 
-		// Listen for custom event (token updated in same tab)
+		// Listen for custom events (token updated in same tab)
 		const handleWorkerTokenUpdate = () => {
 			checkWorkerToken();
 		};
 
 		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 		window.addEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
 
 		return () => {
 			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 			window.removeEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
 		};
 	}, []);
@@ -468,15 +472,23 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 	// Get worker token using credentials on the page
 	const handleGetWorkerToken = useCallback(() => {
-		if (localStorage.getItem('worker_token_metrics')) {
-			v4ToastManager.showInfo('Worker token already available. Opening modal in case you want to refresh it.');
+		if (getAnyWorkerToken()) {
+			v4ToastManager.showInfo(
+				'Worker token already available. Opening modal in case you want to refresh it.'
+			);
 		}
 		setError(null);
 		setShowWorkerTokenModal(true);
 	}, []);
 
-	// Clear the metrics-specific worker token
+	// Clear the worker token (clears all worker token keys)
 	const handleClearWorkerToken = useCallback(() => {
+		// Clear common worker token keys
+		localStorage.removeItem('worker_token');
+		localStorage.removeItem('worker_token_expires_at');
+		localStorage.removeItem('pingone_worker_token');
+		localStorage.removeItem('pingone_worker_token_worker-token-v7');
+		// Clear page-specific keys for backward compatibility
 		localStorage.removeItem('worker_token_metrics');
 		localStorage.removeItem('worker_token_metrics_expires_at');
 		setWorkerToken('');
@@ -490,7 +502,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
 		const environmentId = workerCreds?.environmentId || '';
 		const region = (workerCreds?.region as string) || 'us';
-		const effectiveWorkerToken = localStorage.getItem('worker_token_metrics') || '';
+		const effectiveWorkerToken = getAnyWorkerToken() || '';
 
 		setLoading(true);
 		setError(null);
@@ -506,7 +518,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 				workerToken: effectiveWorkerToken,
 				limit: '100',
 			});
-			
+
 			// Add parameters based on endpoint type
 			if (endpointType === 'byDateRange') {
 				if (start) queryParams.append('startDate', start);
@@ -547,10 +559,10 @@ const PingOneIdentityMetrics: React.FC = () => {
 			} else {
 				setError(err instanceof Error ? err.message : 'Unexpected error querying PingOne metrics');
 			}
-		} finally{
+		} finally {
 			setLoading(false);
 		}
-		}, [start, samplingPeriod, endpointType, licenseId]);
+	}, [start, samplingPeriod, endpointType, licenseId]);
 
 	// Show educational modal before making the API call
 	const handleFetch = useCallback(async () => {
@@ -569,8 +581,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 		console.log('[Identity Metrics] 🔍 Using token for API call:', {
 			hasToken: !!effectiveWorkerToken,
-			tokenPreview: effectiveWorkerToken ? effectiveWorkerToken.substring(0, 20) + '...' : 'none',
-			environmentId: environmentId.substring(0, 20) + '...',
+			tokenPreview: effectiveWorkerToken ? `${effectiveWorkerToken.substring(0, 20)}...` : 'none',
+			environmentId: `${environmentId.substring(0, 20)}...`,
 		});
 
 		if (!effectiveWorkerToken) {
@@ -588,30 +600,31 @@ const PingOneIdentityMetrics: React.FC = () => {
 			asia: 'https://api.pingone.asia',
 		};
 		const baseUrl = regionMap[region.toLowerCase()] || regionMap.na;
-		
+
 		// Build API URL for activeIdentityCounts based on endpoint type
 		const queryParams = new URLSearchParams();
 		queryParams.append('limit', '100');
-		
+
 		let pingOneApiUrl: string;
 		let educationalNotes: string[];
-		
+
 		if (endpointType === 'byDateRange') {
 			const filters: string[] = [];
-			if (start) filters.push(`startDate ge "${start.includes('T') ? start : `${start}T00:00:00Z`}"`);
+			if (start)
+				filters.push(`startDate ge "${start.includes('T') ? start : `${start}T00:00:00Z`}"`);
 			if (samplingPeriod) filters.push(`samplingPeriod eq "${samplingPeriod}"`);
 			if (filters.length > 0) {
 				queryParams.append('filter', filters.join(' and '));
 			}
-			
+
 			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
-			
+
 			educationalNotes = [
 				'This endpoint returns time-series identity count data with specified sampling periods',
 				'The sampling period determines the granularity (hourly, daily, weekly)',
 				'Uses OData filtering syntax for startDate and samplingPeriod',
 				'Returns up to 100 data points (configurable with limit parameter)',
-				'Requires Identity Data Admin or Environment Admin role in PingOne'
+				'Requires Identity Data Admin or Environment Admin role in PingOne',
 			];
 		} else if (endpointType === 'byLicense') {
 			if (licenseId) {
@@ -620,25 +633,25 @@ const PingOneIdentityMetrics: React.FC = () => {
 			if (samplingPeriod) {
 				queryParams.append('samplingPeriod', samplingPeriod);
 			}
-			
+
 			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
-			
+
 			educationalNotes = [
 				'This endpoint returns active identity counts filtered by license',
 				'Requires a licenseId parameter to filter counts for a specific license',
 				'The sampling period determines the granularity (hourly, daily, weekly)',
 				'Returns up to 100 data points (configurable with limit parameter)',
-				'Requires Identity Data Admin or Environment Admin role in PingOne'
+				'Requires Identity Data Admin or Environment Admin role in PingOne',
 			];
 		} else {
 			// Simple endpoint - no filters
 			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
-			
+
 			educationalNotes = [
 				'This endpoint returns active identity counts without filters',
 				'Returns the most recent data points (up to limit)',
 				'Returns up to 100 data points (configurable with limit parameter)',
-				'Requires Identity Data Admin or Environment Admin role in PingOne'
+				'Requires Identity Data Admin or Environment Admin role in PingOne',
 			];
 		}
 
@@ -648,8 +661,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 			method: 'GET',
 			url: pingOneApiUrl,
 			headers: {
-				'Authorization': `Bearer ${effectiveWorkerToken}`,
-				'Accept': 'application/json',
+				Authorization: `Bearer ${effectiveWorkerToken}`,
+				Accept: 'application/json',
 			},
 			description: 'Retrieve time-series active identity counts with sampling periods',
 			educationalNotes,
@@ -667,8 +680,10 @@ const PingOneIdentityMetrics: React.FC = () => {
 	// Calculate summary statistics
 	const summary = useMemo(() => {
 		if (!activeIdentityCounts || activeIdentityCounts.length === 0) return null;
-		
-		const counts = activeIdentityCounts.map((item: ActiveIdentityCount) => item.count || 0).filter((c: number) => c > 0);
+
+		const counts = activeIdentityCounts
+			.map((item: ActiveIdentityCount) => item.count || 0)
+			.filter((c: number) => c > 0);
 		if (counts.length === 0) return null;
 
 		const total = counts.reduce((sum: number, c: number) => sum + c, 0);
@@ -686,7 +701,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 			latest,
 			oldest,
 			dataPoints: counts.length,
-			period: samplingPeriod === '1' ? 'hourly' : samplingPeriod === '24' ? 'daily' : 'weekly'
+			period: samplingPeriod === '1' ? 'hourly' : samplingPeriod === '24' ? 'daily' : 'weekly',
 		};
 	}, [activeIdentityCounts, samplingPeriod]);
 
@@ -697,22 +712,23 @@ const PingOneIdentityMetrics: React.FC = () => {
 					<FiBarChart2 size={24} />
 					<Title>PingOne Identity Counts</Title>
 				</TitleRow>
-			<Subtitle>
-				Query PingOne active identity counts with time-series data and sampling periods. Requires <strong>Identity Data Admin</strong> role.
-			</Subtitle>
-			{!hasWorkerToken && (
-				<WarningBanner>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-						<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
-						<div style={{ flex: 1 }}>
-							<strong>Worker Token Required</strong>
-							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-								Click "Get Worker Token" below to generate a token with your PingOne credentials.
-							</p>
+				<Subtitle>
+					Query PingOne active identity counts with time-series data and sampling periods. Requires{' '}
+					<strong>Identity Data Admin</strong> role.
+				</Subtitle>
+				{!hasWorkerToken && (
+					<WarningBanner>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+							<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
+							<div style={{ flex: 1 }}>
+								<strong>Worker Token Required</strong>
+								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+									Click "Get Worker Token" below to generate a token with your PingOne credentials.
+								</p>
+							</div>
 						</div>
-					</div>
-				</WarningBanner>
-			)}
+					</WarningBanner>
+				)}
 			</HeaderCard>
 
 			<LayoutGrid>
@@ -722,8 +738,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</SectionTitle>
 
 					{hasWorkerToken ? (
-						<WorkerTokenDetectedBanner 
-							token={workerToken} 
+						<WorkerTokenDetectedBanner
+							token={workerToken}
 							tokenExpiryKey="worker_token_metrics_expires_at"
 						/>
 					) : (
@@ -733,7 +749,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 								<div style={{ flex: 1 }}>
 									<strong>No Worker Token Found</strong>
 									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-										Click the button below to open the Worker Token modal and generate a token with the required credentials.
+										Click the button below to open the Worker Token modal and generate a token with
+										the required credentials.
 									</p>
 								</div>
 							</div>
@@ -741,7 +758,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 					)}
 
 					<ButtonRow>
-						<PrimaryButton 
+						<PrimaryButton
 							onClick={handleGetWorkerToken}
 							type="button"
 							style={{
@@ -761,10 +778,7 @@ const PingOneIdentityMetrics: React.FC = () => {
 							)}
 						</PrimaryButton>
 						{hasWorkerToken && (
-							<DangerButton 
-								onClick={handleClearWorkerToken}
-								type="button"
-							>
+							<DangerButton onClick={handleClearWorkerToken} type="button">
 								<FiX /> Clear Token
 							</DangerButton>
 						)}
@@ -778,7 +792,12 @@ const PingOneIdentityMetrics: React.FC = () => {
 
 					<FieldGroup>
 						<Label>Endpoint Type</Label>
-						<Select value={endpointType} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEndpointType(e.target.value as EndpointType)}>
+						<Select
+							value={endpointType}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								setEndpointType(e.target.value as EndpointType)
+							}
+						>
 							<option value="byDateRange">By Date Range</option>
 							<option value="byLicense">By License</option>
 							<option value="simple">Simple (No Filters)</option>
@@ -794,11 +813,20 @@ const PingOneIdentityMetrics: React.FC = () => {
 						<>
 							<FieldGroup>
 								<Label>Start date</Label>
-								<Input type="date" value={start} onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))} />
+								<Input
+									type="date"
+									value={start}
+									onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))}
+								/>
 							</FieldGroup>
 							<FieldGroup>
 								<Label>Sampling Period</Label>
-								<Select value={samplingPeriod} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSamplingPeriod(e.target.value)}>
+								<Select
+									value={samplingPeriod}
+									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+										setSamplingPeriod(e.target.value)
+									}
+								>
 									<option value="1">1 hour (hourly)</option>
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
@@ -812,9 +840,9 @@ const PingOneIdentityMetrics: React.FC = () => {
 						<>
 							<FieldGroup>
 								<Label>License ID</Label>
-								<Input 
-									type="text" 
-									value={licenseId} 
+								<Input
+									type="text"
+									value={licenseId}
 									onChange={(e) => setLicenseId(e.target.value)}
 									placeholder="Enter license ID"
 								/>
@@ -822,7 +850,12 @@ const PingOneIdentityMetrics: React.FC = () => {
 							</FieldGroup>
 							<FieldGroup>
 								<Label>Sampling Period</Label>
-								<Select value={samplingPeriod} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSamplingPeriod(e.target.value)}>
+								<Select
+									value={samplingPeriod}
+									onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+										setSamplingPeriod(e.target.value)
+									}
+								>
 									<option value="1">1 hour (hourly)</option>
 									<option value="24">24 hours (daily)</option>
 									<option value="168">168 hours (weekly)</option>
@@ -835,9 +868,9 @@ const PingOneIdentityMetrics: React.FC = () => {
 					{endpointType === 'simple' && (
 						<FieldGroup>
 							<Label>Limit</Label>
-							<Input 
-								type="number" 
-								value="100" 
+							<Input
+								type="number"
+								value="100"
 								readOnly
 								style={{ background: '#f1f5f9', cursor: 'not-allowed' }}
 							/>
@@ -845,8 +878,8 @@ const PingOneIdentityMetrics: React.FC = () => {
 						</FieldGroup>
 					)}
 
-				<ButtonRow>
-					<PrimaryButton onClick={handleFetch} disabled={!hasWorkerToken || loading}>
+					<ButtonRow>
+						<PrimaryButton onClick={handleFetch} disabled={!hasWorkerToken || loading}>
 							{loading ? (
 								<>
 									<FiRefreshCw className="spin" /> Fetching…
@@ -874,43 +907,141 @@ const PingOneIdentityMetrics: React.FC = () => {
 						{metrics ? (
 							<>
 								{summary && (
-									<Card style={{ border: '1px solid #10b981', background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' }}>
+									<Card
+										style={{
+											border: '1px solid #10b981',
+											background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+										}}
+									>
 										<SectionTitle>
 											<FiBarChart2 /> Summary Statistics
 										</SectionTitle>
-										<div style={{ 
-											display: 'grid', 
-											gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-											gap: '1rem',
-											marginTop: '1rem'
-										}}>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Latest Count</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.latest.toLocaleString()}</div>
+										<div
+											style={{
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+												gap: '1rem',
+												marginTop: '1rem',
+											}}
+										>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Latest Count
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+													{summary.latest.toLocaleString()}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Average</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.average.toLocaleString()}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Average
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+													{summary.average.toLocaleString()}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Maximum</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.max.toLocaleString()}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Maximum
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+													{summary.max.toLocaleString()}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Minimum</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.min.toLocaleString()}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Minimum
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+													{summary.min.toLocaleString()}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Data Points</div>
-												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.dataPoints}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Data Points
+												</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>
+													{summary.dataPoints}
+												</div>
 											</div>
-											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
-												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Period</div>
-												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#059669', textTransform: 'capitalize' }}>{summary.period}</div>
+											<div
+												style={{
+													padding: '0.75rem',
+													background: 'white',
+													borderRadius: '0.5rem',
+													border: '1px solid #d1fae5',
+												}}
+											>
+												<div
+													style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}
+												>
+													Period
+												</div>
+												<div
+													style={{
+														fontSize: '1.1rem',
+														fontWeight: 600,
+														color: '#059669',
+														textTransform: 'capitalize',
+													}}
+												>
+													{summary.period}
+												</div>
 											</div>
 										</div>
 										{lastUpdated && (
-											<Hint style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #d1fae5' }}>
+											<Hint
+												style={{
+													marginTop: '1rem',
+													paddingTop: '1rem',
+													borderTop: '1px solid #d1fae5',
+												}}
+											>
 												Last updated: {new Date(lastUpdated).toLocaleString()}
 											</Hint>
 										)}
@@ -937,39 +1068,41 @@ const PingOneIdentityMetrics: React.FC = () => {
 					</ResultContainer>
 				</Card>
 			</LayoutGrid>
-		<WorkerTokenModal
-			isOpen={showWorkerTokenModal}
-			onClose={() => setShowWorkerTokenModal(false)}
-			onContinue={() => {
-				const token = localStorage.getItem('worker_token_metrics') || '';
-				setWorkerToken(token);
-				setShowWorkerTokenModal(false);
-				if (token) {
-					v4ToastManager.showSuccess('Worker token generated successfully. Ready to query metrics.');
-				} else {
-					v4ToastManager.showError('Worker token was not detected. Please try generating again.');
-				}
-			}}
-			flowType="pingone-identity-metrics"
-			environmentId={(() => {
-				const creds = localStorage.getItem('worker_credentials');
-				return creds ? JSON.parse(creds).environmentId : '';
-			})()}
-			skipCredentialsStep={true}
-          prefillCredentials={(() => {
-				const credsStr = localStorage.getItem('worker_credentials');
-				const creds = credsStr ? JSON.parse(credsStr) : null;
-				return {
-					environmentId: creds?.environmentId || '',
-					clientId: creds?.clientId || '',
-					clientSecret: creds?.clientSecret || '',
-					region: (creds?.region as string) || 'us',
-					scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
-				};
-			})()}
-			tokenStorageKey="worker_token_metrics"
-			tokenExpiryKey="worker_token_metrics_expires_at"
-		/>
+			<WorkerTokenModal
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+				onContinue={() => {
+					const token = localStorage.getItem('worker_token_metrics') || '';
+					setWorkerToken(token);
+					setShowWorkerTokenModal(false);
+					if (token) {
+						v4ToastManager.showSuccess(
+							'Worker token generated successfully. Ready to query metrics.'
+						);
+					} else {
+						v4ToastManager.showError('Worker token was not detected. Please try generating again.');
+					}
+				}}
+				flowType="pingone-identity-metrics"
+				environmentId={(() => {
+					const creds = localStorage.getItem('worker_credentials');
+					return creds ? JSON.parse(creds).environmentId : '';
+				})()}
+				skipCredentialsStep={true}
+				prefillCredentials={(() => {
+					const credsStr = localStorage.getItem('worker_credentials');
+					const creds = credsStr ? JSON.parse(credsStr) : null;
+					return {
+						environmentId: creds?.environmentId || '',
+						clientId: creds?.clientId || '',
+						clientSecret: creds?.clientSecret || '',
+						region: (creds?.region as string) || 'us',
+						scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
+					};
+				})()}
+				tokenStorageKey="worker_token_metrics"
+				tokenExpiryKey="worker_token_metrics_expires_at"
+			/>
 
 			{/* Permissions Error Modal */}
 			{showPermissionsErrorModal && (
@@ -980,25 +1113,61 @@ const PingOneIdentityMetrics: React.FC = () => {
 							403 Forbidden - Missing Roles
 						</PermissionsModalTitle>
 						<PermissionsModalMessage>
-							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a role assigned at the <strong>Environment</strong> level.
+							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a
+							role assigned at the <strong>Environment</strong> level.
 						</PermissionsModalMessage>
-						<PermissionsModalMessage style={{ marginTop: '0.5rem', padding: '0.5rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '0.5rem', fontSize: '0.7rem' }}>
-							💡 <strong>Tip:</strong> After assigning a role, you must generate a <strong>NEW</strong> worker token to pick up the permissions.
+						<PermissionsModalMessage
+							style={{
+								marginTop: '0.5rem',
+								padding: '0.5rem',
+								background: '#fef3c7',
+								border: '1px solid #fbbf24',
+								borderRadius: '0.5rem',
+								fontSize: '0.7rem',
+							}}
+						>
+							💡 <strong>Tip:</strong> After assigning a role, you must generate a{' '}
+							<strong>NEW</strong> worker token to pick up the permissions.
 						</PermissionsModalMessage>
 						<PermissionsModalInstructions>
 							<strong>🔧 Fix in PingOne Admin Console:</strong>
 							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
-								<li>Applications → Your Worker App → <strong>Roles</strong> tab</li>
-								<li>Click <strong>"Grant Roles"</strong></li>
-								<li><strong style={{color: '#dc2626'}}>Select your Environment</strong> (not Organization) from dropdown</li>
-								<li>Assign the <code><strong>Identity Data Admin</strong></code> role<br/>
-									<span style={{ fontSize: '0.65rem', color: '#6b7280', marginTop: '0.25rem', display: 'inline-block' }}>
-										(Or <code>Environment Admin</code> which includes Identity Data Admin permissions)
+								<li>
+									Applications → Your Worker App → <strong>Roles</strong> tab
+								</li>
+								<li>
+									Click <strong>"Grant Roles"</strong>
+								</li>
+								<li>
+									<strong style={{ color: '#dc2626' }}>Select your Environment</strong> (not
+									Organization) from dropdown
+								</li>
+								<li>
+									Assign the{' '}
+									<code>
+										<strong>Identity Data Admin</strong>
+									</code>{' '}
+									role
+									<br />
+									<span
+										style={{
+											fontSize: '0.65rem',
+											color: '#6b7280',
+											marginTop: '0.25rem',
+											display: 'inline-block',
+										}}
+									>
+										(Or <code>Environment Admin</code> which includes Identity Data Admin
+										permissions)
 									</span>
 								</li>
-								<li>Click <strong>"Save"</strong></li>
+								<li>
+									Click <strong>"Save"</strong>
+								</li>
 							</ol>
-							<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>✅ After assigning role:</strong>
+							<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>
+								✅ After assigning role:
+							</strong>
 							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
 								<li>Click "Clear Token" on this page</li>
 								<li>Click "Get Worker Token" (scopes don't matter for metrics)</li>

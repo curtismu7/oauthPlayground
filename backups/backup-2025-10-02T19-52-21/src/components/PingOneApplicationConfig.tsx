@@ -250,7 +250,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="client-auth-method"
 							value={value.clientAuthMethod}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'] })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								update({
+									clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'],
+								})
+							}
 						>
 							<option value="client_secret_post">Client Secret Post</option>
 							<option value="client_secret_basic">Client Secret Basic</option>
@@ -266,7 +270,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="pkce-enforcement"
 							value={value.pkceEnforcement}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ pkceEnforcement: e.target.value as PingOneApplicationState['pkceEnforcement'] })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								update({
+									pkceEnforcement: e.target.value as PingOneApplicationState['pkceEnforcement'],
+								})
+							}
 						>
 							<option value="OPTIONAL">Optional</option>
 							<option value="REQUIRED">Required</option>
@@ -283,7 +291,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Textarea
 								id="private-key"
 								value={value.privateKey || ''}
-								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ privateKey: e.target.value })}
+								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+									update({ privateKey: e.target.value })
+								}
 								placeholder="-----BEGIN PRIVATE KEY-----&#10;MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...&#10;-----END PRIVATE KEY-----"
 								rows={8}
 								style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
@@ -442,7 +452,10 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
 							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-								update({ requestParameterSignatureRequirement: e.target.value as PingOneApplicationState['requestParameterSignatureRequirement'] })
+								update({
+									requestParameterSignatureRequirement: e.target
+										.value as PingOneApplicationState['requestParameterSignatureRequirement'],
+								})
 							}
 						>
 							<option value="DEFAULT">Default</option>

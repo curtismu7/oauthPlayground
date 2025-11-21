@@ -1,28 +1,28 @@
 // src/components/callbacks/ImplicitCallbackV3.tsx - Enhanced Implicit Flow Callback Handler V3
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
-	FiXCircle,
 	FiAlertTriangle,
+	FiCheckCircle,
 	FiCopy,
-	FiShield,
 	FiKey,
+	FiShield,
 	FiUser,
+	FiXCircle,
 } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { copyToClipboard } from '../../utils/clipboard';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../CentralizedSuccessMessage';
 import {
-	validateIdToken,
-	validateStateParameter,
 	clearSecurityData,
 	ImplicitFlowSecurityOptions,
+	validateIdToken,
+	validateStateParameter,
 } from '../../utils/implicitFlowSecurity';
-import TokenDisplay from '../TokenDisplay';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
+import { showFlowError, showFlowSuccess } from '../CentralizedSuccessMessage';
 import { InfoBox } from '../steps/CommonSteps';
+import TokenDisplay from '../TokenDisplay';
 
 // Styled components
 const JsonDisplay = styled.div`

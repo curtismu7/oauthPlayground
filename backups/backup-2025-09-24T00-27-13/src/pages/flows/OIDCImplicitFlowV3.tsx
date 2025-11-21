@@ -1,47 +1,46 @@
 // src/pages/flows/OIDCImplicitFlowV3.tsx - OIDC 1.0 Implicit Flow V3
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiKey,
-	FiGlobe,
-	FiShield,
-	FiCheckCircle,
 	FiAlertTriangle,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronLeft,
+	FiChevronRight,
+	FiChevronUp,
 	FiCopy,
-	FiSettings,
-	FiRefreshCw,
-	FiUser,
+	FiExternalLink,
 	FiEye,
 	FiEyeOff,
-	FiChevronRight,
-	FiChevronLeft,
-	FiChevronDown,
-	FiChevronUp,
-	FiExternalLink,
+	FiGlobe,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import ConfirmationModal from '../../components/ConfirmationModal';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
+import IDTokenEducationSection from '../../components/IDTokenEducationSection';
+import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps/CommonSteps';
+import TokenDisplay from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
-import { logger } from '../../utils/logger';
-import { copyToClipboard } from '../../utils/clipboard';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import { generateRandomString } from '../../utils/oauth';
+import { copyToClipboard } from '../../utils/clipboard';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
 import {
 	generateSecurityParameters,
 	storeSecurityParameters,
 } from '../../utils/implicitFlowSecurity';
+import { logger } from '../../utils/logger';
+import { generateRandomString } from '../../utils/oauth';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import { InfoBox } from '../../components/steps/CommonSteps';
-import { FormField, FormLabel, FormInput } from '../../components/steps/CommonSteps';
-import TokenDisplay from '../../components/TokenDisplay';
-import IDTokenEducationSection from '../../components/IDTokenEducationSection';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
 
 // Styled components
 const Container = styled.div`
@@ -332,7 +331,7 @@ const SecurityWarning = styled.div`
   color: #92400e;
 `;
 
-type OIDCImplicitFlowV3Props = {}
+type OIDCImplicitFlowV3Props = {};
 
 const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	const authContext = useAuth();

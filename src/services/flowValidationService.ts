@@ -263,7 +263,7 @@ export class FlowValidationService {
 	}
 
 	static validateAuthUrl(authUrl: string): boolean {
-		return !!(authUrl && authUrl.startsWith('https://'));
+		return !!authUrl?.startsWith('https://');
 	}
 
 	static validatePkceCodes(pkceCodes: Record<string, unknown>): boolean {
@@ -314,7 +314,9 @@ export class FlowValidationService {
 
 	// Create validation error message
 	static createValidationErrorMessage(stepIndex: number, flowType: string): string {
-		const rule = FlowValidationService.getValidationRules(flowType).find((r) => r.stepIndex === stepIndex);
+		const rule = FlowValidationService.getValidationRules(flowType).find(
+			(r) => r.stepIndex === stepIndex
+		);
 		return rule ? rule.errorMessage : 'Complete the required actions before proceeding';
 	}
 
