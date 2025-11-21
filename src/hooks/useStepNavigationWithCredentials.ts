@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
-import { useCredentialGuard, type UseCredentialGuardOptions } from './useCredentialGuard';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { type UseCredentialGuardOptions, useCredentialGuard } from './useCredentialGuard';
 
 export interface UseStepNavigationWithCredentialsOptions extends UseCredentialGuardOptions {
 	credentials: StepCredentials | null | undefined;
@@ -35,7 +35,8 @@ export const useStepNavigationWithCredentials = (
 		...credentialGuardOptions
 	} = options;
 
-	const { checkCredentialsAndProceed, CredentialGuardModal } = useCredentialGuard(credentialGuardOptions);
+	const { checkCredentialsAndProceed, CredentialGuardModal } =
+		useCredentialGuard(credentialGuardOptions);
 
 	// Check if we can navigate to next step
 	const canNavigateNext = useCallback((): boolean => {

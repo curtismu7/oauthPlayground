@@ -1,7 +1,7 @@
 import React from 'react';
+import { FiBookOpen, FiCode, FiExternalLink, FiHelpCircle, FiLock, FiUser } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiBookOpen, FiCode, FiLock, FiUser, FiHelpCircle, FiExternalLink } from 'react-icons/fi';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;

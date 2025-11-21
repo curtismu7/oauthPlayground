@@ -8,17 +8,14 @@ import ServiceDiscoveryBrowser from '../components/ServiceDiscoveryBrowser';
 import { FlowType } from '../services/serviceDiscoveryService';
 
 const ServiceDiscovery: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const flowType = searchParams.get('flow') as FlowType;
+	const [searchParams] = useSearchParams();
+	const flowType = searchParams.get('flow') as FlowType;
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-      <ServiceDiscoveryBrowser
-        initialFlowType={flowType}
-        showStatistics={true}
-      />
-    </div>
-  );
+	return (
+		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+			<ServiceDiscoveryBrowser initialFlowType={flowType} showStatistics={true} />
+		</div>
+	);
 };
 
 export default ServiceDiscovery;

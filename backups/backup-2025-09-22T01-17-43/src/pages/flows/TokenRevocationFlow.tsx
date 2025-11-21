@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
-import { logger } from '../../utils/logger';
 import JSONHighlighter from '../../components/JSONHighlighter';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
 	TokenManagementService,
 	TokenRevocationRequest,
 } from '../../services/tokenManagementService';
+import { logger } from '../../utils/logger';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

@@ -2,8 +2,8 @@
 // Service for centralized common UI components used across all flows
 
 import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 
 export interface FlowUIComponentsConfig {
 	theme?: 'blue' | 'green' | 'purple' | 'gray';
@@ -11,7 +11,10 @@ export interface FlowUIComponentsConfig {
 	enableAnimations?: boolean;
 }
 
-const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error'; $theme?: string }>`
+const InfoBox = styled.div<{
+	$variant?: 'info' | 'warning' | 'success' | 'error';
+	$theme?: string;
+}>`
 	display: flex;
 	align-items: flex-start;
 	gap: 1rem;
@@ -133,7 +136,10 @@ const ActionRow = styled.div`
 	flex-wrap: wrap;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success'; $size?: 'small' | 'medium' | 'large' }>`
+const Button = styled.button<{
+	$variant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'success';
+	$size?: 'small' | 'medium' | 'large';
+}>`
 	padding: ${({ $size }) => {
 		switch ($size) {
 			case 'small':
@@ -146,7 +152,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 	}};
 	border-radius: 0.5rem;
 	font-weight: 500;
-	font-size: ${({ $size }) => $size === 'small' ? '0.875rem' : '1rem'};
+	font-size: ${({ $size }) => ($size === 'small' ? '0.875rem' : '1rem')};
 	cursor: pointer;
 	transition: all 0.2s ease;
 	display: flex;
@@ -275,7 +281,7 @@ export const InfoBoxComponent: React.FC<InfoBoxProps> = ({
 	variant = 'info',
 	title,
 	children,
-	icon
+	icon,
 }) => {
 	const getIcon = () => {
 		if (icon) return icon;
@@ -293,13 +299,9 @@ export const InfoBoxComponent: React.FC<InfoBoxProps> = ({
 
 	return (
 		<InfoBox $variant={variant}>
-			<InfoIcon $variant={variant}>
-				{getIcon()}
-			</InfoIcon>
+			<InfoIcon $variant={variant}>{getIcon()}</InfoIcon>
 			<div>
-				<InfoTitle>
-					{title}
-				</InfoTitle>
+				<InfoTitle>{title}</InfoTitle>
 				{children}
 			</div>
 		</InfoBox>
@@ -311,15 +313,8 @@ export interface ParameterGridProps {
 	columns?: number;
 }
 
-export const ParameterGridComponent: React.FC<ParameterGridProps> = ({
-	children,
-	columns = 2
-}) => {
-	return (
-		<ParameterGrid $columns={columns}>
-			{children}
-		</ParameterGrid>
-	);
+export const ParameterGridComponent: React.FC<ParameterGridProps> = ({ children, columns = 2 }) => {
+	return <ParameterGrid $columns={columns}>{children}</ParameterGrid>;
 };
 
 export interface ActionRowProps {
@@ -327,12 +322,20 @@ export interface ActionRowProps {
 	justify?: 'start' | 'center' | 'end' | 'space-between';
 }
 
-export const ActionRowComponent: React.FC<ActionRowProps> = ({
-	children,
-	justify = 'start'
-}) => {
+export const ActionRowComponent: React.FC<ActionRowProps> = ({ children, justify = 'start' }) => {
 	return (
-		<ActionRow style={{ justifyContent: justify === 'start' ? 'flex-start' : justify === 'center' ? 'center' : justify === 'end' ? 'flex-end' : 'space-between' }}>
+		<ActionRow
+			style={{
+				justifyContent:
+					justify === 'start'
+						? 'flex-start'
+						: justify === 'center'
+							? 'center'
+							: justify === 'end'
+								? 'flex-end'
+								: 'space-between',
+			}}
+		>
 			{children}
 		</ActionRow>
 	);
@@ -357,7 +360,7 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 	disabled = false,
 	type = 'button',
 	href,
-	target
+	target,
 }) => {
 	if (href) {
 		return (
@@ -375,13 +378,7 @@ export const ButtonComponent: React.FC<ButtonProps> = ({
 	}
 
 	return (
-		<Button
-			type={type}
-			onClick={onClick}
-			disabled={disabled}
-			$variant={variant}
-			$size={size}
-		>
+		<Button type={type} onClick={onClick} disabled={disabled} $variant={variant} $size={size}>
 			{children}
 		</Button>
 	);
@@ -396,7 +393,7 @@ export interface GeneratedContentBoxProps {
 export const GeneratedContentBoxComponent: React.FC<GeneratedContentBoxProps> = ({
 	label,
 	children,
-	icon
+	icon,
 }) => {
 	return (
 		<GeneratedContentBox>
@@ -414,15 +411,8 @@ export interface CardProps {
 	children: React.ReactNode;
 }
 
-export const CardComponent: React.FC<CardProps> = ({
-	variant = 'default',
-	children
-}) => {
-	return (
-		<Card $variant={variant}>
-			{children}
-		</Card>
-	);
+export const CardComponent: React.FC<CardProps> = ({ variant = 'default', children }) => {
+	return <Card $variant={variant}>{children}</Card>;
 };
 
 export class FlowUIComponentsService {
@@ -455,7 +445,7 @@ export class FlowUIComponentsService {
 			showToast: (message: string, type: 'success' | 'error' | 'info' = 'info') => {
 				// This would integrate with the toast system
 				console.log(`[${type.toUpperCase()}] ${message}`);
-			}
+			},
 		};
 	}
 
@@ -463,7 +453,7 @@ export class FlowUIComponentsService {
 		return {
 			theme: 'blue',
 			size: 'medium',
-			enableAnimations: true
+			enableAnimations: true,
 		};
 	}
 }

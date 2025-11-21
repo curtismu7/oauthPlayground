@@ -1,16 +1,16 @@
 // src/pages/learn/ResponseModesLearnPage.tsx
 // Standalone learn page for Response Modes with editable inputs and presets
 
-import React, { useState, useCallback } from 'react';
-import { FiInfo, FiShield, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
+import React, { useCallback, useState } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
-import ResponseModeSelector, {
-	type ResponseModeSelectorProps,
-} from '../../components/response-modes/ResponseModeSelector';
 import ResponseModeExamples, {
 	type ResponseModeExample,
 } from '../../components/response-modes/ResponseModeExamples';
+import ResponseModeSelector, {
+	type ResponseModeSelectorProps,
+} from '../../components/response-modes/ResponseModeSelector';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 // Styled Components
 const Container = styled.div`

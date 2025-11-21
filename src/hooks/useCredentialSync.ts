@@ -2,7 +2,7 @@
 // React hook for cross-tab credential synchronization
 
 import { useEffect, useRef, useState } from 'react';
-import { credentialSyncService, CredentialSyncEvent } from '../services/credentialSyncService';
+import { CredentialSyncEvent, credentialSyncService } from '../services/credentialSyncService';
 import { FlowCredentialService } from '../services/flowCredentialService';
 
 export interface UseCredentialSyncOptions {
@@ -23,11 +23,11 @@ export interface UseCredentialSyncReturn {
  */
 export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredentialSyncReturn => {
 	const { flowKey, onCredentialsChanged, enableAutoRefresh = true } = options;
-	
+
 	const [credentials, setCredentials] = useState<any | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
-	
+
 	const unsubscribeRef = useRef<(() => void) | null>(null);
 	const isInitializedRef = useRef(false);
 
@@ -45,23 +45,27 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 			setIsLoading(true);
 			try {
 				console.log(`🔄 [useCredentialSync:${flowKey}] Loading initial credentials...`);
-				
+
 				const { credentials: loadedCredentials } = await FlowCredentialService.loadFlowCredentials({
 					flowKey,
-					defaultCredentials: {}
+					defaultCredentials: {},
 				});
-				
+
 				setCredentials(loadedCredentials);
 				setLastSyncTime(Date.now());
-				
+
 				console.log(`✅ [useCredentialSync:${flowKey}] Loaded initial credentials:`, {
 					hasCredentials: !!(loadedCredentials?.environmentId || loadedCredentials?.clientId),
 					environmentId: loadedCredentials?.environmentId,
-					clientId: loadedCredentials?.clientId ? `${loadedCredentials.clientId.substring(0, 8)}...` : 'none'
+					clientId: loadedCredentials?.clientId
+						? `${loadedCredentials.clientId.substring(0, 8)}...`
+						: 'none',
 				});
-				
 			} catch (error) {
-				console.error(`❌ [useCredentialSync:${flowKey}] Failed to load initial credentials:`, error);
+				console.error(
+					`❌ [useCredentialSync:${flowKey}] Failed to load initial credentials:`,
+					error
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -78,11 +82,11 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 			console.log(`🔄 [useCredentialSync:${flowKey}] Received credential change event:`, {
 				type: event.type,
 				flowKey: event.flowKey,
-				timestamp: event.timestamp
+				timestamp: event.timestamp,
 			});
 
 			// Check if this event is relevant to our flow
-			const isRelevant = 
+			const isRelevant =
 				event.type === 'credentials-changed' || // General credential changes affect all flows
 				(event.type === 'flow-credentials-changed' && event.flowKey === flowKey);
 
@@ -94,11 +98,13 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 				const refreshedCredentials = await credentialSyncService.refreshFlowCredentials(flowKey);
 				setCredentials(refreshedCredentials);
 				setLastSyncTime(Date.now());
-				
+
 				console.log(`✅ [useCredentialSync:${flowKey}] Refreshed credentials from other tab:`, {
 					hasCredentials: !!(refreshedCredentials?.environmentId || refreshedCredentials?.clientId),
 					environmentId: refreshedCredentials?.environmentId,
-					clientId: refreshedCredentials?.clientId ? `${refreshedCredentials.clientId.substring(0, 8)}...` : 'none'
+					clientId: refreshedCredentials?.clientId
+						? `${refreshedCredentials.clientId.substring(0, 8)}...`
+						: 'none',
 				});
 
 				// Notify parent component
@@ -118,7 +124,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 
 		// Also subscribe to general credential changes
 		const unsubscribeGeneral = credentialSyncService.subscribe('*', handleCredentialChange);
-		
+
 		return () => {
 			unsubscribe();
 			unsubscribeGeneral();
@@ -130,13 +136,13 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 		setIsLoading(true);
 		try {
 			console.log(`🔄 [useCredentialSync:${flowKey}] Manual refresh requested...`);
-			
+
 			const refreshedCredentials = await credentialSyncService.refreshFlowCredentials(flowKey);
 			setCredentials(refreshedCredentials);
 			setLastSyncTime(Date.now());
-			
+
 			console.log(`✅ [useCredentialSync:${flowKey}] Manual refresh completed:`, {
-				hasCredentials: !!(refreshedCredentials?.environmentId || refreshedCredentials?.clientId)
+				hasCredentials: !!(refreshedCredentials?.environmentId || refreshedCredentials?.clientId),
 			});
 
 			// Notify parent component
@@ -163,7 +169,7 @@ export const useCredentialSync = (options: UseCredentialSyncOptions): UseCredent
 		credentials,
 		isLoading,
 		refreshCredentials,
-		lastSyncTime
+		lastSyncTime,
 	};
 };
 

@@ -1,7 +1,6 @@
 // src/examples/FlowInfoIntegrationExample.tsx - Example of integrating FlowInfoService into V5 flows
 
 import React from 'react';
-import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 import { useFlowInfo } from '../hooks/useFlowInfo';
 

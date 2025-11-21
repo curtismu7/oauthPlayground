@@ -1,8 +1,8 @@
 // src/components/ColoredTokenDisplay.tsx
 import React, { useState } from 'react';
+import { FiExternalLink, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink } from 'react-icons/fi';
-import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
+import { CopyButtonService, CopyButtonVariants } from '../services/copyButtonService';
 
 interface ColoredTokenDisplayProps {
 	tokens: Record<string, any>;
@@ -192,20 +192,30 @@ const TokenType = styled.div<{ $type: string }>`
 	margin-bottom: 0.5rem;
 	background: ${({ $type }) => {
 		switch ($type) {
-			case 'access_token': return '#dbeafe';
-			case 'id_token': return '#dcfce7';
-			case 'refresh_token': return '#fef3c7';
-			case 'scope': return '#e0e7ff';
-			default: return '#f3f4f6';
+			case 'access_token':
+				return '#dbeafe';
+			case 'id_token':
+				return '#dcfce7';
+			case 'refresh_token':
+				return '#fef3c7';
+			case 'scope':
+				return '#e0e7ff';
+			default:
+				return '#f3f4f6';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
-			case 'access_token': return '#1e40af';
-			case 'id_token': return '#166534';
-			case 'refresh_token': return '#92400e';
-			case 'scope': return '#3730a3';
-			default: return '#374151';
+			case 'access_token':
+				return '#1e40af';
+			case 'id_token':
+				return '#166534';
+			case 'refresh_token':
+				return '#92400e';
+			case 'scope':
+				return '#3730a3';
+			default:
+				return '#374151';
 		}
 	}};
 `;
@@ -218,10 +228,13 @@ const JSON_COLORS = {
 	boolean: '#ea580c', // Orange for booleans
 	null: '#6b7280', // Gray for null
 	punctuation: '#1f2937', // Dark gray for punctuation
-	whitespace: '#ffffff' // White for whitespace
+	whitespace: '#ffffff', // White for whitespace
 };
 
-const parseJsonWithColors = (obj: any, indent = 0): Array<{ text: string; color: string; fontWeight?: string }> => {
+const parseJsonWithColors = (
+	obj: any,
+	indent = 0
+): Array<{ text: string; color: string; fontWeight?: string }> => {
 	const parts: Array<{ text: string; color: string; fontWeight?: string }> = [];
 	const spaces = '  '.repeat(indent);
 
@@ -269,49 +282,53 @@ const getTokenInfo = (tokens: Record<string, any>) => {
 	const tokenInfo = [
 		{
 			name: 'access_token',
-			description: 'The access token that your application can use to make API calls on behalf of the user.',
+			description:
+				'The access token that your application can use to make API calls on behalf of the user.',
 			type: 'access_token',
-			value: tokens.access_token || 'Not present'
+			value: tokens.access_token || 'Not present',
 		},
 		{
 			name: 'id_token',
 			description: 'The OpenID Connect ID token containing user identity information (JWT format).',
 			type: 'id_token',
-			value: tokens.id_token || 'Not present'
+			value: tokens.id_token || 'Not present',
 		},
 		{
 			name: 'refresh_token',
-			description: 'Token used to obtain new access tokens without requiring user re-authentication.',
+			description:
+				'Token used to obtain new access tokens without requiring user re-authentication.',
 			type: 'refresh_token',
-			value: tokens.refresh_token || 'Not present'
+			value: tokens.refresh_token || 'Not present',
 		},
 		{
 			name: 'token_type',
 			description: 'The type of token issued. Typically "Bearer" for OAuth 2.0 access tokens.',
 			type: 'metadata',
-			value: tokens.token_type || 'Not specified'
+			value: tokens.token_type || 'Not specified',
 		},
 		{
 			name: 'expires_in',
 			description: 'The number of seconds until the access token expires.',
 			type: 'metadata',
-			value: tokens.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'
+			value: tokens.expires_in ? `${tokens.expires_in} seconds` : 'Not specified',
 		},
 		{
 			name: 'scope',
 			description: 'The permissions granted to the access token.',
 			type: 'scope',
-			value: tokens.scope || 'Not specified'
+			value: tokens.scope || 'Not specified',
 		},
 		{
 			name: 'grant_type',
 			description: 'The OAuth grant type used to obtain these tokens.',
 			type: 'metadata',
-			value: tokens.grant_type || 'Not specified'
-		}
+			value: tokens.grant_type || 'Not specified',
+		},
 	];
 
-	return tokenInfo.filter(token => token.value !== 'Not present' && token.value !== 'Not specified');
+	return tokenInfo.filter(
+		(token) => token.value !== 'Not present' && token.value !== 'Not specified'
+	);
 };
 
 export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
@@ -321,7 +338,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 	showOpenButton = false,
 	onOpen,
 	label = 'Raw Token Response',
-	height
+	height,
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
 	const coloredParts = parseJsonWithColors(tokens);
@@ -343,7 +360,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 					</ActionButton>
 				)}
 			</TokenLabel>
-			
+
 			<TokenContent height={height}>
 				<ActionButtons>
 					{showCopyButton && (
@@ -362,7 +379,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 						</ActionButton>
 					)}
 				</ActionButtons>
-				
+
 				{coloredParts.map((part, index) => (
 					<ColoredTokenText key={index} $color={part.color} $fontWeight={part.fontWeight}>
 						{part.text}
@@ -376,7 +393,7 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 						<InfoModalTitle>Token Response Breakdown</InfoModalTitle>
 						<CloseButton onClick={() => setShowInfo(false)}>×</CloseButton>
 					</InfoModalHeader>
-					
+
 					<TokenList>
 						{tokenInfo.map((token, index) => (
 							<TokenItem key={index}>
@@ -394,4 +411,3 @@ export const ColoredTokenDisplay: React.FC<ColoredTokenDisplayProps> = ({
 };
 
 export default ColoredTokenDisplay;
-

@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiClock,
 	FiDownload,
-	FiZap,
-	FiTrendingUp,
 	FiTrendingDown,
+	FiTrendingUp,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useLazyLoadingMetrics } from '../hooks/useLazyLoading';
 import { logger } from '../utils/logger';
 

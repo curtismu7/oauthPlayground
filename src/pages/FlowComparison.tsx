@@ -1,8 +1,7 @@
 import React from 'react';
-import styled from 'styled-components';
-import PageLayoutService from '../services/pageLayoutService';
 import { FlowComparisonTool } from '../components/FlowComparisonTool';
 import { usePageScroll } from '../hooks/usePageScroll';
+import PageLayoutService from '../services/pageLayoutService';
 
 const FlowComparison: React.FC = () => {
 	usePageScroll({ pageName: 'Flow Comparison', force: true });
@@ -18,8 +17,11 @@ const FlowComparison: React.FC = () => {
 		flowId: 'flow-comparison', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>

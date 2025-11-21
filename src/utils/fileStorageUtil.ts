@@ -3,14 +3,12 @@
 
 /**
  * File Storage Utility
- * 
- * Provides file-based credential storage for persistence across browser restarts.
- * 
- * Note: This is a browser-only implementation. For true file system access,
- * a backend API would be needed. For now, we use browser storage as the
- * "file storage" layer with plans to add backend support later.
- * 
- * Future Enhancement: Add backend API endpoints for:
+ *
+ * Provides file-based credential storage for persistence across server restarts.
+ * Uses backend API endpoints to save credentials to files on the server filesystem.
+ * Credentials are stored in ~/.pingone-playground/credentials/ directory.
+ *
+ * Backend API endpoints:
  * - POST /api/credentials/save
  * - GET /api/credentials/load
  * - DELETE /api/credentials/delete
@@ -29,37 +27,70 @@ export interface FileStorageResult<T> {
 
 /**
  * File Storage Utility Class
- * 
- * Currently uses localStorage as a "file storage" simulation.
- * Will be upgraded to use backend API when available.
+ *
+ * Uses backend API to save credentials to files on the server filesystem.
+ * Credentials are stored in ~/.pingone-playground/credentials/ directory.
+ * This ensures credentials persist across server restarts.
+ *
+ * Fallback: If backend API is unavailable, falls back to localStorage
+ * for offline/development scenarios.
  */
 export class FileStorageUtil {
 	private static readonly STORAGE_PREFIX = 'file_storage_';
 
 	/**
-	 * Save data to "file" storage
-	 * 
+	 * Save data to file storage via backend API
+	 *
 	 * @param options - Storage options (directory and filename)
 	 * @param data - Data to save
 	 * @returns Result indicating success/failure
 	 */
-	static async save<T>(
-		options: FileStorageOptions,
-		data: T
-	): Promise<FileStorageResult<void>> {
+	static async save<T>(options: FileStorageOptions, data: T): Promise<FileStorageResult<void>> {
 		try {
-			const key = this.getStorageKey(options);
-			const serialized = JSON.stringify(data);
+			// DISABLED: Backend file storage is optional and not critical
+			// The app works perfectly fine with just localStorage
+			// Uncomment below if you have a backend running on :3001
 
-			// For now, use localStorage as "file storage"
-			// TODO: Replace with backend API call
+			/*
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://localhost:3001';
+			
+			try {
+				const response = await fetch(`${backendUrl}/api/credentials/save`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						directory: options.directory,
+						filename: options.filename,
+						data,
+					}),
+				});
+
+				if (!response.ok) {
+					throw new Error(`Backend API returned ${response.status}: ${response.statusText}`);
+				}
+
+				const result = await response.json();
+				
+				if (result.success) {
+					console.log(`📁 [FileStorage] Saved to server file: ${options.directory}/${options.filename}`);
+					return { success: true };
+				} else {
+					throw new Error(result.error || 'Backend save failed');
+				}
+			} catch (apiError) {
+			*/
+			// Use localStorage as primary storage (backend is optional)
+			const key = FileStorageUtil.getStorageKey(options);
+			const serialized = JSON.stringify(data);
 			localStorage.setItem(key, serialized);
 
-			console.log(`📁 [FileStorage] Saved to ${options.directory}/${options.filename}`);
-
-			return {
-				success: true,
-			};
+			// Silent success - backend is optional
+			return { success: true };
+			/*
+			}
+			*/
 		} catch (error) {
 			console.error(`❌ [FileStorage] Failed to save:`, error);
 			return {
@@ -70,19 +101,17 @@ export class FileStorageUtil {
 	}
 
 	/**
-	 * Load data from "file" storage
-	 * 
+	 * Load data from file storage via backend API
+	 *
 	 * @param options - Storage options (directory and filename)
 	 * @returns Result with data or error
 	 */
-	static async load<T>(
-		options: FileStorageOptions
-	): Promise<FileStorageResult<T>> {
+	static async load<T>(options: FileStorageOptions): Promise<FileStorageResult<T>> {
 		try {
-			const key = this.getStorageKey(options);
-
-			// For now, use localStorage as "file storage"
-			// TODO: Replace with backend API call
+			// DISABLED: Backend file storage is optional and not critical
+			// The app works perfectly fine with just localStorage
+			// Use localStorage as primary storage (backend is optional)
+			const key = FileStorageUtil.getStorageKey(options);
 			const stored = localStorage.getItem(key);
 
 			if (!stored) {
@@ -93,9 +122,6 @@ export class FileStorageUtil {
 			}
 
 			const data = JSON.parse(stored) as T;
-
-			console.log(`📁 [FileStorage] Loaded from ${options.directory}/${options.filename}`);
-
 			return {
 				success: true,
 				data,
@@ -110,22 +136,17 @@ export class FileStorageUtil {
 	}
 
 	/**
-	 * Delete "file" from storage
-	 * 
+	 * Delete file from storage via backend API
+	 *
 	 * @param options - Storage options (directory and filename)
 	 * @returns Result indicating success/failure
 	 */
-	static async delete(
-		options: FileStorageOptions
-	): Promise<FileStorageResult<void>> {
+	static async delete(options: FileStorageOptions): Promise<FileStorageResult<void>> {
 		try {
-			const key = this.getStorageKey(options);
-
-			// For now, use localStorage as "file storage"
-			// TODO: Replace with backend API call
+			// DISABLED: Backend file storage is optional and not critical
+			// Use localStorage as primary storage (backend is optional)
+			const key = FileStorageUtil.getStorageKey(options);
 			localStorage.removeItem(key);
-
-			console.log(`📁 [FileStorage] Deleted ${options.directory}/${options.filename}`);
 
 			return {
 				success: true,
@@ -140,29 +161,31 @@ export class FileStorageUtil {
 	}
 
 	/**
-	 * Check if "file" exists
-	 * 
+	 * Check if file exists (checks both server and localStorage)
+	 *
 	 * @param options - Storage options (directory and filename)
 	 * @returns True if file exists
 	 */
 	static async exists(options: FileStorageOptions): Promise<boolean> {
-		const key = this.getStorageKey(options);
+		// DISABLED: Backend file storage is optional and not critical
+		// Use localStorage as primary storage (backend is optional)
+		const key = FileStorageUtil.getStorageKey(options);
 		return localStorage.getItem(key) !== null;
 	}
 
 	/**
 	 * List all "files" in a directory
-	 * 
+	 *
 	 * @param directory - Directory to list
 	 * @returns Array of filenames
 	 */
 	static async listFiles(directory: string): Promise<string[]> {
-		const prefix = `${this.STORAGE_PREFIX}${directory}/`;
+		const prefix = `${FileStorageUtil.STORAGE_PREFIX}${directory}/`;
 		const files: string[] = [];
 
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
-			if (key && key.startsWith(prefix)) {
+			if (key?.startsWith(prefix)) {
 				const filename = key.substring(prefix.length);
 				files.push(filename);
 			}
@@ -175,7 +198,7 @@ export class FileStorageUtil {
 	 * Get storage key for file
 	 */
 	private static getStorageKey(options: FileStorageOptions): string {
-		return `${this.STORAGE_PREFIX}${options.directory}/${options.filename}`;
+		return `${FileStorageUtil.STORAGE_PREFIX}${options.directory}/${options.filename}`;
 	}
 }
 

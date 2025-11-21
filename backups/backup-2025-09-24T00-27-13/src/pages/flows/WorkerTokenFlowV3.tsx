@@ -1,41 +1,26 @@
 // Worker Token Flow V3 - Machine-to-machine authentication using client credentials
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiSettings,
-	FiKey,
-	FiShield,
-	FiServer,
-	FiRefreshCw,
-	FiCheckCircle,
 	FiAlertCircle,
+	FiCheckCircle,
+	FiKey,
+	FiRefreshCw,
+	FiServer,
+	FiSettings,
+	FiShield,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
+import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import { WorkerTokenDisplay } from '../../components/worker/WorkerTokenDisplay';
 import { createCredentialsStep, StepCredentials } from '../../components/steps/CommonSteps';
+import { WorkerTokenDisplay } from '../../components/worker/WorkerTokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
 import {
-	requestClientCredentialsToken,
-	introspectToken,
-	validateWorkerCredentials,
-	generateTokenEndpoint,
-	generateIntrospectionEndpoint,
-	createTokenCacheKey,
-	getDefaultWorkerScopes,
-	validateEnvironmentId,
-} from '../../utils/workerToken';
-import {
-	secureStore,
-	secureRetrieve,
-	validateCredentialFormat,
-	clearCredentials as clearStoredCredentials,
-	loadCredentialsFromEnv,
-} from '../../utils/clientCredentials';
+	WorkerTokenCredentials,
+	WorkerTokenFlowState,
+	WorkerTokenStep,
+} from '../../types/workerToken';
 import {
 	createPingOneClient,
 	discoverWorkerApp,
@@ -43,16 +28,31 @@ import {
 	testApiAccess,
 } from '../../utils/apiClient';
 import {
+	clearCredentials as clearStoredCredentials,
+	loadCredentialsFromEnv,
+	secureRetrieve,
+	secureStore,
+	validateCredentialFormat,
+} from '../../utils/clientCredentials';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { logger } from '../../utils/logger';
+import {
+	autoRefreshTokenIfNeeded,
 	getCachedToken,
 	setCachedToken,
 	shouldRefreshToken,
-	autoRefreshTokenIfNeeded,
 } from '../../utils/tokenCache';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 import {
-	WorkerTokenFlowState,
-	WorkerTokenCredentials,
-	WorkerTokenStep,
-} from '../../types/workerToken';
+	createTokenCacheKey,
+	generateIntrospectionEndpoint,
+	generateTokenEndpoint,
+	getDefaultWorkerScopes,
+	introspectToken,
+	requestClientCredentialsToken,
+	validateEnvironmentId,
+	validateWorkerCredentials,
+} from '../../utils/workerToken';
 
 const Container = styled.div`
   max-width: 1200px;

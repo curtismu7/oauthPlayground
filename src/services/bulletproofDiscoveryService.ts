@@ -1,7 +1,7 @@
 // src/services/bulletproofDiscoveryService.ts
 /**
  * Bulletproof OIDC Discovery Service
- * 
+ *
  * Features:
  * - Automatic retry with exponential backoff
  * - Multiple fallback strategies
@@ -12,20 +12,20 @@
  * - Backend health check
  */
 
-import type { OIDCDiscoveryDocument, DiscoveryResult, DiscoveryConfig } from './comprehensiveDiscoveryService';
+import type { DiscoveryResult, OIDCDiscoveryDocument } from './comprehensiveDiscoveryService';
 
 export class BulletproofDiscoveryService {
 	private readonly MAX_RETRIES = 3;
 	private readonly RETRY_DELAY = 1000; // ms
 	private readonly TIMEOUT = 15000; // 15 seconds
-	
+
 	/**
 	 * Discover OIDC endpoints with comprehensive fallback strategy
 	 */
 	async discover(environmentId: string, region: string = 'na'): Promise<DiscoveryResult> {
 		console.log('[Bulletproof Discovery] Starting discovery for environment:', environmentId);
 		console.log('[Bulletproof Discovery] Region:', region);
-		
+
 		try {
 			// Strategy 1: Backend proxy with retry and region failover
 			try {
@@ -59,14 +59,13 @@ export class BulletproofDiscoveryService {
 			console.log('[Bulletproof Discovery] Using fallback document generation');
 			const document = this.generateFallbackDocument(environmentId);
 			console.log('[Bulletproof Discovery] ✅ SUCCESS via fallback generation');
-			
+
 			return {
 				success: true,
 				document,
 				issuerUrl: `https://auth.pingone.com/${environmentId}/as`,
 				provider: 'pingone',
 			};
-
 		} catch (error) {
 			console.error('[Bulletproof Discovery] All strategies failed:', error);
 			return {
@@ -79,10 +78,15 @@ export class BulletproofDiscoveryService {
 	/**
 	 * Try backend proxy with multiple regions and retry logic
 	 */
-	private async tryBackendProxyWithFailover(environmentId: string, preferredRegion: string): Promise<OIDCDiscoveryDocument> {
+	private async tryBackendProxyWithFailover(
+		environmentId: string,
+		preferredRegion: string
+	): Promise<OIDCDiscoveryDocument> {
 		// Try regions in priority order, starting with preferred
-		const regions = [preferredRegion, 'na', 'us', 'eu', 'ca', 'ap'].filter((r, i, arr) => arr.indexOf(r) === i);
-		
+		const regions = [preferredRegion, 'na', 'us', 'eu', 'ca', 'ap'].filter(
+			(r, i, arr) => arr.indexOf(r) === i
+		);
+
 		for (const region of regions) {
 			try {
 				return await this.tryBackendProxyWithRetry(environmentId, region);
@@ -91,20 +95,26 @@ export class BulletproofDiscoveryService {
 				// Continue to next region
 			}
 		}
-		
+
 		throw new Error('All regions failed');
 	}
 
 	/**
 	 * Try backend proxy with retry logic for a specific region
 	 */
-	private async tryBackendProxyWithRetry(environmentId: string, region: string): Promise<OIDCDiscoveryDocument> {
+	private async tryBackendProxyWithRetry(
+		environmentId: string,
+		region: string
+	): Promise<OIDCDiscoveryDocument> {
 		let lastError: Error | null = null;
 
 		for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
 			try {
 				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=${region}`;
-				console.log(`[Bulletproof Discovery] Proxy attempt ${attempt}/${this.MAX_RETRIES} [${region}]:`, proxyUrl);
+				console.log(
+					`[Bulletproof Discovery] Proxy attempt ${attempt}/${this.MAX_RETRIES} [${region}]:`,
+					proxyUrl
+				);
 
 				const controller = new AbortController();
 				const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT);
@@ -113,7 +123,7 @@ export class BulletproofDiscoveryService {
 					const response = await fetch(proxyUrl, {
 						method: 'GET',
 						headers: {
-							'Accept': 'application/json',
+							Accept: 'application/json',
 							'Cache-Control': 'no-cache',
 						},
 						signal: controller.signal,
@@ -134,7 +144,7 @@ export class BulletproofDiscoveryService {
 					}
 
 					const document = result.configuration || result.document;
-					
+
 					if (!document || !document.issuer) {
 						throw new Error('Invalid discovery document received');
 					}
@@ -172,7 +182,7 @@ export class BulletproofDiscoveryService {
 			const response = await fetch(discoveryUrl, {
 				method: 'GET',
 				headers: {
-					'Accept': 'application/json',
+					Accept: 'application/json',
 					'User-Agent': 'OAuth Playground',
 				},
 				signal: controller.signal,
@@ -224,8 +234,18 @@ export class BulletproofDiscoveryService {
 			id_token_signing_alg_values_supported: ['RS256', 'RS384', 'RS512'],
 			scopes_supported: ['openid', 'profile', 'email', 'address', 'phone'],
 			claims_supported: [
-				'sub', 'iss', 'aud', 'exp', 'iat', 'auth_time', 'nonce',
-				'acr', 'amr', 'azp', 'at_hash', 'c_hash',
+				'sub',
+				'iss',
+				'aud',
+				'exp',
+				'iat',
+				'auth_time',
+				'nonce',
+				'acr',
+				'amr',
+				'azp',
+				'at_hash',
+				'c_hash',
 			],
 			end_session_endpoint: `${baseUrl}/signoff`,
 			revocation_endpoint: `${baseUrl}/revoke`,
@@ -239,11 +259,9 @@ export class BulletproofDiscoveryService {
 	 * Sleep utility for retry delays
 	 */
 	private sleep(ms: number): Promise<void> {
-		return new Promise(resolve => setTimeout(resolve, ms));
+		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 }
 
 // Export singleton instance
 export const bulletproofDiscovery = new BulletproofDiscoveryService();
-
-

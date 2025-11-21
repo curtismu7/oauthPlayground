@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useUISettings } from '../contexts/UISettingsContext';
 import {
 	FiBookOpen,
 	FiCode,
-	FiLock,
-	FiUser,
-	FiHelpCircle,
 	FiExternalLink,
+	FiHelpCircle,
+	FiLock,
 	FiPlay,
-	FiTool,
-	FiShield,
 	FiSettings,
+	FiShield,
+	FiTool,
+	FiUser,
 } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 import PageTitle from '../components/PageTitle';
+import { useUISettings } from '../contexts/UISettingsContext';
+import { usePageScroll } from '../hooks/usePageScroll';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;

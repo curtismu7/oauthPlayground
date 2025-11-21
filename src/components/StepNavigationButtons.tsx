@@ -1,7 +1,16 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiTrash2, FiSkipBack, FiMove, FiMaximize2, FiMinimize2, FiCheckCircle } from 'react-icons/fi';
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+	FiArrowLeft,
+	FiArrowRight,
+	FiCheckCircle,
+	FiMaximize2,
+	FiMinimize2,
+	FiMove,
+	FiSkipBack,
+	FiTrash2,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
@@ -20,7 +29,11 @@ export interface StepNavigationButtonsProps {
 	showCompleteActionButton?: boolean;
 }
 
-const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDragging?: boolean; $compact?: boolean }>`
+const StepNavigation = styled.div<{
+	$position: { x: number; y: number };
+	$isDragging?: boolean;
+	$compact?: boolean;
+}>`
 	position: fixed !important;
 	left: ${({ $position }) => $position.x}px !important;
 	top: ${({ $position }) => $position.y}px !important;
@@ -101,7 +114,10 @@ const NavigationButtons = styled.div<{ $compact?: boolean }>`
 	gap: ${({ $compact }) => ($compact ? '0.5rem' : '1rem')};
 `;
 
-const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' | 'danger' | 'warning'; $compact?: boolean }>`
+const NavButton = styled.button<{
+	$variant?: 'primary' | 'success' | 'outline' | 'danger' | 'warning';
+	$compact?: boolean;
+}>`
 	display: inline-flex;
 	align-items: center;
 	gap: ${({ $compact }) => ($compact ? '0.25rem' : '0.5rem')};
@@ -274,7 +290,10 @@ export const StepNavigationButtons = ({
 		};
 
 		setPosition((prev) => {
-			if (Math.abs(prev.x - centeredPosition.x) < 0.5 && Math.abs(prev.y - centeredPosition.y) < 0.5) {
+			if (
+				Math.abs(prev.x - centeredPosition.x) < 0.5 &&
+				Math.abs(prev.y - centeredPosition.y) < 0.5
+			) {
 				return prev;
 			}
 			return centeredPosition;
@@ -352,15 +371,18 @@ export const StepNavigationButtons = ({
 
 	const activeRequirement = stepRequirements?.[currentStep];
 	const nextButtonTitle = !canNavigateNext
-		? [disabledMessage || 'Complete the action above to continue', activeRequirement ? `Requirement: ${activeRequirement}` : undefined]
-			.filter(Boolean)
-			.join(' • ')
+		? [
+				disabledMessage || 'Complete the action above to continue',
+				activeRequirement ? `Requirement: ${activeRequirement}` : undefined,
+			]
+				.filter(Boolean)
+				.join(' • ')
 		: 'Proceed to next step';
 
 	return (
-		<StepNavigation 
-			ref={stepperRef} 
-			$position={position} 
+		<StepNavigation
+			ref={stepperRef}
+			$position={position}
 			$isDragging={isDragging}
 			$compact={isCompact}
 			onMouseDown={handleDragStart}
@@ -383,23 +405,23 @@ export const StepNavigationButtons = ({
 				))}
 			</StepIndicator>
 			<NavigationButtons $compact={isCompact}>
-				<NavButton 
+				<NavButton
 					onClick={(e) => {
 						e.stopPropagation();
 						onPrevious();
-					}} 
-					$variant="outline" 
+					}}
+					$variant="outline"
 					$compact={isCompact}
 					disabled={isFirstStep}
 				>
 					<FiArrowLeft /> {!isCompact && 'Previous'}
 				</NavButton>
 				{onStartOver && !isFirstStep && (
-					<NavButton 
+					<NavButton
 						onClick={(e) => {
 							e.stopPropagation();
 							onStartOver();
-						}} 
+						}}
 						$variant="warning"
 						$compact={isCompact}
 						title="Go back to Step 1, clear tokens/codes but keep credentials"
@@ -407,11 +429,11 @@ export const StepNavigationButtons = ({
 						<FiSkipBack /> {!isCompact && 'Start Over'}
 					</NavButton>
 				)}
-				<NavButton 
+				<NavButton
 					onClick={(e) => {
 						e.stopPropagation();
 						onReset();
-					}} 
+					}}
 					$variant="danger"
 					$compact={isCompact}
 					title="Complete reset: clear everything and expand all sections"
@@ -428,7 +450,13 @@ export const StepNavigationButtons = ({
 						$compact={isCompact}
 						title="Complete the current action"
 					>
-						{isCompact ? <FiCheckCircle /> : (<><FiCheckCircle /> Complete Action</>)}
+						{isCompact ? (
+							<FiCheckCircle />
+						) : (
+							<>
+								<FiCheckCircle /> Complete Action
+							</>
+						)}
 					</NavButton>
 				)}
 				<NavButton
@@ -441,9 +469,12 @@ export const StepNavigationButtons = ({
 					disabled={!canNavigateNext}
 					title={nextButtonTitle}
 				>
-					{isCompact ? <FiArrowRight /> : (
+					{isCompact ? (
+						<FiArrowRight />
+					) : (
 						<>
-							{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')} <FiArrowRight />
+							{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')}{' '}
+							<FiArrowRight />
 						</>
 					)}
 				</NavButton>

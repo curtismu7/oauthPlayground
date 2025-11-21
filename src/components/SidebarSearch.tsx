@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -6,6 +6,34 @@ const SearchContainer = styled.div`
 	padding: 0.75rem 1rem;
 	border-bottom: 1px solid #e5e7eb;
 	background: #f8fafc;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+`;
+
+const AdvancedOptions = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.75rem;
+	color: #6b7280;
+`;
+
+const CheckboxLabel = styled.label`
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	cursor: pointer;
+	user-select: none;
+	
+	&:hover {
+		color: #374151;
+	}
+`;
+
+const Checkbox = styled.input`
+	cursor: pointer;
+	margin: 0;
 `;
 
 const SearchInputWrapper = styled.div`
@@ -88,16 +116,20 @@ interface SidebarSearchProps {
 	onSearch: (query: string) => void;
 	placeholder?: string;
 	activeSearchQuery?: string; // Track the active search query from parent
+	matchAnywhere?: boolean; // Whether to match anywhere (substring) or use strict word boundaries
+	onMatchAnywhereChange?: (matchAnywhere: boolean) => void; // Callback when matchAnywhere changes
 }
 
-const SidebarSearch: React.FC<SidebarSearchProps> = ({ 
-	onSearch, 
-	placeholder = "Search flows...",
-	activeSearchQuery = ''
+const SidebarSearch: React.FC<SidebarSearchProps> = ({
+	onSearch,
+	placeholder = 'Search flows...',
+	activeSearchQuery = '',
+	matchAnywhere = false,
+	onMatchAnywhereChange,
 }) => {
 	const [displayQuery, setDisplayQuery] = React.useState('');
 	const [activeQuery, setActiveQuery] = React.useState('');
-	const inputRef = React.useRef<HTMLInputElement>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	// Sync with parent's active search query
 	React.useEffect(() => {
@@ -174,12 +206,30 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 					<SearchButton onClick={triggerSearch} title="Search (Enter)">
 						<FiSearch size={14} />
 					</SearchButton>
-				) : (displayQuery || activeQuery) ? (
+				) : displayQuery || activeQuery ? (
 					<ClearButton onClick={clearSearch} title="Clear search">
 						<FiX size={14} />
 					</ClearButton>
 				) : null}
 			</SearchInputWrapper>
+			{onMatchAnywhereChange && (
+				<AdvancedOptions>
+					<CheckboxLabel>
+						<Checkbox
+							type="checkbox"
+							checked={matchAnywhere}
+							onChange={(e) => {
+								onMatchAnywhereChange(e.target.checked);
+								// Re-trigger search with new setting
+								if (activeQuery) {
+									onSearch(activeQuery);
+								}
+							}}
+						/>
+						<span>Match anywhere (substring)</span>
+					</CheckboxLabel>
+				</AdvancedOptions>
+			)}
 		</SearchContainer>
 	);
 };

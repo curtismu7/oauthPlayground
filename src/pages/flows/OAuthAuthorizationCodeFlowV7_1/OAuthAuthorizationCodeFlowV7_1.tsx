@@ -1,52 +1,46 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/OAuthAuthorizationCodeFlowV7_1.tsx
 // V7.1 Main Container - Orchestrates all refactored components
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiBook, FiCheckCircle, FiChevronDown, FiLoader, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { 
-  FiLoader, 
-  FiSettings, 
-  FiBook, 
-  FiCheckCircle, 
-  FiChevronDown 
-} from 'react-icons/fi';
-import { useFlowStateManagement } from './hooks/useFlowStateManagement';
-import { useAuthCodeManagement } from './hooks/useAuthCodeManagement';
-import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
-import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
-import { FlowErrorWrapper } from './components/FlowErrorWrapper';
-import { FlowConfiguration } from './components/FlowConfiguration';
-import { FlowSteps } from './components/FlowSteps';
-import { FlowResults } from './components/FlowResults';
+import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
+import { FlowConfiguration } from './components/FlowConfiguration';
+import { FlowErrorWrapper } from './components/FlowErrorWrapper';
+import { FlowResults } from './components/FlowResults';
+import { FlowSteps } from './components/FlowSteps';
 import { FLOW_CONSTANTS } from './constants/flowConstants';
 import { UI_CONSTANTS } from './constants/uiConstants';
-import type { FlowVariant, FlowCredentials, TokenResponse, UserInfo } from './types/flowTypes';
-import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
+import { useAuthCodeManagement } from './hooks/useAuthCodeManagement';
+import { useFlowStateManagement } from './hooks/useFlowStateManagement';
+import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
+import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
+import type { FlowCredentials, FlowVariant, TokenResponse, UserInfo } from './types/flowTypes';
 
 // Mock services - these would be imported from actual services in real implementation
 const v4ToastManager = {
-  showSuccess: (message: string) => console.log('✅ Toast:', message),
-  showError: (message: string) => console.error('❌ Toast:', message),
-  showInfo: (message: string) => console.log('ℹ️ Toast:', message),
+	showSuccess: (message: string) => console.log('✅ Toast:', message),
+	showError: (message: string) => console.error('❌ Toast:', message),
+	showInfo: (message: string) => console.log('ℹ️ Toast:', message),
 };
 
 const FlowCredentialService = {
-  loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
-    try {
-      const stored = sessionStorage.getItem(key);
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  },
-  saveSharedCredentials: async (key: string, credentials: FlowCredentials): Promise<void> => {
-    try {
-      sessionStorage.setItem(key, JSON.stringify(credentials));
-    } catch (error) {
-      console.warn('Failed to save credentials:', error);
-    }
-  }
+	loadSharedCredentials: async (key: string): Promise<Partial<FlowCredentials> | null> => {
+		try {
+			const stored = sessionStorage.getItem(key);
+			return stored ? JSON.parse(stored) : null;
+		} catch {
+			return null;
+		}
+	},
+	saveSharedCredentials: async (key: string, credentials: FlowCredentials): Promise<void> => {
+		try {
+			sessionStorage.setItem(key, JSON.stringify(credentials));
+		} catch (error) {
+			console.warn('Failed to save credentials:', error);
+		}
+	},
 };
 
 const Container = styled.div`
@@ -94,10 +88,10 @@ const MainCard = styled.div`
 `;
 
 const StepHeader = styled.div<{ $variant: FlowVariant }>`
-  background: ${props => props.$variant === 'oidc' 
-    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-    : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
-  };
+  background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'};
   color: #ffffff;
   padding: 2rem;
   display: flex;
@@ -113,18 +107,10 @@ const StepHeaderLeft = styled.div`
 
 const VersionBadge = styled.span<{ $variant: FlowVariant }>`
   align-self: flex-start;
-  background: ${props => props.$variant === 'oidc' 
-    ? 'rgba(59, 130, 246, 0.2)' 
-    : 'rgba(249, 115, 22, 0.2)'
-  };
-  border: 1px solid ${props => props.$variant === 'oidc' 
-    ? '#60a5fa' 
-    : '#fb923c'
-  };
-  color: ${props => props.$variant === 'oidc' 
-    ? '#dbeafe' 
-    : '#fed7aa'
-  };
+  background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(249, 115, 22, 0.2)'};
+  border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#fb923c')};
+  color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fed7aa')};
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -158,10 +144,7 @@ const VariantButton = styled.button<{ $active: boolean }>`
   padding: 0.5rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.5rem;
-  background: ${props => props.$active 
-    ? 'rgba(255, 255, 255, 0.2)' 
-    : 'transparent'
-  };
+  background: ${(props) => (props.$active ? 'rgba(255, 255, 255, 0.2)' : 'transparent')};
   color: #ffffff;
   font-size: 0.875rem;
   font-weight: 500;
@@ -226,10 +209,10 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 `;
 
 const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
-  max-height: ${props => props.$collapsed ? '0' : '1000px'};
+  max-height: ${(props) => (props.$collapsed ? '0' : '1000px')};
   overflow: hidden;
   transition: max-height 0.3s ease;
-  padding: ${props => props.$collapsed ? '0' : '1rem'};
+  padding: ${(props) => (props.$collapsed ? '0' : '1rem')};
   border: 1px solid #e2e8f0;
   border-top: none;
   border-radius: 0 0 0.5rem 0.5rem;
@@ -237,334 +220,361 @@ const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
 `;
 
 interface OAuthAuthorizationCodeFlowV7_1Props {
-  initialVariant?: FlowVariant;
-  initialCredentials?: Partial<FlowCredentials>;
-  onFlowComplete?: (tokens: TokenResponse, userInfo?: UserInfo) => void;
-  onFlowError?: (error: Error) => void;
-  showDebugInfo?: boolean;
-  enablePerformanceMonitoring?: boolean;
+	initialVariant?: FlowVariant;
+	initialCredentials?: Partial<FlowCredentials>;
+	onFlowComplete?: (tokens: TokenResponse, userInfo?: UserInfo) => void;
+	onFlowError?: (error: Error) => void;
+	showDebugInfo?: boolean;
+	enablePerformanceMonitoring?: boolean;
 }
 
 export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlowV7_1Props> = ({
-  initialVariant = FLOW_CONSTANTS.DEFAULT_FLOW_VARIANT,
-  initialCredentials,
-  onFlowComplete,
-  onFlowError,
-  showDebugInfo = false,
-  enablePerformanceMonitoring = true,
+	initialVariant = FLOW_CONSTANTS.DEFAULT_FLOW_VARIANT,
+	initialCredentials,
+	onFlowComplete,
+	onFlowError,
+	showDebugInfo = false,
+	enablePerformanceMonitoring = true,
 }) => {
-  // Performance monitoring
-  const performanceMonitoring = usePerformanceMonitoring('OAuthAuthorizationCodeFlowV7_1');
-  
-  // State management
-  const flowState = useFlowStateManagement();
-  const authCodeManagement = useAuthCodeManagement();
-		
-  // Local state
-  const [isLoading, setIsLoading] = useState(true);
-  const [appConfig, setAppConfig] = useState<PingOneApplicationState>({
-    grantTypes: ['authorization_code'],
-    tokenAuthMethod: 'client_secret_basic',
-    scopes: ['openid', 'profile'],
-    redirectUris: [FLOW_CONSTANTS.DEFAULT_REDIRECT_URI],
-    pkceEnforcement: 'REQUIRED',
-    parStatus: 'REQUIRED',
-  });
+	// Performance monitoring
+	const performanceMonitoring = usePerformanceMonitoring('OAuthAuthorizationCodeFlowV7_1');
 
-  // Flow variant switching
-  const flowVariantSwitching = useFlowVariantSwitching(
-    flowState.credentials,
-    flowState.updateCredentials,
-    undefined // PKCE codes change handler would go here
-  );
+	// State management
+	const flowState = useFlowStateManagement();
+	const authCodeManagement = useAuthCodeManagement();
 
-  // Initialize flow
-  useEffect(() => {
-    const initializeFlow = async () => {
-      try {
-        performanceMonitoring.startRender();
-        
-        // Load initial credentials
-        if (initialCredentials) {
-          flowState.updateCredentials(initialCredentials);
-        }
+	// Local state
+	const [isLoading, setIsLoading] = useState(true);
+	const [appConfig, setAppConfig] = useState<PingOneApplicationState>({
+		grantTypes: ['authorization_code'],
+		tokenAuthMethod: 'client_secret_basic',
+		scopes: ['openid', 'profile'],
+		redirectUris: [FLOW_CONSTANTS.DEFAULT_REDIRECT_URI],
+		pkceEnforcement: 'REQUIRED',
+		parStatus: 'REQUIRED',
+	});
 
-        // Set initial variant
-        if (initialVariant !== flowState.flowState.flowVariant) {
-          await flowVariantSwitching.switchVariant(initialVariant);
-        }
+	// Flow variant switching
+	const flowVariantSwitching = useFlowVariantSwitching(
+		flowState.credentials,
+		flowState.updateCredentials,
+		undefined // PKCE codes change handler would go here
+	);
 
-        // Detect auth code from URL
-        const detectedCode = authCodeManagement.detectAuthCode();
-        if (detectedCode) {
-          flowState.updateAuthCode(detectedCode, 'url');
-          flowState.markStepCompleted(1); // Mark auth code step as completed
-        }
+	// Initialize flow
+	useEffect(() => {
+		const initializeFlow = async () => {
+			try {
+				performanceMonitoring.startRender();
 
-        setIsLoading(false);
-        performanceMonitoring.endRender();
-        
-        v4ToastManager.showInfo('Flow initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize flow:', error);
-        onFlowError?.(error as Error);
-        setIsLoading(false);
-      }
-    };
+				// Load initial credentials
+				if (initialCredentials) {
+					flowState.updateCredentials(initialCredentials);
+				}
 
-    initializeFlow();
-  }, [initialVariant, initialCredentials]);
+				// Set initial variant
+				if (initialVariant !== flowState.flowState.flowVariant) {
+					await flowVariantSwitching.switchVariant(initialVariant);
+				}
 
-  // Handle flow completion
-  const handleFlowComplete = useCallback((tokens: TokenResponse, userInfo?: UserInfo) => {
-    flowState.updateTokens(tokens);
-    if (userInfo) {
-      flowState.updateUserInfo(userInfo);
-    }
-    flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
-    onFlowComplete?.(tokens, userInfo);
-    v4ToastManager.showSuccess('Flow completed successfully!');
-  }, [flowState, onFlowComplete]);
+				// Detect auth code from URL
+				const detectedCode = authCodeManagement.detectAuthCode();
+				if (detectedCode) {
+					flowState.updateAuthCode(detectedCode, 'url');
+					flowState.markStepCompleted(1); // Mark auth code step as completed
+				}
 
-  // Handle flow error
-  const handleFlowError = useCallback((error: Error) => {
-    performanceMonitoring.recordError(error);
-    onFlowError?.(error);
-    v4ToastManager.showError(`Flow error: ${error.message}`);
-  }, [performanceMonitoring, onFlowError]);
+				setIsLoading(false);
+				performanceMonitoring.endRender();
 
-  // Handle step navigation
-  const handleStepChange = useCallback((step: number) => {
-    if (flowState.canGoToStep(step)) {
-      flowState.goToStep(step);
-      v4ToastManager.showInfo(`Navigated to step ${step + 1}`);
-    }
-  }, [flowState]);
+				v4ToastManager.showInfo('Flow initialized successfully');
+			} catch (error) {
+				console.error('Failed to initialize flow:', error);
+				onFlowError?.(error as Error);
+				setIsLoading(false);
+			}
+		};
 
-  // Handle flow reset
-  const handleFlowReset = useCallback(() => {
-    flowState.resetFlow();
-    authCodeManagement.clearAuthCode();
-    v4ToastManager.showInfo('Flow reset successfully');
-  }, [flowState, authCodeManagement]);
+		initializeFlow();
+	}, [initialVariant, initialCredentials]);
 
-  // Handle variant change
-  const handleVariantChange = useCallback(async (variant: FlowVariant) => {
-    try {
-      await flowVariantSwitching.switchVariant(variant);
-    } catch (error) {
-      handleFlowError(error as Error);
-    }
-  }, [flowVariantSwitching, handleFlowError]);
+	// Handle flow completion
+	const handleFlowComplete = useCallback(
+		(tokens: TokenResponse, userInfo?: UserInfo) => {
+			flowState.updateTokens(tokens);
+			if (userInfo) {
+				flowState.updateUserInfo(userInfo);
+			}
+			flowState.markStepCompleted(FLOW_CONSTANTS.TOTAL_STEPS - 1);
+			onFlowComplete?.(tokens, userInfo);
+			v4ToastManager.showSuccess('Flow completed successfully!');
+		},
+		[flowState, onFlowComplete]
+	);
 
-  // Handle credentials change
-  const handleCredentialsChange = useCallback((credentials: FlowCredentials) => {
-    flowState.updateCredentials(credentials);
-    
-    // Auto-switch variant based on credentials
-    flowVariantSwitching.autoSwitchVariant(credentials);
-  }, [flowState, flowVariantSwitching]);
+	// Handle flow error
+	const handleFlowError = useCallback(
+		(error: Error) => {
+			performanceMonitoring.recordError(error);
+			onFlowError?.(error);
+			v4ToastManager.showError(`Flow error: ${error.message}`);
+		},
+		[performanceMonitoring, onFlowError]
+	);
 
-  // Handle app config change
-  const handleAppConfigChange = useCallback((config: PingOneApplicationState) => {
-    setAppConfig(config);
-  }, []);
+	// Handle step navigation
+	const handleStepChange = useCallback(
+		(step: number) => {
+			if (flowState.canGoToStep(step)) {
+				flowState.goToStep(step);
+				v4ToastManager.showInfo(`Navigated to step ${step + 1}`);
+			}
+		},
+		[flowState]
+	);
 
-  // Handle section collapse
-  const handleToggleSection = useCallback((section: string) => {
-    flowState.toggleSection(section);
-  }, [flowState]);
+	// Handle flow reset
+	const handleFlowReset = useCallback(() => {
+		flowState.resetFlow();
+		authCodeManagement.clearAuthCode();
+		v4ToastManager.showInfo('Flow reset successfully');
+	}, [flowState, authCodeManagement]);
 
-  // Handle token refresh
-  const handleRefreshTokens = useCallback(() => {
-    // This would implement token refresh logic
-    v4ToastManager.showInfo('Token refresh not implemented yet');
-  }, []);
+	// Handle variant change
+	const handleVariantChange = useCallback(
+		async (variant: FlowVariant) => {
+			try {
+				await flowVariantSwitching.switchVariant(variant);
+			} catch (error) {
+				handleFlowError(error as Error);
+			}
+		},
+		[flowVariantSwitching, handleFlowError]
+	);
 
-  // Handle clear results
-  const handleClearResults = useCallback(() => {
-    flowState.clearTokens();
-    flowState.clearUserInfo();
-    v4ToastManager.showInfo('Results cleared');
-  }, [flowState]);
+	// Handle credentials change
+	const handleCredentialsChange = useCallback(
+		(credentials: FlowCredentials) => {
+			flowState.updateCredentials(credentials);
 
-  // Handle go home
-  const handleGoHome = useCallback(() => {
-    window.location.href = '/';
-  }, []);
+			// Auto-switch variant based on credentials
+			flowVariantSwitching.autoSwitchVariant(credentials);
+		},
+		[flowState, flowVariantSwitching]
+	);
 
+	// Handle app config change
+	const handleAppConfigChange = useCallback((config: PingOneApplicationState) => {
+		setAppConfig(config);
+	}, []);
 
-  if (isLoading) {
-    return (
-      <Container>
-        <LoadingSpinner>
-          <div>🔄 Initializing OAuth Authorization Code Flow V7.1...</div>
-        </LoadingSpinner>
-      </Container>
-    );
-  }
+	// Handle section collapse
+	const handleToggleSection = useCallback(
+		(section: string) => {
+			flowState.toggleSection(section);
+		},
+		[flowState]
+	);
 
-  return (
-    <FlowErrorWrapper flowKey={FLOW_CONSTANTS.FLOW_KEY}>
-      <Container>
-        <ContentWrapper>
-          <MainCard>
-            {/* Original V7 Header Structure */}
-            <StepHeader $variant={flowState.flowState.flowVariant}>
-              <StepHeaderLeft>
-                <VersionBadge $variant={flowState.flowState.flowVariant}>
-                  V7.1
-                </VersionBadge>
-                <StepHeaderTitle>
-                  OAuth Authorization Code Flow V7.1
-                </StepHeaderTitle>
-                <StepHeaderSubtitle>
-                  Enhanced with modular architecture, error boundaries, and performance monitoring
-                </StepHeaderSubtitle>
-              </StepHeaderLeft>
-              <StepHeaderRight>
-                <VariantSelector>
-                  <VariantButton
-                    $active={flowState.flowState.flowVariant === 'oauth'}
-                    onClick={() => handleVariantChange('oauth')}
-                  >
-                    OAuth 2.0
-                  </VariantButton>
-                  <VariantButton
-                    $active={flowState.flowState.flowVariant === 'oidc'}
-                    onClick={() => handleVariantChange('oidc')}
-                  >
-                    OpenID Connect
-                  </VariantButton>
-                </VariantSelector>
-              </StepHeaderRight>
-            </StepHeader>
+	// Handle token refresh
+	const handleRefreshTokens = useCallback(() => {
+		// This would implement token refresh logic
+		v4ToastManager.showInfo('Token refresh not implemented yet');
+	}, []);
 
-            <StepContentWrapper>
-              {/* Original V7 Step Navigation */}
-              <StepNavigationButtons
-                currentStep={flowState.flowState.currentStep}
-                totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-                onStepChange={handleStepChange}
-                onReset={handleFlowReset}
-                onGoHome={handleGoHome}
-                stepCompletion={flowState.stepCompletion}
-                canGoBack={flowState.canGoBack()}
-                canGoForward={flowState.canGoForward()}
-                isComplete={flowState.isFlowComplete()}
-              />
+	// Handle clear results
+	const handleClearResults = useCallback(() => {
+		flowState.clearTokens();
+		flowState.clearUserInfo();
+		v4ToastManager.showInfo('Results cleared');
+	}, [flowState]);
 
-              {/* Original V7 Collapsible Sections Structure */}
-              <CollapsibleSection>
-                <CollapsibleHeaderButton
-                  onClick={() => handleToggleSection('configuration')}
-                  $collapsed={flowState.flowState.collapsedSections.configuration || false}
-                >
-                  <CollapsibleTitle>
-                    <FiSettings />
-                    Configuration
-                  </CollapsibleTitle>
-                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.configuration || false}>
-                    <FiChevronDown />
-                  </CollapsibleToggleIcon>
-                </CollapsibleHeaderButton>
-                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.configuration || false}>
-                  <FlowConfiguration
-                    credentials={flowState.credentials}
-                    onCredentialsChange={handleCredentialsChange}
-                    flowVariant={flowState.flowState.flowVariant}
-                    onVariantChange={handleVariantChange}
-                    appConfig={appConfig}
-                    onAppConfigChange={handleAppConfigChange}
-                    isCollapsed={false}
-                    onToggleCollapse={() => handleToggleSection('configuration')}
-                    showAdvancedSettings={false}
-                    onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
-                  />
-                </CollapsibleContent>
-              </CollapsibleSection>
+	// Handle go home
+	const handleGoHome = useCallback(() => {
+		window.location.href = '/';
+	}, []);
 
-              <CollapsibleSection>
-                <CollapsibleHeaderButton
-                  onClick={() => handleToggleSection('steps')}
-                  $collapsed={flowState.flowState.collapsedSections.steps || false}
-                >
-                  <CollapsibleTitle>
-                    <FiBook />
-                    Flow Steps
-                  </CollapsibleTitle>
-                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.steps || false}>
-                    <FiChevronDown />
-                  </CollapsibleToggleIcon>
-                </CollapsibleHeaderButton>
-                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.steps || false}>
-                  <FlowSteps
-                    currentStep={flowState.flowState.currentStep}
-                    totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-                    stepCompletion={flowState.stepCompletion}
-                    flowVariant={flowState.flowState.flowVariant}
-                    onStepClick={handleStepChange}
-                    showStepDetails={true}
-                    showProgress={true}
-                    isInteractive={true}
-                  />
-                </CollapsibleContent>
-              </CollapsibleSection>
+	if (isLoading) {
+		return (
+			<Container>
+				<LoadingSpinner>
+					<div>🔄 Initializing OAuth Authorization Code Flow V7.1...</div>
+				</LoadingSpinner>
+			</Container>
+		);
+	}
 
-              <CollapsibleSection>
-                <CollapsibleHeaderButton
-                  onClick={() => handleToggleSection('results')}
-                  $collapsed={flowState.flowState.collapsedSections.results || false}
-                >
-                  <CollapsibleTitle>
-                    <FiCheckCircle />
-                    Results
-                  </CollapsibleTitle>
-                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.results || false}>
-                    <FiChevronDown />
-                  </CollapsibleToggleIcon>
-                </CollapsibleHeaderButton>
-                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.results || false}>
-                  <FlowResults
-                    tokens={flowState.tokens}
-                    userInfo={flowState.userInfo}
-                    isCollapsed={false}
-                    onToggleCollapse={() => handleToggleSection('results')}
-                    onRefreshTokens={handleRefreshTokens}
-                    onClearResults={handleClearResults}
-                    showTokenDetails={true}
-                    showUserInfo={true}
-                  />
-                </CollapsibleContent>
-              </CollapsibleSection>
-            </StepContentWrapper>
-          </MainCard>
+	return (
+		<FlowErrorWrapper flowKey={FLOW_CONSTANTS.FLOW_KEY}>
+			<Container>
+				<ContentWrapper>
+					<MainCard>
+						{/* Original V7 Header Structure */}
+						<StepHeader $variant={flowState.flowState.flowVariant}>
+							<StepHeaderLeft>
+								<VersionBadge $variant={flowState.flowState.flowVariant}>V7.1</VersionBadge>
+								<StepHeaderTitle>OAuth Authorization Code Flow V7.1</StepHeaderTitle>
+								<StepHeaderSubtitle>
+									Enhanced with modular architecture, error boundaries, and performance monitoring
+								</StepHeaderSubtitle>
+							</StepHeaderLeft>
+							<StepHeaderRight>
+								<VariantSelector>
+									<VariantButton
+										$active={flowState.flowState.flowVariant === 'oauth'}
+										onClick={() => handleVariantChange('oauth')}
+									>
+										OAuth 2.0
+									</VariantButton>
+									<VariantButton
+										$active={flowState.flowState.flowVariant === 'oidc'}
+										onClick={() => handleVariantChange('oidc')}
+									>
+										OpenID Connect
+									</VariantButton>
+								</VariantSelector>
+							</StepHeaderRight>
+						</StepHeader>
 
-          {/* Debug Information */}
-          {showDebugInfo && (
-            <Sidebar>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100, 
-                padding: UI_CONSTANTS.SPACING.LG, 
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM,
-                fontFamily: 'monospace'
-              }}>
-                <h4>Debug Information</h4>
-                <div>Current Step: {flowState.flowState.currentStep}</div>
-                <div>Flow Variant: {flowState.flowState.flowVariant}</div>
-                <div>Auth Code: {authCodeManagement.authCode ? 'Present' : 'Not present'}</div>
-                <div>Tokens: {flowState.tokens ? 'Present' : 'Not present'}</div>
-                <div>User Info: {flowState.userInfo ? 'Present' : 'Not present'}</div>
-                <div>Completed Steps: {flowState.getCompletedSteps().length}</div>
-                <div>Progress: {flowState.getCompletionProgress().percentage}%</div>
-              </div>
-            </Sidebar>
-          )}
-        </ContentWrapper>
-      </Container>
-    </FlowErrorWrapper>
-  );
+						<StepContentWrapper>
+							{/* Original V7 Step Navigation */}
+							<StepNavigationButtons
+								currentStep={flowState.flowState.currentStep}
+								totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
+								onStepChange={handleStepChange}
+								onReset={handleFlowReset}
+								onGoHome={handleGoHome}
+								stepCompletion={flowState.stepCompletion}
+								canGoBack={flowState.canGoBack()}
+								canGoForward={flowState.canGoForward()}
+								isComplete={flowState.isFlowComplete()}
+							/>
+
+							{/* Original V7 Collapsible Sections Structure */}
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => handleToggleSection('configuration')}
+									$collapsed={flowState.flowState.collapsedSections.configuration || false}
+								>
+									<CollapsibleTitle>
+										<FiSettings />
+										Configuration
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon
+										$collapsed={flowState.flowState.collapsedSections.configuration || false}
+									>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								<CollapsibleContent
+									$collapsed={flowState.flowState.collapsedSections.configuration || false}
+								>
+									<FlowConfiguration
+										credentials={flowState.credentials}
+										onCredentialsChange={handleCredentialsChange}
+										flowVariant={flowState.flowState.flowVariant}
+										onVariantChange={handleVariantChange}
+										appConfig={appConfig}
+										onAppConfigChange={handleAppConfigChange}
+										isCollapsed={false}
+										onToggleCollapse={() => handleToggleSection('configuration')}
+										showAdvancedSettings={false}
+										onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
+									/>
+								</CollapsibleContent>
+							</CollapsibleSection>
+
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => handleToggleSection('steps')}
+									$collapsed={flowState.flowState.collapsedSections.steps || false}
+								>
+									<CollapsibleTitle>
+										<FiBook />
+										Flow Steps
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon
+										$collapsed={flowState.flowState.collapsedSections.steps || false}
+									>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								<CollapsibleContent
+									$collapsed={flowState.flowState.collapsedSections.steps || false}
+								>
+									<FlowSteps
+										currentStep={flowState.flowState.currentStep}
+										totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
+										stepCompletion={flowState.stepCompletion}
+										flowVariant={flowState.flowState.flowVariant}
+										onStepClick={handleStepChange}
+										showStepDetails={true}
+										showProgress={true}
+										isInteractive={true}
+									/>
+								</CollapsibleContent>
+							</CollapsibleSection>
+
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => handleToggleSection('results')}
+									$collapsed={flowState.flowState.collapsedSections.results || false}
+								>
+									<CollapsibleTitle>
+										<FiCheckCircle />
+										Results
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon
+										$collapsed={flowState.flowState.collapsedSections.results || false}
+									>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								<CollapsibleContent
+									$collapsed={flowState.flowState.collapsedSections.results || false}
+								>
+									<FlowResults
+										tokens={flowState.tokens}
+										userInfo={flowState.userInfo}
+										isCollapsed={false}
+										onToggleCollapse={() => handleToggleSection('results')}
+										onRefreshTokens={handleRefreshTokens}
+										onClearResults={handleClearResults}
+										showTokenDetails={true}
+										showUserInfo={true}
+									/>
+								</CollapsibleContent>
+							</CollapsibleSection>
+						</StepContentWrapper>
+					</MainCard>
+
+					{/* Debug Information */}
+					{showDebugInfo && (
+						<Sidebar>
+							<div
+								style={{
+									background: UI_CONSTANTS.COLORS.GRAY_100,
+									padding: UI_CONSTANTS.SPACING.LG,
+									borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+									fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM,
+									fontFamily: 'monospace',
+								}}
+							>
+								<h4>Debug Information</h4>
+								<div>Current Step: {flowState.flowState.currentStep}</div>
+								<div>Flow Variant: {flowState.flowState.flowVariant}</div>
+								<div>Auth Code: {authCodeManagement.authCode ? 'Present' : 'Not present'}</div>
+								<div>Tokens: {flowState.tokens ? 'Present' : 'Not present'}</div>
+								<div>User Info: {flowState.userInfo ? 'Present' : 'Not present'}</div>
+								<div>Completed Steps: {flowState.getCompletedSteps().length}</div>
+								<div>Progress: {flowState.getCompletionProgress().percentage}%</div>
+							</div>
+						</Sidebar>
+					)}
+				</ContentWrapper>
+			</Container>
+		</FlowErrorWrapper>
+	);
 };
 
 export default OAuthAuthorizationCodeFlowV7_1;

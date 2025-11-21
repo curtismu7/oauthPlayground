@@ -64,12 +64,11 @@ const AdvancedConfigSection = styled.div`
 	border-top: 1px solid #e5e7eb;
 `;
 
-
 const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> = ({
 	// Discovery props
 	onDiscoveryComplete,
 	initialDiscoveryInput,
-	discoveryPlaceholder = "Enter Environment ID, issuer URL, or provider...",
+	discoveryPlaceholder = 'Enter Environment ID, issuer URL, or provider...',
 	showProviderInfo = true,
 
 	// Credentials props
@@ -100,47 +99,55 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	isSavingPingOne = false,
 
 	// Service configuration
-	title = "OIDC discovery & PingOne Config",
-	subtitle = "Complete configuration for OAuth/OIDC flows with discovery and advanced settings",
+	title = 'OIDC discovery & PingOne Config',
+	subtitle = 'Complete configuration for OAuth/OIDC flows with discovery and advanced settings',
 	showAdvancedConfig = true,
 	defaultCollapsed = false,
 }) => {
 	const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
 
 	const handleAdvancedConfigToggle = useCallback(() => {
-		setIsAdvancedConfigCollapsed(prev => !prev);
+		setIsAdvancedConfigCollapsed((prev) => !prev);
 	}, []);
 
 	// Handle discovery completion and update environment ID
-	const handleInternalDiscoveryComplete = useCallback((result: DiscoveryResult) => {
-		// Extract environment ID from issuer URL using the dedicated service
-		if (result.issuerUrl && onEnvironmentIdChange) {
-			const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
-			if (extractedEnvId) {
-				console.log('[ComprehensiveCredentialsService] Auto-populating environment ID:', extractedEnvId);
-				onEnvironmentIdChange(extractedEnvId);
-				
-				// 🆕 CROSS-FLOW DISCOVERY PERSISTENCE
-				// Save discovery results for cross-flow sharing
-				try {
-					const sharedConfig = {
-						environmentId: extractedEnvId,
-						issuerUrl: result.issuerUrl,
-						discoveryResult: result.document,
-						timestamp: Date.now(),
-					};
-					localStorage.setItem('shared-oidc-discovery', JSON.stringify(sharedConfig));
-					console.log('[ComprehensiveCredentialsService] ✅ Discovery saved for cross-flow sharing');
-				} catch (error) {
-					console.error('[ComprehensiveCredentialsService] Failed to save discovery:', error);
+	const handleInternalDiscoveryComplete = useCallback(
+		(result: DiscoveryResult) => {
+			// Extract environment ID from issuer URL using the dedicated service
+			if (result.issuerUrl && onEnvironmentIdChange) {
+				const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+				if (extractedEnvId) {
+					console.log(
+						'[ComprehensiveCredentialsService] Auto-populating environment ID:',
+						extractedEnvId
+					);
+					onEnvironmentIdChange(extractedEnvId);
+
+					// 🆕 CROSS-FLOW DISCOVERY PERSISTENCE
+					// Save discovery results for cross-flow sharing
+					try {
+						const sharedConfig = {
+							environmentId: extractedEnvId,
+							issuerUrl: result.issuerUrl,
+							discoveryResult: result.document,
+							timestamp: Date.now(),
+						};
+						localStorage.setItem('shared-oidc-discovery', JSON.stringify(sharedConfig));
+						console.log(
+							'[ComprehensiveCredentialsService] ✅ Discovery saved for cross-flow sharing'
+						);
+					} catch (error) {
+						console.error('[ComprehensiveCredentialsService] Failed to save discovery:', error);
+					}
 				}
 			}
-		}
-		// Call parent handler
-		if (onDiscoveryComplete) {
-			onDiscoveryComplete(result);
-		}
-	}, [onDiscoveryComplete, onEnvironmentIdChange]);
+			// Call parent handler
+			if (onDiscoveryComplete) {
+				onDiscoveryComplete(result);
+			}
+		},
+		[onDiscoveryComplete, onEnvironmentIdChange]
+	);
 
 	// 🆕 AUTO-LOAD SAVED DISCOVERY ON MOUNT
 	useEffect(() => {
@@ -153,15 +160,24 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			const saved = localStorage.getItem('shared-oidc-discovery');
 			if (saved && onEnvironmentIdChange) {
 				const config = JSON.parse(saved);
-				
+
 				// Check if discovery is still fresh (within 1 hour)
 				const ONE_HOUR = 3600000;
 				if (Date.now() - config.timestamp < ONE_HOUR) {
 					onEnvironmentIdChange(config.environmentId);
-					console.log('[ComprehensiveCredentialsService] ✅ Auto-loaded shared discovery:', config.environmentId);
-					console.log('[ComprehensiveCredentialsService] Discovery age:', Math.round((Date.now() - config.timestamp) / 60000), 'minutes');
+					console.log(
+						'[ComprehensiveCredentialsService] ✅ Auto-loaded shared discovery:',
+						config.environmentId
+					);
+					console.log(
+						'[ComprehensiveCredentialsService] Discovery age:',
+						Math.round((Date.now() - config.timestamp) / 60000),
+						'minutes'
+					);
 				} else {
-					console.log('[ComprehensiveCredentialsService] ⏰ Saved discovery expired, skipping auto-load');
+					console.log(
+						'[ComprehensiveCredentialsService] ⏰ Saved discovery expired, skipping auto-load'
+					);
 					localStorage.removeItem('shared-oidc-discovery'); // Clean up expired data
 				}
 			}
@@ -178,39 +194,38 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				icon={<FiSettings />}
 				defaultCollapsed={defaultCollapsed}
 			>
-			{/* OIDC Discovery */}
-			<ComprehensiveDiscoveryInput
-				onDiscoveryComplete={handleInternalDiscoveryComplete}
-				initialInput={initialDiscoveryInput || ''}
-				placeholder={discoveryPlaceholder}
-				showProviderInfo={showProviderInfo}
-			/>
+				{/* OIDC Discovery */}
+				<ComprehensiveDiscoveryInput
+					onDiscoveryComplete={handleInternalDiscoveryComplete}
+					initialInput={initialDiscoveryInput || ''}
+					placeholder={discoveryPlaceholder}
+					showProviderInfo={showProviderInfo}
+				/>
 
-
-			{/* Basic Credentials */}
-			<CredentialsInput
-				environmentId={environmentId}
-				clientId={clientId}
-				clientSecret={clientSecret}
-				redirectUri={redirectUri}
-				scopes={scopes}
-				loginHint={loginHint}
-				postLogoutRedirectUri={postLogoutRedirectUri}
-				onEnvironmentIdChange={onEnvironmentIdChange || (() => {})}
-				onClientIdChange={onClientIdChange || (() => {})}
-				onClientSecretChange={onClientSecretChange || (() => {})}
-				onRedirectUriChange={onRedirectUriChange || (() => {})}
-				onScopesChange={onScopesChange || (() => {})}
-				onLoginHintChange={onLoginHintChange || (() => {})}
-				onPostLogoutRedirectUriChange={onPostLogoutRedirectUriChange || (() => {})}
-				showClientSecret={requireClientSecret}
-				showRedirectUri={true}
-				showPostLogoutRedirectUri={true}
-				showLoginHint={true}
-				onSave={onSave || (() => {})}
-				hasUnsavedChanges={hasUnsavedChanges}
-				isSaving={isSaving}
-			/>
+				{/* Basic Credentials */}
+				<CredentialsInput
+					environmentId={environmentId}
+					clientId={clientId}
+					clientSecret={clientSecret}
+					redirectUri={redirectUri}
+					scopes={scopes}
+					loginHint={loginHint}
+					postLogoutRedirectUri={postLogoutRedirectUri}
+					onEnvironmentIdChange={onEnvironmentIdChange || (() => {})}
+					onClientIdChange={onClientIdChange || (() => {})}
+					onClientSecretChange={onClientSecretChange || (() => {})}
+					onRedirectUriChange={onRedirectUriChange || (() => {})}
+					onScopesChange={onScopesChange || (() => {})}
+					onLoginHintChange={onLoginHintChange || (() => {})}
+					onPostLogoutRedirectUriChange={onPostLogoutRedirectUriChange || (() => {})}
+					showClientSecret={requireClientSecret}
+					showRedirectUri={true}
+					showPostLogoutRedirectUri={true}
+					showLoginHint={true}
+					onSave={onSave || (() => {})}
+					hasUnsavedChanges={hasUnsavedChanges}
+					isSaving={isSaving}
+				/>
 
 				{/* PingOne Advanced Configuration */}
 				{showAdvancedConfig && pingOneAppState && onPingOneAppStateChange && (
@@ -222,7 +237,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							defaultCollapsed={isAdvancedConfigCollapsed}
 							onToggle={handleAdvancedConfigToggle}
 						>
-							<div style={{ position: 'relative', height: 'auto', minHeight: 'auto', overflowY: 'visible' }}>
+							<div
+								style={{
+									position: 'relative',
+									height: 'auto',
+									minHeight: 'auto',
+									overflowY: 'visible',
+								}}
+							>
 								<PingOneApplicationConfig
 									value={pingOneAppState}
 									onChange={onPingOneAppStateChange}

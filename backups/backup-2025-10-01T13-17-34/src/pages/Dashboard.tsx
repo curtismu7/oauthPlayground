@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import CollapsibleIcon from '../components/CollapsibleIcon';
 import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import CollapsibleIcon from '../components/CollapsibleIcon';
 import ServerStatusModal from '../components/ServerStatusModal';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';

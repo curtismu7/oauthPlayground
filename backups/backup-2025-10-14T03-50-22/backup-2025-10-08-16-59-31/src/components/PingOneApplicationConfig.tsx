@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationConfig.tsx
 import React from 'react';
-import { FiGlobe, FiKey, FiSettings, FiShield, FiSave, FiCheck } from 'react-icons/fi';
+import { FiCheck, FiGlobe, FiKey, FiSave, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
@@ -308,12 +308,12 @@ const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>
 	}
 `;
 
-const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ 
-	value, 
-	onChange, 
-	onSave, 
-	isSaving = false, 
-	hasUnsavedChanges = false 
+const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
+	value,
+	onChange,
+	onSave,
+	isSaving = false,
+	hasUnsavedChanges = false,
 }) => {
 	const update = (updates: Partial<PingOneApplicationState>) => {
 		onChange({ ...value, ...updates });
@@ -334,14 +334,17 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.requirePushedAuthorizationRequest}
-								onChange={(e) => onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })
+								}
 							/>
 							Require Pushed Authorization Request
 						</CheckboxLabel>
 						<Helper>
-							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
+							Requires authorization requests to be pushed via PAR endpoint before the authorization
+							flow begins, providing better security for SPA applications
 						</Helper>
-						
+
 						<UrlExampleContainer style={{ width: '100%' }}>
 							<UrlExample style={{ width: '100%' }}>
 								<UrlLabel>Without PAR:</UrlLabel>
@@ -352,7 +355,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									showExplanationButton={true}
 								/>
 							</UrlExample>
-							
+
 							<UrlExample style={{ width: '100%' }}>
 								<UrlLabel>With PAR:</UrlLabel>
 								<ColoredUrlDisplay
@@ -364,10 +367,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							</UrlExample>
 						</UrlExampleContainer>
 					</Field>
-
 				</Grid>
 			</Section>
-			
+
 			<Section>
 				<SectionTitle>
 					<FiSettings /> Client Authentication
@@ -378,7 +380,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						<Select
 							id="client-auth-method"
 							value={value.clientAuthMethod}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'] })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								update({
+									clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'],
+								})
+							}
 						>
 							<option value="client_secret_post">Client Secret Post</option>
 							<option value="client_secret_basic">Client Secret Basic</option>
@@ -402,7 +408,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings to see this feature in the flow
+							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings
+							to see this feature in the flow
 						</Helper>
 					</Field>
 				</Grid>
@@ -414,7 +421,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Textarea
 								id="private-key"
 								value={value.privateKey || ''}
-								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ privateKey: e.target.value })}
+								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+									update({ privateKey: e.target.value })
+								}
 								placeholder="-----BEGIN PRIVATE KEY-----&#10;MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...&#10;-----END PRIVATE KEY-----"
 								rows={8}
 								style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
@@ -461,7 +470,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<span />
 						</Toggle>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable JWKS in your PingOne application settings to see JWT signature validation features
+							⚙️ Configured in PingOne → Enable JWKS in your PingOne application settings to see JWT
+							signature validation features
 						</Helper>
 					</Field>
 
@@ -494,7 +504,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									</RadioLabel>
 								</RadioGroup>
 								<Helper style={{ color: '#059669', fontWeight: '500' }}>
-									⚙️ Configured in PingOne → Set your JWKS method in PingOne application configuration
+									⚙️ Configured in PingOne → Set your JWKS method in PingOne application
+									configuration
 								</Helper>
 							</Field>
 
@@ -545,16 +556,28 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							onChange={(e) => onChange({ ...value, requestParameterSignatureRequirement: e.target.value as 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED' })}
+							onChange={(e) =>
+								onChange({
+									...value,
+									requestParameterSignatureRequirement: e.target.value as
+										| 'DEFAULT'
+										| 'REQUIRE_SIGNED'
+										| 'ALLOW_UNSIGNED',
+								})
+							}
 						>
 							<option value="DEFAULT">Default</option>
 							<option value="REQUIRE_SIGNED">Require Signed</option>
 							<option value="ALLOW_UNSIGNED">Allow Unsigned</option>
 						</Select>
 						<Helper>
-							Controls whether request parameters must be cryptographically signed for enhanced security and integrity<br/>
-							<strong>Default:</strong> Uses PingOne's default signature requirements<br/>
-							<strong>Require Signed:</strong> All requests must include valid signatures<br/>
+							Controls whether request parameters must be cryptographically signed for enhanced
+							security and integrity
+							<br />
+							<strong>Default:</strong> Uses PingOne's default signature requirements
+							<br />
+							<strong>Require Signed:</strong> All requests must include valid signatures
+							<br />
 							<strong>Allow Unsigned:</strong> Permits requests without signatures (less secure)
 						</Helper>
 					</Field>
@@ -564,13 +587,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.additionalRefreshTokenReplayProtection}
-								onChange={(e) => onChange({ ...value, additionalRefreshTokenReplayProtection: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, additionalRefreshTokenReplayProtection: e.target.checked })
+								}
 							/>
 							Additional Refresh Token Replay Protection
 						</CheckboxLabel>
 						<Helper>
-							Prevents refresh tokens from being used multiple times, enhancing security by ensuring each token can only be used once<br/>
-							<strong>Benefit:</strong> Prevents token replay attacks where stolen refresh tokens could be reused
+							Prevents refresh tokens from being used multiple times, enhancing security by ensuring
+							each token can only be used once
+							<br />
+							<strong>Benefit:</strong> Prevents token replay attacks where stolen refresh tokens
+							could be reused
 						</Helper>
 					</Field>
 
@@ -584,8 +612,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							Include x5t Parameter
 						</CheckboxLabel>
 						<Helper>
-							Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for certificate-based authentication validation<br/>
-							<strong>Purpose:</strong> Allows clients to validate that JWTs were signed with the expected certificate
+							Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for
+							certificate-based authentication validation
+							<br />
+							<strong>Purpose:</strong> Allows clients to validate that JWTs were signed with the
+							expected certificate
 						</Helper>
 					</Field>
 
@@ -599,8 +630,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							OpenID Connect Session Management
 						</CheckboxLabel>
 						<Helper>
-							Enables OIDC session management features including session state and logout functionality for better user session handling<br/>
-							<strong>Features:</strong> Session state tracking, logout redirection, and improved session lifecycle management
+							Enables OIDC session management features including session state and logout
+							functionality for better user session handling
+							<br />
+							<strong>Features:</strong> Session state tracking, logout redirection, and improved
+							session lifecycle management
 						</Helper>
 					</Field>
 
@@ -609,13 +643,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.requestScopesForMultipleResources}
-								onChange={(e) => onChange({ ...value, requestScopesForMultipleResources: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, requestScopesForMultipleResources: e.target.checked })
+								}
 							/>
 							Request Scopes for Multiple Resources
 						</CheckboxLabel>
 						<Helper>
-							Allows requesting permissions across multiple resource servers in a single authorization request, useful for microservices architectures<br/>
-							<strong>Use Case:</strong> Applications that need access to multiple APIs/services can request all permissions in one authorization flow
+							Allows requesting permissions across multiple resource servers in a single
+							authorization request, useful for microservices architectures
+							<br />
+							<strong>Use Case:</strong> Applications that need access to multiple APIs/services can
+							request all permissions in one authorization flow
 						</Helper>
 					</Field>
 
@@ -624,13 +663,18 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<Checkbox
 								type="checkbox"
 								checked={value.terminateUserSessionByIdToken}
-								onChange={(e) => onChange({ ...value, terminateUserSessionByIdToken: e.target.checked })}
+								onChange={(e) =>
+									onChange({ ...value, terminateUserSessionByIdToken: e.target.checked })
+								}
 							/>
 							Terminate User Session by ID Token
 						</CheckboxLabel>
 						<Helper>
-							Allows terminating user sessions using the ID token, providing a way to logout users across all applications<br/>
-							<strong>Benefit:</strong> Enables single logout (SLO) functionality where logging out from one application logs the user out from all related applications
+							Allows terminating user sessions using the ID token, providing a way to logout users
+							across all applications
+							<br />
+							<strong>Benefit:</strong> Enables single logout (SLO) functionality where logging out
+							from one application logs the user out from all related applications
 						</Helper>
 					</Field>
 				</Grid>

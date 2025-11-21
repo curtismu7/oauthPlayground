@@ -1,11 +1,12 @@
 // src/components/ColoredJsonDisplay.tsx
 // Reusable component for displaying colored JSON with collapsible functionality using VS Code style
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import { VSCODE_COLORS } from '../services/codeHighlightingService';
 import { FiChevronDown, FiChevronUp } from '../services/commonImportsService';
 import { CopyButtonService } from '../services/copyButtonService';
-import { formatAndHighlightJSON, VSCODE_COLORS, getVSCodeStyles } from '../services/codeHighlightingService';
+import JSONHighlighter, { JSONData } from './JSONHighlighter';
 
 interface ColoredJsonDisplayProps {
 	data: unknown;
@@ -56,21 +57,20 @@ const JsonContentWrapper = styled.div<{ $isExpanded: boolean; $maxHeight?: strin
 	width: 100%;
 	box-sizing: border-box;
 	
-	${({ $isExpanded, $maxHeight }) => 
-		!$isExpanded && $maxHeight 
+	${({ $isExpanded, $maxHeight }) =>
+		!$isExpanded && $maxHeight
 			? `
 				max-height: ${$maxHeight};
 				overflow-y: hidden;
 				mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
 				-webkit-mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
 			`
-			: $isExpanded 
+			: $isExpanded
 				? 'max-height: none; overflow-y: visible;'
-				: ''
-	}
+				: ''}
 `;
 
-const JsonContent = styled.pre`
+const StyledHighlighter = styled(JSONHighlighter)`
 	background: ${VSCODE_COLORS.background};
 	border: 1px solid #e5e7eb;
 	border-radius: 6px;
@@ -79,7 +79,6 @@ const JsonContent = styled.pre`
 	font-size: 0.875rem;
 	line-height: 1.5;
 	word-break: break-word;
-	white-space: pre;
 	position: relative;
 	overflow-x: auto;
 	max-width: 100%;
@@ -87,46 +86,6 @@ const JsonContent = styled.pre`
 	box-sizing: border-box;
 	margin: 0;
 	color: ${VSCODE_COLORS.text};
-	
-	/* VS Code Light Theme syntax highlighting */
-	${getVSCodeStyles()}
-	
-	/* Custom scrollbar styling */
-	&::-webkit-scrollbar {
-		width: 12px;
-		height: 12px;
-	}
-	
-	&::-webkit-scrollbar-track {
-		background: #f1f1f1;
-		border-radius: 6px;
-	}
-	
-	&::-webkit-scrollbar-thumb {
-		background: #c1c1c1;
-		border-radius: 6px;
-		border: 2px solid #f1f1f1;
-	}
-	
-	&::-webkit-scrollbar-thumb:hover {
-		background: #a1a1a1;
-	}
-`;
-
-const JsonCode = styled.code`
-	font-family: inherit;
-	font-size: inherit;
-	line-height: inherit;
-	white-space: pre;
-	word-wrap: normal;
-	overflow-wrap: normal;
-	
-	/* Allow Prism.js classes to override */
-	& * {
-		font-family: inherit !important;
-		font-size: inherit !important;
-		line-height: inherit !important;
-	}
 `;
 
 const CollapseButton = styled.button`
@@ -158,19 +117,10 @@ export const ColoredJsonDisplay: React.FC<ColoredJsonDisplayProps> = ({
 	showCopyButton = true,
 }) => {
 	const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
-	const [highlightedJson, setHighlightedJson] = useState<string>('');
-	
-	useEffect(() => {
-		try {
-			const formatted = formatAndHighlightJSON(data);
-			setHighlightedJson(formatted);
-		} catch (error) {
-			console.error('[ColoredJsonDisplay] Error formatting JSON:', error);
-			setHighlightedJson('');
-		}
-	}, [data]);
 
 	const jsonString = JSON.stringify(data, null, 2);
+	const normalizedData: JSONData =
+		data === undefined ? ('No data to display' as JSONData) : (data as JSONData);
 
 	return (
 		<JsonContainer>
@@ -204,14 +154,8 @@ export const ColoredJsonDisplay: React.FC<ColoredJsonDisplayProps> = ({
 				</JsonHeaderActions>
 			</JsonHeader>
 			<JsonContentWrapper $isExpanded={isExpanded} $maxHeight={maxHeight}>
-				<JsonContent>
-					<JsonCode 
-						className="language-json"
-						dangerouslySetInnerHTML={{ __html: highlightedJson || '<span style="color: #6b7280">No data to display</span>' }}
-					/>
-				</JsonContent>
+				<StyledHighlighter data={normalizedData} />
 			</JsonContentWrapper>
 		</JsonContainer>
 	);
 };
-

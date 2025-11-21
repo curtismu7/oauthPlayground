@@ -1,15 +1,11 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiArrowRight,
-	FiBookOpen,
 	FiCheckCircle,
 	FiCode,
-	FiInfo,
-	FiShield,
 	FiSearch,
-	FiLock,
-	FiZap,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody } from '../../components/Card';
@@ -123,17 +119,17 @@ const FilterContainer = styled.div`
 
 const FilterButton = styled.button<{ $active?: boolean }>`
   padding: 0.5rem 1rem;
-  border: 2px solid ${props => props.$active ? '#3b82f6' : '#e5e7eb'};
+  border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
   border-radius: 0.5rem;
-  background: ${props => props.$active ? '#3b82f6' : 'white'};
-  color: ${props => props.$active ? 'white' : '#374151'};
+  background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$active ? 'white' : '#374151')};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
     border-color: #3b82f6;
-    background: ${props => props.$active ? '#2563eb' : '#f8fafc'};
+    background: ${(props) => (props.$active ? '#2563eb' : '#f8fafc')};
   }
 `;
 
@@ -188,7 +184,7 @@ const OIDCOverviewEnhanced = () => {
 	const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState('');
 	const [selectedFilter, setSelectedFilter] = useState<string>('all');
-	
+
 	// Centralized scroll management
 	usePageScroll({ pageName: 'OIDC Overview', force: true });
 
@@ -197,7 +193,8 @@ const OIDCOverviewEnhanced = () => {
 		{
 			id: 'auth-code',
 			title: 'Authorization Code Flow',
-			description: 'Most secure flow for applications that can maintain a client secret securely. Uses PKCE for enhanced security.',
+			description:
+				'Most secure flow for applications that can maintain a client secret securely. Uses PKCE for enhanced security.',
 			icon: FiShield,
 			color: 'auth-code',
 			details: 'User authenticates → Authorization Code → Token Exchange → ID Token + Access Token',
@@ -211,7 +208,8 @@ const OIDCOverviewEnhanced = () => {
 		{
 			id: 'implicit',
 			title: 'Implicit Flow',
-			description: 'Legacy flow for browser-based applications without secure backend. Deprecated in OAuth 2.1.',
+			description:
+				'Legacy flow for browser-based applications without secure backend. Deprecated in OAuth 2.1.',
 			icon: FiAlertTriangle,
 			color: 'implicit',
 			details: 'User authenticates → ID Token + Access Token directly in redirect',
@@ -226,7 +224,8 @@ const OIDCOverviewEnhanced = () => {
 		{
 			id: 'hybrid',
 			title: 'Hybrid Flow',
-			description: 'Combines Authorization Code and Implicit flows for flexibility. Provides immediate ID token access.',
+			description:
+				'Combines Authorization Code and Implicit flows for flexibility. Provides immediate ID token access.',
 			icon: FiCode,
 			color: 'hybrid',
 			details: 'User authenticates → ID Token + Authorization Code → Token Exchange',
@@ -240,13 +239,20 @@ const OIDCOverviewEnhanced = () => {
 		{
 			id: 'pkce',
 			title: 'PKCE Enhanced Flow',
-			description: 'Authorization Code with Proof Key for Code Exchange (PKCE). Best practice for public clients.',
+			description:
+				'Authorization Code with Proof Key for Code Exchange (PKCE). Best practice for public clients.',
 			icon: FiCheckCircle,
 			color: 'pkce',
-			details: 'Code Challenge → User authenticates → Authorization Code → Token Exchange with Code Verifier',
+			details:
+				'Code Challenge → User authenticates → Authorization Code → Token Exchange with Code Verifier',
 			security: 'Very High',
 			useCase: 'Mobile apps, SPAs, public clients without client secret',
-			pros: ['Highest security for public clients', 'No client secret needed', 'Prevents code interception', 'Industry best practice'],
+			pros: [
+				'Highest security for public clients',
+				'No client secret needed',
+				'Prevents code interception',
+				'Industry best practice',
+			],
 			cons: ['More complex setup', 'Requires code generation', 'Additional parameters'],
 			bestFor: ['Mobile applications', 'Single Page Apps', 'Public clients', 'Modern applications'],
 			securityLevel: 10,
@@ -259,11 +265,12 @@ const OIDCOverviewEnhanced = () => {
 
 		// Apply search filter
 		if (searchTerm) {
-			filtered = filtered.filter(flow =>
-				flow.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				flow.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				flow.useCase.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				flow.pros.some(pro => pro.toLowerCase().includes(searchTerm.toLowerCase()))
+			filtered = filtered.filter(
+				(flow) =>
+					flow.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					flow.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					flow.useCase.toLowerCase().includes(searchTerm.toLowerCase()) ||
+					flow.pros.some((pro) => pro.toLowerCase().includes(searchTerm.toLowerCase()))
 			);
 		}
 
@@ -271,22 +278,22 @@ const OIDCOverviewEnhanced = () => {
 		if (selectedFilter !== 'all') {
 			switch (selectedFilter) {
 				case 'recommended':
-					filtered = filtered.filter(flow => flow.securityLevel >= 7 && !flow.deprecated);
+					filtered = filtered.filter((flow) => flow.securityLevel >= 7 && !flow.deprecated);
 					break;
 				case 'deprecated':
-					filtered = filtered.filter(flow => flow.deprecated);
+					filtered = filtered.filter((flow) => flow.deprecated);
 					break;
 				case 'high-security':
-					filtered = filtered.filter(flow => flow.securityLevel >= 8);
+					filtered = filtered.filter((flow) => flow.securityLevel >= 8);
 					break;
 				case 'simple':
-					filtered = filtered.filter(flow => flow.securityLevel <= 6);
+					filtered = filtered.filter((flow) => flow.securityLevel <= 6);
 					break;
 			}
 		}
 
 		return filtered;
-	}, [searchTerm, selectedFilter]);
+	}, [searchTerm, selectedFilter, oidcFlows]);
 
 	// Memoized handlers for performance
 	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -307,8 +314,8 @@ const OIDCOverviewEnhanced = () => {
 						OpenID Connect Overview
 					</h1>
 					<p>
-						Comprehensive guide to OpenID Connect authentication flows, concepts, and best practices. 
-						Learn about OIDC flows, security considerations, and implementation patterns.
+						Comprehensive guide to OpenID Connect authentication flows, concepts, and best
+						practices. Learn about OIDC flows, security considerations, and implementation patterns.
 					</p>
 				</Header>
 
@@ -325,26 +332,26 @@ const OIDCOverviewEnhanced = () => {
 				</SearchContainer>
 
 				<FilterContainer>
-					<FilterButton 
-						$active={selectedFilter === 'all'} 
+					<FilterButton
+						$active={selectedFilter === 'all'}
 						onClick={() => handleFilterChange('all')}
 					>
 						All Flows
 					</FilterButton>
-					<FilterButton 
-						$active={selectedFilter === 'recommended'} 
+					<FilterButton
+						$active={selectedFilter === 'recommended'}
 						onClick={() => handleFilterChange('recommended')}
 					>
 						Recommended
 					</FilterButton>
-					<FilterButton 
-						$active={selectedFilter === 'high-security'} 
+					<FilterButton
+						$active={selectedFilter === 'high-security'}
 						onClick={() => handleFilterChange('high-security')}
 					>
 						High Security
 					</FilterButton>
-					<FilterButton 
-						$active={selectedFilter === 'deprecated'} 
+					<FilterButton
+						$active={selectedFilter === 'deprecated'}
 						onClick={() => handleFilterChange('deprecated')}
 					>
 						Deprecated
@@ -353,9 +360,13 @@ const OIDCOverviewEnhanced = () => {
 
 				{/* Enhanced OIDC Flows Overview */}
 				<section style={{ marginBottom: '3rem' }}>
-					<h2 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937' }}>
+					<h2
+						style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937' }}
+					>
 						OpenID Connect Authentication Flows
-						<span style={{ fontSize: '1rem', fontWeight: '400', color: '#6b7280', marginLeft: '1rem' }}>
+						<span
+							style={{ fontSize: '1rem', fontWeight: '400', color: '#6b7280', marginLeft: '1rem' }}
+						>
 							({filteredFlows.length} flows)
 						</span>
 					</h2>
@@ -364,36 +375,54 @@ const OIDCOverviewEnhanced = () => {
 						{filteredFlows.map((flow) => (
 							<FlowCard key={flow.id}>
 								<CardBody>
-									<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+											marginBottom: '1rem',
+										}}
+									>
 										<FlowIcon className={flow.color}>
 											<flow.icon size={24} />
 										</FlowIcon>
 										{flow.deprecated && (
-											<span style={{ 
-												background: '#fef3c7', 
-												color: '#d97706', 
-												padding: '0.25rem 0.5rem', 
-												borderRadius: '0.25rem', 
-												fontSize: '0.75rem', 
-												fontWeight: '500' 
-											}}>
+											<span
+												style={{
+													background: '#fef3c7',
+													color: '#d97706',
+													padding: '0.25rem 0.5rem',
+													borderRadius: '0.25rem',
+													fontSize: '0.75rem',
+													fontWeight: '500',
+												}}
+											>
 												DEPRECATED
 											</span>
 										)}
 									</div>
-									
+
 									<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
 										{flow.title}
 									</h3>
-									
+
 									<p style={{ color: '#6b7280', marginBottom: '1rem', lineHeight: '1.5' }}>
 										{flow.description}
 									</p>
 
 									{/* Enhanced Security Display */}
 									<div style={{ marginBottom: '1rem' }}>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-											<strong style={{ fontSize: '0.875rem', color: '#374151' }}>Security Level:</strong>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+												marginBottom: '0.5rem',
+											}}
+										>
+											<strong style={{ fontSize: '0.875rem', color: '#374151' }}>
+												Security Level:
+											</strong>
 											<div style={{ display: 'flex', gap: '0.25rem' }}>
 												{Array.from({ length: 10 }, (_, i) => (
 													<div
@@ -441,7 +470,14 @@ const OIDCOverviewEnhanced = () => {
 
 									{/* Best For Tags */}
 									<div style={{ marginBottom: '1rem' }}>
-										<strong style={{ fontSize: '0.875rem', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
+										<strong
+											style={{
+												fontSize: '0.875rem',
+												color: '#374151',
+												display: 'block',
+												marginBottom: '0.5rem',
+											}}
+										>
 											Best For:
 										</strong>
 										<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -507,7 +543,14 @@ const OIDCOverviewEnhanced = () => {
 										>
 											{/* Flow Steps */}
 											<div style={{ marginBottom: '1.5rem' }}>
-												<h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.75rem', color: '#374151' }}>
+												<h4
+													style={{
+														fontSize: '1rem',
+														fontWeight: '600',
+														marginBottom: '0.75rem',
+														color: '#374151',
+													}}
+												>
 													Flow Steps:
 												</h4>
 												<div
@@ -526,24 +569,63 @@ const OIDCOverviewEnhanced = () => {
 											</div>
 
 											{/* Pros and Cons */}
-											<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+											<div
+												style={{
+													display: 'grid',
+													gridTemplateColumns: '1fr 1fr',
+													gap: '1rem',
+													marginBottom: '1.5rem',
+												}}
+											>
 												<div>
-													<h4 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#059669' }}>
+													<h4
+														style={{
+															fontSize: '0.875rem',
+															fontWeight: '600',
+															marginBottom: '0.5rem',
+															color: '#059669',
+														}}
+													>
 														✅ Pros:
 													</h4>
-													<ul style={{ fontSize: '0.875rem', color: '#374151', margin: 0, paddingLeft: '1rem' }}>
+													<ul
+														style={{
+															fontSize: '0.875rem',
+															color: '#374151',
+															margin: 0,
+															paddingLeft: '1rem',
+														}}
+													>
 														{flow.pros.map((pro, index) => (
-															<li key={index} style={{ marginBottom: '0.25rem' }}>{pro}</li>
+															<li key={index} style={{ marginBottom: '0.25rem' }}>
+																{pro}
+															</li>
 														))}
 													</ul>
 												</div>
 												<div>
-													<h4 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#dc2626' }}>
+													<h4
+														style={{
+															fontSize: '0.875rem',
+															fontWeight: '600',
+															marginBottom: '0.5rem',
+															color: '#dc2626',
+														}}
+													>
 														❌ Cons:
 													</h4>
-													<ul style={{ fontSize: '0.875rem', color: '#374151', margin: 0, paddingLeft: '1rem' }}>
+													<ul
+														style={{
+															fontSize: '0.875rem',
+															color: '#374151',
+															margin: 0,
+															paddingLeft: '1rem',
+														}}
+													>
 														{flow.cons.map((con, index) => (
-															<li key={index} style={{ marginBottom: '0.25rem' }}>{con}</li>
+															<li key={index} style={{ marginBottom: '0.25rem' }}>
+																{con}
+															</li>
 														))}
 													</ul>
 												</div>
@@ -551,7 +633,14 @@ const OIDCOverviewEnhanced = () => {
 
 											{/* Best For Applications */}
 											<div>
-												<h4 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.5rem', color: '#374151' }}>
+												<h4
+													style={{
+														fontSize: '0.875rem',
+														fontWeight: '600',
+														marginBottom: '0.5rem',
+														color: '#374151',
+													}}
+												>
 													🎯 Best For:
 												</h4>
 												<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -585,5 +674,3 @@ const OIDCOverviewEnhanced = () => {
 };
 
 export default OIDCOverviewEnhanced;
-
-

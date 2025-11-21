@@ -1,10 +1,10 @@
 // src/services/flowCredentialIsolationService.ts
 /**
  * Flow-Specific Credential Isolation Service
- * 
+ *
  * Implements per-flow-first credential storage to prevent credential bleeding
  * between different OAuth/OIDC flows.
- * 
+ *
  * Key Features:
  * - Each flow gets its own isolated storage namespace
  * - Optional shared fallback (opt-in only)
@@ -13,7 +13,7 @@
  */
 
 import { StepCredentials } from '../components/steps/CommonSteps';
-import { showGlobalSuccess, showGlobalError } from '../hooks/useNotifications';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
 export interface FlowCredentialConfig {
 	flowKey: string;
@@ -33,21 +33,21 @@ export interface FlowCredentialResult {
 class FlowCredentialIsolationService {
 	private readonly FLOW_STORAGE_PREFIX = 'pingone_flow_credentials';
 	private readonly SHARED_STORAGE_KEY = 'pingone_permanent_credentials';
-	
+
 	/**
 	 * Generate isolated storage key for a specific flow
 	 */
 	private getFlowStorageKey(flowKey: string): string {
 		return `${this.FLOW_STORAGE_PREFIX}:${flowKey}`;
 	}
-	
+
 	/**
 	 * Save credentials ONLY for this specific flow (no shared contamination)
 	 */
 	saveFlowCredentials(
-		flowKey: string, 
+		flowKey: string,
 		credentials: StepCredentials,
-		options: { 
+		options: {
 			showToast?: boolean;
 			useSharedFallback?: boolean;
 		} = { showToast: true, useSharedFallback: false }
@@ -57,19 +57,19 @@ class FlowCredentialIsolationService {
 			console.log(`📋 Flow Key: ${flowKey}`);
 			console.log(`📋 Credentials:`, credentials);
 			console.log(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
-			
+
 			// Save to flow-specific storage (ALWAYS)
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
 			const flowData = {
 				credentials,
 				timestamp: Date.now(),
 				flowKey,
-				version: '1.0'
+				version: '1.0',
 			};
-			
+
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
 			console.log(`✅ Saved to flow-specific storage: ${flowStorageKey}`);
-			
+
 			// Optionally save to shared storage (OPT-IN ONLY)
 			if (options.useSharedFallback) {
 				console.log(`📋 Saving to shared storage (opt-in)`);
@@ -78,18 +78,17 @@ class FlowCredentialIsolationService {
 			} else {
 				console.log(`🔒 NOT saving to shared storage (isolation mode)`);
 			}
-			
+
 			// Verify the save
 			const savedData = localStorage.getItem(flowStorageKey);
 			console.log(`📋 Verification - Flow data saved:`, !!savedData);
-			
+
 			if (options.showToast) {
 				showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
 			}
-			
+
 			console.groupEnd();
 			return true;
-			
 		} catch (error) {
 			console.error(`❌ [CREDENTIAL ISOLATION] Failed to save credentials for ${flowKey}:`, error);
 			if (options.showToast) {
@@ -98,30 +97,33 @@ class FlowCredentialIsolationService {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Load credentials ONLY for this specific flow (no shared fallback by default)
 	 */
 	loadFlowCredentials(config: FlowCredentialConfig): FlowCredentialResult {
 		const { flowKey, defaultCredentials = {}, useSharedFallback = false } = config;
-		
+
 		console.group(`🔒 [CREDENTIAL ISOLATION] Loading credentials for flow: ${flowKey}`);
 		console.log(`📋 Flow Key: ${flowKey}`);
 		console.log(`📋 Use Shared Fallback: ${useSharedFallback}`);
-		
+
 		// Try flow-specific storage FIRST (PRIMARY SOURCE)
 		const flowStorageKey = this.getFlowStorageKey(flowKey);
 		const flowData = localStorage.getItem(flowStorageKey);
-		
+
 		let credentials: StepCredentials | null = null;
 		let credentialSource: 'flow-specific' | 'shared-fallback' | 'none' = 'none';
 		let hasFlowSpecificCredentials = false;
 		let hasSharedCredentials = false;
-		
+
 		if (flowData) {
 			try {
 				const parsed = JSON.parse(flowData);
-				if (parsed.credentials && (parsed.credentials.environmentId || parsed.credentials.clientId)) {
+				if (
+					parsed.credentials &&
+					(parsed.credentials.environmentId || parsed.credentials.clientId)
+				) {
 					credentials = { ...defaultCredentials, ...parsed.credentials };
 					credentialSource = 'flow-specific';
 					hasFlowSpecificCredentials = true;
@@ -131,12 +133,12 @@ class FlowCredentialIsolationService {
 				console.error(`❌ Failed to parse flow-specific data for ${flowKey}:`, error);
 			}
 		}
-		
+
 		// Only try shared storage if no flow-specific credentials AND opt-in enabled
 		if (!hasFlowSpecificCredentials && useSharedFallback) {
 			console.log(`📋 No flow-specific credentials, trying shared fallback (opt-in)`);
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
-			
+
 			if (sharedData) {
 				try {
 					const parsed = JSON.parse(sharedData);
@@ -153,21 +155,25 @@ class FlowCredentialIsolationService {
 		} else if (!hasFlowSpecificCredentials) {
 			console.log(`🔒 No flow-specific credentials and shared fallback disabled (isolation mode)`);
 		}
-		
+
 		console.log(`📋 Final credential source: ${credentialSource}`);
 		console.log(`📋 Final credentials:`, credentials);
 		console.groupEnd();
-		
+
 		return {
 			credentials,
 			hasFlowSpecificCredentials,
 			hasSharedCredentials,
 			credentialSource,
 			flowSpecificData: flowData ? JSON.parse(flowData) : undefined,
-			sharedData: useSharedFallback ? (localStorage.getItem(this.SHARED_STORAGE_KEY) ? JSON.parse(localStorage.getItem(this.SHARED_STORAGE_KEY)!) : undefined) : undefined
+			sharedData: useSharedFallback
+				? localStorage.getItem(this.SHARED_STORAGE_KEY)
+					? JSON.parse(localStorage.getItem(this.SHARED_STORAGE_KEY)!)
+					: undefined
+				: undefined,
 		};
 	}
-	
+
 	/**
 	 * Clear credentials ONLY for this specific flow
 	 */
@@ -182,38 +188,40 @@ class FlowCredentialIsolationService {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Migrate existing credentials from shared storage to flow-specific storage
 	 */
 	migrateSharedToFlowSpecific(flowKey: string): boolean {
 		try {
-			console.group(`🔄 [CREDENTIAL MIGRATION] Migrating shared credentials to flow-specific for: ${flowKey}`);
-			
+			console.group(
+				`🔄 [CREDENTIAL MIGRATION] Migrating shared credentials to flow-specific for: ${flowKey}`
+			);
+
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 			if (!sharedData) {
 				console.log(`📋 No shared credentials to migrate`);
 				console.groupEnd();
 				return false;
 			}
-			
+
 			const parsed = JSON.parse(sharedData);
 			if (!parsed.environmentId && !parsed.clientId) {
 				console.log(`📋 Shared credentials are empty, nothing to migrate`);
 				console.groupEnd();
 				return false;
 			}
-			
+
 			// Check if flow-specific credentials already exist
 			const flowStorageKey = this.getFlowStorageKey(flowKey);
 			const existingFlowData = localStorage.getItem(flowStorageKey);
-			
+
 			if (existingFlowData) {
 				console.log(`📋 Flow-specific credentials already exist, skipping migration`);
 				console.groupEnd();
 				return false;
 			}
-			
+
 			// Migrate shared credentials to flow-specific storage
 			const flowData = {
 				credentials: parsed,
@@ -221,21 +229,23 @@ class FlowCredentialIsolationService {
 				flowKey,
 				version: '1.0',
 				migrated: true,
-				migrationTimestamp: Date.now()
+				migrationTimestamp: Date.now(),
 			};
-			
+
 			localStorage.setItem(flowStorageKey, JSON.stringify(flowData));
 			console.log(`✅ Migrated shared credentials to flow-specific storage: ${flowStorageKey}`);
 			console.groupEnd();
-			
+
 			return true;
-			
 		} catch (error) {
-			console.error(`❌ [CREDENTIAL MIGRATION] Failed to migrate credentials for ${flowKey}:`, error);
+			console.error(
+				`❌ [CREDENTIAL MIGRATION] Failed to migrate credentials for ${flowKey}:`,
+				error
+			);
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Audit all flows for credential isolation status
 	 */
@@ -249,49 +259,47 @@ class FlowCredentialIsolationService {
 			'implicit-flow-v7',
 			'ciba-flow-v7',
 			'redirectless-v7-real',
-			'pingone-par-flow-v7'
+			'pingone-par-flow-v7',
 		];
-		
+
 		console.group(`🔍 [CREDENTIAL ISOLATION AUDIT] Auditing all V7 flows`);
-		
+
 		const results: Record<string, FlowCredentialResult> = {};
-		
-		v7Flows.forEach(flowKey => {
+
+		v7Flows.forEach((flowKey) => {
 			results[flowKey] = this.loadFlowCredentials({ flowKey });
 		});
-		
+
 		// Detect flows using shared fallback (potential bleeding)
 		const flowsUsingSharedFallback = Object.entries(results)
 			.filter(([_, result]) => result.credentialSource === 'shared-fallback')
 			.map(([flowKey, _]) => flowKey);
-		
+
 		if (flowsUsingSharedFallback.length > 0) {
 			console.warn(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED!`);
 			console.warn(`📋 Flows using shared fallback:`, flowsUsingSharedFallback);
 		} else {
 			console.log(`✅ All flows are properly isolated!`);
 		}
-		
+
 		console.groupEnd();
-		
+
 		return results;
 	}
-	
+
 	/**
 	 * Get all flow-specific storage keys
 	 */
 	getAllFlowStorageKeys(): string[] {
-		return Object.keys(localStorage).filter(key => 
-			key.startsWith(this.FLOW_STORAGE_PREFIX)
-		);
+		return Object.keys(localStorage).filter((key) => key.startsWith(this.FLOW_STORAGE_PREFIX));
 	}
-	
+
 	/**
 	 * Clear all flow-specific credentials (for testing)
 	 */
 	clearAllFlowCredentials(): void {
 		const flowKeys = this.getAllFlowStorageKeys();
-		flowKeys.forEach(key => {
+		flowKeys.forEach((key) => {
 			localStorage.removeItem(key);
 			console.log(`🗑️ Cleared: ${key}`);
 		});

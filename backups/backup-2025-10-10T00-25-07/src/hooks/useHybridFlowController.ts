@@ -1,26 +1,26 @@
 // src/hooks/useHybridFlowController.ts
 /**
  * Hybrid Flow Controller Hook - V6 Architecture
- * 
+ *
  * Modern controller for OIDC Hybrid Flow V6 with service-based architecture
  * Follows the same patterns as useAuthorizationCodeFlowController
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+	HybridFlowConfig,
+	HybridFlowCredentialsSync,
+	HybridFlowDefaults,
+	HybridFlowResponseTypeManager,
+	HybridFlowTokenProcessor,
+	HybridFlowVariant,
+	HybridTokens,
+	log,
+} from '../services/hybridFlowSharedService';
 import { StepCredentials } from '../types/flowTypes';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { 
-	HybridFlowVariant, 
-	HybridTokens, 
-	HybridFlowConfig,
-	HybridFlowCredentialsSync,
-	HybridFlowResponseTypeManager,
-	HybridFlowTokenProcessor,
-	HybridFlowDefaults,
-	log
-} from '../services/hybridFlowSharedService';
 
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
@@ -83,7 +83,7 @@ export interface HybridFlowController {
 const generateRandomString = (length: number = 32): string => {
 	const array = new Uint8Array(length);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 // Generate PKCE codes
@@ -100,7 +100,9 @@ const generatePKCE = async (): Promise<{ codeVerifier: string; codeChallenge: st
 	return { codeVerifier, codeChallenge };
 };
 
-export const useHybridFlowController = (options: HybridFlowControllerOptions = {}): HybridFlowController => {
+export const useHybridFlowController = (
+	options: HybridFlowControllerOptions = {}
+): HybridFlowController => {
 	const {
 		flowKey = 'hybrid-flow-v6',
 		defaultFlowVariant = 'code-id-token',
@@ -119,7 +121,10 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	const [hasValidCredentials, setHasValidCredentials] = useState(false);
 
 	// PKCE
-	const [pkceCodes, setPkceCodes] = useState<{ codeVerifier: string; codeChallenge: string } | null>(null);
+	const [pkceCodes, setPkceCodes] = useState<{
+		codeVerifier: string;
+		codeChallenge: string;
+	} | null>(null);
 
 	// State & Nonce
 	const [state, setState] = useState<string | null>(null);
@@ -229,23 +234,26 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	}, []);
 
 	// Set credentials with validation
-	const setCredentials = useCallback((newCredentials: StepCredentials) => {
-		setCredentialsState(newCredentials);
-		
-		// Validate credentials
-		const isValid = !!(newCredentials.environmentId && newCredentials.clientId);
-		setHasValidCredentials(isValid);
+	const setCredentials = useCallback(
+		(newCredentials: StepCredentials) => {
+			setCredentialsState(newCredentials);
 
-		// Sync credentials
-		HybridFlowCredentialsSync.syncCredentials(flowVariant, newCredentials);
+			// Validate credentials
+			const isValid = !!(newCredentials.environmentId && newCredentials.clientId);
+			setHasValidCredentials(isValid);
 
-		log.info('Credentials updated', {
-			environmentId: newCredentials.environmentId,
-			clientId: newCredentials.clientId?.substring(0, 8) + '...',
-			responseType: newCredentials.responseType,
-			isValid,
-		});
-	}, [flowVariant]);
+			// Sync credentials
+			HybridFlowCredentialsSync.syncCredentials(flowVariant, newCredentials);
+
+			log.info('Credentials updated', {
+				environmentId: newCredentials.environmentId,
+				clientId: newCredentials.clientId?.substring(0, 8) + '...',
+				responseType: newCredentials.responseType,
+				isValid,
+			});
+		},
+		[flowVariant]
+	);
 
 	// Save credentials to credential manager
 	const saveCredentials = useCallback(async (): Promise<void> => {
@@ -344,7 +352,8 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 			}
 
 			// Get authorization endpoint from credentials
-			const authEndpoint = credentials.authorizationEndpoint || 'https://auth.pingone.com/oauth2/authorize';
+			const authEndpoint =
+				credentials.authorizationEndpoint || 'https://auth.pingone.com/oauth2/authorize';
 			const url = `${authEndpoint}?${params.toString()}`;
 
 			setAuthorizationUrl(url);
@@ -357,7 +366,8 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 
 			return url;
 		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to generate authorization URL';
+			const errorMsg =
+				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			log.error('Failed to generate authorization URL', error);
 			v4ToastManager.showError(errorMsg);
 			return null;
@@ -383,79 +393,86 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	}, []);
 
 	// Merge tokens from fragment and exchange
-	const mergeTokens = useCallback((fragmentTokens: HybridTokens, exchangeTokens: HybridTokens): HybridTokens => {
-		const merged = HybridFlowTokenProcessor.mergeTokens(fragmentTokens, exchangeTokens);
-		setTokens(merged);
-		return merged;
-	}, []);
+	const mergeTokens = useCallback(
+		(fragmentTokens: HybridTokens, exchangeTokens: HybridTokens): HybridTokens => {
+			const merged = HybridFlowTokenProcessor.mergeTokens(fragmentTokens, exchangeTokens);
+			setTokens(merged);
+			return merged;
+		},
+		[]
+	);
 
 	// Exchange code for tokens
-	const exchangeCodeForTokens = useCallback(async (code: string): Promise<HybridTokens> => {
-		if (!credentials) {
-			throw new Error('No credentials available for token exchange');
-		}
-
-		try {
-			setIsExchangingCode(true);
-			setError(null);
-
-			const tokenEndpoint = credentials.tokenEndpoint || 'https://auth.pingone.com/oauth2/token';
-			const requestBody = new URLSearchParams({
-				grant_type: 'authorization_code',
-				code: code,
-				redirect_uri: credentials.redirectUri || 'https://localhost:3000/hybrid-callback',
-				client_id: credentials.clientId,
-			});
-
-			// Add client secret if available
-			if (credentials.clientSecret) {
-				requestBody.append('client_secret', credentials.clientSecret);
+	const exchangeCodeForTokens = useCallback(
+		async (code: string): Promise<HybridTokens> => {
+			if (!credentials) {
+				throw new Error('No credentials available for token exchange');
 			}
 
-			// Add PKCE code verifier if available
-			if (pkceCodes) {
-				requestBody.append('code_verifier', pkceCodes.codeVerifier);
+			try {
+				setIsExchangingCode(true);
+				setError(null);
+
+				const tokenEndpoint = credentials.tokenEndpoint || 'https://auth.pingone.com/oauth2/token';
+				const requestBody = new URLSearchParams({
+					grant_type: 'authorization_code',
+					code: code,
+					redirect_uri: credentials.redirectUri || 'https://localhost:3000/hybrid-callback',
+					client_id: credentials.clientId,
+				});
+
+				// Add client secret if available
+				if (credentials.clientSecret) {
+					requestBody.append('client_secret', credentials.clientSecret);
+				}
+
+				// Add PKCE code verifier if available
+				if (pkceCodes) {
+					requestBody.append('code_verifier', pkceCodes.codeVerifier);
+				}
+
+				const response = await fetch('/api/token-exchange', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: requestBody.toString(),
+				});
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+				}
+
+				const tokenData = await response.json();
+				const exchangeTokens: HybridTokens = {
+					...tokenData,
+					code: code, // Include the authorization code
+				};
+
+				// Merge with existing tokens if any
+				const mergedTokens = tokens ? mergeTokens(tokens, exchangeTokens) : exchangeTokens;
+
+				log.success('Code exchanged for tokens', {
+					hasAccessToken: !!mergedTokens.access_token,
+					hasIdToken: !!mergedTokens.id_token,
+					hasRefreshToken: !!mergedTokens.refresh_token,
+				});
+
+				return mergedTokens;
+			} catch (error) {
+				const errorMsg =
+					error instanceof Error ? error.message : 'Failed to exchange authorization code';
+				log.error('Code exchange failed', error);
+				setError(errorMsg);
+				v4ToastManager.showError(errorMsg);
+				throw error;
+			} finally {
+				setIsExchangingCode(false);
 			}
-
-			const response = await fetch('/api/token-exchange', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: requestBody.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
-			}
-
-			const tokenData = await response.json();
-			const exchangeTokens: HybridTokens = {
-				...tokenData,
-				code: code, // Include the authorization code
-			};
-
-			// Merge with existing tokens if any
-			const mergedTokens = tokens ? mergeTokens(tokens, exchangeTokens) : exchangeTokens;
-
-			log.success('Code exchanged for tokens', {
-				hasAccessToken: !!mergedTokens.access_token,
-				hasIdToken: !!mergedTokens.id_token,
-				hasRefreshToken: !!mergedTokens.refresh_token,
-			});
-
-			return mergedTokens;
-		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to exchange authorization code';
-			log.error('Code exchange failed', error);
-			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
-			throw error;
-		} finally {
-			setIsExchangingCode(false);
-		}
-	}, [credentials, pkceCodes, tokens, mergeTokens]);
+		},
+		[credentials, pkceCodes, tokens, mergeTokens]
+	);
 
 	// Clear error
 	const clearError = useCallback(() => {
@@ -465,7 +482,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	// Reset flow
 	const reset = useCallback(() => {
 		log.info('Resetting hybrid flow');
-		
+
 		setCredentialsState(null);
 		setHasValidCredentials(false);
 		setFlowVariant(defaultFlowVariant);

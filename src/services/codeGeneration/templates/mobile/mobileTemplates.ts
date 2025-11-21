@@ -4,8 +4,8 @@
  */
 
 export class ReactNativeTemplates {
-  static authorization(config: any): string {
-    return `// React Native - Authorization
+	static authorization(config: any): string {
+		return `// React Native - Authorization
 import React, { useState } from 'react';
 import { View, Button, Alert } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
@@ -70,10 +70,10 @@ export const AuthScreen = () => {
     </View>
   );
 };`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// React Native - Worker Token
+	static workerToken(config: any): string {
+		return `// React Native - Worker Token
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const config = {
@@ -107,10 +107,10 @@ export const getWorkerToken = async (): Promise<string> => {
     throw error;
   }
 };`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// React Native - Device Selection
+	static deviceSelection(config: any): string {
+		return `// React Native - Device Selection
 import React, { useState, useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text } from 'react-native';
 
@@ -165,10 +165,10 @@ export const DeviceList = ({ userId, accessToken, onSelect }: any) => {
     />
   );
 };`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// React Native - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// React Native - MFA Challenge
 import React, { useState } from 'react';
 import { View, Button, Text, Alert } from 'react-native';
 
@@ -211,10 +211,10 @@ export const MFAChallenge = ({ userId, deviceId, accessToken }: any) => {
     </View>
   );
 };`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// React Native - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// React Native - MFA Verification
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert } from 'react-native';
 
@@ -268,10 +268,10 @@ export const MFAVerification = ({ userId, deviceId, accessToken, onSuccess }: an
     </View>
   );
 };`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// React Native - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// React Native - Device Registration
 import React, { useState } from 'react';
 import { View, TextInput, Button, Picker, Alert } from 'react-native';
 
@@ -335,12 +335,12 @@ export const DeviceRegistration = ({ userId, accessToken, onSuccess }: any) => {
     </View>
   );
 };`;
-  }
+	}
 }
 
 export class FlutterTemplates {
-  static authorization(config: any): string {
-    return `// Flutter - Authorization
+	static authorization(config: any): string {
+		return `// Flutter - Authorization
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -394,9 +394,9 @@ class AuthService {
       });
 
       // Launch URL in browser
-      print('Auth URL: \$authUrl');
+      print('Auth URL: $authUrl');
     } catch (e) {
-      print('Login failed: \$e');
+      print('Login failed: $e');
     }
   }
 }
@@ -412,10 +412,10 @@ class LoginButton extends StatelessWidget {
     );
   }
 }`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// Flutter - Worker Token
+	static workerToken(config: any): string {
+		return `// Flutter - Worker Token
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -445,15 +445,15 @@ class WorkerTokenService {
         throw Exception('Failed to get worker token');
       }
     } catch (e) {
-      print('Error: \$e');
+      print('Error: $e');
       rethrow;
     }
   }
 }`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// Flutter - Device Selection
+	static deviceSelection(config: any): string {
+		return `// Flutter - Device Selection
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -518,7 +518,7 @@ class _DeviceListWidgetState extends State<DeviceListWidget> {
         });
       }
     } catch (e) {
-      print('Error: \$e');
+      print('Error: $e');
       setState(() => loading = false);
     }
   }
@@ -540,10 +540,10 @@ class _DeviceListWidgetState extends State<DeviceListWidget> {
     );
   }
 }`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// Flutter - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// Flutter - MFA Challenge
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -581,7 +581,7 @@ class _MFAChallengeWidgetState extends State<MFAChallengeWidget> {
         );
       }
     } catch (e) {
-      print('Error: \$e');
+      print('Error: $e');
     } finally {
       setState(() => loading = false);
     }
@@ -595,10 +595,10 @@ class _MFAChallengeWidgetState extends State<MFAChallengeWidget> {
     );
   }
 }`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// Flutter - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// Flutter - MFA Verification
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -648,7 +648,7 @@ class _MFAVerificationWidgetState extends State<MFAVerificationWidget> {
         }
       }
     } catch (e) {
-      print('Error: \$e');
+      print('Error: $e');
     } finally {
       setState(() => loading = false);
     }
@@ -672,10 +672,10 @@ class _MFAVerificationWidgetState extends State<MFAVerificationWidget> {
     );
   }
 }`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// Flutter - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// Flutter - Device Registration
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -708,7 +708,7 @@ class _DeviceRegistrationWidgetState extends State<DeviceRegistrationWidget> {
     try {
       final payload = {
         'type': deviceType,
-        'name': nameController.text.isEmpty ? 'My \$deviceType Device' : nameController.text,
+        'name': nameController.text.isEmpty ? 'My $deviceType Device' : nameController.text,
       };
 
       if (deviceType == 'SMS') payload['phone'] = phoneController.text;
@@ -728,7 +728,7 @@ class _DeviceRegistrationWidgetState extends State<DeviceRegistrationWidget> {
         widget.onSuccess(device);
       }
     } catch (e) {
-      print('Error: \$e');
+      print('Error: $e');
     } finally {
       setState(() => loading = false);
     }
@@ -769,5 +769,5 @@ class _DeviceRegistrationWidgetState extends State<DeviceRegistrationWidget> {
     );
   }
 }`;
-  }
+	}
 }

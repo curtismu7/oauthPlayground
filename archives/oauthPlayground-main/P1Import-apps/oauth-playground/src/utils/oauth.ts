@@ -1,16 +1,16 @@
 // OAuth 2.0 and OpenID Connect Utility Functions
+
+import { createHash, randomBytes } from 'crypto';
 import {
-	OAuthConfig,
 	AuthorizationRequest,
-	TokenRequest,
-	TokenResponse,
 	IdTokenPayload,
-	UserInfo,
+	OAuthConfig,
 	OAuthError,
 	OAuthFlow,
+	TokenRequest,
+	TokenResponse,
+	UserInfo,
 } from '../types/oauth';
-
-import { randomBytes, createHash } from 'crypto';
 
 /**
  * Generate a random string for state parameter

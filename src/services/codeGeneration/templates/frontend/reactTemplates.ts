@@ -4,8 +4,8 @@
  */
 
 export class ReactTemplates {
-  static authorization(config: any): string {
-    return `// React - Authorization Flow
+	static authorization(config: any): string {
+		return `// React - Authorization Flow
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 /**
@@ -126,10 +126,10 @@ export const LoginButton: React.FC = () => {
     </button>
   );
 };`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// React - Worker Token Hook
+	static workerToken(config: any): string {
+		return `// React - Worker Token Hook
 import { useState, useEffect } from 'react';
 
 /**
@@ -210,10 +210,10 @@ export const WorkerTokenDisplay: React.FC = () => {
     </div>
   );
 };`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// React - MFA Device Selection
+	static deviceSelection(config: any): string {
+		return `// React - MFA Device Selection
 import React, { useState, useEffect } from 'react';
 
 /**
@@ -304,10 +304,10 @@ export const MFADeviceList: React.FC<DeviceListProps> = ({
     </div>
   );
 };`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// React - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// React - MFA Challenge
 import React, { useState } from 'react';
 
 /**
@@ -387,10 +387,10 @@ export const MFAChallenge: React.FC<MFAChallengeProps> = ({
     </div>
   );
 };`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// React - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// React - MFA Verification
 import React, { useState } from 'react';
 
 /**
@@ -484,10 +484,10 @@ export const MFAVerification: React.FC<MFAVerificationProps> = ({
     </div>
   );
 };`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// React - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// React - Device Registration
 import React, { useState } from 'react';
 
 /**
@@ -626,5 +626,5 @@ export const DeviceRegistration: React.FC<DeviceRegistrationProps> = ({
     </div>
   );
 };`;
-  }
+	}
 }

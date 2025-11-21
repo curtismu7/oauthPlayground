@@ -2,10 +2,10 @@
 // Update Password (Set Value) Tab Component
 
 import React, { useState } from 'react';
-import { FiCheckCircle, FiEye, FiEyeOff, FiSearch, FiExternalLink, FiBook } from 'react-icons/fi';
+import { FiBook, FiCheckCircle, FiExternalLink, FiEye, FiEyeOff, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { setPasswordValue as setPasswordValueService } from '../../services/passwordResetService';
+import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const HELIOMART_ACCENT_START = '#F59E0B';
@@ -26,17 +26,17 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
-	background: ${props => {
+	background: ${(props) => {
 		if (props.$type === 'success') return '#F0FDF4';
 		if (props.$type === 'error') return '#FEF2F2';
 		return '#EFF6FF';
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		if (props.$type === 'success') return '#22C55E';
 		if (props.$type === 'error') return '#DC2626';
 		return '#3B82F6';
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		if (props.$type === 'success') return '#166534';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
@@ -88,7 +88,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 	cursor: pointer;
 	transition: all 0.2s;
 
-	${props => {
+	${(props) => {
 		if (props.$variant === 'success') {
 			return `
 				background: #22C55E;
@@ -238,23 +238,35 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 		setUser(null);
 		setSuccess(false);
 		try {
-			console.log('[PasswordSetValueTab] Looking up user:', { identifier, environmentId: environmentId?.substring(0, 20) + '...' });
+			console.log('[PasswordSetValueTab] Looking up user:', {
+				identifier,
+				environmentId: `${environmentId?.substring(0, 20)}...`,
+			});
 			const result = await lookupPingOneUser({
 				environmentId,
 				accessToken: workerToken,
 				identifier: identifier.trim(),
 			});
-			console.log('[PasswordSetValueTab] Lookup result:', { hasUser: !!result.user, userId: result.user?.id });
-			if (result.user && result.user.id) {
+			console.log('[PasswordSetValueTab] Lookup result:', {
+				hasUser: !!result.user,
+				userId: result.user?.id,
+			});
+			if (result.user?.id) {
 				setUser(result.user as unknown as User);
-				v4ToastManager.showSuccess(`User found: ${result.user.email || result.user.username || result.user.id}`);
+				v4ToastManager.showSuccess(
+					`User found: ${result.user.email || result.user.username || result.user.id}`
+				);
 			} else {
-				v4ToastManager.showError(`User not found with identifier: ${identifier}. Please check the username or email address.`);
+				v4ToastManager.showError(
+					`User not found with identifier: ${identifier}. Please check the username or email address.`
+				);
 			}
 		} catch (error) {
 			console.error('[PasswordSetValueTab] Lookup error:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Failed to lookup user';
-			v4ToastManager.showError(`${errorMessage}. Make sure the worker token has p1:read:user scope.`);
+			v4ToastManager.showError(
+				`${errorMessage}. Make sure the worker token has p1:read:user scope.`
+			);
 		} finally {
 			setLookupLoading(false);
 		}
@@ -268,10 +280,16 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 		setLoading(true);
 		setSuccess(false);
 		try {
-			const result = await setPasswordValueService(environmentId, user.id as string, workerToken, password, { forceChange, bypassPasswordPolicy });
+			const result = await setPasswordValueService(
+				environmentId,
+				user.id as string,
+				workerToken,
+				password,
+				{ forceChange, bypassPasswordPolicy }
+			);
 			if (result.success) {
 				setSuccess(true);
-				const message = forceChange 
+				const message = forceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully! User can now sign in with the new password.';
 				v4ToastManager.showSuccess(message);
@@ -290,29 +308,48 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 
 	return (
 		<Card>
-			<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Update Password (Set Value)</h2>
-			
-			<Alert $type="success" style={{ marginBottom: '1.5rem', borderColor: '#22C55E', background: '#F0FDF4' }}>
+			<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+				Update Password (Set Value)
+			</h2>
+
+			<Alert
+				$type="success"
+				style={{ marginBottom: '1.5rem', borderColor: '#22C55E', background: '#F0FDF4' }}
+			>
 				<FiCheckCircle style={{ color: '#22C55E' }} />
 				<div>
 					<strong style={{ color: '#22C55E' }}>✅ Recommended for Admin Password Resets</strong>
 					<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-						<strong>Requires:</strong> Worker token + New password<br/>
-						<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.setValue+json</code><br/>
-						<strong style={{ color: '#22C55E' }}>✅ This is the recommended approach:</strong> Sets password without requiring a recovery code and does <strong>NOT</strong> put the user in a forced password change state. 
-						The user can sign in immediately with the new password.
+						<strong>Requires:</strong> Worker token + New password
+						<br />
+						<strong>Content-Type Header:</strong>{' '}
+						<code
+							style={{
+								background: '#F3F4F6',
+								padding: '0.25rem 0.5rem',
+								borderRadius: '0.25rem',
+								fontSize: '0.875rem',
+							}}
+						>
+							application/vnd.pingidentity.password.setValue+json
+						</code>
+						<br />
+						<strong style={{ color: '#22C55E' }}>✅ This is the recommended approach:</strong> Sets
+						password without requiring a recovery code and does <strong>NOT</strong> put the user in
+						a forced password change state. The user can sign in immediately with the new password.
 					</p>
 				</div>
 			</Alert>
-			
+
 			<DocumentationSection>
-				<DocumentationLink 
-					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-					target="_blank" 
+				<DocumentationLink
+					href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+					target="_blank"
 					rel="noopener noreferrer"
 				>
 					<FiBook />
-					PingOne API: Update Password (Set Value) - Content-Type: application/vnd.pingidentity.password.setValue+json
+					PingOne API: Update Password (Set Value) - Content-Type:
+					application/vnd.pingidentity.password.setValue+json
 					<FiExternalLink size={14} />
 				</DocumentationLink>
 			</DocumentationSection>
@@ -324,7 +361,8 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 						Password Set Successfully!
 					</SuccessTitle>
 					<SuccessText>
-						The user's password has been set. They can now sign in with the new password without being forced to change it.
+						The user's password has been set. They can now sign in with the new password without
+						being forced to change it.
 					</SuccessText>
 				</SuccessMessage>
 			)}
@@ -394,7 +432,9 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 					</FormGroup>
 
 					<FormGroup>
-						<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+						<Label
+							style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+						>
 							<input
 								type="checkbox"
 								checked={forceChange}
@@ -403,14 +443,23 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 							/>
 							<span>Force password change on next sign-on</span>
 						</Label>
-						<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-							If checked, the user will be required to change their password when they next sign in. 
+						<p
+							style={{
+								marginTop: '0.5rem',
+								fontSize: '0.875rem',
+								color: '#6B7280',
+								marginLeft: '1.75rem',
+							}}
+						>
+							If checked, the user will be required to change their password when they next sign in.
 							Leave unchecked to allow immediate sign-in with the new password.
 						</p>
 					</FormGroup>
 
 					<FormGroup>
-						<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+						<Label
+							style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+						>
 							<input
 								type="checkbox"
 								checked={bypassPasswordPolicy}
@@ -419,9 +468,17 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 							/>
 							<span>Bypass password policy</span>
 						</Label>
-						<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-							If checked, the password will be set even if it doesn't meet the password policy requirements. 
-							Use with caution - this allows setting weak passwords that may violate security policies.
+						<p
+							style={{
+								marginTop: '0.5rem',
+								fontSize: '0.875rem',
+								color: '#6B7280',
+								marginLeft: '1.75rem',
+							}}
+						>
+							If checked, the password will be set even if it doesn't meet the password policy
+							requirements. Use with caution - this allows setting weak passwords that may violate
+							security policies.
 						</p>
 					</FormGroup>
 
@@ -434,4 +491,3 @@ export const PasswordSetValueTab: React.FC<PasswordSetValueTabProps> = ({
 		</Card>
 	);
 };
-

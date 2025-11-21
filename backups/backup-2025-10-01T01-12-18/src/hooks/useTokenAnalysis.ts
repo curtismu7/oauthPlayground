@@ -1,14 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
-	tokenAnalyzer,
 	analyzeToken,
 	getTokenRefreshInfo,
 	performSecurityAnalysis,
 	TokenAnalysisResult,
 	TokenRefreshInfo,
 	TokenSecurityAnalysis,
+	tokenAnalyzer,
 } from '../utils/tokenAnalysis';
-import { logger } from '../utils/logger';
 
 // Token analysis hook configuration
 export interface UseTokenAnalysisConfig {

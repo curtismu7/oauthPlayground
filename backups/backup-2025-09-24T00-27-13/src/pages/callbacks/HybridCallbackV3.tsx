@@ -1,25 +1,25 @@
 // src/pages/callbacks/HybridCallbackV3.tsx - OIDC Hybrid Flow Callback Handler V3
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiShield,
-	FiKey,
-	FiGlobe,
-	FiCode,
-	FiUser,
+	FiCheckCircle,
 	FiClock,
+	FiCode,
+	FiGlobe,
+	FiKey,
 	FiRefreshCw,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { logger } from '../../utils/logger';
+import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
+import TokenDisplay from '../../components/TokenDisplay';
+import { discoveryService } from '../../services/discoveryService';
 import { enhancedDebugger } from '../../utils/enhancedDebug';
 import { decodeJwt, validateToken } from '../../utils/jwt';
-import { discoveryService } from '../../services/discoveryService';
+import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import TokenDisplay from '../../components/TokenDisplay';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
 
 // Styled components
 const Container = styled.div`

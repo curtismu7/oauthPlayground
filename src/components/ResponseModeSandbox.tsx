@@ -4,16 +4,9 @@
  * Visualizes how authorization responses travel for query, fragment, form_post, and PingOne redirectless
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { FiActivity, FiGitBranch, FiInfo, FiNavigation, FiShare2 } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	FiShare2,
-	FiGitBranch,
-	FiMap,
-	FiInfo,
-	FiNavigation,
-	FiActivity,
-} from 'react-icons/fi';
 
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
 
@@ -156,8 +149,7 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		tagline: 'PingOne redirectless authentication (JSON payload)',
 		bestFor: ['PingOne redirectless SPA flows', 'Embedded login experiences'],
 		payloadVisibleIn: 'XHR / fetch response body; never leaves auth.pingone.com',
-		attackWindow:
-			'Low when resume URL handled correctly. Requires secure storage of resume data.',
+		attackWindow: 'Low when resume URL handled correctly. Requires secure storage of resume data.',
 		notes: [
 			'✅ Redirectless: PingOne returns JSON with resumeUrl + code back to SPA.',
 			'🔁 Your app must POST to resume endpoint to finalize tokens.',
@@ -185,8 +177,7 @@ const MODE_LIBRARY: Record<ResponseMode, ResponseModeDefinition> = {
 		pingoneSupport: 'full',
 		sampleResponse: {
 			code: 'Oxt5Rk...0Y',
-			resumeUrl:
-				'https://auth.pingone.com/{envId}/as/resume?flowId=...&resume=true&code=Oxt5Rk',
+			resumeUrl: 'https://auth.pingone.com/{envId}/as/resume?flowId=...&resume=true&code=Oxt5Rk',
 			state: 'redirectless_state_88',
 		},
 	},
@@ -236,7 +227,9 @@ const ModeCard = styled.button<{ $selected: boolean }>`
 	border-radius: 0.75rem;
 	border: 2px solid ${({ $selected }) => ($selected ? '#0ea5e9' : '#cbd5f5')};
 	background: ${({ $selected }) =>
-		$selected ? 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.2))' : '#ffffff'};
+		$selected
+			? 'linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(59, 130, 246, 0.2))'
+			: '#ffffff'};
 	box-shadow: ${({ $selected }) =>
 		$selected ? '0 8px 20px rgba(14, 165, 233, 0.25)' : '0 2px 6px rgba(15, 23, 42, 0.05)'};
 	cursor: pointer;
@@ -571,4 +564,3 @@ const ResponseModeSandbox: React.FC = () => {
 };
 
 export default ResponseModeSandbox;
-

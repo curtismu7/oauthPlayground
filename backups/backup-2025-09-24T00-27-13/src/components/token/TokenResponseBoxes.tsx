@@ -1,6 +1,6 @@
 import React from 'react';
-import styled from 'styled-components';
 import { FiCopy } from 'react-icons/fi';
+import styled from 'styled-components';
 import { logger } from '../../utils/logger';
 
 interface TokenResponseBoxesProps {

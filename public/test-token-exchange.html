@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Exchange Test Helper</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f9fafb;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 6px;
+            border-left: 4px solid #3b82f6;
+        }
+        .section h2 {
+            color: #1f2937;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .command {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .command:hover {
+            background: #374151;
+        }
+        .command::before {
+            content: '$ ';
+            color: #10b981;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        button.secondary {
+            background: #6b7280;
+        }
+        button.secondary:hover {
+            background: #4b5563;
+        }
+        .success {
+            color: #065f46;
+            background: #d1fae5;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #991b1b;
+            background: #fee2e2;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .info {
+            color: #1e40af;
+            background: #dbeafe;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        #output {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        .step {
+            margin: 15px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #3b82f6;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Token Exchange Test Helper</h1>
+        <p class="subtitle">Test the OAuth authorization code single-use fix</p>
+
+        <div class="section">
+            <h2>📋 Quick Test</h2>
+            <p>Run these commands in the browser console (F12):</p>
+            <div class="command" onclick="copyCommand('runTokenExchangeTests()')">runTokenExchangeTests()</div>
+            <div class="command" onclick="copyCommand('await runIntegrationTests()')">await runIntegrationTests()</div>
+            <button onclick="openConsole()">Open Console</button>
+            <button class="secondary" onclick="runTests()">Run Tests Now</button>
+        </div>
+
+        <div class="section">
+            <h2>🎯 What's Being Tested?</h2>
+            <div class="info">
+                <strong>Problem:</strong> Users could click "Exchange Code for Tokens" multiple times, causing OAuth errors.
+            </div>
+            <div class="success">
+                <strong>Fix:</strong> After successful exchange, the button is hidden and a success message is shown.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Manual Test Steps</h2>
+            <div class="step" data-step="1">
+                Navigate to: <code>/v8u/unified/oauth-authz</code>
+                <button onclick="navigate()">Go to Flow</button>
+            </div>
+            <div class="step" data-step="2">
+                Complete OAuth flow through Step 3 (get authorization code)
+            </div>
+            <div class="step" data-step="3">
+                Click "Exchange Code for Tokens"
+            </div>
+            <div class="step" data-step="4">
+                <strong>Look for:</strong>
+                <ul>
+                    <li>✅ Green success message appears</li>
+                    <li>✅ Button disappears</li>
+                    <li>✅ No error messages visible</li>
+                </ul>
+            </div>
+            <div class="step" data-step="5">
+                Try to click button again - it should be gone!
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Expected Results</h2>
+            <div class="success">
+                <strong>✅ PASSING (Fix Working)</strong><br>
+                Test 5: ✅ Reuse Attempt Prevention<br>
+                ✅ Reuse prevented: Button hidden, success message shown, cannot click
+            </div>
+            <div class="error">
+                <strong>❌ FAILING (Fix Broken)</strong><br>
+                Test 5: ❌ Reuse Attempt Prevention<br>
+                ❌ Reuse not prevented: Button still accessible
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔍 Test Output</h2>
+            <button onclick="runUnitTests()">Run Unit Tests</button>
+            <button onclick="runIntegrationTests()">Run Integration Tests</button>
+            <button class="secondary" onclick="clearOutput()">Clear Output</button>
+            <div id="output">Click "Run Tests" to see results...</div>
+        </div>
+    </div>
+
+    <script>
+        function copyCommand(cmd) {
+            navigator.clipboard.writeText(cmd);
+            alert('Copied to clipboard: ' + cmd);
+        }
+
+        function openConsole() {
+            alert('Press F12 (Windows) or Cmd+Option+I (Mac) to open the console');
+        }
+
+        function navigate() {
+            window.location.href = '/v8u/unified/oauth-authz';
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = 'Output cleared...';
+        }
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            output.textContent += `[${timestamp}] ${prefix} ${message}\n`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function runTests() {
+            clearOutput();
+            log('Starting test suite...', 'info');
+            
+            try {
+                // Check if tests are available
+                if (typeof window.runTokenExchangeTests === 'undefined') {
+                    log('Tests not loaded. Please navigate to the main app first.', 'error');
+                    log('Go to: /v8u/unified/oauth-authz', 'info');
+                    return;
+                }
+
+                log('Running unit tests...', 'info');
+                const unitResults = window.runTokenExchangeTests();
+                const unitPassed = unitResults.filter(r => r.passed).length;
+                const unitTotal = unitResults.length;
+                log(`Unit Tests: ${unitPassed}/${unitTotal} passed`, unitPassed === unitTotal ? 'success' : 'error');
+
+                log('Running integration tests...', 'info');
+                const integrationResults = await window.runIntegrationTests();
+                const integrationPassed = integrationResults.filter(r => r.passed).length;
+                const integrationTotal = integrationResults.length;
+                log(`Integration Tests: ${integrationPassed}/${integrationTotal} passed`, integrationPassed === integrationTotal ? 'success' : 'error');
+
+                const totalPassed = unitPassed + integrationPassed;
+                const totalTests = unitTotal + integrationTotal;
+                
+                if (totalPassed === totalTests) {
+                    log('🎉 All tests passed! Fix is working correctly.', 'success');
+                } else {
+                    log(`⚠️ ${totalTests - totalPassed} test(s) failed. Check console for details.`, 'error');
+                }
+            } catch (error) {
+                log('Error running tests: ' + error.message, 'error');
+                log('Make sure you are on the main app page.', 'info');
+            }
+        }
+
+        async function runUnitTests() {
+            clearOutput();
+            log('Running unit tests...', 'info');
+            
+            try {
+                if (typeof window.runTokenExchangeTests === 'undefined') {
+                    log('Tests not loaded. Navigate to main app first.', 'error');
+                    return;
+                }
+
+                const results = window.runTokenExchangeTests();
+                results.forEach((result, index) => {
+                    log(`Test ${index + 1}: ${result.testName} - ${result.passed ? 'PASS' : 'FAIL'}`, result.passed ? 'success' : 'error');
+                });
+
+                const passed = results.filter(r => r.passed).length;
+                log(`Total: ${passed}/${results.length} passed`, passed === results.length ? 'success' : 'error');
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function runIntegrationTests() {
+            clearOutput();
+            log('Running integration tests...', 'info');
+            
+            try {
+                if (typeof window.runIntegrationTests === 'undefined') {
+                    log('Tests not loaded. Navigate to main app first.', 'error');
+                    return;
+                }
+
+                const results = await window.runIntegrationTests();
+                results.forEach((result, index) => {
+                    log(`Test ${index + 1}: ${result.testName} - ${result.passed ? 'PASS' : 'FAIL'}`, result.passed ? 'success' : 'error');
+                });
+
+                const passed = results.filter(r => r.passed).length;
+                log(`Total: ${passed}/${results.length} passed`, passed === results.length ? 'success' : 'error');
+            } catch (error) {
+                log('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Log initial message
+        log('Test helper loaded. Click "Run Tests Now" or navigate to the OAuth flow.', 'info');
+    </script>
+</body>
+</html>

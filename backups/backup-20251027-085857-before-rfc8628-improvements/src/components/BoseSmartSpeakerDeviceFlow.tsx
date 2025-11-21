@@ -2,9 +2,19 @@
 // Bose Smart Speaker Style Device Authorization Flow Interface
 // Designed to look like actual Bose smart speakers
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiVolume2, FiPlay, FiPause, FiWifi } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiPause,
+	FiPlay,
+	FiVolume2,
+	FiWifi,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
@@ -130,14 +140,18 @@ const ControlLabel = styled.div`
 const ControlValue = styled.div<{ $status?: string }>`
   font-size: 0.875rem;
   font-weight: 500;
-  color: ${props => {
-    switch (props.$status) {
-      case 'connected': return '#10b981';
-      case 'disconnected': return '#ef4444';
-      case 'pending': return '#f59e0b';
-      default: return '#ffffff';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'connected':
+				return '#10b981';
+			case 'disconnected':
+				return '#ef4444';
+			case 'pending':
+				return '#f59e0b';
+			default:
+				return '#ffffff';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -147,9 +161,9 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 8px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -252,7 +266,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -304,234 +318,238 @@ const SuccessMessage = styled.div`
 `;
 
 interface BoseSmartSpeakerDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('BoseSmartSpeakerDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('BoseSmartSpeakerDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'Speaker Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'Speaker Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  // Bose music apps
-  const musicApps = [
-    { label: 'Spotify', icon: '🎵', color: '#1db954' },
-    { label: 'Apple Music', icon: '🎶', color: '#fa243c' },
-    { label: 'Amazon Music', icon: '🎧', color: '#ff9900' },
-    { label: 'Pandora', icon: '📻', color: '#005483' },
-    { label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
-    { label: 'Bose Music', icon: '🔊', color: '#000000' },
-    { label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
-    { label: 'Settings', icon: '⚙️', color: '#64748b' }
-  ];
+	// Bose music apps
+	const musicApps = [
+		{ label: 'Spotify', icon: '🎵', color: '#1db954' },
+		{ label: 'Apple Music', icon: '🎶', color: '#fa243c' },
+		{ label: 'Amazon Music', icon: '🎧', color: '#ff9900' },
+		{ label: 'Pandora', icon: '📻', color: '#005483' },
+		{ label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
+		{ label: 'Bose Music', icon: '🔊', color: '#000000' },
+		{ label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
+		{ label: 'Settings', icon: '⚙️', color: '#64748b' },
+	];
 
-  return (
-    <BoseSpeakerContainer>
-      {/* Bose Branding */}
-      <BoseBranding>
-        <BoseLogo>BOSE</BoseLogo>
-        <BoseModel>Smart Speaker 500</BoseModel>
-      </BoseBranding>
+	return (
+		<BoseSpeakerContainer>
+			{/* Bose Branding */}
+			<BoseBranding>
+				<BoseLogo>BOSE</BoseLogo>
+				<BoseModel>Smart Speaker 500</BoseModel>
+			</BoseBranding>
 
-      {/* Speaker Grill */}
-      <SpeakerGrill>
-        {Array.from({ length: 40 }, (_, i) => (
-          <GrillDot key={i} />
-        ))}
-      </SpeakerGrill>
+			{/* Speaker Grill */}
+			<SpeakerGrill>
+				{Array.from({ length: 40 }, (_, i) => (
+					<GrillDot key={i} />
+				))}
+			</SpeakerGrill>
 
-      {/* Control Panel */}
-      <ControlPanel>
-        <ControlRow>
-          <ControlLabel>WiFi</ControlLabel>
-          <ControlValue $status="connected">
-            <StatusDot $active={true} $color="#10b981" />
-            Connected
-          </ControlValue>
-        </ControlRow>
-        <ControlRow>
-          <ControlLabel>Battery</ControlLabel>
-          <ControlValue>
-            <StatusDot $active={true} $color="#10b981" />
-            Plugged In
-          </ControlValue>
-        </ControlRow>
-        <ControlRow>
-          <ControlLabel>Status</ControlLabel>
-          <ControlValue $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </ControlValue>
-        </ControlRow>
-        <ControlRow>
-          <ControlLabel>Authorization Code</ControlLabel>
-          <ControlValue>
-            <span style={{ fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.1em' }}>
-              {deviceFlowService.formatUserCode(state.userCode)}
-            </span>
-          </ControlValue>
-        </ControlRow>
-      </ControlPanel>
+			{/* Control Panel */}
+			<ControlPanel>
+				<ControlRow>
+					<ControlLabel>WiFi</ControlLabel>
+					<ControlValue $status="connected">
+						<StatusDot $active={true} $color="#10b981" />
+						Connected
+					</ControlValue>
+				</ControlRow>
+				<ControlRow>
+					<ControlLabel>Battery</ControlLabel>
+					<ControlValue>
+						<StatusDot $active={true} $color="#10b981" />
+						Plugged In
+					</ControlValue>
+				</ControlRow>
+				<ControlRow>
+					<ControlLabel>Status</ControlLabel>
+					<ControlValue $status={state.status}>
+						{getStatusIcon()}
+						{getStatusText()}
+					</ControlValue>
+				</ControlRow>
+				<ControlRow>
+					<ControlLabel>Authorization Code</ControlLabel>
+					<ControlValue>
+						<span style={{ fontFamily: 'monospace', fontSize: '1.1rem', letterSpacing: '0.1em' }}>
+							{deviceFlowService.formatUserCode(state.userCode)}
+						</span>
+					</ControlValue>
+				</ControlRow>
+			</ControlPanel>
 
-      {/* Music Apps Grid */}
-      <MusicAppsGrid>
-        {musicApps.map((app) => (
-          <MusicApp key={app.label} $color={app.color}>
-            <span style={{ fontSize: '1.25rem' }}>{app.icon}</span>
-            <AppLabel>{app.label}</AppLabel>
-          </MusicApp>
-        ))}
-      </MusicAppsGrid>
+			{/* Music Apps Grid */}
+			<MusicAppsGrid>
+				{musicApps.map((app) => (
+					<MusicApp key={app.label} $color={app.color}>
+						<span style={{ fontSize: '1.25rem' }}>{app.icon}</span>
+						<AppLabel>{app.label}</AppLabel>
+					</MusicApp>
+				))}
+			</MusicAppsGrid>
 
-      {/* Authorization Code Display */}
-      <AuthCodeDisplay>
-        {deviceFlowService.formatUserCode(state.userCode)}
-      </AuthCodeDisplay>
+			{/* Authorization Code Display */}
+			<AuthCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</AuthCodeDisplay>
 
-      {/* QR Code Section */}
-      <QRCodeSection>
-        <QRTitle>Connect with Bose Music App</QRTitle>
-        <QRSubtitle>
-          Scan this QR code with your phone to complete setup
-        </QRSubtitle>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={160}
-            bgColor="#ffffff"
-            fgColor="#1f2937"
-            level="H"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-        <ActionButtons>
-          <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy Code
-          </ActionButton>
-          <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open App
-          </ActionButton>
-        </ActionButtons>
-      </QRCodeSection>
+			{/* QR Code Section */}
+			<QRCodeSection>
+				<QRTitle>Connect with Bose Music App</QRTitle>
+				<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+				<QRCodeContainer>
+					<QRCodeSVG
+						value={state.verificationUriComplete}
+						size={160}
+						bgColor="#ffffff"
+						fgColor="#1f2937"
+						level="H"
+						includeMargin={true}
+					/>
+				</QRCodeContainer>
+				<ActionButtons>
+					<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+						<FiCopy /> Copy Code
+					</ActionButton>
+					<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+						<FiExternalLink /> Open App
+					</ActionButton>
+				</ActionButtons>
+			</QRCodeSection>
 
-      {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
-        <SuccessDisplay>
-          <SuccessTitle>
-            <FiCheckCircle />
-            Speaker Connected Successfully!
-          </SuccessTitle>
-          <SuccessMessage>
-            Your Bose Smart Speaker is now connected and ready to play your favorite music.
-          </SuccessMessage>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            marginTop: '1rem'
-          }}>
-            {state.tokens.access_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="Access Token"
-                  token={state.tokens.access_token}
-                  tokenType="access"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-            {state.tokens.id_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="ID Token"
-                  token={state.tokens.id_token}
-                  tokenType="id"
-                  isOIDC={true}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-            {state.tokens.refresh_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="Refresh Token"
-                  token={state.tokens.refresh_token}
-                  tokenType="refresh"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-          </div>
-        </SuccessDisplay>
-      )}
-    </BoseSpeakerContainer>
-  );
+			{/* Success Display */}
+			{state.status === 'authorized' && state.tokens && (
+				<SuccessDisplay>
+					<SuccessTitle>
+						<FiCheckCircle />
+						Speaker Connected Successfully!
+					</SuccessTitle>
+					<SuccessMessage>
+						Your Bose Smart Speaker is now connected and ready to play your favorite music.
+					</SuccessMessage>
+					<div
+						style={{
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '1rem',
+							marginTop: '1rem',
+						}}
+					>
+						{state.tokens.access_token && (
+							<div
+								style={{
+									background: 'rgba(0, 0, 0, 0.2)',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid rgba(255, 255, 255, 0.2)',
+								}}
+							>
+								<InlineTokenDisplay
+									label="Access Token"
+									token={state.tokens.access_token}
+									tokenType="access"
+									isOIDC={state.tokens.id_token ? true : false}
+									flowKey="device-authorization"
+									defaultMasked={true}
+									allowMaskToggle={true}
+								/>
+							</div>
+						)}
+						{state.tokens.id_token && (
+							<div
+								style={{
+									background: 'rgba(0, 0, 0, 0.2)',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid rgba(255, 255, 255, 0.2)',
+								}}
+							>
+								<InlineTokenDisplay
+									label="ID Token"
+									token={state.tokens.id_token}
+									tokenType="id"
+									isOIDC={true}
+									flowKey="device-authorization"
+									defaultMasked={true}
+									allowMaskToggle={true}
+								/>
+							</div>
+						)}
+						{state.tokens.refresh_token && (
+							<div
+								style={{
+									background: 'rgba(0, 0, 0, 0.2)',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									border: '1px solid rgba(255, 255, 255, 0.2)',
+								}}
+							>
+								<InlineTokenDisplay
+									label="Refresh Token"
+									token={state.tokens.refresh_token}
+									tokenType="refresh"
+									isOIDC={state.tokens.id_token ? true : false}
+									flowKey="device-authorization"
+									defaultMasked={true}
+									allowMaskToggle={true}
+								/>
+							</div>
+						)}
+					</div>
+				</SuccessDisplay>
+			)}
+		</BoseSpeakerContainer>
+	);
 };
 
 export default BoseSmartSpeakerDeviceFlow;

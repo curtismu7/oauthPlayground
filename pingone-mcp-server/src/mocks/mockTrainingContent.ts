@@ -1,11 +1,7 @@
-import {
-  trainingResources,
-  trainingPrompts,
-  practiceTools,
-} from '../config/trainingContent.js';
+import { practiceTools, trainingPrompts, trainingResources } from '../config/trainingContent.js';
 
 export const mockTrainingContent = {
-  overview: trainingResources,
-  prompts: trainingPrompts,
-  practiceTools,
+	overview: trainingResources,
+	prompts: trainingPrompts,
+	practiceTools,
 };

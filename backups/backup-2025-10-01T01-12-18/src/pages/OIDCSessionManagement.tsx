@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../components/Card';
 import {
-	FiUsers,
-	FiLogOut,
-	FiMonitor,
-	FiShield,
-	FiRefreshCw,
-	FiInfo,
-	FiCheck,
-	FiPlay,
-	FiCode,
 	FiArrowRight,
+	FiCheck,
+	FiCode,
 	FiCopy,
 	FiExternalLink,
+	FiInfo,
+	FiLogOut,
+	FiMonitor,
+	FiPlay,
+	FiRefreshCw,
+	FiShield,
+	FiUsers,
 } from 'react-icons/fi';
-import PageTitle from '../components/PageTitle';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../components/Card';
 import CollapsibleSection from '../components/CollapsibleSection';
+import PageTitle from '../components/PageTitle';
 
 const Container = styled.div`
   max-width: 1200px;

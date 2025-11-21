@@ -59,18 +59,39 @@ export class FlowConfigService {
 	static initializeDefaultConfigs(): void {
 		// OAuth 2.0 Flows
 		FlowConfigService.registerFlow('implicit', FlowConfigService.createImplicitConfig());
-		FlowConfigService.registerFlow('authorization-code', FlowConfigService.createAuthorizationCodeConfig());
-		FlowConfigService.registerFlow('client-credentials', FlowConfigService.createClientCredentialsConfig());
-		FlowConfigService.registerFlow('device-authorization', FlowConfigService.createDeviceAuthorizationConfig());
-		FlowConfigService.registerFlow('resource-owner-password', FlowConfigService.createResourceOwnerPasswordConfig());
+		FlowConfigService.registerFlow(
+			'authorization-code',
+			FlowConfigService.createAuthorizationCodeConfig()
+		);
+		FlowConfigService.registerFlow(
+			'client-credentials',
+			FlowConfigService.createClientCredentialsConfig()
+		);
+		FlowConfigService.registerFlow(
+			'device-authorization',
+			FlowConfigService.createDeviceAuthorizationConfig()
+		);
+		FlowConfigService.registerFlow(
+			'resource-owner-password',
+			FlowConfigService.createResourceOwnerPasswordConfig()
+		);
 		FlowConfigService.registerFlow('jwt-bearer', FlowConfigService.createJWTBearerConfig());
 
 		// OIDC Flows
-		FlowConfigService.registerFlow('oidc-authorization-code', FlowConfigService.createOIDCAuthorizationCodeConfig());
+		FlowConfigService.registerFlow(
+			'oidc-authorization-code',
+			FlowConfigService.createOIDCAuthorizationCodeConfig()
+		);
 		FlowConfigService.registerFlow('oidc-implicit', FlowConfigService.createOIDCImplicitConfig());
 		FlowConfigService.registerFlow('oidc-hybrid', FlowConfigService.createOIDCHybridConfig());
-		FlowConfigService.registerFlow('oidc-client-credentials', FlowConfigService.createOIDCClientCredentialsConfig());
-		FlowConfigService.registerFlow('oidc-device-authorization', FlowConfigService.createOIDCDeviceAuthorizationConfig());
+		FlowConfigService.registerFlow(
+			'oidc-client-credentials',
+			FlowConfigService.createOIDCClientCredentialsConfig()
+		);
+		FlowConfigService.registerFlow(
+			'oidc-device-authorization',
+			FlowConfigService.createOIDCDeviceAuthorizationConfig()
+		);
 		FlowConfigService.registerFlow('oidc-ciba', FlowConfigService.createOIDCCIBAConfig());
 
 		// PingOne Flows
@@ -79,8 +100,14 @@ export class FlowConfigService {
 		FlowConfigService.registerFlow('redirectless', FlowConfigService.createRedirectlessConfig());
 
 		// Token Management Flows
-		FlowConfigService.registerFlow('token-introspection', FlowConfigService.createTokenIntrospectionConfig());
-		FlowConfigService.registerFlow('token-revocation', FlowConfigService.createTokenRevocationConfig());
+		FlowConfigService.registerFlow(
+			'token-introspection',
+			FlowConfigService.createTokenIntrospectionConfig()
+		);
+		FlowConfigService.registerFlow(
+			'token-revocation',
+			FlowConfigService.createTokenRevocationConfig()
+		);
 		FlowConfigService.registerFlow('user-info', FlowConfigService.createUserInfoConfig());
 	}
 
@@ -109,21 +136,26 @@ export class FlowConfigService {
 	 * Get flows by category
 	 */
 	static getFlowsByCategory(category: string): FlowConfig[] {
-		return Array.from(FlowConfigService.flowConfigs.values()).filter((flow) => flow.category === category);
+		return Array.from(FlowConfigService.flowConfigs.values()).filter(
+			(flow) => flow.category === category
+		);
 	}
 
 	/**
 	 * Get flows by variant
 	 */
 	static getFlowsByVariant(variant: 'oauth' | 'oidc' | 'pingone'): FlowConfig[] {
-		return Array.from(FlowConfigService.flowConfigs.values()).filter((flow) => flow.flowVariant === variant);
+		return Array.from(FlowConfigService.flowConfigs.values()).filter(
+			(flow) => flow.flowVariant === variant
+		);
 	}
 
 	/**
 	 * Create a custom flow configuration
 	 */
 	static createCustomFlowConfig(flowType: string, customConfig: Partial<FlowConfig>): FlowConfig {
-		const baseConfig = FlowConfigService.getFlowConfig(flowType) || FlowConfigService.createDefaultConfig(flowType);
+		const baseConfig =
+			FlowConfigService.getFlowConfig(flowType) || FlowConfigService.createDefaultConfig(flowType);
 		return { ...baseConfig, ...customConfig };
 	}
 
@@ -389,14 +421,24 @@ export class FlowConfigService {
 					'Complete authorization on device',
 					'response'
 				),
-				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
+					3,
+					'Step 3: Token Polling',
+					'Poll for tokens',
+					'validation'
+				),
 				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					5,
+					'Step 5: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -507,7 +549,12 @@ export class FlowConfigService {
 					'Review the received access token',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -559,7 +606,12 @@ export class FlowConfigService {
 					'Request user information',
 					'validation'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -612,7 +664,12 @@ export class FlowConfigService {
 					'Request user information',
 					'validation'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -665,7 +722,12 @@ export class FlowConfigService {
 					'Exchange authorization code for additional tokens',
 					'validation'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -718,7 +780,12 @@ export class FlowConfigService {
 					'Review the received access token',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -765,14 +832,24 @@ export class FlowConfigService {
 					'Complete authorization on device',
 					'response'
 				),
-				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
+					3,
+					'Step 3: Token Polling',
+					'Poll for tokens',
+					'validation'
+				),
 				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					5,
+					'Step 5: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -818,14 +895,24 @@ export class FlowConfigService {
 					'Complete CIBA authentication',
 					'response'
 				),
-				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
+					3,
+					'Step 3: Token Polling',
+					'Poll for tokens',
+					'validation'
+				),
 				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					5,
+					'Step 5: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -865,14 +952,24 @@ export class FlowConfigService {
 					'Configure worker credentials',
 					'credentials'
 				),
-				FlowConfigService.createStepConfig(2, 'Step 2: Token Request', 'Request worker token', 'request'),
+				FlowConfigService.createStepConfig(
+					2,
+					'Step 2: Token Request',
+					'Request worker token',
+					'request'
+				),
 				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received worker token',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -925,7 +1022,12 @@ export class FlowConfigService {
 					'Exchange authorization code for tokens',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -984,7 +1086,12 @@ export class FlowConfigService {
 					'Receive tokens in JSON format',
 					'response'
 				),
-				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					5,
+					'Step 5: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -1038,7 +1145,12 @@ export class FlowConfigService {
 					'Review the introspection results',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -1091,7 +1203,12 @@ export class FlowConfigService {
 					'Review the revocation results',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
@@ -1126,7 +1243,12 @@ export class FlowConfigService {
 					'Understand User Info Flow',
 					'introduction'
 				),
-				FlowConfigService.createStepConfig(1, 'Step 1: Configuration', 'Configure access token', 'credentials'),
+				FlowConfigService.createStepConfig(
+					1,
+					'Step 1: Configuration',
+					'Configure access token',
+					'credentials'
+				),
 				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: User Info Request',
@@ -1139,7 +1261,12 @@ export class FlowConfigService {
 					'Review the received user information',
 					'response'
 				),
-				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(
+					4,
+					'Step 4: Complete',
+					'Review results and next steps',
+					'completion'
+				),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [

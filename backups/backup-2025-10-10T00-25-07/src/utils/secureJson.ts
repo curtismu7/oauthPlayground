@@ -66,10 +66,7 @@ export const safeJsonParse = <T = unknown>(
 		if (parsed && typeof parsed === 'object') {
 			// Check for prototype pollution attempts - only block if these are OWN properties
 			// Use hasOwnProperty to avoid false positives from inherited properties
-			if (
-				Object.hasOwn(parsed, '__proto__') ||
-				Object.hasOwn(parsed, 'prototype')
-			) {
+			if (Object.hasOwn(parsed, '__proto__') || Object.hasOwn(parsed, 'prototype')) {
 				console.warn(' [Security] Blocked prototype pollution attempt in parsed JSON');
 				return null;
 			}

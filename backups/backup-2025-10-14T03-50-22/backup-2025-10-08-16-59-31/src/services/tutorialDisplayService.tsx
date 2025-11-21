@@ -3,48 +3,48 @@
 // Used in: InteractiveTutorials, OAuthOIDCTraining
 // Purpose: Provides better organized, step-by-step tutorial experiences
 
-import React, { useState, useCallback } from 'react';
-import Joyride, { CallBackProps, STATUS, EVENTS, Step } from 'react-joyride';
+import React, { useCallback, useState } from 'react';
+import Joyride, { CallBackProps, EVENTS, STATUS, Step } from 'react-joyride';
 import styled from 'styled-components';
 
 export interface TutorialStep {
-  id: string;
-  title: string;
-  content: React.ReactNode;
-  target?: string;
-  placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  disableBeacon?: boolean;
-  hideFooter?: boolean;
+	id: string;
+	title: string;
+	content: React.ReactNode;
+	target?: string;
+	placement?: 'top' | 'bottom' | 'left' | 'right' | 'center';
+	disableBeacon?: boolean;
+	hideFooter?: boolean;
 }
 
 export interface TutorialConfig {
-  id: string;
-  title: string;
-  description: string;
-  steps: TutorialStep[];
-  continuous?: boolean;
-  showProgress?: boolean;
-  showSkipButton?: boolean;
-  locale?: {
-    back?: string;
-    close?: string;
-    last?: string;
-    next?: string;
-    skip?: string;
-  };
+	id: string;
+	title: string;
+	description: string;
+	steps: TutorialStep[];
+	continuous?: boolean;
+	showProgress?: boolean;
+	showSkipButton?: boolean;
+	locale?: {
+		back?: string;
+		close?: string;
+		last?: string;
+		next?: string;
+		skip?: string;
+	};
 }
 
 export interface TutorialDisplayServiceConfig {
-  theme?: 'light' | 'dark' | 'blue' | 'green';
-  width?: number;
-  height?: number;
-  borderRadius?: number;
-  primaryColor?: string;
+	theme?: 'light' | 'dark' | 'blue' | 'green';
+	width?: number;
+	height?: number;
+	borderRadius?: number;
+	primaryColor?: string;
 }
 
 const TutorialContainer = styled.div<{ $theme: string }>`
   .joyride-tooltip {
-    border-radius: ${props => props.$theme === 'blue' ? '12px' : '8px'};
+    border-radius: ${(props) => (props.$theme === 'blue' ? '12px' : '8px')};
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     border: none;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -161,18 +161,18 @@ const DifficultyBadge = styled.span<{ $difficulty: string }>`
   font-weight: 600;
   text-transform: uppercase;
 
-  ${props => {
-    switch (props.$difficulty) {
-      case 'beginner':
-        return 'background: #dcfce7; color: #166534;';
-      case 'intermediate':
-        return 'background: #fef3c7; color: #92400e;';
-      case 'advanced':
-        return 'background: #fee2e2; color: #dc2626;';
-      default:
-        return 'background: #f3f4f6; color: #6b7280;';
-    }
-  }}
+  ${(props) => {
+		switch (props.$difficulty) {
+			case 'beginner':
+				return 'background: #dcfce7; color: #166534;';
+			case 'intermediate':
+				return 'background: #fef3c7; color: #92400e;';
+			case 'advanced':
+				return 'background: #fee2e2; color: #dc2626;';
+			default:
+				return 'background: #f3f4f6; color: #6b7280;';
+		}
+	}}
 `;
 
 const TutorialGrid = styled.div`
@@ -191,8 +191,8 @@ const StartButton = styled.button<{ $disabled?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  opacity: ${props => props.$disabled ? 0.5 : 1};
-  pointer-events: ${props => props.$disabled ? 'none' : 'auto'};
+  opacity: ${(props) => (props.$disabled ? 0.5 : 1)};
+  pointer-events: ${(props) => (props.$disabled ? 'none' : 'auto')};
 
   &:hover:not(:disabled) {
     background: #2563eb;
@@ -206,136 +206,135 @@ const StartButton = styled.button<{ $disabled?: boolean }>`
 `;
 
 export class TutorialDisplayService {
-  static createTutorialDisplay(config: TutorialDisplayServiceConfig = {}) {
-    const {
-      theme = 'blue',
-      primaryColor = '#3b82f6'
-    } = config;
+	static createTutorialDisplay(config: TutorialDisplayServiceConfig = {}) {
+		const { theme = 'blue', primaryColor = '#3b82f6' } = config;
 
-    return function TutorialDisplay({ 
-      tutorials, 
-      onTutorialStart,
-      onTutorialComplete 
-    }: {
-      tutorials: TutorialConfig[];
-      onTutorialStart?: (tutorial: TutorialConfig) => void;
-      onTutorialComplete?: (tutorial: TutorialConfig) => void;
-    }) {
-      const [run, setRun] = useState(false);
-      const [stepIndex, setStepIndex] = useState(0);
-      const [currentTutorial, setCurrentTutorial] = useState<TutorialConfig | null>(null);
-      const [steps, setSteps] = useState<Step[]>([]);
+		return function TutorialDisplay({
+			tutorials,
+			onTutorialStart,
+			onTutorialComplete,
+		}: {
+			tutorials: TutorialConfig[];
+			onTutorialStart?: (tutorial: TutorialConfig) => void;
+			onTutorialComplete?: (tutorial: TutorialConfig) => void;
+		}) {
+			const [run, setRun] = useState(false);
+			const [stepIndex, setStepIndex] = useState(0);
+			const [currentTutorial, setCurrentTutorial] = useState<TutorialConfig | null>(null);
+			const [steps, setSteps] = useState<Step[]>([]);
 
-      const handleTutorialStart = useCallback((tutorial: TutorialConfig) => {
-        const joyrideSteps: Step[] = tutorial.steps.map(step => ({
-          target: step.target || 'body',
-          content: (
-            <div>
-              <h4>{step.title}</h4>
-              <div>{step.content}</div>
-            </div>
-          ),
-          placement: step.placement || 'auto',
-          disableBeacon: step.disableBeacon || false,
-          hideFooter: step.hideFooter || false,
-        }));
+			const handleTutorialStart = useCallback(
+				(tutorial: TutorialConfig) => {
+					const joyrideSteps: Step[] = tutorial.steps.map((step) => ({
+						target: step.target || 'body',
+						content: (
+							<div>
+								<h4>{step.title}</h4>
+								<div>{step.content}</div>
+							</div>
+						),
+						placement: step.placement || 'auto',
+						disableBeacon: step.disableBeacon || false,
+						hideFooter: step.hideFooter || false,
+					}));
 
-        setSteps(joyrideSteps);
-        setCurrentTutorial(tutorial);
-        setRun(true);
-        setStepIndex(0);
-        onTutorialStart?.(tutorial);
-      }, [onTutorialStart]);
+					setSteps(joyrideSteps);
+					setCurrentTutorial(tutorial);
+					setRun(true);
+					setStepIndex(0);
+					onTutorialStart?.(tutorial);
+				},
+				[onTutorialStart]
+			);
 
-      const handleJoyrideCallback = useCallback((data: CallBackProps) => {
-        const { status, type } = data;
+			const handleJoyrideCallback = useCallback(
+				(data: CallBackProps) => {
+					const { status, type } = data;
 
-        if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
-          // Update state to advance the tour
-          setStepIndex(data.index + (data.action === 'prev' ? -1 : 1));
-        } else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-          // Need to set our running state to false, so we can restart if we click start again.
-          setRun(false);
-          setStepIndex(0);
-          if (currentTutorial && status === STATUS.FINISHED) {
-            onTutorialComplete?.(currentTutorial);
-          }
-        }
-      }, [currentTutorial, onTutorialComplete]);
+					if ([EVENTS.STEP_AFTER, EVENTS.TARGET_NOT_FOUND].includes(type)) {
+						// Update state to advance the tour
+						setStepIndex(data.index + (data.action === 'prev' ? -1 : 1));
+					} else if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+						// Need to set our running state to false, so we can restart if we click start again.
+						setRun(false);
+						setStepIndex(0);
+						if (currentTutorial && status === STATUS.FINISHED) {
+							onTutorialComplete?.(currentTutorial);
+						}
+					}
+				},
+				[currentTutorial, onTutorialComplete]
+			);
 
-      return (
-        <TutorialContainer $theme={theme}>
-          <TutorialGrid>
-            {tutorials.map((tutorial) => (
-              <TutorialCard 
-                key={tutorial.id} 
-                $theme={theme}
-                onClick={() => handleTutorialStart(tutorial)}
-              >
-                <h3>{tutorial.title}</h3>
-                <p>{tutorial.description}</p>
-                <div className="tutorial-meta">
-                  <span>{tutorial.steps.length} steps</span>
-                  <DifficultyBadge $difficulty="beginner">
-                    Beginner
-                  </DifficultyBadge>
-                </div>
-                <StartButton onClick={() => handleTutorialStart(tutorial)}>
-                  Start Tutorial
-                </StartButton>
-              </TutorialCard>
-            ))}
-          </TutorialGrid>
+			return (
+				<TutorialContainer $theme={theme}>
+					<TutorialGrid>
+						{tutorials.map((tutorial) => (
+							<TutorialCard
+								key={tutorial.id}
+								$theme={theme}
+								onClick={() => handleTutorialStart(tutorial)}
+							>
+								<h3>{tutorial.title}</h3>
+								<p>{tutorial.description}</p>
+								<div className="tutorial-meta">
+									<span>{tutorial.steps.length} steps</span>
+									<DifficultyBadge $difficulty="beginner">Beginner</DifficultyBadge>
+								</div>
+								<StartButton onClick={() => handleTutorialStart(tutorial)}>
+									Start Tutorial
+								</StartButton>
+							</TutorialCard>
+						))}
+					</TutorialGrid>
 
-          <Joyride
-            callback={handleJoyrideCallback}
-            continuous={currentTutorial?.continuous !== false}
-            run={run}
-            stepIndex={stepIndex}
-            steps={steps}
-            showProgress={currentTutorial?.showProgress !== false}
-            showSkipButton={currentTutorial?.showSkipButton !== false}
-            styles={{
-              options: {
-                primaryColor,
-                width: 400,
-                zIndex: 10000,
-              }
-            }}
-            locale={currentTutorial?.locale || {
-              back: 'Back',
-              close: 'Close',
-              last: 'Finish',
-              next: 'Next',
-              skip: 'Skip',
-            }}
-          />
-        </TutorialContainer>
-      );
-    };
-  }
+					<Joyride
+						callback={handleJoyrideCallback}
+						continuous={currentTutorial?.continuous !== false}
+						run={run}
+						stepIndex={stepIndex}
+						steps={steps}
+						showProgress={currentTutorial?.showProgress !== false}
+						showSkipButton={currentTutorial?.showSkipButton !== false}
+						styles={{
+							options: {
+								primaryColor,
+								width: 400,
+								zIndex: 10000,
+							},
+						}}
+						locale={
+							currentTutorial?.locale || {
+								back: 'Back',
+								close: 'Close',
+								last: 'Finish',
+								next: 'Next',
+								skip: 'Skip',
+							}
+						}
+					/>
+				</TutorialContainer>
+			);
+		};
+	}
 
-  static createTutorialSteps(tutorial: TutorialConfig): TutorialStep[] {
-    return tutorial.steps;
-  }
+	static createTutorialSteps(tutorial: TutorialConfig): TutorialStep[] {
+		return tutorial.steps;
+	}
 
-  static createTutorialCard(tutorial: TutorialConfig, onStart: () => void) {
-    return (
-      <TutorialCard key={tutorial.id} $theme="blue">
-        <h3>{tutorial.title}</h3>
-        <p>{tutorial.description}</p>
-        <div className="tutorial-meta">
-          <span>{tutorial.steps.length} steps</span>
-          <DifficultyBadge $difficulty="beginner">
-            Beginner
-          </DifficultyBadge>
-        </div>
-        <StartButton onClick={onStart}>
-          Start Tutorial
-        </StartButton>
-      </TutorialCard>
-    );
-  }
+	static createTutorialCard(tutorial: TutorialConfig, onStart: () => void) {
+		return (
+			<TutorialCard key={tutorial.id} $theme="blue">
+				<h3>{tutorial.title}</h3>
+				<p>{tutorial.description}</p>
+				<div className="tutorial-meta">
+					<span>{tutorial.steps.length} steps</span>
+					<DifficultyBadge $difficulty="beginner">Beginner</DifficultyBadge>
+				</div>
+				<StartButton onClick={onStart}>Start Tutorial</StartButton>
+			</TutorialCard>
+		);
+	}
 }
 
 export default TutorialDisplayService;

@@ -29,7 +29,15 @@ export const VSCODE_COLORS = {
 	null: '#6b7280', // Gray for null
 };
 
-export type SupportedLanguage = 'javascript' | 'typescript' | 'json' | 'go' | 'ruby' | 'python' | 'text' | 'plaintext';
+export type SupportedLanguage =
+	| 'javascript'
+	| 'typescript'
+	| 'json'
+	| 'go'
+	| 'ruby'
+	| 'python'
+	| 'text'
+	| 'plaintext';
 
 /**
  * Highlight code using Prism.js with VS Code Light Theme styling
@@ -181,4 +189,3 @@ export interface CodeDisplayProps {
 	defaultCollapsed?: boolean;
 	showCopyButton?: boolean;
 }
-

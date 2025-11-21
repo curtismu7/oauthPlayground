@@ -1,9 +1,9 @@
 // src/config/migrationStatus.ts
 /**
  * Migration Status Tracker
- * 
+ *
  * Tracks which V5 flows have been migrated to use ComprehensiveCredentialsService
- * 
+ *
  * Status indicators:
  * - ✅ complete: Migrated to ComprehensiveCredentialsService
  * - 🚧 in-progress: Migration in progress
@@ -26,7 +26,7 @@ export const V5_MIGRATION_STATUS: Record<string, MigrationStatus> = {
 		status: 'complete',
 		migratedDate: '2025-10-08',
 		codeReduction: '78%',
-		notes: 'Pilot migration - successful with zero issues'
+		notes: 'Pilot migration - successful with zero issues',
 	},
 	'/flows/oidc-implicit-v5': {
 		flowPath: '/flows/oidc-implicit-v5',
@@ -34,7 +34,7 @@ export const V5_MIGRATION_STATUS: Record<string, MigrationStatus> = {
 		status: 'complete',
 		migratedDate: '2025-10-08',
 		codeReduction: '75%',
-		notes: 'Successfully migrated with OAuth-to-OIDC sync and distinct differences'
+		notes: 'Successfully migrated with OAuth-to-OIDC sync and distinct differences',
 	},
 	'/flows/oauth-authorization-code-v5': {
 		flowPath: '/flows/oauth-authorization-code-v5',
@@ -84,10 +84,10 @@ export const isFlowMigrated = (flowPath: string): boolean => {
 export const getMigrationProgress = () => {
 	const flows = Object.values(V5_MIGRATION_STATUS);
 	const total = flows.length;
-	const completed = flows.filter(f => f.status === 'complete').length;
-	const inProgress = flows.filter(f => f.status === 'in-progress').length;
-	const pending = flows.filter(f => f.status === 'pending').length;
-	
+	const completed = flows.filter((f) => f.status === 'complete').length;
+	const inProgress = flows.filter((f) => f.status === 'in-progress').length;
+	const pending = flows.filter((f) => f.status === 'pending').length;
+
 	return {
 		total,
 		completed,
@@ -96,6 +96,3 @@ export const getMigrationProgress = () => {
 		percentComplete: Math.round((completed / total) * 100),
 	};
 };
-
-
-

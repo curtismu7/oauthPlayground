@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useState } from 'react';
 import {
 	FiCheckCircle,
-	FiShield,
-	FiEye,
 	FiChevronDown,
 	FiCopy,
-	FiRefreshCw,
+	FiEye,
 	FiKey,
+	FiRefreshCw,
+	FiShield,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 

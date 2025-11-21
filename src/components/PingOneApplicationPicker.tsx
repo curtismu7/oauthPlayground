@@ -1,18 +1,29 @@
 // src/components/PingOneApplicationPicker.tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheck,
+	FiChevronDown,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiRefreshCw,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiRefreshCw, FiChevronDown, FiCheck, FiAlertCircle, FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
-import { fetchApplications as fetchPingOneApplications, type PingOneApplication } from '../services/pingOneApplicationService';
+import {
+	fetchApplications as fetchPingOneApplications,
+	type PingOneApplication,
+} from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface PingOneApplicationPickerProps {
-    environmentId: string;
-    clientId: string;
-    clientSecret: string;
-    region?: string;
-    workerToken?: string | undefined;
-    onApplicationSelect: (application: PingOneApplication) => void;
-    disabled?: boolean;
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	region?: string;
+	workerToken?: string | undefined;
+	onApplicationSelect: (application: PingOneApplication) => void;
+	disabled?: boolean;
 }
 
 // NOTE: The PingOneApplication type is imported from the service
@@ -36,7 +47,7 @@ const SelectContainer = styled.div`
 const Select = styled.select<{ $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 2.5rem 0.75rem 0.75rem;
-	border: 1px solid ${props => props.$hasError ? '#dc3545' : '#ddd'};
+	border: 1px solid ${(props) => (props.$hasError ? '#dc3545' : '#ddd')};
 	border-radius: 6px;
 	font-size: 1rem;
 	color: #333;
@@ -261,7 +272,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	region = 'na',
 	workerToken,
 	onApplicationSelect,
-	disabled = false
+	disabled = false,
 }) => {
 	console.log('[PingOneApplicationPicker] Component initialized with props:', {
 		hasEnvironmentId: !!environmentId,
@@ -270,9 +281,9 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 		hasWorkerToken: !!workerToken,
 		hasOnApplicationSelect: !!onApplicationSelect,
 		disabled,
-		onApplicationSelectType: typeof onApplicationSelect
+		onApplicationSelectType: typeof onApplicationSelect,
 	});
-	
+
 	const [applications, setApplications] = useState<PingOneApplication[]>([]);
 	const [selectedAppId, setSelectedAppId] = useState<string>('');
 	const [loading, setLoading] = useState(false);
@@ -280,54 +291,57 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	const [success, setSuccess] = useState<string | null>(null);
 	const [showClientSecret, setShowClientSecret] = useState(false);
 
-    const fetchApplications = useCallback(async () => {
-        if (!environmentId || (!clientId && !clientSecret) || !workerToken) {
-            setError('Missing required credentials to fetch applications');
-            return;
-        }
-
-        setLoading(true);
-        setError(null);
-        setSuccess(null);
-
-        try {
-            const apps = await fetchPingOneApplications({
-                environmentId,
-                region,
-                workerToken,
-                clientId,
-                clientSecret,
-            });
-
-            setApplications(apps);
-            setSuccess(`Found ${apps.length} applications`);
-            if (apps.length === 0) setError('No applications found in this environment');
-        } catch (err) {
-            console.error('[PingOneApplicationPicker] Error fetching applications:', err);
-            setError(err instanceof Error ? err.message : 'Failed to fetch applications');
-        } finally {
-            setLoading(false);
-        }
-    }, [environmentId, clientId, clientSecret, region, workerToken]);
-
-	const handleApplicationChange = useCallback((appId: string) => {
-		console.log('[PingOneApplicationPicker] Application changed:', appId);
-		setSelectedAppId(appId);
-		
-		// Auto-fill credentials when app is selected
-		if (appId && appId !== '') {
-			const selectedApp = applications.find(app => app.id === appId);
-			console.log('[PingOneApplicationPicker] Found application:', selectedApp);
-			if (selectedApp) {
-				console.log('[PingOneApplicationPicker] Calling onApplicationSelect with:', selectedApp);
-				onApplicationSelect(selectedApp);
-				setSuccess(`Selected application: ${selectedApp.name}`);
-			} else {
-				console.log('[PingOneApplicationPicker] No application found for ID:', appId);
-			}
+	const fetchApplications = useCallback(async () => {
+		if (!environmentId || (!clientId && !clientSecret) || !workerToken) {
+			setError('Missing required credentials to fetch applications');
+			return;
 		}
-	}, [applications, onApplicationSelect]);
-	
+
+		setLoading(true);
+		setError(null);
+		setSuccess(null);
+
+		try {
+			const apps = await fetchPingOneApplications({
+				environmentId,
+				region,
+				workerToken,
+				clientId,
+				clientSecret,
+			});
+
+			setApplications(apps);
+			setSuccess(`Found ${apps.length} applications`);
+			if (apps.length === 0) setError('No applications found in this environment');
+		} catch (err) {
+			console.error('[PingOneApplicationPicker] Error fetching applications:', err);
+			setError(err instanceof Error ? err.message : 'Failed to fetch applications');
+		} finally {
+			setLoading(false);
+		}
+	}, [environmentId, clientId, clientSecret, region, workerToken]);
+
+	const handleApplicationChange = useCallback(
+		(appId: string) => {
+			console.log('[PingOneApplicationPicker] Application changed:', appId);
+			setSelectedAppId(appId);
+
+			// Auto-fill credentials when app is selected
+			if (appId && appId !== '') {
+				const selectedApp = applications.find((app) => app.id === appId);
+				console.log('[PingOneApplicationPicker] Found application:', selectedApp);
+				if (selectedApp) {
+					console.log('[PingOneApplicationPicker] Calling onApplicationSelect with:', selectedApp);
+					onApplicationSelect(selectedApp);
+					setSuccess(`Selected application: ${selectedApp.name}`);
+				} else {
+					console.log('[PingOneApplicationPicker] No application found for ID:', appId);
+				}
+			}
+		},
+		[applications, onApplicationSelect]
+	);
+
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
 		v4ToastManager.showSuccess(`${label} copied to clipboard`);
@@ -335,16 +349,30 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 	// Auto-fetch applications when credentials are available
 	useEffect(() => {
-		if (environmentId && (clientId || clientSecret) && workerToken && applications.length === 0 && !loading) {
+		if (
+			environmentId &&
+			(clientId || clientSecret) &&
+			workerToken &&
+			applications.length === 0 &&
+			!loading
+		) {
 			console.log('[PingOneApplicationPicker] Auto-fetching applications with:', {
 				hasEnvironmentId: !!environmentId,
 				hasClientId: !!clientId,
 				hasClientSecret: !!clientSecret,
-				hasWorkerToken: !!workerToken
+				hasWorkerToken: !!workerToken,
 			});
 			fetchApplications();
 		}
-	}, [environmentId, clientId, clientSecret, workerToken, applications.length, loading, fetchApplications]);
+	}, [
+		environmentId,
+		clientId,
+		clientSecret,
+		workerToken,
+		applications.length,
+		loading,
+		fetchApplications,
+	]);
 
 	return (
 		<Container>
@@ -356,20 +384,14 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 					disabled={disabled || loading}
 					$hasError={!!error}
 				>
-					<option value="">
-						{loading ? 'Loading applications...' : 'Select an application'}
-					</option>
+					<option value="">{loading ? 'Loading applications...' : 'Select an application'}</option>
 					{applications.map((app) => (
 						<option key={app.id} value={app.id}>
 							{app.name} ({app.clientId})
 						</option>
 					))}
 				</Select>
-				{loading ? (
-					<LoadingSpinner size={16} />
-				) : (
-					<ChevronIcon size={16} />
-				)}
+				{loading ? <LoadingSpinner size={16} /> : <ChevronIcon size={16} />}
 			</SelectContainer>
 
 			{error && (
@@ -389,7 +411,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 			{selectedAppId && applications.length > 0 && (
 				<ApplicationDetails>
 					{(() => {
-						const selectedApp = applications.find(app => app.id === selectedAppId);
+						const selectedApp = applications.find((app) => app.id === selectedAppId);
 						if (!selectedApp) return null;
 
 						return (
@@ -411,7 +433,10 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 												<FieldValue>{selectedApp.clientId}</FieldValue>
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
-												<CopyButton onClick={() => handleCopy(selectedApp.clientId, 'Client ID')} title="Copy Client ID">
+												<CopyButton
+													onClick={() => handleCopy(selectedApp.clientId, 'Client ID')}
+													title="Copy Client ID"
+												>
 													<FiCopy size={14} />
 												</CopyButton>
 											</TableCell>
@@ -422,19 +447,33 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 											</TableCell>
 											<TableCell>
 												<FieldValue>
-													{selectedApp.clientSecret 
-														? (showClientSecret ? selectedApp.clientSecret : '••••••••••••••••') 
-														: 'None'
-													}
+													{selectedApp.clientSecret
+														? showClientSecret
+															? selectedApp.clientSecret
+															: '••••••••••••••••'
+														: 'None'}
 												</FieldValue>
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
 												{selectedApp.clientSecret && (
-													<div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', justifyContent: 'center' }}>
-														<CopyButton onClick={() => handleCopy(selectedApp.clientSecret!, 'Client Secret')} title="Copy Client Secret">
+													<div
+														style={{
+															display: 'flex',
+															gap: '0.25rem',
+															alignItems: 'center',
+															justifyContent: 'center',
+														}}
+													>
+														<CopyButton
+															onClick={() => handleCopy(selectedApp.clientSecret!, 'Client Secret')}
+															title="Copy Client Secret"
+														>
 															<FiCopy size={14} />
 														</CopyButton>
-														<CopyButton onClick={() => setShowClientSecret(!showClientSecret)} title={showClientSecret ? 'Hide' : 'Show'}>
+														<CopyButton
+															onClick={() => setShowClientSecret(!showClientSecret)}
+															title={showClientSecret ? 'Hide' : 'Show'}
+														>
 															{showClientSecret ? <FiEyeOff size={14} /> : <FiEye size={14} />}
 														</CopyButton>
 													</div>
@@ -450,42 +489,64 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
 												{selectedApp.grantTypes && selectedApp.grantTypes.length > 0 && (
-													<CopyButton onClick={() => handleCopy(selectedApp.grantTypes!.join(', '), 'Grant Types')} title="Copy Grant Types">
+													<CopyButton
+														onClick={() =>
+															handleCopy(selectedApp.grantTypes!.join(', '), 'Grant Types')
+														}
+														title="Copy Grant Types"
+													>
 														<FiCopy size={14} />
 													</CopyButton>
 												)}
 											</TableCell>
 										</TableRow>
 										{/* Hide redirect URIs for SERVICE type applications or if only client_credentials grant type is present */}
-										{selectedApp.type !== 'SERVICE' && !(selectedApp.grantTypes && selectedApp.grantTypes.length === 1 && selectedApp.grantTypes.includes('client_credentials')) && (
-											<>
-												<TableRow>
-													<TableCell>
-														<FieldLabel>Redirect URIs</FieldLabel>
-													</TableCell>
-													<TableCell>
-														<FieldValue>{selectedApp.redirectUris?.join(', ') || 'None'}</FieldValue>
-													</TableCell>
-													<TableCell style={{ textAlign: 'center' }}>
-													</TableCell>
-												</TableRow>
-												<TableRow>
-													<TableCell>
-														<FieldLabel>Post-Logout URIs</FieldLabel>
-													</TableCell>
-													<TableCell>
-														<FieldValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</FieldValue>
-													</TableCell>
-													<TableCell style={{ textAlign: 'center' }}>
-														{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
-															<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
-																<FiCopy size={14} />
-															</CopyButton>
-														)}
-													</TableCell>
-												</TableRow>
-											</>
-										)}
+										{selectedApp.type !== 'SERVICE' &&
+											!(
+												selectedApp.grantTypes &&
+												selectedApp.grantTypes.length === 1 &&
+												selectedApp.grantTypes.includes('client_credentials')
+											) && (
+												<>
+													<TableRow>
+														<TableCell>
+															<FieldLabel>Redirect URIs</FieldLabel>
+														</TableCell>
+														<TableCell>
+															<FieldValue>
+																{selectedApp.redirectUris?.join(', ') || 'None'}
+															</FieldValue>
+														</TableCell>
+														<TableCell style={{ textAlign: 'center' }}></TableCell>
+													</TableRow>
+													<TableRow>
+														<TableCell>
+															<FieldLabel>Post-Logout URIs</FieldLabel>
+														</TableCell>
+														<TableCell>
+															<FieldValue>
+																{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}
+															</FieldValue>
+														</TableCell>
+														<TableCell style={{ textAlign: 'center' }}>
+															{selectedApp.postLogoutRedirectUris &&
+																selectedApp.postLogoutRedirectUris.length > 0 && (
+																	<CopyButton
+																		onClick={() =>
+																			handleCopy(
+																				selectedApp.postLogoutRedirectUris!.join(', '),
+																				'Post-Logout URIs'
+																			)
+																		}
+																		title="Copy Post-Logout URIs"
+																	>
+																		<FiCopy size={14} />
+																	</CopyButton>
+																)}
+														</TableCell>
+													</TableRow>
+												</>
+											)}
 										<TableRow>
 											<TableCell>
 												<FieldLabel>Scopes</FieldLabel>
@@ -495,7 +556,10 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
 												{selectedApp.scopes && selectedApp.scopes.length > 0 && (
-													<CopyButton onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')} title="Copy Scopes">
+													<CopyButton
+														onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')}
+														title="Copy Scopes"
+													>
 														<FiCopy size={14} />
 													</CopyButton>
 												)}
@@ -506,10 +570,20 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 												<FieldLabel>Token Auth Method</FieldLabel>
 											</TableCell>
 											<TableCell>
-												<FieldValue>{selectedApp.tokenEndpointAuthMethod || 'client_secret_post'}</FieldValue>
+												<FieldValue>
+													{selectedApp.tokenEndpointAuthMethod || 'client_secret_post'}
+												</FieldValue>
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
-												<CopyButton onClick={() => handleCopy(selectedApp.tokenEndpointAuthMethod || 'client_secret_post', 'Token Auth Method')} title="Copy Token Auth Method">
+												<CopyButton
+													onClick={() =>
+														handleCopy(
+															selectedApp.tokenEndpointAuthMethod || 'client_secret_post',
+															'Token Auth Method'
+														)
+													}
+													title="Copy Token Auth Method"
+												>
 													<FiCopy size={14} />
 												</CopyButton>
 											</TableCell>
@@ -523,7 +597,12 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 													<FieldValue>{selectedApp.pkceEnforcement}</FieldValue>
 												</TableCell>
 												<TableCell style={{ textAlign: 'center' }}>
-													<CopyButton onClick={() => handleCopy(selectedApp.pkceEnforcement || '', 'PKCE Enforcement')} title="Copy PKCE Enforcement">
+													<CopyButton
+														onClick={() =>
+															handleCopy(selectedApp.pkceEnforcement || '', 'PKCE Enforcement')
+														}
+														title="Copy PKCE Enforcement"
+													>
 														<FiCopy size={14} />
 													</CopyButton>
 												</TableCell>
@@ -531,12 +610,17 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 										)}
 									</TableBody>
 								</Table>
-								
+
 								<ButtonContainer>
-									<ApplyButton onClick={() => {
-										console.log('[PingOneApplicationPicker] Apply Configuration clicked, calling onApplicationSelect with:', selectedApp);
-										onApplicationSelect(selectedApp);
-									}}>
+									<ApplyButton
+										onClick={() => {
+											console.log(
+												'[PingOneApplicationPicker] Apply Configuration clicked, calling onApplicationSelect with:',
+												selectedApp
+											);
+											onApplicationSelect(selectedApp);
+										}}
+									>
 										<FiCheck size={14} />
 										Apply Configuration
 									</ApplyButton>
@@ -550,7 +634,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 					})()}
 				</ApplicationDetails>
 			)}
-			
+
 			{!selectedAppId && (
 				<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
 					<FiRefreshCw size={14} />

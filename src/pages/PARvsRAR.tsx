@@ -1,21 +1,20 @@
 // src/pages/PARvsRAR.tsx - PAR vs RAR Comparison and Examples
-import React, { useState } from 'react';
+import React from 'react';
 import {
+	FiBook,
 	FiCheck,
 	FiCode,
 	FiCopy,
 	FiInfo,
-	FiShield,
-	FiArrowRight,
-	FiBook,
-	FiSettings,
 	FiSend,
+	FiSettings,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
+import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { copyToClipboard } from '../utils/clipboard';
-import { showFlowSuccess } from '../components/CentralizedSuccessMessage';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -62,8 +61,7 @@ const ComparisonGrid = styled.div`
 `;
 
 const ComparisonCard = styled(Card)<{ $type: 'par' | 'rar' }>`
-  border-left: 4px solid ${({ $type, theme }) => 
-    $type === 'par' ? '#16a34a' : '#3b82f6'};
+  border-left: 4px solid ${({ $type, theme }) => ($type === 'par' ? '#16a34a' : '#3b82f6')};
 `;
 
 const CodeBlock = styled.pre`
@@ -246,7 +244,8 @@ const PARvsRAR: React.FC = () => {
 					RAR vs PAR and DPoP Guide
 				</h1>
 				<p>
-					Understanding Pushed Authorization Requests (PAR), Rich Authorization Requests (RAR), and Demonstration of Proof-of-Possession (DPoP) with comprehensive examples and use cases.
+					Understanding Pushed Authorization Requests (PAR), Rich Authorization Requests (RAR), and
+					Demonstration of Proof-of-Possession (DPoP) with comprehensive examples and use cases.
 				</p>
 			</Header>
 
@@ -256,7 +255,10 @@ const PARvsRAR: React.FC = () => {
 				</CardHeader>
 				<CardBody>
 					<p>
-						<strong>PAR (Pushed Authorization Request)</strong> and <strong>RAR (Rich Authorization Requests)</strong> are two powerful OAuth 2.0 extensions that address different security and authorization needs. While they can be used together, they solve distinct problems.
+						<strong>PAR (Pushed Authorization Request)</strong> and{' '}
+						<strong>RAR (Rich Authorization Requests)</strong> are two powerful OAuth 2.0 extensions
+						that address different security and authorization needs. While they can be used
+						together, they solve distinct problems.
 					</p>
 					<InfoBox>
 						<InfoIcon>
@@ -265,9 +267,11 @@ const PARvsRAR: React.FC = () => {
 						<InfoContent>
 							<h4>Key Insight</h4>
 							<p>
-								<strong>PAR</strong> is about <em>how</em> you send authorization requests (securely via POST). 
-								<strong>RAR</strong> is about <em>what</em> you request (fine-grained permissions with structured data).
-								They complement each other and can be used together for maximum security and precision.
+								<strong>PAR</strong> is about <em>how</em> you send authorization requests (securely
+								via POST).
+								<strong>RAR</strong> is about <em>what</em> you request (fine-grained permissions
+								with structured data). They complement each other and can be used together for
+								maximum security and precision.
 							</p>
 						</InfoContent>
 					</InfoBox>
@@ -283,15 +287,30 @@ const PARvsRAR: React.FC = () => {
 				<Card>
 					<CardBody>
 						<p>
-							<strong>PAR (RFC 9126)</strong> is an OAuth 2.0 extension that allows clients to push authorization request parameters to the authorization server via an authenticated HTTP POST request, rather than exposing them in the browser URL.
+							<strong>PAR (RFC 9126)</strong> is an OAuth 2.0 extension that allows clients to push
+							authorization request parameters to the authorization server via an authenticated HTTP
+							POST request, rather than exposing them in the browser URL.
 						</p>
 						<h3>Benefits of PAR:</h3>
 						<ul>
-							<li>🔒 <strong>Enhanced Security:</strong> Sensitive parameters never appear in browser URLs, logs, or referrer headers</li>
-							<li>🛡️ <strong>Parameter Tampering Protection:</strong> Request parameters are validated server-side before user interaction</li>
-							<li>✅ <strong>Early Validation:</strong> Errors are caught before redirecting users</li>
-							<li>📏 <strong>URL Length:</strong> Avoids URL length limitations with complex requests</li>
-							<li>🔍 <strong>Audit Trail:</strong> All requests are logged server-side with authentication</li>
+							<li>
+								🔒 <strong>Enhanced Security:</strong> Sensitive parameters never appear in browser
+								URLs, logs, or referrer headers
+							</li>
+							<li>
+								🛡️ <strong>Parameter Tampering Protection:</strong> Request parameters are validated
+								server-side before user interaction
+							</li>
+							<li>
+								✅ <strong>Early Validation:</strong> Errors are caught before redirecting users
+							</li>
+							<li>
+								📏 <strong>URL Length:</strong> Avoids URL length limitations with complex requests
+							</li>
+							<li>
+								🔍 <strong>Audit Trail:</strong> All requests are logged server-side with
+								authentication
+							</li>
 						</ul>
 
 						<ExampleSection>
@@ -299,18 +318,22 @@ const PARvsRAR: React.FC = () => {
 								<FiCode />
 								PAR Flow Example
 							</ExampleTitle>
-							
+
 							<FlowStep>
 								<FlowStepTitle>
 									<FlowStepNumber>1</FlowStepNumber>
 									Push Authorization Request
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Client sends authorization parameters to the PAR endpoint via authenticated POST request.
+									Client sends authorization parameters to the PAR endpoint via authenticated POST
+									request.
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>POST to /as/par endpoint</span>
-									<CopyButton onClick={() => handleCopyCode(`POST https://auth.pingone.com/{environmentId}/as/par
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`POST https://auth.pingone.com/{environmentId}/as/par
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic ${'base64(clientId:clientSecret)'}
 
@@ -321,7 +344,11 @@ scope=openid profile email&
 state=random_state_string&
 code_challenge=code_challenge_value&
 code_challenge_method=S256&
-nonce=random_nonce_string`, 'PAR request')}>
+nonce=random_nonce_string`,
+												'PAR request'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -350,10 +377,17 @@ nonce=random_nonce_string`}</CodeBlock>
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>PAR Response</span>
-									<CopyButton onClick={() => handleCopyCode(`{
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`{
   "request_uri": "urn:ietf:params:oauth:request_uri:abc123def456",
   "expires_in": 90
-}`, 'PAR response')}>
+}`,
+												'PAR response'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -370,11 +404,19 @@ nonce=random_nonce_string`}</CodeBlock>
 									Redirect User with Request URI
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Client redirects user to authorization endpoint with only the request URI (much shorter and safer).
+									Client redirects user to authorization endpoint with only the request URI (much
+									shorter and safer).
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>Authorization URL with Request URI</span>
-									<CopyButton onClick={() => handleCopyCode(`https://auth.pingone.com/{environmentId}/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:abc123def456&response_type=code`, 'Authorization URL')}>
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`https://auth.pingone.com/{environmentId}/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:abc123def456&response_type=code`,
+												'Authorization URL'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -390,7 +432,10 @@ nonce=random_nonce_string`}</CodeBlock>
 							</ExampleTitle>
 							<CodeBlockHeader>
 								<span>Complete PAR Example - JavaScript</span>
-								<CopyButton onClick={() => handleCopyCode(`const crypto = require('crypto');
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`const crypto = require('crypto');
 
 async function pushAuthorizationRequest(config) {
   const parEndpoint = \`\${config.baseUrl}/\${config.environmentId}/as/par\`;
@@ -462,10 +507,14 @@ pushAuthorizationRequest(config)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`, 'PAR JavaScript code')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+  .catch(error => console.error('Error:', error));`,
+											'PAR JavaScript code'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`const crypto = require('crypto');
 
@@ -554,15 +603,31 @@ pushAuthorizationRequest(config)
 				<Card>
 					<CardBody>
 						<p>
-							<strong>RAR (RFC 9396)</strong> is an OAuth 2.0 extension that enables clients to express fine-grained authorization details beyond simple scope strings using structured JSON data called <strong>authorization_details</strong>.
+							<strong>RAR (RFC 9396)</strong> is an OAuth 2.0 extension that enables clients to
+							express fine-grained authorization details beyond simple scope strings using
+							structured JSON data called <strong>authorization_details</strong>.
 						</p>
 						<h3>Benefits of RAR:</h3>
 						<ul>
-							<li>🎯 <strong>Fine-Grained Permissions:</strong> Specify exact resources, actions, and constraints</li>
-							<li>📊 <strong>Structured Data:</strong> Use JSON objects instead of overloaded scope strings</li>
-							<li>👥 <strong>Better User Consent:</strong> Clear, human-readable permission descriptions</li>
-							<li>🔒 <strong>Contextual Security:</strong> Request specific permissions with explicit limits</li>
-							<li>📝 <strong>Rich Auditing:</strong> Detailed authorization logs for compliance</li>
+							<li>
+								🎯 <strong>Fine-Grained Permissions:</strong> Specify exact resources, actions, and
+								constraints
+							</li>
+							<li>
+								📊 <strong>Structured Data:</strong> Use JSON objects instead of overloaded scope
+								strings
+							</li>
+							<li>
+								👥 <strong>Better User Consent:</strong> Clear, human-readable permission
+								descriptions
+							</li>
+							<li>
+								🔒 <strong>Contextual Security:</strong> Request specific permissions with explicit
+								limits
+							</li>
+							<li>
+								📝 <strong>Rich Auditing:</strong> Detailed authorization logs for compliance
+							</li>
 						</ul>
 
 						<ExampleSection>
@@ -570,7 +635,7 @@ pushAuthorizationRequest(config)
 								<FiCode />
 								RAR Authorization Details Example
 							</ExampleTitle>
-							
+
 							<FlowStep>
 								<FlowStepTitle>
 									<FlowStepNumber>1</FlowStepNumber>
@@ -581,7 +646,10 @@ pushAuthorizationRequest(config)
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>RAR authorization_details Structure</span>
-									<CopyButton onClick={() => handleCopyCode(`{
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`{
   "authorization_details": [
     {
       "type": "payment_initiation",
@@ -604,7 +672,11 @@ pushAuthorizationRequest(config)
       "datatypes": ["account", "balance"]
     }
   ]
-}`, 'RAR authorization details')}>
+}`,
+												'RAR authorization details'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -641,11 +713,19 @@ pushAuthorizationRequest(config)
 									Include in Authorization Request
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Add authorization_details parameter to the authorization request (can be used with or without PAR).
+									Add authorization_details parameter to the authorization request (can be used with
+									or without PAR).
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>Authorization URL with RAR</span>
-									<CopyButton onClick={() => handleCopyCode(`https://auth.pingone.com/{environmentId}/as/authorize?response_type=code&client_id=your_client_id&redirect_uri=https://app.example.com/callback&scope=openid&authorization_details={"authorization_details":[{"type":"payment_initiation","locations":["https://api.bank.com/payments"],"actions":["initiate","status"],"instructedAmount":{"currency":"USD","amount":"250.00"}}]}&state=random_state`, 'RAR authorization URL')}>
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`https://auth.pingone.com/{environmentId}/as/authorize?response_type=code&client_id=your_client_id&redirect_uri=https://app.example.com/callback&scope=openid&authorization_details={"authorization_details":[{"type":"payment_initiation","locations":["https://api.bank.com/payments"],"actions":["initiate","status"],"instructedAmount":{"currency":"USD","amount":"250.00"}}]}&state=random_state`,
+												'RAR authorization URL'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -667,7 +747,10 @@ pushAuthorizationRequest(config)
 							</ExampleTitle>
 							<CodeBlockHeader>
 								<span>Complete RAR Example - JavaScript</span>
-								<CopyButton onClick={() => handleCopyCode(`const crypto = require('crypto');
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`const crypto = require('crypto');
 
 // Define fine-grained authorization details
 const authorizationDetails = [
@@ -719,10 +802,14 @@ const config = {
 };
 
 const authUrl = generateRARAuthUrl(config, authorizationDetails);
-console.log('RAR Authorization URL:', authUrl);`, 'RAR JavaScript code')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+console.log('RAR Authorization URL:', authUrl);`,
+											'RAR JavaScript code'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`const crypto = require('crypto');
 
@@ -865,47 +952,65 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 							</thead>
 							<tbody>
 								<tr>
-									<td><strong>RFC</strong></td>
+									<td>
+										<strong>RFC</strong>
+									</td>
 									<td>RFC 9126</td>
 									<td>RFC 9396</td>
 								</tr>
 								<tr>
-									<td><strong>Primary Purpose</strong></td>
+									<td>
+										<strong>Primary Purpose</strong>
+									</td>
 									<td>Secure transport of authorization parameters</td>
 									<td>Fine-grained permission specification</td>
 								</tr>
 								<tr>
-									<td><strong>Problem Solved</strong></td>
+									<td>
+										<strong>Problem Solved</strong>
+									</td>
 									<td>How to send requests securely</td>
 									<td>What permissions to request</td>
 								</tr>
 								<tr>
-									<td><strong>Method</strong></td>
+									<td>
+										<strong>Method</strong>
+									</td>
 									<td>POST request to /as/par endpoint</td>
 									<td>authorization_details parameter in request</td>
 								</tr>
 								<tr>
-									<td><strong>Returns</strong></td>
+									<td>
+										<strong>Returns</strong>
+									</td>
 									<td>Short-lived request_uri</td>
 									<td>Same as standard OAuth (code/token)</td>
 								</tr>
 								<tr>
-									<td><strong>Data Format</strong></td>
+									<td>
+										<strong>Data Format</strong>
+									</td>
 									<td>Standard OAuth parameters (form-encoded)</td>
 									<td>Structured JSON (authorization_details)</td>
 								</tr>
 								<tr>
-									<td><strong>Security Focus</strong></td>
+									<td>
+										<strong>Security Focus</strong>
+									</td>
 									<td>Parameter protection, tampering prevention</td>
 									<td>Granular permission control</td>
 								</tr>
 								<tr>
-									<td><strong>Use Case</strong></td>
+									<td>
+										<strong>Use Case</strong>
+									</td>
 									<td>Any OAuth flow needing secure parameter transport</td>
 									<td>Complex authorization scenarios requiring fine-grained control</td>
 								</tr>
 								<tr>
-									<td><strong>Can Combine?</strong></td>
+									<td>
+										<strong>Can Combine?</strong>
+									</td>
 									<td>✅ Yes - works with RAR</td>
 									<td>✅ Yes - works with PAR</td>
 								</tr>
@@ -919,8 +1024,8 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 							<InfoContent>
 								<h4>Combining PAR + RAR</h4>
 								<p>
-									PAR and RAR are complementary and work great together! You can push RAR authorization_details 
-									via PAR for maximum security and precision. This gives you:
+									PAR and RAR are complementary and work great together! You can push RAR
+									authorization_details via PAR for maximum security and precision. This gives you:
 								</p>
 								<ul>
 									<li>Secure parameter transport (PAR)</li>
@@ -943,7 +1048,8 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 				<Card>
 					<CardBody>
 						<p>
-							The best practice is to use PAR and RAR together. This example shows how to push RAR authorization_details via PAR.
+							The best practice is to use PAR and RAR together. This example shows how to push RAR
+							authorization_details via PAR.
 						</p>
 
 						<FlowStep>
@@ -956,7 +1062,10 @@ console.log('RAR Authorization URL:', authUrl);`}</CodeBlock>
 							</FlowStepDescription>
 							<CodeBlockHeader>
 								<span>PAR Request with RAR authorization_details</span>
-								<CopyButton onClick={() => handleCopyCode(`POST https://auth.pingone.com/{environmentId}/as/par
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`POST https://auth.pingone.com/{environmentId}/as/par
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic ${'base64(clientId:clientSecret)'}
 
@@ -967,10 +1076,14 @@ scope=openid&
 authorization_details={"authorization_details":[{"type":"payment_initiation","locations":["https://api.bank.com/payments"],"actions":["initiate"],"instructedAmount":{"currency":"USD","amount":"250.00"}}]}&
 state=random_state&
 code_challenge=code_challenge_value&
-code_challenge_method=S256`, 'PAR + RAR request')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+code_challenge_method=S256`,
+											'PAR + RAR request'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`POST https://auth.pingone.com/{environmentId}/as/par
 Content-Type: application/x-www-form-urlencoded
@@ -992,17 +1105,25 @@ code_challenge_method=S256`}</CodeBlock>
 								Receive Request URI
 							</FlowStepTitle>
 							<FlowStepDescription>
-								Authorization server validates both PAR parameters and RAR authorization_details, returns request_uri.
+								Authorization server validates both PAR parameters and RAR authorization_details,
+								returns request_uri.
 							</FlowStepDescription>
 							<CodeBlockHeader>
 								<span>PAR Response (same as standard PAR)</span>
-								<CopyButton onClick={() => handleCopyCode(`{
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`{
   "request_uri": "urn:ietf:params:oauth:request_uri:abc123def456",
   "expires_in": 90
-}`, 'PAR response')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+}`,
+											'PAR response'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`{
   "request_uri": "urn:ietf:params:oauth:request_uri:abc123def456",
@@ -1016,14 +1137,22 @@ code_challenge_method=S256`}</CodeBlock>
 								Redirect with Request URI
 							</FlowStepTitle>
 							<FlowStepDescription>
-								User is redirected with only the request_uri. The authorization server retrieves the stored RAR details.
+								User is redirected with only the request_uri. The authorization server retrieves the
+								stored RAR details.
 							</FlowStepDescription>
 							<CodeBlockHeader>
 								<span>Clean Authorization URL</span>
-								<CopyButton onClick={() => handleCopyCode(`https://auth.pingone.com/{environmentId}/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:abc123def456&response_type=code`, 'Authorization URL')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`https://auth.pingone.com/{environmentId}/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:abc123def456&response_type=code`,
+											'Authorization URL'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`https://auth.pingone.com/{environmentId}/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:abc123def456&response_type=code`}</CodeBlock>
 						</FlowStep>
@@ -1035,7 +1164,10 @@ code_challenge_method=S256`}</CodeBlock>
 							</ExampleTitle>
 							<CodeBlockHeader>
 								<span>Full Example: PAR with RAR</span>
-								<CopyButton onClick={() => handleCopyCode(`const crypto = require('crypto');
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`const crypto = require('crypto');
 
 async function pushPARWithRAR(config, authorizationDetails) {
   const parEndpoint = \`\${config.baseUrl}/\${config.environmentId}/as/par\`;
@@ -1122,10 +1254,14 @@ pushPARWithRAR(config, rarDetails)
     console.log('Redirect user to:', result.auth_url);
     // Store code_verifier for token exchange
   })
-  .catch(error => console.error('Error:', error));`, 'PAR + RAR JavaScript code')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+  .catch(error => console.error('Error:', error));`,
+											'PAR + RAR JavaScript code'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`const crypto = require('crypto');
 
@@ -1281,8 +1417,8 @@ pushPARWithRAR(config, rarDetails)
 										<InfoContent>
 											<h4>Best Practice</h4>
 											<p>
-												For production applications handling sensitive data, using PAR + RAR together 
-												provides the best security posture and user experience.
+												For production applications handling sensitive data, using PAR + RAR
+												together provides the best security posture and user experience.
 											</p>
 										</InfoContent>
 									</WarningBox>
@@ -1302,22 +1438,39 @@ pushPARWithRAR(config, rarDetails)
 				<Card>
 					<CardBody>
 						<p>
-							OAuth 2.1 introduces significant security enhancements through <strong>JWT-based client authentication (RFC 9448)</strong> and 
-							<strong>Demonstration of Proof-of-Possession (DPoP, RFC 9449)</strong>. These specifications work together with PAR and RAR to 
-							provide comprehensive security for modern OAuth implementations.
+							OAuth 2.1 introduces significant security enhancements through{' '}
+							<strong>JWT-based client authentication (RFC 9448)</strong> and
+							<strong>Demonstration of Proof-of-Possession (DPoP, RFC 9449)</strong>. These
+							specifications work together with PAR and RAR to provide comprehensive security for
+							modern OAuth implementations.
 						</p>
 
 						<h3>JWT-Based Client Authentication (RFC 9448)</h3>
 						<p>
-							RFC 9448 defines a method for clients to authenticate using JWT-based assertions instead of traditional client secrets. 
-							This approach provides several advantages:
+							RFC 9448 defines a method for clients to authenticate using JWT-based assertions
+							instead of traditional client secrets. This approach provides several advantages:
 						</p>
 						<ul>
-							<li>🔐 <strong>No Shared Secrets:</strong> Eliminates the need to store client secrets, reducing security risks</li>
-							<li>🎯 <strong>Asymmetric Cryptography:</strong> Uses public/private key pairs for stronger authentication</li>
-							<li>⏱️ <strong>Time-Limited Assertions:</strong> JWTs have expiration times, limiting exposure window</li>
-							<li>🔍 <strong>Audit Trail:</strong> JWT claims provide rich context for authentication events</li>
-							<li>📦 <strong>Self-Contained:</strong> All authentication information is in the JWT itself</li>
+							<li>
+								🔐 <strong>No Shared Secrets:</strong> Eliminates the need to store client secrets,
+								reducing security risks
+							</li>
+							<li>
+								🎯 <strong>Asymmetric Cryptography:</strong> Uses public/private key pairs for
+								stronger authentication
+							</li>
+							<li>
+								⏱️ <strong>Time-Limited Assertions:</strong> JWTs have expiration times, limiting
+								exposure window
+							</li>
+							<li>
+								🔍 <strong>Audit Trail:</strong> JWT claims provide rich context for authentication
+								events
+							</li>
+							<li>
+								📦 <strong>Self-Contained:</strong> All authentication information is in the JWT
+								itself
+							</li>
 						</ul>
 
 						<ExampleSection>
@@ -1335,7 +1488,10 @@ pushPARWithRAR(config, rarDetails)
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>JWT Client Assertion Structure</span>
-									<CopyButton onClick={() => handleCopyCode(`{
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`{
   "header": {
     "alg": "RS256",
     "typ": "JWT",
@@ -1349,7 +1505,11 @@ pushPARWithRAR(config, rarDetails)
     "exp": 1234567890,
     "iat": 1234567860
   }
-}`, 'JWT Client Assertion')}>
+}`,
+												'JWT Client Assertion'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -1377,11 +1537,15 @@ pushPARWithRAR(config, rarDetails)
 									Token Request with JWT Assertion
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Client uses the JWT assertion in the client_assertion parameter instead of client_secret.
+									Client uses the JWT assertion in the client_assertion parameter instead of
+									client_secret.
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>Token Request with JWT Authentication</span>
-									<CopyButton onClick={() => handleCopyCode(`POST https://auth.pingone.com/{environmentId}/as/token
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`POST https://auth.pingone.com/{environmentId}/as/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code&
@@ -1389,7 +1553,11 @@ code=authorization_code_value&
 redirect_uri=https://app.example.com/callback&
 client_id=your_client_id&
 client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&
-client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQifQ...`, 'Token request with JWT')}>
+client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQifQ...`,
+												'Token request with JWT'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -1408,15 +1576,31 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 
 						<h3>Demonstration of Proof-of-Possession (DPoP, RFC 9449)</h3>
 						<p>
-							DPoP provides proof that the client presenting an access token actually possesses the private key associated with that token. 
-							This prevents token replay attacks and provides binding between the token and the HTTP request.
+							DPoP provides proof that the client presenting an access token actually possesses the
+							private key associated with that token. This prevents token replay attacks and
+							provides binding between the token and the HTTP request.
 						</p>
 						<ul>
-							<li>🛡️ <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and methods</li>
-							<li>🚫 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID) preventing replay attacks</li>
-							<li>🔗 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring token is used for intended request</li>
-							<li>⏱️ <strong>Freshness:</strong> Includes iat (issued at) timestamp for freshness validation</li>
-							<li>🔐 <strong>Key Possession:</strong> Proves client controls the private key, not just the token</li>
+							<li>
+								🛡️ <strong>Token Binding:</strong> Binds access tokens to specific HTTP requests and
+								methods
+							</li>
+							<li>
+								🚫 <strong>Replay Protection:</strong> Each proof includes a unique jti (JWT ID)
+								preventing replay attacks
+							</li>
+							<li>
+								🔗 <strong>Request Binding:</strong> Proof includes HTTP method and URI, ensuring
+								token is used for intended request
+							</li>
+							<li>
+								⏱️ <strong>Freshness:</strong> Includes iat (issued at) timestamp for freshness
+								validation
+							</li>
+							<li>
+								🔐 <strong>Key Possession:</strong> Proves client controls the private key, not just
+								the token
+							</li>
 						</ul>
 
 						<ExampleSection>
@@ -1430,11 +1614,15 @@ client_assertion=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImNsaWVudC1rZXktaWQ
 									Generate DPoP Key Pair
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Client generates an asymmetric key pair for DPoP proofs (typically ES256 or RS256).
+									Client generates an asymmetric key pair for DPoP proofs (typically ES256 or
+									RS256).
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>DPoP Key Pair Generation</span>
-									<CopyButton onClick={() => handleCopyCode(`// Generate DPoP key pair
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`// Generate DPoP key pair
 const keyPair = await crypto.subtle.generateKey(
   {
     name: 'ECDSA',
@@ -1445,7 +1633,11 @@ const keyPair = await crypto.subtle.generateKey(
 );
 
 // Export public key as JWK
-const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`, 'DPoP key generation')}>
+const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`,
+												'DPoP key generation'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -1470,11 +1662,15 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 									Create DPoP Proof JWT
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Create a DPoP proof JWT containing HTTP method, URI, timestamp, and optionally the access token hash.
+									Create a DPoP proof JWT containing HTTP method, URI, timestamp, and optionally the
+									access token hash.
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>DPoP Proof JWT Structure</span>
-									<CopyButton onClick={() => handleCopyCode(`{
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`{
   "header": {
     "typ": "dpop+jwt",
     "alg": "ES256",
@@ -1492,7 +1688,11 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
     "iat": 1234567890,
     "ath": "base64url-encoded-sha256-hash-of-access-token"
   }
-}`, 'DPoP proof JWT')}>
+}`,
+												'DPoP proof JWT'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -1524,13 +1724,21 @@ const publicKeyJWK = await crypto.subtle.exportKey('jwk', keyPair.publicKey);`}<
 									Include DPoP Proof in API Request
 								</FlowStepTitle>
 								<FlowStepDescription>
-									Include the DPoP proof in the DPoP header when making API requests with the access token.
+									Include the DPoP proof in the DPoP header when making API requests with the access
+									token.
 								</FlowStepDescription>
 								<CodeBlockHeader>
 									<span>API Request with DPoP Proof</span>
-									<CopyButton onClick={() => handleCopyCode(`POST https://api.example.com/resource
+									<CopyButton
+										onClick={() =>
+											handleCopyCode(
+												`POST https://api.example.com/resource
 Authorization: Bearer access_token_here
-DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`, 'DPoP API request')}>
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`,
+												'DPoP API request'
+											)
+										}
+									>
 										<FiCopy size={12} />
 										Copy
 									</CopyButton>
@@ -1542,19 +1750,19 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 						</ExampleSection>
 
 						<h3>Combining PAR, RAR, JWT Auth, and DPoP</h3>
-						<p>
-							These OAuth 2.1 enhancements work together to provide comprehensive security:
-						</p>
+						<p>These OAuth 2.1 enhancements work together to provide comprehensive security:</p>
 						<ul>
 							<li>
-								<strong>PAR + JWT Client Auth:</strong> Push authorization requests securely using JWT-based client authentication 
-								instead of client secrets
+								<strong>PAR + JWT Client Auth:</strong> Push authorization requests securely using
+								JWT-based client authentication instead of client secrets
 							</li>
 							<li>
-								<strong>RAR + DPoP:</strong> Request fine-grained permissions with proof of possession for token usage
+								<strong>RAR + DPoP:</strong> Request fine-grained permissions with proof of
+								possession for token usage
 							</li>
 							<li>
-								<strong>Complete Flow:</strong> PAR (secure transport) + RAR (fine-grained permissions) + JWT Auth (no secrets) + DPoP (token binding)
+								<strong>Complete Flow:</strong> PAR (secure transport) + RAR (fine-grained
+								permissions) + JWT Auth (no secrets) + DPoP (token binding)
 							</li>
 						</ul>
 
@@ -1565,10 +1773,12 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 							<InfoContent>
 								<h4>PingOne Support Status</h4>
 								<p>
-									<strong>JWT-Based Client Authentication (RFC 9448):</strong> Supported by PingOne for client authentication.
+									<strong>JWT-Based Client Authentication (RFC 9448):</strong> Supported by PingOne
+									for client authentication.
 									<br />
-									<strong>DPoP (RFC 9449):</strong> Not currently supported by PingOne. The playground includes educational mock implementations 
-									to demonstrate DPoP concepts and security benefits.
+									<strong>DPoP (RFC 9449):</strong> Not currently supported by PingOne. The
+									playground includes educational mock implementations to demonstrate DPoP concepts
+									and security benefits.
 								</p>
 							</InfoContent>
 						</InfoBox>
@@ -1580,7 +1790,10 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiamZrIjp7Imt0eSI6IkVDIiw...`}</
 							</ExampleTitle>
 							<CodeBlockHeader>
 								<span>Full OAuth 2.1 Flow with All Enhancements</span>
-								<CopyButton onClick={() => handleCopyCode(`// 1. Generate DPoP key pair
+								<CopyButton
+									onClick={() =>
+										handleCopyCode(
+											`// 1. Generate DPoP key pair
 const dpopKeyPair = await generateDPoPKeyPair();
 
 // 2. Create JWT client assertion for authentication
@@ -1624,10 +1837,14 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
     'DPoP': dpopProof
   },
   body: JSON.stringify({ amount: 250.00 })
-});`, 'Complete OAuth 2.1 flow')}>
-										<FiCopy size={12} />
-										Copy
-									</CopyButton>
+});`,
+											'Complete OAuth 2.1 flow'
+										)
+									}
+								>
+									<FiCopy size={12} />
+									Copy
+								</CopyButton>
 							</CodeBlockHeader>
 							<CodeBlock>{`// 1. Generate DPoP key pair
 const dpopKeyPair = await generateDPoPKeyPair();
@@ -1690,39 +1907,58 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 						<h3>Key Takeaways</h3>
 						<ul>
 							<li>
-								<strong>PAR (RFC 9126)</strong> solves the "how" - it provides secure transport of authorization 
-								parameters via authenticated POST requests, preventing URL exposure and parameter tampering.
+								<strong>PAR (RFC 9126)</strong> solves the "how" - it provides secure transport of
+								authorization parameters via authenticated POST requests, preventing URL exposure
+								and parameter tampering.
 							</li>
 							<li>
-								<strong>RAR (RFC 9396)</strong> solves the "what" - it enables fine-grained authorization 
-								specifications using structured JSON, going beyond simple scope strings.
+								<strong>RAR (RFC 9396)</strong> solves the "what" - it enables fine-grained
+								authorization specifications using structured JSON, going beyond simple scope
+								strings.
 							</li>
 							<li>
-								<strong>DPoP (RFC 9449)</strong> solves the "proof" - it provides demonstration of proof-of-possession 
-								for access tokens, preventing token replay attacks and binding tokens to specific HTTP requests.
+								<strong>DPoP (RFC 9449)</strong> solves the "proof" - it provides demonstration of
+								proof-of-possession for access tokens, preventing token replay attacks and binding
+								tokens to specific HTTP requests.
 							</li>
 							<li>
-								<strong>JWT-Based Client Authentication (RFC 9448)</strong> eliminates the need for shared client secrets 
-								by using asymmetric cryptography with JWT assertions.
+								<strong>JWT-Based Client Authentication (RFC 9448)</strong> eliminates the need for
+								shared client secrets by using asymmetric cryptography with JWT assertions.
 							</li>
 							<li>
-								<strong>PAR + RAR + DPoP + JWT Auth</strong> together provide comprehensive security for modern OAuth 2.1 applications, 
-								combining secure transport, fine-grained permissions, token binding, and secret-less authentication.
+								<strong>PAR + RAR + DPoP + JWT Auth</strong> together provide comprehensive security
+								for modern OAuth 2.1 applications, combining secure transport, fine-grained
+								permissions, token binding, and secret-less authentication.
 							</li>
 							<li>
-								PAR and RAR are fully supported by PingOne. DPoP is available as educational mock implementations 
-								to demonstrate security concepts and best practices.
+								PAR and RAR are fully supported by PingOne. DPoP is available as educational mock
+								implementations to demonstrate security concepts and best practices.
 							</li>
 						</ul>
 
 						<h3>Next Steps</h3>
 						<ul>
-							<li>Explore the <strong>PingOne PAR Flow</strong> page to try PAR in action</li>
-							<li>Check out the <strong>RAR Flow</strong> page for interactive RAR examples</li>
-							<li>Review the <strong>OAuth 2.1</strong> specification for the latest OAuth best practices</li>
-							<li>Learn about <strong>JWT-based client authentication</strong> to eliminate client secrets</li>
-							<li>Understand <strong>DPoP</strong> for token binding and replay attack prevention</li>
-							<li>Implement <strong>PAR + RAR + DPoP + JWT Auth</strong> in your applications for maximum security</li>
+							<li>
+								Explore the <strong>PingOne PAR Flow</strong> page to try PAR in action
+							</li>
+							<li>
+								Check out the <strong>RAR Flow</strong> page for interactive RAR examples
+							</li>
+							<li>
+								Review the <strong>OAuth 2.1</strong> specification for the latest OAuth best
+								practices
+							</li>
+							<li>
+								Learn about <strong>JWT-based client authentication</strong> to eliminate client
+								secrets
+							</li>
+							<li>
+								Understand <strong>DPoP</strong> for token binding and replay attack prevention
+							</li>
+							<li>
+								Implement <strong>PAR + RAR + DPoP + JWT Auth</strong> in your applications for
+								maximum security
+							</li>
 						</ul>
 					</CardBody>
 				</Card>
@@ -1732,4 +1968,3 @@ const apiResponse = await fetch('https://api.bank.com/payments', {
 };
 
 export default PARvsRAR;
-

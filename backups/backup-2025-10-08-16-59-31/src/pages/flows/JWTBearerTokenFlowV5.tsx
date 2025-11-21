@@ -1,25 +1,25 @@
 // src/pages/flows/JWTBearerTokenFlowV5.tsx
 // V5.0.0 JWT Bearer Token Flow - Full V5 Implementation with Enhanced FlowInfoService
 
-import React, { useCallback, useState, useEffect } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiLock, FiKey, FiSettings } from 'react-icons/fi';
-import styled, { css } from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiCheckCircle, FiInfo, FiKey, FiLock, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import type { DefaultTheme } from 'styled-components';
+import styled, { css } from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { rsaKeyGenerationService } from '../../services/rsaKeyGenerationService';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import JSONHighlighter, { JSONData } from '../../components/JSONHighlighter';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { rsaKeyGenerationService } from '../../services/rsaKeyGenerationService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiLoader, FiXCircle } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiLoader } from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 import { logger } from '../../utils/logger';
+import { getValidatedCurrentUrl } from '../../utils/urlValidation';
 
 const CallbackContainer = styled.div`
   min-height: 100vh;

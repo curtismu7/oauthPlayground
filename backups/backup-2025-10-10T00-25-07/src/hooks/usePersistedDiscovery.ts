@@ -1,10 +1,10 @@
 // src/hooks/usePersistedDiscovery.ts
 /**
  * Hook for persisted OIDC discovery
- * 
+ *
  * Automatically saves and restores discovery data across the app.
  * Use this hook in any component that needs OIDC discovery.
- * 
+ *
  * Features:
  * - Auto-restores last used discovery on mount
  * - Saves discovery results automatically
@@ -12,9 +12,15 @@
  * - Manages discovery state
  */
 
-import { useEffect, useState, useCallback } from 'react';
-import { comprehensiveDiscoveryService, DiscoveryResult } from '../services/comprehensiveDiscoveryService';
-import { discoveryPersistenceService, PersistedDiscoveryData } from '../services/discoveryPersistenceService';
+import { useCallback, useEffect, useState } from 'react';
+import {
+	comprehensiveDiscoveryService,
+	DiscoveryResult,
+} from '../services/comprehensiveDiscoveryService';
+import {
+	discoveryPersistenceService,
+	PersistedDiscoveryData,
+} from '../services/discoveryPersistenceService';
 
 export interface UsePersistedDiscoveryOptions {
 	/**
@@ -88,13 +94,7 @@ export interface UsePersistedDiscoveryReturn {
 export function usePersistedDiscovery(
 	options: UsePersistedDiscoveryOptions = {}
 ): UsePersistedDiscoveryReturn {
-	const {
-		environmentId,
-		issuerUrl,
-		autoRestore = true,
-		onRestore,
-		onSave,
-	} = options;
+	const { environmentId, issuerUrl, autoRestore = true, onRestore, onSave } = options;
 
 	const [persistedData, setPersistedData] = useState<PersistedDiscoveryData | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
@@ -103,110 +103,125 @@ export function usePersistedDiscovery(
 	/**
 	 * Restore discovery from cache
 	 */
-	const restore = useCallback((envId: string): PersistedDiscoveryData | null => {
-		const data = discoveryPersistenceService.getDiscovery(envId);
-		if (data) {
-			setPersistedData(data);
-			onRestore?.(data);
-			console.log('[usePersistedDiscovery] Restored discovery for:', envId);
-		}
-		return data;
-	}, [onRestore]);
+	const restore = useCallback(
+		(envId: string): PersistedDiscoveryData | null => {
+			const data = discoveryPersistenceService.getDiscovery(envId);
+			if (data) {
+				setPersistedData(data);
+				onRestore?.(data);
+				console.log('[usePersistedDiscovery] Restored discovery for:', envId);
+			}
+			return data;
+		},
+		[onRestore]
+	);
 
 	/**
 	 * Restore by issuer URL
 	 */
-	const restoreByIssuer = useCallback((issuer: string): PersistedDiscoveryData | null => {
-		const data = discoveryPersistenceService.getDiscoveryByIssuer(issuer);
-		if (data) {
-			setPersistedData(data);
-			onRestore?.(data);
-			console.log('[usePersistedDiscovery] Restored discovery for issuer:', issuer);
-		}
-		return data;
-	}, [onRestore]);
+	const restoreByIssuer = useCallback(
+		(issuer: string): PersistedDiscoveryData | null => {
+			const data = discoveryPersistenceService.getDiscoveryByIssuer(issuer);
+			if (data) {
+				setPersistedData(data);
+				onRestore?.(data);
+				console.log('[usePersistedDiscovery] Restored discovery for issuer:', issuer);
+			}
+			return data;
+		},
+		[onRestore]
+	);
 
 	/**
 	 * Discover and save
 	 */
-	const discoverAndSave = useCallback(async (input: string): Promise<DiscoveryResult> => {
-		setIsLoading(true);
-		setError(null);
+	const discoverAndSave = useCallback(
+		async (input: string): Promise<DiscoveryResult> => {
+			setIsLoading(true);
+			setError(null);
 
-		try {
-			// Check cache first
-			const cached = discoveryPersistenceService.getDiscoveryByIssuer(input) ||
-						   discoveryPersistenceService.getDiscovery(input);
+			try {
+				// Check cache first
+				const cached =
+					discoveryPersistenceService.getDiscoveryByIssuer(input) ||
+					discoveryPersistenceService.getDiscovery(input);
 
-			if (cached) {
-				console.log('[usePersistedDiscovery] Using cached discovery');
-				setPersistedData(cached);
+				if (cached) {
+					console.log('[usePersistedDiscovery] Using cached discovery');
+					setPersistedData(cached);
+					setIsLoading(false);
+					return {
+						success: true,
+						document: cached.document,
+						issuerUrl: cached.issuerUrl,
+						provider: cached.provider,
+						cached: true,
+					};
+				}
+
+				// Perform discovery
+				const result = await comprehensiveDiscoveryService.discover({
+					input,
+					timeout: 10000,
+				});
+
+				if (result.success && result.document && result.issuerUrl) {
+					// Extract environment ID from issuer URL
+					const envMatch = result.issuerUrl.match(
+						/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+					);
+					const extractedEnvId = envMatch ? envMatch[1] : input;
+
+					// Save to persistence
+					const dataToSave: PersistedDiscoveryData = {
+						environmentId: extractedEnvId,
+						issuerUrl: result.issuerUrl,
+						provider: result.provider || 'unknown',
+						document: result.document,
+						timestamp: Date.now(),
+					};
+
+					discoveryPersistenceService.saveDiscovery(dataToSave);
+					setPersistedData(dataToSave);
+					onSave?.(dataToSave);
+
+					console.log('[usePersistedDiscovery] Discovered and saved:', extractedEnvId);
+				} else {
+					setError(result.error || 'Discovery failed');
+				}
+
+				setIsLoading(false);
+				return result;
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
+				setError(errorMessage);
 				setIsLoading(false);
 				return {
-					success: true,
-					document: cached.document,
-					issuerUrl: cached.issuerUrl,
-					provider: cached.provider,
-					cached: true,
+					success: false,
+					error: errorMessage,
 				};
 			}
-
-			// Perform discovery
-			const result = await comprehensiveDiscoveryService.discover({
-				input,
-				timeout: 10000,
-			});
-
-			if (result.success && result.document && result.issuerUrl) {
-				// Extract environment ID from issuer URL
-				const envMatch = result.issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-				const extractedEnvId = envMatch ? envMatch[1] : input;
-
-				// Save to persistence
-				const dataToSave: PersistedDiscoveryData = {
-					environmentId: extractedEnvId,
-					issuerUrl: result.issuerUrl,
-					provider: result.provider || 'unknown',
-					document: result.document,
-					timestamp: Date.now(),
-				};
-
-				discoveryPersistenceService.saveDiscovery(dataToSave);
-				setPersistedData(dataToSave);
-				onSave?.(dataToSave);
-
-				console.log('[usePersistedDiscovery] Discovered and saved:', extractedEnvId);
-			} else {
-				setError(result.error || 'Discovery failed');
-			}
-
-			setIsLoading(false);
-			return result;
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-			setError(errorMessage);
-			setIsLoading(false);
-			return {
-				success: false,
-				error: errorMessage,
-			};
-		}
-	}, [onSave]);
+		},
+		[onSave]
+	);
 
 	/**
 	 * Clear cached discovery
 	 */
-	const clear = useCallback((envId?: string) => {
-		if (envId) {
-			discoveryPersistenceService.removeDiscovery(envId);
-			if (persistedData?.environmentId === envId) {
+	const clear = useCallback(
+		(envId?: string) => {
+			if (envId) {
+				discoveryPersistenceService.removeDiscovery(envId);
+				if (persistedData?.environmentId === envId) {
+					setPersistedData(null);
+				}
+			} else {
+				discoveryPersistenceService.clearAll();
 				setPersistedData(null);
 			}
-		} else {
-			discoveryPersistenceService.clearAll();
-			setPersistedData(null);
-		}
-	}, [persistedData]);
+		},
+		[persistedData]
+	);
 
 	/**
 	 * Get all cached discoveries
@@ -262,7 +277,3 @@ export function usePersistedDiscovery(
 }
 
 export default usePersistedDiscovery;
-
-
-
-

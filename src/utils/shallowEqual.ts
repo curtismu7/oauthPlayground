@@ -10,30 +10,30 @@
  * @returns true if values are shallowly equal, false otherwise
  */
 export function shallowEqual(a: any, b: any): boolean {
-  // Same reference
-  if (a === b) return true;
-  
-  // Null/undefined check
-  if (!a || !b) return false;
-  
-  // Type check
-  if (typeof a !== 'object' || typeof b !== 'object') return false;
-  
-  // Array check
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  
-  // Key comparison
-  const ka = Object.keys(a);
-  const kb = Object.keys(b);
-  
-  if (ka.length !== kb.length) return false;
-  
-  // Value comparison
-  for (const k of ka) {
-    if (a[k] !== b[k]) return false;
-  }
-  
-  return true;
+	// Same reference
+	if (a === b) return true;
+
+	// Null/undefined check
+	if (!a || !b) return false;
+
+	// Type check
+	if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+	// Array check
+	if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+	// Key comparison
+	const ka = Object.keys(a);
+	const kb = Object.keys(b);
+
+	if (ka.length !== kb.length) return false;
+
+	// Value comparison
+	for (const k of ka) {
+		if (a[k] !== b[k]) return false;
+	}
+
+	return true;
 }
 
 /**
@@ -41,10 +41,6 @@ export function shallowEqual(a: any, b: any): boolean {
  * @param setter - State setter function
  * @param next - Next value to set
  */
-export function setIfChanged<T>(
-  setter: (updater: (prev: T) => T) => void,
-  next: T
-): void {
-  setter(prev => (shallowEqual(prev, next) ? prev : next));
+export function setIfChanged<T>(setter: (updater: (prev: T) => T) => void, next: T): void {
+	setter((prev) => (shallowEqual(prev, next) ? prev : next));
 }
-

@@ -4,45 +4,33 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCode,
 	FiExternalLink,
-	FiGlobe,
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiShield,
 	FiSettings,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { ClientAuthMethod } from '../../services/clientCredentialsSharedService';
 import { LearningTooltip } from '../../components/LearningTooltip';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
+import FlowUIService from '../../services/flowUIService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-// V7 Styled Components
-const Container = styled.div`
-	min-height: 100vh;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Get UI components from FlowUIService
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
 
 const MainCard = styled.div`
 	background: white;
@@ -155,16 +143,19 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; loading?: bool
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	opacity: ${props => props.loading ? 0.7 : 1};
-	pointer-events: ${props => props.loading ? 'none' : 'auto'};
+	opacity: ${(props) => (props.loading ? 0.7 : 1)};
+	pointer-events: ${(props) => (props.loading ? 'none' : 'auto')};
 
-	${props => props.variant === 'primary' ? `
+	${(props) =>
+		props.variant === 'primary'
+			? `
 		background: #3b82f6;
 		color: white;
 		&:hover {
 			background: #2563eb;
 		}
-	` : `
+	`
+			: `
 		background: #f3f4f6;
 		color: #374151;
 		&:hover {
@@ -174,14 +165,14 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; loading?: bool
 `;
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'error' }>`
-	padding: 1rem;
+	padding: 1.25rem;  // Increased padding for better readability
 	border-radius: 0.5rem;
-	margin-bottom: 1rem;
+	margin-bottom: 1.5rem;  // Increased bottom margin for better spacing
 	display: flex;
 	align-items: flex-start;
 	gap: 0.75rem;
 
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'success':
 				return 'background: #dcfce7; border: 1px solid #10b981; color: #166534;';
@@ -244,38 +235,38 @@ const STEP_METADATA = [
 	{
 		title: 'Credentials & Configuration',
 		subtitle: 'Set up your client credentials and authentication method',
-		description: 'Configure environment, client ID, client secret, and authentication method'
+		description: 'Configure environment, client ID, client secret, and authentication method',
 	},
 	{
 		title: 'Authentication Method',
 		subtitle: 'Choose how to authenticate with the authorization server',
-		description: 'Select between client_secret_post, client_secret_basic, or none'
+		description: 'Select between client_secret_post, client_secret_basic, or none',
 	},
 	{
 		title: 'Token Request',
 		subtitle: 'Generate and send the token request',
-		description: 'Create the token request with proper authentication'
+		description: 'Create the token request with proper authentication',
 	},
 	{
 		title: 'Token Response',
 		subtitle: 'Receive and validate the access token',
-		description: 'Process the token response and validate the access token'
+		description: 'Process the token response and validate the access token',
 	},
 	{
 		title: 'API Call',
 		subtitle: 'Use the access token to call protected APIs',
-		description: 'Make authenticated requests to protected resources'
+		description: 'Make authenticated requests to protected resources',
 	},
 	{
 		title: 'Token Introspection',
 		subtitle: 'Validate the access token',
-		description: 'Introspect the token to verify its validity and claims'
+		description: 'Introspect the token to verify its validity and claims',
 	},
 	{
 		title: 'Flow Complete',
 		subtitle: 'Review the completed flow',
-		description: 'Summary of the client credentials flow implementation'
-	}
+		description: 'Summary of the client credentials flow implementation',
+	},
 ];
 
 const ClientCredentialsFlowV7Complete: React.FC = () => {
@@ -297,9 +288,9 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 		checkCredentialsAndWarn(controller.credentials, {
 			flowName: 'Client Credentials Flow',
 			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
-			showToast: true
+			showToast: true,
 		});
-	}, []); // Only run once on mount
+	}, [controller.credentials]); // Only run once on mount
 
 	// Initialize client credentials flow controller
 	const controller = useClientCredentialsFlowController({
@@ -311,32 +302,32 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 		flowKey: 'client-credentials-v7',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
-		enabled: true
+		enabled: true,
 	});
 
 	const toggleSection = useCallback((key: string) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[key]: !prev[key]
+			[key]: !prev[key],
 		}));
 	}, []);
 
 	const handleNext = useCallback(() => {
 		if (currentStep < STEP_METADATA.length - 1) {
-			setCurrentStep(prev => prev + 1);
+			setCurrentStep((prev) => prev + 1);
 		}
 	}, [currentStep]);
 
 	const handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
-			setCurrentStep(prev => prev - 1);
+			setCurrentStep((prev) => prev - 1);
 		}
 	}, [currentStep]);
 
 	const handleReset = useCallback(() => {
 		setCurrentStep(0);
 		controller.resetFlow();
-		
+
 		// Clear Client Credentials Flow V7-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('client-credentials-v7');
@@ -345,7 +336,7 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 			console.error('[Client Credentials V7] Failed to clear flow state:', error);
 			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
 		}
-		
+
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
@@ -356,54 +347,61 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 	}, [controller, clearBackup]);
 
 	// Step validation with enhanced error messages
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				// Step 0: Must have valid credentials
-				return !!(controller.credentials.environmentId && controller.credentials.clientId);
-			case 1:
-				// Step 1: Auth method selection is always valid
-				return true;
-			case 2:
-				// Step 2: Must have valid credentials for token request
-				return !!(controller.credentials.environmentId && controller.credentials.clientId);
-			case 3:
-				// Step 3: Must have access token from successful request
-				return !!controller.tokens?.access_token;
-			case 4:
-				// Step 4: Must have access token for API calls
-				return !!controller.tokens?.access_token;
-			case 5:
-				// Step 5: Must have access token for token introspection
-				return !!controller.tokens?.access_token;
-			case 6:
-				// Step 6: Completion step is always valid
-				return true;
-			default:
-				return false;
-		}
-	}, [controller.credentials, controller.tokens]);
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					// Step 0: Must have valid credentials
+					return !!(controller.credentials.environmentId && controller.credentials.clientId);
+				case 1:
+					// Step 1: Auth method selection is always valid
+					return true;
+				case 2:
+					// Step 2: Must have valid credentials for token request
+					return !!(controller.credentials.environmentId && controller.credentials.clientId);
+				case 3:
+					// Step 3: Must have access token from successful request
+					return !!controller.tokens?.access_token;
+				case 4:
+					// Step 4: Must have access token for API calls
+					return !!controller.tokens?.access_token;
+				case 5:
+					// Step 5: Must have access token for token introspection
+					return !!controller.tokens?.access_token;
+				case 6:
+					// Step 6: Completion step is always valid
+					return true;
+				default:
+					return false;
+			}
+		},
+		[controller.credentials, controller.tokens]
+	);
 
 	// Get step validation error message
-	const getStepValidationMessage = useCallback((step: number): string => {
-		switch (step) {
-			case 0:
-				if (!controller.credentials.environmentId) return 'Environment ID is required';
-				if (!controller.credentials.clientId) return 'Client ID is required';
-				return '';
-			case 2:
-				if (!controller.credentials.environmentId) return 'Environment ID is required';
-				if (!controller.credentials.clientId) return 'Client ID is required';
-				return '';
-			case 3:
-			case 4:
-			case 5:
-				if (!controller.tokens?.access_token) return 'Access token is required. Please complete the token request first.';
-				return '';
-			default:
-				return '';
-		}
-	}, [controller.credentials, controller.tokens]);
+	const getStepValidationMessage = useCallback(
+		(step: number): string => {
+			switch (step) {
+				case 0:
+					if (!controller.credentials.environmentId) return 'Environment ID is required';
+					if (!controller.credentials.clientId) return 'Client ID is required';
+					return '';
+				case 2:
+					if (!controller.credentials.environmentId) return 'Environment ID is required';
+					if (!controller.credentials.clientId) return 'Client ID is required';
+					return '';
+				case 3:
+				case 4:
+				case 5:
+					if (!controller.tokens?.access_token)
+						return 'Access token is required. Please complete the token request first.';
+					return '';
+				default:
+					return '';
+			}
+		},
+		[controller.credentials, controller.tokens]
+	);
 
 	const canNavigateNext = useMemo(() => {
 		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
@@ -412,17 +410,20 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 	// Ensure Client Credentials Flow V7 uses its own credential storage
 	useEffect(() => {
 		// Save current credentials to flow-specific storage
-		if (controller.credentials && (controller.credentials.environmentId || controller.credentials.clientId)) {
+		if (
+			controller.credentials &&
+			(controller.credentials.environmentId || controller.credentials.clientId)
+		) {
 			console.log('🔧 [Client Credentials V7] Saving credentials to flow-specific storage:', {
 				flowKey: 'client-credentials-v7',
 				environmentId: controller.credentials.environmentId,
-				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
-				authMethod: controller.credentials.clientAuthMethod
+				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
+				authMethod: controller.credentials.clientAuthMethod,
 			});
-			
+
 			// Save to flow-specific storage with enhanced error handling
 			FlowCredentialService.saveFlowCredentials('client-credentials-v7', controller.credentials, {
-				showToast: false
+				showToast: false,
 			}).catch((error) => {
 				console.error('[Client Credentials V7] Failed to save credentials to V7 storage:', error);
 				// Show user-friendly error message
@@ -431,364 +432,537 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 		}
 	}, [controller.credentials]);
 
-
 	// Render step content
 	const renderStepContent = useCallback(() => {
 		switch (currentStep) {
 			case 0:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('credentials')}
-								aria-expanded={!collapsedSections.credentials}
-							>
-								<CollapsibleTitle>
-									<FiSettings /> Credentials & Configuration
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.credentials && (
-								<CollapsibleContent>
-									<ComprehensiveCredentialsService
-										flowType="client-credentials"
-										onCredentialsChange={(credentials) => {
-											controller.setCredentials(credentials);
-										}}
-										formData={{
-											environmentId: controller.credentials.environmentId,
-											clientId: controller.credentials.clientId,
-											clientSecret: controller.credentials.clientSecret,
-											grantTypes: ['client_credentials'], // Explicitly set for config checker
-											responseTypes: [], // Client credentials doesn't use response types
-											tokenEndpointAuthMethod: controller.credentials.clientAuthMethod || 'client_secret_post',
-										}}
-										title={
-											<>Client{' '}
-												<LearningTooltip variant="learning" title="Client Credentials" content="OAuth 2.0 grant type (RFC 6749 Section 4.4) for machine-to-machine authentication. No user interaction required - perfect for service-to-service API calls." placement="top">
-													Credentials
-												</LearningTooltip> Configuration
-											</>
-										}
-										subtitle={
-											<>Configure your client credentials for{' '}
-												<LearningTooltip variant="info" title="Machine-to-Machine (M2M)" content="Service-to-service authentication where no user is involved. Typically used for backend services, microservices, and automated systems." placement="top">
-													machine-to-machine authentication
-												</LearningTooltip>
-											</>
-										}
-										requireClientSecret={true}
-										showConfigChecker={true}
-										workerToken={localStorage.getItem('worker-token') || ''}
-										region="NA"
-									/>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('credentials')}
+							aria-expanded={!collapsedSections.credentials}
+						>
+							<CollapsibleTitle>
+								<FiSettings /> Credentials & Configuration
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.credentials && (
+							<CollapsibleContent>
+								<ComprehensiveCredentialsService
+									flowType="client-credentials"
+									onCredentialsChange={(credentials) => {
+										controller.setCredentials(credentials);
+									}}
+									formData={{
+										environmentId: controller.credentials.environmentId,
+										clientId: controller.credentials.clientId,
+										clientSecret: controller.credentials.clientSecret,
+										grantTypes: ['client_credentials'], // Explicitly set for config checker
+										responseTypes: [], // Client credentials doesn't use response types
+										tokenEndpointAuthMethod:
+											controller.credentials.clientAuthMethod || 'client_secret_post',
+									}}
+									title={
+										<>
+											Client{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Client Credentials"
+												content="OAuth 2.0 grant type (RFC 6749 Section 4.4) for machine-to-machine authentication. No user interaction required - perfect for service-to-service API calls."
+												placement="top"
+											>
+												Credentials
+											</LearningTooltip>{' '}
+											Configuration
+										</>
+									}
+									subtitle={
+										<>
+											Configure your client credentials for{' '}
+											<LearningTooltip
+												variant="info"
+												title="Machine-to-Machine (M2M)"
+												content="Service-to-service authentication where no user is involved. Typically used for backend services, microservices, and automated systems."
+												placement="top"
+											>
+												machine-to-machine authentication
+											</LearningTooltip>
+										</>
+									}
+									requireClientSecret={true}
+									showConfigChecker={true}
+									workerToken={localStorage.getItem('worker-token') || ''}
+									region="NA"
+								/>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 1:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authMethod')}
-								aria-expanded={!collapsedSections.authMethod}
-							>
-								<CollapsibleTitle>
-									<FiShield /> Authentication Method
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authMethod && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>
-												<LearningTooltip variant="learning" title="Client Authentication Methods" content="How the OAuth client proves its identity to the authorization server. Methods include client_secret_post, client_secret_basic, private_key_jwt, and none." placement="top">
-													Client Authentication Methods
-												</LearningTooltip>
-											</InfoTitle>
-											<InfoText>
-												Choose how your{' '}
-												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access to protected resources" placement="top">client</LearningTooltip> will authenticate with the{' '}
-												<LearningTooltip variant="learning" title="Authorization Server" content="OAuth server that issues tokens after validating client credentials." placement="top">authorization server</LearningTooltip>.
-												<LearningTooltip variant="learning" title="Client Credentials Flow" content="OAuth 2.0 grant type for M2M authentication - no user involved" placement="top">Client Credentials flow</LearningTooltip> supports multiple{' '}
-												<LearningTooltip variant="info" title="Authentication Methods" content="Ways to prove client identity: POST body, Basic Auth header, JWT assertion, or none" placement="top">authentication methods</LearningTooltip>.
-											</InfoText>
-											<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
-												Current auth method: {controller.credentials.clientAuthMethod || 'none'}
-											</div>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('authMethod')}
+							aria-expanded={!collapsedSections.authMethod}
+						>
+							<CollapsibleTitle>
+								<FiShield /> Authentication Method
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.authMethod && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>
+											<LearningTooltip
+												variant="learning"
+												title="Client Authentication Methods"
+												content="How the OAuth client proves its identity to the authorization server. Methods include client_secret_post, client_secret_basic, private_key_jwt, and none."
+												placement="top"
+											>
+												Client Authentication Methods
+											</LearningTooltip>
+										</InfoTitle>
+										<InfoText>
+											Choose how your{' '}
+											<LearningTooltip
+												variant="info"
+												title="OAuth Client"
+												content="Application requesting access to protected resources"
+												placement="top"
+											>
+												client
+											</LearningTooltip>{' '}
+											will authenticate with the{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Authorization Server"
+												content="OAuth server that issues tokens after validating client credentials."
+												placement="top"
+											>
+												authorization server
+											</LearningTooltip>
+											.
+											<LearningTooltip
+												variant="learning"
+												title="Client Credentials Flow"
+												content="OAuth 2.0 grant type for M2M authentication - no user involved"
+												placement="top"
+											>
+												Client Credentials flow
+											</LearningTooltip>{' '}
+											supports multiple{' '}
+											<LearningTooltip
+												variant="info"
+												title="Authentication Methods"
+												content="Ways to prove client identity: POST body, Basic Auth header, JWT assertion, or none"
+												placement="top"
+											>
+												authentication methods
+											</LearningTooltip>
+											.
+										</InfoText>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
+											Current auth method: {controller.credentials.clientAuthMethod || 'none'}
 										</div>
-									</InfoBox>
-									
-									<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-										<Button
-											variant={controller.credentials.clientAuthMethod === 'client_secret_post' ? 'primary' : 'secondary'}
-											onClick={() => {
-												console.log('[ClientCredentials V7] Setting auth method to client_secret_post');
-												controller.setCredentials({...controller.credentials, clientAuthMethod: 'client_secret_post'});
-											}}
-										>
-											<FiKey />{' '}
-											<LearningTooltip variant="learning" title="client_secret_post" content="Client secret sent in POST body as form parameter. Most common method, simple to implement." placement="top">
-												Client Secret POST
-											</LearningTooltip>
-										</Button>
-										<Button
-											variant={controller.credentials.clientAuthMethod === 'client_secret_basic' ? 'primary' : 'secondary'}
-											onClick={() => {
-												console.log('[ClientCredentials V7] Setting auth method to client_secret_basic');
-												controller.setCredentials({...controller.credentials, clientAuthMethod: 'client_secret_basic'});
-											}}
-										>
-											<FiShield />{' '}
-											<LearningTooltip variant="learning" title="client_secret_basic" content="Client secret sent in Authorization header using HTTP Basic Authentication (base64 encoded client_id:client_secret)." placement="top">
-												Client Secret Basic
-											</LearningTooltip>
-										</Button>
 									</div>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								</InfoBox>
+
+								<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+									<Button
+										variant={
+											controller.credentials.clientAuthMethod === 'client_secret_post'
+												? 'primary'
+												: 'secondary'
+										}
+										onClick={() => {
+											console.log(
+												'[ClientCredentials V7] Setting auth method to client_secret_post'
+											);
+											controller.setCredentials({
+												...controller.credentials,
+												clientAuthMethod: 'client_secret_post',
+											});
+										}}
+									>
+										<FiKey />{' '}
+										<LearningTooltip
+											variant="learning"
+											title="client_secret_post"
+											content="Client secret sent in POST body as form parameter. Most common method, simple to implement."
+											placement="top"
+										>
+											Client Secret POST
+										</LearningTooltip>
+									</Button>
+									<Button
+										variant={
+											controller.credentials.clientAuthMethod === 'client_secret_basic'
+												? 'primary'
+												: 'secondary'
+										}
+										onClick={() => {
+											console.log(
+												'[ClientCredentials V7] Setting auth method to client_secret_basic'
+											);
+											controller.setCredentials({
+												...controller.credentials,
+												clientAuthMethod: 'client_secret_basic',
+											});
+										}}
+									>
+										<FiShield />{' '}
+										<LearningTooltip
+											variant="learning"
+											title="client_secret_basic"
+											content="Client secret sent in Authorization header using HTTP Basic Authentication (base64 encoded client_id:client_secret)."
+											placement="top"
+										>
+											Client Secret Basic
+										</LearningTooltip>
+									</Button>
+								</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 2:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenRequest')}
-								aria-expanded={!collapsedSections.tokenRequest}
-							>
-								<CollapsibleTitle>
-									<FiCode /> Token Request
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenRequest && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>
-												<LearningTooltip variant="learning" title="Client Credentials Token Request" content="OAuth 2.0 token request using client_credentials grant_type. Contains grant_type, scope (optional), and client authentication." placement="top">
-													Client Credentials Token Request
-												</LearningTooltip>
-											</InfoTitle>
-											<InfoText>
-												The{' '}
-												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting tokens" placement="top">client</LearningTooltip> sends a{' '}
-												<LearningTooltip variant="learning" title="Token Request" content="POST request to /as/token endpoint with grant_type=client_credentials" placement="top">token request</LearningTooltip> to the{' '}
-												<LearningTooltip variant="learning" title="Authorization Server" content="Server that validates client and issues tokens" placement="top">authorization server</LearningTooltip> using its{' '}
-												<LearningTooltip variant="security" title="Client Credentials" content="client_id and client_secret used to authenticate the client" placement="top">credentials</LearningTooltip>.
-											</InfoText>
-										</div>
-									</InfoBox>
-
-									<ActionRow>
-										<Button
-											variant="primary"
-											onClick={controller.requestToken}
-											loading={controller.isLoading}
-										>
-											<FiRefreshCw /> Request{' '}
-											<LearningTooltip variant="learning" title="Access Token" content="Bearer token used to authenticate API requests. Valid for specified expires_in seconds, sent in Authorization header." placement="top">
-												Access Token
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('tokenRequest')}
+							aria-expanded={!collapsedSections.tokenRequest}
+						>
+							<CollapsibleTitle>
+								<FiCode /> Token Request
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.tokenRequest && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>
+											<LearningTooltip
+												variant="learning"
+												title="Client Credentials Token Request"
+												content="OAuth 2.0 token request using client_credentials grant_type. Contains grant_type, scope (optional), and client authentication."
+												placement="top"
+											>
+												Client Credentials Token Request
 											</LearningTooltip>
-										</Button>
-									</ActionRow>
+										</InfoTitle>
+										<InfoText>
+											The{' '}
+											<LearningTooltip
+												variant="info"
+												title="OAuth Client"
+												content="Application requesting tokens"
+												placement="top"
+											>
+												client
+											</LearningTooltip>{' '}
+											sends a{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Token Request"
+												content="POST request to /as/token endpoint with grant_type=client_credentials"
+												placement="top"
+											>
+												token request
+											</LearningTooltip>{' '}
+											to the{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Authorization Server"
+												content="Server that validates client and issues tokens"
+												placement="top"
+											>
+												authorization server
+											</LearningTooltip>{' '}
+											using its{' '}
+											<LearningTooltip
+												variant="security"
+												title="Client Credentials"
+												content="client_id and client_secret used to authenticate the client"
+												placement="top"
+											>
+												credentials
+											</LearningTooltip>
+											.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-									{controller.tokenRequest && (
-										<GeneratedContentBox>
-											<GeneratedLabel>Token Request Details</GeneratedLabel>
-											<CodeBlock>{JSON.stringify(controller.tokenRequest, null, 2)}</CodeBlock>
-											<ActionRow>
-												<CopyButtonService
-													text={JSON.stringify(controller.tokenRequest, null, 2)}
-													label="Copy request JSON"
-													variant="primary"
-												/>
-											</ActionRow>
-										</GeneratedContentBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								<ActionRow>
+									<Button
+										variant="primary"
+										onClick={controller.requestToken}
+										loading={controller.isLoading}
+									>
+										<FiRefreshCw /> Request{' '}
+										<LearningTooltip
+											variant="learning"
+											title="Access Token"
+											content="Bearer token used to authenticate API requests. Valid for specified expires_in seconds, sent in Authorization header."
+											placement="top"
+										>
+											Access Token
+										</LearningTooltip>
+									</Button>
+								</ActionRow>
+
+								{controller.tokenRequest && (
+									<GeneratedContentBox>
+										<GeneratedLabel>Token Request Details</GeneratedLabel>
+										<CodeBlock>{JSON.stringify(controller.tokenRequest, null, 2)}</CodeBlock>
+										<ActionRow>
+											<CopyButtonService
+												text={JSON.stringify(controller.tokenRequest, null, 2)}
+												label="Copy request JSON"
+												variant="primary"
+											/>
+										</ActionRow>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 3:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenResponse')}
-								aria-expanded={!collapsedSections.tokenResponse}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Token Response
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenResponse && (
-								<CollapsibleContent>
-									{controller.tokens ? (
-										<>
-											<InfoBox $variant="success">
-												<FiCheckCircle size={20} />
-												<div>
-													<InfoTitle>
-														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication. Contains permissions (scopes) and lifetime." placement="top">
-															Access Token
-														</LearningTooltip> Received
-													</InfoTitle>
-													<InfoText>
-														The{' '}
-														<LearningTooltip variant="learning" title="Authorization Server" content="OAuth server that validates client and issues tokens" placement="top">authorization server</LearningTooltip> has returned an{' '}
-														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip> for your{' '}
-														<LearningTooltip variant="info" title="OAuth Client" content="Your application" placement="top">client</LearningTooltip>.
-													</InfoText>
-												</div>
-											</InfoBox>
-
-											{UnifiedTokenDisplayService.showTokens(
-												controller.tokens,
-												'oauth',
-												'client-credentials-v7',
-												{
-													showCopyButtons: true,
-													showDecodeButtons: true,
-												}
-											)}
-										</>
-									) : (
-										<InfoBox $variant="warning">
-											<FiAlertCircle size={20} />
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('tokenResponse')}
+							aria-expanded={!collapsedSections.tokenResponse}
+						>
+							<CollapsibleTitle>
+								<FiCheckCircle /> Token Response
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.tokenResponse && (
+							<CollapsibleContent>
+								{controller.tokens ? (
+									<>
+										<InfoBox $variant="success">
+											<FiCheckCircle size={20} />
 											<div>
-												<InfoTitle>No Token Received</InfoTitle>
+												<InfoTitle>
+													<LearningTooltip
+														variant="learning"
+														title="Access Token"
+														content="Bearer token for API authentication. Contains permissions (scopes) and lifetime."
+														placement="top"
+													>
+														Access Token
+													</LearningTooltip>{' '}
+													Received
+												</InfoTitle>
 												<InfoText>
-													Complete the token request in step 2 to receive an access token.
+													The{' '}
+													<LearningTooltip
+														variant="learning"
+														title="Authorization Server"
+														content="OAuth server that validates client and issues tokens"
+														placement="top"
+													>
+														authorization server
+													</LearningTooltip>{' '}
+													has returned an{' '}
+													<LearningTooltip
+														variant="learning"
+														title="Access Token"
+														content="Bearer token for API authentication"
+														placement="top"
+													>
+														access token
+													</LearningTooltip>{' '}
+													for your{' '}
+													<LearningTooltip
+														variant="info"
+														title="OAuth Client"
+														content="Your application"
+														placement="top"
+													>
+														client
+													</LearningTooltip>
+													.
 												</InfoText>
 											</div>
 										</InfoBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+
+										{UnifiedTokenDisplayService.showTokens(
+											controller.tokens,
+											'oauth',
+											'client-credentials-v7',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
+									</>
+								) : (
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>No Token Received</InfoTitle>
+											<InfoText>
+												Complete the token request in step 2 to receive an access token.
+											</InfoText>
+										</div>
+									</InfoBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 4:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('apiCall')}
-								aria-expanded={!collapsedSections.apiCall}
-							>
-								<CollapsibleTitle>
-									<FiExternalLink /> API Call
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.apiCall && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>
-												Using the{' '}
-												<LearningTooltip variant="learning" title="Access Token" content="Bearer token sent in Authorization header to authenticate API requests" placement="top">
-													Access Token
-												</LearningTooltip>
-											</InfoTitle>
-											<InfoText>
-												Use the{' '}
-												<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip> to make authenticated requests to{' '}
-												<LearningTooltip variant="info" title="Protected APIs" content="APIs that require authentication via access token in Authorization header" placement="top">protected APIs</LearningTooltip>.
-											</InfoText>
-										</div>
-									</InfoBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('apiCall')}
+							aria-expanded={!collapsedSections.apiCall}
+						>
+							<CollapsibleTitle>
+								<FiExternalLink /> API Call
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.apiCall && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>
+											Using the{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Access Token"
+												content="Bearer token sent in Authorization header to authenticate API requests"
+												placement="top"
+											>
+												Access Token
+											</LearningTooltip>
+										</InfoTitle>
+										<InfoText>
+											Use the{' '}
+											<LearningTooltip
+												variant="learning"
+												title="Access Token"
+												content="Bearer token for API authentication"
+												placement="top"
+											>
+												access token
+											</LearningTooltip>{' '}
+											to make authenticated requests to{' '}
+											<LearningTooltip
+												variant="info"
+												title="Protected APIs"
+												content="APIs that require authentication via access token in Authorization header"
+												placement="top"
+											>
+												protected APIs
+											</LearningTooltip>
+											.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-									{controller.tokens?.access_token && (
-										<GeneratedContentBox>
-											<GeneratedLabel>Example API Call</GeneratedLabel>
-											<CodeBlock>{`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\
+								{controller.tokens?.access_token && (
+									<GeneratedContentBox>
+										<GeneratedLabel>Example API Call</GeneratedLabel>
+										<CodeBlock>{`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\
   https://api.example.com/protected-resource`}</CodeBlock>
-											<ActionRow>
-												<CopyButtonService
-													text={`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\\n  https://api.example.com/protected-resource`}
-													label="Copy cURL command"
-													variant="primary"
-												/>
-											</ActionRow>
-										</GeneratedContentBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+										<ActionRow>
+											<CopyButtonService
+												text={`curl -H "Authorization: Bearer ${controller.tokens.access_token}" \\\n  https://api.example.com/protected-resource`}
+												label="Copy cURL command"
+												variant="primary"
+											/>
+										</ActionRow>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 5:
 				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('introspection')}
-								aria-expanded={!collapsedSections.introspection}
-							>
-								<CollapsibleTitle>
-									<FiShield /> Token Introspection
-								</CollapsibleTitle>
-								<FiChevronDown />
-							</CollapsibleHeaderButton>
-							{!collapsedSections.introspection && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>Token Validation</InfoTitle>
-											<InfoText>
-												<LearningTooltip variant="info" title="Token Introspection" content="RFC 7662 - Validating tokens by querying authorization server. Checks if token is active, valid, and returns claims." placement="top">
-													Validate the access token
-												</LearningTooltip> to ensure it's still valid and check its{' '}
-												<LearningTooltip variant="info" title="Claims" content="Token properties/attributes like scope, expiration, audience, etc." placement="top">claims</LearningTooltip>.
-											</InfoText>
-										</div>
-									</InfoBox>
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('introspection')}
+							aria-expanded={!collapsedSections.introspection}
+						>
+							<CollapsibleTitle>
+								<FiShield /> Token Introspection
+							</CollapsibleTitle>
+							<FiChevronDown />
+						</CollapsibleHeaderButton>
+						{!collapsedSections.introspection && (
+							<CollapsibleContent>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>Token Validation</InfoTitle>
+										<InfoText>
+											<LearningTooltip
+												variant="info"
+												title="Token Introspection"
+												content="RFC 7662 - Validating tokens by querying authorization server. Checks if token is active, valid, and returns claims."
+												placement="top"
+											>
+												Validate the access token
+											</LearningTooltip>{' '}
+											to ensure it's still valid and check its{' '}
+											<LearningTooltip
+												variant="info"
+												title="Claims"
+												content="Token properties/attributes like scope, expiration, audience, etc."
+												placement="top"
+											>
+												claims
+											</LearningTooltip>
+											.
+										</InfoText>
+									</div>
+								</InfoBox>
 
-									<ActionRow>
-										<Button
-											variant="primary"
-											onClick={controller.introspectToken}
-											loading={controller.isLoading}
-										>
-											<FiShield /> Introspect Token
-										</Button>
-									</ActionRow>
+								<ActionRow>
+									<Button
+										variant="primary"
+										onClick={controller.introspectToken}
+										loading={controller.isLoading}
+									>
+										<FiShield /> Introspect Token
+									</Button>
+								</ActionRow>
 
-									{controller.introspectionResult && (
-										<GeneratedContentBox>
-											<GeneratedLabel>Introspection Result</GeneratedLabel>
-											<CodeBlock>{JSON.stringify(controller.introspectionResult, null, 2)}</CodeBlock>
-											<ActionRow>
-												<CopyButtonService
-													text={JSON.stringify(controller.introspectionResult, null, 2)}
-													label="Copy introspection result"
-													variant="primary"
-												/>
-											</ActionRow>
-										</GeneratedContentBox>
-									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
+								{controller.introspectionResult && (
+									<GeneratedContentBox>
+										<GeneratedLabel>Introspection Result</GeneratedLabel>
+										<CodeBlock>{JSON.stringify(controller.introspectionResult, null, 2)}</CodeBlock>
+										<ActionRow>
+											<CopyButtonService
+												text={JSON.stringify(controller.introspectionResult, null, 2)}
+												label="Copy introspection result"
+												variant="primary"
+											/>
+										</ActionRow>
+									</GeneratedContentBox>
+								)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
 				);
 
 			case 6:
@@ -798,15 +972,35 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 							<FiCheckCircle size={20} />
 							<div>
 								<InfoTitle>
-									<LearningTooltip variant="learning" title="Client Credentials Flow" content="OAuth 2.0 grant type for M2M authentication (RFC 6749 Section 4.4)" placement="top">
+									<LearningTooltip
+										variant="learning"
+										title="Client Credentials Flow"
+										content="OAuth 2.0 grant type for M2M authentication (RFC 6749 Section 4.4)"
+										placement="top"
+									>
 										Client Credentials Flow
-									</LearningTooltip> Complete!
+									</LearningTooltip>{' '}
+									Complete!
 								</InfoTitle>
 								<InfoText>
 									You have successfully completed the{' '}
-									<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework for delegated access" placement="top">OAuth 2.0</LearningTooltip>{' '}
-									<LearningTooltip variant="learning" title="Client Credentials Flow" content="Grant type for machine-to-machine authentication" placement="top">Client Credentials flow</LearningTooltip>.
-									Your client can now authenticate and access protected resources.
+									<LearningTooltip
+										variant="info"
+										title="OAuth 2.0"
+										content="RFC 6749 - Authorization framework for delegated access"
+										placement="top"
+									>
+										OAuth 2.0
+									</LearningTooltip>{' '}
+									<LearningTooltip
+										variant="learning"
+										title="Client Credentials Flow"
+										content="Grant type for machine-to-machine authentication"
+										placement="top"
+									>
+										Client Credentials flow
+									</LearningTooltip>
+									. Your client can now authenticate and access protected resources.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -814,11 +1008,11 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 						<GeneratedContentBox>
 							<GeneratedLabel>Flow Summary</GeneratedLabel>
 							<InfoText>
-								✅ Client credentials configured<br/>
-								✅ Authentication method selected<br/>
-								✅ Access token obtained<br/>
-								✅ Token validated<br/>
-								✅ Ready for API calls
+								✅ Client credentials configured
+								<br />✅ Authentication method selected
+								<br />✅ Access token obtained
+								<br />✅ Token validated
+								<br />✅ Ready for API calls
 							</InfoText>
 						</GeneratedContentBox>
 					</>
@@ -836,12 +1030,8 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Client Credentials Flow · V7</VersionBadge>
-							<StepHeaderTitle>
-								{STEP_METADATA[currentStep].title}
-							</StepHeaderTitle>
-							<StepHeaderSubtitle>
-								{STEP_METADATA[currentStep].subtitle}
-							</StepHeaderSubtitle>
+							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
@@ -849,9 +1039,7 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 						</StepHeaderRight>
 					</StepHeader>
 
-					<StepContent>
-						{renderStepContent()}
-					</StepContent>
+					<StepContent>{renderStepContent()}</StepContent>
 
 					<StepNavigationButtons
 						onNext={handleNext}
@@ -869,4 +1057,3 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 };
 
 export default ClientCredentialsFlowV7Complete;
-

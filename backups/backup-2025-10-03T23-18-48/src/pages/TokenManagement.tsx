@@ -18,6 +18,7 @@ import {
 	FiXCircle,
 	FiZap,
 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import ConfirmationModal from '../components/ConfirmationModal';
@@ -28,6 +29,12 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { useErrorDiagnosis } from '../hooks/useErrorDiagnosis';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
+import { FlowHeader } from '../services/flowHeaderService';
+import {
+	getFlowDisplayName,
+	getFlowNavigationState,
+	navigateBackToFlow,
+} from '../utils/flowNavigation';
 // JWT decoding functionality handled by token analysis service
 import {
 	clearTokenHistory,
@@ -38,9 +45,6 @@ import {
 } from '../utils/tokenHistory';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FlowHeader } from '../services/flowHeaderService';
-import { getFlowNavigationState, navigateBackToFlow, getFlowDisplayName } from '../utils/flowNavigation';
-import { useNavigate } from 'react-router-dom';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -1915,7 +1919,9 @@ const TokenManagement = () => {
 	const handleBackToFlow = useCallback(() => {
 		const success = navigateBackToFlow(navigate);
 		if (!success) {
-			v4ToastManager.showError('Unable to navigate back to the originating flow. The flow state may have expired.');
+			v4ToastManager.showError(
+				'Unable to navigate back to the originating flow. The flow state may have expired.'
+			);
 		}
 	}, [navigate]);
 
@@ -1999,7 +2005,8 @@ const TokenManagement = () => {
 						}}
 					>
 						<FiArrowLeft size={16} />
-						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step {flowNavigationState.stepIndex + 1})
+						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step{' '}
+						{flowNavigationState.stepIndex + 1})
 					</button>
 				</div>
 			)}

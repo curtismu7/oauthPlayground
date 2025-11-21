@@ -1,21 +1,21 @@
 import { useState } from 'react';
+import { FiAlertCircle, FiMonitor, FiPlay, FiSmartphone } from 'react-icons/fi';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiMonitor, FiSmartphone } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { config } from '../../services/config';
-import Spinner from '../../components/Spinner';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import ConfigurationButton from '../../components/ConfigurationButton';
-import TokenDisplayComponent from '../../components/TokenDisplay';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import PageTitle from '../../components/PageTitle';
-import FlowCredentials from '../../components/FlowCredentials';
+import { Card, CardBody, CardHeader } from '../../components/Card';
 import CentralizedSuccessMessage, {
 	showDeviceCodeSuccess,
 	showFlowError,
 } from '../../components/CentralizedSuccessMessage';
+import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import PageTitle from '../../components/PageTitle';
+import Spinner from '../../components/Spinner';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { config } from '../../services/config';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

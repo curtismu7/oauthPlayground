@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiDatabase,
-	FiTrash2,
-	FiDownload,
-	FiRefreshCw,
 	FiCheckCircle,
-	FiXCircle,
+	FiDatabase,
+	FiDownload,
 	FiInfo,
+	FiRefreshCw,
+	FiTrash2,
+	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 import { logger } from '../utils/logger';
 

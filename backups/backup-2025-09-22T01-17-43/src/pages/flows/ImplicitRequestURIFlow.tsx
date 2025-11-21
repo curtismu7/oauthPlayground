@@ -1,11 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
 import FlowCredentials from '../../components/FlowCredentials';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { logger } from '../../utils/logger';
 import JSONHighlighter from '../../components/JSONHighlighter';
-import { PARService, PARRequest, PARAuthMethod } from '../../services/parService';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
+import { PARAuthMethod, PARRequest, PARService } from '../../services/parService';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

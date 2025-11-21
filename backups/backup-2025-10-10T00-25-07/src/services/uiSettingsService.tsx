@@ -1,7 +1,15 @@
 // src/services/uiSettingsService.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiExternalLink,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiToggleLeft,
+	FiToggleRight,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSettings, FiToggleLeft, FiToggleRight, FiRefreshCw, FiKey, FiExternalLink, FiShield } from 'react-icons/fi';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // Styled components for the UI Settings panel
@@ -13,7 +21,6 @@ const SettingsPanel = styled.div`
 	margin-bottom: 2rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
-
 
 const SettingItem = styled.div`
 	display: flex;
@@ -52,11 +59,10 @@ const SettingDescription = styled.div`
 `;
 
 const ToggleButton = styled.button<{ $active: boolean }>`
-	background: ${({ $active }) => 
-		$active 
-			? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-			: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)'
-	};
+	background: ${({ $active }) =>
+		$active
+			? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+			: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)'};
 	border: none;
 	border-radius: 1.5rem;
 	width: 3rem;
@@ -64,11 +70,8 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	position: relative;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	box-shadow: ${({ $active }) => 
-		$active 
-			? '0 2px 4px rgba(16, 185, 129, 0.3)' 
-			: '0 1px 2px rgba(0, 0, 0, 0.1)'
-	};
+	box-shadow: ${({ $active }) =>
+		$active ? '0 2px 4px rgba(16, 185, 129, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'};
 
 	&:hover {
 		transform: scale(1.05);
@@ -82,7 +85,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 		content: '';
 		position: absolute;
 		top: 0.125rem;
-		left: ${({ $active }) => $active ? '1.375rem' : '0.125rem'};
+		left: ${({ $active }) => ($active ? '1.375rem' : '0.125rem')};
 		width: 1.25rem;
 		height: 1.25rem;
 		background: white;
@@ -207,9 +210,7 @@ export const UISettingsPanel: React.FC = () => {
 									</SettingIcon>
 									{config.label}
 								</SettingLabel>
-								<SettingDescription>
-									{config.description}
-								</SettingDescription>
+								<SettingDescription>{config.description}</SettingDescription>
 							</SettingInfo>
 							<ToggleButton
 								$active={settings[config.key]}
@@ -263,7 +264,7 @@ export class UISettingsService {
 		console.log(`[UISettingsService] isEnabled('${setting}'):`, {
 			setting,
 			isEnabled,
-			allSettings: settings
+			allSettings: settings,
 		});
 		return isEnabled;
 	}

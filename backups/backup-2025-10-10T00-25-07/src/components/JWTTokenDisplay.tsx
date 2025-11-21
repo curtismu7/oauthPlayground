@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
 import styled from 'styled-components';
-import { decodeJWT, isJWT, type DecodedJWT } from '../utils/jwtDecoder';
 import { CopyButtonService } from '../services/copyButtonService';
+import { type DecodedJWT, decodeJWT, isJWT } from '../utils/jwtDecoder';
 
 interface JWTTokenDisplayProps {
 	token: string;
@@ -70,7 +70,6 @@ const ToggleButton = styled.button`
 		cursor: not-allowed;
 	}
 `;
-
 
 const TokenValue = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
@@ -176,7 +175,6 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 		setIsDecoded(!isDecoded);
 	};
 
-
 	const formatExpiry = (seconds: number) => {
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
@@ -263,4 +261,3 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 };
 
 export default JWTTokenDisplay;
-

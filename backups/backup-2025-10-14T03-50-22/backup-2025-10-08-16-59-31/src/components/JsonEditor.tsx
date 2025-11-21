@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { FiCheck, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiCheck } from 'react-icons/fi';
 
 interface JsonEditorProps {
 	value: any;

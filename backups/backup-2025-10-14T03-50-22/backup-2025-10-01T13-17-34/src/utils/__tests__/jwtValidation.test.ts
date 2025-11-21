@@ -1,18 +1,19 @@
 // src/utils/__tests__/jwtValidation.test.ts - Tests for JWT validation utilities
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { JWTPayload } from 'jose';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	verifyJWTSignature,
-	validateJWTClaims,
 	checkTokenExpiry,
-	createClaimValidator,
 	createClaimPresenceValidator,
 	createClaimTypeValidator,
+	createClaimValidator,
 	createNumericRangeValidator,
 	createStringPatternValidator,
 	ExtendedValidationOptions,
 	ExtendedValidationResult,
+	validateJWTClaims,
+	verifyJWTSignature,
 } from '../jwtValidation';
-import { JWTPayload } from 'jose';
 
 // Mock the jwks module
 vi.mock('../jwks', () => ({

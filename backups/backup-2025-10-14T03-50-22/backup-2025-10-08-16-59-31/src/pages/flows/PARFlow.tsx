@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import FlowCredentials from '../../components/FlowCredentials';
 import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
@@ -11,7 +12,6 @@ import {
 } from '../../services/parService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

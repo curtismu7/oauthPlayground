@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from './Card';
 import {
-	FiSettings,
-	FiCopy,
 	FiCheck,
-	FiSave,
 	FiChevronDown,
 	FiChevronRight,
+	FiChevronUp,
+	FiCopy,
 	FiMinus,
 	FiPlus,
-	FiChevronUp,
+	FiSave,
+	FiSettings,
 } from 'react-icons/fi';
-import StandardMessage from './StandardMessage';
+import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { Card, CardBody, CardHeader } from './Card';
+import StandardMessage from './StandardMessage';
 
 const ConfigContainer = styled.div`
   margin-bottom: 2rem;

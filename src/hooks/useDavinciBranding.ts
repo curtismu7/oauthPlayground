@@ -54,7 +54,9 @@ const getInitialBranding = (): DavinciBranding | null => {
 	return null;
 };
 
-const hasBrandingPayload = (payload: DavinciBranding | null | undefined): payload is DavinciBranding => {
+const hasBrandingPayload = (
+	payload: DavinciBranding | null | undefined
+): payload is DavinciBranding => {
 	if (!payload) {
 		return false;
 	}

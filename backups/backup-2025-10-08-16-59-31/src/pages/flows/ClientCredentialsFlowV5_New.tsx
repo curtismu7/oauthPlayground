@@ -16,13 +16,10 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -32,21 +29,24 @@ import {
 	FlowStepContent,
 	FlowStepNumber,
 } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -419,7 +419,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		completionDetails: defaultCollapsed,
 		introspectionDetails: defaultCollapsed,
 		rawJson: true, // Default to collapsed for raw JSON
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 
@@ -650,23 +650,35 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											initialEnvironmentId={credentials.environmentId || ''}
 											onDiscoveryComplete={async (result) => {
 												if (result.success && result.document) {
-													console.log('🎯 [ClientCredentials] OIDC Discovery completed successfully');
+													console.log(
+														'🎯 [ClientCredentials] OIDC Discovery completed successfully'
+													);
 													// Auto-populate environment ID if it's a PingOne issuer
-													const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+													const envId = oidcDiscoveryService.extractEnvironmentId(
+														result.document.issuer
+													);
 													if (envId) {
 														setCredentials({ ...credentials, environmentId: envId });
 														// Auto-save credentials if we have both environmentId and clientId
 														if (credentials?.clientId?.trim()) {
 															await saveCredentials();
-															v4ToastManager.showSuccess('Credentials auto-saved after OIDC discovery');
+															v4ToastManager.showSuccess(
+																'Credentials auto-saved after OIDC discovery'
+															);
 														}
 													}
-													
+
 													// Auto-populate token endpoint if available
 													if (result.document?.token_endpoint) {
-														setCredentials({ ...credentials, tokenEndpoint: result.document.token_endpoint });
+														setCredentials({
+															...credentials,
+															tokenEndpoint: result.document.token_endpoint,
+														});
 														// Also update flow config
-														handleFlowConfigChange({ ...flowConfig, tokenEndpoint: result.document.token_endpoint });
+														handleFlowConfigChange({
+															...flowConfig,
+															tokenEndpoint: result.document.token_endpoint,
+														});
 													}
 												}
 											}}
@@ -675,16 +687,18 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												// Auto-save credentials if we have both environmentId and clientId
 												if (newEnvId.trim() && credentials.clientId.trim()) {
 													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
+													v4ToastManager.showSuccess(
+														'Credentials auto-saved after environment ID change'
+													);
 												}
 											}}
 											onIssuerUrlChange={() => {}}
 											showSuggestions={true}
 											autoDiscover={false}
 										/>
-										
+
 										<SectionDivider />
-										
+
 										<CredentialsInput
 											environmentId={credentials.environmentId || ''}
 											clientId={credentials.clientId || ''}
@@ -695,7 +709,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												// Auto-save if we have both environmentId and clientId
 												if (value.trim() && credentials?.clientId?.trim()) {
 													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
+													v4ToastManager.showSuccess(
+														'Credentials auto-saved after environment ID change'
+													);
 												}
 											}}
 											onClientIdChange={(value) => {
@@ -703,15 +719,23 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												// Auto-save if we have both environmentId and clientId
 												if (credentials?.environmentId?.trim() && value.trim()) {
 													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after client ID change');
+													v4ToastManager.showSuccess(
+														'Credentials auto-saved after client ID change'
+													);
 												}
 											}}
 											onClientSecretChange={(value) => {
 												setCredentials({ ...credentials, clientSecret: value });
 												// Auto-save if we have environmentId, clientId, and now clientSecret
-												if (credentials?.environmentId?.trim() && credentials?.clientId?.trim() && value.trim()) {
+												if (
+													credentials?.environmentId?.trim() &&
+													credentials?.clientId?.trim() &&
+													value.trim()
+												) {
 													saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved after client secret change');
+													v4ToastManager.showSuccess(
+														'Credentials auto-saved after client secret change'
+													);
 												}
 											}}
 											onScopesChange={(value) => setCredentials({ ...credentials, scopes: value })}
@@ -719,24 +743,28 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											showRedirectUri={false}
 											showLoginHint={false}
 										/>
-										
+
 										{/* Save Button after Scopes */}
 										<ActionRow>
 											<Button
 												$variant="primary"
 												onClick={saveCredentials}
-												disabled={isSavingCredentials || !credentials.environmentId || !credentials.clientId}
+												disabled={
+													isSavingCredentials || !credentials.environmentId || !credentials.clientId
+												}
 											>
 												<FiCheckCircle />
 												{isSavingCredentials ? 'Saving...' : 'Save Configuration'}
 											</Button>
 											{hasUnsavedCredentialChanges && (
-												<span style={{ fontSize: '0.875rem', color: '#f59e0b', fontStyle: 'italic' }}>
+												<span
+													style={{ fontSize: '0.875rem', color: '#f59e0b', fontStyle: 'italic' }}
+												>
 													Unsaved changes
 												</span>
 											)}
 										</ActionRow>
-										
+
 										<FlowConfigurationRequirements flowType="client-credentials" />
 
 										<SectionDivider />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiAlertTriangle, FiCheck, FiInfo, FiLock, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiCheck, FiX, FiAlertTriangle, FiLock } from 'react-icons/fi';
 import { CollapsibleHeader, type CollapsibleHeaderConfig } from './collapsibleHeaderService';
 
 // Educational content types
@@ -132,116 +132,126 @@ const AlternativeIcon = styled.div`
 export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 	oauth: {
 		title: 'OAuth 2.0 = Authorization Only (NOT Authentication)',
-		description: 'This flow provides **delegated authorization** - it allows your app to access resources on behalf of the user. It does **NOT authenticate the user** or provide identity information.',
+		description:
+			'This flow provides **delegated authorization** - it allows your app to access resources on behalf of the user. It does **NOT authenticate the user** or provide identity information.',
 		characteristics: {
-			positive: [
-				{ icon: <FiCheck />, text: 'Returns: Access Token (for API calls)' }
-			],
+			positive: [{ icon: <FiCheck />, text: 'Returns: Access Token (for API calls)' }],
 			negative: [
 				{ icon: <FiX />, text: 'Does NOT return: ID Token (no user identity)' },
 				{ icon: <FiX />, text: 'Does NOT provide: User profile information' },
-				{ icon: <FiX />, text: 'Does NOT have: UserInfo endpoint' }
+				{ icon: <FiX />, text: 'Does NOT have: UserInfo endpoint' },
 			],
 			warning: [
-				{ icon: <FiAlertTriangle />, text: 'Scope: Any scopes (read, write, etc.) - do **NOT** include \'openid\'' }
-			]
+				{
+					icon: <FiAlertTriangle />,
+					text: "Scope: Any scopes (read, write, etc.) - do **NOT** include 'openid'",
+				},
+			],
 		},
 		useCases: [
-			'Calendar app accessing user\'s events',
+			"Calendar app accessing user's events",
 			'Photo app uploading to cloud storage',
-			'Email client reading messages'
+			'Email client reading messages',
 		],
 		alternative: {
 			icon: <FiLock />,
-			text: '**Need user authentication? Use OIDC Authorization Code Flow instead - it provides user identity via ID Token**'
-		}
+			text: '**Need user authentication? Use OIDC Authorization Code Flow instead - it provides user identity via ID Token**',
+		},
 	},
 	oidc: {
 		title: 'OpenID Connect = Authentication + Authorization',
-		description: 'This flow provides **both authentication and authorization** - it authenticates the user AND allows your app to access resources on their behalf. It provides user identity information via ID Token.',
+		description:
+			'This flow provides **both authentication and authorization** - it authenticates the user AND allows your app to access resources on their behalf. It provides user identity information via ID Token.',
 		characteristics: {
 			positive: [
-				{ icon: <FiCheck />, text: 'Returns: ID Token (user identity) + Access Token (for API calls)' },
+				{
+					icon: <FiCheck />,
+					text: 'Returns: ID Token (user identity) + Access Token (for API calls)',
+				},
 				{ icon: <FiCheck />, text: 'Provides: User profile information via UserInfo endpoint' },
-				{ icon: <FiCheck />, text: 'Authenticates: User identity with claims' }
+				{ icon: <FiCheck />, text: 'Authenticates: User identity with claims' },
 			],
-			negative: [
-				{ icon: <FiX />, text: 'Requires: \'openid\' scope (mandatory)' }
-			]
+			negative: [{ icon: <FiX />, text: "Requires: 'openid' scope (mandatory)" }],
 		},
 		useCases: [
 			'Social login with user profile',
 			'App requiring user identity',
-			'Single Sign-On (SSO) scenarios'
+			'Single Sign-On (SSO) scenarios',
 		],
 		alternative: {
 			icon: <FiInfo />,
-			text: '**Need only authorization? Use OAuth 2.0 Authorization Code Flow instead - it provides access tokens without user identity**'
-		}
+			text: '**Need only authorization? Use OAuth 2.0 Authorization Code Flow instead - it provides access tokens without user identity**',
+		},
 	},
 	par: {
 		title: 'PAR (Pushed Authorization Requests) = Enhanced Security',
-		description: 'This flow provides **enhanced security** by pushing authorization parameters via a secure back-channel instead of exposing them in the browser URL. It prevents parameter tampering and improves security.',
+		description:
+			'This flow provides **enhanced security** by pushing authorization parameters via a secure back-channel instead of exposing them in the browser URL. It prevents parameter tampering and improves security.',
 		characteristics: {
 			positive: [
 				{ icon: <FiCheck />, text: 'Enhanced Security: Parameters sent via secure back-channel' },
-				{ icon: <FiCheck />, text: 'Prevents Tampering: Authorization URL parameters are protected' },
-				{ icon: <FiCheck />, text: 'Returns: ID Token + Access Token (full OIDC flow)' }
+				{
+					icon: <FiCheck />,
+					text: 'Prevents Tampering: Authorization URL parameters are protected',
+				},
+				{ icon: <FiCheck />, text: 'Returns: ID Token + Access Token (full OIDC flow)' },
 			],
 			negative: [
 				{ icon: <FiX />, text: 'Requires: Additional PAR endpoint configuration' },
-				{ icon: <FiX />, text: 'More Complex: Two-step authorization process' }
-			]
+				{ icon: <FiX />, text: 'More Complex: Two-step authorization process' },
+			],
 		},
 		useCases: [
 			'High-security applications',
 			'Financial services',
 			'Healthcare applications',
-			'Government systems'
-		]
+			'Government systems',
+		],
 	},
 	rar: {
 		title: 'RAR (Rich Authorization Requests) = Fine-Grained Authorization',
-		description: 'This flow provides **fine-grained authorization** using structured JSON to specify detailed permissions and resource access requirements. It enables precise control over what resources can be accessed.',
+		description:
+			'This flow provides **fine-grained authorization** using structured JSON to specify detailed permissions and resource access requirements. It enables precise control over what resources can be accessed.',
 		characteristics: {
 			positive: [
 				{ icon: <FiCheck />, text: 'Fine-Grained: Structured JSON authorization requests' },
 				{ icon: <FiCheck />, text: 'Precise Control: Specific resource and action permissions' },
-				{ icon: <FiCheck />, text: 'Returns: ID Token + Access Token with detailed scopes' }
+				{ icon: <FiCheck />, text: 'Returns: ID Token + Access Token with detailed scopes' },
 			],
 			negative: [
 				{ icon: <FiX />, text: 'Complex Setup: Requires RAR endpoint configuration' },
-				{ icon: <FiX />, text: 'JSON Schema: More complex than simple scopes' }
-			]
+				{ icon: <FiX />, text: 'JSON Schema: More complex than simple scopes' },
+			],
 		},
 		useCases: [
 			'Microservices with specific permissions',
 			'API gateways with fine-grained access',
 			'Multi-tenant applications',
-			'Resource-specific authorization'
-		]
+			'Resource-specific authorization',
+		],
 	},
 	redirectless: {
 		title: 'PingOne Redirectless Flow = API-Driven Authentication',
-		description: 'This flow provides **API-driven authentication** without browser redirects using PingOne\'s proprietary `response_mode=pi.flow` parameter. It\'s designed for server-to-server and mobile app scenarios.',
+		description:
+			"This flow provides **API-driven authentication** without browser redirects using PingOne's proprietary `response_mode=pi.flow` parameter. It's designed for server-to-server and mobile app scenarios.",
 		characteristics: {
 			positive: [
 				{ icon: <FiCheck />, text: 'No Redirects: Direct API response with tokens' },
 				{ icon: <FiCheck />, text: 'Mobile Optimized: Perfect for mobile applications' },
-				{ icon: <FiCheck />, text: 'Server-Side: Ideal for backend-to-backend authentication' }
+				{ icon: <FiCheck />, text: 'Server-Side: Ideal for backend-to-backend authentication' },
 			],
 			negative: [
 				{ icon: <FiX />, text: 'PingOne Specific: Not a standard OAuth/OIDC flow' },
-				{ icon: <FiX />, text: 'Limited Support: Only available in PingOne environments' }
-			]
+				{ icon: <FiX />, text: 'Limited Support: Only available in PingOne environments' },
+			],
 		},
 		useCases: [
 			'Mobile app authentication',
 			'Server-to-server authentication',
 			'API-driven authentication flows',
-			'Headless authentication scenarios'
-		]
-	}
+			'Headless authentication scenarios',
+		],
+	},
 };
 
 // Main Educational Content Service Component
@@ -254,7 +264,7 @@ interface EducationalContentServiceProps {
 export const EducationalContentService: React.FC<EducationalContentServiceProps> = ({
 	flowType,
 	title,
-	defaultCollapsed = false
+	defaultCollapsed = false,
 }) => {
 	const content = EDUCATIONAL_CONTENT[flowType];
 
@@ -268,7 +278,7 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 		icon: <FiInfo />,
 		defaultCollapsed,
 		variant: 'default',
-		theme: 'blue'
+		theme: 'blue',
 	};
 
 	return (
@@ -276,7 +286,7 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 			<CollapsibleHeader {...headerConfig}>
 				<InfoBox>
 					<InfoDescription dangerouslySetInnerHTML={{ __html: content.description }} />
-					
+
 					<CharacteristicsList>
 						{content.characteristics.positive.map((item, index) => (
 							<CharacteristicItem key={`positive-${index}`}>
@@ -284,14 +294,14 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 								<span dangerouslySetInnerHTML={{ __html: item.text }} />
 							</CharacteristicItem>
 						))}
-						
+
 						{content.characteristics.negative.map((item, index) => (
 							<CharacteristicItem key={`negative-${index}`}>
 								<NegativeIcon>{item.icon}</NegativeIcon>
 								<span dangerouslySetInnerHTML={{ __html: item.text }} />
 							</CharacteristicItem>
 						))}
-						
+
 						{content.characteristics.warning?.map((item, index) => (
 							<CharacteristicItem key={`warning-${index}`}>
 								<WarningIcon>{item.icon}</WarningIcon>
@@ -299,17 +309,15 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 							</CharacteristicItem>
 						))}
 					</CharacteristicsList>
-					
+
 					<UseCasesContainer>
 						<UseCasesTitle>
 							<FiInfo />
 							Use Case Examples:
 						</UseCasesTitle>
-						<UseCasesText>
-							{content.useCases.join(' | ')}
-						</UseCasesText>
+						<UseCasesText>{content.useCases.join(' | ')}</UseCasesText>
 					</UseCasesContainer>
-					
+
 					{content.alternative && (
 						<AlternativeBox>
 							<AlternativeContent>
@@ -325,7 +333,9 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 };
 
 // Export individual educational content for direct use
-export const getEducationalContent = (flowType: keyof typeof EDUCATIONAL_CONTENT): EducationalContent | null => {
+export const getEducationalContent = (
+	flowType: keyof typeof EDUCATIONAL_CONTENT
+): EducationalContent | null => {
 	return EDUCATIONAL_CONTENT[flowType] || null;
 };
 

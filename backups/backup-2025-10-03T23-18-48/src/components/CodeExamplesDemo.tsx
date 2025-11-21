@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { CodeExamplesDisplay } from './CodeExamplesDisplay';
-import { CodeExamplesInline } from './CodeExamplesInline';
 import { CodeExamplesConfig } from '../services/codeExamplesService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { CodeExamplesDisplay } from './CodeExamplesDisplay';
+import { CodeExamplesInline } from './CodeExamplesInline';
 
 const Container = styled.div`
 	padding: 2rem;
@@ -96,16 +96,16 @@ const FlowSelector = styled.div`
 
 const FlowButton = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
-	border: 1px solid ${({ $active }) => $active ? '#3b82f6' : '#d1d5db'};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
 	border-radius: 6px;
-	background: ${({ $active }) => $active ? '#3b82f6' : '#ffffff'};
-	color: ${({ $active }) => $active ? '#ffffff' : '#374151'};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => $active ? '#2563eb' : '#f3f4f6'};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 	}
 `;
 
@@ -118,16 +118,16 @@ const StepSelector = styled.div`
 
 const StepButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 1px solid ${({ $active }) => $active ? '#3b82f6' : '#d1d5db'};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
 	border-radius: 4px;
-	background: ${({ $active }) => $active ? '#3b82f6' : '#ffffff'};
-	color: ${({ $active }) => $active ? '#ffffff' : '#374151'};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
 	font-size: 0.875rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => $active ? '#2563eb' : '#f3f4f6'};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 	}
 `;
 
@@ -145,7 +145,7 @@ const flowSteps: Record<string, Array<{ id: string; name: string }>> = {
 		{ id: 'step3', name: 'Exchange Code' },
 		{ id: 'step4', name: 'Use Token' },
 	],
-	'implicit': [
+	implicit: [
 		{ id: 'step1', name: 'Generate Auth URL' },
 		{ id: 'step2', name: 'Handle Token Response' },
 		{ id: 'step3', name: 'Use Token' },
@@ -174,9 +174,9 @@ export const CodeExamplesDemo: React.FC = () => {
 	});
 
 	const handleConfigChange = (field: keyof CodeExamplesConfig, value: string) => {
-		setConfig(prev => ({
+		setConfig((prev) => ({
 			...prev,
-			[field]: field === 'scopes' ? value.split(',').map(s => s.trim()) : value,
+			[field]: field === 'scopes' ? value.split(',').map((s) => s.trim()) : value,
 		}));
 	};
 
@@ -184,16 +184,17 @@ export const CodeExamplesDemo: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader 
+			<FlowHeader
 				flowType="documentation"
 				customConfig={{
-					title: "Code Examples",
-					subtitle: "Comprehensive code examples for OAuth 2.0 and OpenID Connect flows in multiple programming languages. Copy, customize, and integrate into your applications.",
-					icon: "💻"
+					title: 'Code Examples',
+					subtitle:
+						'Comprehensive code examples for OAuth 2.0 and OpenID Connect flows in multiple programming languages. Copy, customize, and integrate into your applications.',
+					icon: '💻',
 				}}
 			/>
 			<Title>Code Examples Service Demo</Title>
-			
+
 			<DemoSection>
 				<SectionTitle>Configuration</SectionTitle>
 				<ConfigForm>
@@ -257,7 +258,7 @@ export const CodeExamplesDemo: React.FC = () => {
 			<DemoSection>
 				<SectionTitle>Select Flow Type</SectionTitle>
 				<FlowSelector>
-					{flows.map(flow => (
+					{flows.map((flow) => (
 						<FlowButton
 							key={flow.id}
 							$active={selectedFlow === flow.id}
@@ -275,7 +276,7 @@ export const CodeExamplesDemo: React.FC = () => {
 			<DemoSection>
 				<SectionTitle>Select Step</SectionTitle>
 				<StepSelector>
-					{currentSteps.map(step => (
+					{currentSteps.map((step) => (
 						<StepButton
 							key={step.id}
 							$active={selectedStep === step.id}
@@ -289,11 +290,7 @@ export const CodeExamplesDemo: React.FC = () => {
 
 			<DemoSection>
 				<SectionTitle>Full Code Examples Display</SectionTitle>
-				<CodeExamplesDisplay
-					flowType={selectedFlow}
-					stepId={selectedStep}
-					config={config}
-				/>
+				<CodeExamplesDisplay flowType={selectedFlow} stepId={selectedStep} config={config} />
 			</DemoSection>
 
 			<DemoSection>
@@ -320,11 +317,3 @@ export const CodeExamplesDemo: React.FC = () => {
 };
 
 export default CodeExamplesDemo;
-
-
-
-
-
-
-
-

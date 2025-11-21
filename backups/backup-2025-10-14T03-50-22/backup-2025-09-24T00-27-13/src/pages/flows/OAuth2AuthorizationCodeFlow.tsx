@@ -1,51 +1,51 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlowV2.tsx - Enhanced with complete UI design implementation
-import React, { useState, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiUser,
-	FiKey,
-	FiGlobe,
-	FiShield,
-	FiCode,
-	FiCheckCircle,
-	FiCopy,
-	FiRefreshCw,
-	FiSettings,
-	FiInfo,
 	FiAlertTriangle,
-	FiEye,
-	FiEyeOff,
-	FiClock,
-	FiLoader,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
+	FiClock,
+	FiCode,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLoader,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
+import CentralizedSuccessMessage, {
+	showFlowError,
+	showFlowSuccess,
+} from '../../components/CentralizedSuccessMessage';
+import ColorCodedURL from '../../components/ColorCodedURL';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
+import ConfirmationModal from '../../components/ConfirmationModal';
+import ContextualHelp from '../../components/ContextualHelp';
+import EnhancedStepFlowV2, { EnhancedFlowStep } from '../../components/EnhancedStepFlowV2';
+import { FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
 import OAuthErrorHelper from '../../components/OAuthErrorHelper';
-import { generateCodeVerifier, generateCodeChallenge, validateIdToken } from '../../utils/oauth';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import {
 	applyClientAuthentication,
 	getAuthMethodSecurityLevel,
 } from '../../utils/clientAuthentication';
 import { credentialManager } from '../../utils/credentialManager';
-import { logger } from '../../utils/logger';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { logger } from '../../utils/logger';
+import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import ConfigurationStatus from '../../components/ConfigurationStatus';
-import ContextualHelp from '../../components/ContextualHelp';
-import CallbackUrlDisplay from '../../components/CallbackUrlDisplay';
-import ConfirmationModal from '../../components/ConfirmationModal';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import CentralizedSuccessMessage, {
-	showFlowSuccess,
-	showFlowError,
-} from '../../components/CentralizedSuccessMessage';
-import ColorCodedURL from '../../components/ColorCodedURL';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI

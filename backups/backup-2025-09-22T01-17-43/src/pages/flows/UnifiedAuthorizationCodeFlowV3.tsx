@@ -1,76 +1,75 @@
 // src/pages/flows/UnifiedAuthorizationCodeFlowV3.tsx - Unified OAuth 2.0 and OIDC Authorization Code Flow
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
-import CentralizedSuccessMessage, {
-	showFlowSuccess,
-	showFlowError,
-} from '../../components/CentralizedSuccessMessage';
-import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	createCredentialsStep,
-	createPKCEStep,
-	createAuthUrlStep,
-	createUserAuthorizationStep,
-	createCallbackHandlingStep,
-	createTokenExchangeStep,
-	createRefreshTokenStep,
-	createTokenValidationStep,
-	createUserInfoStep,
-	StepCredentials,
-	PKCECodes,
-	InfoBox,
-	ActionButton,
-} from '../../components/steps/CommonSteps';
-import {
-	FiKey,
-	FiShield,
-	FiUser,
 	FiCheckCircle,
 	FiCopy,
+	FiKey,
 	FiRotateCcw,
 	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { copyToClipboard } from '../../utils/clipboard';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { credentialManager } from '../../utils/credentialManager';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import { validateIdToken } from '../../utils/oauth';
-import {
-	applyClientAuthentication,
-	getAuthMethodSecurityLevel,
-	ClientAuthMethod,
-	ClientAuthConfig,
-} from '../../utils/clientAuthentication';
-import PingOneConfigSection from '../../components/PingOneConfigSection';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import OAuthErrorHelper from '../../components/OAuthErrorHelper';
-import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
-import {
-	validateOIDCCompliance,
-	generateComplianceReport,
-	validateIdTokenCompliance,
-} from '../../utils/oidcCompliance';
-import EnhancedErrorRecovery from '../../utils/errorRecovery';
-import {
-	usePerformanceMonitor,
-	useMemoizedComputation,
-	useOptimizedCallback,
-} from '../../utils/performance';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
-import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
+import styled from 'styled-components';
+import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
+import CentralizedSuccessMessage, {
+	showFlowError,
+	showFlowSuccess,
+} from '../../components/CentralizedSuccessMessage';
+import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
+import { FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
 import {
 	InlineDocumentation,
 	QuickReference,
 	TroubleshootingGuide,
 } from '../../components/InlineDocumentation';
-import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
-import styled from 'styled-components';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
+import PingOneConfigSection from '../../components/PingOneConfigSection';
+import {
+	ActionButton,
+	createAuthUrlStep,
+	createCallbackHandlingStep,
+	createCredentialsStep,
+	createPKCEStep,
+	createRefreshTokenStep,
+	createTokenExchangeStep,
+	createTokenValidationStep,
+	createUserAuthorizationStep,
+	createUserInfoStep,
+	InfoBox,
+	PKCECodes,
+	StepCredentials,
+} from '../../components/steps/CommonSteps';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { fetchOIDCDiscovery } from '../../utils/advancedOIDC';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import {
+	applyClientAuthentication,
+	ClientAuthConfig,
+	ClientAuthMethod,
+	getAuthMethodSecurityLevel,
+} from '../../utils/clientAuthentication';
+import { copyToClipboard } from '../../utils/clipboard';
+import { credentialManager } from '../../utils/credentialManager';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import EnhancedErrorRecovery from '../../utils/errorRecovery';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
+import {
+	generateComplianceReport,
+	validateIdTokenCompliance,
+	validateOIDCCompliance,
+} from '../../utils/oidcCompliance';
+import {
+	useMemoizedComputation,
+	useOptimizedCallback,
+	usePerformanceMonitor,
+} from '../../utils/performance';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 // Styled Components
 const Container = styled.div`
