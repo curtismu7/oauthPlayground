@@ -326,7 +326,8 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 	tokens,
 	title = 'OAuth Tokens',
 }) => {
-	const [maskedStates, setMaskedStates] = useState<Record<TokenType, boolean>>({
+	// Tokens always visible (no masking)
+	const [maskedStates] = useState<Record<TokenType, boolean>>({
 		access: false,
 		id: false,
 		refresh: false,
@@ -379,10 +380,6 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 		return `${token.substring(0, 12)}${'•'.repeat(20)}${token.substring(token.length - 12)}`;
 	};
 
-	const handleToggleMask = (tokenType: TokenType) => {
-		setMaskedStates((prev) => ({ ...prev, [tokenType]: !prev[tokenType] }));
-	};
-
 	const handleToggleDecode = (tokenType: TokenType) => {
 		setDecodedStates((prev) => ({ ...prev, [tokenType]: !prev[tokenType] }));
 	};
@@ -426,14 +423,6 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 					</TokenLabel>
 
 					<ActionButtons>
-						<ActionButton
-							onClick={() => handleToggleMask(tokenType)}
-							title={isMasked ? 'Show token' : 'Hide token'}
-						>
-							{isMasked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
-							{isMasked ? 'Show' : 'Hide'}
-						</ActionButton>
-
 						{isJWT && (
 							<ActionButton
 								onClick={() => handleToggleDecode(tokenType)}
@@ -457,7 +446,7 @@ export const UltimateTokenDisplayModal: React.FC<UltimateTokenDisplayModalProps>
 				</TokenHeader>
 
 				<TokenContent>
-					<TokenValue $masked={isMasked}>{isMasked ? maskToken(token) : token}</TokenValue>
+					<TokenValue $masked={false}>{token}</TokenValue>
 
 					{isDecoded && (
 						<DecodedSection>
