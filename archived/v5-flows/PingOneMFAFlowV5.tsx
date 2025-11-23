@@ -14,13 +14,12 @@ import {
 	FiSmartphone,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { FlowHeader } from '../../services/flowHeaderService';
-
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 

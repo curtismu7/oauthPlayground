@@ -4,7 +4,7 @@
  * @description Login hint input with education for V8 flows
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <LoginHintInputV8
  *   value={loginHint}
@@ -173,7 +173,12 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						The <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>login_hint</code> parameter pre-fills the username or email field in the login form, improving user experience when you already know who's logging in.
+						The{' '}
+						<code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>
+							login_hint
+						</code>{' '}
+						parameter pre-fills the username or email field in the login form, improving user
+						experience when you already know who's logging in.
 					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -242,17 +247,13 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 									<code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px' }}>
 										login_hint=user@example.com
 									</code>
-									<div style={{ color: '#6b7280', marginTop: '2px' }}>
-										Pre-fills email field
-									</div>
+									<div style={{ color: '#6b7280', marginTop: '2px' }}>Pre-fills email field</div>
 								</div>
 								<div>
 									<code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px' }}>
 										login_hint=john.doe
 									</code>
-									<div style={{ color: '#6b7280', marginTop: '2px' }}>
-										Pre-fills username field
-									</div>
+									<div style={{ color: '#6b7280', marginTop: '2px' }}>Pre-fills username field</div>
 								</div>
 							</div>
 						</div>
@@ -273,7 +274,8 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 									lineHeight: '1.5',
 								}}
 							>
-								<strong>⚠️ Important:</strong> This is a <em>hint</em>, not a requirement. The user can still change the username/email in the login form. It's purely for convenience.
+								<strong>⚠️ Important:</strong> This is a <em>hint</em>, not a requirement. The user
+								can still change the username/email in the login form. It's purely for convenience.
 							</div>
 						</div>
 					</div>
@@ -294,7 +296,9 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>✅ UX Benefit:</strong> Saves users time by pre-filling the login form. Especially useful in account switching scenarios or when you already know the user's identity.
+							<strong>✅ UX Benefit:</strong> Saves users time by pre-filling the login form.
+							Especially useful in account switching scenarios or when you already know the user's
+							identity.
 						</div>
 					</div>
 				</div>

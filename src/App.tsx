@@ -109,8 +109,6 @@ import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import MFAFlow from './pages/flows/MFAFlow';
-import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
-import MFAHubV8 from './v8/flows/MFAHubV8';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
@@ -165,6 +163,8 @@ import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
+import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
+import MFAHubV8 from './v8/flows/MFAHubV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
@@ -503,9 +503,9 @@ const AppRoutes: React.FC = () => {
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 							<Route path="/v8/mfa" element={<MFAFlowV8 />} />
-						<Route path="/v8/mfa-hub" element={<MFAHubV8 />} />
+							<Route path="/v8/mfa-hub" element={<MFAHubV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
-						<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
+							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
 							<Route path="/flows/oauth-authorization-code-v7-mock" element={<TestMock />} />
 							<Route
 								path="/flows/oauth-authorization-code-v7-condensed-mock"
