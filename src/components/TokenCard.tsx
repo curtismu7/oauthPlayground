@@ -264,7 +264,8 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	defaultMasked = false,
 	allowMaskToggle = true,
 }) => {
-	const [masked, setMasked] = useState(defaultMasked);
+	// Tokens always visible (no masking)
+	const [masked] = useState(false);
 	const [showDecodeModal, setShowDecodeModal] = useState(false);
 	const [decodedContent, setDecodedContent] = useState<DecodedJWT | null>(null);
 	const [isOpaque, setIsOpaque] = useState(false);
@@ -304,13 +305,6 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 		setShowDecodeModal(true);
 	}, [token, tokenInfo]);
 
-	const handleToggleMask = useCallback(() => {
-		if (!allowMaskToggle) {
-			return;
-		}
-		setMasked((prev) => !prev);
-	}, [allowMaskToggle]);
-
 	const handleSendToTokenManagement = useCallback(() => {
 		// Navigate to Token Management page with token in state
 		window.location.href = `/token-management?token=${encodeURIComponent(token)}&type=${tokenType}&source=${encodeURIComponent(flowKey || 'unknown')}&label=${encodeURIComponent(label)}`;
@@ -342,12 +336,6 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 					<TokenBadge $type={tokenType}>{tokenType.toUpperCase()}</TokenBadge>
 				</TokenLabel>
 				<ActionButtons>
-					{allowMaskToggle && (
-						<ActionButton onClick={handleToggleMask} title={masked ? 'Show token' : 'Hide token'}>
-							{masked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
-							{masked ? 'Show' : 'Hide'}
-						</ActionButton>
-					)}
 					<ActionButton onClick={handleDecode} title="Decode token" disabled={!token}>
 						<FiKey size={14} />
 						Decode

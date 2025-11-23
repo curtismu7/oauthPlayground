@@ -406,8 +406,19 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 	};
 
 	const handleOpenVerificationUri = () => {
-		window.open(state.verificationUriComplete, '_blank');
-		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab');
+		// Use verificationUriComplete if available, otherwise construct it from verificationUri + userCode
+		const uriToOpen = state.verificationUriComplete || 
+			(state.verificationUri && state.userCode 
+				? `${state.verificationUri}?user_code=${state.userCode}`
+				: state.verificationUri);
+		
+		if (!uriToOpen) {
+			logger.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
+			return;
+		}
+		
+		window.open(uriToOpen, '_blank');
+		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', { uri: uriToOpen });
 	};
 
 	const getStatusIcon = () => {

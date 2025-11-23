@@ -33,6 +33,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
 import { FIDO2Service, type FIDO2Config } from '@/services/fido2Service';
+import { usePageScroll } from '@/hooks/usePageScroll';
 
 const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -75,8 +76,17 @@ interface MFAState {
 export const MFAFlowV8: React.FC = () => {
 	console.log(`${MODULE_TAG} Initializing MFA flow`);
 
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'MFA Flow V8', force: true });
+
 	const nav = useStepNavigationV8(5, {
-		onStepChange: (step) => console.log(`${MODULE_TAG} Step changed to`, { step }),
+		onStepChange: (step) => {
+			console.log(`${MODULE_TAG} Step changed to`, { step });
+			// Scroll to top when step changes
+			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		},
 	});
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {

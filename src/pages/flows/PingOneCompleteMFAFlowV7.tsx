@@ -7,6 +7,7 @@ import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -14,6 +15,9 @@ const PageContainer = styled.div`
 `;
 
 const PingOneCompleteMFAFlowV7: React.FC = () => {
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'PingOne Complete MFA Flow V7', force: true });
+
 	const { credentials } = useAuth();
 	const [v7Credentials, setV7Credentials] = useState<any>(null);
 

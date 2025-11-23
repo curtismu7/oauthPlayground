@@ -65,27 +65,32 @@ export class ROPCIntegrationServiceV8 {
 		});
 
 		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
-			const body = new URLSearchParams({
+			const bodyParams: Record<string, string> = {
 				grant_type: 'password',
 				client_id: credentials.clientId,
 				client_secret: credentials.clientSecret,
 				username: username,
 				password: password,
-			});
+				environment_id: credentials.environmentId,
+			};
 
 			// Add scope if provided
 			if (credentials.scopes) {
-				body.append('scope', credentials.scopes);
+				bodyParams.scope = credentials.scopes;
 			}
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/json',
 				},
-				body: body.toString(),
+				body: JSON.stringify(bodyParams),
 			});
 
 			if (!response.ok) {

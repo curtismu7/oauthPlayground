@@ -115,7 +115,7 @@ export const checkWorkerTokenStatus = (
 		console.log(`${MODULE_TAG} Token expired`);
 		return {
 			status: 'expired',
-			message: 'Worker token expired. Generate a new one.',
+			message: 'Worker token expired, this is only needed for Application Picker which gives you a list of apps in your PingOne environment and allows you to apply Credentials.',
 			isValid: false,
 			expiresAt: resolvedExpiry,
 		};
@@ -158,6 +158,7 @@ export const getStatusColor = (status: TokenStatus): string => {
 		case 'expiring-soon':
 			return '#f59e0b'; // Orange
 		case 'expired':
+			return '#f59e0b'; // Orange/Yellow (not an error, just informational)
 		case 'missing':
 			return '#ef4444'; // Red
 	}

@@ -231,31 +231,36 @@ export class HybridFlowIntegrationServiceV8 {
 		});
 
 		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
-			const body = new URLSearchParams({
+			const bodyParams: Record<string, string> = {
 				grant_type: 'authorization_code',
 				client_id: credentials.clientId,
 				code: code,
 				redirect_uri: credentials.redirectUri,
-			});
+				environment_id: credentials.environmentId,
+			};
 
 			// Add PKCE code verifier if provided
 			if (codeVerifier) {
-				body.append('code_verifier', codeVerifier);
+				bodyParams.code_verifier = codeVerifier;
 			}
 
 			// Add client secret if provided (confidential client)
 			if (credentials.clientSecret) {
-				body.append('client_secret', credentials.clientSecret);
+				bodyParams.client_secret = credentials.clientSecret;
 			}
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/json',
 				},
-				body: body.toString(),
+				body: JSON.stringify(bodyParams),
 			});
 
 			if (!response.ok) {
