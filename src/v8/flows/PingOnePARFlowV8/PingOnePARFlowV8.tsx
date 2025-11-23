@@ -592,7 +592,11 @@ code_challenge_method=S256`}
 						</InfoBox>
 
 						{state.flowState.authCode && (
-							<Button $variant="next" onClick={handleExchangeTokens} disabled={operations.isLoading}>
+							<Button
+								$variant="next"
+								onClick={handleExchangeTokens}
+								disabled={operations.isLoading}
+							>
 								{operations.isLoading ? 'Exchanging...' : 'Exchange Code for Tokens'}
 							</Button>
 						)}

@@ -5,9 +5,9 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
-import { usePageScroll } from '../../hooks/usePageScroll';
 
 const PageContainer = styled.div`
   min-height: 100vh;

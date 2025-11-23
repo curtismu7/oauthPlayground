@@ -234,9 +234,7 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 					</TokenActions>
 				</TokenHeader>
 				<TokenContent>
-					<TokenValue $masked={false}>
-						{token}
-					</TokenValue>
+					<TokenValue $masked={false}>{token}</TokenValue>
 
 					{decoded && (
 						<DecodedSection>

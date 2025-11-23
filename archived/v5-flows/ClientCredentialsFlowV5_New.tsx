@@ -17,6 +17,8 @@ import {
 import styled from 'styled-components';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -34,20 +36,17 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import {
 	IntrospectionApiCallData,
 	TokenIntrospectionService,
 } from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{

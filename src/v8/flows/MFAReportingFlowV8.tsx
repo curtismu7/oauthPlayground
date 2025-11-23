@@ -4,28 +4,31 @@
  * @description MFA Reporting Flow - View MFA usage reports and analytics
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Features:
  * - User authentication reports
  * - Device authentication reports
  * - FIDO2 device reports
  * - Date range filtering
  * - Export capabilities
- * 
+ *
  * @example
  * <MFAReportingFlowV8 />
  */
 
-import React, { useState, useEffect } from 'react';
-import { MFAReportingServiceV8, type ReportParams } from '@/v8/services/mfaReportingServiceV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { SuperSimpleApiDisplayV8, ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAReportingServiceV8, type ReportParams } from '@/v8/services/mfaReportingServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
@@ -157,7 +160,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 			toastV8.success(`Loaded ${data.length} reports`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load reports`, error);
-			toastV8.error(`Failed to load reports: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to load reports: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -202,24 +207,31 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 			<div className="flow-container">
 				{/* MFA Navigation Links */}
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '16px',
+					}}
+				>
 					<div className="mfa-nav-links" style={{ marginBottom: 0 }}>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-hub'}
+							onClick={() => (window.location.href = '/v8/mfa-hub')}
 							className="nav-link-btn"
 							title="Go to MFA Hub"
 						>
 							🏠 MFA Hub
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa'}
+							onClick={() => (window.location.href = '/v8/mfa')}
 							className="nav-link-btn"
 							title="Register MFA Devices"
 						>
 							📱 Device Registration
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-device-management'}
+							onClick={() => (window.location.href = '/v8/mfa-device-management')}
 							className="nav-link-btn"
 							title="Manage MFA Devices"
 						>
@@ -235,7 +247,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 					{/* Worker Token Status */}
 					<div style={{ marginBottom: '20px' }}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+						>
 							<button
 								type="button"
 								onClick={handleManageWorkerToken}
@@ -292,9 +306,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 								id="report-env-id"
 								type="text"
 								value={credentials.environmentId}
-								onChange={(e) =>
-									setCredentials({ ...credentials, environmentId: e.target.value })
-								}
+								onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
 								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 							/>
 						</div>
@@ -337,9 +349,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 										id="start-date"
 										type="datetime-local"
 										value={dateRange.startDate}
-										onChange={(e) =>
-											setDateRange({ ...dateRange, startDate: e.target.value })
-										}
+										onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
 									/>
 								</div>
 								<div className="form-group">
@@ -348,9 +358,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 										id="end-date"
 										type="datetime-local"
 										value={dateRange.endDate}
-										onChange={(e) =>
-											setDateRange({ ...dateRange, endDate: e.target.value })
-										}
+										onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
 									/>
 								</div>
 							</div>
@@ -371,7 +379,14 @@ export const MFAReportingFlowV8: React.FC = () => {
 				{/* Reports Section */}
 				{reports.length > 0 && (
 					<div className="reports-section">
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '20px',
+							}}
+						>
 							<h2>{getReportTitle()}</h2>
 							<button
 								onClick={exportToJSON}
@@ -398,16 +413,18 @@ export const MFAReportingFlowV8: React.FC = () => {
 						</div>
 
 						<div className="reports-table">
-							<pre style={{
-								background: '#1f2937',
-								color: '#e5e7eb',
-								padding: '20px',
-								borderRadius: '8px',
-								overflow: 'auto',
-								maxHeight: '600px',
-								fontSize: '12px',
-								fontFamily: 'monospace',
-							}}>
+							<pre
+								style={{
+									background: '#1f2937',
+									color: '#e5e7eb',
+									padding: '20px',
+									borderRadius: '8px',
+									overflow: 'auto',
+									maxHeight: '600px',
+									fontSize: '12px',
+									fontFamily: 'monospace',
+								}}
+							>
 								{JSON.stringify(reports, null, 2)}
 							</pre>
 						</div>

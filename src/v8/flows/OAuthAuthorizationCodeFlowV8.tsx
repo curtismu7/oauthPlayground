@@ -14,8 +14,8 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
+import { PKCEStorageServiceV8U } from '@/v8u/services/pkceStorageServiceV8U';
 
 const MODULE_TAG = '[🔐 OAUTH-AUTHZ-CODE-V8]';
 const FLOW_KEY = 'oauth-authz-v8';
@@ -218,7 +218,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 
 	const renderStep1 = () => (
 		<div className="step-content">
-			<h2>Step 1: {useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}</h2>
+			<h2>
+				Step 1: {useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
+			</h2>
 			<p>
 				{useRedirectless
 					? 'Authenticate using PingOne redirectless flow without browser redirects.'
@@ -229,7 +231,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 				type="button"
 				className="btn btn-next"
 				onClick={async () => {
-					console.log(`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`);
+					console.log(
+						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
+					);
 					try {
 						if (!credentials.redirectUri) {
 							nav.setValidationErrors(['Redirect URI is required']);
@@ -239,7 +243,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						if (useRedirectless) {
 							// Validate redirectless credentials
 							if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
-								nav.setValidationErrors(['Username and password are required for redirectless authentication']);
+								nav.setValidationErrors([
+									'Username and password are required for redirectless authentication',
+								]);
 								return;
 							}
 
@@ -293,7 +299,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								// Auto-advance to next step
 								nav.goToNext();
 							} else {
-								nav.setValidationErrors(['Failed to obtain authorization code via redirectless flow']);
+								nav.setValidationErrors([
+									'Failed to obtain authorization code via redirectless flow',
+								]);
 							}
 						} else {
 							// Standard flow
@@ -304,7 +312,8 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								scopes: credentials.scopes || 'openid profile email',
 								...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
 							};
-							const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials);
+							const result =
+								await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials);
 							codeVerifierRef.current = result.codeVerifier;
 							PKCEStorageServiceV8U.savePKCECodes(FLOW_KEY, {
 								codeVerifier: result.codeVerifier,

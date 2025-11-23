@@ -37,7 +37,9 @@ const MODULE_TAG = '[🔘 STEP-BUTTONS-V8]';
  * - Previous button to go back
  * - Final button for last step
  */
-export const StepActionButtonsV8: React.FC<StepActionButtonsProps & { children?: React.ReactNode }> = ({
+export const StepActionButtonsV8: React.FC<
+	StepActionButtonsProps & { children?: React.ReactNode }
+> = ({
 	currentStep,
 	totalSteps,
 	isNextDisabled,
