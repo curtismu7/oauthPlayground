@@ -165,7 +165,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			const token = data.access_token;
 
 			// Now store token using workerTokenServiceV8 (credentials are already saved)
-			const expiresAt = data.expires_in ? Date.now() + (data.expires_in * 1000) : undefined;
+			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await workerTokenServiceV8.saveToken(token, expiresAt);
 			console.log(`${MODULE_TAG} Token saved to workerTokenServiceV8`);
 

@@ -36,7 +36,7 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 	const requestedFlowLabel = SpecVersionServiceV8.getFlowLabel(requestedFlow);
 	const specLabel = SpecVersionServiceV8.getSpecLabel(specVersion);
 	const fallbackFlowLabel = SpecVersionServiceV8.getFlowLabel(fallbackFlow);
-	
+
 	// CRITICAL: Log the actual spec version being used to debug modal issues
 	console.log(`${MODULE_TAG} Modal rendering`, {
 		requestedFlow,
@@ -60,21 +60,21 @@ export const FlowNotAvailableModal: React.FC<FlowNotAvailableModalProps> = ({
 				return 'The Hybrid Flow is not part of the OAuth 2.1 specification. Use Authorization Code with PKCE instead.';
 			}
 		}
-		
+
 		// OIDC specific restrictions
 		if (specVersion === 'oidc') {
 			if (requestedFlow === 'client-credentials') {
 				return 'Client Credentials Flow is not part of OpenID Connect. OIDC is for user authentication, while Client Credentials is for machine-to-machine communication with no user involved.';
 			}
 		}
-		
+
 		// OAuth 2.0 specific restrictions
 		if (specVersion === 'oauth2.0') {
 			if (requestedFlow === 'hybrid') {
 				return 'Hybrid Flow is an OpenID Connect flow, not part of OAuth 2.0. Use OIDC spec version for Hybrid Flow.';
 			}
 		}
-		
+
 		return `The ${requestedFlowLabel} is not supported in ${specLabel}.`;
 	};
 
