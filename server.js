@@ -6436,24 +6436,42 @@ app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 			partsLength: tokenParts.map((p) => p.length),
 		});
 
-		const otpEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/otp`;
+		// PingOne MFA OTP sending uses a different approach
+		// We need to create an MFA authentication transaction first, then send OTP
+		// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-send-one-time-password
 
-		// Build Authorization header - ensure proper Bearer format
-		// cleanToken should already have "Bearer " prefix removed from normalization
+		// Step 1: Get device details to determine device type
+		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
 		const authHeader = `Bearer ${cleanToken}`;
 
-		// Log the header format for debugging (but don't log full token)
-		console.log('[MFA Send OTP] Authorization header format check:', {
-			headerFormat: authHeader.substring(0, 20) + '...',
-			tokenLength: cleanToken.length,
-			hasBearer: authHeader.startsWith('Bearer '),
+		console.log('[MFA Send OTP] Getting device details first');
+		const deviceResponse = await global.fetch(deviceEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: authHeader,
+			},
 		});
 
+		if (!deviceResponse.ok) {
+			const deviceError = await deviceResponse.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(deviceResponse.status).json({
+				error: 'Failed to get device details',
+				message: deviceError.message || deviceError.error,
+			});
+		}
+
+		const device = await deviceResponse.json();
+		console.log('[MFA Send OTP] Device type:', device.type);
+
+		// Step 2: Send OTP using the correct endpoint based on device type
+		// For SMS/EMAIL, we use the /otp endpoint with POST
+		const otpEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/otp`;
+
+		console.log('[MFA Send OTP] Sending OTP to device');
 		const response = await global.fetch(otpEndpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Accept: 'application/json',
 				Authorization: authHeader,
 			},
 			body: JSON.stringify({}),
