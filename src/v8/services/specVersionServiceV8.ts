@@ -53,14 +53,14 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 	'oauth2.0': {
 		name: 'OAuth 2.0',
 		description: 'Standard OAuth 2.0 (RFC 6749)',
-		supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'ropc', 'device-code'],
+		supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'device-code'],
 		complianceRules: {
 			requirePKCE: false,
 			requireHTTPS: false,
 			allowImplicit: true,
-			allowROPC: true,
+			allowROPC: false, // ROPC is not supported by PingOne - use mock flows instead
 			requireOpenIDScope: false,
-			supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'ropc', 'device-code'],
+			supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'device-code'],
 		},
 	},
 	'oauth2.1': {

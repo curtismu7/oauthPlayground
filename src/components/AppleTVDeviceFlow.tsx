@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiCopy, FiXCircle } from 'react-icons/fi';
+import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, DeviceTokenResponse, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
@@ -557,7 +558,34 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 								<TVTitle>Device Authorization</TVTitle>
 							</div>
 
-							<TVSubtitle>Enter this code on your phone or computer</TVSubtitle>
+							<TVSubtitle>Scan QR code or enter this code on your phone or computer</TVSubtitle>
+
+					{/* QR Code Display */}
+					{(state.verificationUriComplete || (state.verificationUri && state.userCode)) && (
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'center',
+								alignItems: 'center',
+								marginBottom: '1rem',
+								padding: '0.75rem',
+								backgroundColor: 'rgba(255, 255, 255, 0.95)',
+								borderRadius: '0.5rem',
+								border: '2px solid rgba(255, 255, 255, 0.3)',
+								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+							}}
+						>
+							<QRCodeSVG
+								value={
+									state.verificationUriComplete ||
+									`${state.verificationUri}?user_code=${state.userCode}`
+								}
+								size={180}
+								level="M"
+								includeMargin={true}
+							/>
+						</div>
+					)}
 
 					{/* User Code Display */}
 					{state.userCode && (
