@@ -51,3 +51,4 @@ node_modules
 certs/
 .vercel
 *.dmg
+restore-point-*.tar.gz

@@ -37,9 +37,12 @@ import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
+import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdownV8';
 import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
+import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
 import { ScopesInputV8 } from '@/v8/components/ScopesInputV8';
+import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -1565,23 +1568,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 												border: '1px solid #fcd34d',
 											}}
 										>
-											<label
-												style={{
-													display: 'block',
-													marginBottom: '8px',
-													fontWeight: '600',
-													color: '#92400e',
-												}}
-											>
-												🔐 PKCE Enforcement
-											</label>
-											<select
+											<PKCEEnforcementDropdownV8
 												value={pkceEnforcement}
-												onChange={(e) => {
-													const newEnforcement = e.target.value as
-														| 'OPTIONAL'
-														| 'REQUIRED'
-														| 'S256_REQUIRED';
+												onChange={(newEnforcement) => {
 													setPkceEnforcement(newEnforcement);
 													// Save to credentials
 													handleChange('pkceEnforcement', newEnforcement);
@@ -1592,43 +1581,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 														to: newEnforcement,
 													});
 												}}
-												style={{
-													width: '100%',
-													padding: '8px 12px',
-													border: '1px solid #d1d5db',
-													borderRadius: '6px',
-													fontSize: '14px',
-													background: '#ffffff',
-													color: '#1f2937',
-													cursor: 'pointer',
-												}}
-											>
-												<option value="OPTIONAL">
-													OPTIONAL - PKCE is optional (can proceed without codes)
-												</option>
-												<option value="REQUIRED">
-													REQUIRED - PKCE must be used (allows S256 or plain)
-												</option>
-												<option value="S256_REQUIRED">
-													S256_REQUIRED - PKCE required with S256 only (most secure)
-												</option>
-											</select>
-											<small style={{ display: 'block', marginTop: '6px', color: '#78350f' }}>
-												{pkceEnforcement === 'OPTIONAL' && (
-													<>
-														PKCE is optional - Client Secret may be required depending on auth
-														method
-													</>
-												)}
-												{pkceEnforcement === 'REQUIRED' && (
-													<>PKCE required - Client Secret not required (public client flow)</>
-												)}
-												{pkceEnforcement === 'S256_REQUIRED' && (
-													<>
-														PKCE required with S256 only - Most secure, Client Secret not required
-													</>
-												)}
-											</small>
+											/>
 										</div>
 									)}
 
@@ -1986,31 +1939,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Token Endpoint Authentication Method - Moved from Advanced */}
 								{showClientAuthMethod && allAuthMethodsWithStatus.length > 0 && (
 									<div className="form-group">
-										<label>Token Endpoint Authentication Method</label>
-										<select
-											value={credentials.clientAuthMethod || defaultAuthMethod}
-											onChange={(e) => handleChange('clientAuthMethod', e.target.value)}
-											aria-label="Token Endpoint Authentication Method"
-										>
-											{allAuthMethodsWithStatus.map(
-												({ method, label, enabled, disabledReason }) => (
-													<option
-														key={method}
-														value={method}
-														disabled={!enabled}
-														style={{
-															color: enabled ? 'inherit' : '#94a3b8',
-															fontStyle: enabled ? 'normal' : 'italic',
-														}}
-														title={disabledReason}
-													>
-														{label}
-														{!enabled && disabledReason ? ` - ${disabledReason}` : ''}
-													</option>
-												)
-											)}
-										</select>
-										<small>How the client authenticates with the token endpoint</small>
+										<TokenEndpointAuthMethodDropdownV8
+											value={
+												(credentials.clientAuthMethod || defaultAuthMethod) as
+													| 'none'
+													| 'client_secret_basic'
+													| 'client_secret_post'
+													| 'client_secret_jwt'
+													| 'private_key_jwt'
+											}
+											onChange={(method) => handleChange('clientAuthMethod', method)}
+											flowType={flowType || 'oauth-authz'}
+											specVersion={specVersion}
+											usePKCE={usePKCE}
+										/>
 
 										{/* JWT Configuration Button and Description */}
 										{(credentials.clientAuthMethod === 'client_secret_jwt' ||
@@ -2106,19 +2048,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Response Type - Moved from Advanced */}
 								{validResponseTypes.length > 0 && (
 									<div className="form-group">
-										<label>Response Type</label>
-										<select
+										<ResponseTypeDropdownV8
 											value={credentials.responseType || defaultResponseType}
-											onChange={(e) => handleChange('responseType', e.target.value)}
-											aria-label="Response Type"
-										>
-											{validResponseTypes.map((type) => (
-												<option key={type} value={type}>
-													{ResponseTypeServiceV8.getResponseTypeLabel(type)}
-												</option>
-											))}
-										</select>
-										<small>Response type for the authorization endpoint</small>
+											onChange={(type) => handleChange('responseType', type)}
+											flowType={
+												flowType === 'oauth-authz'
+													? 'oauth-authz'
+													: flowType === 'implicit'
+														? 'implicit'
+														: 'hybrid'
+											}
+											specVersion={specVersion}
+										/>
 									</div>
 								)}
 
