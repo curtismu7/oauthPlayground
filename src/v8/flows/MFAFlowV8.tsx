@@ -22,6 +22,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { type FIDO2Config, FIDO2Service } from '@/services/fido2Service';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
+import { MFADeviceSelectorV8 } from '@/v8/components/MFADeviceSelectorV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
@@ -120,6 +121,11 @@ export const MFAFlowV8: React.FC = () => {
 		deviceStatus: '',
 		verificationResult: null,
 	});
+
+	const [existingDevices, setExistingDevices] = useState<Array<Record<string, unknown>>>([]);
+	const [loadingDevices, setLoadingDevices] = useState(false);
+	const [selectedExistingDevice, setSelectedExistingDevice] = useState<string>(''); // 'new' or deviceId
+	const [showRegisterForm, setShowRegisterForm] = useState(false);
 
 	const [showDeviceLimitModal, setShowDeviceLimitModal] = useState(false);
 
@@ -590,13 +596,137 @@ export const MFAFlowV8: React.FC = () => {
 		</div>
 	);
 
-	// Step 1: Register Device
-	const renderStep1 = () => (
-		<div className="step-content">
-			<h2>Register {credentials.deviceType} Device</h2>
-			<p>Register a new {credentials.deviceType} device for the user</p>
+	// Load existing devices when entering Step 1
+	const loadExistingDevices = async () => {
+		if (!credentials.environmentId || !credentials.username || !tokenStatus.isValid) {
+			console.log(`${MODULE_TAG} Cannot load devices - missing credentials or token`);
+			return;
+		}
 
-			<div className="info-box">
+		console.log(`${MODULE_TAG} Loading existing devices for user`, {
+			username: credentials.username,
+		});
+
+		setLoadingDevices(true);
+		try {
+			const devices = await MFAServiceV8.getAllDevices({
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+			});
+
+			console.log(`${MODULE_TAG} Loaded ${devices.length} existing devices`, devices);
+			setExistingDevices(devices);
+
+			// If no devices, show register form by default
+			if (devices.length === 0) {
+				setShowRegisterForm(true);
+				setSelectedExistingDevice('new');
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load existing devices`, error);
+			// If loading fails, show register form
+			setShowRegisterForm(true);
+			setSelectedExistingDevice('new');
+		} finally {
+			setLoadingDevices(false);
+		}
+	};
+
+	// Step 1: Select or Register Device
+	const renderStep1 = () => {
+		// Load devices when step is first rendered
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only load once when entering step
+		useEffect(() => {
+			if (nav.currentStep === 1 && existingDevices.length === 0 && !loadingDevices) {
+				loadExistingDevices();
+			}
+		}, [nav.currentStep]);
+
+		return (
+			<div className="step-content">
+				<h2>Select or Register {credentials.deviceType} Device</h2>
+				<p>Choose an existing device or register a new one</p>
+
+				{/* Token Status Warning */}
+				{!tokenStatus.isValid && (
+					<div
+						style={{
+							marginBottom: '16px',
+							padding: '12px',
+							background: '#fee2e2',
+							border: '1px solid #ef4444',
+							borderRadius: '6px',
+							color: '#991b1b',
+						}}
+					>
+						<p style={{ margin: 0, fontSize: '14px', fontWeight: '600' }}>
+							⚠️ Worker Token Required
+						</p>
+						<p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
+							{tokenStatus.message} Please go back to Step 0 and click "Add Token" to generate a
+							worker token.
+						</p>
+					</div>
+				)}
+
+				{/* Device Selector Component */}
+				<MFADeviceSelectorV8
+					devices={existingDevices}
+					loading={loadingDevices}
+					selectedDeviceId={selectedExistingDevice}
+					onSelectDevice={(deviceId) => {
+						console.log(`${MODULE_TAG} Device selected`, { deviceId });
+						setSelectedExistingDevice(deviceId);
+						setShowRegisterForm(false);
+
+						// Find and set device info
+						const device = existingDevices.find((d) => d.id === deviceId);
+						if (device) {
+							setMfaState({
+								...mfaState,
+								deviceId: device.id as string,
+								deviceStatus: device.status as string,
+								nickname: device.nickname as string,
+							});
+						}
+					}}
+					onUseDevice={() => {
+						console.log(`${MODULE_TAG} Using existing device`, {
+							deviceId: selectedExistingDevice,
+						});
+						nav.markStepComplete();
+						toastV8.success('Device selected successfully!');
+					}}
+					onRegisterNew={() => {
+						console.log(`${MODULE_TAG} User chose to register new device`);
+						setSelectedExistingDevice('new');
+						setShowRegisterForm(true);
+						setMfaState({
+							...mfaState,
+							deviceId: '',
+							deviceStatus: '',
+						});
+					}}
+					deviceType={credentials.deviceType}
+					disabled={!tokenStatus.isValid}
+				/>
+
+				{/* Registration Form - Only shown when "Register New" is selected */}
+				{showRegisterForm && (
+					<>
+						<h3
+							style={{
+								fontSize: '16px',
+								fontWeight: '600',
+								marginTop: '24px',
+								marginBottom: '12px',
+								color: '#1f2937',
+							}}
+						>
+							Register New Device
+						</h3>
+
+						<div className="info-box">
 				<p>
 					<strong>Username:</strong> {credentials.username}
 				</p>
@@ -886,8 +1016,19 @@ export const MFAFlowV8: React.FC = () => {
 					}
 				}}
 			>
-				{isLoading ? '🔄 Registering...' : `Register ${credentials.deviceType} Device`}
+				{isLoading
+					? '🔄 Registering...'
+					: !tokenStatus.isValid
+						? '⚠️ Worker Token Required'
+						: `Register ${credentials.deviceType} Device`}
 			</button>
+			{!tokenStatus.isValid && (
+				<p style={{ marginTop: '8px', fontSize: '13px', color: '#991b1b' }}>
+					Please go back to Step 0 and add a worker token to continue.
+				</p>
+			)}
+					</>
+				)}
 
 			{mfaState.deviceId && (
 				<div className="success-box">
