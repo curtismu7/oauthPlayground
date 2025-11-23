@@ -4,7 +4,7 @@
  * @description PKCE (Proof Key for Code Exchange) dropdown with comprehensive education
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <PKCEInputV8
  *   value="REQUIRED"
@@ -14,7 +14,7 @@
  */
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiInfo, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiInfo } from 'react-icons/fi';
 
 const MODULE_TAG = '[🔐 PKCE-V8]';
 
@@ -198,11 +198,19 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 				style={{
 					marginTop: '8px',
 					padding: '8px 12px',
-					background: selectedOption.deprecated ? '#fef3c7' : value === 'DISABLED' ? '#fef2f2' : '#f9fafb', // Yellow, red, or grey
+					background: selectedOption.deprecated
+						? '#fef3c7'
+						: value === 'DISABLED'
+							? '#fef2f2'
+							: '#f9fafb', // Yellow, red, or grey
 					border: `1px solid ${selectedOption.deprecated ? '#fbbf24' : value === 'DISABLED' ? '#fecaca' : '#e5e7eb'}`,
 					borderRadius: '4px',
 					fontSize: '12px',
-					color: selectedOption.deprecated ? '#92400e' : value === 'DISABLED' ? '#991b1b' : '#374151', // Dark brown, red, or dark grey
+					color: selectedOption.deprecated
+						? '#92400e'
+						: value === 'DISABLED'
+							? '#991b1b'
+							: '#374151', // Dark brown, red, or dark grey
 				}}
 			>
 				<div style={{ fontWeight: '600', marginBottom: '4px' }}>
@@ -239,7 +247,9 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>⚠️ Security Warning:</strong> PKCE is <strong>required</strong> for public clients in OAuth 2.1. Without PKCE, your authorization codes can be intercepted and stolen by malicious apps.
+							<strong>⚠️ Security Warning:</strong> PKCE is <strong>required</strong> for public
+							clients in OAuth 2.1. Without PKCE, your authorization codes can be intercepted and
+							stolen by malicious apps.
 						</div>
 					</div>
 				</div>
@@ -274,7 +284,9 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						<strong>PKCE (Proof Key for Code Exchange)</strong> is a security extension for OAuth 2.0 that prevents authorization code interception attacks. It's <strong>required</strong> in OAuth 2.1 for public clients.
+						<strong>PKCE (Proof Key for Code Exchange)</strong> is a security extension for OAuth
+						2.0 that prevents authorization code interception attacks. It's{' '}
+						<strong>required</strong> in OAuth 2.1 for public clients.
 					</p>
 
 					{/* How PKCE Works */}
@@ -308,30 +320,60 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 						>
 							<li>
 								<strong>Generate code_verifier:</strong> Random string (43-128 characters)
-								<div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										fontSize: '11px',
+										color: '#6b7280',
+										marginTop: '2px',
+									}}
+								>
 									Example: dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
 								</div>
 							</li>
 							<li style={{ marginTop: '8px' }}>
-								<strong>Create code_challenge:</strong> SHA256 hash of code_verifier (base64url encoded)
-								<div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+								<strong>Create code_challenge:</strong> SHA256 hash of code_verifier (base64url
+								encoded)
+								<div
+									style={{
+										fontFamily: 'monospace',
+										fontSize: '11px',
+										color: '#6b7280',
+										marginTop: '2px',
+									}}
+								>
 									code_challenge = BASE64URL(SHA256(code_verifier))
 								</div>
 							</li>
 							<li style={{ marginTop: '8px' }}>
 								<strong>Authorization request:</strong> Send code_challenge to server
-								<div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										fontSize: '11px',
+										color: '#6b7280',
+										marginTop: '2px',
+									}}
+								>
 									?code_challenge=E9Melhoa...&code_challenge_method=S256
 								</div>
 							</li>
 							<li style={{ marginTop: '8px' }}>
 								<strong>Token request:</strong> Send code_verifier to prove you're the same client
-								<div style={{ fontFamily: 'monospace', fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										fontSize: '11px',
+										color: '#6b7280',
+										marginTop: '2px',
+									}}
+								>
 									code_verifier=dBjftJeZ4CVP...
 								</div>
 							</li>
 							<li style={{ marginTop: '8px' }}>
-								<strong>Server verifies:</strong> Hashes code_verifier and compares to code_challenge
+								<strong>Server verifies:</strong> Hashes code_verifier and compares to
+								code_challenge
 							</li>
 						</ol>
 					</div>
@@ -363,9 +405,12 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								lineHeight: '1.6',
 							}}
 						>
-							<strong>Without PKCE:</strong> A malicious app can intercept your authorization code and exchange it for tokens.
-							<br /><br />
-							<strong>With PKCE:</strong> Even if the code is intercepted, the attacker cannot exchange it without the code_verifier (which never leaves your app).
+							<strong>Without PKCE:</strong> A malicious app can intercept your authorization code
+							and exchange it for tokens.
+							<br />
+							<br />
+							<strong>With PKCE:</strong> Even if the code is intercepted, the attacker cannot
+							exchange it without the code_verifier (which never leaves your app).
 						</div>
 					</div>
 
@@ -398,10 +443,20 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								lineHeight: '1.6',
 							}}
 						>
-							<li><strong>Public Clients (REQUIRED):</strong> SPAs, mobile apps, desktop apps, CLI tools</li>
-							<li><strong>Confidential Clients (RECOMMENDED):</strong> Even backend servers benefit from PKCE</li>
-							<li><strong>OAuth 2.1 (REQUIRED):</strong> All clients must use PKCE in OAuth 2.1</li>
-							<li><strong>Authorization Code Flow:</strong> PKCE is designed for this flow</li>
+							<li>
+								<strong>Public Clients (REQUIRED):</strong> SPAs, mobile apps, desktop apps, CLI
+								tools
+							</li>
+							<li>
+								<strong>Confidential Clients (RECOMMENDED):</strong> Even backend servers benefit
+								from PKCE
+							</li>
+							<li>
+								<strong>OAuth 2.1 (REQUIRED):</strong> All clients must use PKCE in OAuth 2.1
+							</li>
+							<li>
+								<strong>Authorization Code Flow:</strong> PKCE is designed for this flow
+							</li>
 						</ul>
 					</div>
 
@@ -427,7 +482,14 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
 							<div>
-								<code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px', fontSize: '11px' }}>
+								<code
+									style={{
+										background: '#f3f4f6',
+										padding: '2px 6px',
+										borderRadius: '3px',
+										fontSize: '11px',
+									}}
+								>
 									S256
 								</code>
 								<span style={{ fontSize: '12px', color: '#374151', marginLeft: '8px' }}>
@@ -435,11 +497,19 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								</span>
 							</div>
 							<div>
-								<code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px', fontSize: '11px' }}>
+								<code
+									style={{
+										background: '#f3f4f6',
+										padding: '2px 6px',
+										borderRadius: '3px',
+										fontSize: '11px',
+									}}
+								>
 									plain
 								</code>
 								<span style={{ fontSize: '12px', color: '#374151', marginLeft: '8px' }}>
-									<strong>(DEPRECATED)</strong> - code_challenge = code_verifier. Less secure, only for legacy clients.
+									<strong>(DEPRECATED)</strong> - code_challenge = code_verifier. Less secure, only
+									for legacy clients.
 								</span>
 							</div>
 						</div>
@@ -461,7 +531,9 @@ export const PKCEInputV8: React.FC<PKCEInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>📜 OAuth 2.1 Requirement:</strong> PKCE is <strong>mandatory</strong> for all clients (public and confidential) in OAuth 2.1. The implicit flow is removed, and PKCE makes authorization code flow secure for all client types.
+							<strong>📜 OAuth 2.1 Requirement:</strong> PKCE is <strong>mandatory</strong> for all
+							clients (public and confidential) in OAuth 2.1. The implicit flow is removed, and PKCE
+							makes authorization code flow secure for all client types.
 						</div>
 					</div>
 				</div>

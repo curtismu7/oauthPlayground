@@ -4,14 +4,14 @@
  * @description Redirectless authentication service for V8 flows using PingOne pi.flow
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Handles redirectless authentication for:
  * - OAuth Authorization Code Flow
  * - Implicit Flow
  * - Hybrid Flow
- * 
+ *
  * Uses PingOne's response_mode=pi.flow for authentication without browser redirects
- * 
+ *
  * @example
  * const result = await RedirectlessServiceV8.startFlow({
  *   credentials,
@@ -72,7 +72,7 @@ export interface RedirectlessFlowResponse {
 
 /**
  * RedirectlessServiceV8
- * 
+ *
  * Handles PingOne redirectless authentication flows using response_mode=pi.flow
  */
 export class RedirectlessServiceV8 {
@@ -152,9 +152,16 @@ export class RedirectlessServiceV8 {
 
 			let errorBody: { error_description?: string; message?: string; error?: string };
 			try {
-				errorBody = JSON.parse(errorText) as { error_description?: string; message?: string; error?: string };
+				errorBody = JSON.parse(errorText) as {
+					error_description?: string;
+					message?: string;
+					error?: string;
+				};
 			} catch {
-				errorBody = { error: 'parse_failed', raw_response: errorText } as { error: string; raw_response: string };
+				errorBody = { error: 'parse_failed', raw_response: errorText } as {
+					error: string;
+					raw_response: string;
+				};
 			}
 
 			const errorMessage =
@@ -256,10 +263,7 @@ export class RedirectlessServiceV8 {
 					const pending = JSON.parse(pendingRaw);
 					pending.resumeUrl = result.resumeUrl || pending.resumeUrl;
 					pending.sessionId = result._sessionId || result.sessionId || pending.sessionId;
-					sessionStorage.setItem(
-						`${params.flowKey}_redirectless_pending`,
-						JSON.stringify(pending)
-					);
+					sessionStorage.setItem(`${params.flowKey}_redirectless_pending`, JSON.stringify(pending));
 				} catch (error) {
 					console.warn(`${MODULE_TAG} Failed to update pending resume data`, error);
 				}
@@ -334,9 +338,16 @@ export class RedirectlessServiceV8 {
 
 			let errorBody: { error_description?: string; message?: string; error?: string };
 			try {
-				errorBody = JSON.parse(errorText) as { error_description?: string; message?: string; error?: string };
+				errorBody = JSON.parse(errorText) as {
+					error_description?: string;
+					message?: string;
+					error?: string;
+				};
 			} catch {
-				errorBody = { error: 'parse_failed', raw_response: errorText } as { error: string; raw_response: string };
+				errorBody = { error: 'parse_failed', raw_response: errorText } as {
+					error: string;
+					raw_response: string;
+				};
 			}
 
 			const errorMessage =
