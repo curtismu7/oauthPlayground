@@ -20,6 +20,7 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
+import { QRCodeSVG } from 'qrcode.react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';
@@ -3623,11 +3624,32 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				style={{
 					fontSize: '0.75rem',
 					color: '#64748b',
-					marginBottom: '0.5rem',
+					marginBottom: '1rem',
 				}}
 			>
-				Enter this code on your phone:
+				Scan QR code or enter this code on your phone:
 			</div>
+			{deviceFlow.deviceCodeData?.verification_uri_complete && (
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						marginBottom: '1rem',
+						padding: '1rem',
+						backgroundColor: 'white',
+						borderRadius: '0.5rem',
+						border: `2px solid ${deviceConfig.color}`,
+					}}
+				>
+					<QRCodeSVG
+						value={deviceFlow.deviceCodeData.verification_uri_complete}
+						size={200}
+						level="M"
+						includeMargin={true}
+					/>
+				</div>
+			)}
 			<div
 				style={{
 					fontSize: '2.5rem',
