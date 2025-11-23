@@ -2,6 +2,7 @@
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
 import { BarChart3, Play } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
 	FiAlertCircle,
@@ -20,7 +21,6 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import { QRCodeSVG } from 'qrcode.react';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import AnalyticsDashboard from '../../components/AnalyticsDashboard';

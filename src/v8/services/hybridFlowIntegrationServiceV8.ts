@@ -81,17 +81,18 @@ export class HybridFlowIntegrationServiceV8 {
 
 		// Ensure scopes default to 'openid' for user authentication flows
 		// Hybrid flow MUST include 'openid' for OIDC (to get id_token)
-		const scopes = credentials.scopes && credentials.scopes.trim() !== '' 
-			? credentials.scopes 
-			: 'openid profile email';
-		
+		const scopes =
+			credentials.scopes && credentials.scopes.trim() !== ''
+				? credentials.scopes
+				: 'openid profile email';
+
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
 			console.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For hybrid flow with id_token, 'openid' scope is required. Adding it automatically.`
 			);
 		}
-		
+
 		// Ensure 'openid' is always included for hybrid flow
 		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
 
@@ -232,9 +233,10 @@ export class HybridFlowIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
 			const bodyParams: Record<string, string> = {

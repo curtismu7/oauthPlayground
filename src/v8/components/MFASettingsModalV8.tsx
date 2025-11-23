@@ -116,7 +116,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 									>
 										<option value="NUMERIC">Numeric (User Code)</option>
 										<option value="QR_CODE">QR Code</option>
-                                        <option value="ALPHANUMERIC">Alphanumeric</option>
+										<option value="ALPHANUMERIC">Alphanumeric</option>
 									</select>
 								</div>
 							</div>
@@ -295,4 +295,3 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		</div>
 	);
 };
-

@@ -4,7 +4,7 @@
  * @description Scopes input with comprehensive education
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <ScopesInputV8
  *   value="openid profile email"
@@ -89,7 +89,7 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 	className = '',
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
-	const scopes = value.split(' ').filter(s => s.trim());
+	const scopes = value.split(' ').filter((s) => s.trim());
 	const hasOpenId = scopes.includes('openid');
 	const isOIDC = flowType === 'oidc';
 
@@ -99,15 +99,15 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 	};
 
 	const toggleScope = (scope: string) => {
-		const currentScopes = value.split(' ').filter(s => s.trim());
+		const currentScopes = value.split(' ').filter((s) => s.trim());
 		let newScopes: string[];
-		
+
 		if (currentScopes.includes(scope)) {
-			newScopes = currentScopes.filter(s => s !== scope);
+			newScopes = currentScopes.filter((s) => s !== scope);
 		} else {
 			newScopes = [...currentScopes, scope];
 		}
-		
+
 		handleChange(newScopes.join(' '));
 	};
 
@@ -214,7 +214,7 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 					Quick Add:
 				</div>
 				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-					{COMMON_SCOPES.filter(s => !s.oidcOnly || isOIDC).map((scopeInfo) => {
+					{COMMON_SCOPES.filter((s) => !s.oidcOnly || isOIDC).map((scopeInfo) => {
 						const isActive = scopes.includes(scopeInfo.scope);
 						return (
 							<button
@@ -270,7 +270,11 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						<strong>⚠️ OIDC Requirement:</strong> The <code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>openid</code> scope is required for OIDC flows. Without it, you won't receive an ID token.
+						<strong>⚠️ OIDC Requirement:</strong> The{' '}
+						<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
+							openid
+						</code>{' '}
+						scope is required for OIDC flows. Without it, you won't receive an ID token.
 					</div>
 				</div>
 			)}
@@ -344,7 +348,8 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						<strong>Scopes</strong> define what permissions your application is requesting. They determine what user data you can access and what operations you can perform.
+						<strong>Scopes</strong> define what permissions your application is requesting. They
+						determine what user data you can access and what operations you can perform.
 					</p>
 
 					{/* Common Scopes */}
@@ -358,7 +363,9 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 					>
 						🔑 Common Scopes
 					</div>
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+					<div
+						style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}
+					>
 						{COMMON_SCOPES.map((scopeInfo) => (
 							<div
 								key={scopeInfo.scope}
@@ -369,7 +376,9 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 									borderRadius: '6px',
 								}}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}
+								>
 									<code
 										style={{
 											background: '#f3f4f6',
@@ -439,9 +448,17 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 						>
 							<strong>🎯 OAuth 2.0 vs OIDC Scopes:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-								<li><strong>OAuth 2.0:</strong> Custom scopes for API access (e.g., read:users, write:posts)</li>
-								<li><strong>OIDC:</strong> Standard scopes for user identity (openid, profile, email, etc.)</li>
-								<li><strong>openid scope:</strong> Required for OIDC - triggers ID token issuance</li>
+								<li>
+									<strong>OAuth 2.0:</strong> Custom scopes for API access (e.g., read:users,
+									write:posts)
+								</li>
+								<li>
+									<strong>OIDC:</strong> Standard scopes for user identity (openid, profile, email,
+									etc.)
+								</li>
+								<li>
+									<strong>openid scope:</strong> Required for OIDC - triggers ID token issuance
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -464,10 +481,18 @@ export const ScopesInputV8: React.FC<ScopesInputV8Props> = ({
 						>
 							<strong>💡 Best Practices:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-								<li><strong>Request minimum:</strong> Only request scopes you actually need</li>
-								<li><strong>User consent:</strong> Users see and approve requested scopes</li>
-								<li><strong>Space-separated:</strong> Multiple scopes separated by spaces</li>
-								<li><strong>Case-sensitive:</strong> Scope names are case-sensitive</li>
+								<li>
+									<strong>Request minimum:</strong> Only request scopes you actually need
+								</li>
+								<li>
+									<strong>User consent:</strong> Users see and approve requested scopes
+								</li>
+								<li>
+									<strong>Space-separated:</strong> Multiple scopes separated by spaces
+								</li>
+								<li>
+									<strong>Case-sensitive:</strong> Scope names are case-sensitive
+								</li>
 							</ul>
 						</div>
 					</div>

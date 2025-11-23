@@ -258,7 +258,8 @@ describe('OAuthIntegrationServiceV8', () => {
 				scopes: 'openid profile',
 			};
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(publicClientCredentials);
+			const result =
+				await OAuthIntegrationServiceV8.generateAuthorizationUrl(publicClientCredentials);
 
 			expect(result.authorizationUrl).toContain('public-client-id');
 		});
@@ -269,7 +270,8 @@ describe('OAuthIntegrationServiceV8', () => {
 				scopes: 'openid profile email phone address offline_access',
 			};
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(multiScopeCredentials);
+			const result =
+				await OAuthIntegrationServiceV8.generateAuthorizationUrl(multiScopeCredentials);
 
 			expect(result.authorizationUrl).toContain('scope=');
 		});
@@ -280,7 +282,8 @@ describe('OAuthIntegrationServiceV8', () => {
 				redirectUri: 'http://localhost:3000/callback?param=value&other=123',
 			};
 
-			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(specialUriCredentials);
+			const result =
+				await OAuthIntegrationServiceV8.generateAuthorizationUrl(specialUriCredentials);
 
 			expect(result.authorizationUrl).toContain('redirect_uri=');
 		});

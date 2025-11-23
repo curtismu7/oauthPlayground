@@ -389,7 +389,9 @@ class WorkerTokenServiceV8 {
 			clientSecret: data.clientSecret,
 			...(data.scopes && { scopes: data.scopes }),
 			...(data.region && { region: data.region }),
-			...(data.tokenEndpointAuthMethod && { tokenEndpointAuthMethod: data.tokenEndpointAuthMethod }),
+			...(data.tokenEndpointAuthMethod && {
+				tokenEndpointAuthMethod: data.tokenEndpointAuthMethod,
+			}),
 		};
 	}
 
@@ -420,4 +422,3 @@ if (typeof window !== 'undefined') {
 }
 
 export default workerTokenServiceV8;
-

@@ -4,13 +4,13 @@
  * @description MFA Hub - Central navigation for all MFA features
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Features:
  * - Device Registration Flow
  * - Device Management
  * - MFA Reporting
  * - Settings
- * 
+ *
  * @example
  * <MFAHubV8 />
  */
@@ -113,8 +113,8 @@ export const MFAHubV8: React.FC = () => {
 				<div className="welcome-section">
 					<h2>Welcome to MFA Management</h2>
 					<p>
-						Manage multi-factor authentication devices, view reports, and configure MFA policies
-						for your PingOne environment.
+						Manage multi-factor authentication devices, view reports, and configure MFA policies for
+						your PingOne environment.
 					</p>
 				</div>
 

@@ -203,7 +203,7 @@ const URLPart = styled.span<{
 }>`
 	background: ${({ $isHighlighted, $backgroundColor }) =>
 		$isHighlighted ? ($backgroundColor || '#fef3c7') : 'transparent'};
-	color: ${({ $isHighlighted, $color }) => ($isHighlighted ? ($color || '#92400e') : 'inherit')};
+	color: ${({ $isHighlighted, $color }) => ($isHighlighted ? $color || '#92400e' : 'inherit')};
 	padding: ${({ $isHighlighted }) => ($isHighlighted ? '2px 4px' : '0')};
 	border-radius: ${({ $isHighlighted }) => ($isHighlighted ? '4px' : '0')};
 	font-weight: ${({ $isHighlighted }) => ($isHighlighted ? '600' : 'normal')};
