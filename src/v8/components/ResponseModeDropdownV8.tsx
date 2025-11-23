@@ -248,33 +248,77 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 						borderRadius: '6px',
 					}}
 				>
-					<h4
+					{/* Main Title Section */}
+					<div
 						style={{
-							fontSize: '14px',
-							fontWeight: '600',
-							color: '#1e40af', // Dark blue text - high contrast
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
 							marginBottom: '12px',
+							padding: '12px',
+							background: '#dbeafe',
+							borderRadius: '6px',
 						}}
 					>
-						📚 Response Mode Guide
-					</h4>
+						<span style={{ fontSize: '18px' }}>📚</span>
+						<h4
+							style={{
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#1e40af', // Dark blue text - high contrast
+								margin: 0,
+								flex: 1,
+							}}
+						>
+							How does PingOne return the response?
+						</h4>
+					</div>
 					<p
 						style={{
 							fontSize: '13px',
 							color: '#1e40af', // Dark blue text
-							marginBottom: '12px',
+							marginBottom: '16px',
 							lineHeight: '1.5',
 						}}
 					>
-						Response mode controls <strong>how</strong> the authorization server returns the
-						authorization response (code or tokens) to your application.
+						OAuth uses the <strong>response_mode</strong> parameter to control how PingOne returns
+						authorization data to your application:
 					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 						{availableModes.map((mode) => {
 							const option = RESPONSE_MODE_OPTIONS[mode];
-							const isRecommended = mode === recommendedMode;
 							const isSelected = mode === value;
+
+							// Get example and usage info based on mode
+							let example: string | null = null;
+							let usageInfo: Array<{ icon: string; text: string }> = [];
+
+							if (mode === 'query') {
+								example = 'https://app.com/callback?code=abc123&state=xyz';
+								usageInfo = [
+									{ icon: '✅', text: 'Used by: Authorization Code Flow (default)' },
+								];
+							} else if (mode === 'fragment') {
+								example = 'https://app.com/callback#access_token=xyz&token_type=Bearer';
+								usageInfo = [
+									{ icon: '✅', text: 'Used by: Implicit Flow (required), Hybrid Flow (default)' },
+									{ icon: '🔒', text: 'More secure - fragment never sent to server' },
+								];
+							} else if (mode === 'form_post') {
+								example = 'POST /callback HTTP/1.1\ncode=abc123&state=xyz';
+								usageInfo = [
+									{ icon: '⚙️', text: 'Advanced option - requires server-side handling' },
+									{ icon: '🔒', text: 'Most secure - no data in URL at all' },
+								];
+							} else if (mode === 'pi.flow') {
+								example = 'POST /flows\n{"status": "USERNAME_PASSWORD_REQUIRED", "resumeUrl": "..."}';
+								usageInfo = [
+									{ icon: '🎨', text: 'For companies who want to control the UI themselves' },
+									{ icon: '✅', text: 'Perfect for embedded auth, mobile apps, and headless flows' },
+									{ icon: '🔒', text: 'No redirect - returns flow object via POST' },
+								];
+							}
 
 							return (
 								<div
@@ -282,7 +326,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 									style={{
 										padding: '12px',
 										background: isSelected ? '#dbeafe' : '#ffffff', // Light blue or white
-										border: `2px solid ${isSelected ? '#3b82f6' : '#e5e7eb'}`,
+										border: `1px solid ${isSelected ? '#3b82f6' : '#93c5fd'}`,
 										borderRadius: '6px',
 									}}
 								>
@@ -291,7 +335,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 											display: 'flex',
 											alignItems: 'center',
 											gap: '8px',
-											marginBottom: '6px',
+											marginBottom: '8px',
 										}}
 									>
 										<span style={{ fontSize: '16px' }}>{option.icon}</span>
@@ -299,25 +343,11 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 											style={{
 												fontSize: '13px',
 												fontWeight: '600',
-												color: '#1f2937', // Dark text
+												color: '#1e40af', // Dark blue text
 											}}
 										>
 											{option.label}
 										</span>
-										{isRecommended && (
-											<span
-												style={{
-													padding: '2px 6px',
-													background: '#10b981',
-													color: '#ffffff', // White text on green
-													borderRadius: '4px',
-													fontSize: '10px',
-													fontWeight: '600',
-												}}
-											>
-												RECOMMENDED
-											</span>
-										)}
 										{isSelected && (
 											<span
 												style={{
@@ -327,6 +357,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 													borderRadius: '4px',
 													fontSize: '10px',
 													fontWeight: '600',
+													marginLeft: 'auto',
 												}}
 											>
 												SELECTED
@@ -337,44 +368,73 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 										style={{
 											fontSize: '12px',
 											color: '#374151', // Dark text
-											marginBottom: '4px',
+											marginBottom: '8px',
 										}}
 									>
 										{option.description}
 									</div>
-									<div
-										style={{
-											fontSize: '11px',
-											color: '#6b7280', // Muted text
-										}}
-									>
-										{option.useCase}
+									{example && (
+										<div
+											style={{
+												padding: '8px',
+												background: '#f3f4f6',
+												borderRadius: '4px',
+												marginBottom: '8px',
+												fontFamily: 'monospace',
+												fontSize: '11px',
+												color: '#1f2937',
+												whiteSpace: 'pre-wrap',
+												wordBreak: 'break-all',
+											}}
+										>
+											{example}
+										</div>
+									)}
+									<div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+										{usageInfo.map((info, idx) => (
+											<div
+												key={idx}
+												style={{
+													fontSize: '11px',
+													color: '#1e40af',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '6px',
+												}}
+											>
+												<span>{info.icon}</span>
+												<span>{info.text}</span>
+											</div>
+										))}
 									</div>
 								</div>
 							);
 						})}
 					</div>
 
+					{/* Bottom Summary Bar */}
 					<div
 						style={{
 							marginTop: '12px',
-							padding: '12px',
-							background: '#fef3c7', // Light yellow background
-							border: '1px solid #fbbf24',
+							padding: '10px 12px',
+							background: '#dbeafe',
 							borderRadius: '6px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
 						}}
 					>
-						<div
+						<span style={{ fontSize: '16px' }}>💡</span>
+						<span
 							style={{
 								fontSize: '12px',
-								color: '#92400e', // Dark brown text - high contrast
-								lineHeight: '1.5',
+								color: '#1e40af',
+								fontWeight: '500',
 							}}
 						>
-							<strong>💡 Quick Tip:</strong> Use <strong>query</strong> for traditional web apps,{' '}
-							<strong>fragment</strong> for SPAs, <strong>form_post</strong> for enhanced security,
-							or <strong>pi.flow</strong> when you want full control over the authentication UI.
-						</div>
+							This flow uses: {RESPONSE_MODE_OPTIONS[value]?.label || 'query'} (default for{' '}
+							{flowType === 'oauth-authz' ? 'authorization code' : flowType === 'implicit' ? 'implicit' : 'hybrid'})
+						</span>
 					</div>
 				</div>
 			)}
