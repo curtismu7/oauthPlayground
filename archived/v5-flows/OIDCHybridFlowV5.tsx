@@ -17,28 +17,27 @@ import {
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowStepService, type StepConfig } from '../../services/flowStepService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { ResponseMode } from '../../services/responseModeService';
 import { credentialManager } from '../../utils/credentialManager';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
-import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowStepService, type StepConfig } from '../../services/flowStepService';
-import { ResponseMode } from '../../services/responseModeService';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 

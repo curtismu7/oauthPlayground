@@ -4,14 +4,14 @@
  * @description Educational flow for PingOne Resources API
  * @version 8.0.0
  * @since 2024-11-20
- * 
+ *
  * Teaches developers how to use the PingOne Resources API to manage
  * OAuth 2.0 resources, scopes, and resource attributes.
  */
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiBook, FiCode, FiExternalLink, FiInfo, FiKey, FiLayers, FiShield } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const MODULE_TAG = '[📚 RESOURCES-API-V8]';
 
@@ -75,7 +75,7 @@ const CardIcon = styled.div<{ $color: string }>`
 	width: 3rem;
 	height: 3rem;
 	border-radius: 0.75rem;
-	background: ${props => props.$color};
+	background: ${(props) => props.$color};
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -97,7 +97,7 @@ const CardDescription = styled.p`
 `;
 
 const Modal = styled.div<{ $isOpen: boolean }>`
-	display: ${props => props.$isOpen ? 'flex' : 'none'};
+	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -174,7 +174,7 @@ const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'success':
 				return `
@@ -242,8 +242,8 @@ export const ResourcesAPIFlowV8: React.FC = () => {
 						<div>
 							<strong>What are Resources?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
-								Resources in PingOne represent protected APIs or services that require OAuth 2.0 authorization.
-								They define what scopes are available and what access tokens can do.
+								Resources in PingOne represent protected APIs or services that require OAuth 2.0
+								authorization. They define what scopes are available and what access tokens can do.
 							</p>
 						</div>
 					</InfoBox>
@@ -251,10 +251,21 @@ export const ResourcesAPIFlowV8: React.FC = () => {
 					<h3>Real-World Analogy: Building Access Control</h3>
 					<p>Think of resources like buildings in a corporate campus:</p>
 					<StepList>
-						<li><strong>Resource (Building):</strong> "Engineering Building", "HR Building", "Finance Building"</li>
-						<li><strong>Scopes (Room Access):</strong> "enter:lobby", "enter:offices", "enter:server-room"</li>
-						<li><strong>Audience (Building ID):</strong> The unique identifier on your access badge</li>
-						<li><strong>Attributes (Badge Info):</strong> Your name, department, clearance level printed on badge</li>
+						<li>
+							<strong>Resource (Building):</strong> "Engineering Building", "HR Building", "Finance
+							Building"
+						</li>
+						<li>
+							<strong>Scopes (Room Access):</strong> "enter:lobby", "enter:offices",
+							"enter:server-room"
+						</li>
+						<li>
+							<strong>Audience (Building ID):</strong> The unique identifier on your access badge
+						</li>
+						<li>
+							<strong>Attributes (Badge Info):</strong> Your name, department, clearance level
+							printed on badge
+						</li>
 					</StepList>
 
 					<h3>Concrete Example: E-Commerce Platform</h3>
@@ -305,10 +316,22 @@ Requested Scopes: "read:orders cancel:orders read:all-customers"
 
 					<h3>Key Concepts</h3>
 					<StepList>
-						<li><strong>Resource:</strong> A protected API or service (e.g., "Product Catalog API", "Order Management API")</li>
-						<li><strong>Scope:</strong> A specific permission within a resource (e.g., "read:products", "create:orders")</li>
-						<li><strong>Audience:</strong> The identifier for the resource in access tokens (aud claim)</li>
-						<li><strong>Resource Attributes:</strong> Custom claims to include in access tokens (e.g., customer tier, region)</li>
+						<li>
+							<strong>Resource:</strong> A protected API or service (e.g., "Product Catalog API",
+							"Order Management API")
+						</li>
+						<li>
+							<strong>Scope:</strong> A specific permission within a resource (e.g.,
+							"read:products", "create:orders")
+						</li>
+						<li>
+							<strong>Audience:</strong> The identifier for the resource in access tokens (aud
+							claim)
+						</li>
+						<li>
+							<strong>Resource Attributes:</strong> Custom claims to include in access tokens (e.g.,
+							customer tier, region)
+						</li>
 					</StepList>
 
 					<h3>API Endpoints</h3>
@@ -318,8 +341,8 @@ GET /environments/{environmentId}/resources/{resourceId}
 PUT /environments/{environmentId}/resources/{resourceId}
 DELETE /environments/{environmentId}/resources/{resourceId}`}</CodeBlock>
 
-					<ExternalLink 
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources" 
+					<ExternalLink
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -344,7 +367,8 @@ DELETE /environments/{environmentId}/resources/{resourceId}`}</CodeBlock>
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Scenario:</strong> You're building a healthcare system with separate APIs for different functions.
+							<strong>Scenario:</strong> You're building a healthcare system with separate APIs for
+							different functions.
 						</div>
 					</InfoBox>
 
@@ -435,7 +459,9 @@ Content-Type: application/json
 
 					<h3>Step-by-Step Guide</h3>
 					<StepList>
-						<li>Get a worker token with <code>p1:create:resource</code> scope</li>
+						<li>
+							Get a worker token with <code>p1:create:resource</code> scope
+						</li>
 						<li>Make a POST request to the resources endpoint</li>
 						<li>Provide a unique name and audience identifier</li>
 						<li>Set appropriate token lifetime based on sensitivity</li>
@@ -458,9 +484,16 @@ Content-Type: application/json
 						<div>
 							<strong>Token Lifetime Guidelines:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-								<li><strong>Highly Sensitive (5-15 min):</strong> Financial transactions, medical records</li>
-								<li><strong>Moderate (30-60 min):</strong> User data updates, order processing</li>
-								<li><strong>Low Sensitivity (1-2 hours):</strong> Read-only data, public content</li>
+								<li>
+									<strong>Highly Sensitive (5-15 min):</strong> Financial transactions, medical
+									records
+								</li>
+								<li>
+									<strong>Moderate (30-60 min):</strong> User data updates, order processing
+								</li>
+								<li>
+									<strong>Low Sensitivity (1-2 hours):</strong> Read-only data, public content
+								</li>
 							</ul>
 						</div>
 					</InfoBox>
@@ -468,8 +501,8 @@ Content-Type: application/json
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Best Practice:</strong> Use descriptive names and unique audience values.
-							The audience will appear in the <code>aud</code> claim of access tokens.
+							<strong>Best Practice:</strong> Use descriptive names and unique audience values. The
+							audience will appear in the <code>aud</code> claim of access tokens.
 						</div>
 					</InfoBox>
 				</>
@@ -483,8 +516,8 @@ Content-Type: application/json
 					<InfoBox $variant="info">
 						<FiInfo size={20} />
 						<div>
-							Scopes define granular permissions within a resource. Applications request specific scopes,
-							and users consent to them during authorization.
+							Scopes define granular permissions within a resource. Applications request specific
+							scopes, and users consent to them during authorization.
 						</div>
 					</InfoBox>
 
@@ -492,7 +525,8 @@ Content-Type: application/json
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Scenario:</strong> Building a social media platform like Twitter/X with different permission levels
+							<strong>Scenario:</strong> Building a social media platform like Twitter/X with
+							different permission levels
 						</div>
 					</InfoBox>
 
@@ -600,8 +634,8 @@ Content-Type: application/json
 					<InfoBox $variant="warning">
 						<FiInfo size={20} />
 						<div>
-							<strong>Security Tip:</strong> Follow the principle of least privilege.
-							Only grant the minimum scopes needed for each application. Separate read and write operations.
+							<strong>Security Tip:</strong> Follow the principle of least privilege. Only grant the
+							minimum scopes needed for each application. Separate read and write operations.
 						</div>
 					</InfoBox>
 
@@ -639,8 +673,8 @@ Content-Type: application/json
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Scenario:</strong> You run a project management SaaS serving multiple companies.
-							Each API call needs to know which company's data to access.
+							<strong>Scenario:</strong> You run a project management SaaS serving multiple
+							companies. Each API call needs to know which company's data to access.
 						</div>
 					</InfoBox>
 
@@ -767,17 +801,25 @@ Attributes:
 
 					<h3>Performance Benefits</h3>
 					<StepList>
-						<li><strong>Reduced Latency:</strong> No extra database queries for user context</li>
-						<li><strong>Fewer API Calls:</strong> All needed data in one token</li>
-						<li><strong>Offline Validation:</strong> APIs can make decisions without calling PingOne</li>
-						<li><strong>Scalability:</strong> Less load on user database</li>
+						<li>
+							<strong>Reduced Latency:</strong> No extra database queries for user context
+						</li>
+						<li>
+							<strong>Fewer API Calls:</strong> All needed data in one token
+						</li>
+						<li>
+							<strong>Offline Validation:</strong> APIs can make decisions without calling PingOne
+						</li>
+						<li>
+							<strong>Scalability:</strong> Less load on user database
+						</li>
 					</StepList>
 
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Pro Tip:</strong> Include data that changes rarely (role, tier, region) but avoid
-							frequently changing data (balance, points) that could become stale.
+							<strong>Pro Tip:</strong> Include data that changes rarely (role, tier, region) but
+							avoid frequently changing data (balance, points) that could become stale.
 						</div>
 					</InfoBox>
 
@@ -790,7 +832,9 @@ Attributes:
 								<li>Navigate to Connections → Resources</li>
 								<li>Select your resource → "Attributes" tab</li>
 								<li>Click "Add Attribute"</li>
-								<li>Enter name and value (use <code>${'${user.fieldName}'}</code> syntax)</li>
+								<li>
+									Enter name and value (use <code>${'${user.fieldName}'}</code> syntax)
+								</li>
 								<li>Test and see the claim in your access token!</li>
 							</ol>
 						</div>
@@ -806,8 +850,8 @@ Attributes:
 					<InfoBox $variant="info">
 						<FiInfo size={20} />
 						<div>
-							Resources integrate seamlessly with OAuth 2.0 authorization flows.
-							Applications request scopes, and PingOne issues tokens with the appropriate audience.
+							Resources integrate seamlessly with OAuth 2.0 authorization flows. Applications
+							request scopes, and PingOne issues tokens with the appropriate audience.
 						</div>
 					</InfoBox>
 
@@ -869,8 +913,10 @@ Authorization: Bearer eyJhbGc...
 						<div>
 							<strong>What are PingOne Access Control Scopes?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
-								PingOne has built-in platform scopes like <code>p1:read:user</code> and <code>p1:update:user</code> 
-								that control access to user data. You can create custom variants to limit access to specific attributes.
+								PingOne has built-in platform scopes like <code>p1:read:user</code> and{' '}
+								<code>p1:update:user</code>
+								that control access to user data. You can create custom variants to limit access to
+								specific attributes.
 							</p>
 						</div>
 					</InfoBox>
@@ -884,7 +930,8 @@ p1:update:user:{suffix}`}</CodeBlock>
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Scenario:</strong> Your HR application needs different permission levels for different roles.
+							<strong>Scenario:</strong> Your HR application needs different permission levels for
+							different roles.
 						</div>
 					</InfoBox>
 
@@ -1011,7 +1058,9 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 								<li>Navigate to Connections → Resources</li>
 								<li>Find the "PingOne API" resource</li>
 								<li>Click "Scopes" tab</li>
-								<li>Create a custom scope like <code>p1:update:user:email-only</code></li>
+								<li>
+									Create a custom scope like <code>p1:update:user:email-only</code>
+								</li>
 								<li>Add only the "email" attribute</li>
 								<li>Test in your OAuth flow!</li>
 							</ol>
@@ -1020,15 +1069,25 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 
 					<h3>Key Benefits</h3>
 					<StepList>
-						<li><strong>Principle of Least Privilege:</strong> Users only see/modify what they need</li>
-						<li><strong>Data Privacy:</strong> Sensitive fields hidden from unauthorized apps</li>
-						<li><strong>Compliance:</strong> Meet regulatory requirements (HIPAA, GDPR, etc.)</li>
-						<li><strong>Security:</strong> Reduce attack surface by limiting data exposure</li>
-						<li><strong>Flexibility:</strong> Different apps get different permission levels</li>
+						<li>
+							<strong>Principle of Least Privilege:</strong> Users only see/modify what they need
+						</li>
+						<li>
+							<strong>Data Privacy:</strong> Sensitive fields hidden from unauthorized apps
+						</li>
+						<li>
+							<strong>Compliance:</strong> Meet regulatory requirements (HIPAA, GDPR, etc.)
+						</li>
+						<li>
+							<strong>Security:</strong> Reduce attack surface by limiting data exposure
+						</li>
+						<li>
+							<strong>Flexibility:</strong> Different apps get different permission levels
+						</li>
 					</StepList>
 
-					<ExternalLink 
-						href="https://docs.pingidentity.com/r/en-us/pingone/p1_c_scopes_and_roles" 
+					<ExternalLink
+						href="https://docs.pingidentity.com/r/en-us/pingone/p1_c_scopes_and_roles"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1047,8 +1106,9 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 						<div>
 							<strong>What are Custom Claims?</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
-								Custom claims are additional data fields you add to access tokens or ID tokens.
-								They provide context about the user, tenant, or authorization without requiring extra API calls.
+								Custom claims are additional data fields you add to access tokens or ID tokens. They
+								provide context about the user, tenant, or authorization without requiring extra API
+								calls.
 							</p>
 						</div>
 					</InfoBox>
@@ -1085,8 +1145,12 @@ Attributes: All academic fields including transcripts, enrollment`}</CodeBlock>
 						<div>
 							<strong>Key Difference:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-								<li><strong>ID Token:</strong> WHO the user is (identity, profile data)</li>
-								<li><strong>Access Token:</strong> WHAT the user can do (permissions, context)</li>
+								<li>
+									<strong>ID Token:</strong> WHO the user is (identity, profile data)
+								</li>
+								<li>
+									<strong>Access Token:</strong> WHAT the user can do (permissions, context)
+								</li>
 							</ul>
 						</div>
 					</InfoBox>
@@ -1266,7 +1330,9 @@ POST /resources/{resourceId}/attributes
 						<li>Navigate to Connections → Applications → [Your App]</li>
 						<li>Click "Attribute Mapping" tab</li>
 						<li>Click "Add Attribute"</li>
-						<li>Enter claim name and map to user attribute: <code>${'${user.fieldName}'}</code></li>
+						<li>
+							Enter claim name and map to user attribute: <code>${'${user.fieldName}'}</code>
+						</li>
 						<li>Save and test your OAuth flow</li>
 					</StepList>
 
@@ -1276,7 +1342,9 @@ POST /resources/{resourceId}/attributes
 						<li>Navigate to Connections → Resources → [Your API]</li>
 						<li>Click "Attributes" tab</li>
 						<li>Click "Add Attribute"</li>
-						<li>Enter attribute name and value: <code>${'${user.fieldName}'}</code></li>
+						<li>
+							Enter attribute name and value: <code>${'${user.fieldName}'}</code>
+						</li>
 						<li>Save and test your OAuth flow</li>
 					</StepList>
 
@@ -1315,8 +1383,8 @@ POST /resources/{resourceId}/attributes
   "role": "admin"              // ✅ Your custom claim
 }`}</CodeBlock>
 
-					<ExternalLink 
-						href="https://docs.pingidentity.com/r/en-us/pingone/p1_t_configure_app_attributes" 
+					<ExternalLink
+						href="https://docs.pingidentity.com/r/en-us/pingone/p1_t_configure_app_attributes"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1335,15 +1403,19 @@ POST /resources/{resourceId}/attributes
 						<div>
 							<strong>Automate Resource Management</strong>
 							<p style={{ margin: '0.5rem 0 0 0' }}>
-								Use the PingOne Management API to programmatically create resources, scopes, and attributes.
-								Perfect for CI/CD pipelines, multi-environment setups, or dynamic resource provisioning.
+								Use the PingOne Management API to programmatically create resources, scopes, and
+								attributes. Perfect for CI/CD pipelines, multi-environment setups, or dynamic
+								resource provisioning.
 							</p>
 						</div>
 					</InfoBox>
 
 					<h3>Prerequisites</h3>
 					<StepList>
-						<li>Worker app with <code>p1:create:resource</code> and <code>p1:update:resource</code> scopes</li>
+						<li>
+							Worker app with <code>p1:create:resource</code> and <code>p1:update:resource</code>{' '}
+							scopes
+						</li>
 						<li>Worker app access token</li>
 						<li>Environment ID</li>
 					</StepList>
@@ -1367,7 +1439,8 @@ grant_type=client_credentials
 					<InfoBox $variant="success">
 						<FiShield size={20} />
 						<div>
-							<strong>Scenario:</strong> Automatically provision resources for a new e-commerce tenant
+							<strong>Scenario:</strong> Automatically provision resources for a new e-commerce
+							tenant
 						</div>
 					</InfoBox>
 
@@ -1569,7 +1642,7 @@ for scope in "read:orders" "create:orders" "cancel:orders" "refund:orders"; do
     "$BASE_URL/environments/$ENV_ID/resources/$ORDERS_RESOURCE/scopes" \\
     -H "Authorization: Bearer $WORKER_TOKEN" \\
     -H "Content-Type: application/json" \\
-    -d "{\"name\": \"$scope\", \"description\": \"$scope permission\"}"
+    -d "{"name": "$scope", "description": "$scope permission"}"
 done
 
 echo "E-Commerce resources setup complete!"
@@ -1648,12 +1721,24 @@ POST /resources/{resourceId}/attributes
 
 					<h3>Benefits of API Automation</h3>
 					<StepList>
-						<li><strong>Consistency:</strong> Same setup across dev, staging, production</li>
-						<li><strong>Speed:</strong> Provision new tenants in seconds</li>
-						<li><strong>Version Control:</strong> Track resource changes in Git</li>
-						<li><strong>CI/CD Integration:</strong> Automate deployment pipelines</li>
-						<li><strong>Disaster Recovery:</strong> Quickly rebuild environments</li>
-						<li><strong>Multi-Environment:</strong> Easily replicate across regions</li>
+						<li>
+							<strong>Consistency:</strong> Same setup across dev, staging, production
+						</li>
+						<li>
+							<strong>Speed:</strong> Provision new tenants in seconds
+						</li>
+						<li>
+							<strong>Version Control:</strong> Track resource changes in Git
+						</li>
+						<li>
+							<strong>CI/CD Integration:</strong> Automate deployment pipelines
+						</li>
+						<li>
+							<strong>Disaster Recovery:</strong> Quickly rebuild environments
+						</li>
+						<li>
+							<strong>Multi-Environment:</strong> Easily replicate across regions
+						</li>
 					</StepList>
 
 					<InfoBox $variant="warning">
@@ -1661,7 +1746,9 @@ POST /resources/{resourceId}/attributes
 						<div>
 							<strong>Security Best Practices:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-								<li>Store worker credentials in secure vaults (AWS Secrets Manager, Azure Key Vault)</li>
+								<li>
+									Store worker credentials in secure vaults (AWS Secrets Manager, Azure Key Vault)
+								</li>
 								<li>Use short-lived worker tokens</li>
 								<li>Limit worker app permissions to only what's needed</li>
 								<li>Log all resource creation/modification</li>
@@ -1670,8 +1757,8 @@ POST /resources/{resourceId}/attributes
 						</div>
 					</InfoBox>
 
-					<ExternalLink 
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources" 
+					<ExternalLink
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1687,16 +1774,30 @@ POST /resources/{resourceId}/attributes
 				<>
 					<h3>Resource Design</h3>
 					<StepList>
-						<li><strong>Unique Audiences:</strong> Each resource should have a unique audience identifier</li>
-						<li><strong>Descriptive Names:</strong> Use clear, meaningful names for resources and scopes</li>
-						<li><strong>Logical Grouping:</strong> Group related permissions under the same resource</li>
+						<li>
+							<strong>Unique Audiences:</strong> Each resource should have a unique audience
+							identifier
+						</li>
+						<li>
+							<strong>Descriptive Names:</strong> Use clear, meaningful names for resources and
+							scopes
+						</li>
+						<li>
+							<strong>Logical Grouping:</strong> Group related permissions under the same resource
+						</li>
 					</StepList>
 
 					<h3>Scope Naming</h3>
 					<StepList>
-						<li><strong>Consistent Format:</strong> Use patterns like <code>action:resource</code></li>
-						<li><strong>Granular Permissions:</strong> Separate read and write operations</li>
-						<li><strong>Avoid Wildcards:</strong> Be explicit about what each scope allows</li>
+						<li>
+							<strong>Consistent Format:</strong> Use patterns like <code>action:resource</code>
+						</li>
+						<li>
+							<strong>Granular Permissions:</strong> Separate read and write operations
+						</li>
+						<li>
+							<strong>Avoid Wildcards:</strong> Be explicit about what each scope allows
+						</li>
 					</StepList>
 
 					<h3>Security</h3>
@@ -1705,7 +1806,9 @@ POST /resources/{resourceId}/attributes
 						<div>
 							<strong>Important Security Practices:</strong>
 							<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-								<li>Always validate the <code>aud</code> claim in your API</li>
+								<li>
+									Always validate the <code>aud</code> claim in your API
+								</li>
 								<li>Check that required scopes are present</li>
 								<li>Use short token lifetimes (15-60 minutes)</li>
 								<li>Implement token refresh for long-lived sessions</li>
@@ -1716,13 +1819,19 @@ POST /resources/{resourceId}/attributes
 
 					<h3>Performance</h3>
 					<StepList>
-						<li><strong>Cache Tokens:</strong> Reuse valid tokens instead of requesting new ones</li>
-						<li><strong>Limit Attributes:</strong> Only include necessary custom claims</li>
-						<li><strong>Monitor Usage:</strong> Track which scopes are actually being used</li>
+						<li>
+							<strong>Cache Tokens:</strong> Reuse valid tokens instead of requesting new ones
+						</li>
+						<li>
+							<strong>Limit Attributes:</strong> Only include necessary custom claims
+						</li>
+						<li>
+							<strong>Monitor Usage:</strong> Track which scopes are actually being used
+						</li>
 					</StepList>
 
-					<ExternalLink 
-						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources" 
+					<ExternalLink
+						href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#resources"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -1813,11 +1922,9 @@ POST /resources/{resourceId}/attributes
 				</Header>
 
 				<Grid>
-					{cards.map(card => (
+					{cards.map((card) => (
 						<Card key={card.id} onClick={() => setActiveModal(card.id)}>
-							<CardIcon $color={card.color}>
-								{card.icon}
-							</CardIcon>
+							<CardIcon $color={card.color}>{card.icon}</CardIcon>
 							<CardTitle>{card.title}</CardTitle>
 							<CardDescription>{card.description}</CardDescription>
 						</Card>
@@ -1834,9 +1941,7 @@ POST /resources/{resourceId}/attributes
 								</ModalTitle>
 								<CloseButton onClick={() => setActiveModal(null)}>×</CloseButton>
 							</ModalHeader>
-							<ModalBody>
-								{modal.content}
-							</ModalBody>
+							<ModalBody>{modal.content}</ModalBody>
 						</ModalContent>
 					</Modal>
 				))}

@@ -4,18 +4,18 @@
  * @description PingOne MFA service for device registration and OTP validation
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Implements PingOne MFA API:
  * - User lookup by username
  * - Device registration (SMS, Email, TOTP)
  * - OTP generation and sending
  * - OTP validation
  * - Device management
- * 
+ *
  * Uses WorkerTokenServiceV8 for authentication
- * 
+ *
  * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/
- * 
+ *
  * @example
  * const result = await MFAServiceV8.registerDevice({
  *   environmentId: 'xxx',
@@ -25,8 +25,8 @@
  * });
  */
 
-import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 
@@ -115,7 +115,7 @@ export interface UserLookupResult {
 
 /**
  * MFAServiceV8
- * 
+ *
  * Service for PingOne MFA operations using WorkerTokenServiceV8
  */
 export class MFAServiceV8 {
@@ -212,7 +212,7 @@ export class MFAServiceV8 {
 
 		// Cache the token with expiration
 		const tokenData = data as PingOneResponse;
-		
+
 		if (!tokenData.access_token || typeof tokenData.access_token !== 'string') {
 			throw new Error('Worker token response missing access_token or invalid format');
 		}
@@ -222,9 +222,9 @@ export class MFAServiceV8 {
 			throw new Error('Worker token is empty');
 		}
 
-		const expiresAt = tokenData.expires_in ? Date.now() + (tokenData.expires_in * 1000) : undefined;
+		const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
 		await workerTokenServiceV8.saveToken(tokenString, expiresAt);
-		
+
 		console.log(`${MODULE_TAG} Worker token obtained and cached`, {
 			tokenLength: tokenString.length,
 			tokenPrefix: tokenString.substring(0, 20),
@@ -340,10 +340,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -381,7 +378,7 @@ export class MFAServiceV8 {
 				email: devicePayload.email,
 				workerToken: accessToken.trim(),
 			};
-			
+
 			// Only include nickname if it exists and is not empty
 			if (devicePayload.nickname) {
 				requestBody.nickname = devicePayload.nickname;
@@ -492,66 +489,67 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-		// Get worker token
-		const accessToken = await MFAServiceV8.getWorkerToken();
+			// Get worker token
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
-		// Validate token before sending
-		if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-			throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
-		}
+			// Validate token before sending
+			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
+				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
+			}
 
-		// Normalize token: remove any existing Bearer prefix and whitespace
-		let cleanToken = accessToken.trim();
-		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
-		cleanToken = cleanToken.replace(/\s+/g, '');
+			// Normalize token: remove any existing Bearer prefix and whitespace
+			let cleanToken = accessToken.trim();
+			cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+			cleanToken = cleanToken.replace(/\s+/g, '');
 
-		// Validate token looks like a JWT (should have 3 parts separated by dots)
-		const tokenParts = cleanToken.split('.');
-		if (tokenParts.length !== 3) {
-			console.error(`${MODULE_TAG} Token does not appear to be a valid JWT format`, {
-				partsCount: tokenParts.length,
-				tokenLength: cleanToken.length,
-				tokenStart: cleanToken.substring(0, 30),
+			// Validate token looks like a JWT (should have 3 parts separated by dots)
+			const tokenParts = cleanToken.split('.');
+			if (tokenParts.length !== 3) {
+				console.error(`${MODULE_TAG} Token does not appear to be a valid JWT format`, {
+					partsCount: tokenParts.length,
+					tokenLength: cleanToken.length,
+					tokenStart: cleanToken.substring(0, 30),
+				});
+				throw new Error(
+					'Worker token is not a valid JWT format. Please generate a new worker token.'
+				);
+			}
+
+			// Validate token parts are not empty
+			if (tokenParts.some((part) => part.length === 0)) {
+				console.error(`${MODULE_TAG} Token has empty parts`, {
+					tokenLength: cleanToken.length,
+					partsLength: tokenParts.map((p) => p.length),
+				});
+				throw new Error('Worker token is malformed. Please generate a new worker token.');
+			}
+
+			// Validate token is long enough (JWT should be at least 100 characters)
+			if (cleanToken.length < 100) {
+				console.error(`${MODULE_TAG} Token is too short to be a valid JWT`, {
+					tokenLength: cleanToken.length,
+					tokenStart: cleanToken.substring(0, 50),
+				});
+				throw new Error(
+					'Worker token appears to be corrupted or incomplete. Please generate a new worker token.'
+				);
+			}
+
+			// Send OTP via backend proxy
+			console.log(`${MODULE_TAG} Calling OTP endpoint`, {
+				userId: user.id,
+				tokenLength: accessToken.length,
+				tokenPrefix: accessToken.substring(0, 20),
 			});
-			throw new Error('Worker token is not a valid JWT format. Please generate a new worker token.');
-		}
 
-		// Validate token parts are not empty
-		if (tokenParts.some(part => part.length === 0)) {
-			console.error(`${MODULE_TAG} Token has empty parts`, {
-				tokenLength: cleanToken.length,
-				partsLength: tokenParts.map(p => p.length),
-			});
-			throw new Error('Worker token is malformed. Please generate a new worker token.');
-		}
-
-		// Validate token is long enough (JWT should be at least 100 characters)
-		if (cleanToken.length < 100) {
-			console.error(`${MODULE_TAG} Token is too short to be a valid JWT`, {
-				tokenLength: cleanToken.length,
-				tokenStart: cleanToken.substring(0, 50),
-			});
-			throw new Error('Worker token appears to be corrupted or incomplete. Please generate a new worker token.');
-		}
-
-		// Send OTP via backend proxy
-		console.log(`${MODULE_TAG} Calling OTP endpoint`, {
-			userId: user.id,
-			tokenLength: accessToken.length,
-			tokenPrefix: accessToken.substring(0, 20),
-		});
-
-		const requestBody = {
-			environmentId: params.environmentId,
-			userId: user.id,
-			deviceId: params.deviceId,
-			workerToken: cleanToken, // Use the normalized token
-		};
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				deviceId: params.deviceId,
+				workerToken: cleanToken, // Use the normalized token
+			};
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -588,7 +586,7 @@ export class MFAServiceV8 {
 
 			const responseClone = response.clone();
 			let responseData: unknown;
-			
+
 			// PingOne returns 204 No Content or empty body for successful OTP sends
 			if (response.status === 204) {
 				responseData = { success: true, message: 'OTP sent successfully' };
@@ -603,7 +601,9 @@ export class MFAServiceV8 {
 					}
 				} catch {
 					// If parsing fails, that's okay for empty responses
-					responseData = response.ok ? { success: true, message: 'OTP sent successfully' } : { error: 'Unknown error' };
+					responseData = response.ok
+						? { success: true, message: 'OTP sent successfully' }
+						: { error: 'Unknown error' };
 				}
 			}
 
@@ -646,10 +646,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -761,10 +758,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1021,10 +1015,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1106,10 +1097,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -1174,7 +1162,9 @@ export class MFAServiceV8 {
 				);
 			}
 
-			const devices = (devicesData as { _embedded?: { devices?: Array<Record<string, unknown>> } })._embedded?.devices || [];
+			const devices =
+				(devicesData as { _embedded?: { devices?: Array<Record<string, unknown>> } })._embedded
+					?.devices || [];
 
 			console.log(`${MODULE_TAG} Devices retrieved`, {
 				count: devices.length,
@@ -1204,10 +1194,7 @@ export class MFAServiceV8 {
 
 		try {
 			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(
-				params.environmentId,
-				params.username
-			);
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();

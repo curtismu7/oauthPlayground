@@ -305,11 +305,11 @@ const SidebarHeader = styled.div`
 // 	cursor: grab;
 // 	color: #9ca3af;
 // 	transition: color 0.2s;
-// 	
+//
 // 	&:hover {
 // 		color: #4b5563;
 // 	}
-// 	
+//
 // 	&:active {
 // 		cursor: grabbing;
 // 	}
@@ -579,9 +579,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	// Initialize menu structure with drag and drop support
 	const [_menuGroups, _setMenuGroups] = useState<MenuGroup[]>(() => {
 		const savedOrder = localStorage.getItem('sidebar.menuOrder');
-    //     // ... (commented out large block) ...
-    //     return [];
-    // });
+		//     // ... (commented out large block) ...
+		//     return [];
+		// });
 		if (savedOrder) {
 			try {
 				return JSON.parse(savedOrder);
@@ -641,11 +641,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: (
-							<MigrationBadge title="V8: OTP MFA Playground">
-								NEW
-							</MigrationBadge>
-						),
+						badge: <MigrationBadge title="V8: OTP MFA Playground">NEW</MigrationBadge>,
 					},
 					{
 						id: 'resources-api-v8',

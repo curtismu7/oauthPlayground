@@ -14,8 +14,8 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
-import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
@@ -213,7 +213,9 @@ export const ImplicitFlowV8: React.FC = () => {
 				type="button"
 				className="btn btn-next"
 				onClick={async () => {
-					console.log(`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`);
+					console.log(
+						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
+					);
 					try {
 						if (!credentials.redirectUri) {
 							nav.setValidationErrors(['Redirect URI is required']);
@@ -223,7 +225,9 @@ export const ImplicitFlowV8: React.FC = () => {
 						if (useRedirectless) {
 							// Validate redirectless credentials
 							if (!redirectlessCredentials.username || !redirectlessCredentials.password) {
-								nav.setValidationErrors(['Username and password are required for redirectless authentication']);
+								nav.setValidationErrors([
+									'Username and password are required for redirectless authentication',
+								]);
 								return;
 							}
 
