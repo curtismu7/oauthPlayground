@@ -412,7 +412,8 @@ const ClientGenerator: React.FC = () => {
 						clientId: saved.clientId,
 						clientSecret: saved.clientSecret,
 						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
-						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post'
+						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' ||
+						authMethod === 'client_secret_post'
 							? authMethod
 							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
 					};
@@ -423,7 +424,11 @@ const ClientGenerator: React.FC = () => {
 					if (existingToken) {
 						console.log('[App Generator] Using existing worker token from service');
 						setWorkerToken(existingToken);
-					} else if (credentials.clientId && credentials.clientSecret && credentials.environmentId) {
+					} else if (
+						credentials.clientId &&
+						credentials.clientSecret &&
+						credentials.environmentId
+					) {
 						// Silently get token if we have credentials but no token
 						console.log('[App Generator] Silently requesting worker token...');
 						await getWorkerTokenSilently(credentials);

@@ -322,16 +322,17 @@ const DeviceFlowDisplay: React.FC<DeviceFlowDisplayProps> = ({
 
 	const handleOpenVerificationUri = () => {
 		// Use verificationUriComplete if available, otherwise construct it from verificationUri + userCode
-		const uriToOpen = state.verificationUriComplete || 
-			(state.verificationUri && state.userCode 
+		const uriToOpen =
+			state.verificationUriComplete ||
+			(state.verificationUri && state.userCode
 				? `${state.verificationUri}?user_code=${state.userCode}`
 				: state.verificationUri);
-		
+
 		if (!uriToOpen) {
 			logger.error('DeviceFlowDisplay', 'No verification URI available to open');
 			return;
 		}
-		
+
 		window.open(uriToOpen, '_blank');
 		logger.info('DeviceFlowDisplay', 'Verification URI opened in new tab', { uri: uriToOpen });
 	};

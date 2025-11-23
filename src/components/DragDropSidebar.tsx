@@ -450,11 +450,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: (
-							<MigrationBadge title="V8: OTP MFA Playground">
-								NEW
-							</MigrationBadge>
-						),
+						badge: <MigrationBadge title="V8: OTP MFA Playground">NEW</MigrationBadge>,
 					},
 				],
 			},

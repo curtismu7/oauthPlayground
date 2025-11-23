@@ -3,7 +3,7 @@
 
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
-import { FiAlertCircle, FiX, FiInfo } from '@/services/commonImportsService';
+import { FiAlertCircle, FiInfo, FiX } from '@/services/commonImportsService';
 
 interface MFADeviceLimitModalV8Props {
 	isOpen: boolean;
@@ -184,7 +184,14 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 		return null;
 	}
 
-	const deviceTypeDisplay = deviceType === 'SMS' ? 'SMS' : deviceType === 'EMAIL' ? 'Email' : deviceType === 'TOTP' ? 'TOTP' : 'MFA';
+	const deviceTypeDisplay =
+		deviceType === 'SMS'
+			? 'SMS'
+			: deviceType === 'EMAIL'
+				? 'Email'
+				: deviceType === 'TOTP'
+					? 'TOTP'
+					: 'MFA';
 
 	return (
 		<ModalOverlay role="presentation" onClick={onClose}>
@@ -201,15 +208,22 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 					<FiAlertCircle size={28} color="#dc2626" />
 					<div>
 						<ModalTitle id={modalTitleId}>Device Limit Reached</ModalTitle>
-						<p style={{ margin: '0.5rem 0 0', color: '#6b7280', fontSize: '0.9rem', fontWeight: 'normal' }}>
+						<p
+							style={{
+								margin: '0.5rem 0 0',
+								color: '#6b7280',
+								fontSize: '0.9rem',
+								fontWeight: 'normal',
+							}}
+						>
 							You've reached the maximum number of {deviceTypeDisplay} devices allowed
 						</p>
 					</div>
 				</ModalHeader>
 				<ModalBody>
 					<p style={{ marginTop: 0 }}>
-						Your account has reached the maximum number of {deviceTypeDisplay} devices that can be registered. 
-						To register a new device, you'll need to remove an existing one first.
+						Your account has reached the maximum number of {deviceTypeDisplay} devices that can be
+						registered. To register a new device, you'll need to remove an existing one first.
 					</p>
 
 					<InfoCallout>
@@ -220,16 +234,16 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 							<InfoTitle>What you can do:</InfoTitle>
 							<InfoList>
 								<InfoListItem>
-									<strong>Delete an existing device:</strong> Go to your PingOne admin console and remove 
-									an unused {deviceTypeDisplay.toLowerCase()} device from your account.
+									<strong>Delete an existing device:</strong> Go to your PingOne admin console and
+									remove an unused {deviceTypeDisplay.toLowerCase()} device from your account.
 								</InfoListItem>
 								<InfoListItem>
-									<strong>Use an existing device:</strong> If you already have a registered device, 
+									<strong>Use an existing device:</strong> If you already have a registered device,
 									you can use it to receive OTP codes without registering a new one.
 								</InfoListItem>
 								<InfoListItem>
-									<strong>Contact your administrator:</strong> If you need additional devices, 
-									they may need to increase your account's device limit.
+									<strong>Contact your administrator:</strong> If you need additional devices, they
+									may need to increase your account's device limit.
 								</InfoListItem>
 							</InfoList>
 						</InfoContent>
@@ -246,4 +260,3 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 };
 
 export default MFADeviceLimitModalV8;
-

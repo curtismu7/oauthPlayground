@@ -4,7 +4,7 @@
  * @description Response mode dropdown with education for V8 flows
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <ResponseModeDropdownV8
  *   value={responseMode}
@@ -64,8 +64,8 @@ const RESPONSE_MODE_OPTIONS: Record<ResponseMode, ResponseModeOption> = {
 		value: 'pi.flow',
 		label: 'Redirectless (PingOne)',
 		icon: '⚡',
-		description: 'No redirect - returns flow object via POST',
-		useCase: 'Embedded auth, mobile apps, headless flows',
+		description: 'PingOne pi.flow - no redirect, returns flow object via POST',
+		useCase: 'For companies who want to control the UI themselves. Perfect for embedded auth, mobile apps, and headless flows where you need full control over the authentication user experience.',
 	},
 };
 
@@ -234,9 +234,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 				<div style={{ fontWeight: '600', marginBottom: '4px' }}>
 					{selectedOption.icon} {selectedOption.description}
 				</div>
-				<div style={{ color: '#6b7280' }}>
-					Best for: {selectedOption.useCase}
-				</div>
+				<div style={{ color: '#6b7280' }}>Best for: {selectedOption.useCase}</div>
 			</div>
 
 			{/* Educational info panel */}
@@ -375,7 +373,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 						>
 							<strong>💡 Quick Tip:</strong> Use <strong>query</strong> for traditional web apps,{' '}
 							<strong>fragment</strong> for SPAs, <strong>form_post</strong> for enhanced security,
-							or <strong>pi.flow</strong> for redirectless authentication.
+							or <strong>pi.flow</strong> when you want full control over the authentication UI.
 						</div>
 					</div>
 				</div>
