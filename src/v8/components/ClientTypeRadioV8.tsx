@@ -4,7 +4,7 @@
  * @description Client Type radio buttons with comprehensive education
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <ClientTypeRadioV8
  *   value={clientType}
@@ -44,7 +44,8 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 		label: 'Public Client',
 		icon: <FiUnlock size={18} />,
 		shortDescription: 'Cannot securely store secrets',
-		fullDescription: 'Public clients run in environments where the source code or binary can be inspected (browser, mobile app, desktop app). They cannot keep secrets.',
+		fullDescription:
+			'Public clients run in environments where the source code or binary can be inspected (browser, mobile app, desktop app). They cannot keep secrets.',
 		canKeepSecrets: false,
 		requiresPKCE: true,
 		examples: [
@@ -60,7 +61,8 @@ const CLIENT_TYPE_OPTIONS: Record<ClientType, ClientTypeOption> = {
 		label: 'Confidential Client',
 		icon: <FiLock size={18} />,
 		shortDescription: 'Can securely store secrets',
-		fullDescription: 'Confidential clients run on secure servers where the source code cannot be accessed by end users. They can safely store and use client secrets.',
+		fullDescription:
+			'Confidential clients run on secure servers where the source code cannot be accessed by end users. They can safely store and use client secrets.',
 		canKeepSecrets: true,
 		requiresPKCE: false,
 		examples: [
@@ -174,9 +176,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 								disabled={disabled}
 								style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
 							/>
-							<div style={{ color: isSelected ? '#1e40af' : '#6b7280' }}>
-								{option.icon}
-							</div>
+							<div style={{ color: isSelected ? '#1e40af' : '#6b7280' }}>{option.icon}</div>
 							<div style={{ flex: 1 }}>
 								<div
 									style={{
@@ -244,7 +244,8 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 						<strong>Can keep secrets:</strong> {selectedOption.canKeepSecrets ? 'Yes ✅' : 'No ❌'}
 					</div>
 					<div>
-						<strong>PKCE required:</strong> {selectedOption.requiresPKCE ? 'Yes (OAuth 2.1)' : 'Recommended'}
+						<strong>PKCE required:</strong>{' '}
+						{selectedOption.requiresPKCE ? 'Yes (OAuth 2.1)' : 'Recommended'}
 					</div>
 					<div>
 						<strong>Security:</strong> {selectedOption.security}
@@ -281,7 +282,8 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						Client type determines whether your application can securely store secrets. This is one of the most fundamental decisions in OAuth 2.0 and affects all other security choices.
+						Client type determines whether your application can securely store secrets. This is one
+						of the most fundamental decisions in OAuth 2.0 and affects all other security choices.
 					</p>
 
 					{/* Comparison */}
@@ -306,9 +308,7 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 											marginBottom: '8px',
 										}}
 									>
-										<div style={{ color: isSelected ? '#1e40af' : '#6b7280' }}>
-											{option.icon}
-										</div>
+										<div style={{ color: isSelected ? '#1e40af' : '#6b7280' }}>{option.icon}</div>
 										<span
 											style={{
 												fontSize: '13px',
@@ -389,8 +389,13 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 						>
 							<strong>🎯 How to Choose:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-								<li><strong>Public:</strong> If your code runs in a browser, mobile app, or desktop app</li>
-								<li><strong>Confidential:</strong> If your code runs on a secure server you control</li>
+								<li>
+									<strong>Public:</strong> If your code runs in a browser, mobile app, or desktop
+									app
+								</li>
+								<li>
+									<strong>Confidential:</strong> If your code runs on a secure server you control
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -414,10 +419,18 @@ export const ClientTypeRadioV8: React.FC<ClientTypeRadioV8Props> = ({
 						>
 							<strong>🔑 Key Differences:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-								<li><strong>Public clients</strong> MUST use PKCE (OAuth 2.1 requirement)</li>
-								<li><strong>Public clients</strong> cannot use client_secret (it would be exposed)</li>
-								<li><strong>Confidential clients</strong> can use client_secret for authentication</li>
-								<li><strong>Confidential clients</strong> should still use PKCE (defense in depth)</li>
+								<li>
+									<strong>Public clients</strong> MUST use PKCE (OAuth 2.1 requirement)
+								</li>
+								<li>
+									<strong>Public clients</strong> cannot use client_secret (it would be exposed)
+								</li>
+								<li>
+									<strong>Confidential clients</strong> can use client_secret for authentication
+								</li>
+								<li>
+									<strong>Confidential clients</strong> should still use PKCE (defense in depth)
+								</li>
 							</ul>
 						</div>
 					</div>

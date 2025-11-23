@@ -165,7 +165,9 @@ export async function deleteBackup(key: string): Promise<void> {
 /**
  * List all backups of a specific type
  */
-export async function listByType(type: 'pkce' | 'credentials' | 'flowState'): Promise<BackupData[]> {
+export async function listByType(
+	type: 'pkce' | 'credentials' | 'flowState'
+): Promise<BackupData[]> {
 	try {
 		const db = await initDB();
 		const transaction = db.transaction([STORE_NAME], 'readonly');
@@ -249,7 +251,9 @@ export const IndexedDBBackupServiceV8U = {
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as { IndexedDBBackupServiceV8U?: typeof IndexedDBBackupServiceV8U }).IndexedDBBackupServiceV8U = IndexedDBBackupServiceV8U;
+	(
+		window as { IndexedDBBackupServiceV8U?: typeof IndexedDBBackupServiceV8U }
+	).IndexedDBBackupServiceV8U = IndexedDBBackupServiceV8U;
 	console.log(`${MODULE_TAG} 🔧 Service available globally as window.IndexedDBBackupServiceV8U`);
 	console.log(`${MODULE_TAG} 🔧 Available commands:`);
 	console.log(`${MODULE_TAG}   - IndexedDBBackupServiceV8U.getStats()`);

@@ -1,6 +1,16 @@
 // src/v7m/pages/V7MROPC.tsx
 import React, { useMemo, useState } from 'react';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiKey, FiLock, FiUser, FiCopy, FiCheck } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiCheck,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiKey,
+	FiLock,
+	FiUser,
+} from 'react-icons/fi';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -13,7 +23,6 @@ import {
 import { V7MHelpModal } from '../ui/V7MHelpModal';
 import { V7MInfoIcon } from '../ui/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../ui/V7MJwtInspectorModal';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 type Props = {
 	oidc?: boolean;
@@ -127,12 +136,12 @@ export const V7MROPC: React.FC<Props> = ({
 			environmentId: 'mock-env',
 			ttls: { accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 },
 		};
-		
+
 		// Conditionally include userEmail only if defined
 		if (username.includes('@')) {
 			request.userEmail = username;
 		}
-		
+
 		const res = tokenExchangePassword(request);
 		if ('error' in res) {
 			alert(`${res.error}: ${res.error_description ?? ''}`);
@@ -548,30 +557,30 @@ export const V7MROPC: React.FC<Props> = ({
 				title="Resource Owner Password Credentials Flow"
 			>
 				<div>
-						<p>
-							The Resource Owner Password Credentials (ROPC) flow allows the client to exchange user
-							credentials directly for tokens.
-						</p>
-						<p>
-							<strong>How it works:</strong>
-						</p>
-						<ul>
-							<li>User provides username and password to the client application</li>
-							<li>Client sends credentials directly to the token endpoint</li>
-							<li>Authorization server validates credentials</li>
-							<li>Server returns access token (and optionally refresh token and ID token)</li>
-						</ul>
-						<p>
-							<strong>Key characteristics:</strong>
-						</p>
-						<ul>
-							<li>No authorization step - credentials exchanged directly</li>
-							<li>Single request to token endpoint</li>
-							<li>Requires client authentication</li>
-							<li>Supports refresh tokens</li>
-							<li>Can include ID token for OIDC variant</li>
-						</ul>
-					</div>
+					<p>
+						The Resource Owner Password Credentials (ROPC) flow allows the client to exchange user
+						credentials directly for tokens.
+					</p>
+					<p>
+						<strong>How it works:</strong>
+					</p>
+					<ul>
+						<li>User provides username and password to the client application</li>
+						<li>Client sends credentials directly to the token endpoint</li>
+						<li>Authorization server validates credentials</li>
+						<li>Server returns access token (and optionally refresh token and ID token)</li>
+					</ul>
+					<p>
+						<strong>Key characteristics:</strong>
+					</p>
+					<ul>
+						<li>No authorization step - credentials exchanged directly</li>
+						<li>Single request to token endpoint</li>
+						<li>Requires client authentication</li>
+						<li>Supports refresh tokens</li>
+						<li>Can include ID token for OIDC variant</li>
+					</ul>
+				</div>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -580,44 +589,44 @@ export const V7MROPC: React.FC<Props> = ({
 				title="Why ROPC Flow is Deprecated"
 			>
 				<div>
-						<p>
-							<strong>OAuth 2.1 removes the Resource Owner Password Credentials flow</strong>{' '}
-							because it has significant security issues:
-						</p>
-						<ul>
-							<li>
-								<strong>Credential Exposure:</strong> Client applications handle user passwords,
-								increasing attack surface
-							</li>
-							<li>
-								<strong>Phishing Risk:</strong> Users must trust the client application with their
-								credentials
-							</li>
-							<li>
-								<strong>No Delegation:</strong> Users cannot see or control what permissions are
-								being granted
-							</li>
-							<li>
-								<strong>Password Storage:</strong> Clients may be tempted to store passwords
-							</li>
-							<li>
-								<strong>MFA Bypass:</strong> Difficult to integrate multi-factor authentication
-							</li>
-						</ul>
-						<p>
-							<strong>Modern Alternative:</strong>
-						</p>
-						<p>
-							Use <strong>Authorization Code Flow with PKCE</strong> instead:
-						</p>
-						<ul>
-							<li>Users authenticate directly with the authorization server</li>
-							<li>Clients never see user passwords</li>
-							<li>Better security through delegated authentication</li>
-							<li>Supports modern authentication methods (MFA, biometrics, etc.)</li>
-							<li>Users can see and approve requested permissions</li>
-						</ul>
-					</div>
+					<p>
+						<strong>OAuth 2.1 removes the Resource Owner Password Credentials flow</strong> because
+						it has significant security issues:
+					</p>
+					<ul>
+						<li>
+							<strong>Credential Exposure:</strong> Client applications handle user passwords,
+							increasing attack surface
+						</li>
+						<li>
+							<strong>Phishing Risk:</strong> Users must trust the client application with their
+							credentials
+						</li>
+						<li>
+							<strong>No Delegation:</strong> Users cannot see or control what permissions are being
+							granted
+						</li>
+						<li>
+							<strong>Password Storage:</strong> Clients may be tempted to store passwords
+						</li>
+						<li>
+							<strong>MFA Bypass:</strong> Difficult to integrate multi-factor authentication
+						</li>
+					</ul>
+					<p>
+						<strong>Modern Alternative:</strong>
+					</p>
+					<p>
+						Use <strong>Authorization Code Flow with PKCE</strong> instead:
+					</p>
+					<ul>
+						<li>Users authenticate directly with the authorization server</li>
+						<li>Clients never see user passwords</li>
+						<li>Better security through delegated authentication</li>
+						<li>Supports modern authentication methods (MFA, biometrics, etc.)</li>
+						<li>Users can see and approve requested permissions</li>
+					</ul>
+				</div>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -626,17 +635,16 @@ export const V7MROPC: React.FC<Props> = ({
 				title="OAuth Scopes"
 			>
 				<div>
-						<p>Scopes define what permissions the client is requesting.</p>
-						<p>
-							<strong>OAuth Scopes:</strong> <code>read</code>, <code>write</code>,{' '}
-							<code>admin</code>
-						</p>
-						<p>
-							<strong>OIDC Scopes:</strong> <code>openid</code> (required), <code>profile</code>,{' '}
-							<code>email</code>, <code>address</code>, <code>phone</code>,{' '}
-							<code>offline_access</code> (for refresh token)
-						</p>
-					</div>
+					<p>Scopes define what permissions the client is requesting.</p>
+					<p>
+						<strong>OAuth Scopes:</strong> <code>read</code>, <code>write</code>, <code>admin</code>
+					</p>
+					<p>
+						<strong>OIDC Scopes:</strong> <code>openid</code> (required), <code>profile</code>,{' '}
+						<code>email</code>, <code>address</code>, <code>phone</code>,{' '}
+						<code>offline_access</code> (for refresh token)
+					</p>
+				</div>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -645,20 +653,18 @@ export const V7MROPC: React.FC<Props> = ({
 				title="Client Authentication"
 			>
 				<div>
-						<p>
-							Clients authenticate at the token endpoint using Basic auth or client_secret_post.
-						</p>
-						<ul>
-							<li>
-								<strong>Basic</strong>: Authorization: Basic base64(client_id:client_secret)
-							</li>
-							<li>
-								<strong>Post</strong>: send <code>client_id</code> and <code>client_secret</code> in
-								body
-							</li>
-							<li>ROPC flow requires client authentication</li>
-						</ul>
-					</div>
+					<p>Clients authenticate at the token endpoint using Basic auth or client_secret_post.</p>
+					<ul>
+						<li>
+							<strong>Basic</strong>: Authorization: Basic base64(client_id:client_secret)
+						</li>
+						<li>
+							<strong>Post</strong>: send <code>client_id</code> and <code>client_secret</code> in
+							body
+						</li>
+						<li>ROPC flow requires client authentication</li>
+					</ul>
+				</div>
 			</V7MHelpModal>
 
 			<V7MHelpModal
@@ -667,13 +673,13 @@ export const V7MROPC: React.FC<Props> = ({
 				title="UserInfo Endpoint"
 			>
 				<div>
-						<p>The UserInfo endpoint returns user profile information.</p>
-						<p>Send a GET request with the access token in the Authorization header:</p>
-						<pre style={{ background: '#f3f4f6', padding: 12, borderRadius: 4, overflow: 'auto' }}>
-							{`GET /userinfo
+					<p>The UserInfo endpoint returns user profile information.</p>
+					<p>Send a GET request with the access token in the Authorization header:</p>
+					<pre style={{ background: '#f3f4f6', padding: 12, borderRadius: 4, overflow: 'auto' }}>
+						{`GET /userinfo
 Authorization: Bearer <access_token>`}
-						</pre>
-					</div>
+					</pre>
+				</div>
 			</V7MHelpModal>
 
 			<V7MHelpModal

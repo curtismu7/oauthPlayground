@@ -51,4 +51,3 @@ export const ApiCallDisplayV8: React.FC = () => {
 		</div>
 	);
 };
-

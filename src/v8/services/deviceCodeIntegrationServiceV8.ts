@@ -67,58 +67,61 @@ export class DeviceCodeIntegrationServiceV8 {
 		console.log(`${MODULE_TAG} Requesting device authorization`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
-			authMethod: credentials.clientAuthMethod || (credentials.clientSecret ? 'client_secret_basic' : 'none'),
+			authMethod:
+				credentials.clientAuthMethod || (credentials.clientSecret ? 'client_secret_basic' : 'none'),
 		});
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 			const deviceAuthEndpoint = `${backendUrl}/api/device-authorization`;
 
 			// Validate and handle scopes for Device Authorization Flow
-			let finalScopes = credentials.scopes?.trim() || '';
-			
+			const finalScopes = credentials.scopes?.trim() || '';
+
 			if (finalScopes) {
-				const scopeList = finalScopes.split(/\s+/).filter(s => s.trim());
-				
+				const scopeList = finalScopes.split(/\s+/).filter((s) => s.trim());
+
 				// Warn if Management API scopes are detected (these are for machine-to-machine, not user auth)
-				const managementApiScopes = scopeList.filter(scope => 
-					scope.toLowerCase().startsWith('p1:read:') || 
-					scope.toLowerCase().startsWith('p1:update:') ||
-					scope.toLowerCase().startsWith('p1:create:') ||
-					scope.toLowerCase().startsWith('p1:delete:')
+				const managementApiScopes = scopeList.filter(
+					(scope) =>
+						scope.toLowerCase().startsWith('p1:read:') ||
+						scope.toLowerCase().startsWith('p1:update:') ||
+						scope.toLowerCase().startsWith('p1:create:') ||
+						scope.toLowerCase().startsWith('p1:delete:')
 				);
-				
+
 				if (managementApiScopes.length > 0) {
 					console.warn(
 						`${MODULE_TAG} WARNING: Management API scopes detected: ${managementApiScopes.join(', ')}. ` +
-						`Device Authorization Flow is for user authentication, not machine-to-machine. ` +
-						`Management API scopes (p1:read:*, p1:update:*, etc.) are intended for Client Credentials flow. ` +
-						`For Device Flow, use OIDC scopes like 'openid', 'profile', 'email', 'offline_access'. ` +
-						`See https://apidocs.pingidentity.com/pingone/main/v1/api/`
+							`Device Authorization Flow is for user authentication, not machine-to-machine. ` +
+							`Management API scopes (p1:read:*, p1:update:*, etc.) are intended for Client Credentials flow. ` +
+							`For Device Flow, use OIDC scopes like 'openid', 'profile', 'email', 'offline_access'. ` +
+							`See https://apidocs.pingidentity.com/pingone/main/v1/api/`
 					);
 				}
-				
+
 				// Warn if 'openid' is missing (Device Flow is typically used for user authentication with OIDC)
-				if (!scopeList.some(scope => scope.toLowerCase() === 'openid')) {
+				if (!scopeList.some((scope) => scope.toLowerCase() === 'openid')) {
 					console.warn(
 						`${MODULE_TAG} WARNING: 'openid' scope is missing. ` +
-						`Device Authorization Flow is typically used for user authentication with OIDC. ` +
-						`Without 'openid', you won't receive an ID token. ` +
-						`Consider adding 'openid' to your scopes (e.g., 'openid profile email').`
+							`Device Authorization Flow is typically used for user authentication with OIDC. ` +
+							`Without 'openid', you won't receive an ID token. ` +
+							`Consider adding 'openid' to your scopes (e.g., 'openid profile email').`
 					);
 				}
-				
+
 				// Log scopes being requested
 				console.log(`${MODULE_TAG} Requesting device authorization with scopes: ${finalScopes}`);
 			} else {
 				// Suggest default scopes if none provided
 				console.warn(
 					`${MODULE_TAG} No scopes provided. ` +
-					`For Device Authorization Flow with user authentication, consider using: 'openid profile email offline_access'. ` +
-					`These scopes allow the device to authenticate users and access their profile information.`
+						`For Device Authorization Flow with user authentication, consider using: 'openid profile email offline_access'. ` +
+						`These scopes allow the device to authenticate users and access their profile information.`
 				);
 			}
 
@@ -151,7 +154,7 @@ export class DeviceCodeIntegrationServiceV8 {
 				const errorData = await response.json();
 				const errorMessage = errorData.error_description || errorData.error || 'Unknown error';
 				const errorCode = errorData.error || 'unknown_error';
-				
+
 				// Extract correlation ID from error data or error message
 				let correlationId = errorData.correlation_id || errorData.correlationId;
 				if (!correlationId && typeof errorMessage === 'string') {
@@ -160,11 +163,13 @@ export class DeviceCodeIntegrationServiceV8 {
 						correlationId = correlationMatch[1].trim();
 					}
 				}
-				
+
 				// Check if error indicates missing grant type
-				const isMissingGrantType = errorMessage.toLowerCase().includes('missing required grant type') ||
-					errorMessage.toLowerCase().includes('grant type') && errorMessage.toLowerCase().includes('device_code');
-				
+				const isMissingGrantType =
+					errorMessage.toLowerCase().includes('missing required grant type') ||
+					(errorMessage.toLowerCase().includes('grant type') &&
+						errorMessage.toLowerCase().includes('device_code'));
+
 				if (errorCode === 'unauthorized_client' && isMissingGrantType) {
 					console.error(`${MODULE_TAG} Missing grant type error`, {
 						errorCode,
@@ -174,18 +179,18 @@ export class DeviceCodeIntegrationServiceV8 {
 					});
 					throw new Error(
 						`Grant Type Configuration Error: Your PingOne application is missing the DEVICE_CODE grant type.\n\n` +
-						`🔧 How to Fix:\n` +
-						`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
-						`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
-						`3. Click the "Configuration" tab\n` +
-						`4. Under "Grant Types", check the box for "Device Code" (or "DEVICE_CODE")\n` +
-						`5. Click "Save"\n` +
-						`6. Try the request again\n\n` +
-						`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
-						`🔍 Correlation ID: ${correlationId || 'N/A'}`
+							`🔧 How to Fix:\n` +
+							`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
+							`2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n` +
+							`3. Click the "Configuration" tab\n` +
+							`4. Under "Grant Types", check the box for "Device Code" (or "DEVICE_CODE")\n` +
+							`5. Click "Save"\n` +
+							`6. Try the request again\n\n` +
+							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
+							`🔍 Correlation ID: ${correlationId || 'N/A'}`
 					);
 				}
-				
+
 				console.error(`${MODULE_TAG} Device authorization failed`, {
 					status: response.status,
 					statusText: response.statusText,
@@ -193,7 +198,7 @@ export class DeviceCodeIntegrationServiceV8 {
 					errorMessage,
 					correlationId,
 				});
-				
+
 				throw new Error(
 					`Device authorization failed: ${errorCode} - ${errorMessage}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`
 				);
@@ -238,9 +243,10 @@ export class DeviceCodeIntegrationServiceV8 {
 		});
 
 		// Use backend proxy to avoid CORS issues
-		const backendUrl = process.env.NODE_ENV === 'production'
-			? 'https://oauth-playground.vercel.app'
-			: 'https://localhost:3001';
+		const backendUrl =
+			process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
 		const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
