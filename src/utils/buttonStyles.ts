@@ -1,6 +1,6 @@
 /**
  * Centralized Button Styling Utility
- * 
+ *
  * Consistent button styling pattern across the application:
  * - Default: Blue background (#3b82f6) with white text
  * - Next Action: Green background (#10b981) with white text
@@ -103,7 +103,7 @@ export function getButtonInlineStyles(
 	hasToken?: boolean
 ): React.CSSProperties {
 	let style: ButtonStyle;
-	
+
 	if (variant === 'token') {
 		style = hasToken ? BUTTON_STYLES.tokenHas : BUTTON_STYLES.tokenNone;
 	} else {
@@ -132,10 +132,10 @@ export function isDarkBackground(background: string): boolean {
 	const r = parseInt(hex.substr(0, 2), 16);
 	const g = parseInt(hex.substr(2, 2), 16);
 	const b = parseInt(hex.substr(4, 2), 16);
-	
+
 	// Calculate luminance
 	const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-	
+
 	// Dark if luminance < 0.5
 	return luminance < 0.5;
 }
@@ -146,4 +146,3 @@ export function isDarkBackground(background: string): boolean {
 export function getTextColorForBackground(background: string): string {
 	return isDarkBackground(background) ? '#ffffff' : '#000000';
 }
-

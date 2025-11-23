@@ -4,7 +4,7 @@
  * @description Max age input with education for V8 flows
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <MaxAgeInputV8
  *   value={maxAge}
@@ -125,7 +125,9 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 			{/* Preset dropdown */}
 			<div style={{ marginBottom: '8px' }}>
 				<select
-					value={value !== undefined && PRESET_VALUES.some(p => p.seconds === value) ? value : 'custom'}
+					value={
+						value !== undefined && PRESET_VALUES.some((p) => p.seconds === value) ? value : 'custom'
+					}
 					onChange={(e) => {
 						const val = e.target.value;
 						if (val === 'custom' || val === '') {
@@ -169,7 +171,7 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 			</div>
 
 			{/* Custom input (shown when custom is selected or value doesn't match presets) */}
-			{(value === undefined || !PRESET_VALUES.some(p => p.seconds === value)) && (
+			{(value === undefined || !PRESET_VALUES.some((p) => p.seconds === value)) && (
 				<div style={{ position: 'relative', marginBottom: '8px' }}>
 					<FiClock
 						size={16}
@@ -227,9 +229,14 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 					}}
 				>
 					{value === 0 ? (
-						<>🔒 <strong>Force fresh login:</strong> User must authenticate every time</>
+						<>
+							🔒 <strong>Force fresh login:</strong> User must authenticate every time
+						</>
 					) : (
-						<>⏱️ <strong>Max session age:</strong> {formatDuration(value)} - forces re-auth if session is older</>
+						<>
+							⏱️ <strong>Max session age:</strong> {formatDuration(value)} - forces re-auth if
+							session is older
+						</>
 					)}
 				</div>
 			)}
@@ -263,7 +270,12 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						The <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>max_age</code> parameter specifies the maximum time (in seconds) since the user last authenticated. If the user's session is older than this, they must re-authenticate.
+						The{' '}
+						<code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>
+							max_age
+						</code>{' '}
+						parameter specifies the maximum time (in seconds) since the user last authenticated. If
+						the user's session is older than this, they must re-authenticate.
 					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -295,10 +307,18 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 									lineHeight: '1.6',
 								}}
 							>
-								<li><strong>Banking/Finance:</strong> Require fresh auth for transactions</li>
-								<li><strong>Sensitive Operations:</strong> Password changes, account deletion</li>
-								<li><strong>Compliance:</strong> PSD2, HIPAA, SOC2 requirements</li>
-								<li><strong>Step-up Auth:</strong> Elevate security for specific actions</li>
+								<li>
+									<strong>Banking/Finance:</strong> Require fresh auth for transactions
+								</li>
+								<li>
+									<strong>Sensitive Operations:</strong> Password changes, account deletion
+								</li>
+								<li>
+									<strong>Compliance:</strong> PSD2, HIPAA, SOC2 requirements
+								</li>
+								<li>
+									<strong>Step-up Auth:</strong> Elevate security for specific actions
+								</li>
 							</ul>
 						</div>
 
@@ -329,10 +349,26 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 								}}
 							>
 								<ol style={{ margin: 0, paddingLeft: '20px' }}>
-									<li>You set <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>max_age=300</code> (5 minutes)</li>
+									<li>
+										You set{' '}
+										<code
+											style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}
+										>
+											max_age=300
+										</code>{' '}
+										(5 minutes)
+									</li>
 									<li>Server checks when user last authenticated</li>
 									<li>If &gt; 5 minutes ago, forces fresh login</li>
-									<li>Server returns <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>auth_time</code> claim in ID token</li>
+									<li>
+										Server returns{' '}
+										<code
+											style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}
+										>
+											auth_time
+										</code>{' '}
+										claim in ID token
+									</li>
 									<li>Your app can verify the timestamp</li>
 								</ol>
 							</div>
@@ -366,7 +402,9 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 							>
 								{PRESET_VALUES.map((preset) => (
 									<div key={preset.seconds} style={{ marginBottom: '6px' }}>
-										<code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px' }}>
+										<code
+											style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '3px' }}
+										>
 											max_age={preset.seconds}
 										</code>
 										<span style={{ color: '#6b7280', marginLeft: '8px' }}>
@@ -393,7 +431,12 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 									lineHeight: '1.5',
 								}}
 							>
-								<strong>🔐 Security:</strong> Setting <code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>max_age=0</code> forces immediate re-authentication, even if the user has an active session. Use this for highly sensitive operations.
+								<strong>🔐 Security:</strong> Setting{' '}
+								<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
+									max_age=0
+								</code>{' '}
+								forces immediate re-authentication, even if the user has an active session. Use this
+								for highly sensitive operations.
 							</div>
 						</div>
 					</div>
@@ -414,7 +457,12 @@ export const MaxAgeInputV8: React.FC<MaxAgeInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>✅ Best Practice:</strong> Use <code style={{ background: '#d1fae5', padding: '2px 4px', borderRadius: '3px' }}>max_age</code> for sensitive operations like money transfers, password changes, or account deletion. Leave empty for normal login flows.
+							<strong>✅ Best Practice:</strong> Use{' '}
+							<code style={{ background: '#d1fae5', padding: '2px 4px', borderRadius: '3px' }}>
+								max_age
+							</code>{' '}
+							for sensitive operations like money transfers, password changes, or account deletion.
+							Leave empty for normal login flows.
 						</div>
 					</div>
 				</div>

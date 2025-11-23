@@ -66,9 +66,10 @@ export class ROPCIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
 			const bodyParams: Record<string, string> = {

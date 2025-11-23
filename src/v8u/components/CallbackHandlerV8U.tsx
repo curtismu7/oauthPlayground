@@ -22,18 +22,20 @@ export const CallbackHandlerV8U: React.FC = () => {
 	useEffect(() => {
 		// Check for both query parameters (authorization code flow) and fragment (implicit/hybrid flow)
 		const fragment = window.location.hash.substring(1);
-		const hasFragment = fragment && (fragment.includes('access_token') || fragment.includes('id_token'));
-		
+		const hasFragment =
+			fragment && (fragment.includes('access_token') || fragment.includes('id_token'));
+
 		// Parse fragment parameters if present (for implicit/hybrid flows)
 		const fragmentParams = hasFragment ? new URLSearchParams(fragment) : null;
-		
+
 		// Get the authorization code and state from URL parameters
 		// For implicit/hybrid flows, state is in the fragment, not query params
 		const code = searchParams.get('code');
 		const state = fragmentParams?.get('state') || searchParams.get('state'); // Fragment first, then query params
 		const error = fragmentParams?.get('error') || searchParams.get('error');
-		const errorDescription = fragmentParams?.get('error_description') || searchParams.get('error_description');
-		
+		const errorDescription =
+			fragmentParams?.get('error_description') || searchParams.get('error_description');
+
 		console.log(`${MODULE_TAG} Callback received`, {
 			url: window.location.href,
 			hasCode: searchParams.has('code'),
@@ -43,14 +45,24 @@ export const CallbackHandlerV8U: React.FC = () => {
 			fragmentLength: fragment?.length,
 			hasFragmentState: fragmentParams?.has('state'),
 			extractedState: state,
-			stateSource: fragmentParams?.has('state') ? 'fragment' : (searchParams.has('state') ? 'query' : 'none'),
+			stateSource: fragmentParams?.has('state')
+				? 'fragment'
+				: searchParams.has('state')
+					? 'query'
+					: 'none',
 		});
 
 		// CRITICAL: Check if we got a code when we expected tokens in fragment (implicit flow)
 		if (code && state && state.includes('v8u-implicit')) {
-			console.error(`${MODULE_TAG} ❌ CONFIGURATION ERROR: Received authorization code for Implicit flow!`);
-			console.error(`${MODULE_TAG} This means your PingOne application is not configured for Implicit flow.`);
-			console.error(`${MODULE_TAG} Please enable Implicit grant type in your PingOne application settings.`);
+			console.error(
+				`${MODULE_TAG} ❌ CONFIGURATION ERROR: Received authorization code for Implicit flow!`
+			);
+			console.error(
+				`${MODULE_TAG} This means your PingOne application is not configured for Implicit flow.`
+			);
+			console.error(
+				`${MODULE_TAG} Please enable Implicit grant type in your PingOne application settings.`
+			);
 		}
 
 		// Detect flow type from state parameter or callback data
@@ -69,15 +81,30 @@ export const CallbackHandlerV8U: React.FC = () => {
 			const parts = state.split('-');
 			console.log(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
 			console.log(`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}"`);
-			
+
 			if (parts.length >= 2) {
 				const detectedFlowType = parts[1];
 				console.log(`${MODULE_TAG} 🔍 Detected flow type from state: "${detectedFlowType}"`);
-				console.log(`${MODULE_TAG} 🔍 Checking if "${detectedFlowType}" is in known flow types:`, 
-					['oauth-authz', 'implicit', 'hybrid', 'client-credentials', 'device-code', 'ropc']);
-				
+				console.log(`${MODULE_TAG} 🔍 Checking if "${detectedFlowType}" is in known flow types:`, [
+					'oauth-authz',
+					'implicit',
+					'hybrid',
+					'client-credentials',
+					'device-code',
+					'ropc',
+				]);
+
 				// Validate it's a known flow type
-				if (['oauth-authz', 'implicit', 'hybrid', 'client-credentials', 'device-code', 'ropc'].includes(detectedFlowType)) {
+				if (
+					[
+						'oauth-authz',
+						'implicit',
+						'hybrid',
+						'client-credentials',
+						'device-code',
+						'ropc',
+					].includes(detectedFlowType)
+				) {
 					flowType = detectedFlowType;
 					console.log(`${MODULE_TAG} ✅ Using detected flow type: "${flowType}"`);
 				} else {
@@ -100,7 +127,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// For implicit flow, tokens come in fragment, so redirect to step 2 (parse fragment)
 		// For hybrid flow, both code and tokens come, so redirect to step 3 (parse callback)
 		if (hasFragment) {
-			console.log(`${MODULE_TAG} 🔍 Fragment detected, determining step based on flow type "${flowType}"`);
+			console.log(
+				`${MODULE_TAG} 🔍 Fragment detected, determining step based on flow type "${flowType}"`
+			);
 			if (flowType === 'implicit') {
 				detectedStep = 2; // Parse fragment step for implicit
 				console.log(`${MODULE_TAG} ✅ Implicit flow - will redirect to step 2 (parse fragment)`);
@@ -108,7 +137,9 @@ export const CallbackHandlerV8U: React.FC = () => {
 				detectedStep = 3; // Parse callback step for hybrid
 				console.log(`${MODULE_TAG} ✅ Hybrid flow - will redirect to step 3 (parse callback)`);
 			} else {
-				console.warn(`${MODULE_TAG} ⚠️ Has fragment but flow type is "${flowType}" (not implicit or hybrid)`);
+				console.warn(
+					`${MODULE_TAG} ⚠️ Has fragment but flow type is "${flowType}" (not implicit or hybrid)`
+				);
 			}
 		}
 
@@ -134,7 +165,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// CRITICAL: For implicit/hybrid flows, preserve the fragment (hash) in the URL
 		const redirectPath = `/v8u/unified/${flowType}/${detectedStep}`;
 		const redirectUrl = hasFragment ? `${redirectPath}${window.location.hash}` : redirectPath;
-		
+
 		console.log(`${MODULE_TAG} 🚀 ========== REDIRECTING TO FLOW ==========`);
 		console.log(`${MODULE_TAG} 🚀 Flow Type: "${flowType}"`);
 		console.log(`${MODULE_TAG} 🚀 Step: ${detectedStep}`);

@@ -570,16 +570,16 @@ const Dashboard = () => {
 			</div>
 
 			{/* System Status */}
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="System Status"
-						subtitle="Frontend and backend server health monitoring"
-						icon={<FiServer />}
-						defaultCollapsed={collapsedSections.systemStatus}
-						collapsed={collapsedSections.systemStatus}
-						onToggle={() => toggleSection('systemStatus')}
-					>
-						<ContentCard>
+			<div style={{ marginBottom: '24px' }}>
+				<CollapsibleHeader
+					title="System Status"
+					subtitle="Frontend and backend server health monitoring"
+					icon={<FiServer />}
+					defaultCollapsed={collapsedSections.systemStatus}
+					collapsed={collapsedSections.systemStatus}
+					onToggle={() => toggleSection('systemStatus')}
+				>
+					<ContentCard>
 						<div
 							style={{
 								display: 'flex',
@@ -682,19 +682,19 @@ const Dashboard = () => {
 							</ServerCard>
 						</ServerStatusGrid>
 					</ContentCard>
-					</CollapsibleHeader>
-				</div>
+				</CollapsibleHeader>
+			</div>
 
-				{/* API Endpoints */}
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="Available API Endpoints"
-						subtitle="Backend API endpoints for OAuth/OIDC operations"
-						icon={<FiLink />}
-						defaultCollapsed={collapsedSections.apiEndpoints}
-						collapsed={collapsedSections.apiEndpoints}
-						onToggle={() => toggleSection('apiEndpoints')}
-					>
+			{/* API Endpoints */}
+			<div style={{ marginBottom: '24px' }}>
+				<CollapsibleHeader
+					title="Available API Endpoints"
+					subtitle="Backend API endpoints for OAuth/OIDC operations"
+					icon={<FiLink />}
+					defaultCollapsed={collapsedSections.apiEndpoints}
+					collapsed={collapsedSections.apiEndpoints}
+					onToggle={() => toggleSection('apiEndpoints')}
+				>
 					<ContentCard>
 						<ApiGrid>
 							{apiEndpoints.map((endpoint, index) => (
@@ -717,19 +717,19 @@ const Dashboard = () => {
 							))}
 						</ApiGrid>
 					</ContentCard>
-					</CollapsibleHeader>
-				</div>
+				</CollapsibleHeader>
+			</div>
 
-				{/* Quick Access Flows */}
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="Quick Access Flows"
-						subtitle="Explore OAuth 2.0 and OpenID Connect flows"
-						icon={<FiZap />}
-						defaultCollapsed={collapsedSections.quickAccess}
-						collapsed={collapsedSections.quickAccess}
-						onToggle={() => toggleSection('quickAccess')}
-					>
+			{/* Quick Access Flows */}
+			<div style={{ marginBottom: '24px' }}>
+				<CollapsibleHeader
+					title="Quick Access Flows"
+					subtitle="Explore OAuth 2.0 and OpenID Connect flows"
+					icon={<FiZap />}
+					defaultCollapsed={collapsedSections.quickAccess}
+					collapsed={collapsedSections.quickAccess}
+					onToggle={() => toggleSection('quickAccess')}
+				>
 					<ContentCard>
 						<div style={{ marginBottom: '1rem' }}>
 							<p style={{ color: '#666', fontSize: '0.95rem' }}>
@@ -817,19 +817,19 @@ const Dashboard = () => {
 							</FlowCard>
 						</QuickAccessGrid>
 					</ContentCard>
-					</CollapsibleHeader>
-				</div>
+				</CollapsibleHeader>
+			</div>
 
-				{/* Recent Activity */}
-				<div style={{ marginBottom: '24px' }}>
-					<CollapsibleHeader
-						title="Recent Activity"
-						subtitle="Latest OAuth flow runs, credential updates, and API interactions"
-						icon={<FiActivity />}
-						defaultCollapsed={collapsedSections.recentActivity}
-						collapsed={collapsedSections.recentActivity}
-						onToggle={() => toggleSection('recentActivity')}
-					>
+			{/* Recent Activity */}
+			<div style={{ marginBottom: '24px' }}>
+				<CollapsibleHeader
+					title="Recent Activity"
+					subtitle="Latest OAuth flow runs, credential updates, and API interactions"
+					icon={<FiActivity />}
+					defaultCollapsed={collapsedSections.recentActivity}
+					collapsed={collapsedSections.recentActivity}
+					onToggle={() => toggleSection('recentActivity')}
+				>
 					<ContentCard>
 						<ActivityList>
 							<ul>
@@ -860,8 +860,8 @@ const Dashboard = () => {
 							</ul>
 						</ActivityList>
 					</ContentCard>
-					</CollapsibleHeader>
-				</div>
+				</CollapsibleHeader>
+			</div>
 		</div>
 	);
 };

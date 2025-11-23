@@ -4,36 +4,39 @@
  * @description PingOne MFA Flow - SMS Device Registration and OTP Validation
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Demonstrates PingOne MFA API:
  * - Step 0: Configure credentials (environment, client, user)
  * - Step 1: Register SMS device
  * - Step 2: Send OTP to device
  * - Step 3: Validate OTP
  * - Step 4: Success - Device verified
- * 
+ *
  * @example
  * <MFAFlowV8 />
  */
 
 import React, { useEffect, useState } from 'react';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { type FIDO2Config, FIDO2Service } from '@/services/fido2Service';
+import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
+import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
+import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { SuperSimpleApiDisplayV8, ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
-import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
-import { FIDO2Service, type FIDO2Config } from '@/services/fido2Service';
-import { usePageScroll } from '@/hooks/usePageScroll';
 
 const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -98,7 +101,7 @@ export const MFAFlowV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
-		
+
 		return {
 			environmentId: stored.environmentId || '',
 			clientId: stored.clientId || '',
@@ -168,8 +171,8 @@ export const MFAFlowV8: React.FC = () => {
 		// Remove all non-digit characters from phone number
 		const cleanedPhone = credentials.phoneNumber.replace(/[^\d]/g, '');
 		// Ensure country code starts with +
-		const countryCode = credentials.countryCode.startsWith('+') 
-			? credentials.countryCode 
+		const countryCode = credentials.countryCode.startsWith('+')
+			? credentials.countryCode
 			: `+${credentials.countryCode}`;
 		// PingOne requires format: +[country].[number] (e.g., +1.5125201234)
 		return `${countryCode}.${cleanedPhone}`;
@@ -178,18 +181,18 @@ export const MFAFlowV8: React.FC = () => {
 	// Validate only when trying to proceed to next step
 	const validateStep0 = (): boolean => {
 		console.log(`${MODULE_TAG} Validating step 0`, credentials);
-		
+
 		const errors: string[] = [];
 		const warnings: string[] = [];
-		
+
 		if (!credentials.environmentId?.trim()) {
 			errors.push('Environment ID is required');
 		}
-		
+
 		if (!credentials.username?.trim()) {
 			errors.push('Username is required');
 		}
-		
+
 		// Validate based on device type
 		if (credentials.deviceType === 'SMS') {
 			if (!credentials.phoneNumber?.trim()) {
@@ -197,12 +200,14 @@ export const MFAFlowV8: React.FC = () => {
 			} else {
 				const cleanedPhone = credentials.phoneNumber.replace(/[^\d]/g, '');
 				const fullPhone = getFullPhoneNumber();
-				
+
 				// Country-specific validation
 				if (credentials.countryCode === '+1') {
 					// US/Canada requires exactly 10 digits
 					if (cleanedPhone.length !== 10) {
-						errors.push(`US/Canada phone numbers must be exactly 10 digits (you have ${cleanedPhone.length})`);
+						errors.push(
+							`US/Canada phone numbers must be exactly 10 digits (you have ${cleanedPhone.length})`
+						);
 					}
 				} else {
 					// General validation for other countries
@@ -212,7 +217,7 @@ export const MFAFlowV8: React.FC = () => {
 						errors.push('Phone number is too long (maximum 15 digits)');
 					}
 				}
-				
+
 				// Show current format
 				if (cleanedPhone.length > 0) {
 					console.log(`${MODULE_TAG} Phone validation:`, {
@@ -236,24 +241,26 @@ export const MFAFlowV8: React.FC = () => {
 			// FIDO2 doesn't require phone or email, but requires WebAuthn support
 			if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
 				if (!window.PublicKeyCredential || !navigator.credentials) {
-					errors.push('WebAuthn is not supported in this browser. Please use a modern browser that supports FIDO2.');
+					errors.push(
+						'WebAuthn is not supported in this browser. Please use a modern browser that supports FIDO2.'
+					);
 				}
 			}
 			// Just needs device name which is validated below
 		}
-		
+
 		if (!credentials.deviceName?.trim()) {
 			errors.push('Device Name is required');
 		}
-		
+
 		// Check worker token
 		if (!tokenStatus.isValid) {
 			errors.push('Worker token is required - please add a token first');
 		}
-		
+
 		nav.setValidationErrors(errors);
 		nav.setValidationWarnings(warnings);
-		
+
 		return errors.length === 0;
 	};
 
@@ -323,13 +330,15 @@ export const MFAFlowV8: React.FC = () => {
 						className="token-button"
 						style={{
 							padding: '10px 16px',
-							background: !tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
+							background:
+								!tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
 							color: !tokenStatus.isValid || !credentials.environmentId ? '#9ca3af' : 'white',
 							border: 'none',
 							borderRadius: '6px',
 							fontSize: '14px',
 							fontWeight: '600',
-							cursor: !tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
+							cursor:
+								!tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',
@@ -386,9 +395,7 @@ export const MFAFlowV8: React.FC = () => {
 						id="mfa-env-id"
 						type="text"
 						value={credentials.environmentId}
-						onChange={(e) =>
-							setCredentials({ ...credentials, environmentId: e.target.value })
-						}
+						onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
 						placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 					/>
 					<small>PingOne environment ID</small>
@@ -416,7 +423,10 @@ export const MFAFlowV8: React.FC = () => {
 						id="mfa-device-type"
 						value={credentials.deviceType}
 						onChange={(e) =>
-							setCredentials({ ...credentials, deviceType: e.target.value as 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2' })
+							setCredentials({
+								...credentials,
+								deviceType: e.target.value as 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2',
+							})
 						}
 					>
 						<option value="SMS">📱 SMS (Text Message)</option>
@@ -623,8 +633,8 @@ export const MFAFlowV8: React.FC = () => {
 				)}
 				{credentials.deviceType === 'FIDO2' && (
 					<p style={{ fontSize: '13px', color: '#6b7280' }}>
-						FIDO2 devices use WebAuthn-compatible security keys, biometric authenticators, or platform
-						authenticators (e.g., Windows Hello, Face ID, Touch ID)
+						FIDO2 devices use WebAuthn-compatible security keys, biometric authenticators, or
+						platform authenticators (e.g., Windows Hello, Face ID, Touch ID)
 					</p>
 				)}
 			</div>
@@ -667,7 +677,15 @@ export const MFAFlowV8: React.FC = () => {
 			</div>
 
 			{credentials.deviceType === 'SMS' && (
-				<div style={{ marginBottom: '16px', padding: '12px', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px' }}>
+				<div
+					style={{
+						marginBottom: '16px',
+						padding: '12px',
+						background: '#fef3c7',
+						border: '1px solid #fbbf24',
+						borderRadius: '6px',
+					}}
+				>
 					<p style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600', color: '#92400e' }}>
 						📋 Phone Number Preview:
 					</p>
@@ -686,7 +704,7 @@ export const MFAFlowV8: React.FC = () => {
 				disabled={isLoading || !credentials.deviceName?.trim()}
 				onClick={async () => {
 					console.log(`${MODULE_TAG} Registering ${credentials.deviceType} device`);
-					
+
 					// Validate device name before proceeding
 					if (!credentials.deviceName?.trim()) {
 						nav.setValidationErrors([
@@ -695,18 +713,20 @@ export const MFAFlowV8: React.FC = () => {
 						setIsLoading(false);
 						return;
 					}
-					
+
 					setIsLoading(true);
 					try {
 						// Handle FIDO2 registration separately (requires WebAuthn ceremony)
 						if (credentials.deviceType === 'FIDO2') {
 							console.log(`${MODULE_TAG} Starting FIDO2 device registration with WebAuthn`);
-							
+
 							// Check WebAuthn support
 							if (!FIDO2Service.isWebAuthnSupported()) {
-								throw new Error('WebAuthn is not supported in this browser. Please use a modern browser that supports FIDO2.');
+								throw new Error(
+									'WebAuthn is not supported in this browser. Please use a modern browser that supports FIDO2.'
+								);
 							}
-							
+
 							// First, create the device placeholder with PingOne
 							const deviceParams: RegisterDeviceParams = {
 								environmentId: credentials.environmentId,
@@ -715,10 +735,10 @@ export const MFAFlowV8: React.FC = () => {
 								name: credentials.deviceName.trim(),
 								nickname: credentials.deviceName.trim(),
 							};
-							
+
 							// Register the device placeholder with PingOne
 							const result = await MFAServiceV8.registerDevice(deviceParams);
-							
+
 							// Now perform WebAuthn credential creation
 							const challenge = FIDO2Service.generateChallenge();
 							const config: FIDO2Config = {
@@ -735,14 +755,14 @@ export const MFAFlowV8: React.FC = () => {
 									residentKey: 'preferred',
 								},
 							};
-							
+
 							console.log(`${MODULE_TAG} Creating WebAuthn credential`);
 							const fido2Result = await FIDO2Service.registerCredential(config);
-							
+
 							if (!fido2Result.success || !fido2Result.credentialId) {
 								throw new Error(fido2Result.error || 'FIDO2 credential registration failed');
 							}
-							
+
 							// Store FIDO2 credential info for validation step
 							setMfaState({
 								...mfaState,
@@ -757,16 +777,16 @@ export const MFAFlowV8: React.FC = () => {
 								fido2PublicKey: fido2Result.publicKey || '',
 								fido2RegistrationComplete: true,
 							});
-							
+
 							console.log(`${MODULE_TAG} FIDO2 device registered successfully`, {
 								deviceId: result.deviceId,
 								credentialId: fido2Result.credentialId,
 							});
-							
+
 							nav.markStepComplete();
 							return;
 						}
-						
+
 						// Handle SMS, EMAIL, and TOTP devices
 						const deviceParams: RegisterDeviceParams = {
 							environmentId: credentials.environmentId,
@@ -783,7 +803,9 @@ export const MFAFlowV8: React.FC = () => {
 								phoneNumber: credentials.phoneNumber,
 								fullPhone: fullPhone,
 								length: fullPhone.length,
-								charCodes: Array.from(fullPhone).map(c => `${c}(${c.charCodeAt(0)})`).join(' '),
+								charCodes: Array.from(fullPhone)
+									.map((c) => `${c}(${c.charCodeAt(0)})`)
+									.join(' '),
 							});
 							deviceParams.phone = fullPhone;
 							console.log(`${MODULE_TAG} Sending phone to API:`, deviceParams.phone);
@@ -803,7 +825,7 @@ export const MFAFlowV8: React.FC = () => {
 						// For TOTP, we need to get the device details to retrieve QR code
 						let qrCodeUrl = '';
 						let totpSecret = '';
-						
+
 						if (credentials.deviceType === 'TOTP') {
 							console.log(`${MODULE_TAG} Fetching TOTP device details for QR code`);
 							const deviceDetails = await MFAServiceV8.getDevice({
@@ -811,7 +833,7 @@ export const MFAFlowV8: React.FC = () => {
 								username: credentials.username,
 								deviceId: result.deviceId,
 							});
-							
+
 							// Extract QR code URL and secret from device details
 							const deviceDetailsTyped = deviceDetails as {
 								_links?: { 'authenticate.qrCode'?: { href?: string } };
@@ -819,7 +841,7 @@ export const MFAFlowV8: React.FC = () => {
 							};
 							qrCodeUrl = deviceDetailsTyped._links?.['authenticate.qrCode']?.href || '';
 							totpSecret = deviceDetailsTyped.otp?.secret || '';
-							
+
 							console.log(`${MODULE_TAG} TOTP device details:`, {
 								hasQrCode: !!qrCodeUrl,
 								hasSecret: !!totpSecret,
@@ -843,25 +865,21 @@ export const MFAFlowV8: React.FC = () => {
 					} catch (error) {
 						console.error(`${MODULE_TAG} Device registration failed`, error);
 						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-						
+
 						// Check if error is about device limit
-						const isDeviceLimitError = 
+						const isDeviceLimitError =
 							errorMessage.toLowerCase().includes('exceed') ||
 							errorMessage.toLowerCase().includes('limit') ||
 							errorMessage.toLowerCase().includes('maximum');
-						
+
 						if (isDeviceLimitError) {
 							// Show nice modal for device limit errors
 							setShowDeviceLimitModal(true);
 							// Still set validation error for step feedback
-							nav.setValidationErrors([
-								`Device registration failed: ${errorMessage}`,
-							]);
+							nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
 						} else {
 							// Show regular inline error for other errors
-							nav.setValidationErrors([
-								`Failed to register device: ${errorMessage}`,
-							]);
+							nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
 						}
 					} finally {
 						setIsLoading(false);
@@ -905,16 +923,31 @@ export const MFAFlowV8: React.FC = () => {
 							<strong>Updated At:</strong> {new Date(mfaState.updatedAt).toLocaleString()}
 						</p>
 					)}
-					
+
 					{credentials.deviceType === 'TOTP' && mfaState.qrCodeUrl && (
-						<div style={{ marginTop: '16px', padding: '16px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+						<div
+							style={{
+								marginTop: '16px',
+								padding: '16px',
+								background: '#f9fafb',
+								borderRadius: '8px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
 							<h4 style={{ margin: '0 0 12px 0', fontSize: '15px', color: '#1f2937' }}>
 								📱 Scan QR Code with Authenticator App
 							</h4>
-							<div style={{ textAlign: 'center', padding: '16px', background: 'white', borderRadius: '6px' }}>
-								<img 
-									src={mfaState.qrCodeUrl} 
-									alt="TOTP QR Code" 
+							<div
+								style={{
+									textAlign: 'center',
+									padding: '16px',
+									background: 'white',
+									borderRadius: '6px',
+								}}
+							>
+								<img
+									src={mfaState.qrCodeUrl}
+									alt="TOTP QR Code"
 									style={{ maxWidth: '200px', height: 'auto' }}
 								/>
 							</div>
@@ -923,7 +956,18 @@ export const MFAFlowV8: React.FC = () => {
 									<p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#6b7280' }}>
 										<strong>Manual Entry Key:</strong>
 									</p>
-									<p style={{ margin: '0', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937', background: 'white', padding: '8px', borderRadius: '4px', wordBreak: 'break-all' }}>
+									<p
+										style={{
+											margin: '0',
+											fontSize: '14px',
+											fontFamily: 'monospace',
+											color: '#1f2937',
+											background: 'white',
+											padding: '8px',
+											borderRadius: '4px',
+											wordBreak: 'break-all',
+										}}
+									>
 										{mfaState.totpSecret}
 									</p>
 									<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
@@ -1038,25 +1082,25 @@ export const MFAFlowV8: React.FC = () => {
 
 							console.log(`${MODULE_TAG} OTP sent successfully`);
 							nav.markStepComplete();
-							} catch (error) {
-						console.error(`${MODULE_TAG} Failed to send OTP`, error);
-						const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-						
-						// Check if it's a worker token error
-						if (errorMessage.toLowerCase().includes('worker token') || 
-						    errorMessage.toLowerCase().includes('missing') ||
-						    errorMessage.toLowerCase().includes('invalid')) {
-							nav.setValidationErrors([
-								`Worker token is missing or invalid. Please click "Manage Token" button to generate a new worker token.`,
-							]);
-						} else {
-							nav.setValidationErrors([
-								`Failed to send OTP: ${errorMessage}`,
-							]);
+						} catch (error) {
+							console.error(`${MODULE_TAG} Failed to send OTP`, error);
+							const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+							// Check if it's a worker token error
+							if (
+								errorMessage.toLowerCase().includes('worker token') ||
+								errorMessage.toLowerCase().includes('missing') ||
+								errorMessage.toLowerCase().includes('invalid')
+							) {
+								nav.setValidationErrors([
+									`Worker token is missing or invalid. Please click "Manage Token" button to generate a new worker token.`,
+								]);
+							} else {
+								nav.setValidationErrors([`Failed to send OTP: ${errorMessage}`]);
+							}
+						} finally {
+							setIsLoading(false);
 						}
-					} finally {
-						setIsLoading(false);
-					}
 					}}
 					disabled={isLoading}
 				>
@@ -1109,12 +1153,14 @@ export const MFAFlowV8: React.FC = () => {
 							setIsLoading(true);
 							try {
 								if (!mfaState.fido2CredentialId) {
-									throw new Error('FIDO2 credential ID is missing. Please register the device first.');
+									throw new Error(
+										'FIDO2 credential ID is missing. Please register the device first.'
+									);
 								}
 
 								// Generate challenge for authentication
 								const challenge = FIDO2Service.generateChallenge();
-								
+
 								// Helper function to convert base64 to ArrayBuffer
 								const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
 									const binary = atob(base64);
@@ -1124,35 +1170,37 @@ export const MFAFlowV8: React.FC = () => {
 									}
 									return bytes.buffer;
 								};
-								
+
 								// Convert credential ID from base64 to ArrayBuffer
 								const credentialIdBuffer = base64ToArrayBuffer(mfaState.fido2CredentialId);
-								
+
 								// Create authentication options
 								const authOptions: PublicKeyCredentialRequestOptions = {
 									challenge: base64ToArrayBuffer(challenge),
 									timeout: 60000,
 									rpId: window.location.hostname,
-									allowCredentials: [{
-										id: credentialIdBuffer,
-										type: 'public-key',
-									}],
+									allowCredentials: [
+										{
+											id: credentialIdBuffer,
+											type: 'public-key',
+										},
+									],
 									userVerification: 'preferred',
 								};
 
 								console.log(`${MODULE_TAG} Requesting WebAuthn authentication`);
-								
+
 								// Request authentication
-								const credential = await navigator.credentials.get({
+								const credential = (await navigator.credentials.get({
 									publicKey: authOptions,
-								}) as PublicKeyCredential | null;
+								})) as PublicKeyCredential | null;
 
 								if (!credential) {
 									throw new Error('Authentication was cancelled or failed');
 								}
 
 								console.log(`${MODULE_TAG} FIDO2 authentication successful`);
-								
+
 								// Mark validation as successful
 								setMfaState({
 									...mfaState,
@@ -1250,10 +1298,10 @@ export const MFAFlowV8: React.FC = () => {
 						}
 					}}
 				>
-				{isLoading ? '🔄 Validating...' : 'Validate OTP'}
-			</button>
-		</div>
-	);
+					{isLoading ? '🔄 Validating...' : 'Validate OTP'}
+				</button>
+			</div>
+		);
 	};
 
 	// Step 4: Success
@@ -1283,7 +1331,8 @@ export const MFAFlowV8: React.FC = () => {
 					</p>
 				)}
 				<p>
-					<strong>Status:</strong> {mfaState.verificationResult?.status || mfaState.deviceStatus || 'Verified'}
+					<strong>Status:</strong>{' '}
+					{mfaState.verificationResult?.status || mfaState.deviceStatus || 'Verified'}
 				</p>
 				{mfaState.verificationResult?.message && (
 					<p>
@@ -1345,10 +1394,15 @@ export const MFAFlowV8: React.FC = () => {
 		switch (nav.currentStep) {
 			case 0: {
 				// Basic fields
-				if (!credentials.environmentId || !credentials.username || !credentials.deviceName || !tokenStatus.isValid) {
+				if (
+					!credentials.environmentId ||
+					!credentials.username ||
+					!credentials.deviceName ||
+					!tokenStatus.isValid
+				) {
 					return true;
 				}
-				
+
 				// Device type specific validation
 				if (credentials.deviceType === 'SMS') {
 					const cleanedPhone = credentials.phoneNumber.replace(/[^\d]/g, '');
@@ -1426,24 +1480,31 @@ export const MFAFlowV8: React.FC = () => {
 
 			<div className="flow-container">
 				{/* MFA Navigation Links */}
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '16px',
+					}}
+				>
 					<div className="mfa-nav-links" style={{ marginBottom: 0 }}>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-hub'}
+							onClick={() => (window.location.href = '/v8/mfa-hub')}
 							className="nav-link-btn"
 							title="Go to MFA Hub"
 						>
 							🏠 MFA Hub
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-device-management'}
+							onClick={() => (window.location.href = '/v8/mfa-device-management')}
 							className="nav-link-btn"
 							title="Manage MFA Devices"
 						>
 							🔧 Device Management
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-reporting'}
+							onClick={() => (window.location.href = '/v8/mfa-reporting')}
 							className="nav-link-btn"
 							title="View MFA Reports"
 						>
@@ -1882,7 +1943,7 @@ export const MFAFlowV8: React.FC = () => {
 					}
 				}
 			`}</style>
-			
+
 			<SuperSimpleApiDisplayV8 />
 
 			{/* Device Limit Modal */}

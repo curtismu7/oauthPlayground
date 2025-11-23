@@ -12,8 +12,8 @@ import {
 	AppDiscoveryServiceV8,
 	type DiscoveredApplication,
 } from '@/v8/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 APP-DISCOVERY-MODAL-V8U]';
@@ -46,7 +46,7 @@ export const AppDiscoveryModalV8U: React.FC<AppDiscoveryModalV8UProps> = ({
 			const originalOverflow = document.body.style.overflow;
 			// Lock scroll
 			document.body.style.overflow = 'hidden';
-			
+
 			// Restore on cleanup
 			return () => {
 				document.body.style.overflow = originalOverflow;

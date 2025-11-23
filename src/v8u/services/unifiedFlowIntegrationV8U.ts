@@ -9,6 +9,7 @@
  * for V8U flows. All API calls use real PingOne endpoints.
  */
 
+import type { ResponseMode } from '@/services/responseModeService';
 import {
 	type ClientCredentialsCredentials,
 	ClientCredentialsIntegrationServiceV8,
@@ -27,7 +28,6 @@ import {
 	OAuthIntegrationServiceV8,
 } from '@/v8/services/oauthIntegrationServiceV8';
 import { RedirectUriServiceV8 } from '@/v8/services/redirectUriServiceV8';
-import type { ResponseMode } from '@/services/responseModeService';
 // ROPC flow removed - not supported by PingOne, use mock flows instead
 import {
 	type FlowType,
@@ -148,17 +148,17 @@ export class UnifiedFlowIntegrationV8U {
 
 	/**
 	 * Generate authorization URL for OAuth/OIDC flows
-	 * 
+	 *
 	 * This is a unified entry point that delegates to flow-specific services:
 	 * - Implicit flow → ImplicitFlowIntegrationServiceV8
 	 * - Authorization Code flow → OAuthIntegrationServiceV8
 	 * - Hybrid flow → HybridFlowIntegrationServiceV8
-	 * 
+	 *
 	 * CRITICAL: State prefixing for callback handling
 	 * All flows prefix the state parameter with their flow type (e.g., "v8u-oauth-authz-{state}").
 	 * This allows the callback handler to identify which flow initiated the request,
 	 * enabling proper routing and state validation.
-	 * 
+	 *
 	 * @param specVersion - OAuth/OIDC specification version (oauth2.0, oauth2.1, oidc)
 	 * @param flowType - Flow type (oauth-authz, implicit, hybrid, etc.)
 	 * @param credentials - OAuth credentials (clientId, environmentId, redirectUri, etc.)
@@ -167,7 +167,7 @@ export class UnifiedFlowIntegrationV8U {
 	 *                    Required for OAuth 2.1 public clients
 	 * @returns Promise resolving to authorization URL and associated parameters
 	 * @throws Error if flow type doesn't support authorization URLs (e.g., client-credentials, device-code)
-	 * 
+	 *
 	 * @example
 	 * const result = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
 	 *   'oidc',
@@ -196,21 +196,22 @@ export class UnifiedFlowIntegrationV8U {
 			hasPKCE: !!pkceCodes,
 			isImplicit: flowType === 'implicit',
 			isOAuthAuthz: flowType === 'oauth-authz',
-			responseMode: credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment'),
+			responseMode:
+				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment'),
 		});
 
 		/**
 		 * CRITICAL FIX: Always use the correct redirect URI for the flow type
-		 * 
+		 *
 		 * Problem: credentials.redirectUri might be from a different flow type
 		 * (e.g., user switches from implicit to authz flow but redirect URI wasn't updated)
-		 * 
+		 *
 		 * Solution: Look up the correct redirect URI for this specific flow type
 		 * This ensures callbacks are routed to the correct handler
 		 */
 		const flowKey = `${flowType}-v8u`;
 		const correctRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
-		
+
 		console.log(`${MODULE_TAG} Redirect URI validation`, {
 			flowType,
 			flowKey,
@@ -221,14 +222,16 @@ export class UnifiedFlowIntegrationV8U {
 
 		// Implicit flow
 		if (flowType === 'implicit') {
-			console.log(`${MODULE_TAG} ✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`);
+			console.log(
+				`${MODULE_TAG} ✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`
+			);
 			const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				redirectUri: correctRedirectUri || credentials.redirectUri || '',
 				scopes: credentials.scopes || 'openid profile email',
 			});
-			
+
 			// CRITICAL FIX: Prefix state with flow type BEFORE building the URL
 			// We need to rebuild the authorization URL with the prefixed state
 			const prefixedState = `v8u-implicit-${result.state}`;
@@ -265,14 +268,15 @@ export class UnifiedFlowIntegrationV8U {
 				params.set('display', credentials.display);
 				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
-			
+
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
-			const responseMode = credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
+			const responseMode =
+				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseMode);
 			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseMode}`);
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
-			
+
 			console.log(`${MODULE_TAG} ✅ Implicit flow URL generated with prefixed state`, {
 				hasAuthUrl: !!authorizationUrl,
 				originalState: result.state,
@@ -282,7 +286,7 @@ export class UnifiedFlowIntegrationV8U {
 			});
 			console.log(`${MODULE_TAG} 🔑 STATE FOR IMPLICIT FLOW: "${prefixedState}"`);
 			console.log(`${MODULE_TAG} 🔑 This prefixed state is now in the authorization URL`);
-			
+
 			return {
 				authorizationUrl,
 				state: prefixedState,
@@ -292,17 +296,17 @@ export class UnifiedFlowIntegrationV8U {
 
 		/**
 		 * AUTHORIZATION CODE FLOW - Generate authorization URL
-		 * 
+		 *
 		 * This is the most secure and recommended OAuth flow. It uses a two-step process:
 		 * 1. User authenticates and receives an authorization code (not tokens)
 		 * 2. Application exchanges the code for tokens using client secret
-		 * 
+		 *
 		 * Flow steps:
 		 * 1. Generate authorization URL with PKCE (if enabled)
 		 * 2. User authenticates on PingOne
 		 * 3. PingOne redirects with authorization code in query string (?code=...)
 		 * 4. Application exchanges code for tokens using token endpoint
-		 * 
+		 *
 		 * PKCE (Proof Key for Code Exchange):
 		 * - Required for OAuth 2.1 public clients
 		 * - Recommended for all clients (even confidential ones)
@@ -320,15 +324,18 @@ export class UnifiedFlowIntegrationV8U {
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
 			}
-		const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(oauthCredentials, pkceCodes);
-		
-		/**
-		 * CRITICAL FIX: Prefix state with flow type for callback routing
-		 * 
-		 * See implicit flow comment above for explanation of why state prefixing is needed.
-		 * The prefix "v8u-oauth-authz-" identifies this as an authorization code flow request.
-		 */
-		const prefixedState = `v8u-oauth-authz-${result.state}`;
+			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(
+				oauthCredentials,
+				pkceCodes
+			);
+
+			/**
+			 * CRITICAL FIX: Prefix state with flow type for callback routing
+			 *
+			 * See implicit flow comment above for explanation of why state prefixing is needed.
+			 * The prefix "v8u-oauth-authz-" identifies this as an authorization code flow request.
+			 */
+			const prefixedState = `v8u-oauth-authz-${result.state}`;
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
@@ -337,7 +344,7 @@ export class UnifiedFlowIntegrationV8U {
 				scope: credentials.scopes || 'openid profile email',
 				state: prefixedState, // Use prefixed state
 			});
-			
+
 			// Add prompt parameter if specified
 			if (credentials.prompt) {
 				params.set('prompt', credentials.prompt);
@@ -360,26 +367,27 @@ export class UnifiedFlowIntegrationV8U {
 				params.set('display', credentials.display);
 				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
-			
+
 			// Add PKCE parameters if provided
 			if (pkceCodes) {
 				params.set('code_challenge', pkceCodes.codeChallenge);
 				params.set('code_challenge_method', pkceCodes.codeChallengeMethod);
 			}
-			
+
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
-			const responseModeOAuth = credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
+			const responseModeOAuth =
+				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
 			params.set('response_mode', responseModeOAuth);
 			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
-			
+
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
-			
+
 			console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
 				prefixedState,
 				hasPKCE: !!pkceCodes,
 				responseMode: responseModeOAuth,
 			});
-			
+
 			return {
 				authorizationUrl,
 				state: prefixedState,
@@ -392,21 +400,21 @@ export class UnifiedFlowIntegrationV8U {
 
 		/**
 		 * HYBRID FLOW - Generate authorization URL
-		 * 
+		 *
 		 * Hybrid flow combines authorization code and implicit flow:
 		 * - Returns both authorization code AND tokens in the callback
 		 * - Tokens are in URL fragment (#access_token=...)
 		 * - Authorization code is in query string (?code=...)
-		 * 
+		 *
 		 * Response types:
 		 * - 'code id_token': Returns code + ID token (most common)
 		 * - 'code token': Returns code + access token
 		 * - 'code token id_token': Returns code + access token + ID token
-		 * 
+		 *
 		 * Use cases:
 		 * - When you need immediate tokens (like implicit) but also want secure token exchange (like authz code)
 		 * - Common in OpenID Connect scenarios where ID token is needed immediately
-		 * 
+		 *
 		 * Note: Not part of OAuth 2.1 specification, but supported in OAuth 2.0 and OpenID Connect
 		 */
 		if (flowType === 'hybrid') {
@@ -423,11 +431,14 @@ export class UnifiedFlowIntegrationV8U {
 			if (credentials.clientSecret) {
 				hybridCredentials.clientSecret = credentials.clientSecret;
 			}
-			const result = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl(hybridCredentials, pkceCodes);
-			
+			const result = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl(
+				hybridCredentials,
+				pkceCodes
+			);
+
 			/**
 			 * CRITICAL FIX: Prefix state with flow type for callback routing
-			 * 
+			 *
 			 * See implicit flow comment above for explanation.
 			 * The prefix "v8u-hybrid-" identifies this as a hybrid flow request.
 			 */
@@ -440,9 +451,10 @@ export class UnifiedFlowIntegrationV8U {
 			params.set('scope', credentials.scopes || 'openid profile email');
 			params.set('state', prefixedState); // Use prefixed state
 			params.set('nonce', result.nonce);
-			
+
 			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
-			const responseModeHybrid = credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
+			const responseModeHybrid =
+				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseModeHybrid);
 			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeHybrid}`);
 
@@ -470,12 +482,12 @@ export class UnifiedFlowIntegrationV8U {
 			}
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
-			
+
 			console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
 				prefixedState,
 				responseMode: responseModeHybrid,
 			});
-			
+
 			return {
 				authorizationUrl,
 				state: prefixedState,
@@ -504,23 +516,23 @@ export class UnifiedFlowIntegrationV8U {
 
 	/**
 	 * Request device authorization (for device code flow - RFC 8628)
-	 * 
+	 *
 	 * Device code flow is designed for devices without browsers or input capabilities:
 	 * - Smart TVs, IoT devices, command-line tools
 	 * - User authenticates on a separate device (phone, computer)
 	 * - Device polls for tokens after user authorizes
-	 * 
+	 *
 	 * Flow steps:
 	 * 1. Device requests authorization → receives device_code and user_code
 	 * 2. User visits verification_uri and enters user_code
 	 * 3. User authenticates and authorizes on separate device
 	 * 4. Device polls token endpoint with device_code until authorized
 	 * 5. Device receives tokens when user completes authorization
-	 * 
+	 *
 	 * Authentication methods:
 	 * - Only supports basic auth methods (client_secret_basic, client_secret_post, none)
 	 * - JWT-based auth (client_secret_jwt, private_key_jwt) is not supported
-	 * 
+	 *
 	 * @param credentials - OAuth credentials (environmentId, clientId, clientSecret, scopes)
 	 * @returns Promise resolving to device authorization response containing:
 	 *          - device_code: Code used for polling token endpoint
@@ -529,9 +541,9 @@ export class UnifiedFlowIntegrationV8U {
 	 *          - verification_uri_complete: Full URL with user_code pre-filled
 	 *          - expires_in: How long device_code is valid (usually 15 minutes)
 	 *          - interval: Recommended polling interval in seconds
-	 * 
+	 *
 	 * @throws Error if environmentId or clientId is missing
-	 * 
+	 *
 	 * @example
 	 * const deviceAuth = await UnifiedFlowIntegrationV8U.requestDeviceAuthorization(credentials);
 	 * console.log(`User code: ${deviceAuth.user_code}`);
@@ -542,17 +554,19 @@ export class UnifiedFlowIntegrationV8U {
 
 		// Validate required credentials
 		if (!credentials.environmentId || !credentials.clientId) {
-			throw new Error('Please provide both Environment ID and Client ID in the configuration section above.');
+			throw new Error(
+				'Please provide both Environment ID and Client ID in the configuration section above.'
+			);
 		}
 
 		/**
 		 * Device code flow authentication method validation
-		 * 
+		 *
 		 * Device code flow only supports basic authentication methods:
 		 * - client_secret_basic: HTTP Basic Auth (Authorization header)
 		 * - client_secret_post: Client secret in POST body
 		 * - none: No authentication (public clients)
-		 * 
+		 *
 		 * JWT-based methods (client_secret_jwt, private_key_jwt) are not supported
 		 * because device code flow uses a simpler token endpoint that doesn't support
 		 * client assertions.
@@ -580,32 +594,32 @@ export class UnifiedFlowIntegrationV8U {
 
 	/**
 	 * Poll for tokens (for device code flow - RFC 8628)
-	 * 
+	 *
 	 * After the user authorizes the device on a separate device, the application
 	 * must poll the token endpoint to check if authorization is complete.
-	 * 
+	 *
 	 * Polling behavior:
 	 * - Polls at the interval specified in device authorization response (usually 5 seconds)
 	 * - Continues until user authorizes or maxAttempts is reached
 	 * - Returns tokens immediately when user completes authorization
 	 * - Returns "authorization_pending" error while user hasn't authorized yet
-	 * 
+	 *
 	 * Error handling:
 	 * - "authorization_pending": User hasn't authorized yet, continue polling
 	 * - "slow_down": Server is rate-limiting, increase polling interval
 	 * - "expired_token": Device code expired, user took too long
 	 * - "access_denied": User denied authorization
-	 * 
+	 *
 	 * @param credentials - OAuth credentials (environmentId, clientId, clientSecret, scopes)
 	 * @param deviceCode - Device code from authorization response (used to poll token endpoint)
 	 * @param interval - Polling interval in seconds (default: 5, matches PingOne recommendation)
 	 * @param maxAttempts - Maximum polling attempts before giving up (default: 60)
 	 *                      At 5-second intervals, this is ~5 minutes total
 	 * @returns Promise resolving to token response when user completes authorization
-	 * 
+	 *
 	 * @throws Error if environmentId or clientId is missing
 	 * @throws Error if polling times out (maxAttempts reached)
-	 * 
+	 *
 	 * @example
 	 * const tokens = await UnifiedFlowIntegrationV8U.pollForTokens(
 	 *   credentials,
@@ -627,7 +641,9 @@ export class UnifiedFlowIntegrationV8U {
 		});
 
 		if (!credentials.environmentId || !credentials.clientId) {
-			throw new Error('Please provide both Environment ID and Client ID in the configuration section above.');
+			throw new Error(
+				'Please provide both Environment ID and Client ID in the configuration section above.'
+			);
 		}
 
 		// Device code flow only supports basic auth methods, not JWT-based
@@ -659,33 +675,33 @@ export class UnifiedFlowIntegrationV8U {
 
 	/**
 	 * Request token (for client credentials flow)
-	 * 
+	 *
 	 * Client credentials flow is used for server-to-server authentication where
 	 * there is no user involved. The application authenticates using its own
 	 * credentials (client ID and secret) to obtain an access token.
-	 * 
+	 *
 	 * Use cases:
 	 * - API-to-API communication
 	 * - Background jobs and scheduled tasks
 	 * - Service accounts
 	 * - Machine-to-machine authentication
-	 * 
+	 *
 	 * Authentication methods supported:
 	 * - client_secret_basic: HTTP Basic Auth (Authorization header)
 	 * - client_secret_post: Client secret in POST body
 	 * - client_secret_jwt: Client secret used to sign JWT assertion (HS256)
 	 * - private_key_jwt: Private key used to sign JWT assertion (RS256)
-	 * 
+	 *
 	 * Flow steps:
 	 * 1. Application sends client credentials to token endpoint
 	 * 2. Server validates credentials
 	 * 3. Server returns access token (no refresh token, no user context)
-	 * 
+	 *
 	 * Security notes:
 	 * - Client secret must be kept secure (never expose in client-side code)
 	 * - JWT-based auth is more secure than basic auth (no secret in headers/body)
 	 * - Private key JWT is most secure (asymmetric cryptography)
-	 * 
+	 *
 	 * @param flowType - Flow type (must be 'client-credentials')
 	 * @param credentials - OAuth credentials containing:
 	 *                     - environmentId: PingOne environment ID (required)
@@ -699,11 +715,11 @@ export class UnifiedFlowIntegrationV8U {
 	 *          - token_type: Usually "Bearer"
 	 *          - expires_in: Token lifetime in seconds
 	 *          - scope: Granted scopes (may differ from requested)
-	 * 
+	 *
 	 * @throws Error if required credentials are missing
 	 * @throws Error if authentication fails
 	 * @throws Error if scopes are invalid (check PingOne application configuration)
-	 * 
+	 *
 	 * @example
 	 * const tokens = await UnifiedFlowIntegrationV8U.requestToken('client-credentials', {
 	 *   environmentId: 'env-123',
@@ -713,11 +729,8 @@ export class UnifiedFlowIntegrationV8U {
 	 *   clientAuthMethod: 'client_secret_basic'
 	 * });
 	 */
-	static async requestToken(
-		flowType: 'client-credentials',
-		credentials: UnifiedFlowCredentials
-	) {
-		console.log(`${MODULE_TAG} Requesting token`, { 
+	static async requestToken(flowType: 'client-credentials', credentials: UnifiedFlowCredentials) {
+		console.log(`${MODULE_TAG} Requesting token`, {
 			flowType,
 			authMethod: credentials.clientAuthMethod || 'client_secret_basic',
 			hasPrivateKey: !!(credentials as { privateKey?: string }).privateKey,
@@ -737,7 +750,10 @@ export class UnifiedFlowIntegrationV8U {
 			};
 			if (credentials.scopes) {
 				ccCredentials.scopes = credentials.scopes;
-				console.log(`${MODULE_TAG} Passing scopes to client credentials service:`, credentials.scopes);
+				console.log(
+					`${MODULE_TAG} Passing scopes to client credentials service:`,
+					credentials.scopes
+				);
 			} else {
 				console.warn(`${MODULE_TAG} No scopes provided in credentials for client credentials flow`);
 			}
@@ -760,40 +776,42 @@ export class UnifiedFlowIntegrationV8U {
 			return ClientCredentialsIntegrationServiceV8.requestToken(ccCredentials);
 		}
 
-		throw new Error(`The ${flowType} flow does not support direct token requests. Please use the appropriate flow steps.`);
+		throw new Error(
+			`The ${flowType} flow does not support direct token requests. Please use the appropriate flow steps.`
+		);
 	}
 
 	/**
 	 * Exchange authorization code for tokens (for authorization code and hybrid flows)
-	 * 
+	 *
 	 * This is the second step of the authorization code flow. After the user authenticates
 	 * and the authorization server redirects back with an authorization code, the application
 	 * exchanges that code for actual access tokens.
-	 * 
+	 *
 	 * Security features:
 	 * - Authorization code is single-use (can only be exchanged once)
 	 * - Authorization code expires quickly (usually 1-10 minutes)
 	 * - PKCE code_verifier must match the code_challenge from authorization request
 	 * - Client secret (or JWT assertion) required for confidential clients
-	 * 
+	 *
 	 * Flow steps:
 	 * 1. User authenticates → receives authorization code
 	 * 2. Application sends code + client credentials to token endpoint
 	 * 3. Server validates code, client credentials, and PKCE (if used)
 	 * 4. Server returns access token, ID token (if OIDC), and refresh token (if requested)
-	 * 
+	 *
 	 * PKCE validation:
 	 * - If PKCE was used in authorization request, code_verifier is required here
 	 * - Server hashes code_verifier and compares to code_challenge from authorization request
 	 * - Prevents authorization code interception attacks
-	 * 
+	 *
 	 * Token response:
 	 * - access_token: Used to authenticate API requests
 	 * - id_token: User identity information (OIDC only)
 	 * - refresh_token: Used to obtain new access tokens (if requested)
 	 * - expires_in: Access token lifetime in seconds
 	 * - token_type: Usually "Bearer"
-	 * 
+	 *
 	 * @param flowType - Flow type ('oauth-authz' for authorization code, 'hybrid' for hybrid flow)
 	 * @param credentials - OAuth credentials containing:
 	 *                     - environmentId: PingOne environment ID (required)
@@ -804,13 +822,13 @@ export class UnifiedFlowIntegrationV8U {
 	 * @param codeVerifier - PKCE code verifier (required if PKCE was used in authorization request)
 	 *                      This is the secret that was used to generate code_challenge
 	 * @returns Promise resolving to token response
-	 * 
+	 *
 	 * @throws Error if required parameters are missing
 	 * @throws Error if authorization code is invalid or expired
 	 * @throws Error if PKCE code_verifier doesn't match code_challenge
 	 * @throws Error if redirect URI doesn't match authorization request
 	 * @throws Error if client authentication fails
-	 * 
+	 *
 	 * @example
 	 * // Without PKCE
 	 * const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
@@ -818,7 +836,7 @@ export class UnifiedFlowIntegrationV8U {
 	 *   credentials,
 	 *   authorizationCode
 	 * );
-	 * 
+	 *
 	 * // With PKCE
 	 * const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
 	 *   'oauth-authz',
@@ -858,19 +876,25 @@ export class UnifiedFlowIntegrationV8U {
 					hasEnvironmentId: !!credentials.environmentId,
 					hasClientId: !!credentials.clientId,
 				});
-				throw new Error('Please provide both Environment ID and Client ID in the configuration section above.');
+				throw new Error(
+					'Please provide both Environment ID and Client ID in the configuration section above.'
+				);
 			}
 
 			// Redirect URI is only required when PKCE is NOT enabled
 			if (!credentials.usePKCE && !credentials.redirectUri) {
 				console.error(`${MODULE_TAG} ❌ PKCE not enabled and redirect URI missing`);
-				throw new Error('Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.');
+				throw new Error(
+					'Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.'
+				);
 			}
 
 			// Code verifier is only required when PKCE IS enabled
 			if (credentials.usePKCE && !codeVerifier) {
 				console.error(`${MODULE_TAG} ❌ PKCE enabled but code verifier missing`);
-				throw new Error('PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.');
+				throw new Error(
+					'PKCE is enabled but the code verifier is missing. Please go back and generate PKCE parameters first.'
+				);
 			}
 
 			console.log(`${MODULE_TAG} ✅ Validation passed, building OAuth credentials object`);
@@ -905,18 +929,26 @@ export class UnifiedFlowIntegrationV8U {
 				hasCodeVerifier: !!codeVerifier,
 			});
 
-			return OAuthIntegrationServiceV8.exchangeCodeForTokens(oauthCredentials, code, codeVerifier || '');
+			return OAuthIntegrationServiceV8.exchangeCodeForTokens(
+				oauthCredentials,
+				code,
+				codeVerifier || ''
+			);
 		}
 
 		if (flowType === 'hybrid') {
 			// Validate required fields based on PKCE usage
 			if (!credentials.environmentId || !credentials.clientId) {
-				throw new Error('Please provide both Environment ID and Client ID in the configuration section above.');
+				throw new Error(
+					'Please provide both Environment ID and Client ID in the configuration section above.'
+				);
 			}
 
 			// Redirect URI is only required when PKCE is NOT enabled
 			if (!credentials.usePKCE && !credentials.redirectUri) {
-				throw new Error('Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.');
+				throw new Error(
+					'Redirect URI is required when PKCE is not enabled. Please go back to the configuration step and provide a Redirect URI.'
+				);
 			}
 
 			const hybridCredentials: HybridFlowCredentials = {
@@ -938,7 +970,9 @@ export class UnifiedFlowIntegrationV8U {
 			);
 		}
 
-		throw new Error(`The ${flowType} flow does not support code exchange. This is likely a configuration error.`);
+		throw new Error(
+			`The ${flowType} flow does not support code exchange. This is likely a configuration error.`
+		);
 	}
 
 	/**
@@ -970,7 +1004,9 @@ export class UnifiedFlowIntegrationV8U {
 					expectedNonce
 				);
 				if (!nonceValid) {
-					throw new Error('Security validation failed: The nonce in the ID token does not match the expected value. This could indicate a security issue or replay attack.');
+					throw new Error(
+						'Security validation failed: The nonce in the ID token does not match the expected value. This could indicate a security issue or replay attack.'
+					);
 				}
 			}
 
@@ -990,7 +1026,9 @@ export class UnifiedFlowIntegrationV8U {
 					expectedNonce
 				);
 				if (!nonceValid) {
-					throw new Error('Security validation failed: The nonce in the ID token does not match the expected value. This could indicate a security issue or replay attack.');
+					throw new Error(
+						'Security validation failed: The nonce in the ID token does not match the expected value. This could indicate a security issue or replay attack.'
+					);
 				}
 			}
 

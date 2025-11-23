@@ -115,7 +115,8 @@ export const checkWorkerTokenStatus = (
 		console.log(`${MODULE_TAG} Token expired`);
 		return {
 			status: 'expired',
-			message: 'Worker token expired, this is only needed for Application Picker which gives you a list of apps in your PingOne environment and allows you to apply Credentials.',
+			message:
+				'Worker token expired, this is only needed for Application Picker which gives you a list of apps in your PingOne environment and allows you to apply Credentials.',
 			isValid: false,
 			expiresAt: resolvedExpiry,
 		};
