@@ -410,11 +410,11 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 }) => {
 	const navigate = useNavigate();
 
-	// State management
-	const [maskedStates, setMaskedStates] = useState<Record<TokenType, boolean>>({
-		access: defaultMasked,
-		id: defaultMasked,
-		refresh: defaultMasked,
+	// State management - tokens always visible (no masking)
+	const [maskedStates] = useState<Record<TokenType, boolean>>({
+		access: false,
+		id: false,
+		refresh: false,
 	});
 
 	const [decodedStates, setDecodedStates] = useState<Record<TokenType, boolean>>({
@@ -485,10 +485,6 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	};
 
 	// Event handlers
-	const handleToggleMask = (tokenType: TokenType) => {
-		setMaskedStates((prev) => ({ ...prev, [tokenType]: !prev[tokenType] }));
-	};
-
 	const handleToggleDecode = (tokenType: TokenType) => {
 		setDecodedStates((prev) => ({ ...prev, [tokenType]: !prev[tokenType] }));
 	};
@@ -542,16 +538,6 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 					</TokenLabel>
 
 					<ActionButtons>
-						{showMaskToggle && (
-							<ActionButton
-								onClick={() => handleToggleMask(tokenType)}
-								title={isMasked ? 'Show token' : 'Hide token'}
-							>
-								{isMasked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
-								{isMasked ? 'Show' : 'Hide'}
-							</ActionButton>
-						)}
-
 						{showDecodeButtons && isJWT && (
 							<ActionButton
 								onClick={() => handleToggleDecode(tokenType)}

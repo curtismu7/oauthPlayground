@@ -39,14 +39,10 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 	showMaskToggle = true,
 	className = '',
 }) => {
-	const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
+	// Tokens always visible (no masking)
 	const [decodedStates, setDecodedStates] = useState<Record<string, DecodedJWT | null>>({});
 	const [isDecodedStates, setIsDecodedStates] = useState<Record<string, boolean>>({});
 	const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
-
-	const handleToggleMask = (tokenType: string) => {
-		setMaskedStates((prev) => ({ ...prev, [tokenType]: !prev[tokenType] }));
-	};
 
 	const handleToggleDecode = (tokenType: string, token: string) => {
 		const key = `${tokenType}-${token.substring(0, 20)}`;
@@ -91,7 +87,7 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 		if (!token) return null;
 
 		const key = `${tokenType}-${token.substring(0, 20)}`;
-		const isMasked = maskedStates[tokenType] || false;
+		const isMasked = false; // Tokens always visible
 		const isDecoded = isDecodedStates[key] || false;
 		const decoded = decodedStates[key] || null;
 		const isCopied = copiedStates[tokenType] || false;
@@ -148,34 +144,6 @@ export const TokenDisplayV8U: React.FC<TokenDisplayV8UProps> = ({
 
 					{/* Action Buttons */}
 					<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-						{showMaskToggle && (
-							<button
-								type="button"
-								onClick={() => handleToggleMask(tokenType)}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '4px',
-									padding: '6px 12px',
-									background: '#f3f4f6',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '12px',
-									cursor: 'pointer',
-									transition: 'all 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.background = '#e5e7eb';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.background = '#f3f4f6';
-								}}
-							>
-								{isMasked ? <FiEyeOff size={14} /> : <FiEye size={14} />}
-								{isMasked ? 'Show' : 'Hide'}
-							</button>
-						)}
-
 						{showDecodeButtons && isJWT && (
 							<button
 								type="button"

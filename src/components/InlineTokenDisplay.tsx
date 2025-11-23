@@ -223,7 +223,8 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	defaultMasked = false,
 	allowMaskToggle = true,
 }) => {
-	const [masked, setMasked] = useState(defaultMasked);
+	// Tokens always visible (no masking)
+	const [masked] = useState(false);
 	const [showDecoded, setShowDecoded] = useState(false);
 	const [decodedContent, setDecodedContent] = useState<DecodedJWT | null>(null);
 	const [isOpaque, setIsOpaque] = useState(false);
@@ -241,10 +242,6 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 			default:
 				return <FiShield size={16} />;
 		}
-	};
-
-	const handleToggleMask = () => {
-		setMasked(!masked);
 	};
 
 	const handleToggleDecode = () => {
@@ -311,12 +308,6 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 					<TokenBadge $type={tokenType}>{tokenType.toUpperCase()}</TokenBadge>
 				</TokenLabel>
 				<ActionButtons>
-					{allowMaskToggle && (
-						<ActionButton onClick={handleToggleMask} title={masked ? 'Show token' : 'Hide token'}>
-							{masked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
-							{masked ? 'Show' : 'Hide'}
-						</ActionButton>
-					)}
 					<ActionButton
 						onClick={handleToggleDecode}
 						title={showDecoded ? 'Hide decoded content' : 'Show decoded content'}

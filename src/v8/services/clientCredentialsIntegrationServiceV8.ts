@@ -64,7 +64,11 @@ export class ClientCredentialsIntegrationServiceV8 {
 		});
 
 		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const tokenEndpoint = `${backendUrl}/api/client-credentials`;
 
 			// Client Credentials flow REQUIRES client authentication (RFC 6749 Section 4.4)
 			// 'none' is NOT allowed - default to client_secret_basic (most common) if none is specified
@@ -73,101 +77,19 @@ export class ClientCredentialsIntegrationServiceV8 {
 					? (credentials.clientAuthMethod as Exclude<ClientAuthMethod, 'none'>)
 					: 'client_secret_basic';
 
-			const body = new URLSearchParams({
+			// Build request body for backend proxy
+			const requestBody: Record<string, string> = {
 				grant_type: 'client_credentials',
-			});
-
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
 			};
 
-			// Apply client authentication method
-			switch (authMethod) {
-				case 'client_secret_basic': {
-					// HTTP Basic Authentication (RFC 7617)
-					const credentials_b64 = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-					headers['Authorization'] = `Basic ${credentials_b64}`;
-					console.log(`${MODULE_TAG} Using Basic authentication`);
-					break;
-				}
+			const headers: Record<string, string> = {};
 
-				case 'client_secret_post': {
-					// Client credentials in POST body (default)
-					body.append('client_id', credentials.clientId);
-					body.append('client_secret', credentials.clientSecret);
-					console.log(`${MODULE_TAG} Using POST body authentication`);
-					break;
-				}
-
-				case 'client_secret_jwt': {
-					// JWT assertion authentication using client secret (HS256)
-					if (!credentials.clientSecret) {
-						throw new Error('Client secret is required for client_secret_jwt authentication');
-					}
-					try {
-						const { createClientAssertion } = await import('@/utils/clientAuthentication');
-						const assertion = await createClientAssertion(
-							credentials.clientId,
-							tokenEndpoint,
-							credentials.clientSecret,
-							'HS256'
-						);
-						body.append('client_id', credentials.clientId);
-						body.append(
-							'client_assertion_type',
-							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-						);
-						body.append('client_assertion', assertion);
-						console.log(`${MODULE_TAG} Using Client Secret JWT assertion authentication`);
-					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, { error });
-						throw new Error(
-							`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
-						);
-					}
-					break;
-				}
-
-				case 'private_key_jwt': {
-					// JWT assertion authentication using private key (RS256)
-					const privateKey = (credentials as { privateKey?: string }).privateKey;
-					if (!privateKey) {
-						throw new Error('Private key is required for private_key_jwt authentication');
-					}
-					try {
-						const { createClientAssertion } = await import('@/utils/clientAuthentication');
-						const assertion = await createClientAssertion(
-							credentials.clientId,
-							tokenEndpoint,
-							privateKey,
-							'RS256'
-						);
-						body.append('client_id', credentials.clientId);
-						body.append(
-							'client_assertion_type',
-							'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
-						);
-						body.append('client_assertion', assertion);
-						console.log(`${MODULE_TAG} Using Private Key JWT assertion authentication`);
-					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
-						throw new Error(
-							`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
-						);
-					}
-					break;
-				}
-
-				default: {
-					// Fallback to client_secret_post for any unexpected values
-					console.warn(
-						`${MODULE_TAG} Unknown authentication method, using client_secret_post`
-					);
-					body.append('client_id', credentials.clientId);
-					body.append('client_secret', credentials.clientSecret);
-					break;
-				}
-			}
+			// Build request body for backend proxy
+			// The backend proxy expects: environment_id, auth_method, body (with grant_type, client_id, etc.), headers (for Basic auth)
+			const proxyRequestBody: Record<string, string> = {
+				grant_type: 'client_credentials',
+				client_id: credentials.clientId,
+			};
 
 			// Add scope - REQUIRED for client credentials flow
 			// NOTE: Client credentials is for machine-to-machine auth, NOT user auth
@@ -199,18 +121,120 @@ export class ClientCredentialsIntegrationServiceV8 {
 			}
 			
 			console.log(`${MODULE_TAG} Requesting token with scopes: ${credentials.scopes}`);
-			body.append('scope', credentials.scopes);
+			proxyRequestBody.scope = credentials.scopes;
+
+			// Apply client authentication method
+			switch (authMethod) {
+				case 'client_secret_basic': {
+					// HTTP Basic Authentication (RFC 7617) - pass via headers to backend
+					const credentials_b64 = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+					headers['Authorization'] = `Basic ${credentials_b64}`;
+					console.log(`${MODULE_TAG} Using Basic authentication`);
+					break;
+				}
+
+				case 'client_secret_post': {
+					// Client credentials in POST body (default)
+					proxyRequestBody.client_secret = credentials.clientSecret;
+					console.log(`${MODULE_TAG} Using POST body authentication`);
+					break;
+				}
+
+				case 'client_secret_jwt': {
+					// JWT assertion authentication using client secret (HS256)
+					if (!credentials.clientSecret) {
+						throw new Error('Client secret is required for client_secret_jwt authentication');
+					}
+					try {
+						const { createClientAssertion } = await import('@/utils/clientAuthentication');
+						const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+						const assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							credentials.clientSecret,
+							'HS256'
+						);
+						proxyRequestBody.client_id = credentials.clientId;
+						proxyRequestBody.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+						proxyRequestBody.client_assertion = assertion;
+						console.log(`${MODULE_TAG} Using Client Secret JWT assertion authentication`);
+					} catch (error) {
+						console.error(`${MODULE_TAG} Failed to generate client secret JWT assertion`, { error });
+						throw new Error(
+							`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
+						);
+					}
+					break;
+				}
+
+				case 'private_key_jwt': {
+					// JWT assertion authentication using private key (RS256)
+					const privateKey = (credentials as { privateKey?: string }).privateKey;
+					if (!privateKey) {
+						throw new Error('Private key is required for private_key_jwt authentication');
+					}
+					try {
+						const { createClientAssertion } = await import('@/utils/clientAuthentication');
+						const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+						const assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							privateKey,
+							'RS256'
+						);
+						proxyRequestBody.client_id = credentials.clientId;
+						proxyRequestBody.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+						proxyRequestBody.client_assertion = assertion;
+						console.log(`${MODULE_TAG} Using Private Key JWT assertion authentication`);
+					} catch (error) {
+						console.error(`${MODULE_TAG} Failed to generate private key JWT assertion`, { error });
+						throw new Error(
+							`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
+						);
+					}
+					break;
+				}
+
+				default: {
+					// Fallback to client_secret_post for any unexpected values
+					console.warn(
+						`${MODULE_TAG} Unknown authentication method, using client_secret_post`
+					);
+					proxyRequestBody.client_secret = credentials.clientSecret;
+					break;
+				}
+			}
 
 			// Log the complete request body for debugging
-			const requestBody = body.toString();
-			console.log(`${MODULE_TAG} Request body:`, requestBody);
+			console.log(`${MODULE_TAG} Request body:`, proxyRequestBody);
 			console.log(`${MODULE_TAG} Request URL:`, tokenEndpoint);
 			console.log(`${MODULE_TAG} Request headers:`, headers);
 
+			// Build request for backend proxy
+			const proxyRequest: {
+				environment_id: string;
+				auth_method?: string;
+				body: Record<string, string>;
+				headers?: Record<string, string>;
+			} = {
+				environment_id: credentials.environmentId,
+				body: proxyRequestBody,
+			};
+
+			// Add auth method and headers if using Basic auth
+			if (authMethod === 'client_secret_basic') {
+				proxyRequest.auth_method = 'client_secret_basic';
+				proxyRequest.headers = headers;
+			} else {
+				proxyRequest.auth_method = authMethod;
+			}
+
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
-				headers,
-				body: requestBody,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(proxyRequest),
 			});
 
 			if (!response.ok) {
