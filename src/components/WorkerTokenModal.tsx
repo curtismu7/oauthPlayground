@@ -16,8 +16,8 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { trackedFetch } from '../utils/trackedFetch';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
 
@@ -695,12 +695,18 @@ export const WorkerTokenModal: React.FC<Props> = ({
 		// Validate credentials using service
 		// Basic validation
 		const validation = {
-			isValid: !!(credentialsToSave.environmentId && credentialsToSave.clientId && credentialsToSave.clientSecret),
+			isValid: !!(
+				credentialsToSave.environmentId &&
+				credentialsToSave.clientId &&
+				credentialsToSave.clientSecret
+			),
 			errors: [] as string[],
 		};
-		if (!credentialsToSave.environmentId?.trim()) validation.errors.push('Environment ID is required');
+		if (!credentialsToSave.environmentId?.trim())
+			validation.errors.push('Environment ID is required');
 		if (!credentialsToSave.clientId?.trim()) validation.errors.push('Client ID is required');
-		if (!credentialsToSave.clientSecret?.trim()) validation.errors.push('Client Secret is required');
+		if (!credentialsToSave.clientSecret?.trim())
+			validation.errors.push('Client Secret is required');
 		if (!validation.isValid) {
 			v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
 			return;
@@ -776,13 +782,19 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			};
 
 			// Basic validation
-		const validation = {
-			isValid: !!(credentialsToSave.environmentId && credentialsToSave.clientId && credentialsToSave.clientSecret),
-			errors: [] as string[],
-		};
-		if (!credentialsToSave.environmentId?.trim()) validation.errors.push('Environment ID is required');
-		if (!credentialsToSave.clientId?.trim()) validation.errors.push('Client ID is required');
-		if (!credentialsToSave.clientSecret?.trim()) validation.errors.push('Client Secret is required');
+			const validation = {
+				isValid: !!(
+					credentialsToSave.environmentId &&
+					credentialsToSave.clientId &&
+					credentialsToSave.clientSecret
+				),
+				errors: [] as string[],
+			};
+			if (!credentialsToSave.environmentId?.trim())
+				validation.errors.push('Environment ID is required');
+			if (!credentialsToSave.clientId?.trim()) validation.errors.push('Client ID is required');
+			if (!credentialsToSave.clientSecret?.trim())
+				validation.errors.push('Client Secret is required');
 			if (!validation.isValid) {
 				v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
 				return;

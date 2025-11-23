@@ -5,7 +5,11 @@ import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiCopy, FiExternalLink, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { DeviceFlowState, DeviceTokenResponse, deviceFlowService } from '../services/deviceFlowService';
+import {
+	DeviceFlowState,
+	DeviceTokenResponse,
+	deviceFlowService,
+} from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 
 // Tesla Car Display Main Container - Realistic Car Dashboard
@@ -176,7 +180,6 @@ const CarStatusLabel = styled.div`
   color: #000000;
   text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
 `;
-
 
 // Physical Controls Below Screen - Rotary Knobs
 const PhysicalControls = styled.div`
@@ -407,18 +410,21 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 
 	const handleOpenVerificationUri = () => {
 		// Use verificationUriComplete if available, otherwise construct it from verificationUri + userCode
-		const uriToOpen = state.verificationUriComplete || 
-			(state.verificationUri && state.userCode 
+		const uriToOpen =
+			state.verificationUriComplete ||
+			(state.verificationUri && state.userCode
 				? `${state.verificationUri}?user_code=${state.userCode}`
 				: state.verificationUri);
-		
+
 		if (!uriToOpen) {
 			logger.error('TeslaCarDisplayDeviceFlow', 'No verification URI available to open');
 			return;
 		}
-		
+
 		window.open(uriToOpen, '_blank');
-		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', { uri: uriToOpen });
+		logger.info('TeslaCarDisplayDeviceFlow', 'Verification URI opened in new tab', {
+			uri: uriToOpen,
+		});
 	};
 
 	const getStatusIcon = () => {
@@ -504,7 +510,6 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 									</>
 								)}
 
-
 								{/* Status Display */}
 								{state.status && (
 									<StatusDisplay $status={state.status}>
@@ -589,11 +594,15 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 								{state.verificationUri}
 							</div>
 						)}
-						<div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '0.75rem' }}>
-							<ControlButton
-								$variant="primary"
-								onClick={handleOpenVerificationUri}
-							>
+						<div
+							style={{
+								display: 'flex',
+								gap: '0.5rem',
+								justifyContent: 'center',
+								marginTop: '0.75rem',
+							}}
+						>
+							<ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
 								<FiExternalLink size={12} /> Open in Browser
 							</ControlButton>
 							<ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
@@ -608,4 +617,3 @@ const TeslaCarDisplayDeviceFlow: React.FC<TeslaCarDisplayDeviceFlowProps> = ({
 };
 
 export default TeslaCarDisplayDeviceFlow;
-

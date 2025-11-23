@@ -4,22 +4,22 @@
  * @description MFA Device Management Component - View, rename, block, unblock, delete devices
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Features:
  * - List all MFA devices for a user
  * - Rename devices
  * - Block/Unblock devices
  * - Delete devices
  * - View device details (type, status, phone/email)
- * 
+ *
  * @example
- * <MFADeviceManagerV8 
+ * <MFADeviceManagerV8
  *   environmentId="xxx"
  *   username="john.doe"
  * />
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -64,7 +64,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			console.log(`${MODULE_TAG} Loaded ${deviceList.length} devices`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load devices`, error);
-			toastV8.error(`Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to load devices: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		} finally {
 			setIsLoading(false);
 		}
@@ -99,7 +101,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to rename device`, error);
-			toastV8.error(`Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to rename device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	};
 
@@ -120,7 +124,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to block device`, error);
-			toastV8.error(`Failed to block device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to block device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	};
 
@@ -137,7 +143,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to unblock device`, error);
-			toastV8.error(`Failed to unblock device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to unblock device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	};
 
@@ -158,7 +166,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 			await loadDevices();
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to delete device`, error);
-			toastV8.error(`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			toastV8.error(
+				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	};
 
@@ -200,7 +210,14 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 
 	return (
 		<div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
-			<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'space-between',
+					alignItems: 'center',
+					marginBottom: '20px',
+				}}
+			>
 				<div>
 					<h2 style={{ margin: '0 0 8px 0', fontSize: '24px', color: '#1f2937' }}>
 						MFA Device Management
@@ -233,13 +250,15 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 					Loading devices...
 				</div>
 			) : devices.length === 0 ? (
-				<div style={{
-					textAlign: 'center',
-					padding: '40px',
-					background: '#f9fafb',
-					borderRadius: '8px',
-					border: '1px solid #e5e7eb',
-				}}>
+				<div
+					style={{
+						textAlign: 'center',
+						padding: '40px',
+						background: '#f9fafb',
+						borderRadius: '8px',
+						border: '1px solid #e5e7eb',
+					}}
+				>
 					<div style={{ fontSize: '48px', marginBottom: '16px' }}>📱</div>
 					<h3 style={{ margin: '0 0 8px 0', color: '#1f2937' }}>No Devices Found</h3>
 					<p style={{ margin: 0, color: '#6b7280' }}>
@@ -259,10 +278,23 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 								boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 							}}
 						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'flex-start',
+								}}
+							>
 								{/* Device Info */}
 								<div style={{ flex: 1 }}>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+											marginBottom: '12px',
+										}}
+									>
 										<span style={{ fontSize: '32px' }}>{getDeviceIcon(device.type)}</span>
 										<div>
 											{editingDeviceId === device.id ? (
@@ -352,7 +384,8 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 											</p>
 										)}
 										<p style={{ margin: '4px 0' }}>
-											<strong>Device ID:</strong> <code style={{ fontSize: '11px' }}>{device.id}</code>
+											<strong>Device ID:</strong>{' '}
+											<code style={{ fontSize: '11px' }}>{device.id}</code>
 										</p>
 										{device.createdAt && (
 											<p style={{ margin: '4px 0' }}>
@@ -364,7 +397,14 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 
 								{/* Actions */}
 								{editingDeviceId !== device.id && (
-									<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+									<div
+										style={{
+											display: 'flex',
+											gap: '8px',
+											flexWrap: 'wrap',
+											justifyContent: 'flex-end',
+										}}
+									>
 										<button
 											onClick={() => {
 												setEditingDeviceId(device.id);

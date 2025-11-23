@@ -112,22 +112,23 @@ export class OAuthIntegrationServiceV8 {
 
 		// Ensure scopes default to 'openid' for user authentication flows
 		// User flows (authorization code, implicit, hybrid) MUST include 'openid' for OIDC
-		const scopes = credentials.scopes && credentials.scopes.trim() !== '' 
-			? credentials.scopes 
-			: 'openid profile email';
-		
+		const scopes =
+			credentials.scopes && credentials.scopes.trim() !== ''
+				? credentials.scopes
+				: 'openid profile email';
+
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
 			console.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For user authentication flows, 'openid' scope is required for OIDC. Adding it automatically.`
 			);
 		}
-		
+
 		// Ensure 'openid' is always included for user flows
 		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
 
 		// Use provided PKCE codes or generate new ones (now async)
-		const pkce = pkceCodes || await OAuthIntegrationServiceV8.generatePKCECodes();
+		const pkce = pkceCodes || (await OAuthIntegrationServiceV8.generatePKCECodes());
 
 		// Generate state parameter for CSRF protection
 		const state = OAuthIntegrationServiceV8.generateRandomString(32);
@@ -237,9 +238,10 @@ export class OAuthIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 			console.log(`${MODULE_TAG} Token endpoint (via proxy):`, tokenEndpoint);
 
@@ -347,9 +349,10 @@ export class OAuthIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
 			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
 			const bodyParams: Record<string, string> = {
@@ -515,17 +518,11 @@ export class OAuthIntegrationServiceV8 {
 			// Convert ArrayBuffer to base64url
 			const hashArray = Array.from(new Uint8Array(hashBuffer));
 			const hashBase64 = btoa(String.fromCharCode(...hashArray));
-			
+
 			// Convert to base64url (RFC 4648 §5)
-			return hashBase64
-				.replace(/\+/g, '-')
-				.replace(/\//g, '_')
-				.replace(/=/g, '');
+			return hashBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 		} catch (err) {
-			console.error(
-				`${MODULE_TAG} Failed to generate code challenge with Web Crypto`,
-				err
-			);
+			console.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
 			// Fallback to base64url encoding (not secure, but better than failing)
 			return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
 		}
