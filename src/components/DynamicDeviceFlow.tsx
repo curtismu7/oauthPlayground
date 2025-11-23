@@ -3,11 +3,10 @@
 
 import React from 'react';
 import { DeviceFlowState, DeviceTokenResponse } from '../services/deviceFlowService';
-import AmazonEchoShowDeviceFlow from './AmazonEchoShowDeviceFlow';
-import AppleTVDeviceFlow from './AppleTVDeviceFlow';
-import TeslaCarDisplayDeviceFlow from './TeslaCarDisplayDeviceFlow';
 import AIAgentDeviceFlow from './AIAgentDeviceFlow';
 import AirportKioskDeviceFlow from './AirportKioskDeviceFlow';
+import AmazonEchoShowDeviceFlow from './AmazonEchoShowDeviceFlow';
+import AppleTVDeviceFlow from './AppleTVDeviceFlow';
 import BoseSmartSpeakerDeviceFlow from './BoseSmartSpeakerDeviceFlow';
 import FitnessTrackerDeviceFlow from './FitnessTrackerDeviceFlow';
 import GamingConsoleDeviceFlow from './GamingConsoleDeviceFlow';
@@ -23,6 +22,7 @@ import SmartTVDeviceFlow from './SmartTVDeviceFlow';
 import SmartVehicleDeviceFlow from './SmartVehicleDeviceFlow';
 import SonyGameControllerDeviceFlow from './SonyGameControllerDeviceFlow';
 import SquarePOSDeviceFlow from './SquarePOSDeviceFlow';
+import TeslaCarDisplayDeviceFlow from './TeslaCarDisplayDeviceFlow';
 import VizioTVDeviceFlow from './VizioTVDeviceFlow';
 
 // Note: All devices now have dedicated realistic components

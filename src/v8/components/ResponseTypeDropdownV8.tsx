@@ -4,7 +4,7 @@
  * @description Response type dropdown with comprehensive education for V8 flows
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <ResponseTypeDropdownV8
  *   value={responseType}
@@ -53,41 +53,44 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 		label: 'code',
 		icon: '🔐',
 		shortDescription: 'Authorization code only',
-		fullDescription: 'Returns an authorization code that must be exchanged for tokens at the token endpoint. Most secure option.',
+		fullDescription:
+			'Returns an authorization code that must be exchanged for tokens at the token endpoint. Most secure option.',
 		returns: ['authorization_code'],
 		security: 'Most Secure - Code is single-use and short-lived',
 		useCase: 'Web apps, mobile apps, SPAs with backend',
 		specSupport: { oauth20: true, oauth21: true, oidc: true },
 		recommended: true,
 	},
-	
+
 	// Implicit Flow (OAuth 2.0)
 	token: {
 		value: 'token',
 		label: 'token',
 		icon: '⚡',
 		shortDescription: 'Access token directly (OAuth 2.0)',
-		fullDescription: 'Returns access token directly in URL fragment. No token endpoint call needed. OAuth 2.0 only.',
+		fullDescription:
+			'Returns access token directly in URL fragment. No token endpoint call needed. OAuth 2.0 only.',
 		returns: ['access_token', 'token_type', 'expires_in'],
 		security: 'Less Secure - Token exposed in URL',
 		useCase: 'Legacy SPAs (deprecated in OAuth 2.1)',
 		specSupport: { oauth20: true, oauth21: false, oidc: false },
 		deprecated: true,
 	},
-	
+
 	// Implicit Flow (OIDC)
-	'id_token': {
+	id_token: {
 		value: 'id_token',
 		label: 'id_token',
 		icon: '🪪',
 		shortDescription: 'ID token only (OIDC)',
-		fullDescription: 'Returns ID token directly in URL fragment. Used for authentication only, not API access.',
+		fullDescription:
+			'Returns ID token directly in URL fragment. Used for authentication only, not API access.',
 		returns: ['id_token'],
 		security: 'Medium - ID token exposed in URL',
 		useCase: 'Authentication-only flows (no API access)',
 		specSupport: { oauth20: false, oauth21: false, oidc: true },
 	},
-	
+
 	'id_token token': {
 		value: 'id_token token',
 		label: 'id_token token',
@@ -100,38 +103,41 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
 		specSupport: { oauth20: false, oauth21: false, oidc: true },
 		deprecated: true,
 	},
-	
+
 	// Hybrid Flow (OIDC)
 	'code id_token': {
 		value: 'code id_token',
 		label: 'code id_token',
 		icon: '🔐🪪',
 		shortDescription: 'Code + ID token (OIDC Hybrid)',
-		fullDescription: 'Returns authorization code and ID token. Code is exchanged for access token at token endpoint.',
+		fullDescription:
+			'Returns authorization code and ID token. Code is exchanged for access token at token endpoint.',
 		returns: ['authorization_code', 'id_token'],
 		security: 'High - Code must be exchanged, ID token for immediate auth',
 		useCase: 'Web apps needing immediate user info',
 		specSupport: { oauth20: false, oauth21: false, oidc: true },
 	},
-	
+
 	'code token': {
 		value: 'code token',
 		label: 'code token',
 		icon: '🔐⚡',
 		shortDescription: 'Code + access token (OIDC Hybrid)',
-		fullDescription: 'Returns authorization code and access token. Code can be exchanged for refresh token.',
+		fullDescription:
+			'Returns authorization code and access token. Code can be exchanged for refresh token.',
 		returns: ['authorization_code', 'access_token', 'token_type', 'expires_in'],
 		security: 'Medium - Access token exposed, but code for refresh',
 		useCase: 'Immediate API access + refresh capability',
 		specSupport: { oauth20: false, oauth21: false, oidc: true },
 	},
-	
+
 	'code id_token token': {
 		value: 'code id_token token',
 		label: 'code id_token token',
 		icon: '🔐🪪⚡',
 		shortDescription: 'Code + ID token + access token (OIDC Hybrid)',
-		fullDescription: 'Returns authorization code, ID token, and access token. Maximum flexibility but complex.',
+		fullDescription:
+			'Returns authorization code, ID token, and access token. Maximum flexibility but complex.',
 		returns: ['authorization_code', 'id_token', 'access_token', 'token_type', 'expires_in'],
 		security: 'Medium - Tokens exposed, but code for refresh',
 		useCase: 'Complex scenarios needing all tokens immediately',
@@ -144,14 +150,14 @@ const RESPONSE_TYPE_OPTIONS: Record<string, ResponseTypeOption> = {
  */
 const getAvailableTypes = (flowType: string, specVersion: string): string[] => {
 	const allTypes = Object.values(RESPONSE_TYPE_OPTIONS);
-	
+
 	return allTypes
-		.filter(option => {
+		.filter((option) => {
 			// Filter by spec version support
 			if (specVersion === 'oauth2.0' && !option.specSupport.oauth20) return false;
 			if (specVersion === 'oauth2.1' && !option.specSupport.oauth21) return false;
 			if (specVersion === 'oidc' && !option.specSupport.oidc) return false;
-			
+
 			// Filter by flow type
 			if (flowType === 'oauth-authz') {
 				return option.value === 'code';
@@ -160,10 +166,10 @@ const getAvailableTypes = (flowType: string, specVersion: string): string[] => {
 			} else if (flowType === 'hybrid') {
 				return ['code id_token', 'code token', 'code id_token token'].includes(option.value);
 			}
-			
+
 			return true;
 		})
-		.map(option => option.value);
+		.map((option) => option.value);
 };
 
 export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
@@ -179,7 +185,12 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 	const selectedOption = RESPONSE_TYPE_OPTIONS[value];
 
 	const handleChange = (newType: string) => {
-		console.log(`${MODULE_TAG} Response type changed`, { from: value, to: newType, flowType, specVersion });
+		console.log(`${MODULE_TAG} Response type changed`, {
+			from: value,
+			to: newType,
+			flowType,
+			specVersion,
+		});
 		onChange(newType);
 	};
 
@@ -323,9 +334,15 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 							gap: '4px',
 						}}
 					>
-						<div><strong>Returns:</strong> {selectedOption.returns.join(', ')}</div>
-						<div><strong>Security:</strong> {selectedOption.security}</div>
-						<div><strong>Use Case:</strong> {selectedOption.useCase}</div>
+						<div>
+							<strong>Returns:</strong> {selectedOption.returns.join(', ')}
+						</div>
+						<div>
+							<strong>Security:</strong> {selectedOption.security}
+						</div>
+						<div>
+							<strong>Use Case:</strong> {selectedOption.useCase}
+						</div>
 					</div>
 					{selectedOption.deprecated && (
 						<div
@@ -340,7 +357,8 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								fontWeight: '600',
 							}}
 						>
-							⚠️ DEPRECATED: This response type is deprecated in OAuth 2.1. Use Authorization Code Flow with PKCE instead.
+							⚠️ DEPRECATED: This response type is deprecated in OAuth 2.1. Use Authorization Code
+							Flow with PKCE instead.
 						</div>
 					)}
 				</div>
@@ -375,7 +393,12 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						The <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>response_type</code> parameter determines <strong>what the authorization server returns</strong> from the authorization endpoint. This is one of the most critical OAuth/OIDC parameters.
+						The{' '}
+						<code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>
+							response_type
+						</code>{' '}
+						parameter determines <strong>what the authorization server returns</strong> from the
+						authorization endpoint. This is one of the most critical OAuth/OIDC parameters.
 					</p>
 
 					{/* Flow Type Explanation */}
@@ -396,22 +419,34 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								marginBottom: '8px',
 							}}
 						>
-							🎯 Current Flow: {flowType === 'oauth-authz' ? 'Authorization Code' : flowType === 'implicit' ? 'Implicit' : 'Hybrid'} ({specVersion.toUpperCase()})
+							🎯 Current Flow:{' '}
+							{flowType === 'oauth-authz'
+								? 'Authorization Code'
+								: flowType === 'implicit'
+									? 'Implicit'
+									: 'Hybrid'}{' '}
+							({specVersion.toUpperCase()})
 						</div>
 						<div style={{ fontSize: '12px', color: '#374151', lineHeight: '1.6' }}>
 							{flowType === 'oauth-authz' && (
 								<>
-									<strong>Authorization Code Flow</strong> - Most secure. Returns only a code that must be exchanged for tokens at the token endpoint. Recommended for all application types.
+									<strong>Authorization Code Flow</strong> - Most secure. Returns only a code that
+									must be exchanged for tokens at the token endpoint. Recommended for all
+									application types.
 								</>
 							)}
 							{flowType === 'implicit' && (
 								<>
-									<strong>Implicit Flow</strong> - Returns tokens directly in URL fragment. Deprecated in OAuth 2.1 due to security concerns. Use Authorization Code Flow with PKCE instead.
+									<strong>Implicit Flow</strong> - Returns tokens directly in URL fragment.
+									Deprecated in OAuth 2.1 due to security concerns. Use Authorization Code Flow with
+									PKCE instead.
 								</>
 							)}
 							{flowType === 'hybrid' && (
 								<>
-									<strong>Hybrid Flow</strong> - OIDC only. Returns some tokens immediately and a code for additional tokens. Useful when you need immediate user info but also want refresh tokens.
+									<strong>Hybrid Flow</strong> - OIDC only. Returns some tokens immediately and a
+									code for additional tokens. Useful when you need immediate user info but also want
+									refresh tokens.
 								</>
 							)}
 						</div>
@@ -516,12 +551,17 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 											gap: '3px',
 										}}
 									>
-										<div><strong>Returns:</strong> {option.returns.join(', ')}</div>
-										<div><strong>Security:</strong> {option.security}</div>
-										<div><strong>Use Case:</strong> {option.useCase}</div>
 										<div>
-											<strong>Spec Support:</strong>{' '}
-											{option.specSupport.oauth20 && 'OAuth 2.0 '}
+											<strong>Returns:</strong> {option.returns.join(', ')}
+										</div>
+										<div>
+											<strong>Security:</strong> {option.security}
+										</div>
+										<div>
+											<strong>Use Case:</strong> {option.useCase}
+										</div>
+										<div>
+											<strong>Spec Support:</strong> {option.specSupport.oauth20 && 'OAuth 2.0 '}
 											{option.specSupport.oauth21 && 'OAuth 2.1 '}
 											{option.specSupport.oidc && 'OIDC'}
 										</div>
@@ -550,9 +590,15 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 						>
 							<strong>💡 Key Concepts:</strong>
 							<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
-								<li><strong>code</strong> = Authorization code (must be exchanged)</li>
-								<li><strong>token</strong> = Access token (for API calls)</li>
-								<li><strong>id_token</strong> = ID token (user identity, OIDC only)</li>
+								<li>
+									<strong>code</strong> = Authorization code (must be exchanged)
+								</li>
+								<li>
+									<strong>token</strong> = Access token (for API calls)
+								</li>
+								<li>
+									<strong>id_token</strong> = ID token (user identity, OIDC only)
+								</li>
 								<li>Multiple values = Hybrid flow (OIDC only)</li>
 							</ul>
 						</div>
@@ -575,7 +621,15 @@ export const ResponseTypeDropdownV8: React.FC<ResponseTypeDropdownV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>🔐 Security Best Practice:</strong> Always use <code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>code</code> (Authorization Code Flow) with PKCE for maximum security. Implicit Flow (<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>token</code>) is deprecated in OAuth 2.1.
+							<strong>🔐 Security Best Practice:</strong> Always use{' '}
+							<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
+								code
+							</code>{' '}
+							(Authorization Code Flow) with PKCE for maximum security. Implicit Flow (
+							<code style={{ background: '#fde68a', padding: '2px 4px', borderRadius: '3px' }}>
+								token
+							</code>
+							) is deprecated in OAuth 2.1.
 						</div>
 					</div>
 				</div>

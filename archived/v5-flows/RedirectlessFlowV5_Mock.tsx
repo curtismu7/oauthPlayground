@@ -22,9 +22,6 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
-import { themeService } from '../../services/themeService';
-
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -37,9 +34,11 @@ import {
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
+import { themeService } from '../../services/themeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [

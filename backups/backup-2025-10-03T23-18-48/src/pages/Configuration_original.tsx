@@ -2632,12 +2632,12 @@ const Configuration = () => {
 			</CollapsibleSection>showDiscoveryPanel && (
 				<DiscoveryPanel
 					onConfigurationDiscovered=handleConfigurationDiscovered
-					onClose={() => setShowDiscoveryPanel(false)}
+					onClose=() => setShowDiscoveryPanel(false)
 				/>
 			)
 			<UISettingsModal
 				isOpen=isUISettingsModalOpen
-				onClose={() => setIsUISettingsModalOpen(false)}
+				onClose=() => setIsUISettingsModalOpen(false)
 			/>
 		</ConfigurationContainer>
 	);

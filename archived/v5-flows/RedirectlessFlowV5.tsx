@@ -20,7 +20,10 @@ import {
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	HelperText,
 	ResultsHeading,
@@ -31,10 +34,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
-
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
