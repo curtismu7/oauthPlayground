@@ -53,7 +53,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 	const effectiveFlowType = availableFlows.includes(flowType)
 		? flowType
 		: availableFlows[0] || 'oauth-authz';
-	
+
 	// REMOVED: Auto-correction useEffect - this was causing infinite loops
 	// The parent component (UnifiedOAuthFlowV8U) handles flow type validation
 	// and will show a modal if the flow is not available for the spec version

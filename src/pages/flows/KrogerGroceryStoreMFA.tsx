@@ -19,6 +19,7 @@ import { ApiCallTable } from '../../components/ApiCallTable';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import type { ApiCall } from '../../services/apiCallTrackerService';
 import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -28,7 +29,6 @@ import { workerTokenCredentialsService } from '../../services/workerTokenCredent
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';

@@ -9,8 +9,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔍 COMPACT-APP-PICKER-V8U]';
@@ -88,7 +88,10 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 			}
 
 			// Discover applications using the worker token
-			const discovered = await AppDiscoveryServiceV8.discoverApplications(environmentId, workerToken);
+			const discovered = await AppDiscoveryServiceV8.discoverApplications(
+				environmentId,
+				workerToken
+			);
 			if (discovered && discovered.length > 0) {
 				setApps(discovered);
 				setShowDropdown(true);
@@ -100,7 +103,9 @@ export const CompactAppPickerV8U: React.FC<CompactAppPickerV8UProps> = ({
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error(
-				error instanceof Error ? error.message : 'Failed to discover applications - check worker token'
+				error instanceof Error
+					? error.message
+					: 'Failed to discover applications - check worker token'
 			);
 		} finally {
 			setIsLoading(false);

@@ -19,7 +19,7 @@ interface TokenEndpointAuthModalProps {
 
 // Styled Components
 const Overlay = styled.div<{ $isOpen: boolean }>`
-	display: ${props => props.$isOpen ? 'flex' : 'none'};
+	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -185,7 +185,7 @@ const InfoBox = styled.div<{ $variant: 'info' | 'warning' | 'success' }>`
 	display: flex;
 	gap: 0.75rem;
 
-	${props => {
+	${(props) => {
 		switch (props.$variant) {
 			case 'success':
 				return `
@@ -231,7 +231,10 @@ const RecommendationText = styled.p`
 	line-height: 1.5;
 `;
 
-export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({ isOpen, onClose }) => {
+export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
+	isOpen,
+	onClose,
+}) => {
 	console.log(`${MODULE_TAG} Modal state:`, { isOpen });
 
 	// Lock body scroll when modal is open
@@ -266,8 +269,9 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({ 
 							<div>
 								<strong>What is Token Endpoint Authentication?</strong>
 								<p style={{ margin: '0.5rem 0 0 0' }}>
-									When your application exchanges an authorization code for tokens, it must prove its identity
-									to PingOne. The authentication method determines how your app proves it's legitimate.
+									When your application exchanges an authorization code for tokens, it must prove
+									its identity to PingOne. The authentication method determines how your app proves
+									it's legitimate.
 								</p>
 							</div>
 						</InfoBox>
@@ -289,7 +293,8 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({ 
 								<strong>For:</strong> Single Page Apps (SPAs), Mobile Apps, Native Apps
 							</MethodDescription>
 							<MethodDescription>
-								<strong>How it works:</strong> No secret required. Client ID sent in request body. Must use PKCE for security.
+								<strong>How it works:</strong> No secret required. Client ID sent in request body.
+								Must use PKCE for security.
 							</MethodDescription>
 							<CodeExample>
 								{`// No Authorization header
@@ -312,7 +317,8 @@ grant_type=authorization_code
 								<strong>For:</strong> Web Applications, Backend Services (most common)
 							</MethodDescription>
 							<MethodDescription>
-								<strong>How it works:</strong> Client ID and secret sent in HTTP Basic Authorization header (Base64 encoded).
+								<strong>How it works:</strong> Client ID and secret sent in HTTP Basic Authorization
+								header (Base64 encoded).
 							</MethodDescription>
 							<CodeExample>
 								{`// Authorization header with Base64(client_id:client_secret)
@@ -335,7 +341,8 @@ grant_type=authorization_code
 								<strong>For:</strong> Web Applications, Backend Services (alternative to Basic)
 							</MethodDescription>
 							<MethodDescription>
-								<strong>How it works:</strong> Client ID and secret sent in POST body (not recommended for production).
+								<strong>How it works:</strong> Client ID and secret sent in POST body (not
+								recommended for production).
 							</MethodDescription>
 							<CodeExample>
 								{`// Credentials in POST body
@@ -359,7 +366,8 @@ grant_type=authorization_code
 								<strong>For:</strong> Enterprise Applications, High-Security Services
 							</MethodDescription>
 							<MethodDescription>
-								<strong>How it works:</strong> HMAC-signed JWT using client secret (HS256, HS384, HS512).
+								<strong>How it works:</strong> HMAC-signed JWT using client secret (HS256, HS384,
+								HS512).
 							</MethodDescription>
 							<CodeExample>
 								{`// JWT signed with client secret
@@ -379,10 +387,12 @@ grant_type=authorization_code
 								<MethodName>Private Key JWT</MethodName>
 							</MethodHeader>
 							<MethodDescription>
-								<strong>For:</strong> Enterprise Applications, Maximum Security (recommended for production)
+								<strong>For:</strong> Enterprise Applications, Maximum Security (recommended for
+								production)
 							</MethodDescription>
 							<MethodDescription>
-								<strong>How it works:</strong> RSA/ECDSA-signed JWT using private key (RS256, RS384, RS512, ES256, ES384, ES512).
+								<strong>How it works:</strong> RSA/ECDSA-signed JWT using private key (RS256, RS384,
+								RS512, ES256, ES384, ES512).
 							</MethodDescription>
 							<CodeExample>
 								{`// JWT signed with private key
@@ -418,59 +428,129 @@ grant_type=authorization_code
 							<tbody>
 								<TableRow>
 									<TableCell>Authorization Code (OAuth)</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Authorization Code (OIDC)</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>PKCE / SPA / Native App</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Client Credentials</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Refresh Token</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Implicit (OIDC)</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>Device Authorization</TableCell>
-									<TableCell style={{ textAlign: 'center' }}><CheckIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
-									<TableCell style={{ textAlign: 'center' }}><XIcon size={18} /></TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<CheckIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
+									<TableCell style={{ textAlign: 'center' }}>
+										<XIcon size={18} />
+									</TableCell>
 								</TableRow>
 							</tbody>
 						</Table>
@@ -486,8 +566,10 @@ grant_type=authorization_code
 						<RecommendationCard>
 							<RecommendationTitle>🌐 Web App (Confidential)</RecommendationTitle>
 							<RecommendationText>
-								<strong>Default:</strong> Client Secret Basic<br />
-								<strong>Alternate:</strong> Client Secret Post, Client Secret JWT, Private Key JWT<br />
+								<strong>Default:</strong> Client Secret Basic
+								<br />
+								<strong>Alternate:</strong> Client Secret Post, Client Secret JWT, Private Key JWT
+								<br />
 								<strong>Flows:</strong> Authorization Code, Hybrid
 							</RecommendationText>
 						</RecommendationCard>
@@ -495,8 +577,10 @@ grant_type=authorization_code
 						<RecommendationCard>
 							<RecommendationTitle>📱 Native / Mobile App</RecommendationTitle>
 							<RecommendationText>
-								<strong>Default:</strong> None (PKCE required)<br />
-								<strong>Alternate:</strong> None<br />
+								<strong>Default:</strong> None (PKCE required)
+								<br />
+								<strong>Alternate:</strong> None
+								<br />
 								<strong>Flows:</strong> Authorization Code (PKCE), Device Authorization
 							</RecommendationText>
 						</RecommendationCard>
@@ -504,8 +588,10 @@ grant_type=authorization_code
 						<RecommendationCard>
 							<RecommendationTitle>💻 SPA (Browser JavaScript)</RecommendationTitle>
 							<RecommendationText>
-								<strong>Default:</strong> None (PKCE required)<br />
-								<strong>Alternate:</strong> None<br />
+								<strong>Default:</strong> None (PKCE required)
+								<br />
+								<strong>Alternate:</strong> None
+								<br />
 								<strong>Flows:</strong> Authorization Code (PKCE)
 							</RecommendationText>
 						</RecommendationCard>
@@ -513,8 +599,10 @@ grant_type=authorization_code
 						<RecommendationCard>
 							<RecommendationTitle>🔧 Service / API (Machine-to-Machine)</RecommendationTitle>
 							<RecommendationText>
-								<strong>Default:</strong> Client Secret JWT or Private Key JWT<br />
-								<strong>Alternate:</strong> Client Secret Basic<br />
+								<strong>Default:</strong> Client Secret JWT or Private Key JWT
+								<br />
+								<strong>Alternate:</strong> Client Secret Basic
+								<br />
 								<strong>Flows:</strong> Client Credentials, JWT Bearer
 							</RecommendationText>
 						</RecommendationCard>
@@ -527,9 +615,17 @@ grant_type=authorization_code
 							<div>
 								<strong>Key Takeaways</strong>
 								<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
-									<li>"None" is only appropriate for <strong>public</strong> clients (SPAs, mobile apps)</li>
-									<li>Confidential clients (web apps, services) <strong>must</strong> authenticate</li>
-									<li>JWT-based methods (Client Secret JWT, Private Key JWT) are strongest for enterprise workloads</li>
+									<li>
+										"None" is only appropriate for <strong>public</strong> clients (SPAs, mobile
+										apps)
+									</li>
+									<li>
+										Confidential clients (web apps, services) <strong>must</strong> authenticate
+									</li>
+									<li>
+										JWT-based methods (Client Secret JWT, Private Key JWT) are strongest for
+										enterprise workloads
+									</li>
 									<li>PingOne rejects "None" for confidential clients</li>
 									<li>Always use PKCE with "None" authentication method</li>
 								</ul>

@@ -4,27 +4,30 @@
  * @description MFA Device Management Flow - Manage user's MFA devices
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Features:
  * - View all MFA devices for a user
  * - Rename devices
  * - Block/Unblock devices
  * - Delete devices
- * 
+ *
  * @example
  * <MFADeviceManagementFlowV8 />
  */
 
-import React, { useState, useEffect } from 'react';
-import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { SuperSimpleApiDisplayV8, ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
@@ -150,24 +153,31 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 			<div className="flow-container">
 				{/* MFA Navigation Links */}
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '16px',
+					}}
+				>
 					<div className="mfa-nav-links" style={{ marginBottom: 0 }}>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-hub'}
+							onClick={() => (window.location.href = '/v8/mfa-hub')}
 							className="nav-link-btn"
 							title="Go to MFA Hub"
 						>
 							🏠 MFA Hub
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa'}
+							onClick={() => (window.location.href = '/v8/mfa')}
 							className="nav-link-btn"
 							title="Register MFA Devices"
 						>
 							📱 Device Registration
 						</button>
 						<button
-							onClick={() => window.location.href = '/v8/mfa-reporting'}
+							onClick={() => (window.location.href = '/v8/mfa-reporting')}
 							className="nav-link-btn"
 							title="View MFA Reports"
 						>
@@ -184,7 +194,9 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 
 						{/* Worker Token Status */}
 						<div style={{ marginBottom: '20px' }}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
+							>
 								<button
 									type="button"
 									onClick={handleManageWorkerToken}
@@ -279,11 +291,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 							type="button"
 							className="btn btn-primary"
 							onClick={handleLoadDevices}
-							disabled={
-								!credentials.environmentId ||
-								!credentials.username ||
-								!tokenStatus.isValid
-							}
+							disabled={!credentials.environmentId || !credentials.username || !tokenStatus.isValid}
 							style={{ marginTop: '20px' }}
 						>
 							Load Devices
@@ -291,7 +299,15 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 					</div>
 				) : (
 					<>
-						<div style={{ marginBottom: '20px', padding: '12px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+						<div
+							style={{
+								marginBottom: '20px',
+								padding: '12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
 							<button
 								onClick={() => setIsReady(false)}
 								style={{

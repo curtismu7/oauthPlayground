@@ -4,7 +4,7 @@
  * @description Country code picker with flags for phone number input
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * @example
  * <CountryCodePickerV8
  *   value="+1"
@@ -12,7 +12,7 @@
  * />
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const MODULE_TAG = '[🌍 COUNTRY-CODE-PICKER-V8]';
 
@@ -99,7 +99,7 @@ export const CountryCodePickerV8: React.FC<CountryCodePickerV8Props> = ({
 					country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
 					country.dialCode.includes(searchQuery) ||
 					country.code.toLowerCase().includes(searchQuery.toLowerCase())
-		  )
+			)
 		: COUNTRIES;
 
 	// Close dropdown when clicking outside
@@ -227,8 +227,7 @@ export const CountryCodePickerV8: React.FC<CountryCodePickerV8Props> = ({
 										alignItems: 'center',
 										gap: '12px',
 										padding: '10px 12px',
-										background:
-											country.dialCode === value ? '#f0fdf4' : 'transparent',
+										background: country.dialCode === value ? '#f0fdf4' : 'transparent',
 										border: 'none',
 										borderBottom: '1px solid #f3f4f6',
 										cursor: 'pointer',

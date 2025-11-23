@@ -4,7 +4,7 @@
  * @description Display mode dropdown with education for V8 flows
  * @version 8.0.0
  * @since 2024-11-22
- * 
+ *
  * @example
  * <DisplayModeDropdownV8
  *   value={display}
@@ -195,9 +195,7 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 					<div style={{ fontWeight: '600', marginBottom: '4px' }}>
 						{selectedOption.icon} {selectedOption.description}
 					</div>
-					<div style={{ color: '#6b7280' }}>
-						Best for: {selectedOption.useCase}
-					</div>
+					<div style={{ color: '#6b7280' }}>Best for: {selectedOption.useCase}</div>
 				</div>
 			)}
 
@@ -230,7 +228,11 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						The <code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>display</code> parameter controls how the authentication UI is displayed to the user.
+						The{' '}
+						<code style={{ background: '#dbeafe', padding: '2px 6px', borderRadius: '3px' }}>
+							display
+						</code>{' '}
+						parameter controls how the authentication UI is displayed to the user.
 					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -332,7 +334,9 @@ export const DisplayModeDropdownV8: React.FC<DisplayModeDropdownV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Quick Tip:</strong> Use <strong>page</strong> for standard web apps, <strong>popup</strong> for embedded authentication in SPAs, <strong>touch</strong> for mobile apps. The <strong>wap</strong> mode is legacy and rarely used today.
+							<strong>💡 Quick Tip:</strong> Use <strong>page</strong> for standard web apps,{' '}
+							<strong>popup</strong> for embedded authentication in SPAs, <strong>touch</strong> for
+							mobile apps. The <strong>wap</strong> mode is legacy and rarely used today.
 						</div>
 					</div>
 				</div>

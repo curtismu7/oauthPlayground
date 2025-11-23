@@ -412,207 +412,221 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	// when USERNAME_PASSWORD_REQUIRED status is returned from handleStartRedirectlessFlow
 
 	// Step 3: Resume flow to get authorization code (must be defined before handleSubmitCredentials)
-	const handleResumeFlow = useCallback(async (
-		flowId: string,
-		stateValue: string,
-		pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: string },
-		resumeUrl?: string
-	) => {
-		try {
-			console.log('🔐 [Redirectless V7] Step 3: Resuming flow to get authorization code');
-			
-			if (!resumeUrl) {
-				// Try to get resumeUrl from session storage if not provided
-				const storedResumeUrl = sessionStorage.getItem('redirectless-v7-real-resumeUrl');
-				if (!storedResumeUrl) {
-					throw new Error('No resumeUrl available. Please restart the flow.');
+	const handleResumeFlow = useCallback(
+		async (
+			flowId: string,
+			stateValue: string,
+			pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: string },
+			resumeUrl?: string
+		) => {
+			try {
+				console.log('🔐 [Redirectless V7] Step 3: Resuming flow to get authorization code');
+
+				if (!resumeUrl) {
+					// Try to get resumeUrl from session storage if not provided
+					const storedResumeUrl = sessionStorage.getItem('redirectless-v7-real-resumeUrl');
+					if (!storedResumeUrl) {
+						throw new Error('No resumeUrl available. Please restart the flow.');
+					}
+					resumeUrl = storedResumeUrl;
 				}
-				resumeUrl = storedResumeUrl;
-			}
 
-			const resumeResponse = await fetch('/api/pingone/resume', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					resumeUrl,
-					flowId,
-					flowState: stateValue,
-					clientId: controller.credentials.clientId,
-					clientSecret: controller.credentials.clientSecret,
-					codeVerifier: pkceCodes.codeVerifier,
-				}),
-			});
-
-			if (!resumeResponse.ok) {
-				const errorText = await resumeResponse.text();
-				throw new Error(
-					`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
-				);
-			}
-
-			const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
-			console.log('🔐 [Redirectless V7] Resume response data:', resumeData);
-
-			const authCode = (resumeData.code || (resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
-			if (!authCode) {
-				throw new Error('No authorization code received after calling resumeUrl');
-			}
-
-			// Proceed to token exchange
-			await handleTokenExchange(authCode, pkceCodes.codeVerifier);
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('🔐 [Redirectless V7] Failed to resume flow:', errorMessage);
-			throw error;
-		}
-	}, [controller]);
-
-	// Step 4: Exchange authorization code for tokens (must be defined before handleResumeFlow)
-	const handleTokenExchange = useCallback(async (authCode: string, codeVerifier: string) => {
-		try {
-			console.log('🔐 [Redirectless V7] Step 4: Exchanging authorization code for tokens');
-
-			const backendUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-
-			const tokenRequestBody = {
-				grant_type: 'authorization_code',
-				code: authCode,
-				redirect_uri: 'urn:pingidentity:redirectless',
-				client_id: controller.credentials.clientId,
-				client_secret: controller.credentials.clientSecret,
-				environment_id: controller.credentials.environmentId,
-				code_verifier: codeVerifier,
-			};
-
-			const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(tokenRequestBody),
-			});
-
-			if (!tokenResponse.ok) {
-				const errorData = (await tokenResponse.json().catch(() => ({}))) as Record<string, unknown>;
-				const errorDesc = (errorData.error_description || errorData.error || 'Please check your configuration.') as string;
-				throw new Error(
-					`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}. ${errorDesc}`
-				);
-			}
-
-			const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
-			console.log('🔐 [Redirectless V7] Token exchange successful:', tokenData);
-
-			if (!tokenData.access_token) {
-				throw new Error('No access token received from PingOne');
-			}
-
-			// Create API call display for the successful token exchange
-			const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
-				'redirectless',
-				'Token Exchange',
-				{
+				const resumeResponse = await fetch('/api/pingone/resume', {
 					method: 'POST',
-					url: `${backendUrl}/api/token-exchange`,
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: {
-						grant_type: 'authorization_code',
-						code: authCode,
-						redirect_uri: 'urn:pingidentity:redirectless',
-						client_id: controller.credentials.clientId,
-						client_secret: '***REDACTED***',
-						environment_id: controller.credentials.environmentId,
-						code_verifier: codeVerifier,
-					},
-					description: 'Real server-to-server token exchange using response_mode=pi.flow',
-					educationalNotes: [
-						'Authorization code obtained from resume step is exchanged for tokens',
-						'No browser redirect required - pure server-to-server exchange',
-						'PKCE code_verifier validates the original request',
-						'Special redirect_uri urn:pingidentity:redirectless used',
-						'Response includes access_token, id_token, and refresh_token',
-					],
+					body: JSON.stringify({
+						resumeUrl,
+						flowId,
+						flowState: stateValue,
+						clientId: controller.credentials.clientId,
+						clientSecret: controller.credentials.clientSecret,
+						codeVerifier: pkceCodes.codeVerifier,
+					}),
+				});
+
+				if (!resumeResponse.ok) {
+					const errorText = await resumeResponse.text();
+					throw new Error(
+						`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
+					);
 				}
-			);
 
-			// Add real response data
-			tokenExchangeApiCall.response = {
-				status: tokenResponse.status,
-				statusText: tokenResponse.statusText,
-				headers: Object.fromEntries(tokenResponse.headers.entries()),
-				data: {
-					...tokenData,
-					access_token: `${(tokenData.access_token as string).substring(0, 20)}...[TRUNCATED FOR SECURITY]`,
-				},
-			};
+				const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
+				console.log('🔐 [Redirectless V7] Resume response data:', resumeData);
 
-			setApiCalls((prev) => [...prev, tokenExchangeApiCall]);
-			setIsLoading(false);
-			setIsAuthenticating(false);
-			setShowLoginForm(false);
-			v4ToastManager.showSuccess('✅ Tokens obtained from PingOne redirectless flow! No redirects used.');
+				const authCode = (resumeData.code ||
+					(resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
+				if (!authCode) {
+					throw new Error('No authorization code received after calling resumeUrl');
+				}
 
-			// Store tokens in local state for display
-			_setTokens({
-				access_token: tokenData.access_token,
-				refresh_token: tokenData.refresh_token,
-				id_token: tokenData.id_token,
-				token_type: tokenData.token_type,
-				expires_in: tokenData.expires_in,
-				scope: tokenData.scope,
-			});
-
-			// Also set in controller for consistency
-			const accessTokenValue = tokenData.access_token as string;
-			const tokenPayload: {
-				access_token: string;
-				refreshToken?: string;
-				idToken?: string;
-				tokenType?: string;
-				expiresIn?: number;
-				scope?: string;
-			} = {
-				access_token: accessTokenValue,
-			};
-
-			if (tokenData.refresh_token) {
-				tokenPayload.refreshToken = tokenData.refresh_token as string;
+				// Proceed to token exchange
+				await handleTokenExchange(authCode, pkceCodes.codeVerifier);
+			} catch (error: unknown) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				console.error('🔐 [Redirectless V7] Failed to resume flow:', errorMessage);
+				throw error;
 			}
-			if (tokenData.id_token) {
-				tokenPayload.idToken = tokenData.id_token as string;
-			}
-			if (tokenData.token_type) {
-				tokenPayload.tokenType = tokenData.token_type as string;
-			}
-			if (tokenData.expires_in) {
-				tokenPayload.expiresIn = tokenData.expires_in as number;
-			}
-			if (tokenData.scope) {
-				tokenPayload.scope = tokenData.scope as string;
-			}
+		},
+		[controller]
+	);
 
-			controller.setTokens(tokenPayload);
+	// Step 4: Exchange authorization code for tokens (must be defined before handleResumeFlow)
+	const handleTokenExchange = useCallback(
+		async (authCode: string, codeVerifier: string) => {
+			try {
+				console.log('🔐 [Redirectless V7] Step 4: Exchanging authorization code for tokens');
 
-			// Show success message explaining what happened
-			v4ToastManager.showSuccess(
-				`🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`
-			);
-		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error('🔐 [Redirectless V7] Token exchange failed:', errorMessage);
-			_setError(errorMessage);
-			v4ToastManager.showError(`❌ Token exchange failed: ${errorMessage}`);
-			setIsAuthenticating(false);
-			setIsLoading(false);
-		}
-	}, [controller]);
+				const backendUrl =
+					process.env.NODE_ENV === 'production'
+						? 'https://oauth-playground.vercel.app'
+						: 'https://localhost:3001';
+
+				const tokenRequestBody = {
+					grant_type: 'authorization_code',
+					code: authCode,
+					redirect_uri: 'urn:pingidentity:redirectless',
+					client_id: controller.credentials.clientId,
+					client_secret: controller.credentials.clientSecret,
+					environment_id: controller.credentials.environmentId,
+					code_verifier: codeVerifier,
+				};
+
+				const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(tokenRequestBody),
+				});
+
+				if (!tokenResponse.ok) {
+					const errorData = (await tokenResponse.json().catch(() => ({}))) as Record<
+						string,
+						unknown
+					>;
+					const errorDesc = (errorData.error_description ||
+						errorData.error ||
+						'Please check your configuration.') as string;
+					throw new Error(
+						`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}. ${errorDesc}`
+					);
+				}
+
+				const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
+				console.log('🔐 [Redirectless V7] Token exchange successful:', tokenData);
+
+				if (!tokenData.access_token) {
+					throw new Error('No access token received from PingOne');
+				}
+
+				// Create API call display for the successful token exchange
+				const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
+					'redirectless',
+					'Token Exchange',
+					{
+						method: 'POST',
+						url: `${backendUrl}/api/token-exchange`,
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: {
+							grant_type: 'authorization_code',
+							code: authCode,
+							redirect_uri: 'urn:pingidentity:redirectless',
+							client_id: controller.credentials.clientId,
+							client_secret: '***REDACTED***',
+							environment_id: controller.credentials.environmentId,
+							code_verifier: codeVerifier,
+						},
+						description: 'Real server-to-server token exchange using response_mode=pi.flow',
+						educationalNotes: [
+							'Authorization code obtained from resume step is exchanged for tokens',
+							'No browser redirect required - pure server-to-server exchange',
+							'PKCE code_verifier validates the original request',
+							'Special redirect_uri urn:pingidentity:redirectless used',
+							'Response includes access_token, id_token, and refresh_token',
+						],
+					}
+				);
+
+				// Add real response data
+				tokenExchangeApiCall.response = {
+					status: tokenResponse.status,
+					statusText: tokenResponse.statusText,
+					headers: Object.fromEntries(tokenResponse.headers.entries()),
+					data: {
+						...tokenData,
+						access_token: `${(tokenData.access_token as string).substring(0, 20)}...[TRUNCATED FOR SECURITY]`,
+					},
+				};
+
+				setApiCalls((prev) => [...prev, tokenExchangeApiCall]);
+				setIsLoading(false);
+				setIsAuthenticating(false);
+				setShowLoginForm(false);
+				v4ToastManager.showSuccess(
+					'✅ Tokens obtained from PingOne redirectless flow! No redirects used.'
+				);
+
+				// Store tokens in local state for display
+				_setTokens({
+					access_token: tokenData.access_token,
+					refresh_token: tokenData.refresh_token,
+					id_token: tokenData.id_token,
+					token_type: tokenData.token_type,
+					expires_in: tokenData.expires_in,
+					scope: tokenData.scope,
+				});
+
+				// Also set in controller for consistency
+				const accessTokenValue = tokenData.access_token as string;
+				const tokenPayload: {
+					access_token: string;
+					refreshToken?: string;
+					idToken?: string;
+					tokenType?: string;
+					expiresIn?: number;
+					scope?: string;
+				} = {
+					access_token: accessTokenValue,
+				};
+
+				if (tokenData.refresh_token) {
+					tokenPayload.refreshToken = tokenData.refresh_token as string;
+				}
+				if (tokenData.id_token) {
+					tokenPayload.idToken = tokenData.id_token as string;
+				}
+				if (tokenData.token_type) {
+					tokenPayload.tokenType = tokenData.token_type as string;
+				}
+				if (tokenData.expires_in) {
+					tokenPayload.expiresIn = tokenData.expires_in as number;
+				}
+				if (tokenData.scope) {
+					tokenPayload.scope = tokenData.scope as string;
+				}
+
+				controller.setTokens(tokenPayload);
+
+				// Show success message explaining what happened
+				v4ToastManager.showSuccess(
+					`🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`
+				);
+			} catch (error: unknown) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				console.error('🔐 [Redirectless V7] Token exchange failed:', errorMessage);
+				_setError(errorMessage);
+				v4ToastManager.showError(`❌ Token exchange failed: ${errorMessage}`);
+				setIsAuthenticating(false);
+				setIsLoading(false);
+			}
+		},
+		[controller]
+	);
 
 	// Step 2: Submit credentials to PingOne Flow API (depends on handleResumeFlow)
 	const handleSubmitCredentials = useCallback(async () => {
@@ -667,11 +681,11 @@ const RedirectlessFlowV7Real: React.FC = () => {
 			// Check if flow is ready to resume
 			const status = String(credentialsData.status || '').toUpperCase();
 			const resumeUrl = credentialsData.resumeUrl as string | undefined;
-			
+
 			if (status === 'READY_TO_RESUME' && resumeUrl) {
 				// Store resumeUrl for resume step
 				sessionStorage.setItem('redirectless-v7-real-resumeUrl', resumeUrl);
-				
+
 				// Proceed to resume step
 				await handleResumeFlow(
 					flowId,
@@ -779,7 +793,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 
 			const authData = await authResponse.json();
 			console.log('🔐 [Redirectless V7] Authorization response data:', authData);
-			
+
 			// Store flowId and state for later steps
 			const flowId = authData.id || authData.flowId;
 			if (!flowId) {

@@ -1,11 +1,15 @@
 // src/components/AppleTVDeviceFlow.tsx
 // Apple TV Style Device Authorization Flow Interface
 
+import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import { FiAlertTriangle, FiCheckCircle, FiCopy, FiXCircle } from 'react-icons/fi';
-import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
-import { DeviceFlowState, DeviceTokenResponse, deviceFlowService } from '../services/deviceFlowService';
+import {
+	DeviceFlowState,
+	DeviceTokenResponse,
+	deviceFlowService,
+} from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 
 // Apple TV Main Container - Realistic Physical Device
@@ -52,7 +56,6 @@ const TVFrame = styled.div`
     z-index: 1;
   }
 `;
-
 
 // Apple TV Screen - Realistic tvOS Interface with Movie Background
 const TVScreen = styled.div`
@@ -477,7 +480,6 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 		logger.info('AppleTVDeviceFlow', 'Verification URI copied to clipboard');
 	};
 
-
 	const getStatusIcon = () => {
 		switch (state.status) {
 			case 'pending':
@@ -560,50 +562,49 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 
 							<TVSubtitle>Scan QR code or enter this code on your phone or computer</TVSubtitle>
 
-					{/* QR Code Display */}
-					{(state.verificationUriComplete || (state.verificationUri && state.userCode)) && (
-						<div
-							style={{
-								display: 'flex',
-								justifyContent: 'center',
-								alignItems: 'center',
-								marginBottom: '1rem',
-								padding: '0.75rem',
-								backgroundColor: 'rgba(255, 255, 255, 0.95)',
-								borderRadius: '0.5rem',
-								border: '2px solid rgba(255, 255, 255, 0.3)',
-								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-							}}
-						>
-							<QRCodeSVG
-								value={
-									state.verificationUriComplete ||
-									`${state.verificationUri}?user_code=${state.userCode}`
-								}
-								size={180}
-								level="M"
-								includeMargin={true}
-							/>
-						</div>
-					)}
+							{/* QR Code Display */}
+							{(state.verificationUriComplete || (state.verificationUri && state.userCode)) && (
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+										alignItems: 'center',
+										marginBottom: '1rem',
+										padding: '0.75rem',
+										backgroundColor: 'rgba(255, 255, 255, 0.95)',
+										borderRadius: '0.5rem',
+										border: '2px solid rgba(255, 255, 255, 0.3)',
+										boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+									}}
+								>
+									<QRCodeSVG
+										value={
+											state.verificationUriComplete ||
+											`${state.verificationUri}?user_code=${state.userCode}`
+										}
+										size={180}
+										level="M"
+										includeMargin={true}
+									/>
+								</div>
+							)}
 
-					{/* User Code Display */}
-					{state.userCode && (
-						<>
-							<UserCodeLabel>Enter Code</UserCodeLabel>
-							<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
-						</>
-					)}
+							{/* User Code Display */}
+							{state.userCode && (
+								<>
+									<UserCodeLabel>Enter Code</UserCodeLabel>
+									<UserCodeDisplay>{state.userCode}</UserCodeDisplay>
+								</>
+							)}
 
-
-					{/* Status Display */}
-					{state.status && (
-						<StatusDisplay $status={state.status}>
-							<StatusIcon>{getStatusIcon()}</StatusIcon>
-							<StatusText>{getStatusText()}</StatusText>
-							<StatusMessage>{getStatusMessage()}</StatusMessage>
-						</StatusDisplay>
-					)}
+							{/* Status Display */}
+							{state.status && (
+								<StatusDisplay $status={state.status}>
+									<StatusIcon>{getStatusIcon()}</StatusIcon>
+									<StatusText>{getStatusText()}</StatusText>
+									<StatusMessage>{getStatusMessage()}</StatusMessage>
+								</StatusDisplay>
+							)}
 
 							{/* Control Buttons */}
 							<ControlButtons>
@@ -662,11 +663,9 @@ const AppleTVDeviceFlow: React.FC<AppleTVDeviceFlowProps> = ({
 
 				{/* TV Stand */}
 				<TVStand />
-
 			</AppleTVContainer>
 		</>
 	);
 };
 
 export default AppleTVDeviceFlow;
-

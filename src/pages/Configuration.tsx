@@ -33,10 +33,10 @@ import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { CopyButtonService } from '../services/copyButtonService';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 import { CredentialsFormV8U } from '../v8u/components/CredentialsFormV8U';
 
 const Container = styled.div`
@@ -378,7 +378,7 @@ const Configuration: React.FC = () => {
 					if (element) {
 						// Scroll to the element
 						element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-						
+
 						// Highlight the row temporarily
 						element.style.backgroundColor = '#fef3c7'; // Light yellow
 						setTimeout(() => {
@@ -663,7 +663,10 @@ const Configuration: React.FC = () => {
 
 				if (token && savedCredentials) {
 					// Check if environment ID matches (if provided)
-					if (credentials.environmentId && savedCredentials.environmentId !== credentials.environmentId) {
+					if (
+						credentials.environmentId &&
+						savedCredentials.environmentId !== credentials.environmentId
+					) {
 						console.log('[Configuration] Worker token environment ID mismatch');
 						setWorkerToken('');
 						setWorkerTokenExpiresAt(null);
@@ -1013,7 +1016,7 @@ const Configuration: React.FC = () => {
 								const flowOverride = entry.isOverrideRedirect || entry.isOverrideLogout;
 
 								return (
-									<UriRow 
+									<UriRow
 										key={entry.flowType}
 										id={`redirect-uri-catalog-${entry.flowType}`}
 										style={{
@@ -1614,7 +1617,10 @@ cd oauthPlayground`}
 
 						if (token && savedCredentials) {
 							// Check if environment ID matches (if provided)
-							if (credentials.environmentId && savedCredentials.environmentId !== credentials.environmentId) {
+							if (
+								credentials.environmentId &&
+								savedCredentials.environmentId !== credentials.environmentId
+							) {
 								setWorkerToken('');
 								setWorkerTokenExpiresAt(null);
 							} else {

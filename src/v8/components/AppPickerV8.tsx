@@ -8,8 +8,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ConfirmModalV8 } from './ConfirmModalV8';
 import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
@@ -129,7 +129,10 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 			}
 
 			// Discover applications using the worker token
-			const discovered = await AppDiscoveryServiceV8.discoverApplications(environmentId, workerToken);
+			const discovered = await AppDiscoveryServiceV8.discoverApplications(
+				environmentId,
+				workerToken
+			);
 
 			if (discovered && discovered.length > 0) {
 				console.log(`${MODULE_TAG} Found ${discovered.length} apps`, discovered);
@@ -143,7 +146,9 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		} catch (error) {
 			console.error(`${MODULE_TAG} Discovery error`, error);
 			toastV8.error(
-				error instanceof Error ? error.message : 'Failed to discover applications - check worker token'
+				error instanceof Error
+					? error.message
+					: 'Failed to discover applications - check worker token'
 			);
 		} finally {
 			setIsLoading(false);

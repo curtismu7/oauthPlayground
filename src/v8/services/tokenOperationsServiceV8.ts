@@ -65,7 +65,7 @@ export class TokenOperationsServiceV8 {
 					introspectionExplanation:
 						'Resource servers can introspect access tokens to verify validity and permissions. Refresh tokens can also be introspected (typically by the authorization server).',
 					userInfoExplanation:
-						'With the openid scope, you can call /userinfo with your access token to get additional user profile claims beyond what\'s in the ID token.',
+						"With the openid scope, you can call /userinfo with your access token to get additional user profile claims beyond what's in the ID token.",
 				};
 			}
 			return {
@@ -129,7 +129,10 @@ export class TokenOperationsServiceV8 {
 		}
 
 		// Client Credentials Flow
-		if (normalizedFlow.includes('client-credentials') || normalizedFlow.includes('client_credentials')) {
+		if (
+			normalizedFlow.includes('client-credentials') ||
+			normalizedFlow.includes('client_credentials')
+		) {
 			return {
 				canIntrospectAccessToken: true,
 				canIntrospectRefreshToken: false,
@@ -230,7 +233,7 @@ export class TokenOperationsServiceV8 {
 	 * @returns Simple summary string
 	 */
 	static getSummary(flowType: string, scopes?: string): string {
-		const rules = this.getOperationRules(flowType, scopes);
+		const rules = TokenOperationsServiceV8.getOperationRules(flowType, scopes);
 		const parts: string[] = [];
 
 		if (rules.canIntrospectAccessToken) {
@@ -260,7 +263,7 @@ export class TokenOperationsServiceV8 {
 		scopes: string | undefined,
 		operation: 'introspect-access' | 'introspect-refresh' | 'introspect-id' | 'userinfo'
 	): boolean {
-		const rules = this.getOperationRules(flowType, scopes);
+		const rules = TokenOperationsServiceV8.getOperationRules(flowType, scopes);
 
 		switch (operation) {
 			case 'introspect-access':

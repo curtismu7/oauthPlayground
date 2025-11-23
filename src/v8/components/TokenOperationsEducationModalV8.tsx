@@ -21,7 +21,7 @@
  */
 
 import React from 'react';
-import { FiX, FiInfo, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiX, FiXCircle } from 'react-icons/fi';
 import { TokenOperationsServiceV8 } from '@/v8/services/tokenOperationsServiceV8';
 
 interface TokenOperationsEducationModalV8Props {
@@ -202,9 +202,13 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
-									<span style={{ fontWeight: '600', color: '#1f2937' }}>Introspect Access Token</span>
+									<span style={{ fontWeight: '600', color: '#1f2937' }}>
+										Introspect Access Token
+									</span>
 									<span style={{ color: '#6b7280', marginLeft: '6px' }}>
-										{rules.canIntrospectAccessToken ? '- Verify validity & permissions' : '- Not available'}
+										{rules.canIntrospectAccessToken
+											? '- Verify validity & permissions'
+											: '- Not available'}
 									</span>
 								</div>
 							</div>
@@ -227,7 +231,9 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
-									<span style={{ fontWeight: '600', color: '#1f2937' }}>Introspect Refresh Token</span>
+									<span style={{ fontWeight: '600', color: '#1f2937' }}>
+										Introspect Refresh Token
+									</span>
 									<span style={{ color: '#6b7280', marginLeft: '6px' }}>
 										{rules.canIntrospectRefreshToken ? '- Check token status' : '- Not available'}
 									</span>
@@ -252,9 +258,13 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 									<FiXCircle size={18} style={{ color: '#dc2626', flexShrink: 0 }} />
 								)}
 								<div style={{ flex: 1, fontSize: '13px' }}>
-									<span style={{ fontWeight: '600', color: '#1f2937' }}>Call UserInfo Endpoint</span>
+									<span style={{ fontWeight: '600', color: '#1f2937' }}>
+										Call UserInfo Endpoint
+									</span>
 									<span style={{ color: '#6b7280', marginLeft: '6px' }}>
-										{rules.canCallUserInfo ? '- Get user profile claims' : `- ${rules.userInfoReason.split('.')[0]}`}
+										{rules.canCallUserInfo
+											? '- Get user profile claims'
+											: `- ${rules.userInfoReason.split('.')[0]}`}
 									</span>
 								</div>
 							</div>
@@ -271,13 +281,24 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 							border: '1px solid #e5e7eb',
 						}}
 					>
-						<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+						<h4
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}
+						>
 							🔍 {introspectionContent.title}
 						</h4>
-						<p style={{ margin: '0 0 8px 0', fontSize: '12px', lineHeight: '1.5', color: '#4b5563' }}>
+						<p
+							style={{ margin: '0 0 8px 0', fontSize: '12px', lineHeight: '1.5', color: '#4b5563' }}
+						>
 							{introspectionContent.description}
 						</p>
-						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '12px' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: '1fr 1fr',
+								gap: '12px',
+								fontSize: '12px',
+							}}
+						>
 							<div>
 								<div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>
 									When to use:
@@ -315,13 +336,24 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 							marginBottom: '12px',
 						}}
 					>
-						<h4 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+						<h4
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#1f2937' }}
+						>
 							👤 {userInfoContent.title}
 						</h4>
-						<p style={{ margin: '0 0 8px 0', fontSize: '12px', lineHeight: '1.5', color: '#4b5563' }}>
+						<p
+							style={{ margin: '0 0 8px 0', fontSize: '12px', lineHeight: '1.5', color: '#4b5563' }}
+						>
 							{userInfoContent.description}
 						</p>
-						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '12px' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: '1fr 1fr',
+								gap: '12px',
+								fontSize: '12px',
+							}}
+						>
 							<div>
 								<div style={{ fontWeight: '600', marginBottom: '4px', color: '#1f2937' }}>
 									When to use:
@@ -358,10 +390,19 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 							border: '1px solid #0ea5e9',
 						}}
 					>
-						<h4 style={{ margin: '0 0 6px 0', fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
+						<h4
+							style={{ margin: '0 0 6px 0', fontSize: '13px', fontWeight: '600', color: '#1f2937' }}
+						>
 							📖 Learn More
 						</h4>
-						<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', fontSize: '12px' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: '1fr 1fr',
+								gap: '6px',
+								fontSize: '12px',
+							}}
+						>
 							<a
 								href="https://tools.ietf.org/html/rfc7662"
 								target="_blank"

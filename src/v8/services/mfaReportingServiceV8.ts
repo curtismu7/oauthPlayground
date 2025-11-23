@@ -4,17 +4,17 @@
  * @description PingOne MFA Reporting Service
  * @version 8.0.0
  * @since 2024-11-19
- * 
+ *
  * Implements PingOne MFA Reporting API:
  * - User authentication reports
  * - Device authentication reports
  * - FIDO2 device reports
- * 
+ *
  * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reporting
  */
 
-import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[📊 MFA-REPORTING-V8]';
 
@@ -68,7 +68,7 @@ export interface FIDO2DeviceReport {
 
 /**
  * MFAReportingServiceV8
- * 
+ *
  * Service for PingOne MFA reporting operations
  */
 export class MFAReportingServiceV8 {
@@ -109,7 +109,7 @@ export class MFAReportingServiceV8 {
 		}
 
 		const data = await response.json();
-		const expiresAt = data.expires_in ? Date.now() + (data.expires_in * 1000) : undefined;
+		const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 		await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
 		return data.access_token;
