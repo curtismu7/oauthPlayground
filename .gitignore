@@ -51,4 +51,17 @@ node_modules
 certs/
 .vercel
 *.dmg
+
+# Archives and backups
 restore-point-*.tar.gz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Large files
+*.dmg
+*.iso
+*.pkg
