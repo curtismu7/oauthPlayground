@@ -5,10 +5,26 @@
  * @version 8.0.0
  * @since 2024-11-19
  *
- * Each flow type has its own isolated settings storage:
- * - Spec version (OAuth 2.0, OAuth 2.1, OIDC)
- * - UI preferences (collapsed sections, etc.)
- * - Last used timestamp
+ * Flow Settings Service - Manages per-flow-type settings persistence
+ * 
+ * Each flow type has its own isolated settings storage in localStorage:
+ * - Spec version (OAuth 2.0, OAuth 2.1, OIDC) - user's preference per flow
+ * - UI preferences (collapsed sections, etc.) - UI state per flow
+ * - Last used timestamp - for analytics and "most recent flow" detection
+ * 
+ * Why per-flow settings?
+ * - Users may want OAuth 2.0 for one flow and OIDC for another
+ * - Each flow remembers its own spec version preference
+ * - UI state (collapsed sections) can differ per flow
+ * 
+ * Storage format:
+ * - Key: `v8u_flow_settings_{flowType}` (e.g., `v8u_flow_settings_oauth-authz`)
+ * - Value: JSON object with FlowSettings interface
+ * 
+ * Debugging:
+ * - Service is available globally as `window.FlowSettingsServiceV8U`
+ * - Can inspect all settings: `FlowSettingsServiceV8U.getAllSettings()`
+ * - Can modify settings: `FlowSettingsServiceV8U.saveSpecVersion('implicit', 'oauth2.1')`
  */
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';

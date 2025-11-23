@@ -17,6 +17,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageScroll } from '@/hooks/usePageScroll';
 
 const MODULE_TAG = '[🏠 MFA-HUB-V8]';
 
@@ -31,6 +32,9 @@ interface FeatureCard {
 
 export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
+
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'MFA Hub V8', force: true });
 
 	const features: FeatureCard[] = [
 		{

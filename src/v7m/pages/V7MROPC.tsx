@@ -1,6 +1,6 @@
 // src/v7m/pages/V7MROPC.tsx
-import React, { useState } from 'react';
-import { FiAlertTriangle, FiEye, FiEyeOff, FiKey, FiLock, FiUser } from 'react-icons/fi';
+import React, { useMemo, useState } from 'react';
+import { FiAlertTriangle, FiEye, FiEyeOff, FiKey, FiLock, FiUser, FiCopy, FiCheck } from 'react-icons/fi';
 import {
 	introspectToken,
 	type V7MIntrospectionResponse,
@@ -13,6 +13,7 @@ import {
 import { V7MHelpModal } from '../ui/V7MHelpModal';
 import { V7MInfoIcon } from '../ui/V7MInfoIcon';
 import { V7MJwtInspectorModal } from '../ui/V7MJwtInspectorModal';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 type Props = {
 	oidc?: boolean;
@@ -44,9 +45,76 @@ export const V7MROPC: React.FC<Props> = ({
 	const [showClientAuthHelp, setShowClientAuthHelp] = useState(false);
 	const [showUserInfoHelp, setShowUserInfoHelp] = useState(false);
 	const [showIntrospectionHelp, setShowIntrospectionHelp] = useState(false);
+	const [copiedRequestUrl, setCopiedRequestUrl] = useState(false);
+
+	/**
+	 * Generate token endpoint URL for ROPC flow
+	 * For mock flow, uses a mock token endpoint URL
+	 */
+	const tokenEndpointUrl = useMemo(() => {
+		// For mock flow, use a mock token endpoint
+		// In a real implementation, this would be discovered from OIDC well-known config
+		return 'https://mock.issuer/v7m/as/token';
+	}, []);
+
+	/**
+	 * Generate the full POST request URL with form data (for display purposes)
+	 * This shows what would be sent to the token endpoint
+	 */
+	const tokenRequestUrl = useMemo(() => {
+		if (!clientId || !username || !password || !scope) {
+			return null;
+		}
+
+		const params = new URLSearchParams();
+		params.append('grant_type', 'password');
+		params.append('username', username);
+		params.append('password', password);
+		params.append('client_id', clientId);
+		params.append('client_secret', clientSecret);
+		params.append('scope', scope);
+
+		// Return the endpoint URL (form data is in POST body, not URL)
+		// But we'll show the full URL with query params for educational purposes
+		return `${tokenEndpointUrl}?${params.toString()}`;
+	}, [clientId, clientSecret, username, password, scope, tokenEndpointUrl]);
+
+	/**
+	 * Generate POST request body (form data) for display
+	 */
+	const tokenRequestBody = useMemo(() => {
+		if (!clientId || !username || !password || !scope) {
+			return null;
+		}
+
+		const params = new URLSearchParams();
+		params.append('grant_type', 'password');
+		params.append('username', username);
+		params.append('password', password); // Note: In production, password should never be displayed
+		params.append('client_id', clientId);
+		params.append('client_secret', clientSecret); // Note: In production, secret should never be displayed
+		params.append('scope', scope);
+
+		return params.toString();
+	}, [clientId, clientSecret, username, password, scope]);
+
+	/**
+	 * Copy request URL to clipboard
+	 */
+	const handleCopyRequestUrl = async () => {
+		if (!tokenRequestUrl) return;
+
+		try {
+			await navigator.clipboard.writeText(tokenRequestUrl);
+			setCopiedRequestUrl(true);
+			setTimeout(() => setCopiedRequestUrl(false), 2000);
+		} catch (err) {
+			console.error('Failed to copy URL:', err);
+		}
+	};
 
 	function handleRequestToken() {
-		const res = tokenExchangePassword({
+		const request: Parameters<typeof tokenExchangePassword>[0] = {
 			grant_type: 'password',
 			username,
 			password,
@@ -57,9 +125,15 @@ export const V7MROPC: React.FC<Props> = ({
 			includeIdToken: variant === 'oidc',
 			issuer: 'https://mock.issuer/v7m',
 			environmentId: 'mock-env',
-			userEmail: username.includes('@') ? username : undefined,
 			ttls: { accessTokenSeconds: 3600, idTokenSeconds: 3600, refreshTokenSeconds: 86400 },
-		});
+		};
+		
+		// Conditionally include userEmail only if defined
+		if (username.includes('@')) {
+			request.userEmail = username;
+		}
+		
+		const res = tokenExchangePassword(request);
 		if ('error' in res) {
 			alert(`${res.error}: ${res.error_description ?? ''}`);
 			return;
@@ -287,6 +361,123 @@ export const V7MROPC: React.FC<Props> = ({
 							<input value={scope} onChange={(e) => setScope(e.target.value)} style={inputStyle} />
 						</label>
 					</div>
+
+					{/* Token Request URL Display - Similar to implicit flow */}
+					{clientId && username && password && scope && (
+						<div style={{ marginTop: '24px', marginBottom: '16px' }}>
+							<h3
+								style={{
+									margin: '0 0 12px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#1f2937',
+								}}
+							>
+								📡 Token Request URL
+							</h3>
+							<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+								This is the POST request that will be sent to the token endpoint (form data shown in
+								query string for educational purposes):
+							</p>
+
+							{/* Token Endpoint URL */}
+							<div style={{ marginBottom: '16px' }}>
+								<ColoredUrlDisplay
+									url={tokenEndpointUrl}
+									label="Token Endpoint URL"
+									showCopyButton={true}
+									showInfoButton={false}
+									showOpenButton={false}
+								/>
+							</div>
+
+							{/* POST Request Body (Form Data) */}
+							<div
+								style={{
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '16px',
+									marginTop: '16px',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '12px',
+									}}
+								>
+									<h4
+										style={{
+											margin: 0,
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										POST Request Body (application/x-www-form-urlencoded)
+									</h4>
+									<button
+										onClick={handleCopyRequestUrl}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '6px',
+											padding: '6px 12px',
+											background: copiedRequestUrl ? '#10b981' : '#fff',
+											color: copiedRequestUrl ? '#fff' : '#374151',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											cursor: 'pointer',
+											fontSize: '13px',
+											transition: 'all 0.2s',
+										}}
+									>
+										{copiedRequestUrl ? <FiCheck size={14} /> : <FiCopy size={14} />}
+										{copiedRequestUrl ? 'Copied!' : 'Copy'}
+									</button>
+								</div>
+								{tokenRequestBody && (
+									<ColoredUrlDisplay
+										url={`https://mock.issuer/v7m/as/token?${tokenRequestBody}`}
+										label=""
+										showCopyButton={false}
+										showInfoButton={false}
+										showOpenButton={false}
+									/>
+								)}
+								<div style={{ marginTop: '12px', fontSize: '13px', color: '#6b7280' }}>
+									<p style={{ margin: '4px 0' }}>
+										<strong>Method:</strong> POST
+									</p>
+									<p style={{ margin: '4px 0' }}>
+										<strong>Content-Type:</strong> application/x-www-form-urlencoded
+									</p>
+									<p style={{ margin: '4px 0' }}>
+										<strong>Body:</strong> {tokenRequestBody}
+									</p>
+								</div>
+							</div>
+
+							<div
+								style={{
+									background: '#fef3c7',
+									border: '1px solid #fbbf24',
+									borderRadius: '6px',
+									padding: '12px',
+									marginTop: '16px',
+									fontSize: '13px',
+									color: '#92400e',
+								}}
+							>
+								<strong>⚠️ Security Note:</strong> In production, passwords and client secrets should
+								never be displayed or logged. This is shown for educational purposes only.
+							</div>
+						</div>
+					)}
+
 					<button onClick={handleRequestToken} style={primaryBtn}>
 						Request Access Token
 					</button>
@@ -342,21 +533,21 @@ export const V7MROPC: React.FC<Props> = ({
 
 			<V7MJwtInspectorModal
 				token={accessToken ?? ''}
-				isOpen={showAccessModal}
+				open={showAccessModal}
 				onClose={() => setShowAccessModal(false)}
 			/>
 			<V7MJwtInspectorModal
 				token={idToken ?? ''}
-				isOpen={showIdModal}
+				open={showIdModal}
 				onClose={() => setShowIdModal(false)}
 			/>
 
 			<V7MHelpModal
-				isOpen={showROPCHelp}
+				open={showROPCHelp}
 				onClose={() => setShowROPCHelp(false)}
 				title="Resource Owner Password Credentials Flow"
-				content={
-					<div>
+			>
+				<div>
 						<p>
 							The Resource Owner Password Credentials (ROPC) flow allows the client to exchange user
 							credentials directly for tokens.
@@ -381,15 +572,14 @@ export const V7MROPC: React.FC<Props> = ({
 							<li>Can include ID token for OIDC variant</li>
 						</ul>
 					</div>
-				}
-			/>
+			</V7MHelpModal>
 
 			<V7MHelpModal
-				isOpen={showDeprecationHelp}
+				open={showDeprecationHelp}
 				onClose={() => setShowDeprecationHelp(false)}
 				title="Why ROPC Flow is Deprecated"
-				content={
-					<div>
+			>
+				<div>
 						<p>
 							<strong>OAuth 2.1 removes the Resource Owner Password Credentials flow</strong>{' '}
 							because it has significant security issues:
@@ -428,15 +618,14 @@ export const V7MROPC: React.FC<Props> = ({
 							<li>Users can see and approve requested permissions</li>
 						</ul>
 					</div>
-				}
-			/>
+			</V7MHelpModal>
 
 			<V7MHelpModal
-				isOpen={showScopesHelp}
+				open={showScopesHelp}
 				onClose={() => setShowScopesHelp(false)}
 				title="OAuth Scopes"
-				content={
-					<div>
+			>
+				<div>
 						<p>Scopes define what permissions the client is requesting.</p>
 						<p>
 							<strong>OAuth Scopes:</strong> <code>read</code>, <code>write</code>,{' '}
@@ -448,15 +637,14 @@ export const V7MROPC: React.FC<Props> = ({
 							<code>offline_access</code> (for refresh token)
 						</p>
 					</div>
-				}
-			/>
+			</V7MHelpModal>
 
 			<V7MHelpModal
-				isOpen={showClientAuthHelp}
+				open={showClientAuthHelp}
 				onClose={() => setShowClientAuthHelp(false)}
 				title="Client Authentication"
-				content={
-					<div>
+			>
+				<div>
 						<p>
 							Clients authenticate at the token endpoint using Basic auth or client_secret_post.
 						</p>
@@ -471,15 +659,14 @@ export const V7MROPC: React.FC<Props> = ({
 							<li>ROPC flow requires client authentication</li>
 						</ul>
 					</div>
-				}
-			/>
+			</V7MHelpModal>
 
 			<V7MHelpModal
-				isOpen={showUserInfoHelp}
+				open={showUserInfoHelp}
 				onClose={() => setShowUserInfoHelp(false)}
 				title="UserInfo Endpoint"
-				content={
-					<div>
+			>
+				<div>
 						<p>The UserInfo endpoint returns user profile information.</p>
 						<p>Send a GET request with the access token in the Authorization header:</p>
 						<pre style={{ background: '#f3f4f6', padding: 12, borderRadius: 4, overflow: 'auto' }}>
@@ -487,26 +674,24 @@ export const V7MROPC: React.FC<Props> = ({
 Authorization: Bearer <access_token>`}
 						</pre>
 					</div>
-				}
-			/>
+			</V7MHelpModal>
 
 			<V7MHelpModal
-				isOpen={showIntrospectionHelp}
+				open={showIntrospectionHelp}
 				onClose={() => setShowIntrospectionHelp(false)}
 				title="Token Introspection"
-				content={
-					<div>
-						<p>The introspection endpoint validates and returns token metadata.</p>
-						<p>Send a POST request with the token:</p>
-						<pre style={{ background: '#f3f4f6', padding: 12, borderRadius: 4, overflow: 'auto' }}>
-							{`POST /introspect
+			>
+				<div>
+					<p>The introspection endpoint validates and returns token metadata.</p>
+					<p>Send a POST request with the token:</p>
+					<pre style={{ background: '#f3f4f6', padding: 12, borderRadius: 4, overflow: 'auto' }}>
+						{`POST /introspect
 Content-Type: application/x-www-form-urlencoded
 
 token=<access_token>`}
-						</pre>
-					</div>
-				}
-			/>
+					</pre>
+				</div>
+			</V7MHelpModal>
 		</div>
 	);
 };

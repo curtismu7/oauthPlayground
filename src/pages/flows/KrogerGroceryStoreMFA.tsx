@@ -28,6 +28,7 @@ import { workerTokenCredentialsService } from '../../services/workerTokenCredent
 import type { UserInfo } from '../../types/oauth';
 import { trackedFetch } from '../../utils/trackedFetch';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Kroger Brand Colors
 const KROGER_BLUE = '#0058A8';
@@ -577,6 +578,9 @@ interface MfaDevice {
 }
 
 const KrogerGroceryStoreMFA: React.FC = () => {
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'Kroger Grocery Store MFA', force: true });
+
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [showMFAChallenge, setShowMFAChallenge] = useState(false);
 	const [showDeviceSetup, setShowDeviceSetup] = useState(false);
