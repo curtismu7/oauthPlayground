@@ -37,6 +37,7 @@ import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
+import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdownV8';
 import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
@@ -415,7 +416,6 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showPrivateKeyJwtModal, setShowPrivateKeyJwtModal] = useState(false);
 	const [allowedScopes, setAllowedScopes] = useState<string[]>([]);
 	const [isLoadingScopes, setIsLoadingScopes] = useState(false);
-	const [showResponseModeInfo, setShowResponseModeInfo] = useState(false);
 
 	// Load environment ID from global storage on mount (only once)
 	useEffect(() => {
@@ -2165,173 +2165,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 
-								{/* Response Mode Education (for flows with redirect URIs) */}
-								{flowOptions.requiresRedirectUri && (
-									<div
-										style={{
-											background: '#f0f9ff',
-											border: '1px solid #bae6fd',
-											borderRadius: '6px',
-											padding: '12px',
-											marginBottom: '16px',
-										}}
-									>
-										<button
-											type="button"
-											onClick={() => setShowResponseModeInfo(!showResponseModeInfo)}
-											style={{
-												background: 'none',
-												border: 'none',
-												padding: 0,
-												width: '100%',
-												display: 'flex',
-												alignItems: 'center',
-												justifyContent: 'space-between',
-												cursor: 'pointer',
-												color: '#0c4a6e',
-												fontWeight: '600',
-												fontSize: '14px',
-											}}
-										>
-											<span>📚 How does PingOne return the response?</span>
-											{showResponseModeInfo ? <FiChevronUp /> : <FiChevronDown />}
-										</button>
-
-										{showResponseModeInfo && (
-											<div style={{ marginTop: '12px', fontSize: '13px', color: '#0c4a6e' }}>
-												<p style={{ margin: '0 0 12px 0', lineHeight: '1.6' }}>
-													OAuth uses the <strong>response_mode</strong> parameter to control how
-													PingOne returns authorization data to your application:
-												</p>
-
-												<div style={{ marginBottom: '12px' }}>
-													<div
-														style={{
-															background: '#ffffff',
-															border: '1px solid #bae6fd',
-															borderRadius: '4px',
-															padding: '10px',
-															marginBottom: '8px',
-														}}
-													>
-														<div style={{ fontWeight: '600', marginBottom: '4px' }}>
-															🔗 query (Query String)
-														</div>
-														<div
-															style={{ fontSize: '12px', color: '#475569', marginBottom: '6px' }}
-														>
-															Response parameters in URL query string
-														</div>
-														<code
-															style={{
-																display: 'block',
-																background: '#f8fafc',
-																padding: '6px 8px',
-																borderRadius: '3px',
-																fontSize: '11px',
-																marginBottom: '6px',
-																wordBreak: 'break-all',
-															}}
-														>
-															https://app.com/callback?code=abc123&state=xyz
-														</code>
-														<div style={{ fontSize: '12px', color: '#64748b' }}>
-															✅ Used by: <strong>Authorization Code Flow</strong> (default)
-														</div>
-													</div>
-
-													<div
-														style={{
-															background: '#ffffff',
-															border: '1px solid #bae6fd',
-															borderRadius: '4px',
-															padding: '10px',
-															marginBottom: '8px',
-														}}
-													>
-														<div style={{ fontWeight: '600', marginBottom: '4px' }}>
-															# fragment (URL Fragment)
-														</div>
-														<div
-															style={{ fontSize: '12px', color: '#475569', marginBottom: '6px' }}
-														>
-															Response parameters in URL fragment (after #)
-														</div>
-														<code
-															style={{
-																display: 'block',
-																background: '#f8fafc',
-																padding: '6px 8px',
-																borderRadius: '3px',
-																fontSize: '11px',
-																marginBottom: '6px',
-																wordBreak: 'break-all',
-															}}
-														>
-															https://app.com/callback#access_token=xyz&token_type=Bearer
-														</code>
-														<div style={{ fontSize: '12px', color: '#64748b' }}>
-															✅ Used by: <strong>Implicit Flow</strong> (required),{' '}
-															<strong>Hybrid Flow</strong> (default)
-															<br />🔒 More secure - fragment never sent to server
-														</div>
-													</div>
-
-													<div
-														style={{
-															background: '#ffffff',
-															border: '1px solid #bae6fd',
-															borderRadius: '4px',
-															padding: '10px',
-														}}
-													>
-														<div style={{ fontWeight: '600', marginBottom: '4px' }}>
-															📮 form_post (HTTP POST)
-														</div>
-														<div
-															style={{ fontSize: '12px', color: '#475569', marginBottom: '6px' }}
-														>
-															Response parameters sent via HTTP POST to redirect URI
-														</div>
-														<code
-															style={{
-																display: 'block',
-																background: '#f8fafc',
-																padding: '6px 8px',
-																borderRadius: '3px',
-																fontSize: '11px',
-																marginBottom: '6px',
-															}}
-														>
-															POST /callback HTTP/1.1{'\n'}code=abc123&state=xyz
-														</code>
-														<div style={{ fontSize: '12px', color: '#64748b' }}>
-															⚙️ Advanced option - requires server-side handling
-															<br />🔒 Most secure - no data in URL at all
-														</div>
-													</div>
-												</div>
-
-												<div
-													style={{
-														background: '#dbeafe',
-														padding: '8px 10px',
-														borderRadius: '4px',
-														fontSize: '12px',
-														color: '#1e40af',
-													}}
-												>
-													<strong>💡 This flow uses:</strong>{' '}
-													{effectiveFlowType === 'implicit'
-														? 'fragment (required for security)'
-														: effectiveFlowType === 'hybrid'
-															? 'fragment (default for hybrid)'
-															: 'query (default for authorization code)'}
-												</div>
-											</div>
-										)}
-									</div>
-								)}
 
 								{/* Sign Off URLs (Post-Logout Redirect URIs) */}
 								{flowOptions.supportsPostLogoutRedirectUri && (
@@ -3454,17 +3287,12 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 									{/* Issuer URL */}
 									<div className="form-group">
-										<label>
-											Issuer URL <span className="optional">(optional)</span>
-										</label>
-										<input
-											type="text"
-											placeholder="https://auth.example.com"
+										<IssuerURLInputV8
 											value={credentials.issuerUrl || ''}
-											onChange={(e) => handleChange('issuerUrl', e.target.value)}
-											aria-label="Issuer URL"
+											onChange={(url) => handleChange('issuerUrl', url)}
+											environmentId={credentials.environmentId}
+											placeholder="https://auth.example.com"
 										/>
-										<small>OIDC provider issuer URL</small>
 									</div>
 								</div>
 							)}
