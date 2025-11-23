@@ -236,15 +236,27 @@ export class OAuthIntegrationServiceV8 {
 		console.log(`${MODULE_TAG} Code Verifier length:`, codeVerifier?.length);
 
 		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-			console.log(`${MODULE_TAG} Token endpoint:`, tokenEndpoint);
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
+			console.log(`${MODULE_TAG} Token endpoint (via proxy):`, tokenEndpoint);
 
 			const bodyParams: Record<string, string> = {
 				grant_type: 'authorization_code',
 				client_id: credentials.clientId,
 				code: code,
 				redirect_uri: credentials.redirectUri,
+				environment_id: credentials.environmentId,
 			};
+
+			// Add scope parameter (optional but recommended for clarity)
+			// This should match the scopes from the authorization request
+			if (credentials.scopes) {
+				bodyParams.scope = credentials.scopes;
+				console.log(`${MODULE_TAG} ✅ Including scope in request:`, credentials.scopes);
+			}
 
 			// Only add code_verifier if it's provided (PKCE flow)
 			if (codeVerifier) {
@@ -254,11 +266,9 @@ export class OAuthIntegrationServiceV8 {
 				console.log(`${MODULE_TAG} ⚠️ No code_verifier provided (non-PKCE flow)`);
 			}
 
-			const body = new URLSearchParams(bodyParams);
-
 			// Add client secret if provided (confidential client)
 			if (credentials.clientSecret) {
-				body.append('client_secret', credentials.clientSecret);
+				bodyParams.client_secret = credentials.clientSecret;
 				console.log(`${MODULE_TAG} ✅ Including client_secret in request (confidential client)`);
 			} else {
 				console.log(`${MODULE_TAG} ⚠️ No client_secret provided (public client)`);
@@ -269,17 +279,18 @@ export class OAuthIntegrationServiceV8 {
 				client_id: bodyParams.client_id,
 				code: `${code.substring(0, 20)}...`,
 				redirect_uri: bodyParams.redirect_uri,
+				scope: bodyParams.scope,
 				has_code_verifier: !!bodyParams.code_verifier,
 				has_client_secret: !!credentials.clientSecret,
 			});
 
-			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint...`);
+			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/json',
 				},
-				body: body.toString(),
+				body: JSON.stringify(bodyParams),
 			});
 
 			console.log(`${MODULE_TAG} Response status:`, response.status);
@@ -335,25 +346,30 @@ export class OAuthIntegrationServiceV8 {
 		});
 
 		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
-			const body = new URLSearchParams({
+			const bodyParams: Record<string, string> = {
 				grant_type: 'refresh_token',
 				client_id: credentials.clientId,
 				refresh_token: refreshToken,
-			});
+				environment_id: credentials.environmentId,
+			};
 
 			// Add client secret if provided
 			if (credentials.clientSecret) {
-				body.append('client_secret', credentials.clientSecret);
+				bodyParams.client_secret = credentials.clientSecret;
 			}
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
+					'Content-Type': 'application/json',
 				},
-				body: body.toString(),
+				body: JSON.stringify(bodyParams),
 			});
 
 			if (!response.ok) {

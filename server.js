@@ -470,6 +470,8 @@ app.post('/api/token-exchange', async (req, res) => {
 			requested_token_type,
 			audience,
 			resource,
+			username,
+			password,
 		} = req.body;
 
 		// Validate required parameters
@@ -504,9 +506,34 @@ app.post('/api/token-exchange', async (req, res) => {
 					error_description: 'Missing required parameter: code',
 				});
 			}
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
+			// Device code grant (RFC 8628)
+			if (!req.body.device_code || req.body.device_code.trim() === '') {
+				console.error('❌ [Server] Missing device_code for device_code grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: device_code',
+				});
+			}
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant only needs client_id and client_secret (handled by auth method)
 			console.log('🔑 [Server] Validating client_credentials grant type');
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials grant (ROPC) - RFC 6749 Section 4.3
+			if (!req.body.username || req.body.username.trim() === '') {
+				console.error('❌ [Server] Missing username for password grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: username',
+				});
+			}
+			if (!req.body.password || req.body.password.trim() === '') {
+				console.error('❌ [Server] Missing password for password grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: password',
+				});
+			}
 		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
 			// RFC 8693 Token Exchange
 			if (!subject_token || subject_token.trim() === '') {
@@ -610,6 +637,25 @@ app.post('/api/token-exchange', async (req, res) => {
 			if (requested_token_type) params.requested_token_type = requested_token_type;
 			if (audience) params.audience = audience;
 			if (resource) params.resource = resource;
+			if (scope) params.scope = scope;
+			tokenRequestBody = new URLSearchParams(params);
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
+			// Device code grant (RFC 8628)
+			console.log('📱 [Server] Building device code request body');
+			tokenRequestBody = new URLSearchParams({
+				grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+				client_id: client_id,
+				device_code: req.body.device_code,
+			});
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials grant (ROPC) - RFC 6749 Section 4.3
+			console.log('🔐 [Server] Building password grant request body');
+			const params = {
+				grant_type: 'password',
+				client_id: client_id,
+				username: req.body.username,
+				password: req.body.password,
+			};
 			if (scope) params.scope = scope;
 			tokenRequestBody = new URLSearchParams(params);
 		} else {
@@ -2087,6 +2133,8 @@ app.post('/api/device-authorization', async (req, res) => {
 		const {
 			environment_id,
 			client_id,
+			client_secret,
+			client_auth_method,
 			scope,
 			audience,
 			acr_values,
@@ -2119,12 +2167,26 @@ app.post('/api/device-authorization', async (req, res) => {
 		if (claims) formData.append('claims', claims);
 		if (app_identifier) formData.append('app_identifier', app_identifier);
 
+		// Handle client authentication
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Accept: 'application/json',
+		};
+
+		if (client_secret) {
+			const authMethod = client_auth_method || 'client_secret_basic';
+			
+			if (authMethod === 'client_secret_basic') {
+				const basicAuth = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+				headers['Authorization'] = `Basic ${basicAuth}`;
+			} else if (authMethod === 'client_secret_post') {
+				formData.append('client_secret', client_secret);
+			}
+		}
+
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				Accept: 'application/json',
-			},
+			headers,
 			body: formData,
 		});
 

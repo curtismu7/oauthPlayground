@@ -250,8 +250,8 @@ const RedirectlessFlowV7Real: React.FC = () => {
 	// V7 Educational API Call Tracking
 	const [apiCalls, setApiCalls] = useState<EnhancedApiCallData[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [error, setError] = useState<string | null>(null);
-	const [tokens, setTokens] = useState<any>(null);
+	const [_error, _setError] = useState<string | null>(null);
+	const [_tokens, _setTokens] = useState<Record<string, unknown> | null>(null);
 
 	// Custom login form state
 	const [showLoginForm, setShowLoginForm] = useState(false);
@@ -408,25 +408,298 @@ const RedirectlessFlowV7Real: React.FC = () => {
 		);
 	}, [controller]);
 
-	// Show custom login form
-	const handleShowLoginForm = useCallback(() => {
-		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError('Complete above actions: Ensure credentials are set.');
-			return;
+	// Note: handleShowLoginForm is no longer needed - modal is shown automatically
+	// when USERNAME_PASSWORD_REQUIRED status is returned from handleStartRedirectlessFlow
+
+	// Step 3: Resume flow to get authorization code (must be defined before handleSubmitCredentials)
+	const handleResumeFlow = useCallback(async (
+		flowId: string,
+		stateValue: string,
+		pkceCodes: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: string },
+		resumeUrl?: string
+	) => {
+		try {
+			console.log('🔐 [Redirectless V7] Step 3: Resuming flow to get authorization code');
+			
+			if (!resumeUrl) {
+				// Try to get resumeUrl from session storage if not provided
+				const storedResumeUrl = sessionStorage.getItem('redirectless-v7-real-resumeUrl');
+				if (!storedResumeUrl) {
+					throw new Error('No resumeUrl available. Please restart the flow.');
+				}
+				resumeUrl = storedResumeUrl;
+			}
+
+			const resumeResponse = await fetch('/api/pingone/resume', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					resumeUrl,
+					flowId,
+					flowState: stateValue,
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+					codeVerifier: pkceCodes.codeVerifier,
+				}),
+			});
+
+			if (!resumeResponse.ok) {
+				const errorText = await resumeResponse.text();
+				throw new Error(
+					`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
+				);
+			}
+
+			const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
+			console.log('🔐 [Redirectless V7] Resume response data:', resumeData);
+
+			const authCode = (resumeData.code || (resumeData.authorizeResponse as { code?: string })?.code) as string | undefined;
+			if (!authCode) {
+				throw new Error('No authorization code received after calling resumeUrl');
+			}
+
+			// Proceed to token exchange
+			await handleTokenExchange(authCode, pkceCodes.codeVerifier);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			console.error('🔐 [Redirectless V7] Failed to resume flow:', errorMessage);
+			throw error;
 		}
+	}, [controller]);
 
-		if (!controller.pkceCodes.codeVerifier) {
-			v4ToastManager.showError('Generate PKCE codes first.');
-			return;
+	// Step 4: Exchange authorization code for tokens (must be defined before handleResumeFlow)
+	const handleTokenExchange = useCallback(async (authCode: string, codeVerifier: string) => {
+		try {
+			console.log('🔐 [Redirectless V7] Step 4: Exchanging authorization code for tokens');
+
+			const backendUrl =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app'
+					: 'https://localhost:3001';
+
+			const tokenRequestBody = {
+				grant_type: 'authorization_code',
+				code: authCode,
+				redirect_uri: 'urn:pingidentity:redirectless',
+				client_id: controller.credentials.clientId,
+				client_secret: controller.credentials.clientSecret,
+				environment_id: controller.credentials.environmentId,
+				code_verifier: codeVerifier,
+			};
+
+			const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(tokenRequestBody),
+			});
+
+			if (!tokenResponse.ok) {
+				const errorData = (await tokenResponse.json().catch(() => ({}))) as Record<string, unknown>;
+				const errorDesc = (errorData.error_description || errorData.error || 'Please check your configuration.') as string;
+				throw new Error(
+					`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}. ${errorDesc}`
+				);
+			}
+
+			const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
+			console.log('🔐 [Redirectless V7] Token exchange successful:', tokenData);
+
+			if (!tokenData.access_token) {
+				throw new Error('No access token received from PingOne');
+			}
+
+			// Create API call display for the successful token exchange
+			const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
+				'redirectless',
+				'Token Exchange',
+				{
+					method: 'POST',
+					url: `${backendUrl}/api/token-exchange`,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: {
+						grant_type: 'authorization_code',
+						code: authCode,
+						redirect_uri: 'urn:pingidentity:redirectless',
+						client_id: controller.credentials.clientId,
+						client_secret: '***REDACTED***',
+						environment_id: controller.credentials.environmentId,
+						code_verifier: codeVerifier,
+					},
+					description: 'Real server-to-server token exchange using response_mode=pi.flow',
+					educationalNotes: [
+						'Authorization code obtained from resume step is exchanged for tokens',
+						'No browser redirect required - pure server-to-server exchange',
+						'PKCE code_verifier validates the original request',
+						'Special redirect_uri urn:pingidentity:redirectless used',
+						'Response includes access_token, id_token, and refresh_token',
+					],
+				}
+			);
+
+			// Add real response data
+			tokenExchangeApiCall.response = {
+				status: tokenResponse.status,
+				statusText: tokenResponse.statusText,
+				headers: Object.fromEntries(tokenResponse.headers.entries()),
+				data: {
+					...tokenData,
+					access_token: `${(tokenData.access_token as string).substring(0, 20)}...[TRUNCATED FOR SECURITY]`,
+				},
+			};
+
+			setApiCalls((prev) => [...prev, tokenExchangeApiCall]);
+			setIsLoading(false);
+			setIsAuthenticating(false);
+			setShowLoginForm(false);
+			v4ToastManager.showSuccess('✅ Tokens obtained from PingOne redirectless flow! No redirects used.');
+
+			// Store tokens in local state for display
+			_setTokens({
+				access_token: tokenData.access_token,
+				refresh_token: tokenData.refresh_token,
+				id_token: tokenData.id_token,
+				token_type: tokenData.token_type,
+				expires_in: tokenData.expires_in,
+				scope: tokenData.scope,
+			});
+
+			// Also set in controller for consistency
+			const accessTokenValue = tokenData.access_token as string;
+			const tokenPayload: {
+				access_token: string;
+				refreshToken?: string;
+				idToken?: string;
+				tokenType?: string;
+				expiresIn?: number;
+				scope?: string;
+			} = {
+				access_token: accessTokenValue,
+			};
+
+			if (tokenData.refresh_token) {
+				tokenPayload.refreshToken = tokenData.refresh_token as string;
+			}
+			if (tokenData.id_token) {
+				tokenPayload.idToken = tokenData.id_token as string;
+			}
+			if (tokenData.token_type) {
+				tokenPayload.tokenType = tokenData.token_type as string;
+			}
+			if (tokenData.expires_in) {
+				tokenPayload.expiresIn = tokenData.expires_in as number;
+			}
+			if (tokenData.scope) {
+				tokenPayload.scope = tokenData.scope as string;
+			}
+
+			controller.setTokens(tokenPayload);
+
+			// Show success message explaining what happened
+			v4ToastManager.showSuccess(
+				`🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`
+			);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			console.error('🔐 [Redirectless V7] Token exchange failed:', errorMessage);
+			_setError(errorMessage);
+			v4ToastManager.showError(`❌ Token exchange failed: ${errorMessage}`);
+			setIsAuthenticating(false);
+			setIsLoading(false);
 		}
+	}, [controller]);
 
-		setShowLoginForm(true);
-	}, [controller.credentials, controller.pkceCodes]);
-
-	// V7 Enhanced Redirectless Authentication and Token Exchange
-	const handleRedirectlessTokenExchange = useCallback(async () => {
+	// Step 2: Submit credentials to PingOne Flow API (depends on handleResumeFlow)
+	const handleSubmitCredentials = useCallback(async () => {
 		setIsAuthenticating(true);
-		setError(null);
+		_setError(null);
+
+		try {
+			const flowId = sessionStorage.getItem('redirectless-v7-real-flowId');
+			const stateValue = sessionStorage.getItem('redirectless-v7-real-state');
+			const codeVerifier = sessionStorage.getItem('redirectless-v7-real-codeVerifier');
+
+			if (!flowId || !stateValue || !codeVerifier) {
+				throw new Error('Flow state not found. Please start the flow again.');
+			}
+
+			console.log('🔐 [Redirectless V7] Step 2: Submitting credentials to PingOne Flow API');
+
+			// Send credentials to PingOne Flow API endpoint (NOT /as/authorize)
+			const flowApiUrl = `https://auth.pingone.com/${controller.credentials.environmentId}/flows/${flowId}`;
+
+			console.log('🔐 [Redirectless V7] Submitting credentials to Flow API:', {
+				flowApiUrl,
+				username: loginCredentials.username,
+				// Password not logged for security
+			});
+
+			const credentialsResponse = await fetch('/api/pingone/flows/check-username-password', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environmentId: controller.credentials.environmentId,
+					flowUrl: flowApiUrl,
+					username: loginCredentials.username,
+					password: loginCredentials.password,
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+				}),
+			});
+
+			if (!credentialsResponse.ok) {
+				const errorText = await credentialsResponse.text();
+				throw new Error(
+					`Credentials submission failed: ${credentialsResponse.status} ${credentialsResponse.statusText}. ${errorText}`
+				);
+			}
+
+			const credentialsData = (await credentialsResponse.json()) as Record<string, unknown>;
+			console.log('🔐 [Redirectless V7] Credentials response:', credentialsData);
+
+			// Check if flow is ready to resume
+			const status = String(credentialsData.status || '').toUpperCase();
+			const resumeUrl = credentialsData.resumeUrl as string | undefined;
+			
+			if (status === 'READY_TO_RESUME' && resumeUrl) {
+				// Store resumeUrl for resume step
+				sessionStorage.setItem('redirectless-v7-real-resumeUrl', resumeUrl);
+				
+				// Proceed to resume step
+				await handleResumeFlow(
+					flowId,
+					stateValue,
+					{ codeVerifier, codeChallenge: '', codeChallengeMethod: 'S256' as const },
+					resumeUrl
+				);
+			} else {
+				throw new Error(`Unexpected status after credentials: ${status || 'UNKNOWN'}`);
+			}
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			console.error('🔐 [Redirectless V7] Failed to submit credentials:', errorMessage);
+			_setError(errorMessage);
+			v4ToastManager.showError(`❌ Authentication failed: ${errorMessage}`);
+			setIsAuthenticating(false);
+		}
+	}, [controller, loginCredentials, handleResumeFlow]);
+
+	// Handle login form submission - calls handleSubmitCredentials
+	const handleLoginFormSubmit = useCallback(async () => {
+		await handleSubmitCredentials();
+	}, [handleSubmitCredentials]);
+
+	// Step 1: Start redirectless flow (without credentials)
+	const handleStartRedirectlessFlow = useCallback(async () => {
+		setIsLoading(true);
+		_setError(null);
 
 		try {
 			// V7 ENHANCEMENT: Force generate fresh PKCE codes for redirectless flow
@@ -465,9 +738,9 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				'🔐 [Redirectless V7] Fresh PKCE codes set in controller and bulletproof storage'
 			);
 
-			// Step 1: Make real authorization request with response_mode=pi.flow (V7 ENHANCED)
+			// Step 1: Make real authorization request with response_mode=pi.flow (NO CREDENTIALS)
 			console.log(
-				'🔐 [Redirectless V7] Making real authorization request with response_mode=pi.flow - V7 ENHANCED'
+				'🔐 [Redirectless V7] Step 1: Starting authorization request with response_mode=pi.flow (NO credentials)'
 			);
 
 			const authEndpoint = `https://auth.pingone.com/${controller.credentials.environmentId}/as/authorize`;
@@ -481,8 +754,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				code_challenge: freshPkceCodes.codeChallenge,
 				code_challenge_method: 'S256',
 				response_mode: 'pi.flow',
-				username: loginCredentials.username,
-				password: loginCredentials.password,
+				// CRITICAL: Do NOT send username/password here - credentials go to Flow API in Step 2
 			});
 
 			console.log('🔐 [Redirectless V7] Authorization request body:', authRequestBody.toString());
@@ -507,193 +779,47 @@ const RedirectlessFlowV7Real: React.FC = () => {
 
 			const authData = await authResponse.json();
 			console.log('🔐 [Redirectless V7] Authorization response data:', authData);
-			console.log('🔐 [Redirectless V7] Checking for resumeUrl:', authData.resumeUrl);
-
-			// In redirectless flow, PingOne returns a flow object with resumeUrl, not a direct code
-			if (!authData.resumeUrl) {
-				throw new Error(
-					'No resumeUrl received from PingOne redirectless flow - V7 enhanced error message'
-				);
+			
+			// Store flowId and state for later steps
+			const flowId = authData.id || authData.flowId;
+			if (!flowId) {
+				throw new Error('No flowId received from PingOne redirectless flow');
 			}
 
-			// Step 2: Call the resumeUrl to complete the authentication and get the authorization code
-			console.log('🔐 [Redirectless V7] Calling resumeUrl to complete authentication');
-			console.log('🔐 [Redirectless V7] Flow ID:', authData.id);
-			console.log('🔐 [Redirectless V7] Flow state:', stateValue);
+			// Store flow state in sessionStorage for credential submission
+			sessionStorage.setItem('redirectless-v7-real-flowId', flowId);
+			sessionStorage.setItem('redirectless-v7-real-state', stateValue);
+			sessionStorage.setItem('redirectless-v7-real-codeVerifier', freshPkceCodes.codeVerifier);
+			sessionStorage.setItem('redirectless-v7-real-codeChallenge', freshPkceCodes.codeChallenge);
 
-			// For redirectless flow, we need to call the resumeUrl directly with POST method
-			// and include the flow state information
-			const resumeResponse = await fetch('/api/pingone/resume', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					resumeUrl: authData.resumeUrl,
-					flowId: authData.id,
-					flowState: stateValue, // Use the state we sent in the authorization request
-					clientId: controller.credentials.clientId,
-					clientSecret: controller.credentials.clientSecret,
-				}),
-			});
+			// Check if credentials are required
+			const status = authData.status?.toUpperCase();
+			console.log('🔐 [Redirectless V7] Flow status:', status);
 
-			if (!resumeResponse.ok) {
-				const errorText = await resumeResponse.text();
-				throw new Error(
-					`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`
-				);
+			if (status === 'USERNAME_PASSWORD_REQUIRED' || status === 'IN_PROGRESS') {
+				// Show modal for username/password - DO NOT REDIRECT
+				console.log('🔐 [Redirectless V7] Credentials required - showing login modal');
+				setShowLoginForm(true);
+				setIsLoading(false);
+				return; // Exit early, wait for user to submit credentials via modal
 			}
 
-			const resumeData = await resumeResponse.json();
-			console.log('🔐 [Redirectless V7] Resume response data:', resumeData);
-
-			if (!resumeData.code) {
-				throw new Error('No authorization code received after calling resumeUrl');
+			// If flow is already completed (unlikely on first request), proceed to resume
+			if (status === 'READY_TO_RESUME' || authData.resumeUrl) {
+				// Proceed to resume step
+				await handleResumeFlow(flowId, stateValue, freshPkceCodes, authData.resumeUrl);
+				return;
 			}
 
-			// Step 3: Exchange authorization code for tokens using backend proxy
-			console.log('🔐 [Redirectless V7] Exchanging authorization code for tokens');
-
-			const backendUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-
-			const tokenRequestBody = {
-				grant_type: 'authorization_code',
-				code: resumeData.code,
-				redirect_uri: 'urn:pingidentity:redirectless',
-				client_id: controller.credentials.clientId,
-				client_secret: controller.credentials.clientSecret,
-				environment_id: controller.credentials.environmentId,
-				code_verifier: freshPkceCodes.codeVerifier,
-			};
-
-			const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(tokenRequestBody),
-			});
-
-			if (!tokenResponse.ok) {
-				const errorData = await tokenResponse.json().catch(() => ({}));
-				throw new Error(
-					`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}. ${errorData.error_description || errorData.error || 'Please check your configuration.'}`
-				);
-			}
-
-			const tokenData = await tokenResponse.json();
-			console.log('🔐 [Redirectless V7] Token exchange successful:', tokenData);
-
-			if (!tokenData.access_token) {
-				throw new Error('No access token received from PingOne');
-			}
-
-			// Create API call display for the resume step
-			const resumeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
-				'redirectless',
-				'Resume Flow',
-				{
-					method: 'POST',
-					url: '/api/pingone/resume',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: {
-						resumeUrl: authData.resumeUrl,
-						clientId: controller.credentials.clientId,
-						clientSecret: '***REDACTED***',
-					},
-					description: 'Complete redirectless authentication by calling resumeUrl',
-					educationalNotes: [
-						'Redirectless flow returns a resumeUrl instead of direct authorization code',
-						'ResumeUrl must be called to complete the authentication process',
-						'This step validates the user credentials and returns the authorization code',
-						'No browser interaction required - pure API-based flow',
-					],
-				}
-			);
-
-			// Create API call display for the successful token exchange
-			const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
-				'redirectless',
-				'Token Exchange',
-				{
-					method: 'POST',
-					url: `${backendUrl}/api/token-exchange`,
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: {
-						grant_type: 'authorization_code',
-						code: resumeData.code,
-						redirect_uri: 'urn:pingidentity:redirectless',
-						client_id: controller.credentials.clientId,
-						client_secret: '***REDACTED***',
-						environment_id: controller.credentials.environmentId,
-						code_verifier: freshPkceCodes.codeVerifier,
-					},
-					description: 'Real server-to-server token exchange using response_mode=pi.flow',
-					educationalNotes: [
-						'Authorization code obtained from resume step is exchanged for tokens',
-						'No browser redirect required - pure server-to-server exchange',
-						'PKCE code_verifier validates the original request',
-						'Special redirect_uri urn:pingidentity:redirectless used',
-						'Response includes access_token, id_token, and refresh_token',
-					],
-				}
-			);
-
-			// Add real response data
-			tokenExchangeApiCall.response = {
-				status: tokenResponse.status,
-				statusText: tokenResponse.statusText,
-				headers: Object.fromEntries(tokenResponse.headers.entries()),
-				data: {
-					...tokenData,
-					access_token: `${tokenData.access_token.substring(0, 20)}...[TRUNCATED FOR SECURITY]`,
-				},
-			};
-
-			setApiCalls((prev) => [...prev, resumeApiCall, tokenExchangeApiCall]);
+			throw new Error(`Unexpected flow status: ${status || 'UNKNOWN'}`);
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			console.error('🔐 [Redirectless V7] Failed to start flow:', errorMessage);
+			_setError(errorMessage);
+			v4ToastManager.showError(`❌ Failed to start redirectless flow: ${errorMessage}`);
 			setIsLoading(false);
-			v4ToastManager.showSuccess('✅ Real tokens obtained from PingOne redirectless flow V7!');
-
-			// Store tokens in local state for display
-			setTokens({
-				access_token: tokenData.access_token,
-				refresh_token: tokenData.refresh_token,
-				id_token: tokenData.id_token,
-				token_type: tokenData.token_type,
-				expires_in: tokenData.expires_in,
-				scope: tokenData.scope,
-			});
-
-			// Also set in controller for consistency
-			controller.setTokens({
-				accessToken: tokenData.access_token,
-				refreshToken: tokenData.refresh_token,
-				idToken: tokenData.id_token,
-				tokenType: tokenData.token_type,
-				expiresIn: tokenData.expires_in,
-				scope: tokenData.scope,
-			});
-
-			// Show success message explaining what happened
-			v4ToastManager.showSuccess(
-				`🎉 Redirectless authentication successful! Received tokens directly via POST request with response_mode=pi.flow - no browser redirect needed!`
-			);
-		} catch (error: any) {
-			console.error('🔐 [Redirectless V7] Real token exchange failed:', error);
-			setError(error.message);
-			v4ToastManager.showError(`❌ Real token exchange failed: ${error.message}`);
-		} finally {
-			setIsAuthenticating(false);
-			setShowLoginForm(false);
 		}
-	}, [controller, loginCredentials]);
+	}, [controller, handleResumeFlow]);
 
 	// Open authorization URL handler
 	const handleOpenAuthUrl = useCallback(() => {
@@ -1217,23 +1343,25 @@ const RedirectlessFlowV7Real: React.FC = () => {
 
 							<div style={{ textAlign: 'center' }}>
 								<SignInButton
-									onClick={handleShowLoginForm}
-									disabled={!controller.authUrl || isAuthenticating}
+									onClick={handleStartRedirectlessFlow}
+									disabled={!checkHasPkceCodes() || isLoading || isAuthenticating}
 									title={
-										!controller.authUrl
-											? 'Generate authorization URL first'
-											: 'Sign in with custom form'
+										!checkHasPkceCodes()
+											? 'Generate PKCE parameters first'
+											: isLoading
+												? 'Starting redirectless flow...'
+												: 'Start redirectless authentication'
 									}
 								>
-									{isAuthenticating ? (
+									{isLoading || isAuthenticating ? (
 										<>
 											<FiRefreshCw className="animate-spin" />
-											Authenticating...
+											{isLoading ? 'Starting Flow...' : 'Authenticating...'}
 										</>
 									) : (
 										<>
 											<FiShield />
-											Sign In
+											Start Redirectless Authentication
 										</>
 									)}
 								</SignInButton>
@@ -1517,7 +1645,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
 							</LoginFormButton>
 							<LoginFormButton
 								$variant="primary"
-								onClick={handleRedirectlessTokenExchange}
+								onClick={handleLoginFormSubmit}
 								disabled={
 									isAuthenticating || !loginCredentials.username || !loginCredentials.password
 								}

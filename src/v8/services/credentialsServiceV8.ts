@@ -41,6 +41,11 @@ export interface Credentials {
 		| 'client_secret_post'
 		| 'client_secret_jwt'
 		| 'private_key_jwt';
+	// OAuth/OIDC advanced parameters
+	responseMode?: 'query' | 'fragment' | 'form_post' | 'pi.flow';
+	maxAge?: number;
+	display?: 'page' | 'popup' | 'touch' | 'wap';
+	prompt?: 'none' | 'login' | 'consent';
 	[key: string]: any;
 }
 
