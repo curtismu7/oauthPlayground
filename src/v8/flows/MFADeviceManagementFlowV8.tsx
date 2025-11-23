@@ -24,6 +24,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { SuperSimpleApiDisplayV8, ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { usePageScroll } from '@/hooks/usePageScroll';
 
 const MODULE_TAG = '[🔧 DEVICE-MGMT-FLOW-V8]';
 const FLOW_KEY = 'mfa-device-mgmt-v8';
@@ -36,6 +37,9 @@ interface Credentials {
 
 export const MFADeviceManagementFlowV8: React.FC = () => {
 	console.log(`${MODULE_TAG} Initializing device management flow`);
+
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'MFA Device Management V8', force: true });
 
 	const [credentials, setCredentials] = useState<Credentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {

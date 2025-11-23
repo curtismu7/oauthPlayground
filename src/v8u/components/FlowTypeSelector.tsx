@@ -47,14 +47,16 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 		onChange(newFlowType);
 	};
 
-	// If current flow type is not available, select first available
+	// If current flow type is not available, select first available for display
+	// NOTE: We do NOT auto-correct here - let the parent component handle that
+	// This prevents infinite loops when the user manually changes the flow type
 	const effectiveFlowType = availableFlows.includes(flowType)
 		? flowType
 		: availableFlows[0] || 'oauth-authz';
-
-	if (effectiveFlowType !== flowType) {
-		onChange(effectiveFlowType);
-	}
+	
+	// REMOVED: Auto-correction useEffect - this was causing infinite loops
+	// The parent component (UnifiedOAuthFlowV8U) handles flow type validation
+	// and will show a modal if the flow is not available for the spec version
 
 	return (
 		<div

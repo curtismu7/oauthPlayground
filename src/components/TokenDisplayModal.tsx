@@ -199,20 +199,6 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 	onClose,
 	tokens,
 }) => {
-	const [visibleTokens, setVisibleTokens] = useState<Set<string>>(new Set());
-
-	const toggleTokenVisibility = (tokenType: string) => {
-		setVisibleTokens((prev) => {
-			const newSet = new Set(prev);
-			if (newSet.has(tokenType)) {
-				newSet.delete(tokenType);
-			} else {
-				newSet.add(tokenType);
-			}
-			return newSet;
-		});
-	};
-
 	const copyToken = (token: string, label: string) => {
 		navigator.clipboard.writeText(token);
 		v4ToastManager.showSuccess(`${label} copied to clipboard`);
@@ -225,7 +211,6 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 	) => {
 		if (!token) return null;
 
-		const isVisible = visibleTokens.has(type);
 		const isJwtToken = isJWT(token);
 		const decoded = isJwtToken ? decodeJWT(token) : null;
 
@@ -239,13 +224,6 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 					</TokenLabel>
 					<TokenActions>
 						<ActionButton
-							onClick={() => toggleTokenVisibility(type)}
-							title={isVisible ? 'Hide token' : 'Show token'}
-						>
-							{isVisible ? <FiEyeOff size={14} /> : <FiEye size={14} />}
-							{isVisible ? 'Hide' : 'Show'}
-						</ActionButton>
-						<ActionButton
 							$variant="primary"
 							onClick={() => copyToken(token, label)}
 							title="Copy token"
@@ -256,11 +234,11 @@ export const TokenDisplayModal: React.FC<TokenDisplayModalProps> = ({
 					</TokenActions>
 				</TokenHeader>
 				<TokenContent>
-					<TokenValue $masked={!isVisible}>
-						{isVisible ? token : '•'.repeat(Math.min(token.length, 100))}
+					<TokenValue $masked={false}>
+						{token}
 					</TokenValue>
 
-					{isVisible && decoded && (
+					{decoded && (
 						<DecodedSection>
 							<DecodedLabel>Decoded JWT</DecodedLabel>
 							<DecodedContent>{JSON.stringify(decoded, null, 2)}</DecodedContent>

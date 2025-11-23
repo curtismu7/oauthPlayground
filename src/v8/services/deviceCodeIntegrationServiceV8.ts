@@ -71,27 +71,11 @@ export class DeviceCodeIntegrationServiceV8 {
 		});
 
 		try {
-			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
-
-			const headers: Record<string, string> = {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			};
-
-			const body = new URLSearchParams({
-				client_id: credentials.clientId,
-			});
-
-			// Handle Client Authentication
-			if (credentials.clientSecret) {
-				const authMethod = credentials.clientAuthMethod || 'client_secret_basic';
-
-				if (authMethod === 'client_secret_basic') {
-					const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-					headers['Authorization'] = `Basic ${basicAuth}`;
-				} else if (authMethod === 'client_secret_post') {
-					body.append('client_secret', credentials.clientSecret);
-				}
-			}
+			// Use backend proxy to avoid CORS issues
+			const backendUrl = process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app'
+				: 'https://localhost:3001';
+			const deviceAuthEndpoint = `${backendUrl}/api/device-authorization`;
 
 			// Validate and handle scopes for Device Authorization Flow
 			let finalScopes = credentials.scopes?.trim() || '';
@@ -137,16 +121,30 @@ export class DeviceCodeIntegrationServiceV8 {
 					`These scopes allow the device to authenticate users and access their profile information.`
 				);
 			}
-			
+
+			// Build request body for backend proxy
+			const requestBody: Record<string, string> = {
+				environment_id: credentials.environmentId,
+				client_id: credentials.clientId,
+			};
+
+			// Handle Client Authentication - pass to backend proxy
+			if (credentials.clientSecret) {
+				requestBody.client_secret = credentials.clientSecret;
+				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
+			}
+
 			// Add scope if provided
 			if (finalScopes) {
-				body.append('scope', finalScopes);
+				requestBody.scope = finalScopes;
 			}
 
 			const response = await fetch(deviceAuthEndpoint, {
 				method: 'POST',
-				headers,
-				body: body.toString(),
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
 			});
 
 			if (!response.ok) {
@@ -239,36 +237,34 @@ export class DeviceCodeIntegrationServiceV8 {
 			maxAttempts,
 		});
 
-		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+		// Use backend proxy to avoid CORS issues
+		const backendUrl = process.env.NODE_ENV === 'production'
+			? 'https://oauth-playground.vercel.app'
+			: 'https://localhost:3001';
+		const tokenEndpoint = `${backendUrl}/api/token-exchange`;
 
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			try {
-				const headers: Record<string, string> = {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				};
-
-				const body = new URLSearchParams({
+				// Build request body for backend proxy (JSON format)
+				const requestBody: Record<string, string> = {
 					grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
 					client_id: credentials.clientId,
 					device_code: deviceCode,
-				});
+					environment_id: credentials.environmentId,
+				};
 
-				// Handle Client Authentication
+				// Handle Client Authentication - pass to backend proxy
 				if (credentials.clientSecret) {
-					const authMethod = credentials.clientAuthMethod || 'client_secret_basic';
-
-					if (authMethod === 'client_secret_basic') {
-						const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-						headers['Authorization'] = `Basic ${basicAuth}`;
-					} else if (authMethod === 'client_secret_post') {
-						body.append('client_secret', credentials.clientSecret);
-					}
+					requestBody.client_secret = credentials.clientSecret;
+					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
 				}
 
 				const response = await fetch(tokenEndpoint, {
 					method: 'POST',
-					headers,
-					body: body.toString(),
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
 				});
 
 				if (response.ok) {

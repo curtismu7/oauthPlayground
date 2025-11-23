@@ -32,6 +32,13 @@ import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
+import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
+import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
+import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
+import { DisplayModeDropdownV8, type DisplayMode } from '@/v8/components/DisplayModeDropdownV8';
+import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
+import { ClientTypeRadioV8, type ClientType } from '@/v8/components/ClientTypeRadioV8';
+import { ScopesInputV8 } from '@/v8/components/ScopesInputV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
@@ -48,6 +55,7 @@ import {
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+import type { ResponseMode } from '@/services/responseModeService';
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
@@ -81,6 +89,10 @@ export interface CredentialsFormV8UProps {
 		responseType?: string;
 		issuerUrl?: string;
 		prompt?: 'none' | 'login' | 'consent';
+		loginHint?: string;
+		maxAge?: number;
+		display?: 'page' | 'popup' | 'touch' | 'wap';
+		responseMode?: string;
 		[key: string]: unknown;
 	};
 	onChange: (credentials: unknown) => void;
@@ -102,6 +114,29 @@ export interface CredentialsFormV8UProps {
 	onAppTypeChange?: (appType: AppType, suggestedFlowType?: FlowType) => void;
 }
 
+/**
+ * CredentialsFormV8U - Unified credentials form component for all OAuth flows
+ * 
+ * This component provides a single, unified interface for configuring OAuth credentials
+ * across all flow types. It handles:
+ * - Credential input and validation
+ * - OIDC discovery for automatic configuration
+ * - Application type selection and flow recommendations
+ * - PKCE configuration
+ * - Client authentication method selection (basic, post, JWT)
+ * - Advanced options (refresh tokens, redirect URIs, scopes)
+ * 
+ * Key features:
+ * - Auto-suggests flow type based on application type
+ * - Auto-enables PKCE for recommended flows
+ * - Validates credentials against spec version requirements
+ * - Persists credentials to localStorage
+ * - Integrates with worker token service for PingOne API access
+ * 
+ * @component
+ * @param {CredentialsFormV8UProps} props - Component props
+ * @returns {JSX.Element} The credentials form UI
+ */
 export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	flowKey,
 	flowType: providedFlowType,
@@ -115,34 +150,144 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	onDiscoveryComplete,
 	onAppTypeChange,
 }) => {
+	// UI state - controls section visibility
 	const [isExpanded, setIsExpanded] = useState(true);
 	const [showAdvancedSection, setShowAdvancedSection] = useState(true);
 	const [showGeneralSection, setShowGeneralSection] = useState(true);
+	
+	// OIDC discovery state
 	const [discoveryInput, setDiscoveryInput] = useState('');
 	const [isDiscovering, setIsDiscovering] = useState(false);
-	const [usePKCE, setUsePKCE] = useState(() => {
-		// Load from credentials if available
-		return typeof credentials.usePKCE === 'boolean' ? credentials.usePKCE : false;
+	
+	/**
+	 * PKCE (Proof Key for Code Exchange) enforcement state
+	 * 
+	 * PKCE is a security extension for OAuth 2.0 that:
+	 * - Prevents authorization code interception attacks
+	 * - Required for OAuth 2.1 public clients
+	 * - Recommended for all clients (even confidential ones)
+	 * 
+	 * Enforcement levels:
+	 * - OPTIONAL: PKCE is optional, can proceed without codes
+	 * - REQUIRED: PKCE must be used (allows S256 or plain)
+	 * - S256_REQUIRED: PKCE must be used with S256 method only (most secure)
+	 * 
+	 * Loads initial value from credentials or app config to preserve user preference.
+	 */
+	const [pkceEnforcement, setPkceEnforcement] = useState<'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED'>(() => {
+		// Priority: credentials.pkceEnforcement > appConfig > legacy usePKCE > default OPTIONAL
+		if (credentials.pkceEnforcement) {
+			return credentials.pkceEnforcement;
+		}
+		// Check app config from PingOne
+		if (appConfig) {
+			if (appConfig.pkceEnforced === true) {
+				return 'S256_REQUIRED'; // pkceEnforced typically means S256_REQUIRED
+			}
+			if (appConfig.pkceRequired === true) {
+				return 'REQUIRED';
+			}
+		}
+		// Legacy: check usePKCE boolean (backward compatibility)
+		if (credentials.usePKCE === true) {
+			return 'REQUIRED'; // Default to REQUIRED if usePKCE was true
+		}
+		return 'OPTIONAL'; // Default to OPTIONAL
 	});
+
+	// Legacy usePKCE computed from pkceEnforcement (for backward compatibility)
+	const usePKCE = pkceEnforcement !== 'OPTIONAL';
+	
+	/**
+	 * Refresh token state
+	 * 
+	 * Refresh tokens allow applications to obtain new access tokens without
+	 * requiring user re-authentication. They are:
+	 * - Optional in OAuth 2.0
+	 * - Recommended for long-lived applications
+	 * - Required for offline access scenarios
+	 * 
+	 * Loads initial value from credentials to preserve user preference.
+	 * Auto-enables if offline_access scope is present.
+	 */
 	const [enableRefreshToken, setEnableRefreshToken] = useState(() => {
-		// Load from credentials if available
-		return typeof credentials.enableRefreshToken === 'boolean'
-			? credentials.enableRefreshToken
-			: false;
+		// Check if offline_access is in scopes
+		const hasOfflineAccess = credentials.scopes?.split(/\s+/).includes('offline_access');
+		
+		// Load from credentials if available, otherwise check scopes, default to false
+		if (typeof credentials.enableRefreshToken === 'boolean') {
+			return credentials.enableRefreshToken;
+		}
+		return hasOfflineAccess || false;
 	});
-	const [useRedirectless, setUseRedirectless] = useState(false);
+	
+	/**
+	 * Redirectless authentication state
+	 * 
+	 * Redirectless authentication allows token exchange without browser redirects.
+	 * This is useful for:
+	 * - Server-side applications
+	 * - Mobile apps with custom URL schemes
+	 * - Applications that can't handle redirects
+	 * 
+	 * Loads initial value from credentials to preserve user preference.
+	 */
+	const [responseMode, setResponseMode] = useState<ResponseMode>(() => {
+		// Load from credentials if available
+		if (credentials.responseMode) {
+			return credentials.responseMode as ResponseMode;
+		}
+		// Legacy: Convert useRedirectless to response_mode
+		if (credentials.useRedirectless) {
+			return 'pi.flow';
+		}
+		// Default: query for authz flows, fragment for implicit/hybrid
+		// Use providedFlowType since flowType is not yet defined at this point
+		const currentFlowType = providedFlowType || 'oauth-authz';
+		return currentFlowType === 'implicit' || currentFlowType === 'hybrid' ? 'fragment' : 'query';
+	});
+
+	/**
+	 * OAuth/OIDC advanced parameters state
+	 */
+	const [loginHint, setLoginHint] = useState<string>(credentials.loginHint || '');
+	const [maxAge, setMaxAge] = useState<number | undefined>(credentials.maxAge);
+	const [display, setDisplay] = useState<DisplayMode | undefined>(
+		credentials.display as DisplayMode | undefined
+	);
+	
+	// UI state for modals and visibility toggles
 	const [showClientSecret, setShowClientSecret] = useState(false);
 	const [showRefreshTokenRules, setShowRefreshTokenRules] = useState(false);
 	const [showPromptInfoModal, setShowPromptInfoModal] = useState(false);
 
-	// ⚠️ CRITICAL ANTI-JITTER FLAG - DO NOT REMOVE OR MODIFY WITHOUT READING THIS:
-	// This ref prevents UI jitter when toggling the "Enable Refresh Token" checkbox
-	// The checkbox handler sets this to true, then resets it after 300ms
-	// The sync effect (line ~220) checks this flag and skips if true
-	// This breaks the infinite loop: checkbox -> save -> re-render -> sync -> save -> re-render...
-	// If you modify this, test the refresh token checkbox thoroughly for jitter!
+	/**
+	 * ⚠️ CRITICAL ANTI-JITTER FLAG - DO NOT REMOVE OR MODIFY WITHOUT READING THIS:
+	 * 
+	 * This ref prevents UI jitter when toggling the "Enable Refresh Token" checkbox.
+	 * 
+	 * Problem:
+	 * - User toggles checkbox → onChange fires → saves to storage → component re-renders
+	 * - Re-render triggers sync effect → detects change → saves again → infinite loop
+	 * - This causes UI jitter and performance issues
+	 * 
+	 * Solution:
+	 * - Checkbox handler sets this flag to true before updating state
+	 * - Sync effect checks this flag and skips save if true
+	 * - Flag is reset after 300ms (enough time for state update to complete)
+	 * 
+	 * If you modify this, test the refresh token checkbox thoroughly for jitter!
+	 */
 	const isUpdatingFromCheckbox = useRef(false);
-	// Track previous scopes to detect if change came from checkbox or external source
+	
+	/**
+	 * Track previous scopes to detect if change came from checkbox or external source
+	 * 
+	 * This helps distinguish between:
+	 * - User manually editing scopes (should save)
+	 * - Checkbox auto-updating scopes (should use anti-jitter flag)
+	 * - External credential updates (should sync)
+	 */
 	const previousScopesRef = useRef<string | undefined>(credentials.scopes);
 
 	// Get config - use a default if not found to avoid breaking hooks
@@ -276,12 +421,26 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Sync checkbox values with credentials (for loading from storage)
 	useEffect(() => {
-		// Load usePKCE from credentials if available
-		if (typeof credentials.usePKCE === 'boolean' && credentials.usePKCE !== usePKCE) {
-			console.log(`${MODULE_TAG} Syncing usePKCE from credentials`, {
-				usePKCE: credentials.usePKCE,
+		// Load pkceEnforcement from credentials if available (priority over legacy usePKCE)
+		if (credentials.pkceEnforcement && credentials.pkceEnforcement !== pkceEnforcement) {
+			console.log(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
+				pkceEnforcement: credentials.pkceEnforcement,
 			});
-			setUsePKCE(credentials.usePKCE);
+			setPkceEnforcement(credentials.pkceEnforcement);
+		} else if (
+			!credentials.pkceEnforcement &&
+			typeof credentials.usePKCE === 'boolean'
+		) {
+			// Legacy: sync from usePKCE boolean if pkceEnforcement is not set
+			const legacyEnforcement = credentials.usePKCE ? 'REQUIRED' : 'OPTIONAL';
+			if (legacyEnforcement !== pkceEnforcement) {
+				console.log(`${MODULE_TAG} Syncing pkceEnforcement from legacy usePKCE`, {
+					usePKCE: credentials.usePKCE,
+					legacyEnforcement,
+				});
+				setPkceEnforcement(legacyEnforcement);
+				// Note: Migration to pkceEnforcement will happen when user saves credentials
+			}
 		}
 
 		// Load enableRefreshToken from credentials if available
@@ -293,6 +452,43 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				enableRefreshToken: credentials.enableRefreshToken,
 			});
 			setEnableRefreshToken(credentials.enableRefreshToken);
+		}
+
+		// Load responseMode from credentials if available
+		if (credentials.responseMode && credentials.responseMode !== responseMode) {
+			console.log(`${MODULE_TAG} Syncing responseMode from credentials`, {
+				responseMode: credentials.responseMode,
+			});
+			setResponseMode(credentials.responseMode as ResponseMode);
+		}
+		// Legacy: Convert useRedirectless to responseMode
+		else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
+			console.log(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
+			setResponseMode('pi.flow');
+		}
+
+		// Load loginHint from credentials if available
+		if (credentials.loginHint !== undefined && credentials.loginHint !== loginHint) {
+			console.log(`${MODULE_TAG} Syncing loginHint from credentials`, {
+				loginHint: credentials.loginHint,
+			});
+			setLoginHint(credentials.loginHint);
+		}
+
+		// Load maxAge from credentials if available
+		if (credentials.maxAge !== undefined && credentials.maxAge !== maxAge) {
+			console.log(`${MODULE_TAG} Syncing maxAge from credentials`, {
+				maxAge: credentials.maxAge,
+			});
+			setMaxAge(credentials.maxAge);
+		}
+
+		// Load display from credentials if available
+		if (credentials.display && credentials.display !== display) {
+			console.log(`${MODULE_TAG} Syncing display from credentials`, {
+				display: credentials.display,
+			});
+			setDisplay(credentials.display as DisplayMode);
 		}
 
 		// Load clientType from credentials if available
@@ -317,7 +513,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				setAppType(credentials.appType as AppType);
 			}
 		}
-	}, [credentials.usePKCE, credentials.enableRefreshToken, credentials.clientType, credentials.appType, usePKCE, enableRefreshToken, clientType, appType]);
+	}, [credentials.pkceEnforcement, credentials.usePKCE, credentials.enableRefreshToken, credentials.responseMode, credentials.useRedirectless, credentials.loginHint, credentials.maxAge, credentials.display, credentials.clientType, credentials.appType, pkceEnforcement, usePKCE, enableRefreshToken, responseMode, loginHint, maxAge, display, clientType, appType]);
 
 	// Auto-select recommended application type when flow type changes
 	useEffect(() => {
@@ -754,9 +950,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 		(field: string, value: string | boolean) => {
 			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
 			// Handle boolean fields (usePKCE, enableRefreshToken)
+			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
+			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
 			const updated =
 				field === 'usePKCE' || field === 'enableRefreshToken'
 					? { ...credentials, [field]: value === true || value === 'true' }
+					: field === 'pkceEnforcement' || field === 'responseMode'
+					? { ...credentials, [field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' }
 					: { ...credentials, [field]: value };
 
 			// Save environment ID globally when changed
@@ -827,6 +1027,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 				updated.scopes = app.scopes.join(' ');
 				// Note: We no longer auto-enable refresh token checkbox by default
 				// User must explicitly enable it if they want refresh tokens
+			}
+			// Set PKCE enforcement from PingOne app configuration
+			if ('pkceEnforced' in app || 'pkceRequired' in app) {
+				if (app.pkceEnforced === true) {
+					updated.pkceEnforcement = 'S256_REQUIRED';
+				} else if (app.pkceRequired === true) {
+					updated.pkceEnforcement = 'REQUIRED';
+				} else {
+					updated.pkceEnforcement = 'OPTIONAL';
+				}
+				// Update local state to match
+				setPkceEnforcement(updated.pkceEnforcement);
+				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
+					pkceEnforcement: updated.pkceEnforcement,
+					pkceEnforced: app.pkceEnforced,
+					pkceRequired: app.pkceRequired,
+				});
 			}
 			// Check if app has refreshTokenDuration (indicates refresh token support)
 			if ('refreshTokenDuration' in app && app.refreshTokenDuration) {
@@ -966,70 +1183,17 @@ Why it matters: Backend services communicate server-to-server without user conte
 						</div>
 						{showGeneralSection && (
 							<div className="section-content">
-								{/* Client Type */}
-								<div className="form-group">
-									<label>
-										Client Type
-										<TooltipV8
-											title={TooltipContentServiceV8.CLIENT_TYPE.title}
-											content={TooltipContentServiceV8.CLIENT_TYPE.content}
-										/>
-									</label>
-									<div
-										style={{
-											display: 'flex',
-											flexDirection: 'column',
-											gap: '10px',
-											marginTop: '4px',
+								{/* Client Type - Educational Component */}
+								<div className="form-group" style={{ marginBottom: '16px' }}>
+									<ClientTypeRadioV8
+										value={clientType}
+										onChange={(type) => {
+											console.log(`${MODULE_TAG} Client type changed to ${type}`);
+											setClientType(type);
+											handleChange('clientType', type);
+											toastV8.info(`Client type set to: ${type === 'public' ? 'Public Client' : 'Confidential Client'}`);
 										}}
-									>
-										<label
-											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-												cursor: 'pointer',
-												fontSize: '14px',
-												fontWeight: 'normal',
-											}}
-										>
-											<input
-												type="radio"
-												name="clientType"
-												value="public"
-												checked={clientType === 'public'}
-												onChange={() => {
-													setClientType('public');
-													handleChange('clientType', 'public');
-												}}
-												style={{ margin: 0, cursor: 'pointer' }}
-											/>
-											<span>Public Client</span>
-										</label>
-										<label
-											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-												cursor: 'pointer',
-												fontSize: '14px',
-												fontWeight: 'normal',
-											}}
-										>
-											<input
-												type="radio"
-												name="clientType"
-												value="confidential"
-												checked={clientType === 'confidential'}
-												onChange={() => {
-													setClientType('confidential');
-													handleChange('clientType', 'confidential');
-												}}
-												style={{ margin: 0, cursor: 'pointer' }}
-											/>
-											<span>Confidential Client</span>
-										</label>
-									</div>
+									/>
 								</div>
 
 								{/* Application Type */}
@@ -1147,7 +1311,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											background:
 												tokenStatus.status === 'valid'
 													? '#d1fae5'
-													: tokenStatus.status === 'expiring-soon'
+													: tokenStatus.status === 'expiring-soon' || tokenStatus.status === 'expired'
 														? '#fef3c7'
 														: '#fee2e2',
 											border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
@@ -1156,7 +1320,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											color:
 												tokenStatus.status === 'valid'
 													? '#065f46'
-													: tokenStatus.status === 'expiring-soon'
+													: tokenStatus.status === 'expiring-soon' || tokenStatus.status === 'expired'
 														? '#92400e'
 														: '#991b1b',
 											display: 'flex',
@@ -1233,11 +1397,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 									<div className="form-group">
 										<label>
 											Client Secret
-											{flowOptions.requiresClientSecret && !credentials.usePKCE ? (
+											{flowOptions.requiresClientSecret && pkceEnforcement === 'OPTIONAL' ? (
 												<span className="required">*</span>
 											) : (
 												<span className="optional">
-													(optional{credentials.usePKCE ? ' - not needed with PKCE' : ''})
+													(optional{pkceEnforcement !== 'OPTIONAL' ? ' - not needed with PKCE' : ''})
 												</span>
 											)}
 										</label>
@@ -1296,15 +1460,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 												{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
 											</button>
 										</div>
-										{highlightEmptyFields && !credentials.clientSecret && !credentials.usePKCE ? (
+										{highlightEmptyFields && !credentials.clientSecret && pkceEnforcement === 'OPTIONAL' ? (
 											<small style={{ color: '#ef4444', fontWeight: 600 }}>
 												⚠️ Client Secret is{' '}
 												{flowOptions.requiresClientSecret ? 'required' : 'recommended'} - please
 												enter it to continue
 											</small>
-										) : credentials.usePKCE ? (
+										) : pkceEnforcement !== 'OPTIONAL' ? (
 											<small style={{ color: '#10b981' }}>
-												✓ PKCE enabled - client secret not required (public client flow)
+												✓ PKCE enabled ({pkceEnforcement}) - client secret not required (public client flow)
 											</small>
 										) : (
 											<small>Keep this secure - never expose in client-side code</small>
@@ -1312,7 +1476,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								) : null}
 
-								{/* PKCE Toggle - Only for Authorization Code and Hybrid Flows */}
+								{/* PKCE Enforcement Dropdown - Only for Authorization Code and Hybrid Flows */}
 								{(effectiveFlowType === 'oauth-authz' || effectiveFlowType === 'hybrid') && (
 									<div
 										className="form-group"
@@ -1326,37 +1490,53 @@ Why it matters: Backend services communicate server-to-server without user conte
 									>
 										<label
 											style={{
-												display: 'flex',
-												alignItems: 'center',
-												gap: '8px',
-												cursor: 'pointer',
-												margin: 0,
+												display: 'block',
+												marginBottom: '8px',
+												fontWeight: '600',
+												color: '#92400e',
 											}}
 										>
-											<input
-												type="checkbox"
-												checked={usePKCE}
-												onChange={(e) => {
-													const newValue = e.target.checked;
-													setUsePKCE(newValue);
-
-													// Save to credentials
-													handleChange('usePKCE', newValue);
-
-													if (newValue) {
-														toastV8.info('PKCE enabled - using public client configuration');
-													}
-												}}
-												style={{ cursor: 'pointer' }}
-											/>
-											<span style={{ fontWeight: '600', color: '#92400e' }}>
-												🔐 Use PKCE (Proof Key for Code Exchange)
-											</span>
+											🔐 PKCE Enforcement
 										</label>
+										<select
+											value={pkceEnforcement}
+											onChange={(e) => {
+												const newEnforcement = e.target.value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
+												setPkceEnforcement(newEnforcement);
+												// Save to credentials
+												handleChange('pkceEnforcement', newEnforcement);
+												// Also update legacy usePKCE for backward compatibility
+												handleChange('usePKCE', newEnforcement !== 'OPTIONAL');
+												console.log(`${MODULE_TAG} PKCE enforcement changed`, {
+													from: pkceEnforcement,
+													to: newEnforcement,
+												});
+											}}
+											style={{
+												width: '100%',
+												padding: '8px 12px',
+												border: '1px solid #d1d5db',
+												borderRadius: '6px',
+												fontSize: '14px',
+												background: '#ffffff',
+												color: '#1f2937',
+												cursor: 'pointer',
+											}}
+										>
+											<option value="OPTIONAL">OPTIONAL - PKCE is optional (can proceed without codes)</option>
+											<option value="REQUIRED">REQUIRED - PKCE must be used (allows S256 or plain)</option>
+											<option value="S256_REQUIRED">S256_REQUIRED - PKCE required with S256 only (most secure)</option>
+										</select>
 										<small style={{ display: 'block', marginTop: '6px', color: '#78350f' }}>
-											{usePKCE
-												? 'PKCE enabled - Client Secret not required (public client flow)'
-												: 'Enable PKCE for enhanced security with public clients'}
+											{pkceEnforcement === 'OPTIONAL' && (
+												<>PKCE is optional - Client Secret may be required depending on auth method</>
+											)}
+											{pkceEnforcement === 'REQUIRED' && (
+												<>PKCE required - Client Secret not required (public client flow)</>
+											)}
+											{pkceEnforcement === 'S256_REQUIRED' && (
+												<>PKCE required with S256 only - Most secure, Client Secret not required</>
+											)}
 										</small>
 									</div>
 								)}
@@ -1917,46 +2097,31 @@ Why it matters: Backend services communicate server-to-server without user conte
 								</div>
 							)}
 
-							{/* Redirectless Mode Checkbox */}
+							{/* Response Mode Dropdown */}
 							{checkboxAvailability.showRedirectless && (
-								<div
-									className="form-group"
-									style={{
-										padding: '12px',
-										background: '#dbeafe',
-										borderRadius: '6px',
-										border: '1px solid #93c5fd',
-									}}
-								>
-									<label
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '8px',
-											cursor: 'pointer',
-											margin: 0,
+								<div className="form-group" style={{ marginBottom: '16px' }}>
+									<ResponseModeDropdownV8
+										value={responseMode}
+										onChange={(mode) => {
+											console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
+											setResponseMode(mode);
+											handleChange('responseMode', mode);
+											
+											// Also update legacy useRedirectless for backward compatibility
+											const isRedirectless = mode === 'pi.flow';
+											handleChange('useRedirectless', isRedirectless);
+											
+											// Show toast notification
+											const modeNames: Record<ResponseMode, string> = {
+												query: 'Query String',
+												fragment: 'URL Fragment',
+												form_post: 'Form POST',
+												'pi.flow': 'Redirectless (PingOne)',
+											};
+											toastV8.info(`Response mode set to: ${modeNames[mode]}`);
 										}}
-									>
-										<input
-											type="checkbox"
-											checked={useRedirectless}
-											onChange={(e) => {
-												setUseRedirectless(e.target.checked);
-												if (e.target.checked) {
-													toastV8.info('Redirectless mode enabled - no redirect URI needed');
-												}
-											}}
-											style={{ cursor: 'pointer' }}
-										/>
-										<span style={{ fontWeight: '600', color: '#0c4a6e' }}>
-											🔌 Use Redirectless Mode
-										</span>
-									</label>
-									<small style={{ display: 'block', marginTop: '6px', color: '#0c4a6e' }}>
-										{useRedirectless
-											? 'Redirectless mode enabled - flow does not require a redirect URI'
-											: 'Enable for flows that do not use redirect URIs (e.g., Client Credentials, Device Code)'}
-									</small>
+										flowType={flowType === 'oauth-authz' ? 'oauth-authz' : flowType === 'implicit' ? 'implicit' : 'hybrid'}
+									/>
 								</div>
 							)}
 
@@ -2944,10 +3109,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 												🔄 Enable Refresh Token
 											</span>
 										</label>
-										<small style={{ display: 'block', marginTop: '6px', color: '#0c4a6e' }}>
-											{enableRefreshToken
-												? 'Refresh tokens enabled - offline_access scope will be included in the request'
-												: 'Enable to include offline_access scope and request refresh tokens'}
+										<small style={{ display: 'block', marginTop: '6px', color: '#0c4a6e', lineHeight: '1.5' }}>
+											{enableRefreshToken ? (
+												<>
+													<strong>Refresh tokens enabled:</strong> The <code>offline_access</code> scope will be automatically included in your authorization request. This allows your application to receive a refresh token along with the access token. Refresh tokens are long-lived credentials that can be used to obtain new access tokens without requiring the user to re-authenticate, enabling your app to maintain user sessions even after access tokens expire. This is essential for applications that need to access protected resources in the background or when the user is not actively using the app.
+												</>
+											) : (
+												<>
+													<strong>Enable this option</strong> to automatically include the <code>offline_access</code> scope in your authorization request. When enabled, PingOne will issue a refresh token along with the access token. Refresh tokens allow your application to obtain new access tokens without user interaction, enabling seamless session management and background API access. Without this, you'll only receive short-lived access tokens that expire quickly, requiring users to re-authenticate frequently.
+												</>
+											)}
 										</small>
 										{credentials.scopes?.split(/\s+/).includes('offline_access') &&
 											!enableRefreshToken && (
@@ -3011,30 +3182,30 @@ Why it matters: Backend services communicate server-to-server without user conte
 									your flow
 								</div>
 
-								{/* PKCE Enforcement Info - Only show for flows that can use PKCE */}
+								{/* PKCE - Educational Component */}
 								{(effectiveFlowType === 'oauth-authz' || effectiveFlowType === 'hybrid') && (
-									<div className="form-group">
-										<label>PKCE Enforcement</label>
-										<div
-											style={{
-												padding: '8px 12px',
-												background: '#f0f9ff',
-												borderRadius: '4px',
-												border: '1px solid #bfdbfe',
+									<div className="form-group" style={{ marginBottom: '16px' }}>
+										<PKCEInputV8
+											value={pkceEnforcement as PKCEMode}
+											onChange={(mode) => {
+												console.log(`${MODULE_TAG} PKCE mode changed to ${mode}`);
+												setPkceEnforcement(mode);
+												handleChange('pkceEnforcement', mode);
+												
+												// Also update legacy usePKCE for backward compatibility
+												handleChange('usePKCE', mode !== 'DISABLED');
+												
+												const modeNames: Record<PKCEMode, string> = {
+													DISABLED: 'Disabled',
+													OPTIONAL: 'Optional',
+													REQUIRED: 'Required (Any Method)',
+													S256_REQUIRED: 'Required (S256 Only)',
+												};
+												toastV8.info(`PKCE set to: ${modeNames[mode]}`);
 											}}
-										>
-											<strong>
-												{FlowOptionsServiceV8.getPKCELabel(flowOptions.pkceEnforcement)}
-											</strong>
-											<small style={{ display: 'block', marginTop: '4px', color: '#0c4a6e' }}>
-												{flowOptions.pkceEnforcement === 'REQUIRED' &&
-													'PKCE is required for this flow'}
-												{flowOptions.pkceEnforcement === 'OPTIONAL' &&
-													'PKCE is optional but recommended'}
-												{flowOptions.pkceEnforcement === 'NOT_REQUIRED' &&
-													'PKCE is not used for this flow'}
-											</small>
-										</div>
+											clientType={clientType}
+											flowType={flowType}
+										/>
 									</div>
 								)}
 
@@ -3063,19 +3234,68 @@ Why it matters: Backend services communicate server-to-server without user conte
 								<h3>📋 Additional Options</h3>
 							</div>
 							<div className="section-content">
+								{/* Login Hint Input - Educational Component */}
 								{flowOptions.supportsLoginHint && showLoginHint && (
-									<div className="form-group">
-										<label>
-											Login Hint <span className="optional">(optional)</span>
-										</label>
-										<input
-											type="text"
-											placeholder="user@example.com"
-											value={credentials.loginHint || ''}
-											onChange={(e) => handleChange('loginHint', e.target.value)}
-											aria-label="Login Hint"
+									<div className="form-group" style={{ marginBottom: '16px' }}>
+										<LoginHintInputV8
+											value={loginHint}
+											onChange={(value) => {
+												console.log(`${MODULE_TAG} Login hint changed to ${value}`);
+												setLoginHint(value);
+												handleChange('loginHint', value);
+												if (value) {
+													toastV8.info(`Login form will pre-fill with: ${value}`);
+												}
+											}}
 										/>
-										<small>Pre-fill login with user identifier</small>
+									</div>
+								)}
+
+								{/* Max Age Input */}
+								{flowOptions.requiresRedirectUri && (
+									<div className="form-group" style={{ marginBottom: '16px' }}>
+										<MaxAgeInputV8
+											value={maxAge}
+											onChange={(value) => {
+												console.log(`${MODULE_TAG} Max age changed to ${value}`);
+												setMaxAge(value);
+												handleChange('maxAge', value);
+												if (value !== undefined) {
+													const formatDuration = (seconds: number): string => {
+														if (seconds === 0) return 'immediate re-authentication';
+														if (seconds < 60) return `${seconds} seconds`;
+														if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes`;
+														const hours = Math.floor(seconds / 3600);
+														const mins = Math.floor((seconds % 3600) / 60);
+														return mins > 0 ? `${hours}h ${mins}m` : `${hours} hour${hours > 1 ? 's' : ''}`;
+													};
+													toastV8.info(`Max authentication age set to: ${formatDuration(value)}`);
+												}
+											}}
+										/>
+									</div>
+								)}
+
+								{/* Display Mode Dropdown */}
+								{flowOptions.requiresRedirectUri && (
+									<div className="form-group" style={{ marginBottom: '16px' }}>
+										<DisplayModeDropdownV8
+											value={display}
+											onChange={(value) => {
+												console.log(`${MODULE_TAG} Display mode changed to ${value}`);
+												setDisplay(value);
+												handleChange('display', value);
+												if (value) {
+													const modeNames: Record<DisplayMode, string> = {
+														page: 'Full Page',
+														popup: 'Popup Window',
+														touch: 'Touch Interface',
+														wap: 'WAP Interface',
+													};
+													toastV8.info(`Display mode set to: ${modeNames[value]}`);
+												}
+											}}
+										/>
 									</div>
 								)}
 
