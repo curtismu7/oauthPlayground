@@ -71,7 +71,9 @@ export class OidcDiscoveryServiceV8 {
 				} catch {
 					errorBody = { error: errorText };
 				}
-				throw new Error(errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`);
+				throw new Error(
+					errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`
+				);
 			}
 
 			const data = await response.json();

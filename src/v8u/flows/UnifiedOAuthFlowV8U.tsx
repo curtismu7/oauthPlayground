@@ -13,6 +13,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import {
@@ -25,27 +27,25 @@ import {
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
+import { FlowNotAvailableModal } from '../components/FlowNotAvailableModal';
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
+import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
-import { FlowNotAvailableModal } from '../components/FlowNotAvailableModal';
-import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
-import { usePageScroll } from '@/hooks/usePageScroll';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
 /**
  * UnifiedOAuthFlowV8U - Main container component for unified OAuth/OIDC flows
- * 
+ *
  * This component orchestrates all OAuth 2.0 and OpenID Connect flows in a single unified interface.
  * It manages:
  * - Flow type selection (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid)
@@ -53,7 +53,7 @@ const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
  * - Step navigation and state management
  * - Credentials loading and persistence
  * - Flow availability validation
- * 
+ *
  * @component
  * @returns {JSX.Element} The unified OAuth flow UI
  */
@@ -74,12 +74,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Parse current step from URL parameter
-	 * 
+	 *
 	 * The step is stored in the URL to enable:
 	 * - Direct navigation to specific steps
 	 * - Browser back/forward navigation
 	 * - Bookmarkable step URLs
-	 * 
+	 *
 	 * @returns {number} Current step number (0-indexed), defaults to 0 if invalid
 	 */
 	const currentStep = useMemo(() => {
@@ -96,17 +96,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Flow type state - determines which OAuth flow is currently active
-	 * 
+	 *
 	 * Supported flows:
 	 * - 'oauth-authz': Authorization Code Flow (most secure, recommended)
 	 * - 'implicit': Implicit Flow (deprecated in OAuth 2.1, but still supported in OAuth 2.0)
 	 * - 'client-credentials': Client Credentials Flow (for server-to-server)
 	 * - 'device-code': Device Code Flow (for devices without browsers)
 	 * - 'hybrid': Hybrid Flow (combines authorization code and implicit)
-	 * 
+	 *
 	 * Note: 'ropc' (Resource Owner Password Credentials) is removed - it's a mock-only flow
 	 * not supported by PingOne. Use /v7m/ropc for mock ROPC flow.
-	 * 
+	 *
 	 * Initializes from URL parameter if valid, otherwise defaults to 'oauth-authz'
 	 */
 	const [flowType, setFlowType] = useState<FlowType>(() => {
@@ -126,12 +126,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Spec version state - determines which OAuth/OIDC specification version to use
-	 * 
+	 *
 	 * Supported spec versions:
 	 * - 'oauth2.0': OAuth 2.0 (RFC 6749) - original specification
 	 * - 'oauth2.1': OAuth 2.1 (draft) - removes deprecated flows (implicit, ROPC)
 	 * - 'oidc': OpenID Connect - adds identity layer on top of OAuth 2.0
-	 * 
+	 *
 	 * Each flow type can have its own saved spec version preference.
 	 * This allows users to use OAuth 2.0 for one flow and OIDC for another.
 	 */
@@ -148,31 +148,31 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Sync flow type state with URL parameter changes
-	 * 
+	 *
 	 * This effect ensures that when the URL changes (e.g., user navigates directly to a flow),
 	 * the component state updates to match. This enables:
 	 * - Direct URL navigation to specific flows
 	 * - Browser back/forward button support
 	 * - Bookmarkable flow URLs
-	 * 
+	 *
 	 * Only syncs if the URL flow type is valid and different from current state.
 	 */
 	// Track last synced URL flow type to prevent loops
 	const lastSyncedUrlFlowTypeRef = useRef<string | null>(null);
-	
+
 	useEffect(() => {
 		// Prevent syncing the same URL flow type multiple times
 		if (lastSyncedUrlFlowTypeRef.current === urlFlowType) {
 			return;
 		}
-		
+
 		console.log(`${MODULE_TAG} 🔍 URL sync check`, {
 			urlFlowType,
 			currentFlowType: flowType,
 			needsSync: urlFlowType !== flowType,
 			url: location.pathname,
 		});
-		
+
 		// Validate URL flow type and sync if different from current state
 		// Note: 'ropc' is removed - it's a mock flow, not supported by PingOne
 		if (
@@ -201,30 +201,30 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Load spec version when flow type changes and update last used timestamp
-	 * 
+	 *
 	 * This effect:
 	 * 1. Loads the saved spec version preference for the new flow type
 	 * 2. Updates state if different from current spec version
 	 * 3. Updates the "last used" timestamp for analytics/tracking
-	 * 
+	 *
 	 * Important: Only depends on flowType, not specVersion, to avoid infinite loops.
 	 * The specVersion dependency is intentionally omitted because we're setting it here.
-	 * 
+	 *
 	 * CRITICAL: Use a ref to track the last flowType we processed to prevent loops.
 	 */
 	const lastProcessedFlowTypeRef = useRef<FlowType | null>(null);
-	
+
 	useEffect(() => {
 		// Prevent processing the same flowType multiple times
 		if (lastProcessedFlowTypeRef.current === flowType) {
 			return;
 		}
-		
+
 		const savedSpecVersion = FlowSettingsServiceV8U.getSpecVersion(flowType);
-		
+
 		// Mark as processed BEFORE any state updates to prevent re-runs
 		lastProcessedFlowTypeRef.current = flowType;
-		
+
 		// Only update state if the saved version differs from current
 		// This prevents unnecessary re-renders
 		if (savedSpecVersion !== specVersion) {
@@ -504,19 +504,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Determine effective flow type - ensures selected flow is available for current spec version
-	 * 
+	 *
 	 * Some flows are not available in certain spec versions:
 	 * - Implicit flow: Removed in OAuth 2.1 (security concerns)
 	 * - ROPC flow: Removed in OAuth 2.1 (security concerns)
 	 * - Hybrid flow: Not part of OAuth 2.1 spec
-	 * 
+	 *
 	 * This memoized value:
 	 * 1. Checks if the selected flow type is available for the current spec version
 	 * 2. Returns the selected flow if available
 	 * 3. Falls back to the first available flow (usually 'oauth-authz') if not available
-	 * 
+	 *
 	 * The fallback prevents errors when switching spec versions that don't support the current flow.
-	 * 
+	 *
 	 * @returns {FlowType} The effective flow type (either selected or fallback)
 	 */
 	const effectiveFlowType = useMemo(() => {
@@ -527,12 +527,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			availableFlows,
 			isAvailable,
 		});
-		
+
 		// Return selected flow if it's available for the current spec version
 		if (isAvailable) {
 			return flowType;
 		}
-		
+
 		// Fallback to first available flow (usually 'oauth-authz')
 		// This ensures we always have a valid flow type
 		const fallback = availableFlows[0] || 'oauth-authz';
@@ -545,46 +545,46 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Show modal when selected flow is not available for current spec version
-	 * 
+	 *
 	 * This effect detects when the user has selected a flow type that's not available
 	 * for the current spec version (e.g., implicit flow with OAuth 2.1).
-	 * 
+	 *
 	 * Instead of automatically switching flows, we show a modal that:
 	 * 1. Explains why the flow is not available
 	 * 2. Offers to use a fallback flow
 	 * 3. Allows user to change spec version instead
-	 * 
+	 *
 	 * The modal only shows once per flow/spec combination to avoid annoying the user.
-	 * 
+	 *
 	 * CRITICAL: This effect must NOT depend on requestedFlow or showFlowNotAvailableModal
 	 * to prevent infinite loops. We use a ref to track what we've already handled.
 	 */
 	const flowAvailabilityCheckRef = useRef<string | null>(null);
-	
+
 	useEffect(() => {
 		// Create a stable key for this flow/spec combination
 		const checkKey = `${flowType}-${specVersion}`;
-		
+
 		// Early return if we've already checked this combination - prevents loops
 		if (flowAvailabilityCheckRef.current === checkKey) {
 			return;
 		}
-		
+
 		// Get fresh available flows (don't rely on memoized version to avoid stale closures)
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-		
+
 		// CRITICAL: Ensure we're comparing strings correctly
 		// Sometimes flowType might be a different type or have whitespace
 		const normalizedFlowType = String(flowType).trim();
-		const normalizedAvailableFlows = currentAvailableFlows.map(f => String(f).trim());
+		const normalizedAvailableFlows = currentAvailableFlows.map((f) => String(f).trim());
 		const isFlowAvailableNormalized = normalizedAvailableFlows.includes(normalizedFlowType);
-		
+
 		// Also check with original includes for safety
 		const isFlowAvailable = currentAvailableFlows.includes(flowType);
-		
+
 		// Use normalized check if original check fails (defensive programming)
 		const finalIsFlowAvailable = isFlowAvailable || isFlowAvailableNormalized;
-		
+
 		// CRITICAL: Explicit check for known valid combinations to prevent false positives
 		// This is a safety net in case the array check fails for any reason
 		const knownValidCombinations: Array<{ spec: SpecVersion; flow: FlowType }> = [
@@ -600,14 +600,14 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			{ spec: 'oidc', flow: 'hybrid' },
 			{ spec: 'oidc', flow: 'device-code' },
 		];
-		
+
 		const isKnownValid = knownValidCombinations.some(
-			combo => combo.spec === specVersion && combo.flow === flowType
+			(combo) => combo.spec === specVersion && combo.flow === flowType
 		);
-		
+
 		// Mark as checked
 		flowAvailabilityCheckRef.current = checkKey;
-		
+
 		// CRITICAL: If flow IS available (by array check OR known valid), NEVER show modal
 		if (finalIsFlowAvailable || isKnownValid) {
 			// Clear modal state if it was showing
@@ -623,7 +623,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 			return; // Early return - flow is valid, no modal needed
 		}
-		
+
 		// Flow is NOT available - show modal (but only if we haven't already)
 		// CRITICAL: Double-check that the flow is actually not available before showing modal
 		// This prevents false positives from race conditions
@@ -631,7 +631,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Final safety check: verify one more time that flow is not available
 			const finalCheck = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 			const isActuallyAvailable = finalCheck.includes(flowType);
-			
+
 			if (!isActuallyAvailable) {
 				console.error(`${MODULE_TAG} ⚠️ Flow type not available for spec - showing modal`, {
 					flowType,
@@ -692,18 +692,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Load credentials from storage on mount, when flow type changes, and on page visibility
 	// IMPORTANT: Credentials are independent of worker token - they persist regardless of token status
 	const lastLoadedFlowKeyRef = useRef<string | null>(null);
-	
+
 	useEffect(() => {
 		// Prevent loading credentials multiple times for the same flowKey
 		if (lastLoadedFlowKeyRef.current === flowKey && isLoadingCredentialsRef.current) {
 			return;
 		}
-		
+
 		const loadCredentials = async () => {
 			// Set loading flag to prevent save effect from running during load
 			isLoadingCredentialsRef.current = true;
 			lastLoadedFlowKeyRef.current = flowKey;
-			
+
 			try {
 				console.log(`${MODULE_TAG} ========== CREDENTIAL LOADING DEBUG START ==========`);
 				console.log(`${MODULE_TAG} Loading credentials from storage`, {
@@ -1018,19 +1018,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Credential persistence refs - prevent infinite save loops
-	 * 
+	 *
 	 * These refs are critical for preventing infinite loops when saving credentials:
-	 * 
+	 *
 	 * lastSavedCredsRef:
 	 * - Stores JSON string of last saved credentials
 	 * - Used to detect if credentials actually changed before saving
 	 * - Prevents saving identical credentials repeatedly
-	 * 
+	 *
 	 * saveTimeoutRef:
 	 * - Stores debounce timeout ID
 	 * - Used to debounce credential saves (wait 500ms after last change)
 	 * - Prevents rapid-fire saves when user is typing
-	 * 
+	 *
 	 * isLoadingCredentialsRef:
 	 * - Flag to indicate credentials are currently being loaded
 	 * - Prevents save effect from running during load
@@ -1042,24 +1042,24 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	/**
 	 * Save credentials when they change (debounced to prevent rapid saves)
-	 * 
+	 *
 	 * This effect watches for credential changes and saves them to storage.
-	 * 
+	 *
 	 * Debouncing:
 	 * - Waits 500ms after last credential change before saving
 	 * - Prevents saving on every keystroke
 	 * - Improves performance and reduces storage writes
-	 * 
+	 *
 	 * Deep comparison:
 	 * - Compares JSON string of credentials to detect actual changes
 	 * - Prevents saving if credentials haven't actually changed
 	 * - Avoids unnecessary storage writes and re-renders
-	 * 
+	 *
 	 * Loading guard:
 	 * - Skips save if credentials are currently being loaded
 	 * - Prevents save → load → save → load infinite loop
 	 * - Uses ref instead of state to avoid dependency issues
-	 * 
+	 *
 	 * Error handling:
 	 * - Catches and logs save errors without breaking the UI
 	 * - Credentials remain in React state even if save fails
@@ -1274,11 +1274,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
 		console.log(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
-		
+
 		// Clear any pending modal state FIRST to prevent loops
 		setRequestedFlow(null);
 		setShowFlowNotAvailableModal(false);
-		
+
 		// Validate flow type is still available BEFORE changing spec version
 		const newAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(newSpec);
 		if (!newAvailableFlows.includes(flowType)) {
@@ -1290,7 +1290,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Update flow type FIRST, then spec version
 			setFlowType(newFlowType);
 		}
-		
+
 		// Now update spec version
 		setSpecVersion(newSpec);
 
@@ -1304,21 +1304,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		if (newFlowType === flowType) {
 			return;
 		}
-		
+
 		console.log(`${MODULE_TAG} 🔄 Flow type changed via selector`, {
 			specVersion,
 			from: flowType,
 			to: newFlowType,
 			currentStep,
 		});
-		
+
 		// Reset all refs so effects can run properly for the new flow type
 		lastProcessedFlowTypeRef.current = null;
 		lastSyncedUrlFlowTypeRef.current = null;
 		flowAvailabilityCheckRef.current = null; // Reset flow availability check
-		
+
 		setFlowType(newFlowType);
-		
+
 		// Navigate to current step with new flow type to update URL
 		if (currentStep !== undefined) {
 			const path = `/v8u/unified/${newFlowType}/${currentStep}`;
@@ -1734,7 +1734,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 												usePKCE: true,
 											};
 											handleCredentialsChange(updatedCredentials);
-											console.log(`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`);
+											console.log(
+												`${MODULE_TAG} Auto-enabled PKCE for ${appType} application type`
+											);
 										}
 									} else {
 										console.log(`${MODULE_TAG} Suggested flow not available for spec`, {
@@ -1787,77 +1789,79 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			)}
 
 			{/* Flow Not Available Modal */}
-			{requestedFlow && (() => {
-				// CRITICAL: Final check before showing modal - verify flow is actually not available
-				// This prevents showing modal with wrong spec version due to race conditions
-				const finalAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-				const isFlowActuallyAvailable = finalAvailableFlows.includes(requestedFlow);
-				
-				// If flow is actually available, don't show modal
-				if (isFlowActuallyAvailable) {
-					console.log(`${MODULE_TAG} ⚠️ Flow is actually available - preventing modal`, {
-						requestedFlow,
-						specVersion,
-						finalAvailableFlows,
-					});
-					// Clear modal state
-					if (showFlowNotAvailableModal) {
-						setShowFlowNotAvailableModal(false);
-						setRequestedFlow(null);
-					}
-					return null;
-				}
-				
-				return (
-				<FlowNotAvailableModal
-					isOpen={showFlowNotAvailableModal}
-					onClose={() => {
-						console.log(`${MODULE_TAG} Modal closed - clearing requested flow`);
-						// Clear modal state FIRST to prevent loops
-						setShowFlowNotAvailableModal(false);
-						setRequestedFlow(null);
-						// Only update flowType if it's actually different AND the effective flow is valid
-						// Don't update if the current flowType is actually valid (prevents loops)
-						const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-						const isCurrentFlowValid = currentAvailableFlows.includes(flowType);
-						if (!isCurrentFlowValid && effectiveFlowType !== flowType) {
-							console.log(`${MODULE_TAG} Auto-updating flow type to effective flow`, {
-								from: flowType,
-								to: effectiveFlowType,
-								isCurrentFlowValid,
-							});
-							setFlowType(effectiveFlowType);
-						}
-					}}
-					requestedFlow={requestedFlow}
-					specVersion={specVersion}
-					fallbackFlow={effectiveFlowType}
-					// CRITICAL: Log what we're passing to the modal to debug issues
-					// This helps identify if specVersion is wrong
-					key={`${requestedFlow}-${specVersion}`}
-					onAccept={() => {
-						// User accepted the fallback flow
-						console.log(`${MODULE_TAG} User accepted fallback flow`, {
-							from: requestedFlow,
-							to: effectiveFlowType,
+			{requestedFlow &&
+				(() => {
+					// CRITICAL: Final check before showing modal - verify flow is actually not available
+					// This prevents showing modal with wrong spec version due to race conditions
+					const finalAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
+					const isFlowActuallyAvailable = finalAvailableFlows.includes(requestedFlow);
+
+					// If flow is actually available, don't show modal
+					if (isFlowActuallyAvailable) {
+						console.log(`${MODULE_TAG} ⚠️ Flow is actually available - preventing modal`, {
+							requestedFlow,
+							specVersion,
+							finalAvailableFlows,
 						});
-						// Clear modal state FIRST to prevent loops
-						setRequestedFlow(null);
-						setShowFlowNotAvailableModal(false);
-						// Then update flow type
-						setFlowType(effectiveFlowType);
-					}}
-					onChangeSpec={() => {
-						// User wants to change spec version - focus on spec selector
-						console.log(`${MODULE_TAG} User wants to change spec version`);
-						// Clear modal state FIRST to prevent loops
-						setRequestedFlow(null);
-						setShowFlowNotAvailableModal(false);
-						// Optionally scroll to spec selector or highlight it
-					}}
-				/>
-				);
-			})()}
+						// Clear modal state
+						if (showFlowNotAvailableModal) {
+							setShowFlowNotAvailableModal(false);
+							setRequestedFlow(null);
+						}
+						return null;
+					}
+
+					return (
+						<FlowNotAvailableModal
+							isOpen={showFlowNotAvailableModal}
+							onClose={() => {
+								console.log(`${MODULE_TAG} Modal closed - clearing requested flow`);
+								// Clear modal state FIRST to prevent loops
+								setShowFlowNotAvailableModal(false);
+								setRequestedFlow(null);
+								// Only update flowType if it's actually different AND the effective flow is valid
+								// Don't update if the current flowType is actually valid (prevents loops)
+								const currentAvailableFlows =
+									UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
+								const isCurrentFlowValid = currentAvailableFlows.includes(flowType);
+								if (!isCurrentFlowValid && effectiveFlowType !== flowType) {
+									console.log(`${MODULE_TAG} Auto-updating flow type to effective flow`, {
+										from: flowType,
+										to: effectiveFlowType,
+										isCurrentFlowValid,
+									});
+									setFlowType(effectiveFlowType);
+								}
+							}}
+							requestedFlow={requestedFlow}
+							specVersion={specVersion}
+							fallbackFlow={effectiveFlowType}
+							// CRITICAL: Log what we're passing to the modal to debug issues
+							// This helps identify if specVersion is wrong
+							key={`${requestedFlow}-${specVersion}`}
+							onAccept={() => {
+								// User accepted the fallback flow
+								console.log(`${MODULE_TAG} User accepted fallback flow`, {
+									from: requestedFlow,
+									to: effectiveFlowType,
+								});
+								// Clear modal state FIRST to prevent loops
+								setRequestedFlow(null);
+								setShowFlowNotAvailableModal(false);
+								// Then update flow type
+								setFlowType(effectiveFlowType);
+							}}
+							onChangeSpec={() => {
+								// User wants to change spec version - focus on spec selector
+								console.log(`${MODULE_TAG} User wants to change spec version`);
+								// Clear modal state FIRST to prevent loops
+								setRequestedFlow(null);
+								setShowFlowNotAvailableModal(false);
+								// Optionally scroll to spec selector or highlight it
+							}}
+						/>
+					);
+				})()}
 		</div>
 	);
 };

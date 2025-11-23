@@ -445,7 +445,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 				};
 
 				setCredentials(finalCredentials);
-				
+
 				// Call the callback using the ref to avoid dependency issues
 				onCredentialsChangeRef.current?.(finalCredentials);
 				logger.success('FlowCredentials', `Credentials loaded for ${flowType}`, finalCredentials);

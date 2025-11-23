@@ -67,17 +67,18 @@ export class ImplicitFlowIntegrationServiceV8 {
 
 		// Ensure scopes default to 'openid' for user authentication flows
 		// Implicit flow MUST include 'openid' for OIDC (to get id_token)
-		const scopes = credentials.scopes && credentials.scopes.trim() !== '' 
-			? credentials.scopes 
-			: 'openid profile email';
-		
+		const scopes =
+			credentials.scopes && credentials.scopes.trim() !== ''
+				? credentials.scopes
+				: 'openid profile email';
+
 		// Warn if 'openid' is missing (user likely made a mistake)
 		if (!scopes.includes('openid')) {
 			console.warn(
 				`${MODULE_TAG} WARNING: 'openid' scope is missing. For implicit flow with id_token, 'openid' scope is required. Adding it automatically.`
 			);
 		}
-		
+
 		// Ensure 'openid' is always included for implicit flow
 		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
 
