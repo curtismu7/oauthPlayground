@@ -166,8 +166,11 @@ export class UnifiedFlowOptionsServiceV8 {
 		// Redirectless checkbox - for flows that can work without redirect URI
 		// Note: Device Code, Client Credentials, and ROPC flows inherently don't use redirects (not a "mode" option)
 		// Redirectless mode is only relevant for Authorization Code flow where you can choose redirect vs redirectless
-		// These flows are excluded - they never use redirects, so showing a "redirectless mode" option is confusing
-		// No flows currently show redirectless checkbox - it's only relevant for authorization code flow variants
+		// Implicit flow returns tokens in URL fragment, so it doesn't need redirectless mode
+		if (flowType === 'oauth-authz') {
+			availability.showRedirectless = true;
+			availability.redirectlessAvailable = true;
+		}
 
 		return availability;
 	}
