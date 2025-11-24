@@ -944,13 +944,21 @@ const ApplicationGenerator: React.FC = () => {
 		}
 	};
 
-	const _handleSaveAsPreset = () => {
+	const _handleSaveAsPreset = async () => {
 		if (!selectedAppType) {
 			v4ToastManager.showError('Please select an application type first');
 			return;
 		}
 
-		const presetName = prompt('Enter a name for this preset:');
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		
+		const presetName = await uiNotificationServiceV8.prompt({
+			title: 'Save Preset',
+			message: 'Enter a name for this preset:',
+			placeholder: 'My Custom Preset',
+			confirmText: 'Continue',
+			cancelText: 'Cancel',
+		});
 		if (!presetName?.trim()) return;
 
 		// Check if preset with this name already exists
@@ -961,13 +969,23 @@ const ApplicationGenerator: React.FC = () => {
 		);
 
 		if (existingPreset) {
-			const shouldUpdate = confirm(
-				`A preset named "${presetName.trim()}" already exists for ${selectedAppType.replace(/_/g, ' ')}. Do you want to update it?`
-			);
+			const shouldUpdate = await uiNotificationServiceV8.confirm({
+				title: 'Preset Already Exists',
+				message: `A preset named "${presetName.trim()}" already exists for ${selectedAppType.replace(/_/g, ' ')}. Do you want to update it?`,
+				confirmText: 'Update',
+				cancelText: 'Cancel',
+				severity: 'warning',
+			});
 			if (!shouldUpdate) return;
 		}
 
-		const presetDescription = prompt('Enter a description for this preset (optional):') || '';
+		const presetDescription = await uiNotificationServiceV8.prompt({
+			title: 'Preset Description',
+			message: 'Enter a description for this preset (optional):',
+			placeholder: 'Description...',
+			confirmText: 'Save',
+			cancelText: 'Skip',
+		}) || '';
 
 		try {
 			const savedPreset = presetManagerService.saveCustomPreset({
