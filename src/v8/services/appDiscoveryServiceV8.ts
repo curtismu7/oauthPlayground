@@ -39,6 +39,7 @@ export interface DiscoveredApplication {
 	responseTypes: string[];
 	redirectUris: string[];
 	tokenEndpointAuthMethod: string;
+	clientSecret?: string; // Client secret from PingOne API (available when fetching individual app)
 	pkceRequired?: boolean;
 	pkceEnforced?: boolean;
 	accessTokenDuration?: number;
@@ -99,13 +100,18 @@ export class AppDiscoveryServiceV8 {
 		}
 
 		// Prompt user
-		const token = prompt(
-			'🔑 Worker Token Required\n\n' +
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const token = await uiNotificationServiceV8.prompt({
+			title: '🔑 Worker Token Required',
+			message:
 				'Enter your PingOne worker token to discover applications.\n' +
 				'This will be stored securely in your browser.\n\n' +
 				'Get a worker token from:\n' +
-				'PingOne Console → Connections → Applications → Worker Token'
-		);
+				'PingOne Console → Connections → Applications → Worker Token',
+			placeholder: 'Enter worker token...',
+			confirmText: 'Continue',
+			cancelText: 'Cancel',
+		});
 
 		if (!token) {
 			console.log(`${MODULE_TAG} User cancelled worker token prompt`);
@@ -473,6 +479,111 @@ export class AppDiscoveryServiceV8 {
 		appId: string
 	): DiscoveredApplication | null {
 		return apps.find((app) => app.id === appId) || null;
+	}
+
+	/**
+	 * Fetch a single application with its client secret from PingOne API
+	 * According to PingOne Workflow Library: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#get-step-19-get-the-application-secret
+	 * @param environmentId - PingOne environment ID
+	 * @param appId - Application ID
+	 * @param workerToken - Worker token for authentication
+	 * @param region - Region (default: 'na')
+	 * @returns Application with client secret
+	 */
+	static async fetchApplicationWithSecret(
+		environmentId: string,
+		appId: string,
+		workerToken: string,
+		region: string = 'na'
+	): Promise<DiscoveredApplication | null> {
+		try {
+			console.log(`${MODULE_TAG} Fetching application with secret`, { environmentId, appId, region });
+
+			// Use backend proxy to avoid CORS
+			const searchParams = new URLSearchParams({
+				environmentId,
+				region,
+				workerToken: workerToken.trim(),
+			});
+
+			const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
+
+			console.log(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
+
+			const response = await fetch(proxyUrl, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+			});
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				let errorData: unknown = {};
+				try {
+					errorData = JSON.parse(errorText);
+				} catch {
+					errorData = { message: errorText };
+				}
+				console.error(`${MODULE_TAG} Failed to fetch application with secret`, {
+					status: response.status,
+					statusText: response.statusText,
+					url: proxyUrl,
+					error: errorData,
+					errorText: errorText.substring(0, 500), // First 500 chars of error text
+				});
+				return null;
+			}
+
+			const app = await response.json();
+
+			// Log the full response to debug clientSecret availability
+			console.log(`${MODULE_TAG} Application response received`, {
+				appId: app.id,
+				appName: app.name,
+				hasClientSecret: 'clientSecret' in app,
+				clientSecretType: typeof app.clientSecret,
+				clientSecretLength: app.clientSecret?.length || 0,
+				clientSecretValue: app.clientSecret ? `${app.clientSecret.substring(0, 10)}...` : 'none',
+				allKeys: Object.keys(app),
+			});
+
+			// Map to DiscoveredApplication format
+			const discoveredApp: DiscoveredApplication = {
+				id: app.id,
+				name: app.name,
+				description: app.description,
+				type: app.type,
+				enabled: app.enabled !== false,
+				grantTypes: app.grantTypes || [],
+				responseTypes: app.responseTypes || [],
+				redirectUris: app.redirectUris || [],
+				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || 'client_secret_post',
+				clientSecret: app.clientSecret && typeof app.clientSecret === 'string' && app.clientSecret.trim().length > 0 
+					? app.clientSecret 
+					: undefined, // Only set if it's a non-empty string
+				pkceRequired: app.pkceRequired,
+				pkceEnforced: app.pkceEnforced,
+				accessTokenDuration: app.accessTokenDuration,
+				refreshTokenDuration: app.refreshTokenDuration,
+				tokenFormat: app.tokenFormat,
+			};
+
+			console.log(`${MODULE_TAG} ✅ Application with secret fetched`, {
+				appId: discoveredApp.id,
+				appName: discoveredApp.name,
+				hasSecret: !!discoveredApp.clientSecret,
+				secretLength: discoveredApp.clientSecret?.length || 0,
+				secretValue: discoveredApp.clientSecret ? `${discoveredApp.clientSecret.substring(0, 10)}...` : 'none',
+			});
+
+			return discoveredApp;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error fetching application with secret`, {
+				error: error instanceof Error ? error.message : String(error),
+			});
+			return null;
+		}
 	}
 
 	/**
