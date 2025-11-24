@@ -46,7 +46,6 @@ export interface UnifiedFlowCredentials {
 	postLogoutRedirectUri?: string;
 	logoutUri?: string;
 	scopes?: string;
-	loginHint?: string;
 	clientAuthMethod?:
 		| 'none'
 		| 'client_secret_basic'
@@ -64,6 +63,7 @@ export interface UnifiedFlowCredentials {
 	loginHint?: string; // Pre-fills username/email in login form
 	maxAge?: number; // Maximum authentication age in seconds - forces re-auth if session is older
 	display?: 'page' | 'popup' | 'touch' | 'wap'; // Controls how authentication UI is displayed
+	usePAR?: boolean; // Enable Pushed Authorization Requests (RFC 9126) - PAR pushes auth parameters to server before redirect
 }
 
 export interface UnifiedFlowState {
@@ -312,8 +312,124 @@ export class UnifiedFlowIntegrationV8U {
 		 * - Recommended for all clients (even confidential ones)
 		 * - Prevents authorization code interception attacks
 		 * - Uses code_verifier (secret) and code_challenge (public) pair
+		 *
+		 * PAR (Pushed Authorization Requests):
+		 * - If enabled, push authorization parameters to server first
+		 * - Use request_uri instead of all parameters in authorization URL
+		 * - More secure and supports larger/complex requests
 		 */
 		if (flowType === 'oauth-authz') {
+			// Generate state for PAR or regular flow
+			const baseState = `state-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+			const prefixedState = `v8u-oauth-authz-${baseState}`;
+
+			// If PAR is enabled, push PAR request and use request_uri in authorization URL
+			if (credentials.usePAR) {
+				console.log(`${MODULE_TAG} 📤 PAR enabled - pushing authorization request first`, {
+					usePAR: credentials.usePAR,
+					clientId: credentials.clientId,
+					hasClientSecret: !!credentials.clientSecret,
+					clientAuthMethod: credentials.clientAuthMethod,
+				});
+				
+				try {
+					// Import PAR service
+					const { PARRARIntegrationServiceV8U } = await import('./parRarIntegrationServiceV8U');
+					
+					// Build PAR request
+					const parRequest = PARRARIntegrationServiceV8U.buildPARRequest(
+						specVersion,
+						flowType,
+						{
+							...credentials,
+							redirectUri: correctRedirectUri || credentials.redirectUri || '',
+						},
+						prefixedState,
+						undefined, // nonce - not needed for authz code flow
+						pkceCodes
+					);
+
+					console.log(`${MODULE_TAG} 📋 PAR request built`, {
+						hasClientSecret: !!parRequest.clientSecret,
+						redirectUri: parRequest.redirectUri,
+						scope: parRequest.scope,
+						state: parRequest.state,
+					});
+
+					// Determine auth method for PAR request
+					const parAuthMethod = 
+						(credentials.clientAuthMethod === 'client_secret_basic' || 
+						 credentials.clientAuthMethod === 'client_secret_post' ||
+						 credentials.clientAuthMethod === 'private_key_jwt' ||
+						 credentials.clientAuthMethod === 'client_secret_jwt')
+							? credentials.clientAuthMethod
+							: 'client_secret_post';
+
+					console.log(`${MODULE_TAG} 🔐 Using PAR auth method: ${parAuthMethod}`);
+
+					// Push PAR request
+					const parResponse = await PARRARIntegrationServiceV8U.pushPARRequest(
+						parRequest,
+						parAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'private_key_jwt' | 'client_secret_jwt'
+					);
+
+					if (!parResponse.requestUri) {
+						throw new Error('PAR request succeeded but no request_uri was returned');
+					}
+
+					console.log(`${MODULE_TAG} ✅ PAR request pushed successfully`, {
+						requestUri: parResponse.requestUri?.substring(0, 50) + '...',
+						fullRequestUri: parResponse.requestUri,
+						expiresIn: parResponse.expiresIn,
+					});
+
+					// Generate authorization URL with request_uri (minimal parameters)
+					const authorizationUrl = PARRARIntegrationServiceV8U.generateAuthorizationUrlWithPAR(
+						credentials.environmentId,
+						parResponse.requestUri,
+						{
+							client_id: credentials.clientId,
+							// Note: state is included in the PAR request, but we can also add it here for consistency
+							// However, according to RFC 9126, request_uri contains all parameters, so we only need client_id
+						}
+					);
+
+					console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with PAR`, {
+						prefixedState,
+						hasPKCE: !!pkceCodes,
+						requestUri: parResponse.requestUri?.substring(0, 50) + '...',
+						authorizationUrl: authorizationUrl.substring(0, 200) + '...',
+						urlContainsRequestUri: authorizationUrl.includes('request_uri'),
+					});
+
+					return {
+						authorizationUrl,
+						state: prefixedState,
+						parRequestUri: parResponse.requestUri,
+						parExpiresIn: parResponse.expiresIn,
+						...(pkceCodes && {
+							codeVerifier: pkceCodes.codeVerifier,
+							codeChallenge: pkceCodes.codeChallenge,
+						}),
+					};
+				} catch (parError) {
+					const errorMsg = parError instanceof Error ? parError.message : 'Unknown PAR error';
+					console.error(`${MODULE_TAG} ❌ PAR request failed:`, {
+						error: errorMsg,
+						parError,
+						credentials: {
+							usePAR: credentials.usePAR,
+							clientId: credentials.clientId,
+							hasClientSecret: !!credentials.clientSecret,
+							clientAuthMethod: credentials.clientAuthMethod,
+						},
+					});
+					// Re-throw the error so the UI can display it
+					throw new Error(`PAR request failed: ${errorMsg}. This client requires PAR. Please ensure your client secret is correct and PAR is enabled in PingOne.`);
+				}
+			}
+
+			// Regular flow (no PAR) - use existing logic
 			const oauthCredentials: OAuthCredentials = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -335,14 +451,14 @@ export class UnifiedFlowIntegrationV8U {
 			 * See implicit flow comment above for explanation of why state prefixing is needed.
 			 * The prefix "v8u-oauth-authz-" identifies this as an authorization code flow request.
 			 */
-			const prefixedState = `v8u-oauth-authz-${result.state}`;
+			const prefixedStateRegular = `v8u-oauth-authz-${result.state}`;
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
 				response_type: 'code',
 				redirect_uri: correctRedirectUri || credentials.redirectUri || '',
 				scope: credentials.scopes || 'openid profile email',
-				state: prefixedState, // Use prefixed state
+				state: prefixedStateRegular, // Use prefixed state
 			});
 
 			// Add prompt parameter if specified
@@ -383,14 +499,14 @@ export class UnifiedFlowIntegrationV8U {
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
 			console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
-				prefixedState,
+				prefixedState: prefixedStateRegular,
 				hasPKCE: !!pkceCodes,
 				responseMode: responseModeOAuth,
 			});
 
 			return {
 				authorizationUrl,
-				state: prefixedState,
+				state: prefixedStateRegular,
 				...(pkceCodes && {
 					codeVerifier: pkceCodes.codeVerifier,
 					codeChallenge: pkceCodes.codeChallenge,

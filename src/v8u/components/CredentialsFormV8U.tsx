@@ -29,7 +29,8 @@ import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import type { ResponseMode } from '@/services/responseModeService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { type ClientType, ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
+import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
+import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
@@ -42,10 +43,10 @@ import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdo
 import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
 import { ResponseTypeDropdownV8 } from '@/v8/components/ResponseTypeDropdownV8';
-import { ScopesInputV8 } from '@/v8/components/ScopesInputV8';
 import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpointAuthMethodDropdownV8';
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -83,7 +84,6 @@ export interface CredentialsFormV8UProps {
 		postLogoutRedirectUri?: string;
 		logoutUri?: string;
 		scopes?: string;
-		loginHint?: string;
 		clientAuthMethod?:
 			| 'none'
 			| 'client_secret_basic'
@@ -179,17 +179,21 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	 * Loads initial value from credentials or app config to preserve user preference.
 	 */
 	const [pkceEnforcement, setPkceEnforcement] = useState<'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED'>(
-		() => {
+		(): 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' => {
 			// Priority: credentials.pkceEnforcement > appConfig > legacy usePKCE > default OPTIONAL
-			if (credentials.pkceEnforcement) {
+			if (credentials.pkceEnforcement && 
+				(credentials.pkceEnforcement === 'OPTIONAL' || 
+				 credentials.pkceEnforcement === 'REQUIRED' || 
+				 credentials.pkceEnforcement === 'S256_REQUIRED')) {
 				return credentials.pkceEnforcement;
 			}
 			// Check app config from PingOne
 			if (appConfig) {
-				if (appConfig.pkceEnforced === true) {
+				const appConfigExtended = appConfig as { pkceEnforced?: boolean; pkceRequired?: boolean; [key: string]: unknown };
+				if (appConfigExtended.pkceEnforced === true) {
 					return 'S256_REQUIRED'; // pkceEnforced typically means S256_REQUIRED
 				}
-				if (appConfig.pkceRequired === true) {
+				if (appConfigExtended.pkceRequired === true) {
 					return 'REQUIRED';
 				}
 			}
@@ -262,10 +266,22 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		credentials.display as DisplayMode | undefined
 	);
 
+	/**
+	 * PAR (Pushed Authorization Requests) state
+	 * PAR (RFC 9126) allows clients to push authorization parameters to the server
+	 * via an authenticated POST request before redirecting the user, enhancing security
+	 * by preventing parameter tampering and supporting large/complex requests.
+	 */
+	const [usePAR, setUsePAR] = useState<boolean>(() => {
+		return credentials.usePAR === true;
+	});
+
 	// UI state for modals and visibility toggles
 	const [showClientSecret, setShowClientSecret] = useState(false);
 	const [showRefreshTokenRules, setShowRefreshTokenRules] = useState(false);
 	const [showPromptInfoModal, setShowPromptInfoModal] = useState(false);
+	const [showPARInfoModal, setShowPARInfoModal] = useState(false);
+	const [showScopesEducationModal, setShowScopesEducationModal] = useState(false);
 
 	/**
 	 * ⚠️ CRITICAL ANTI-JITTER FLAG - DO NOT REMOVE OR MODIFY WITHOUT READING THIS:
@@ -342,6 +358,70 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		return availableFlows[0] || 'oauth-authz';
 	}, [selectedFlowType, availableFlows]);
 
+	/**
+	 * Helper function to determine if PKCE is supported for the current flow type
+	 * PKCE is only supported for flows that use authorization codes:
+	 * - Authorization Code (oauth-authz) - YES
+	 * - Hybrid - YES
+	 * - Implicit - NO (uses tokens directly, no authorization code)
+	 * - Client Credentials - NO (server-to-server, no user authorization)
+	 * - Device Code - NO (uses device code, not authorization code)
+	 */
+	const supportsPKCE = useMemo(() => {
+		return effectiveFlowType === 'oauth-authz' || effectiveFlowType === 'hybrid';
+	}, [effectiveFlowType]);
+
+	/**
+	 * Determine recommended client type based on flow type and spec version
+	 * - Client Credentials: Always confidential (requires client secret)
+	 * - ROPC: Always confidential (requires client secret)
+	 * - Implicit: Always public (no client secret)
+	 * - Device Authorization: Usually public (but can be confidential)
+	 * - Authorization Code: 
+	 *   - OAuth 2.1: Typically public with PKCE (best practice)
+	 *   - OAuth 2.0/OIDC: Can be either, default to public
+	 * - Hybrid: Usually public
+	 */
+	const getRecommendedClientType = useCallback(
+		(flowType: FlowType, spec: SpecVersion): ClientType => {
+			// Flows that always require confidential clients
+			if (flowType === 'client-credentials' || flowType === 'ropc') {
+				return 'confidential';
+			}
+
+			// Flows that are always public
+			if (flowType === 'implicit') {
+				return 'public';
+			}
+
+			// OAuth 2.1 best practice: public clients with PKCE
+			if (spec === 'oauth2.1') {
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					return 'public';
+				}
+			}
+
+			// Device Authorization: typically public
+			if (flowType === 'device-code') {
+				return 'public';
+			}
+
+			// Hybrid: typically public
+			if (flowType === 'hybrid') {
+				return 'public';
+			}
+
+			// Default for Authorization Code: public (can be changed by user)
+			if (flowType === 'oauth-authz') {
+				return 'public';
+			}
+
+			// Default fallback
+			return 'public';
+		},
+		[]
+	);
+
 	// Get application type label
 	const getAppTypeLabel = useCallback((appType: AppType): string => {
 		const labels: Record<AppType, string> = {
@@ -377,14 +457,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Critical UI additions - Initialize from credentials if available
 	const [clientType, setClientType] = useState<ClientType>(() => {
-		// Load from credentials if available, otherwise default to 'public'
+		// Load from credentials if available, otherwise use recommended based on flow type
 		if (
 			typeof credentials.clientType === 'string' &&
 			(credentials.clientType === 'public' || credentials.clientType === 'confidential')
 		) {
 			return credentials.clientType as ClientType;
 		}
-		return 'public';
+		// Auto-select based on flow type and spec version
+		return getRecommendedClientType(effectiveFlowType, specVersion);
 	});
 	const [appType, setAppType] = useState<AppType>(() => {
 		// Load from credentials if available, otherwise default to 'web'
@@ -400,6 +481,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	// OIDC Discovery Modal
 	const [showDiscoveryModal, setShowDiscoveryModal] = useState(false);
 	const [discoveryResult, setDiscoveryResult] = useState<OidcDiscoveryResult | null>(null);
+	const [showDiscoveryInfo, setShowDiscoveryInfo] = useState(false);
 
 	// Worker Token Modal
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
@@ -409,6 +491,31 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [highlightEmptyFields, setHighlightEmptyFields] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
+
+	// Helper function to determine if a required field should have red outline
+	const shouldHighlightField = useCallback(
+		(fieldValue: string | undefined, isRequired: boolean): boolean => {
+			if (!isRequired) return false;
+			const isEmpty = !fieldValue || !fieldValue.trim();
+			// Always highlight empty required fields
+			return isEmpty;
+		},
+		[]
+	);
+
+	// Get red outline style for a field
+	const getFieldErrorStyle = useCallback(
+		(fieldValue: string | undefined, isRequired: boolean) => {
+			if (shouldHighlightField(fieldValue, isRequired)) {
+				return {
+					border: '2px solid #ef4444',
+					boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.1)',
+				};
+			}
+			return {};
+		},
+		[shouldHighlightField]
 	);
 
 	// JWT Configuration Modals
@@ -429,13 +536,26 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Sync checkbox values with credentials (for loading from storage)
 	useEffect(() => {
+		// If flow doesn't support PKCE, clear PKCE enforcement
+		if (!supportsPKCE && pkceEnforcement !== 'OPTIONAL') {
+			console.log(`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`);
+			setPkceEnforcement('OPTIONAL');
+			onChange({ ...credentials, pkceEnforcement: 'OPTIONAL', usePKCE: false });
+		}
+
 		// Load pkceEnforcement from credentials if available (priority over legacy usePKCE)
-		if (credentials.pkceEnforcement && credentials.pkceEnforcement !== pkceEnforcement) {
+		// Only load if flow supports PKCE
+		if (supportsPKCE && 
+			credentials.pkceEnforcement && 
+			(credentials.pkceEnforcement === 'OPTIONAL' || 
+			 credentials.pkceEnforcement === 'REQUIRED' || 
+			 credentials.pkceEnforcement === 'S256_REQUIRED') &&
+			credentials.pkceEnforcement !== pkceEnforcement) {
 			console.log(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
 				pkceEnforcement: credentials.pkceEnforcement,
 			});
 			setPkceEnforcement(credentials.pkceEnforcement);
-		} else if (!credentials.pkceEnforcement && typeof credentials.usePKCE === 'boolean') {
+		} else if (supportsPKCE && !credentials.pkceEnforcement && typeof credentials.usePKCE === 'boolean') {
 			// Legacy: sync from usePKCE boolean if pkceEnforcement is not set
 			const legacyEnforcement = credentials.usePKCE ? 'REQUIRED' : 'OPTIONAL';
 			if (legacyEnforcement !== pkceEnforcement) {
@@ -496,11 +616,43 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			setDisplay(credentials.display as DisplayMode);
 		}
 
-		// Load clientType from credentials if available
+		// Load usePAR from credentials if available
+		if (credentials.usePAR !== undefined && credentials.usePAR !== usePAR) {
+			console.log(`${MODULE_TAG} Syncing usePAR from credentials`, {
+				usePAR: credentials.usePAR,
+			});
+			setUsePAR(credentials.usePAR === true);
+		}
+
+		// Auto-update client type when flow type or spec version changes
+		const recommendedClientType = getRecommendedClientType(effectiveFlowType, specVersion);
+		const requiresConfidential = effectiveFlowType === 'client-credentials' || effectiveFlowType === 'ropc';
+		const requiresPublic = effectiveFlowType === 'implicit';
+		
+		// Only auto-update if:
+		// 1. Flow requires a specific type (client-credentials/ropc = confidential, implicit = public), OR
+		// 2. No clientType is set in credentials and we have a recommendation
 		if (
+			clientType !== recommendedClientType &&
+			(requiresConfidential || requiresPublic || !credentials.clientType)
+		) {
+			console.log(`${MODULE_TAG} Auto-updating client type based on flow and spec`, {
+				flowType: effectiveFlowType,
+				specVersion,
+				recommendedClientType,
+				currentClientType: clientType,
+				reason: requiresConfidential ? 'flow requires confidential' : requiresPublic ? 'flow requires public' : 'recommended for flow/spec',
+			});
+			setClientType(recommendedClientType);
+			onChange({ ...credentials, clientType: recommendedClientType });
+		}
+		// Load clientType from credentials if available (only if not auto-updating)
+		else if (
 			typeof credentials.clientType === 'string' &&
 			(credentials.clientType === 'public' || credentials.clientType === 'confidential') &&
-			credentials.clientType !== clientType
+			credentials.clientType !== clientType &&
+			!requiresConfidential &&
+			!requiresPublic
 		) {
 			console.log(`${MODULE_TAG} Syncing clientType from credentials`, {
 				clientType: credentials.clientType,
@@ -532,15 +684,47 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		credentials.display,
 		credentials.clientType,
 		credentials.appType,
+		credentials.usePAR,
 		pkceEnforcement,
 		usePKCE,
 		enableRefreshToken,
 		responseMode,
 		loginHint,
+		supportsPKCE,
+		effectiveFlowType,
+		specVersion,
+		onChange,
+		credentials,
 		maxAge,
 		display,
 		clientType,
 		appType,
+		usePAR,
+		getRecommendedClientType,
+		credentials.usePKCE,
+		credentials.enableRefreshToken,
+		credentials.responseMode,
+		credentials.useRedirectless,
+		credentials.loginHint,
+		credentials.maxAge,
+		credentials.display,
+		credentials.clientType,
+		credentials.appType,
+		credentials.usePAR,
+		pkceEnforcement,
+		usePKCE,
+		enableRefreshToken,
+		responseMode,
+		loginHint,
+		supportsPKCE,
+		effectiveFlowType,
+		onChange,
+		credentials,
+		maxAge,
+		display,
+		clientType,
+		appType,
+		usePAR,
 	]);
 
 	// Auto-select recommended application type when flow type changes
@@ -1002,17 +1186,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 	}, []);
 
 	const handleChange = useCallback(
-		(field: string, value: string | boolean) => {
+		(field: string, value: string | boolean | number | undefined) => {
 			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
-			// Handle boolean fields (usePKCE, enableRefreshToken)
+			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
 			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
 			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
+			// Handle number fields (maxAge)
 			const updated =
-				field === 'usePKCE' || field === 'enableRefreshToken'
+				field === 'usePKCE' || field === 'enableRefreshToken' || field === 'usePAR'
 					? { ...credentials, [field]: value === true || value === 'true' }
 					: field === 'pkceEnforcement' || field === 'responseMode'
 						? { ...credentials, [field]: value as 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' }
-						: { ...credentials, [field]: value };
+						: field === 'maxAge'
+							? { ...credentials, [field]: typeof value === 'number' ? value : undefined }
+							: { ...credentials, [field]: value };
 
 			// Save environment ID globally when changed
 			if (field === 'environmentId' && typeof value === 'string' && value.trim()) {
@@ -1055,49 +1242,128 @@ Why it matters: Backend services communicate server-to-server without user conte
 	);
 
 	const handleAppSelected = useCallback(
-		(app: DiscoveredApp) => {
+		async (app: DiscoveredApp) => {
 			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 			setHasDiscoveredApps(true);
 			setHighlightEmptyFields(true); // Enable highlighting for empty required fields
-			console.log(`${MODULE_TAG} Highlighting enabled - checking Client Secret`, {
-				hasClientSecret: !!credentials.clientSecret,
-				requiresClientSecret: flowOptions.requiresClientSecret,
-				willHighlight: !credentials.clientSecret && flowOptions.requiresClientSecret,
-			});
+			
+			// Fetch the application with its client secret from PingOne API
+			// According to PingOne Workflow Library: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#get-step-19-get-the-application-secret
+			let appWithSecret = app;
+			if (credentials.environmentId) {
+				try {
+					const workerToken = await AppDiscoveryServiceV8.getStoredWorkerToken();
+					if (workerToken) {
+						console.log(`${MODULE_TAG} Fetching application secret from PingOne API...`);
+						const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
+							credentials.environmentId,
+							app.id,
+							workerToken
+						);
+						if (fetchedApp) {
+							console.log(`${MODULE_TAG} Application fetched`, {
+								hasClientSecret: 'clientSecret' in fetchedApp,
+								clientSecretType: typeof fetchedApp.clientSecret,
+								clientSecretLength: fetchedApp.clientSecret?.length || 0,
+								clientSecretValue: fetchedApp.clientSecret ? `${fetchedApp.clientSecret.substring(0, 10)}...` : 'none',
+							});
+							if (fetchedApp.clientSecret && typeof fetchedApp.clientSecret === 'string' && fetchedApp.clientSecret.trim().length > 0) {
+								appWithSecret = fetchedApp;
+								console.log(`${MODULE_TAG} ✅ Application secret fetched successfully`);
+								toastV8.success('Application secret retrieved from PingOne');
+							} else {
+								console.log(`${MODULE_TAG} Application secret not returned from API or is empty`, {
+									hasClientSecret: 'clientSecret' in fetchedApp,
+									clientSecretValue: fetchedApp.clientSecret,
+								});
+							}
+						} else {
+							console.log(`${MODULE_TAG} Application fetch returned null`);
+						}
+					} else {
+						console.log(`${MODULE_TAG} No worker token available, using app data without secret`);
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Error fetching application secret`, {
+						error: error instanceof Error ? error.message : String(error),
+					});
+					// Continue with app data even if secret fetch fails
+				}
+			}
+			
 			const updated = {
 				...credentials,
-				clientId: app.id,
+				clientId: appWithSecret.id,
+				// Set client secret if available from PingOne API
+				...(('clientSecret' in appWithSecret && 
+					appWithSecret.clientSecret && 
+					typeof appWithSecret.clientSecret === 'string' && 
+					appWithSecret.clientSecret.trim().length > 0)
+					? { clientSecret: appWithSecret.clientSecret as string }
+					: {}),
 				// Note: redirectUri is NOT applied - app dictates this (as user mentioned)
 			};
+			
+			console.log(`${MODULE_TAG} Updated credentials`, {
+				hasClientSecret: !!updated.clientSecret,
+				clientSecretLength: updated.clientSecret?.length || 0,
+			});
 			// Apply additional fields if available (from AppDiscoveryServiceV8.getAppConfig)
-			if ('tokenEndpointAuthMethod' in app && app.tokenEndpointAuthMethod) {
-				updated.clientAuthMethod = app.tokenEndpointAuthMethod as
-					| 'none'
-					| 'client_secret_basic'
-					| 'client_secret_post'
-					| 'client_secret_jwt'
-					| 'private_key_jwt';
+			// Use appWithSecret for tokenEndpointAuthMethod if available, otherwise fall back to app
+			// Type assertion needed because DiscoveredApp interface doesn't include all PingOne app properties
+			type AppWithExtendedProps = DiscoveredApp & {
+				tokenEndpointAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+				scopes?: string[];
+				pkceEnforced?: boolean;
+				pkceRequired?: boolean;
+			};
+			
+			const appWithSecretExtended = appWithSecret as AppWithExtendedProps;
+			const appExtended = app as AppWithExtendedProps;
+			
+			// Type assertion for updated to include pkceEnforcement
+			const updatedWithPKCE = updated as typeof updated & { pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' };
+			
+			if (appWithSecretExtended.tokenEndpointAuthMethod) {
+				updated.clientAuthMethod = appWithSecretExtended.tokenEndpointAuthMethod;
+			} else if (appExtended.tokenEndpointAuthMethod) {
+				updated.clientAuthMethod = appExtended.tokenEndpointAuthMethod;
 			}
-			if ('scopes' in app && Array.isArray(app.scopes)) {
-				updated.scopes = app.scopes.join(' ');
-				// Note: We no longer auto-enable refresh token checkbox by default
-				// User must explicitly enable it if they want refresh tokens
+			if (appWithSecretExtended.scopes && Array.isArray(appWithSecretExtended.scopes)) {
+				updated.scopes = appWithSecretExtended.scopes.join(' ');
+			} else if (appExtended.scopes && Array.isArray(appExtended.scopes)) {
+				updated.scopes = appExtended.scopes.join(' ');
 			}
 			// Set PKCE enforcement from PingOne app configuration
-			if ('pkceEnforced' in app || 'pkceRequired' in app) {
-				if (app.pkceEnforced === true) {
-					updated.pkceEnforcement = 'S256_REQUIRED';
-				} else if (app.pkceRequired === true) {
-					updated.pkceEnforcement = 'REQUIRED';
+			if (appWithSecretExtended.pkceEnforced !== undefined || appWithSecretExtended.pkceRequired !== undefined) {
+				if (appWithSecretExtended.pkceEnforced === true) {
+					updatedWithPKCE.pkceEnforcement = 'S256_REQUIRED';
+				} else if (appWithSecretExtended.pkceRequired === true) {
+					updatedWithPKCE.pkceEnforcement = 'REQUIRED';
 				} else {
-					updated.pkceEnforcement = 'OPTIONAL';
+					updatedWithPKCE.pkceEnforcement = 'OPTIONAL';
 				}
 				// Update local state to match
-				setPkceEnforcement(updated.pkceEnforcement);
+				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
 				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
-					pkceEnforcement: updated.pkceEnforcement,
-					pkceEnforced: app.pkceEnforced,
-					pkceRequired: app.pkceRequired,
+					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
+					pkceEnforced: appWithSecretExtended.pkceEnforced,
+					pkceRequired: appWithSecretExtended.pkceRequired,
+				});
+			} else if (appExtended.pkceEnforced !== undefined || appExtended.pkceRequired !== undefined) {
+				if (appExtended.pkceEnforced === true) {
+					updatedWithPKCE.pkceEnforcement = 'S256_REQUIRED';
+				} else if (appExtended.pkceRequired === true) {
+					updatedWithPKCE.pkceEnforcement = 'REQUIRED';
+				} else {
+					updatedWithPKCE.pkceEnforcement = 'OPTIONAL';
+				}
+				// Update local state to match
+				setPkceEnforcement(updatedWithPKCE.pkceEnforcement);
+				console.log(`${MODULE_TAG} PKCE enforcement set from app config`, {
+					pkceEnforcement: updatedWithPKCE.pkceEnforcement,
+					pkceEnforced: appExtended.pkceEnforced,
+					pkceRequired: appExtended.pkceRequired,
 				});
 			}
 			// Check if app has refreshTokenDuration (indicates refresh token support)
@@ -1192,6 +1458,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 		},
 		[credentials, onChange]
 	);
+
 
 	const defaultTitle = title || 'OAuth 2.0 Configure App & Environment';
 	const defaultSubtitle = subtitle || `Configure credentials for ${flowType} flow`;
@@ -1372,6 +1639,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											value={credentials.environmentId}
 											onChange={(e) => handleChange('environmentId', e.target.value)}
 											aria-label="Environment ID"
+											style={getFieldErrorStyle(credentials.environmentId, true)}
 										/>
 										<small>Your PingOne environment identifier (saved globally once entered)</small>
 									</div>
@@ -1463,6 +1731,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 											value={credentials.clientId}
 											onChange={(e) => handleChange('clientId', e.target.value)}
 											aria-label="Client ID"
+											style={getFieldErrorStyle(credentials.clientId, true)}
 										/>
 										<small>Public identifier for your application</small>
 									</div>
@@ -1495,14 +1764,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 														}
 													}}
 													aria-label="Client Secret"
-													autoComplete="new-password"
+													autoComplete="off"
 													form="credentials-form-v8u"
 													style={{
 														paddingRight: '40px',
+														...getFieldErrorStyle(
+															credentials.clientSecret,
+															flowOptions.requiresClientSecret && pkceEnforcement === 'OPTIONAL'
+														),
 														...(highlightEmptyFields && !credentials.clientSecret
 															? {
-																	border: '2px solid #ef4444',
-																	boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.1)',
 																	animation: 'shake 0.5s',
 																}
 															: {}),
@@ -1556,8 +1827,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 										</div>
 									) : null}
 
-									{/* PKCE Enforcement Dropdown - Only for Authorization Code and Hybrid Flows */}
-									{(effectiveFlowType === 'oauth-authz' || effectiveFlowType === 'hybrid') && (
+									{/* PKCE Enforcement Dropdown - Only for flows that support PKCE */}
+									{supportsPKCE && (
 										<div
 											className="form-group"
 											style={{
@@ -1826,9 +2097,366 @@ Why it matters: Backend services communicate server-to-server without user conte
 						{/* OIDC Discovery Section */}
 						<div className="form-section" data-section="discovery">
 							<div className="section-header">
-								<h3>🔍 OIDC Discovery (Optional)</h3>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										width: '100%',
+									}}
+								>
+									<h3>🔍 OIDC Discovery (Optional)</h3>
+									<button
+										type="button"
+										onClick={() => setShowDiscoveryInfo(!showDiscoveryInfo)}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '4px',
+											padding: '4px 8px',
+											background: '#eff6ff', // Light blue background
+											border: '1px solid #93c5fd',
+											borderRadius: '4px',
+											fontSize: '12px',
+											color: '#1e40af', // Dark blue text - high contrast
+											cursor: 'pointer',
+											transition: 'all 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = '#dbeafe';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = '#eff6ff';
+										}}
+									>
+										<FiInfo size={14} />
+										{showDiscoveryInfo ? 'Hide Info' : "What's this?"}
+									</button>
+								</div>
 							</div>
 							<div className="section-content">
+								{/* Educational info panel */}
+								{showDiscoveryInfo && (
+									<div
+										style={{
+											marginBottom: '16px',
+											padding: '16px',
+											background: '#eff6ff', // Light blue background
+											border: '1px solid #93c5fd',
+											borderRadius: '6px',
+										}}
+									>
+										{/* Main Title Section */}
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												marginBottom: '12px',
+												padding: '12px',
+												background: '#dbeafe',
+												borderRadius: '6px',
+											}}
+										>
+											<span style={{ fontSize: '18px' }}>📚</span>
+											<h4
+												style={{
+													fontSize: '14px',
+													fontWeight: '600',
+													color: '#1e40af', // Dark blue text - high contrast
+													margin: 0,
+													flex: 1,
+												}}
+											>
+												What is OIDC Discovery?
+											</h4>
+										</div>
+										<p
+											style={{
+												fontSize: '13px',
+												color: '#1e40af', // Dark blue text
+												marginBottom: '16px',
+												lineHeight: '1.5',
+											}}
+										>
+											<strong>OIDC Discovery</strong> (OpenID Connect Discovery) automatically
+											retrieves your OAuth/OIDC provider's configuration by querying the{' '}
+											<code
+												style={{
+													background: '#f3f4f6',
+													padding: '2px 4px',
+													borderRadius: '3px',
+												}}
+											>
+												.well-known/openid-configuration
+											</code>{' '}
+											endpoint. This eliminates the need to manually configure endpoints.
+										</p>
+
+										<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+											{/* How It Works */}
+											<div
+												style={{
+													padding: '12px',
+													background: '#ffffff',
+													border: '1px solid #93c5fd',
+													borderRadius: '6px',
+												}}
+											>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<span style={{ fontSize: '16px' }}>⚙️</span>
+													<span
+														style={{
+															fontSize: '13px',
+															fontWeight: '600',
+															color: '#1e40af', // Dark blue text
+														}}
+													>
+														How It Works
+													</span>
+												</div>
+												<div
+													style={{
+														fontSize: '12px',
+														color: '#374151', // Dark text
+														marginBottom: '8px',
+													}}
+												>
+													<ol
+														style={{
+															margin: '0 0 8px 0',
+															paddingLeft: '20px',
+															lineHeight: '1.6',
+														}}
+													>
+														<li>
+															Enter your <strong>Issuer URL</strong> or{' '}
+															<strong>Environment ID</strong>
+														</li>
+														<li>
+															Click <strong>"🔍 OIDC Discovery"</strong> to fetch configuration
+														</li>
+														<li>
+															The system queries{' '}
+															<code
+																style={{
+																	background: '#f3f4f6',
+																	padding: '2px 4px',
+																	borderRadius: '3px',
+																}}
+															>
+																{credentials.environmentId
+																	? `https://auth.pingone.com/${credentials.environmentId}/as/.well-known/openid-configuration`
+																	: '{issuer-url}/.well-known/openid-configuration'}
+															</code>
+														</li>
+														<li>Review discovered endpoints and apply to your configuration</li>
+													</ol>
+												</div>
+											</div>
+
+											{/* What Gets Discovered */}
+											<div
+												style={{
+													padding: '12px',
+													background: '#ffffff',
+													border: '1px solid #93c5fd',
+													borderRadius: '6px',
+												}}
+											>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<span style={{ fontSize: '16px' }}>🔍</span>
+													<span
+														style={{
+															fontSize: '13px',
+															fontWeight: '600',
+															color: '#1e40af', // Dark blue text
+														}}
+													>
+														What Gets Discovered
+													</span>
+												</div>
+												<div
+													style={{
+														fontSize: '12px',
+														color: '#374151', // Dark text
+														display: 'flex',
+														flexDirection: 'column',
+														gap: '6px',
+													}}
+												>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>Authorization endpoint</strong> - Where users authenticate
+														</span>
+													</div>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>Token endpoint</strong> - Where tokens are exchanged
+														</span>
+													</div>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>UserInfo endpoint</strong> - Where user information is retrieved
+														</span>
+													</div>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>JWKS endpoint</strong> - Public keys for token validation
+														</span>
+													</div>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>Supported scopes</strong> - Available OAuth/OIDC scopes
+														</span>
+													</div>
+													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+														<span>✅</span>
+														<span>
+															<strong>Response types</strong> - Supported OAuth response types
+														</span>
+													</div>
+												</div>
+											</div>
+
+											{/* PingOne Example */}
+											<div
+												style={{
+													padding: '12px',
+													background: '#ffffff',
+													border: '1px solid #93c5fd',
+													borderRadius: '6px',
+												}}
+											>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<span style={{ fontSize: '16px' }}>🌐</span>
+													<span
+														style={{
+															fontSize: '13px',
+															fontWeight: '600',
+															color: '#1e40af', // Dark blue text
+														}}
+													>
+														PingOne Example
+													</span>
+												</div>
+												<div
+													style={{
+														fontSize: '12px',
+														color: '#374151', // Dark text
+														marginBottom: '8px',
+													}}
+												>
+													For PingOne, you can use either:
+												</div>
+												<div
+													style={{
+														display: 'flex',
+														flexDirection: 'column',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<div
+														style={{
+															padding: '8px',
+															background: '#f3f4f6',
+															borderRadius: '4px',
+															fontFamily: 'monospace',
+															fontSize: '11px',
+															color: '#1f2937',
+															wordBreak: 'break-all',
+														}}
+													>
+														<strong>Environment ID:</strong>{' '}
+														{credentials.environmentId || '{your-environment-id}'}
+													</div>
+													<div
+														style={{
+															padding: '8px',
+															background: '#f3f4f6',
+															borderRadius: '4px',
+															fontFamily: 'monospace',
+															fontSize: '11px',
+															color: '#1f2937',
+															wordBreak: 'break-all',
+														}}
+													>
+														<strong>Issuer URL:</strong>{' '}
+														{credentials.environmentId
+															? `https://auth.pingone.com/${credentials.environmentId}/as`
+															: 'https://auth.pingone.com/{environment-id}/as'}
+													</div>
+												</div>
+												<div
+													style={{
+														fontSize: '11px',
+														color: '#1e40af',
+														display: 'flex',
+														alignItems: 'center',
+														gap: '6px',
+													}}
+												>
+													<span>💡</span>
+													<span>
+														If you provide an Environment ID, the issuer URL will be
+														auto-generated
+													</span>
+												</div>
+											</div>
+										</div>
+
+										{/* RFC Reference */}
+										<div
+											style={{
+												marginTop: '12px',
+												padding: '12px',
+												background: '#fef3c7', // Light yellow background
+												border: '1px solid #fbbf24',
+												borderRadius: '6px',
+											}}
+										>
+											<div
+												style={{
+													fontSize: '12px',
+													color: '#92400e', // Dark brown text - high contrast
+													lineHeight: '1.5',
+												}}
+											>
+												<strong>📖 RFC Reference:</strong> OIDC Discovery is defined in{' '}
+												<strong>OpenID Connect Discovery 1.0</strong> (OIDC Discovery). The
+												well-known configuration endpoint provides a standardized way to discover
+												OAuth/OIDC provider capabilities.
+											</div>
+										</div>
+									</div>
+								)}
 								<div className="form-group">
 									<label>Issuer URL or Environment ID</label>
 									<div style={{ display: 'flex', gap: '8px' }}>
@@ -1949,7 +2577,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													| 'private_key_jwt'
 											}
 											onChange={(method) => handleChange('clientAuthMethod', method)}
-											flowType={flowType || 'oauth-authz'}
+											flowType={(effectiveFlowType as FlowType) || 'oauth-authz'}
 											specVersion={specVersion}
 											usePKCE={usePKCE}
 										/>
@@ -2200,32 +2828,73 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Scopes */}
 								{config.includeScopes && (
 									<div className="form-group">
-										<label>
-											Scopes <span className="required">*</span>
-											<TooltipV8
-												title={TooltipContentServiceV8.SCOPES.title}
-												content={TooltipContentServiceV8.SCOPES.content}
-											/>
+										<label style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+											<span style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+												<span>
+													Scopes <span className="required">*</span>
+												</span>
+												<TooltipV8
+													title={TooltipContentServiceV8.SCOPES.title}
+													content={TooltipContentServiceV8.SCOPES.content}
+												/>
+											</span>
+											<button
+												type="button"
+												onClick={() => setShowScopesEducationModal(true)}
+												style={{
+													display: 'inline-flex',
+													alignItems: 'center',
+													gap: '4px',
+													padding: '4px 8px',
+													background: '#eff6ff',
+													border: '1px solid #93c5fd',
+													borderRadius: '4px',
+													fontSize: '12px',
+													color: '#1e40af',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease',
+													fontWeight: '500',
+													marginLeft: 'auto',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#dbeafe';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#eff6ff';
+												}}
+											>
+												<FiInfo size={14} />
+												What is this?
+											</button>
 										</label>
 										<input
 											type="text"
 											placeholder={
-												providedFlowType === 'client-credentials' ? 'p1:read:users' : 'openid'
+												providedFlowType === 'client-credentials' 
+													? 'api:read api:write custom:scope (space-separated)' 
+													: 'openid'
 											}
 											value={
 												credentials.scopes ||
 												(providedFlowType === 'client-credentials' ? '' : 'openid')
 											}
+											style={getFieldErrorStyle(credentials.scopes, true)}
 											onChange={(e) => {
-												let newValue =
-													e.target.value ||
-													(providedFlowType === 'client-credentials' ? '' : 'openid');
+												// Allow users to type freely - no filtering during typing
+												// All custom scopes are allowed and preserved exactly as typed
+												const newValue = e.target.value;
+												
+												// Update scopes immediately - allows any custom scope to be entered
+												handleChange('scopes', newValue);
+											}}
+											onBlur={(e) => {
+												// Optional: Only filter invalid scopes on blur (when user finishes typing)
+												// This allows free typing without interference
+												if (providedFlowType === 'client-credentials' && e.target.value) {
+													const scopesArray = e.target.value.split(/\s+/).filter((s) => s.trim());
 
-												// For client credentials flow, validate and fix scopes
-												if (providedFlowType === 'client-credentials' && newValue) {
-													const scopesArray = newValue.split(/\s+/).filter((s) => s.trim());
-
-													// Remove OIDC scopes that are invalid for client credentials (but allow 'openid' if user wants it)
+													// Remove only specific OIDC scopes that are invalid for client credentials
+													// Custom scopes (api:read, custom:scope, etc.) are preserved
 													const invalidOidcScopes = [
 														'offline_access',
 														'profile',
@@ -2237,55 +2906,31 @@ Why it matters: Backend services communicate server-to-server without user conte
 														(s) => !invalidOidcScopes.includes(s.toLowerCase())
 													);
 
-													// Fix common singular/plural mistakes
-													const fixedScopes = filteredScopes.map((scope) => {
-														// Fix singular to plural
-														if (scope === 'p1:read:user') return 'p1:read:users';
-														if (scope === 'p1:update:user') return 'p1:update:users';
-														if (scope === 'p1:create:user') return 'p1:create:users';
-														if (scope === 'p1:delete:user') return 'p1:delete:users';
-														if (scope === 'p1:read:environment') return 'p1:read:environments';
-														if (scope === 'p1:update:environment') return 'p1:update:environments';
-														if (scope === 'p1:read:application') return 'p1:read:applications';
-														if (scope === 'p1:create:application') return 'p1:create:applications';
-														if (scope === 'p1:update:application') return 'p1:update:applications';
-														if (scope === 'p1:delete:application') return 'p1:delete:applications';
-														if (scope === 'p1:read:population') return 'p1:read:populations';
-														if (scope === 'p1:update:population') return 'p1:update:populations';
-														if (scope === 'p1:read:group') return 'p1:read:groups';
-														if (scope === 'p1:update:group') return 'p1:update:groups';
-														if (scope === 'p1:read:role') return 'p1:read:roles';
-														if (scope === 'p1:update:role') return 'p1:update:roles';
-														return scope;
-													});
-
-													newValue = fixedScopes.join(' ');
-
-													// Log if we made corrections
-													if (
-														filteredScopes.length < scopesArray.length ||
-														fixedScopes.some((s, i) => s !== filteredScopes[i])
-													) {
+													// Only update if we actually removed something
+													if (filteredScopes.length < scopesArray.length) {
+														const newValue = filteredScopes.join(' ');
+														handleChange('scopes', newValue);
 														console.log(
-															`${MODULE_TAG} Auto-corrected scopes for client credentials flow`,
+															`${MODULE_TAG} Removed invalid OIDC scopes for client credentials flow`,
 															{
 																original: e.target.value,
-																corrected: newValue,
+																filtered: newValue,
+																removed: scopesArray.filter((s) =>
+																	invalidOidcScopes.includes(s.toLowerCase())
+																),
 															}
 														);
 													}
 												}
-
-												handleChange('scopes', newValue);
 											}}
 											aria-label="Scopes"
 										/>
 										<small>
 											{providedFlowType === 'client-credentials'
-												? 'Management API scopes (e.g., p1:read:users, p1:read:environments) - must be enabled in PingOne app Resources tab. Note: Use plural forms (users, environments, applications, etc.)'
+												? 'Type custom resource server scopes only (e.g., api:read, api:write, custom:scope, myapp:data:read). Space-separated. Must be enabled in PingOne app Resources tab. Note: Management API scopes (p1:read:user, etc.) are for Worker tokens only, not client_credentials flow. Use custom scopes for your resource server API.'
 												: providedFlowType === 'device-code'
 													? 'OIDC scopes for user authentication (e.g., openid profile email offline_access) - Device Flow is for user authorization, not machine-to-machine'
-													: 'Space-separated permissions (must be enabled in PingOne app)'}
+													: 'Type space-separated scopes (e.g., openid profile email). Custom scopes are allowed. Must be enabled in PingOne app.'}
 										</small>
 										{/* Show warning if invalid scopes detected for device code flow */}
 										{providedFlowType === 'device-code' &&
@@ -2446,13 +3091,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 														s.toLowerCase()
 													)
 												);
-												const singularScopes = scopesArray.filter((s) =>
-													s.match(
-														/^p1:(read|update|create|delete):(user|environment|application|population|group|role)$/
-													)
-												);
 
-												if (invalidOidcScopes.length > 0 || singularScopes.length > 0) {
+												// Note: Singular forms (p1:read:user) are CORRECT - no warning needed
+												// Management API scopes use singular forms, not plural
+
+												if (invalidOidcScopes.length > 0) {
 													return (
 														<div
 															style={{
@@ -2479,25 +3122,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 																			flow. They have been automatically removed.
 																		</p>
 																	)}
-																	{singularScopes.length > 0 && (
-																		<p style={{ margin: '4px 0 0 0', color: '#78350f' }}>
-																			• <strong>{singularScopes.join(', ')}</strong> should use
-																			plural forms:{' '}
-																			{singularScopes
-																				.map((s) => {
-																					const plural = s
-																						.replace(/:user$/, ':users')
-																						.replace(/:environment$/, ':environments')
-																						.replace(/:application$/, ':applications')
-																						.replace(/:population$/, ':populations')
-																						.replace(/:group$/, ':groups')
-																						.replace(/:role$/, ':roles');
-																					return plural;
-																				})
-																				.join(', ')}
-																			. They have been automatically corrected.
-																		</p>
-																	)}
 																	<p
 																		style={{
 																			margin: '8px 0 0 0',
@@ -2505,8 +3129,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																			color: '#92400e',
 																		}}
 																	>
-																		Client credentials flow typically uses Management API scopes
-																		(plural forms). See{' '}
+																		<strong>Important:</strong> Client credentials flow should only use{' '}
+																		<strong>custom resource server scopes</strong> (e.g.,{' '}
+																		<code>api:read</code>, <code>api:write</code>, <code>custom:scope</code>).
+																		Management API scopes (p1:*) are for Worker tokens only, not client_credentials.
+																		See{' '}
 																		<a
 																			href="https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles"
 																			target="_blank"
@@ -2634,36 +3261,21 @@ Why it matters: Backend services communicate server-to-server without user conte
 													</div>
 												);
 											}
-											// For client credentials flow, show Management API scopes
+											// For client credentials flow, do NOT show Management API scopes
+											// Client credentials flow should only use custom resource server scopes
+											// Management API scopes (p1:*) are for Worker tokens only
 											if (providedFlowType === 'client-credentials') {
-												// Most commonly used Management API scopes (from PingOne documentation)
-												// Note: 'openid' is included as an option per user request
-												const managementApiScopes = [
-													'openid',
-													'p1:read:users',
-													'p1:update:users',
-													'p1:create:users',
-													'p1:delete:users',
-													'p1:read:environments',
-													'p1:update:environments',
-													'p1:read:applications',
-													'p1:create:applications',
-													'p1:update:applications',
-													'p1:delete:applications',
-													'p1:read:populations',
-													'p1:update:populations',
-													'p1:read:groups',
-													'p1:update:groups',
-													'p1:read:roles',
-													'p1:update:roles',
-													'p1:read:audit',
-													'p1:read:authenticators',
-													'p1:update:authenticators',
-												];
-												const scopesToShow =
-													allowedScopes.length > 0 && allowedScopes.some((s) => s.startsWith('p1:'))
-														? allowedScopes.filter((s) => s.startsWith('p1:'))
-														: managementApiScopes;
+												// Only show custom scopes from allowedScopes (if any)
+												// Filter out any p1: scopes as they're not for client_credentials
+												const customScopesToShow = allowedScopes.length > 0
+													? allowedScopes.filter((s) => !s.startsWith('p1:'))
+													: [];
+
+												// If no custom scopes available, don't show any scope buttons
+												// User should type custom scopes manually
+												if (customScopesToShow.length === 0) {
+													return null; // Don't show any scope buttons for client-credentials
+												}
 
 												return (
 													<div
@@ -2683,7 +3295,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																Loading allowed scopes...
 															</span>
 														) : (
-															scopesToShow.map((scope) => {
+															customScopesToShow.map((scope) => {
 																const currentScopes = (credentials.scopes || '')
 																	.split(/\s+/)
 																	.filter((s) => s.trim());
@@ -2692,45 +3304,43 @@ Why it matters: Backend services communicate server-to-server without user conte
 																// Tooltip content for Management API scopes
 																const getTooltipContent = () => {
 																	const scopeDescriptions: Record<string, string> = {
-																		openid:
-																			'OpenID Connect scope. When used with client credentials flow, enables ID token issuance. Note: Typically used for user authentication flows, but can be included in client credentials if your PingOne application supports it.',
-																		'p1:read:users':
-																			'Read user information from the directory. The user schema attributes that can be read for this scope. The value is an array of schema attribute paths (such as username, name.given, shirtSize) that the scope controls. This property is supported for p1:read:users, p1:update:users and custom scopes like p1:read:user:{suffix} and p1:update:user:{suffix}. Any attributes not listed in the attribute array are excluded from the read action. The wildcard path (*) in the array includes all attributes and cannot be used in conjunction with any other user schema attribute paths.',
-																		'p1:update:users':
+																		'p1:read:user':
+																			'Read user information from the directory. The user schema attributes that can be read for this scope. The value is an array of schema attribute paths (such as username, name.given, shirtSize) that the scope controls. This property is supported for p1:read:user, p1:update:user and custom scopes like p1:read:user:{suffix} and p1:update:user:{suffix}. Any attributes not listed in the attribute array are excluded from the read action. The wildcard path (*) in the array includes all attributes and cannot be used in conjunction with any other user schema attribute paths.',
+																		'p1:update:user':
 																			'Update user attributes in the directory. Allows modifying user information such as profile data, email, phone, etc.',
-																		'p1:create:users':
+																		'p1:create:user':
 																			'Create new users in the directory. Required for user provisioning and onboarding workflows.',
-																		'p1:delete:users':
+																		'p1:delete:user':
 																			'Delete users from the directory. Use with caution as this is a destructive operation.',
-																		'p1:read:environments':
+																		'p1:read:environment':
 																			'Read environment-level information and configuration from the PingOne Management API. Includes environment metadata, settings, and configuration.',
-																		'p1:update:environments':
+																		'p1:update:environment':
 																			'Modify environment configuration. Allows updating environment settings, policies, and other configuration.',
-																		'p1:read:applications':
+																		'p1:read:application':
 																			'Read application configurations. Required to view OAuth/OIDC application settings, redirect URIs, and other app details.',
-																		'p1:create:applications':
+																		'p1:create:application':
 																			'Create new applications. Required for programmatic application provisioning.',
-																		'p1:update:applications':
+																		'p1:update:application':
 																			'Update application settings. Allows modifying OAuth/OIDC app configuration, redirect URIs, scopes, etc.',
-																		'p1:delete:applications':
+																		'p1:delete:application':
 																			'Delete applications. Use with caution as this permanently removes the application.',
-																		'p1:read:populations':
+																		'p1:read:population':
 																			'Read population definitions. Populations are collections of users with shared attributes or characteristics.',
-																		'p1:update:populations':
+																		'p1:update:population':
 																			'Modify population definitions. Allows creating, updating, or deleting user populations.',
-																		'p1:read:groups':
+																		'p1:read:group':
 																			'Read group information. Groups are collections of users used for access control and permissions.',
-																		'p1:update:groups':
+																		'p1:update:group':
 																			'Modify groups. Allows creating, updating, or deleting groups and managing group membership.',
-																		'p1:read:roles':
+																		'p1:read:role':
 																			'Read role assignments. Roles define collections of permissions for administrators or applications.',
-																		'p1:update:roles':
+																		'p1:update:role':
 																			'Modify role assignments. Allows assigning or removing roles from users or applications.',
 																		'p1:read:audit':
 																			'Read audit events. Required to access audit logs and security event history.',
-																		'p1:read:authenticators':
+																		'p1:read:authenticator':
 																			'Read MFA authenticators and devices. Allows viewing registered MFA devices for users.',
-																		'p1:update:authenticators':
+																		'p1:update:authenticator':
 																			'Modify or delete authenticators. Allows managing MFA devices, including registration and deletion.',
 																	};
 
@@ -3258,15 +3868,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 										for your flow
 									</div>
 
-									{/* PKCE - Educational Component */}
-									{(effectiveFlowType === 'oauth-authz' || effectiveFlowType === 'hybrid') && (
+									{/* PKCE - Educational Component - Only for flows that support PKCE */}
+									{supportsPKCE && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
 											<PKCEInputV8
 												value={pkceEnforcement as PKCEMode}
 												onChange={(mode) => {
 													console.log(`${MODULE_TAG} PKCE mode changed to ${mode}`);
-													setPkceEnforcement(mode);
-													handleChange('pkceEnforcement', mode);
+													// Map PKCEMode to PKCEEnforcement (filter out DISABLED)
+													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' = 
+														mode === 'DISABLED' ? 'OPTIONAL' : mode;
+													setPkceEnforcement(enforcement);
+													handleChange('pkceEnforcement', enforcement);
 
 													// Also update legacy usePKCE for backward compatibility
 													handleChange('usePKCE', mode !== 'DISABLED');
@@ -3282,6 +3895,102 @@ Why it matters: Backend services communicate server-to-server without user conte
 												clientType={clientType}
 												flowType={flowType}
 											/>
+										</div>
+									)}
+
+									{/* PAR (Pushed Authorization Requests) - Only for flows that support PAR */}
+									{supportsPKCE && (
+										<div className="form-group" style={{ marginBottom: '16px' }}>
+											<div
+												style={{
+													padding: '12px',
+													background: '#f0fdf4',
+													borderRadius: '6px',
+													border: '1px solid #86efac',
+												}}
+											>
+												<label
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														cursor: 'pointer',
+														margin: 0,
+													}}
+												>
+													<input
+														type="checkbox"
+														checked={usePAR}
+														onChange={(e) => {
+															const newValue = e.target.checked;
+															setUsePAR(newValue);
+															handleChange('usePAR', newValue);
+															toastV8.info(
+																newValue
+																	? 'PAR (Pushed Authorization Requests) enabled'
+																	: 'PAR disabled'
+															);
+														}}
+														style={{
+															width: '18px',
+															height: '18px',
+															cursor: 'pointer',
+														}}
+													/>
+													<span
+														style={{
+															fontSize: '14px',
+															fontWeight: '500',
+															color: '#166534',
+															flex: 1,
+														}}
+													>
+														Enable PAR (Pushed Authorization Requests)
+													</span>
+													<button
+														type="button"
+														onClick={() => setShowPARInfoModal(true)}
+														style={{
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '4px',
+															padding: '4px 8px',
+															background: '#eff6ff',
+															border: '1px solid #93c5fd',
+															borderRadius: '4px',
+															fontSize: '12px',
+															color: '#1e40af',
+															cursor: 'pointer',
+															transition: 'all 0.2s ease',
+															fontWeight: '500',
+															marginLeft: 'auto',
+														}}
+														onMouseEnter={(e) => {
+															e.currentTarget.style.background = '#dbeafe';
+														}}
+														onMouseLeave={(e) => {
+															e.currentTarget.style.background = '#eff6ff';
+														}}
+														title="Learn more about PAR (Pushed Authorization Requests)"
+													>
+														<FiInfo size={14} />
+														What is this?
+													</button>
+												</label>
+												{usePAR && (
+													<p
+														style={{
+															margin: '8px 0 0 26px',
+															fontSize: '12px',
+															color: '#15803d',
+															lineHeight: '1.5',
+														}}
+													>
+														PAR will push authorization parameters to the server via POST before
+														redirecting, enhancing security and supporting large requests.
+													</p>
+												)}
+											</div>
 										</div>
 									)}
 
@@ -3314,9 +4023,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 													console.log(`${MODULE_TAG} Login hint changed to ${value}`);
 													setLoginHint(value);
 													handleChange('loginHint', value);
-													if (value) {
-														toastV8.info(`Login form will pre-fill with: ${value}`);
-													}
+													// Removed toast message - LoginHintInputV8 component shows visual feedback
 												}}
 											/>
 										</div>
@@ -3382,24 +4089,37 @@ Why it matters: Backend services communicate server-to-server without user conte
 												marginBottom: '4px',
 											}}
 										>
-											<label style={{ marginBottom: 0 }}>
+											<label style={{ marginBottom: 0, flex: 1 }}>
 												Prompt <span className="optional">(optional)</span>
 											</label>
 											<button
 												type="button"
 												onClick={() => setShowPromptInfoModal(true)}
 												style={{
-													border: 'none',
-													background: 'none',
-													cursor: 'pointer',
-													color: '#3b82f6',
-													padding: 0,
-													display: 'flex',
+													display: 'inline-flex',
 													alignItems: 'center',
+													gap: '4px',
+													padding: '4px 8px',
+													background: '#eff6ff',
+													border: '1px solid #93c5fd',
+													borderRadius: '4px',
+													fontSize: '12px',
+													color: '#1e40af',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease',
+													fontWeight: '500',
+													marginLeft: 'auto',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#dbeafe';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#eff6ff';
 												}}
 												title="Learn about prompt values"
 											>
-												<FiInfo />
+												<FiInfo size={14} />
+												What is this?
 											</button>
 										</div>
 										<div className="select-wrapper">
@@ -3566,6 +4286,290 @@ Why it matters: Backend services communicate server-to-server without user conte
 
 							<button
 								onClick={() => setShowPromptInfoModal(false)}
+								style={{
+									marginTop: '24px',
+									width: '100%',
+									padding: '10px',
+									background: '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontWeight: '600',
+								}}
+							>
+								Close
+							</button>
+						</div>
+					</DraggableModal>
+
+					{/* PAR (Pushed Authorization Requests) Info Modal */}
+					<DraggableModal
+						isOpen={showPARInfoModal}
+						onClose={() => setShowPARInfoModal(false)}
+						title="PAR (Pushed Authorization Requests)"
+						width="700px"
+					>
+						<div style={{ padding: '24px' }}>
+							<p style={{ marginBottom: '16px', color: '#4b5563', lineHeight: '1.6' }}>
+								<strong>PAR (Pushed Authorization Requests)</strong> is an OAuth 2.0 extension (RFC 9126)
+								that allows clients to push authorization parameters to the Authorization Server via an
+								authenticated POST request before redirecting the user to the authorization endpoint.
+							</p>
+
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+								<div
+									style={{
+										background: '#f0fdf4',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #86efac',
+									}}
+								>
+									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#166534' }}>
+										🔒 Security Benefits
+									</h3>
+									<ul style={{ margin: 0, paddingLeft: '20px', color: '#15803d', lineHeight: '1.8' }}>
+										<li>
+											<strong>Prevents Parameter Tampering:</strong> Parameters are sent via
+											authenticated POST, not exposed in browser URL
+										</li>
+										<li>
+											<strong>Reduces URL Length:</strong> Authorization URLs become shorter and
+											more manageable
+										</li>
+										<li>
+											<strong>Supports Large Requests:</strong> Can handle complex authorization
+											requests with many parameters
+										</li>
+										<li>
+											<strong>Request URI Expiration:</strong> Short-lived request URIs enhance
+											security
+										</li>
+									</ul>
+								</div>
+
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #e2e8f0',
+									}}
+								>
+									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+										📋 How PAR Works
+									</h3>
+									<ol style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}>
+										<li>
+											<strong>Push Request:</strong> Client sends authorization parameters to{' '}
+											<code>/as/par</code> endpoint via POST
+										</li>
+										<li>
+											<strong>Receive Request URI:</strong> Server validates parameters and returns a
+											short-lived <code>request_uri</code> (e.g.,{' '}
+											<code>urn:ietf:params:oauth:request_uri:abc123</code>)
+										</li>
+										<li>
+											<strong>Redirect User:</strong> Client redirects user to authorization
+											endpoint with only the <code>request_uri</code> parameter
+										</li>
+										<li>
+											<strong>Server Retrieves:</strong> Authorization server retrieves the original
+											parameters using the <code>request_uri</code>
+										</li>
+									</ol>
+								</div>
+
+								<div
+									style={{
+										background: '#fef3c7',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #fbbf24',
+									}}
+								>
+									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#92400e' }}>
+										⚠️ Requirements
+									</h3>
+									<ul style={{ margin: 0, paddingLeft: '20px', color: '#78350f', lineHeight: '1.8' }}>
+										<li>PAR is only supported for <strong>Authorization Code</strong> and <strong>Hybrid</strong> flows</li>
+										<li>Client authentication is required (<code>client_secret_basic</code> or <code>client_secret_post</code>)</li>
+										<li>PingOne application must have PAR enabled in its configuration</li>
+										<li>
+											<strong>Important:</strong> Some PingOne applications are configured to <strong>require</strong> PAR. 
+											If you see an error like <code>"PAR is required for this client"</code>, you must enable PAR 
+											and use <code>request_uri</code> in your authorization URL instead of individual parameters.
+										</li>
+										<li>Request URIs typically expire within 60-90 seconds</li>
+										<li>Works with both standard redirect flows and redirectless flows (<code>pi.flow</code>)</li>
+									</ul>
+								</div>
+
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #e2e8f0',
+									}}
+								>
+									<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+										💡 Real-World Example
+									</h3>
+									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+										Here's a complete, working example you can use with PingOne:
+									</p>
+
+									<div style={{ marginBottom: '12px' }}>
+										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+											1. PAR Request (POST to /as/par)
+										</strong>
+										<div
+											style={{
+												background: '#1f2937',
+												color: '#f3f4f6',
+												padding: '12px',
+												borderRadius: '6px',
+												fontFamily: 'monospace',
+												fontSize: '12px',
+												overflowX: 'auto',
+												lineHeight: '1.6',
+											}}
+										>
+											<div style={{ color: '#60a5fa' }}>POST</div>
+											<div style={{ color: '#34d399' }}>
+												https://auth.pingone.com/
+												<span style={{ color: '#fbbf24' }}>{'{environment-id}'}</span>/as/par
+											</div>
+											<div style={{ marginTop: '8px', color: '#a78bfa' }}>
+												Headers:
+											</div>
+											<div style={{ marginLeft: '12px' }}>
+												<div>Content-Type: application/x-www-form-urlencoded</div>
+												<div>Authorization: Basic {'{base64(client_id:client_secret)}'}</div>
+											</div>
+											<div style={{ marginTop: '8px', color: '#a78bfa' }}>
+												Body:
+											</div>
+											<div style={{ marginLeft: '12px', whiteSpace: 'pre-wrap' }}>
+{`client_id=your-client-id
+&response_type=code
+&redirect_uri=https://your-app.com/callback
+&scope=openid profile email
+&state=xyz123abc456
+&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+&code_challenge_method=S256
+&nonce=random-nonce-value`}
+											</div>
+										</div>
+									</div>
+
+									<div style={{ marginBottom: '12px' }}>
+										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+											2. PAR Response
+										</strong>
+										<div
+											style={{
+												background: '#1f2937',
+												color: '#f3f4f6',
+												padding: '12px',
+												borderRadius: '6px',
+												fontFamily: 'monospace',
+												fontSize: '12px',
+												overflowX: 'auto',
+											}}
+										>
+											<div style={{ color: '#60a5fa' }}>{'{'}</div>
+											<div style={{ marginLeft: '12px' }}>
+												<div>
+													<span style={{ color: '#f87171' }}>"request_uri"</span>:
+													<span style={{ color: '#34d399' }}>
+														"urn:ietf:params:oauth:request_uri:abc123def456"
+													</span>,
+												</div>
+												<div>
+													<span style={{ color: '#f87171' }}>"expires_in"</span>:
+													<span style={{ color: '#fbbf24' }}>90</span>
+												</div>
+											</div>
+											<div style={{ color: '#60a5fa' }}>{'}'}</div>
+										</div>
+									</div>
+
+									<div>
+										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+											3. Authorization URL (using request_uri)
+										</strong>
+										<div
+											style={{
+												background: '#1f2937',
+												color: '#f3f4f6',
+												padding: '12px',
+												borderRadius: '6px',
+												fontFamily: 'monospace',
+												fontSize: '12px',
+												overflowX: 'auto',
+												wordBreak: 'break-all',
+											}}
+										>
+											<div style={{ color: '#34d399' }}>
+												https://auth.pingone.com/
+												<span style={{ color: '#fbbf24' }}>{'{environment-id}'}</span>
+												/as/authorize?
+												<span style={{ color: '#60a5fa' }}>request_uri</span>=
+												<span style={{ color: '#fbbf24' }}>
+													urn:ietf:params:oauth:request_uri:abc123def456
+												</span>
+												&<span style={{ color: '#60a5fa' }}>client_id</span>=
+												<span style={{ color: '#fbbf24' }}>your-client-id</span>
+											</div>
+										</div>
+										<p
+											style={{
+												margin: '8px 0 0 0',
+												fontSize: '12px',
+												color: '#6b7280',
+												fontStyle: 'italic',
+											}}
+										>
+											Notice how the authorization URL is much shorter - only the request_uri and
+											client_id are needed!
+										</p>
+									</div>
+								</div>
+
+								<div
+									style={{
+										background: '#eff6ff',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #93c5fd',
+									}}
+								>
+									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
+										📚 RFC Reference
+									</h3>
+									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
+										PAR is defined in <strong>RFC 9126 - OAuth 2.0 Pushed Authorization Requests</strong>.
+										It's an extension to OAuth 2.0 that enhances security and supports complex
+										authorization scenarios.
+									</p>
+									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
+										<a
+											href="https://datatracker.ietf.org/doc/html/rfc9126"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ textDecoration: 'underline' }}
+										>
+											View RFC 9126 Specification →
+										</a>
+									</p>
+								</div>
+							</div>
+
+							<button
+								onClick={() => setShowPARInfoModal(false)}
 								style={{
 									marginTop: '24px',
 									width: '100%',
@@ -3826,6 +4830,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 							</div>
 						</div>
 					</DraggableModal>
+
+					{/* Worker Token vs Client Credentials Education Modal (for Scopes) */}
+					<WorkerTokenVsClientCredentialsEducationModalV8
+						isOpen={showScopesEducationModal}
+						onClose={() => setShowScopesEducationModal(false)}
+						context={providedFlowType === 'client-credentials' ? 'client-credentials' : 'general'}
+					/>
 				</>
 			)}
 
