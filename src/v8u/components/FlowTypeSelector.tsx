@@ -18,7 +18,7 @@ const MODULE_TAG = '[🔄 FLOW-TYPE-SELECTOR-V8U]';
 export interface FlowTypeSelectorProps {
 	specVersion: SpecVersion;
 	flowType: FlowType;
-	onChange: (flowType: FlowType) => void;
+	onChange: (flowType: FlowType) => void | Promise<void>;
 }
 
 const FLOW_LABELS: Record<FlowType, string> = {
@@ -68,16 +68,18 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 				htmlFor="flowTypeSelect"
 				style={{
 					display: 'block',
-					fontSize: '13px',
-					fontWeight: '600',
-					color: '#374151',
+					fontSize: '14px',
+					fontWeight: '700',
+					color: '#1e40af',
 					marginBottom: '6px',
+					letterSpacing: '0.01em',
 				}}
 			>
-				Flow Type
+				Flow Type (Grant type)
 			</label>
 			<select
 				id="flowTypeSelect"
+				key={`flow-type-${specVersion}-${effectiveFlowType}`}
 				value={effectiveFlowType}
 				onChange={handleChange}
 				style={{
@@ -89,6 +91,7 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 					background: '#ffffff',
 					cursor: 'pointer',
 					minWidth: '250px',
+					width: '100%',
 				}}
 			>
 				{availableFlows.map((flow) => (

@@ -15,8 +15,9 @@
  * <SuperSimpleApiDisplayV8 />
  */
 
-import React, { type ReactElement, useEffect, useState } from 'react';
+import React, { type ReactElement, useCallback, useEffect, useState, useRef } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
@@ -34,17 +35,15 @@ interface ApiCall {
 	timestamp: number;
 }
 
-// Shared state for visibility
-let globalIsVisible = true;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-let globalSetIsVisible: ((value: boolean) => void) | null = null;
-
 export const ApiDisplayCheckbox: React.FC = () => {
-	const [isVisible, setIsVisible] = useState(globalIsVisible);
+	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [callCount, setCallCount] = useState(0);
 
 	useEffect(() => {
-		globalSetIsVisible = setIsVisible;
+		// Subscribe to visibility changes from service
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsVisible(visible);
+		});
 
 		// Update call count
 		const updateCount = () => {
@@ -65,14 +64,12 @@ export const ApiDisplayCheckbox: React.FC = () => {
 
 		return () => {
 			clearInterval(interval);
-			globalSetIsVisible = null;
+			unsubscribe();
 		};
 	}, []);
 
 	const handleToggle = () => {
-		const newValue = !isVisible;
-		setIsVisible(newValue);
-		globalIsVisible = newValue;
+		apiDisplayServiceV8.toggle();
 	};
 
 	return (
@@ -107,26 +104,56 @@ export const ApiDisplayCheckbox: React.FC = () => {
 	);
 };
 
-export const SuperSimpleApiDisplayV8: React.FC = () => {
+interface SuperSimpleApiDisplayV8Props {
+	/** Filter to only show calls from a specific flow */
+	flowFilter?: 'unified' | 'mfa' | 'spiffe-spire' | 'all';
+	/** Exclude URL patterns (e.g., ['/api/pingone/mfa/']) */
+	excludePatterns?: string[];
+	/** Include only URL patterns (e.g., ['/api/pingone/redirectless/']) */
+	includePatterns?: string[];
+}
+
+export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = ({
+	flowFilter = 'all',
+	excludePatterns = [],
+	includePatterns = [],
+}) => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [expandedId, setExpandedId] = useState<string | null>(null);
-	const [isVisible, setIsVisible] = useState(globalIsVisible);
+	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [height, setHeight] = useState(300);
 	const [isResizing, setIsResizing] = useState(false);
 	const [showClearConfirm, setShowClearConfirm] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [sidebarWidth, setSidebarWidth] = useState(280);
 
+	// Use refs to track array props and prevent infinite loops from reference changes
+	const excludePatternsRef = useRef<string[]>(excludePatterns);
+	const includePatternsRef = useRef<string[]>(includePatterns);
+	const updateCallsRef = useRef<(() => void) | null>(null);
+	
+	// Update refs only when array contents actually change, and trigger immediate update
 	useEffect(() => {
-		// Sync with global state
-		const checkVisibility = () => {
-			if (isVisible !== globalIsVisible) {
-				setIsVisible(globalIsVisible);
+		const excludeChanged = JSON.stringify(excludePatternsRef.current) !== JSON.stringify(excludePatterns);
+		const includeChanged = JSON.stringify(includePatternsRef.current) !== JSON.stringify(includePatterns);
+		
+		if (excludeChanged || includeChanged) {
+			excludePatternsRef.current = excludePatterns;
+			includePatternsRef.current = includePatterns;
+			// Trigger immediate update when patterns change
+			if (updateCallsRef.current) {
+				updateCallsRef.current();
 			}
-		};
-		const interval = setInterval(checkVisibility, 100);
-		return () => clearInterval(interval);
-	}, [isVisible]);
+		}
+	}, [excludePatterns, includePatterns]);
+
+	useEffect(() => {
+		// Subscribe to visibility changes from service
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsVisible(visible);
+		});
+		return () => unsubscribe();
+	}, []);
 
 	// Detect sidebar width dynamically and adjust accordingly
 	useEffect(() => {
@@ -216,19 +243,86 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 		};
 	}, [isResizing]);
 
-	useEffect(() => {
-		const updateCalls = () => {
+	const updateCalls = useCallback(() => {
+		try {
 			const allCalls = apiCallTrackerService.getApiCalls();
 
-			// Filter to PingOne API calls (direct or via proxy)
-			const pingOneCalls = allCalls
+			// Filter to PingOne API calls (direct or via proxy) and SPIFFE/SPIRE lab calls
+			const relevantCalls = allCalls
 				.filter((call) => {
 					const url = call.url || '';
-					return (
+					const step = (call as { step?: string }).step;
+					
+					// Base filter: PingOne API calls
+					const isPingOne =
 						url.includes('pingone.com') ||
 						url.includes('auth.pingone') ||
-						url.includes('/api/pingone/')
-					);
+						url.includes('/api/pingone/') ||
+						url.includes('/api/device-authorization') || // Device authorization proxy endpoint
+						url.includes('/api/token-exchange') || // Token exchange proxy endpoint (used by device flow)
+						url.includes('/api/client-credentials') || // Client credentials proxy endpoint
+						url.includes('/api/par') || // PAR (Pushed Authorization Request) proxy endpoint
+						url.includes('/as/device') || // Direct device authorization endpoint
+						url.includes('/as/par'); // Direct PAR endpoint
+					const isSpiffeSpire = !!step && step.startsWith('spiffe-spire-');
+					
+					if (!isPingOne && !isSpiffeSpire) {
+						return false;
+					}
+
+					// Flow-specific filtering
+					if (flowFilter === 'unified') {
+						// Unified flow: exclude MFA calls, include redirectless, token, authorize, etc.
+						// Explicitly exclude MFA-specific endpoints
+						if (url.includes('/api/pingone/mfa/')) {
+							return false;
+						}
+						// Include unified flow patterns (OAuth/OIDC flows)
+						const isUnifiedFlow =
+							url.includes('/api/pingone/redirectless/') ||
+							url.includes('/api/pingone/token') ||
+							url.includes('/api/pingone/authorize') ||
+							url.includes('/api/pingone/resume') ||
+							url.includes('/api/pingone/flows/') ||
+							url.includes('/api/device-authorization') || // Device authorization flow
+							url.includes('/api/token-exchange') || // Token exchange (used by device flow)
+							url.includes('/api/client-credentials') || // Client credentials flow
+							url.includes('/api/par') || // PAR (Pushed Authorization Request) flow
+							url.includes('/as/authorize') ||
+							url.includes('/as/token') ||
+							url.includes('/as/userinfo') ||
+							url.includes('/as/introspect') ||
+							url.includes('/as/revoke') ||
+							url.includes('/as/device') || // Direct device authorization endpoint
+							url.includes('/as/par') || // Direct PAR endpoint
+							step?.startsWith('unified-');
+						return isUnifiedFlow;
+					} else if (flowFilter === 'mfa') {
+						// MFA flow: only MFA calls (device management, challenges, etc.)
+						return url.includes('/api/pingone/mfa/') || step?.startsWith('mfa-');
+					} else if (flowFilter === 'spiffe-spire') {
+						// SPIFFE/SPIRE: only SPIFFE/SPIRE calls (identified by step prefix)
+						return isSpiffeSpire;
+					}
+					// flowFilter === 'all': show all PingOne API calls (default behavior)
+
+					// Apply exclude patterns
+					if (excludePatternsRef.current.length > 0) {
+						const shouldExclude = excludePatternsRef.current.some((pattern) => url.includes(pattern));
+						if (shouldExclude) {
+							return false;
+						}
+					}
+
+					// Apply include patterns (if specified, only show matching calls)
+					if (includePatternsRef.current.length > 0) {
+						const shouldInclude = includePatternsRef.current.some((pattern) => url.includes(pattern));
+						if (!shouldInclude) {
+							return false;
+						}
+					}
+
+					return true;
 				})
 				.map((call) => {
 					const apiCall: ApiCall = {
@@ -250,12 +344,24 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 					return apiCall;
 				});
 
-			if (pingOneCalls.length > 0) {
-				console.log(`${MODULE_TAG} Found ${pingOneCalls.length} API calls`);
+			if (relevantCalls.length > 0) {
+				console.log(`${MODULE_TAG} Found ${relevantCalls.length} API calls`);
 			}
-			setApiCalls(pingOneCalls);
-		};
+			setApiCalls(relevantCalls);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error updating API calls:`, error);
+		}
+	}, [flowFilter]);
 
+	// Store callback ref for pattern change triggers
+	useEffect(() => {
+		updateCallsRef.current = updateCalls;
+		return () => {
+			updateCallsRef.current = null;
+		};
+	}, [updateCalls]);
+
+	useEffect(() => {
 		// Initial load
 		updateCalls();
 
@@ -263,7 +369,12 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 		const interval = setInterval(updateCalls, 500);
 
 		return () => clearInterval(interval);
-	}, []);
+	}, [updateCalls]); // Depend on flowFilter and pattern version - array props are handled via refs to prevent infinite loops
+
+	// Debug log
+	useEffect(() => {
+		console.log(`${MODULE_TAG} Visibility: ${isVisible}`);
+	}, [isVisible]);
 
 	const getStatusDot = (status?: number) => {
 		if (!status) {
@@ -302,7 +413,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 
 		// Truncate if too long
 		if (shortUrl.length > 60) {
-			shortUrl = shortUrl.substring(0, 57) + '...';
+			shortUrl = `${shortUrl.substring(0, 57)}...`;
 		}
 
 		return shortUrl;
@@ -364,8 +475,9 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 						bottom: 0,
 						left: `${sidebarWidth}px`,
 						right: '20px',
-						height: `${Math.min(height, 400)}px`,
-						maxHeight: 'calc(50vh - 20px)',
+						// Start smaller when there are no API calls so we don't hide key buttons
+						height: `${apiCalls.length === 0 ? 140 : Math.min(height, 400)}px`,
+						maxHeight: apiCalls.length === 0 ? '180px' : 'calc(50vh - 20px)',
 						background: 'white',
 						borderTop: '3px solid #10b981',
 						borderLeft: '1px solid #e5e7eb',
@@ -382,6 +494,9 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 				>
 					{/* Resize Handle */}
 					<div
+						role="button"
+						aria-label="Resize API calls panel"
+						tabIndex={0}
 						onMouseDown={() => setIsResizing(true)}
 						style={{
 							height: '8px',
@@ -440,7 +555,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 						<div
 							style={{
 								padding: '6px 12px',
-								background: '#f9fafb',
+								background: '#f9fafb', // Light grey background
 								borderBottom: '1px solid #e5e7eb',
 								display: 'flex',
 								justifyContent: 'space-between',
@@ -453,21 +568,45 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '12px' }}>
 								⚡ API Calls ({apiCalls.length})
 							</div>
-							<button
-								onClick={() => setShowClearConfirm(true)}
-								style={{
-									padding: '3px 8px',
-									background: '#ef4444',
-									color: 'white',
-									border: 'none',
-									borderRadius: '4px',
-									cursor: 'pointer',
-									fontSize: '10px',
-									fontWeight: '600',
-								}}
-							>
-								Clear
-							</button>
+							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+								<button
+									type="button"
+									onClick={() => setShowClearConfirm(true)}
+									style={{
+										padding: '3px 8px',
+										background: '#ef4444',
+										color: 'white', // White text on red background
+										border: 'none',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										fontSize: '10px',
+										fontWeight: '600',
+									}}
+									title="Clear all API calls"
+								>
+									Clear
+								</button>
+								<button
+									type="button"
+									onClick={() => apiDisplayServiceV8.hide()}
+									style={{
+										padding: '3px 8px',
+										background: '#6b7280',
+										color: 'white', // White text on grey background
+										border: 'none',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										fontSize: '10px',
+										fontWeight: '600',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '4px',
+									}}
+									title="Close API calls panel"
+								>
+									✕ Close
+								</button>
+							</div>
 						</div>
 
 						{/* Table */}
@@ -712,6 +851,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 																					FULL URL:
 																				</div>
 																				<button
+																					type="button"
 																					onClick={(e) => {
 																						e.stopPropagation();
 																						handleCopy(String(call.url || ''), `url-${call.id}`);
@@ -788,6 +928,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 																									REQUEST BODY:
 																								</div>
 																								<button
+																									type="button"
 																									onClick={(e) => {
 																										e.stopPropagation();
 																										handleCopy(bodyText, `body-${call.id}`);
@@ -876,6 +1017,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 																									RESPONSE:
 																								</div>
 																								<button
+																									type="button"
 																									onClick={(e) => {
 																										e.stopPropagation();
 																										handleCopy(responseText, `response-${call.id}`);
@@ -926,6 +1068,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 																		{/* Close Button */}
 																		<div style={{ textAlign: 'right' }}>
 																			<button
+																				type="button"
 																				onClick={(e) => {
 																					e.stopPropagation();
 																					setExpandedId(null);
@@ -994,6 +1137,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 						</p>
 						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
 							<button
+								type="button"
 								onClick={() => setShowClearConfirm(false)}
 								style={{
 									padding: '8px 16px',
@@ -1009,6 +1153,7 @@ export const SuperSimpleApiDisplayV8: React.FC = () => {
 								Cancel
 							</button>
 							<button
+								type="button"
 								onClick={() => {
 									apiCallTrackerService.clearApiCalls();
 									setApiCalls([]);

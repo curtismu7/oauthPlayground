@@ -24,6 +24,7 @@ export default [
 			...tsplugin.configs.recommended.rules,
 			'@typescript-eslint/no-unused-vars': 'warn',
 			'no-console': 'off',
+			'no-alert': 'error',
 			// Async/Promise rules to prevent syntax errors
 			// Note: Type-aware rules require project config and cause memory issues
 			// They are disabled for now but can be enabled for targeted checks
@@ -44,6 +45,7 @@ export default [
 		rules: {
 			'no-unused-vars': 'warn',
 			'no-console': 'off',
+			'no-alert': 'error',
 		},
 	},
 	{

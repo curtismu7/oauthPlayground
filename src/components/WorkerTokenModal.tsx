@@ -97,6 +97,17 @@ const ButtonGroup = styled.div`
   margin-top: 0.5rem;
 `;
 
+const StickyFooter = styled.div`
+	position: sticky;
+	bottom: -1.5rem;
+	margin: 1rem -1.5rem 0;
+	padding: 1rem 1.5rem 1.5rem;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 40%, #ffffff 100%);
+	border-top: 1px solid #e2e8f0;
+	box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.05);
+	z-index: 5;
+`;
+
 const FormSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -1258,7 +1269,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
 			const expiresIn = tokenData.expires_in || 3600; // seconds
 			const expiresAt = Date.now() + expiresIn * 1000; // convert to milliseconds
 
-			// Store the worker token with expiration metadata
+			// Store the worker token with expiration metadata (legacy keys for backwards compatibility)
 			localStorage.setItem(tokenStorageKey, tokenData.access_token);
 			localStorage.setItem(tokenExpiryKey, expiresAt.toString());
 
@@ -1292,8 +1303,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				tokenEndpointAuthMethod: workerCredentials.authMethod,
 			};
 
-			// Save credentials using service (with flowType-specific key)
-			workerTokenServiceV8.saveCredentials(credentialsToSave);
+			let persistedViaService = true;
+			try {
+				await workerTokenServiceV8.saveCredentials(credentialsToSave);
+				await workerTokenServiceV8.saveToken(tokenData.access_token, expiresAt);
+			} catch (error) {
+				persistedViaService = false;
+				console.error('[WorkerTokenModal] Failed to persist worker token via service:', error);
+			}
 
 			// Also save to legacy key for backward compatibility
 			localStorage.setItem(
@@ -1308,17 +1325,23 @@ export const WorkerTokenModal: React.FC<Props> = ({
 				})
 			);
 
-			console.log('[WorkerTokenModal] Token and credentials saved successfully:', {
-				expiresIn: `${expiresIn} seconds`,
-				expiresAt: new Date(expiresAt).toISOString(),
-				savedCredentials: {
-					environmentId: credentialsToSave.environmentId,
-					clientId: credentialsToSave.clientId ? '***' : 'missing',
-					hasClientSecret: !!credentialsToSave.clientSecret,
-					scopes: credentialsToSave.scopes,
-					authMethod: credentialsToSave.tokenEndpointAuthMethod,
-				},
-			});
+			if (persistedViaService) {
+				console.log('[WorkerTokenModal] Token and credentials saved successfully:', {
+					expiresIn: `${expiresIn} seconds`,
+					expiresAt: new Date(expiresAt).toISOString(),
+					savedCredentials: {
+						environmentId: credentialsToSave.environmentId,
+						clientId: credentialsToSave.clientId ? '***' : 'missing',
+						hasClientSecret: !!credentialsToSave.clientSecret,
+						scopes: credentialsToSave.scopes,
+						authMethod: credentialsToSave.tokenEndpointAuthMethod,
+					},
+				});
+			} else {
+				console.warn(
+					'[WorkerTokenModal] Token saved to legacy storage only; V8 service persistence failed.'
+				);
+			}
 
 			// Dispatch custom event to notify other components that worker token was updated
 			// Use custom event name based on token storage key
@@ -1587,43 +1610,45 @@ export const WorkerTokenModal: React.FC<Props> = ({
 								</FormField>
 							</FormSection>
 
-							<ButtonGroup>
-								<ActionButton
-									onClick={handleGenerateWorkerToken}
-									disabled={
-										isGenerating ||
-										!workerCredentials.environmentId ||
-										!workerCredentials.clientId ||
-										!workerCredentials.clientSecret
-									}
-								>
-									{isGenerating ? <LoadingSpinner /> : <FiRefreshCw />}
-									{isGenerating ? 'Generating...' : 'Generate Worker Token'}
-								</ActionButton>
-								<ActionButton
-									$variant="success"
-									onClick={handleSaveCredentials}
-									disabled={
-										isGenerating ||
-										!workerCredentials.environmentId ||
-										!workerCredentials.clientId ||
-										!workerCredentials.clientSecret
-									}
-								>
-									<FiSave />
-									Save Credentials
-								</ActionButton>
-								<ActionButton
-									$variant="secondary"
-									onClick={handleClearSavedCredentials}
-									disabled={isGenerating}
-								>
-									🗑️ Clear Saved Credentials
-								</ActionButton>
-								<ActionButton $variant="secondary" onClick={() => setShowForm(false)}>
-									Cancel
-								</ActionButton>
-							</ButtonGroup>
+							<StickyFooter>
+								<ButtonGroup>
+									<ActionButton
+										onClick={handleGenerateWorkerToken}
+										disabled={
+											isGenerating ||
+											!workerCredentials.environmentId ||
+											!workerCredentials.clientId ||
+											!workerCredentials.clientSecret
+										}
+									>
+										{isGenerating ? <LoadingSpinner /> : <FiRefreshCw />}
+										{isGenerating ? 'Generating...' : 'Generate Worker Token'}
+									</ActionButton>
+									<ActionButton
+										$variant="success"
+										onClick={handleSaveCredentials}
+										disabled={
+											isGenerating ||
+											!workerCredentials.environmentId ||
+											!workerCredentials.clientId ||
+											!workerCredentials.clientSecret
+										}
+									>
+										<FiSave />
+										Save Credentials
+									</ActionButton>
+									<ActionButton
+										$variant="secondary"
+										onClick={handleClearSavedCredentials}
+										disabled={isGenerating}
+									>
+										🗑️ Clear Saved Credentials
+									</ActionButton>
+									<ActionButton $variant="secondary" onClick={() => setShowForm(false)}>
+										Cancel
+									</ActionButton>
+								</ButtonGroup>
+							</StickyFooter>
 						</>
 					)}
 				</div>

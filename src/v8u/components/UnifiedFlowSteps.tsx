@@ -17,7 +17,8 @@
  */
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { FiArrowRight, FiRefreshCw } from 'react-icons/fi';
+import { FiArrowRight, FiRefreshCw, FiInfo } from 'react-icons/fi';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
 import DeviceTypeSelector from '@/components/DeviceTypeSelector';
@@ -53,11 +54,13 @@ export interface UnifiedFlowStepsProps {
 	onStepChange?: (step: number) => void;
 	onCompletedStepsChange?: (steps: number[]) => void;
 	onFlowReset?: () => void; // Callback when flow is reset to trigger credential reload
-	appConfig?: {
-		pkceRequired?: boolean;
-		pkceEnforced?: boolean;
-		[key: string]: unknown;
-	}; // Optional app config to determine PKCE enforcement level
+	appConfig?:
+		| {
+				pkceRequired?: boolean;
+				pkceEnforced?: boolean;
+				[key: string]: unknown;
+		  }
+		| undefined; // Optional app config to determine PKCE enforcement level
 }
 
 interface FlowState {
@@ -67,6 +70,9 @@ interface FlowState {
 	nonce?: string;
 	codeVerifier?: string;
 	codeChallenge?: string;
+	// PAR (Pushed Authorization Request) information
+	parRequestUri?: string;
+	parExpiresIn?: number;
 
 	// Authorization Code flows
 	authorizationCode?: string;
@@ -190,12 +196,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 *   3: Display Tokens
 	 *   4: Introspection & UserInfo
 	 *
-	 * Authorization Code / Hybrid (7 steps - PKCE step always included):
+	 * Authorization Code / Hybrid (7 steps):
 	 *   0: Configuration
-	 *   1: Generate PKCE Parameters (always shown)
-	 *   2: Generate Authorization URL (with or without PKCE)
+	 *   1: Generate PKCE Parameters
+	 *   2: Generate Authorization URL (with PKCE)
 	 *   3: Handle Callback (extract authorization code)
-	 *   4: Exchange Code for Tokens (with or without code_verifier)
+	 *   4: Exchange Code for Tokens (with code_verifier)
 	 *   5: Display Tokens
 	 *   6: Introspection & UserInfo
 	 *
@@ -210,11 +216,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			case 'implicit':
 				return 5; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo
 			case 'hybrid':
-				// Always 7 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo
+				// 7 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo
 				return 7;
 			default:
 				// oauth-authz flow
-				// Always 7 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo
+				// 7 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo
 				return 7;
 		}
 	};
@@ -242,6 +248,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [showRedirectlessModal, setShowRedirectlessModal] = useState(false);
 	const [redirectlessAuthError, setRedirectlessAuthError] = useState<string | null>(null);
 	const [isRedirectlessAuthenticating, setIsRedirectlessAuthenticating] = useState(false);
+	const [showPingOneRequestModal, setShowPingOneRequestModal] = useState(false);
+	const [pendingPingOneRequest, setPendingPingOneRequest] = useState<{
+		url: string;
+		method: string;
+		body: Record<string, unknown>;
+	} | null>(null);
 	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
 
 	// Navigation functions using React Router
@@ -389,6 +401,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
 	const [showPollingTimeoutModal, setShowPollingTimeoutModal] = useState(false);
+	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] = useState(false);
 	const [callbackDetails, setCallbackDetails] = useState<{
 		url: string;
 		code?: string;
@@ -528,6 +541,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 	}, [currentStep]); // Re-run cleanup when step changes
 	const [introspectionData, setIntrospectionData] = useState<Record<string, unknown> | null>(null);
+	const [selectedTokenType, setSelectedTokenType] = useState<'access' | 'refresh' | 'id'>('access');
+	const [introspectionTokenType, setIntrospectionTokenType] = useState<'access' | 'refresh' | 'id' | null>(null); // Track which token type was introspected
 
 	// Generate unique IDs for form inputs and modals (accessibility)
 	const callbackUrlDisplayId = useId();
@@ -798,7 +813,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		 * - Change flow type or spec version
 		 * - Start a new flow
 		 */
-		reset();
+		// Navigate to step 0 explicitly to ensure URL is updated
+		navigateToStep(0);
 
 		/**
 		 * Step 4: Clear validation and error state
@@ -836,7 +852,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		console.log(
 			`${MODULE_TAG} Flow restarted successfully - OAuth tokens and state cleared, credentials and worker token preserved`
 		);
-	}, [reset, setValidationErrorsState, setValidationWarningsState, onFlowReset, flowKey]);
+	}, [navigateToStep, setValidationErrorsState, setValidationWarningsState, onFlowReset, flowKey]);
 
 	// Notify parent of step changes
 	useEffect(() => {
@@ -1106,7 +1122,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} else if (flowType === 'device-code' || flowType === 'implicit') {
 				tokenStep = 3; // Step 4 (0-indexed: 0, 1, 2, 3)
 			} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-				tokenStep = isPKCERequired ? 5 : 4; // Step 6 or 5 depending on PKCE
+				tokenStep = 4; // Step 5 (PKCE is in Advanced Options, not a separate step)
 			}
 
 			// Mark the token step as complete if tokens are available
@@ -1131,7 +1147,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} else if (flowType === 'device-code' || flowType === 'implicit') {
 				tokenStep = 3; // Step 4 (0-indexed: 0, 1, 2, 3)
 			} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-				tokenStep = isPKCERequired ? 5 : 4; // Step 6 or 5 depending on PKCE
+				tokenStep = 4; // Step 5 (PKCE is in Advanced Options, not a separate step)
 			}
 
 			// If we're currently on the tokens step and it's not marked complete, mark it
@@ -1883,12 +1899,136 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Step 0: Configure Credentials (all flows)
 	const renderStep0 = () => {
+		// Determine required fields based on flow type
+		const needsRedirectUri = ['oauth-authz', 'implicit', 'hybrid'].includes(flowType);
+		const needsClientSecret =
+			flowType === 'client-credentials' ||
+			(credentials.clientAuthMethod &&
+				['client_secret_basic', 'client_secret_post', 'client_secret_jwt'].includes(
+					credentials.clientAuthMethod
+				) &&
+				!isPKCERequired);
+
+		// Build dynamic list of missing required fields
+		const missingFields: string[] = [];
+
+		if (!credentials.environmentId?.trim()) {
+			missingFields.push('Environment ID');
+		}
+
+		if (!credentials.clientId?.trim()) {
+			missingFields.push('Client ID');
+		}
+
+		if (!credentials.scopes?.trim()) {
+			missingFields.push('Scopes');
+		}
+
+		if (needsRedirectUri && !credentials.redirectUri?.trim()) {
+			missingFields.push('Redirect URI');
+		}
+
+		if (needsClientSecret && !credentials.clientSecret?.trim()) {
+			missingFields.push('Client Secret');
+		}
+
+		// Determine if all fields are configured
+		const allConfigured = missingFields.length === 0;
+
 		return (
 			<div className="step-content">
 				{/* Credentials form is rendered by parent */}
-				<p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '16px' }}>
-					Configure your credentials above to begin the flow.
-				</p>
+				<div
+					style={{
+						padding: '20px 24px',
+						background: '#ffffff',
+						border: allConfigured ? '2px solid #10b981' : '2px solid #3b82f6',
+						borderRadius: '8px',
+						boxShadow: allConfigured
+							? '0 2px 8px rgba(16, 185, 129, 0.15)'
+							: '0 2px 8px rgba(59, 130, 246, 0.15)',
+						marginBottom: '16px',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '12px',
+							marginBottom: '12px',
+						}}
+					>
+						<span style={{ fontSize: '20px' }}>
+							{allConfigured ? '✅' : '⚙️'}
+						</span>
+						<h3
+							style={{
+								margin: 0,
+								fontSize: '16px',
+								fontWeight: '600',
+								color: allConfigured ? '#059669' : '#1e40af',
+							}}
+						>
+							{allConfigured ? 'Configuration Complete' : 'Configuration Required'}
+						</h3>
+					</div>
+					{allConfigured ? (
+						<p
+							style={{
+								color: '#059669',
+								fontSize: '14px',
+								margin: 0,
+								lineHeight: '1.6',
+								fontWeight: '500',
+							}}
+						>
+							✓ All required fields are configured. You can proceed to the next step.
+						</p>
+					) : (
+						<>
+							<p
+								style={{
+									color: '#374151',
+									fontSize: '14px',
+									margin: '0 0 12px 0',
+									lineHeight: '1.6',
+								}}
+							>
+								Please configure the following required fields in the form above to begin the flow:
+							</p>
+							<ul
+								style={{
+									margin: 0,
+									paddingLeft: '24px',
+									fontSize: '14px',
+									lineHeight: '1.8',
+								}}
+							>
+								{missingFields.map((field, index) => (
+									<li key={index}>
+										<strong style={{ color: '#ef4444' }}>{field}</strong>
+									</li>
+								))}
+							</ul>
+						</>
+					)}
+					{needsClientSecret && flowType !== 'client-credentials' && !allConfigured && (
+						<div
+							style={{
+								marginTop: '12px',
+								padding: '10px 14px',
+								background: '#fef3c7',
+								border: '1px solid #fbbf24',
+								borderRadius: '6px',
+								fontSize: '13px',
+								color: '#92400e',
+							}}
+						>
+							<strong>Note:</strong> Client Secret is required for your selected authentication
+							method. Alternatively, you can enable PKCE for a public client flow.
+						</div>
+					)}
+				</div>
 			</div>
 		);
 	};
@@ -2011,8 +2151,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					throw new Error('PKCE code verifier not found. Please restart the flow.');
 				}
 
+				// CRITICAL: Get sessionId for cookie retrieval
+				const sessionId = sessionStorage.getItem(`${flowKey}-redirectless-sessionId`);
+				if (!sessionId) {
+					throw new Error('Session ID not found. Please restart the flow.');
+				}
+
 				console.log(`${MODULE_TAG} 🔌 Resuming redirectless flow`, {
 					flowId,
+					hasSessionId: !!sessionId,
 					resumeUrl: resumeUrl.substring(0, 100) + '...',
 				});
 
@@ -2028,6 +2175,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						clientId: credentials.clientId,
 						clientSecret: credentials.clientSecret,
 						codeVerifier,
+						sessionId, // CRITICAL: Include sessionId to retrieve cookies from cookie jar
 					}),
 				});
 
@@ -2045,9 +2193,55 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Resume response:`, resumeData);
 
-				const authCode = resumeData.code as string | undefined;
+				// Try to extract code from various possible locations
+				// PingOne might return code directly, or nested in a flow object, or in authorizeResponse
+				let authCode: string | undefined;
+
+				// First try: direct code field
+				if (resumeData.code && typeof resumeData.code === 'string') {
+					authCode = resumeData.code;
+				}
+				// Second try: nested in flow object (pi.flow format)
+				else if (
+					resumeData.flow &&
+					typeof resumeData.flow === 'object' &&
+					resumeData.flow !== null &&
+					'code' in resumeData.flow &&
+					typeof (resumeData.flow as Record<string, unknown>).code === 'string'
+				) {
+					authCode = (resumeData.flow as Record<string, unknown>).code as string;
+				}
+				// Third try: in authorizeResponse (pi.flow format)
+				else if (
+					resumeData.authorizeResponse &&
+					typeof resumeData.authorizeResponse === 'object' &&
+					resumeData.authorizeResponse !== null &&
+					'code' in resumeData.authorizeResponse &&
+					typeof (resumeData.authorizeResponse as Record<string, unknown>).code === 'string'
+				) {
+					authCode = (resumeData.authorizeResponse as Record<string, unknown>).code as string;
+				}
+				// Fourth try: alternative field names
+				else if (resumeData.authorization_code && typeof resumeData.authorization_code === 'string') {
+					authCode = resumeData.authorization_code;
+				} else if (resumeData.authCode && typeof resumeData.authCode === 'string') {
+					authCode = resumeData.authCode;
+				}
+
 				if (!authCode) {
-					throw new Error('Authorization code not found in resume response');
+					// Log full response for debugging
+					console.error(`${MODULE_TAG} 🔌 Authorization code not found in resume response`, {
+						responseKeys: Object.keys(resumeData),
+						hasCode: !!resumeData.code,
+						hasFlow: !!resumeData.flow,
+						hasAuthorizeResponse: !!resumeData.authorizeResponse,
+						hasAuthorizationCode: !!resumeData.authorization_code,
+						hasAuthCode: !!resumeData.authCode,
+						fullResponse: resumeData,
+					});
+					throw new Error(
+						'Authorization code not found in resume response. Check console for full response details.'
+					);
 				}
 
 				// Store authorization code in flow state for display (similar to callback parsing)
@@ -2089,10 +2283,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setShowCallbackSuccessModal(true);
 
 				// Navigate to callback step to show the authorization code before exchanging for tokens
-				// For oauth-authz: Step 2 is callback (without PKCE), Step 3 is callback (with PKCE)
-				// For hybrid: Step 3 is callback (without PKCE), Step 4 is callback (with PKCE)
-				const callbackStepIndex =
-					flowType === 'oauth-authz' || flowType === 'hybrid' ? (isPKCERequired ? 3 : 2) : 2; // Default fallback
+				// For oauth-authz and hybrid: Step 2 is callback (PKCE is in Advanced Options, not a separate step)
+				const callbackStepIndex = 2; // Step 2 for oauth-authz and hybrid
 
 				console.log(`${MODULE_TAG} 🔌 Navigating to callback step to display authorization code`, {
 					callbackStepIndex,
@@ -2144,6 +2336,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					code_verifier: codeVerifier,
 				};
 
+				// Track API call for display
+				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+				const startTime = Date.now();
+				const callId = apiCallTrackerService.trackApiCall({
+					method: 'POST',
+					url: `${backendUrl}/api/token-exchange`,
+					body: {
+						...tokenRequestBody,
+						code: '***REDACTED***',
+						code_verifier: '***REDACTED***',
+						client_secret: '***REDACTED***',
+					},
+					step: 'unified-redirectless-token-exchange',
+				});
+
 				const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
 					method: 'POST',
 					headers: {
@@ -2152,18 +2359,34 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					body: JSON.stringify(tokenRequestBody),
 				});
 
+				// Update API call with response
+				const responseClone = tokenResponse.clone();
+				let responseData: unknown;
+				try {
+					responseData = await responseClone.json();
+				} catch {
+					responseData = { error: 'Failed to parse response' };
+				}
+
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: tokenResponse.status,
+						statusText: tokenResponse.statusText,
+						data: responseData,
+					},
+					Date.now() - startTime
+				);
+
 				if (!tokenResponse.ok) {
-					const errorData = (await tokenResponse.json().catch(() => ({}))) as Record<
-						string,
-						unknown
-					>;
+					const errorData = responseData as Record<string, unknown>;
 					const errorMsg = (errorData.error_description ||
 						errorData.error ||
 						`Token exchange failed (${tokenResponse.status})`) as string;
 					throw new Error(errorMsg);
 				}
 
-				const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
+				const tokenData = responseData as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Token exchange successful`);
 
 				// Store tokens in flow state (conditionally include optional properties)
@@ -2185,6 +2408,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Close modal and show success
 				setShowRedirectlessModal(false);
 				setIsRedirectlessAuthenticating(false);
+				
+				// Mark this as a redirectless flow to prevent dashboard redirects
+				sessionStorage.setItem('v8u_redirectless_flow_active', 'true');
+				
 				toastV8.success('✅ Tokens obtained successfully via redirectless authentication!');
 
 				// Navigate to tokens step
@@ -2215,6 +2442,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			try {
 				const flowId = sessionStorage.getItem(`${flowKey}-redirectless-flowId`);
 				const stateValue = sessionStorage.getItem(`${flowKey}-redirectless-state`);
+				const sessionId = sessionStorage.getItem(`${flowKey}-redirectless-sessionId`);
 
 				if (!flowId || !stateValue) {
 					throw new Error('Flow state not found. Please restart the flow.');
@@ -2223,6 +2451,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				console.log(`${MODULE_TAG} 🔌 Submitting credentials to PingOne Flow API`, {
 					flowId,
 					username,
+					hasSessionId: !!sessionId,
 				});
 
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
@@ -2239,6 +2468,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						password,
 						clientId: credentials.clientId,
 						clientSecret: credentials.clientSecret,
+						sessionId, // CRITICAL: Pass sessionId to maintain cookie session
 					}),
 				});
 
@@ -2251,6 +2481,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				const credentialsData = (await credentialsResponse.json()) as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Credentials response:`, credentialsData);
+
+				// Extract and update sessionId from credentials response
+				const updatedSessionId = credentialsData._sessionId as string | undefined;
+				if (updatedSessionId) {
+					sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, updatedSessionId);
+					console.log(`${MODULE_TAG} 🔌 Updated sessionId from credentials response`);
+				}
 
 				const status = String(credentialsData.status || '').toUpperCase();
 				const resumeUrl = credentialsData.resumeUrl as string | undefined;
@@ -2275,12 +2512,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					// Check multiple possible locations for code and tokens
 					const authCode = (authorizeResponse?.code ||
 						credentialsData.code ||
-						(authorizeResponse as any)?.authorization_code ||
+						(authorizeResponse as Record<string, unknown>)?.authorization_code ||
 						credentialsData.authorization_code) as string | undefined;
 
 					const accessToken = (authorizeResponse?.access_token ||
 						credentialsData.access_token ||
-						(authorizeResponse as any)?.accessToken ||
+						(authorizeResponse as Record<string, unknown>)?.accessToken ||
 						credentialsData.accessToken) as string | undefined;
 
 					console.log(`${MODULE_TAG} 🔌 Extracted from COMPLETED flow:`, {
@@ -2400,6 +2637,286 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		]
 	);
 
+	// Handler for starting redirectless authentication after URL is displayed
+	const handleStartRedirectlessAuth = useCallback(async () => {
+		const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
+		if (!isRedirectless || !flowState.authorizationUrl) {
+			console.warn(`${MODULE_TAG} ⚠️ Cannot start redirectless auth - missing URL or not in redirectless mode`);
+			return;
+		}
+
+		// Ensure we have PKCE codes for redirectless flow
+		if (!flowState.codeVerifier || !flowState.codeChallenge) {
+			toastV8.error('PKCE codes are required for redirectless flow. Please generate PKCE parameters first.');
+			return;
+		}
+
+		// Step 1: POST /as/authorize with response_mode=pi.flow
+		const stateValue = flowState.state || `v8u-${flowType}-${Date.now()}`;
+		const authorizeRequestBody: Record<string, unknown> = {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			redirectUri: credentials.redirectUri,
+			scopes: credentials.scopes || 'openid profile email',
+			codeChallenge: flowState.codeChallenge,
+			codeChallengeMethod: 'S256',
+			state: stateValue,
+		};
+
+		// Add optional OIDC parameters
+		if (credentials.prompt) {
+			authorizeRequestBody.prompt = credentials.prompt;
+		}
+		if (credentials.loginHint) {
+			authorizeRequestBody.loginHint = credentials.loginHint;
+		}
+		if (credentials.maxAge !== undefined) {
+			authorizeRequestBody.maxAge = credentials.maxAge;
+		}
+		if (credentials.display) {
+			authorizeRequestBody.display = credentials.display;
+		}
+
+		// Only include client secret for confidential clients (not public clients with clientAuthMethod: "none")
+		if (credentials.clientAuthMethod !== 'none' && credentials.clientSecret) {
+			authorizeRequestBody.clientSecret = credentials.clientSecret;
+		}
+
+			// Show modal with request details before making the request
+			// Build the actual request body that will be sent to PingOne (including response_mode=pi.flow)
+			const pingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+			// Note: The backend converts this to form-encoded URLSearchParams, but we show it as JSON for readability
+			const pingOneRequestBody: Record<string, unknown> = {
+				response_type: 'code',
+				response_mode: 'pi.flow', // CRITICAL: This is what makes it redirectless
+				client_id: credentials.clientId,
+				redirect_uri: credentials.redirectUri,
+				scope: credentials.scopes || 'openid profile email',
+				code_challenge: flowState.codeChallenge,
+				code_challenge_method: 'S256',
+				state: stateValue,
+			};
+
+			// Add optional OIDC parameters
+			if (credentials.prompt) {
+				pingOneRequestBody.prompt = credentials.prompt;
+			}
+			if (credentials.loginHint) {
+				pingOneRequestBody.login_hint = credentials.loginHint;
+			}
+			if (credentials.maxAge !== undefined) {
+				pingOneRequestBody.max_age = credentials.maxAge;
+			}
+			if (credentials.display) {
+				pingOneRequestBody.display = credentials.display;
+			}
+
+			setPendingPingOneRequest({
+				url: pingOneUrl,
+				method: 'POST',
+				body: pingOneRequestBody,
+			});
+			setShowPingOneRequestModal(true);
+	}, [credentials, flowState, flowType, toastV8]);
+
+	// Handler for actually making the PingOne request (called after user confirms in modal)
+	const handleProceedWithPingOneRequest = useCallback(async () => {
+		if (!pendingPingOneRequest) {
+			return;
+		}
+
+		setShowPingOneRequestModal(false);
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			// Redirectless mode (pi.flow): Make POST request to PingOne Flow API
+			console.log(
+				`${MODULE_TAG} 🔌 Redirectless mode (response_mode=pi.flow) enabled - making POST request to PingOne Flow API`
+			);
+
+			// If PAR is enabled, check if request_uri is already in the authorization URL
+			// (PAR was pushed when generating the URL)
+			let parRequestUri: string | undefined;
+			if (credentials.usePAR && flowState.authorizationUrl) {
+				try {
+					const url = new URL(flowState.authorizationUrl);
+					parRequestUri = url.searchParams.get('request_uri') || undefined;
+					if (parRequestUri) {
+						console.log(`${MODULE_TAG} 🔌 PAR request_uri found in authorization URL (already pushed):`, parRequestUri.substring(0, 50) + '...');
+					} else {
+						console.warn(`${MODULE_TAG} ⚠️ PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`);
+					}
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to parse authorization URL for PAR request_uri:`, error);
+				}
+			}
+
+			// Build the backend proxy request body (NOT the PingOne-formatted body)
+			// The backend expects: environmentId, clientId, redirectUri, scopes, codeChallenge, etc.
+			// NOT: response_mode, client_id, redirect_uri, scope, etc. (those are for direct PingOne calls)
+			const backendRequestBody: Record<string, unknown> = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+			};
+
+			// If PAR is used, only send request_uri (other params are in the PAR request)
+			if (parRequestUri) {
+				backendRequestBody.requestUri = parRequestUri;
+				backendRequestBody.state = pendingPingOneRequest.body.state as string;
+				console.log(`${MODULE_TAG} 🔌 Using PAR request_uri for redirectless authorize`);
+			} else {
+				// Regular flow - send all parameters
+				backendRequestBody.redirectUri = credentials.redirectUri;
+				backendRequestBody.scopes = credentials.scopes || 'openid profile email';
+				backendRequestBody.codeChallenge = flowState.codeChallenge;
+				backendRequestBody.codeChallengeMethod = 'S256';
+				backendRequestBody.state = pendingPingOneRequest.body.state as string;
+			}
+
+			// Add optional OIDC parameters (only if not using PAR)
+			if (!parRequestUri) {
+				if (credentials.prompt) {
+					backendRequestBody.prompt = credentials.prompt;
+				}
+				if (credentials.loginHint) {
+					backendRequestBody.loginHint = credentials.loginHint;
+				}
+				if (credentials.maxAge !== undefined) {
+					backendRequestBody.maxAge = credentials.maxAge;
+				}
+				if (credentials.display) {
+					backendRequestBody.display = credentials.display;
+				}
+			}
+
+			// Only include client secret for confidential clients (not needed for PAR as auth is in PAR request)
+			if (!parRequestUri && credentials.clientAuthMethod !== 'none' && credentials.clientSecret) {
+				backendRequestBody.clientSecret = credentials.clientSecret;
+			}
+
+			const authorizeResponse = await fetch('/api/pingone/redirectless/authorize', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				credentials: 'include',
+				body: JSON.stringify(backendRequestBody),
+			});
+
+			if (!authorizeResponse.ok) {
+				const errorData = (await authorizeResponse.json().catch(() => ({}))) as Record<
+					string,
+					unknown
+				>;
+				const errorMsg = (errorData.error_description ||
+					errorData.error ||
+					`Authorization request failed (${authorizeResponse.status})`) as string;
+				throw new Error(errorMsg);
+			}
+
+			const flowData = (await authorizeResponse.json()) as Record<string, unknown>;
+			console.log(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
+
+			const flowId = flowData.id as string | undefined;
+			const flowStatus = (flowData.status as string | undefined)?.toUpperCase();
+			const sessionId = flowData._sessionId as string | undefined;
+
+			console.log(`${MODULE_TAG} 🔌 Redirectless flow status check:`, {
+				flowId,
+				flowStatus,
+				hasSessionId: !!sessionId,
+				willShowModal:
+					flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS',
+				rawStatus: flowData.status,
+			});
+
+			// Store flow state for subsequent steps
+			const stateValue = (pendingPingOneRequest.body.state as string) || '';
+			sessionStorage.setItem(`${flowKey}-redirectless-flowId`, flowId || '');
+			sessionStorage.setItem(`${flowKey}-redirectless-state`, stateValue);
+			if (flowState.codeVerifier) {
+				sessionStorage.setItem(`${flowKey}-redirectless-codeVerifier`, flowState.codeVerifier);
+			}
+			if (flowState.codeChallenge) {
+				sessionStorage.setItem(`${flowKey}-redirectless-codeChallenge`, flowState.codeChallenge);
+			}
+			if (sessionId) {
+				sessionStorage.setItem(`${flowKey}-redirectless-sessionId`, sessionId);
+				console.log(`${MODULE_TAG} 🔌 Stored sessionId from authorize response`);
+			}
+
+			// Store flow state first
+			const updatedFlowState: FlowState = {
+				...flowState,
+				state: stateValue,
+			};
+			if (flowId) {
+				updatedFlowState.redirectlessFlowId = flowId;
+			}
+			setFlowState(updatedFlowState);
+
+			if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS') {
+				// Show login modal - user needs to enter credentials
+				console.log(`${MODULE_TAG} 🔌 Credentials required - showing login modal`);
+				console.log(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
+
+				// Set modal state - ensure it's visible
+				setShowRedirectlessModal(true);
+				setIsLoading(false);
+
+				console.log(
+					`${MODULE_TAG} 🔌 Modal state after setShowRedirectlessModal(true) - modal should now be visible`
+				);
+				console.log(`${MODULE_TAG} 🔌 Flow ID stored:`, flowId);
+				console.log(`${MODULE_TAG} 🔌 Flow Status:`, flowStatus);
+
+				// Force re-render check
+				setTimeout(() => {
+					console.log(
+						`${MODULE_TAG} 🔌 Modal visibility check after timeout - showRedirectlessModal should be true`
+					);
+				}, 100);
+
+				return;
+			}
+
+			if (flowStatus === 'READY_TO_RESUME' || flowData.resumeUrl) {
+				// Flow is ready to resume - proceed directly (skip modal)
+				const resumeUrl = flowData.resumeUrl as string | undefined;
+				console.log(
+					`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`
+				);
+				await handleResumeRedirectlessFlow(flowId || '', stateValue, resumeUrl);
+				return;
+			}
+
+			// Fallback: If we have a flowId but unexpected status, still show modal for manual entry
+			// This handles edge cases where PingOne might return a different status format
+			if (flowId) {
+				console.warn(
+					`${MODULE_TAG} ⚠️ Unexpected flow status "${flowStatus}" but have flowId - showing modal as fallback to allow manual credential entry`
+				);
+				setShowRedirectlessModal(true);
+				setIsLoading(false);
+				return;
+			}
+
+			// If we don't have a flowId, something went wrong
+			console.error(`${MODULE_TAG} ❌ No flowId in redirectless response:`, flowData);
+			throw new Error(
+				`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`
+			);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : 'Failed to start redirectless authentication';
+			setError(message);
+			nav.setValidationErrors([message]);
+			toastV8.error(message);
+		} finally {
+			setIsLoading(false);
+		}
+	}, [pendingPingOneRequest, flowState, flowKey, handleResumeRedirectlessFlow, nav, toastV8]);
+
 	// Step 1 or 2: Generate Authorization URL (authz, implicit, hybrid)
 	// For oauth-authz and hybrid, this is Step 2 (after PKCE)
 	// For implicit, this is Step 1
@@ -2420,7 +2937,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 			if (isRedirectless) {
 				console.log(
-					`${MODULE_TAG} ✅ Redirectless mode (response_mode=pi.flow) is ENABLED - will make POST request instead of generating URL`
+					`${MODULE_TAG} ✅ Redirectless mode (response_mode=pi.flow) is ENABLED - will generate URL first, then make POST request`
 				);
 			} else {
 				console.log(
@@ -2446,7 +2963,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				(!flowState.codeVerifier || !flowState.codeChallenge)
 			) {
 				const errorMsg =
-					'PKCE codes are required but missing. Please go back to Step 1 and generate PKCE parameters first.';
+					'PKCE codes are required but missing. Please go back to Step 0 (Configuration) and generate PKCE parameters in Advanced Options.';
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);
 				toastV8.error(errorMsg);
@@ -2457,137 +2974,52 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setError(null);
 
 			try {
-				// Redirectless mode (pi.flow): Make POST request to PingOne Flow API instead of generating URL
+				// For redirectless mode, first generate the authorization URL to show the user
+				// Then make POST request when they click "Start Redirectless Authentication"
 				if (isRedirectless) {
-					console.log(
-						`${MODULE_TAG} 🔌 Redirectless mode (response_mode=pi.flow) enabled - making POST request to PingOne Flow API`
+					// Generate authorization URL first (for display/educational purposes)
+					// This shows what URL would be used in standard redirect mode
+					const urlResult = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
+						specVersion,
+						flowType,
+						credentials,
+						flowState.codeVerifier && flowState.codeChallenge
+							? {
+									codeVerifier: flowState.codeVerifier,
+									codeChallenge: flowState.codeChallenge,
+									codeChallengeMethod: 'S256',
+								}
+							: undefined
 					);
 
-					// Ensure we have PKCE codes for redirectless flow
-					if (!flowState.codeVerifier || !flowState.codeChallenge) {
-						throw new Error(
-							'PKCE codes are required for redirectless flow. Please generate PKCE parameters first.'
-						);
-					}
-
-					// Step 1: POST /as/authorize with response_mode=pi.flow
-					const stateValue = flowState.state || `v8u-${flowType}-${Date.now()}`;
-					const authorizeRequestBody: Record<string, unknown> = {
-						environmentId: credentials.environmentId,
-						clientId: credentials.clientId,
-						redirectUri: credentials.redirectUri,
-						scopes: credentials.scopes || 'openid profile email',
-						codeChallenge: flowState.codeChallenge,
-						codeChallengeMethod: 'S256',
-						state: stateValue,
+					// Store the authorization URL in flow state so it can be displayed
+					const urlResultWithExtras = urlResult as {
+						nonce?: string;
+						codeVerifier?: string;
+						codeChallenge?: string;
 					};
-
-					// Only include client secret for confidential clients (not public clients with clientAuthMethod: "none")
-					if (credentials.clientAuthMethod !== 'none' && credentials.clientSecret) {
-						authorizeRequestBody.clientSecret = credentials.clientSecret;
-					}
-
-					const authorizeResponse = await fetch('/api/pingone/redirectless/authorize', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						credentials: 'include',
-						body: JSON.stringify(authorizeRequestBody),
-					});
-
-					if (!authorizeResponse.ok) {
-						const errorData = (await authorizeResponse.json().catch(() => ({}))) as Record<
-							string,
-							unknown
-						>;
-						const errorMsg = (errorData.error_description ||
-							errorData.error ||
-							`Authorization request failed (${authorizeResponse.status})`) as string;
-						throw new Error(errorMsg);
-					}
-
-					const flowData = (await authorizeResponse.json()) as Record<string, unknown>;
-					console.log(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
-
-					const flowId = flowData.id as string | undefined;
-					const flowStatus = (flowData.status as string | undefined)?.toUpperCase();
-
-					console.log(`${MODULE_TAG} 🔌 Redirectless flow status check:`, {
-						flowId,
-						flowStatus,
-						willShowModal:
-							flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS',
-						rawStatus: flowData.status,
-					});
-
-					// Store flow state for subsequent steps
-					sessionStorage.setItem(`${flowKey}-redirectless-flowId`, flowId || '');
-					sessionStorage.setItem(`${flowKey}-redirectless-state`, stateValue);
-					sessionStorage.setItem(`${flowKey}-redirectless-codeVerifier`, flowState.codeVerifier);
-					sessionStorage.setItem(`${flowKey}-redirectless-codeChallenge`, flowState.codeChallenge);
-
-					// Store flow state first
-					const updatedFlowState: FlowState = {
+					const updatedStateWithUrl: FlowState = {
 						...flowState,
-						state: stateValue,
+						authorizationUrl: urlResult.authorizationUrl,
+						state: urlResult.state,
+						...(urlResultWithExtras.nonce && { nonce: urlResultWithExtras.nonce }),
+						// Preserve existing PKCE codes if they were provided
+						...(urlResultWithExtras.codeVerifier &&
+							!flowState.codeVerifier && { codeVerifier: urlResultWithExtras.codeVerifier }),
+						...(urlResultWithExtras.codeChallenge &&
+							!flowState.codeChallenge && { codeChallenge: urlResultWithExtras.codeChallenge }),
 					};
-					if (flowId) {
-						updatedFlowState.redirectlessFlowId = flowId;
-					}
-					setFlowState(updatedFlowState);
-
-					if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS') {
-						// Show login modal - user needs to enter credentials
-						console.log(`${MODULE_TAG} 🔌 Credentials required - showing login modal`);
-						console.log(`${MODULE_TAG} 🔌 Modal state before:`, { showRedirectlessModal });
-
-						// Set modal state - ensure it's visible
-						setShowRedirectlessModal(true);
-						setIsLoading(false);
-
-						console.log(
-							`${MODULE_TAG} 🔌 Modal state after setShowRedirectlessModal(true) - modal should now be visible`
-						);
-						console.log(`${MODULE_TAG} 🔌 Flow ID stored:`, flowId);
-						console.log(`${MODULE_TAG} 🔌 Flow Status:`, flowStatus);
-
-						// Force re-render check
-						setTimeout(() => {
-							console.log(
-								`${MODULE_TAG} 🔌 Modal visibility check after timeout - showRedirectlessModal should be true`
-							);
-						}, 100);
-
-						return;
-					}
-
-					if (flowStatus === 'READY_TO_RESUME' || flowData.resumeUrl) {
-						// Flow is ready to resume - proceed directly (skip modal)
-						const resumeUrl = flowData.resumeUrl as string | undefined;
-						console.log(
-							`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`
-						);
-						await handleResumeRedirectlessFlow(flowId || '', stateValue, resumeUrl);
-						return;
-					}
-
-					// Fallback: If we have a flowId but unexpected status, still show modal for manual entry
-					// This handles edge cases where PingOne might return a different status format
-					if (flowId) {
-						console.warn(
-							`${MODULE_TAG} ⚠️ Unexpected flow status "${flowStatus}" but have flowId - showing modal as fallback to allow manual credential entry`
-						);
-						setShowRedirectlessModal(true);
-						setIsLoading(false);
-						return;
-					}
-
-					// If we don't have a flowId, something went wrong
-					console.error(`${MODULE_TAG} ❌ No flowId in redirectless response:`, flowData);
-					throw new Error(
-						`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`
-					);
+					setFlowState(updatedStateWithUrl);
+					
+					console.log(`${MODULE_TAG} 🔌 Authorization URL generated for redirectless flow (display only):`, {
+						url: urlResult.authorizationUrl.substring(0, 100) + '...',
+						hasState: !!urlResult.state,
+					});
+					
+					toastV8.authUrlGenerated();
+					setIsLoading(false);
+					// Don't make POST request yet - wait for user to click "Start Redirectless Authentication"
+					return;
 				}
 
 				// Standard mode: Generate authorization URL
@@ -2610,6 +3042,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					nonce?: string;
 					codeVerifier?: string;
 					codeChallenge?: string;
+					parRequestUri?: string;
+					parExpiresIn?: number;
 				};
 				const updatedState: FlowState = {
 					...flowState,
@@ -2621,6 +3055,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						!flowState.codeVerifier && { codeVerifier: resultWithExtras.codeVerifier }),
 					...(resultWithExtras.codeChallenge &&
 						!flowState.codeChallenge && { codeChallenge: resultWithExtras.codeChallenge }),
+					// PAR information
+					...(resultWithExtras.parRequestUri && { parRequestUri: resultWithExtras.parRequestUri }),
+					...(resultWithExtras.parExpiresIn && { parExpiresIn: resultWithExtras.parExpiresIn }),
 				};
 				setFlowState(updatedState);
 				// DON'T auto-mark step complete - user should click "Authenticate on PingOne" first
@@ -2635,6 +3072,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setIsLoading(false);
 			}
 		};
+
 
 		// Step number - always Step 2 for oauth-authz and hybrid (after PKCE step)
 		// Step 1 is always PKCE generation for these flows
@@ -2694,6 +3132,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<p style={{ margin: '8px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
 							Click the button below to create your authorization URL
 						</p>
+						{credentials.usePAR && (
+							<div
+								style={{
+									marginTop: '12px',
+									padding: '12px',
+									background: '#fef3c7',
+									border: '1px solid #fbbf24',
+									borderRadius: '8px',
+									fontSize: '13px',
+									color: '#92400e',
+								}}
+							>
+								<strong>📤 PAR Enabled:</strong> This will push authorization parameters to PingOne via PAR request first, then generate the authorization URL with <code>request_uri</code>.
+							</div>
+						)}
 					</div>
 
 					<button
@@ -2728,6 +3181,52 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{flowState.authorizationUrl && (
 					<div style={{ marginTop: '24px' }}>
+						{/* PAR Information Display */}
+						{credentials.usePAR && flowState.parRequestUri && (
+							<div
+								style={{
+									background: '#ecfdf5',
+									border: '1px solid #10b981',
+									borderRadius: '8px',
+									padding: '16px',
+									marginBottom: '16px',
+								}}
+							>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+									<span style={{ fontSize: '20px' }}>📤</span>
+									<strong style={{ color: '#065f46', fontSize: '15px' }}>PAR Request Completed</strong>
+								</div>
+								<div style={{ marginBottom: '12px' }}>
+									<div style={{ fontSize: '13px', color: '#047857', marginBottom: '4px', fontWeight: '500' }}>
+										PAR Request URI:
+									</div>
+									<div
+										style={{
+											background: 'white',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											padding: '8px 12px',
+											fontFamily: 'monospace',
+											fontSize: '12px',
+											color: '#1f2937',
+											wordBreak: 'break-all',
+										}}
+									>
+										{flowState.parRequestUri}
+									</div>
+								</div>
+								{flowState.parExpiresIn && (
+									<div style={{ fontSize: '13px', color: '#047857' }}>
+										<strong>Expires in:</strong> {flowState.parExpiresIn} seconds
+									</div>
+								)}
+								<div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
+									💡 The authorization URL below uses this <code>request_uri</code> instead of individual parameters.
+									Check the <strong>⚡ Show API Calls</strong> section to see the full PAR request details.
+								</div>
+							</div>
+						)}
+
 						<ColoredUrlDisplay
 							url={flowState.authorizationUrl}
 							label="Authorization URL"
@@ -2745,60 +3244,118 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}}
 						/>
 
-						<div
-							style={{
-								marginTop: '16px',
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '12px',
-								alignItems: 'center',
-							}}
-						>
-							<button
-								type="button"
-								className="btn btn-next"
-								onClick={() => {
-									console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
-									const urlToOpen = flowState.authorizationUrl || '';
-									if (urlToOpen) {
-										window.open(urlToOpen, '_blank', 'noopener,noreferrer');
-										// Mark step complete after opening PingOne
-										if (!completedSteps.includes(currentStep)) {
-											console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
-											nav.markStepComplete();
-											toastV8.success(
-												"PingOne opened! Complete authentication and you'll be redirected back."
-											);
-										}
-									}
-								}}
+						{/* Show different buttons based on redirectless mode */}
+						{(credentials.responseMode === 'pi.flow' || credentials.useRedirectless) ? (
+							// Redirectless mode: Show button to start redirectless authentication
+							<div
 								style={{
-									fontSize: '16px',
-									padding: '12px 24px',
+									marginTop: '16px',
 									display: 'flex',
+									flexDirection: 'column',
+									gap: '12px',
 									alignItems: 'center',
-									gap: '8px',
 								}}
 							>
-								<span style={{ fontSize: '20px' }}>🔐</span>
-								<span>Authenticate on PingOne</span>
-								<span style={{ fontSize: '16px' }}>→</span>
-							</button>
-
-							{completedSteps.includes(currentStep) && (
 								<div
 									style={{
-										padding: '12px',
-										background: '#d1fae5',
-										borderRadius: '6px',
-										color: '#065f46',
-										textAlign: 'center',
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '8px',
+										padding: '12px 16px',
+										marginBottom: '8px',
+										width: '100%',
+										maxWidth: '600px',
 									}}
 								>
-									✅ PingOne opened! Complete authentication there and you'll be redirected back.
+									<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
+										<strong>Redirectless Mode:</strong> This URL shows what would be used in standard redirect mode. 
+										In redirectless mode, we'll make a POST request instead of redirecting and add response_mode=pi.flow to the Authorization URL.
+									</p>
 								</div>
-							)}
-						</div>
+								<button
+									type="button"
+									className="btn btn-next"
+									onClick={handleStartRedirectlessAuth}
+									disabled={isLoading}
+									style={{
+										fontSize: '16px',
+										padding: '12px 24px',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										minWidth: '280px',
+										justifyContent: 'center',
+									}}
+								>
+									{isLoading ? (
+										<>
+											<span>⏳</span>
+											<span>Starting Redirectless Authentication...</span>
+										</>
+									) : (
+										<>
+											<span>🚀</span>
+											<span>Start Redirectless Authentication</span>
+										</>
+									)}
+								</button>
+							</div>
+						) : (
+							// Standard mode: Show button to open URL in browser
+							<div
+								style={{
+									marginTop: '16px',
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '12px',
+									alignItems: 'center',
+								}}
+							>
+								<button
+									type="button"
+									className="btn btn-next"
+									onClick={() => {
+										console.log(`${MODULE_TAG} Opening authorization URL for authentication`);
+										const urlToOpen = flowState.authorizationUrl || '';
+										if (urlToOpen) {
+											window.open(urlToOpen, '_blank', 'noopener,noreferrer');
+											// Mark step complete after opening PingOne
+											if (!completedSteps.includes(currentStep)) {
+												console.log(`${MODULE_TAG} User opened PingOne - marking step complete`);
+												nav.markStepComplete();
+												toastV8.success(
+													"PingOne opened! Complete authentication and you'll be redirected back."
+												);
+											}
+										}
+									}}
+									style={{
+										fontSize: '16px',
+										padding: '12px 24px',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+									}}
+								>
+									<span style={{ fontSize: '20px' }}>🔐</span>
+									<span>Authenticate on PingOne</span>
+									<span style={{ fontSize: '16px' }}>→</span>
+								</button>
+								{completedSteps.includes(currentStep) && (
+									<div
+										style={{
+											padding: '12px',
+											background: '#d1fae5',
+											borderRadius: '6px',
+											color: '#065f46',
+											textAlign: 'center',
+										}}
+									>
+										✅ PingOne opened! Complete authentication there and you'll be redirected back.
+									</div>
+								)}
+							</div>
+						)}
 
 						<div
 							style={{
@@ -2847,101 +3404,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Step 1: Device Authorization (device code flow)
 	const renderStep1DeviceAuth = () => {
-		const handleRequestDeviceAuth = async () => {
-			// Validate required fields before requesting device authorization
-			if (!credentials.environmentId?.trim()) {
-				setError('Please provide an Environment ID in the configuration above.');
-				nav.setValidationErrors(['Please provide an Environment ID in the configuration above.']);
-				return;
-			}
-			if (!credentials.clientId?.trim()) {
-				setError('Please provide a Client ID in the configuration above.');
-				nav.setValidationErrors(['Please provide a Client ID in the configuration above.']);
-				return;
-			}
-			if (!credentials.scopes?.trim()) {
-				setError('Please provide at least one scope in the configuration above.');
-				nav.setValidationErrors(['Please provide at least one scope in the configuration above.']);
-				return;
-			}
-
-			console.log(`${MODULE_TAG} Requesting device authorization`);
-			// Reset auto-poll trigger before starting request to prevent interference
-			autoPollTriggeredRef.current = false;
-			autoPollInitiatedRef.current = false;
-			isPollingExecutingRef.current = false; // Reset polling execution flag
-
-			// Clear any pending auto-poll timeout
-			if (autoPollTimeoutRef.current) {
-				clearTimeout(autoPollTimeoutRef.current);
-				autoPollTimeoutRef.current = null;
-			}
-
-			// Clear any pending polling timeouts
-			if (pollingTimeoutRef.current) {
-				clearTimeout(pollingTimeoutRef.current);
-				pollingTimeoutRef.current = null;
-			}
-
-			setIsLoading(true);
-			setError(null);
-
-			try {
-				const result = await UnifiedFlowIntegrationV8U.requestDeviceAuthorization(credentials);
-
-				// Calculate expiration timestamp
-				const expiresAt = Date.now() + result.expires_in * 1000;
-
-				// Reset polling state when requesting a new code
-				// Construct verificationUriComplete if not provided by server (RFC 8628 Section 3.2)
-				const verificationUriComplete =
-					result.verification_uri_complete ||
-					(result.verification_uri && result.user_code
-						? `${result.verification_uri}?user_code=${result.user_code}`
-						: undefined);
-
-				const newState: Partial<FlowState> = {
-					...flowState,
-					deviceCode: result.device_code,
-					userCode: result.user_code,
-					verificationUri: result.verification_uri,
-					...(verificationUriComplete && { verificationUriComplete }),
-					deviceCodeExpiresIn: result.expires_in,
-					deviceCodeExpiresAt: expiresAt,
-					pollingStatus: {
-						isPolling: false,
-						pollCount: 0,
-					},
-				};
-				// Clear any previous tokens
-				delete newState.tokens;
-				setFlowState(newState as FlowState);
-
-				// Reset auto-poll trigger so it can trigger again when user navigates to step 2
-				// But don't trigger immediately - wait for user to navigate to step 2
-				autoPollTriggeredRef.current = false;
-				autoPollInitiatedRef.current = false;
-				isPollingExecutingRef.current = false;
-
-				nav.markStepComplete();
-				toastV8.success('Device authorization request successful');
-			} catch (err) {
-				const message =
-					err instanceof Error ? err.message : 'Failed to request device authorization';
-				setError(message);
-				nav.setValidationErrors([message]);
-				toastV8.error(message);
-			} finally {
-				setIsLoading(false);
-				// Ensure flags are reset even on error
-				if (!flowState.deviceCode) {
-					autoPollTriggeredRef.current = false;
-					autoPollInitiatedRef.current = false;
-					isPollingExecutingRef.current = false;
-				}
-			}
-		};
-
 		// Check if device authorization was already requested
 		const hasDeviceCode = !!flowState.deviceCode;
 		const isComplete = hasDeviceCode && completedSteps.includes(currentStep);
@@ -3101,8 +3563,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					</div>
 				)}
 
-				{/* Device Authorization Request URL Display */}
-				{isValid && !isComplete && (
+				{/* Device Authorization Request URL Display - Show after request is made */}
+				{isComplete && flowState.deviceCode && (
 					<div style={{ marginTop: '24px' }}>
 						<h3
 							style={{
@@ -3112,30 +3574,38 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								color: '#1f2937',
 							}}
 						>
-							📡 Device Authorization Request Details
+							📡 Device Authorization Request
 						</h3>
 						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
-							This is the POST request that will be sent to PingOne to request device authorization:
+							This is the POST request that was sent to request device authorization:
 						</p>
 						{(() => {
-							const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId?.trim()}/as/device_authorization`;
+							const backendUrl =
+								process.env.NODE_ENV === 'production'
+									? 'https://oauth-playground.vercel.app'
+									: 'https://localhost:3001';
+							const deviceAuthEndpoint = `${backendUrl}/api/device-authorization`;
 							const authMethod =
 								credentials.clientAuthMethod ||
 								(credentials.clientSecret ? 'client_secret_basic' : 'none');
 
-							// Build request body parameters
-							const params = new URLSearchParams();
-							params.append('client_id', credentials.clientId?.trim() || '');
+							// Build request body (JSON format sent to backend proxy)
+							const requestBody: Record<string, string> = {
+								environment_id: credentials.environmentId?.trim() || '',
+								client_id: credentials.clientId?.trim() || '',
+							};
 
 							if (credentials.scopes?.trim()) {
-								params.append('scope', credentials.scopes.trim());
+								requestBody.scope = credentials.scopes.trim();
 							}
 
-							if (authMethod === 'client_secret_post' && credentials.clientSecret) {
-								params.append('client_secret', credentials.clientSecret);
+							if (credentials.clientSecret) {
+								requestBody.client_secret = credentials.clientSecret;
+								requestBody.client_auth_method = authMethod;
+							} else if (authMethod === 'none') {
+								requestBody.client_auth_method = 'none';
 							}
 
-							const requestBody = params.toString();
 							const hasAuthHeader =
 								authMethod === 'client_secret_basic' && credentials.clientSecret;
 
@@ -3158,13 +3628,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 										<ColoredUrlDisplay
 											url={deviceAuthEndpoint}
-											label="Device Authorization Endpoint"
+											label="Device Authorization Endpoint (Backend Proxy)"
 											showCopyButton={true}
-											showInfoButton={false}
+											showInfoButton={true}
 											showOpenButton={false}
 											height="auto"
 											editable={false}
 										/>
+									</div>
+
+									{/* Request Body */}
+									<div style={{ marginBottom: '16px' }}>
+										<strong style={{ color: '#374151', fontSize: '13px', marginBottom: '8px', display: 'block' }}>
+											Request Body (JSON):
+										</strong>
+										<pre
+											style={{
+												background: '#f3f4f6',
+												border: '1px solid #e5e7eb',
+												borderRadius: '6px',
+												padding: '12px',
+												fontSize: '12px',
+												overflow: 'auto',
+												margin: 0,
+												color: '#1f2937',
+											}}
+										>
+											{JSON.stringify(
+												{
+													...requestBody,
+													client_secret: requestBody.client_secret ? '***REDACTED***' : undefined,
+												},
+												null,
+												2
+											)}
+										</pre>
 									</div>
 
 									{hasAuthHeader && (
@@ -3200,154 +3698,40 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 									)}
 
-									<div>
-										<strong style={{ color: '#374151', fontSize: '13px' }}>
-											Request Body (application/x-www-form-urlencoded):
-										</strong>
-										<div
-											style={{
-												marginTop: '8px',
-												padding: '12px',
-												background: '#ffffff',
-												border: '1px solid #d1d5db',
-												borderRadius: '6px',
-												fontFamily: 'monospace',
-												fontSize: '13px',
-												color: '#1f2937',
-												whiteSpace: 'pre-wrap',
-												wordBreak: 'break-all',
-											}}
-										>
-											{requestBody.split('&').map((param, idx) => {
-												const [key, value] = param.split('=');
-												// Decode and replace + with spaces (URL encoding for form data)
-												const decodedValue = decodeURIComponent(value || '').replace(/\+/g, ' ');
-												const isSecret = key === 'client_secret';
-												return (
-													<div
-														key={idx}
-														style={{
-															marginBottom: idx < requestBody.split('&').length - 1 ? '4px' : '0',
-														}}
-													>
-														<span style={{ color: '#dc2626', fontWeight: '600' }}>{key}</span>
-														<span style={{ color: '#1f2937' }}>=</span>
-														<span style={{ color: '#2563eb' }}>
-															{isSecret ? '***' : decodedValue}
-														</span>
-													</div>
-												);
-											})}
-										</div>
-
-										{/* JSON Format Display */}
-										<div style={{ marginTop: '16px' }}>
-											<strong style={{ color: '#374151', fontSize: '13px' }}>
-												Request Body (JSON format for reference):
-											</strong>
-											<div
-												style={{
-													marginTop: '8px',
-													padding: '12px',
-													background: '#ffffff',
-													border: '1px solid #d1d5db',
-													borderRadius: '6px',
-													fontFamily: 'monospace',
-													fontSize: '13px',
-													color: '#1f2937',
-													whiteSpace: 'pre-wrap',
-													wordBreak: 'break-all',
-													maxHeight: '300px',
-													overflowY: 'auto',
-												}}
-											>
-												{(() => {
-													// Build JSON object from form parameters
-													const jsonBody: Record<string, string> = {
-														client_id: credentials.clientId?.trim() || '',
-													};
-
-													if (credentials.scopes?.trim()) {
-														jsonBody.scope = credentials.scopes.trim();
-													}
-
-													if (authMethod === 'client_secret_post' && credentials.clientSecret) {
-														jsonBody.client_secret = '***';
-													}
-
-													return JSON.stringify(jsonBody, null, 2)
-														.split('\n')
-														.map((line, idx) => {
-															// Color code JSON
-															if (
-																line.includes('"client_id"') ||
-																line.includes('"scope"') ||
-																line.includes('"client_secret"')
-															) {
-																const keyMatch = line.match(/^(\s*)"([^"]+)":/);
-																if (keyMatch) {
-																	const indent = keyMatch[1];
-																	const key = keyMatch[2];
-																	const value = line.substring(keyMatch[0].length).trim();
-																	return (
-																		<div key={idx}>
-																			<span style={{ color: '#1f2937' }}>{indent}</span>
-																			<span style={{ color: '#dc2626', fontWeight: '600' }}>
-																				"{key}"
-																			</span>
-																			<span style={{ color: '#1f2937' }}>: </span>
-																			<span style={{ color: '#2563eb' }}>{value}</span>
-																		</div>
-																	);
-																}
-															}
-															return (
-																<div key={idx} style={{ color: '#1f2937' }}>
-																	{line}
-																</div>
-															);
-														});
-												})()}
-											</div>
-											<p
-												style={{
-													margin: '8px 0 0 0',
-													fontSize: '11px',
-													color: '#6b7280',
-													fontStyle: 'italic',
-												}}
-											>
-												Note: This is for reference only. The actual request uses
-												application/x-www-form-urlencoded format above.
-											</p>
-										</div>
-
-										<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
-											<strong>Parameters:</strong>
-											<ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+									<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
+										<strong>Parameters:</strong>
+										<ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
+											<li>
+												<strong style={{ color: '#dc2626' }}>environment_id</strong>: Your
+												PingOne environment ID (required)
+											</li>
+											<li>
+												<strong style={{ color: '#dc2626' }}>client_id</strong>: Your
+												application's client ID (required)
+											</li>
+											{credentials.scopes?.trim() && (
 												<li>
-													<strong style={{ color: '#dc2626' }}>client_id</strong>: Your
-													application's client ID (required)
+													<strong style={{ color: '#dc2626' }}>scope</strong>: Space-separated
+													list of requested scopes
 												</li>
-												{credentials.scopes?.trim() && (
-													<li>
-														<strong style={{ color: '#dc2626' }}>scope</strong>: Space-separated
-														list of requested scopes
-													</li>
-												)}
-												{authMethod === 'client_secret_post' && (
-													<li>
-														<strong style={{ color: '#dc2626' }}>client_secret</strong>: Your
-														application's client secret (if using client_secret_post authentication)
-													</li>
-												)}
-											</ul>
-											<p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#6b7280' }}>
-												<strong>Response:</strong> Returns device_code, user_code, verification_uri,
-												and expires_in. The user must visit the verification_uri and enter the
-												user_code to authorize the device.
-											</p>
-										</div>
+											)}
+											{credentials.clientSecret && (
+												<li>
+													<strong style={{ color: '#dc2626' }}>client_secret</strong>: Your
+													application's client secret (required for confidential clients)
+												</li>
+											)}
+											{credentials.clientSecret && (
+												<li>
+													<strong style={{ color: '#dc2626' }}>client_auth_method</strong>: Authentication method ({authMethod})
+												</li>
+											)}
+										</ul>
+										<p style={{ margin: '8px 0 0 0', fontSize: '11px', color: '#6b7280' }}>
+											<strong>Response:</strong> Returns device_code, user_code, verification_uri,
+											and expires_in. The user must visit the verification_uri and enter the
+											user_code to authorize the device.
+										</p>
 									</div>
 								</div>
 							);
@@ -4526,6 +4910,102 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Track if polling is currently executing to prevent race conditions
 	const isPollingExecutingRef = useRef<boolean>(false);
 
+	// Shared handler for device authorization requests (used in both Step 1 and Step 2)
+	const handleRequestDeviceAuth = useCallback(async () => {
+		// Validate required fields before requesting device authorization
+		if (!credentials.environmentId?.trim()) {
+			setError('Please provide an Environment ID in the configuration above.');
+			nav.setValidationErrors(['Please provide an Environment ID in the configuration above.']);
+			return;
+		}
+		if (!credentials.clientId?.trim()) {
+			setError('Please provide a Client ID in the configuration above.');
+			nav.setValidationErrors(['Please provide a Client ID in the configuration above.']);
+			return;
+		}
+		if (!credentials.scopes?.trim()) {
+			setError('Please provide at least one scope in the configuration above.');
+			nav.setValidationErrors(['Please provide at least one scope in the configuration above.']);
+			return;
+		}
+
+		console.log(`${MODULE_TAG} Requesting device authorization`);
+		// Reset auto-poll trigger before starting request to prevent interference
+		autoPollTriggeredRef.current = false;
+		autoPollInitiatedRef.current = false;
+		isPollingExecutingRef.current = false; // Reset polling execution flag
+
+		// Clear any pending auto-poll timeout
+		if (autoPollTimeoutRef.current) {
+			clearTimeout(autoPollTimeoutRef.current);
+			autoPollTimeoutRef.current = null;
+		}
+
+		// Clear any pending polling timeouts
+		if (pollingTimeoutRef.current) {
+			clearTimeout(pollingTimeoutRef.current);
+			pollingTimeoutRef.current = null;
+		}
+
+		setIsLoading(true);
+		setError(null);
+
+		try {
+			const result = await UnifiedFlowIntegrationV8U.requestDeviceAuthorization(credentials);
+
+			// Calculate expiration timestamp
+			const expiresAt = Date.now() + result.expires_in * 1000;
+
+			// Reset polling state when requesting a new code
+			// Construct verificationUriComplete if not provided by server (RFC 8628 Section 3.2)
+			const verificationUriComplete =
+				result.verification_uri_complete ||
+				(result.verification_uri && result.user_code
+					? `${result.verification_uri}?user_code=${result.user_code}`
+					: undefined);
+
+			const newState: Partial<FlowState> = {
+				...flowState,
+				deviceCode: result.device_code,
+				userCode: result.user_code,
+				verificationUri: result.verification_uri,
+				...(verificationUriComplete && { verificationUriComplete }),
+				deviceCodeExpiresIn: result.expires_in,
+				deviceCodeExpiresAt: expiresAt,
+				pollingStatus: {
+					isPolling: false,
+					pollCount: 0,
+				},
+			};
+			// Clear any previous tokens
+			delete newState.tokens;
+			setFlowState(newState as FlowState);
+
+			// Reset auto-poll trigger so it can trigger again when user navigates to step 2
+			// But don't trigger immediately - wait for user to navigate to step 2
+			autoPollTriggeredRef.current = false;
+			autoPollInitiatedRef.current = false;
+			isPollingExecutingRef.current = false;
+
+			nav.markStepComplete();
+			toastV8.success('Device authorization request successful');
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : 'Failed to request device authorization';
+			setError(message);
+			nav.setValidationErrors([message]);
+			toastV8.error(message);
+		} finally {
+			setIsLoading(false);
+			// Ensure flags are reset even on error
+			if (!flowState.deviceCode) {
+				autoPollTriggeredRef.current = false;
+				autoPollInitiatedRef.current = false;
+				isPollingExecutingRef.current = false;
+			}
+		}
+	}, [credentials, flowState, nav, setIsLoading, setError, setFlowState]);
+
 	// Auto-start polling when step 2 loads (device code flow)
 	useEffect(() => {
 		// Clear any pending auto-poll timeout
@@ -5582,6 +6062,35 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										Credentials flow typically does not return refresh tokens or ID tokens (unless{' '}
 										<code>openid</code> scope is included and supported).
 									</p>
+									<div style={{ margin: '12px 0 0 0' }}>
+										<button
+											type="button"
+											onClick={() => setShowWorkerTokenVsClientCredentialsModal(true)}
+											style={{
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '8px',
+												padding: '8px 16px',
+												background: '#3b82f6',
+												color: '#ffffff',
+												border: 'none',
+												borderRadius: '6px',
+												cursor: 'pointer',
+												fontSize: '14px',
+												fontWeight: '600',
+												transition: 'background 0.2s',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#2563eb';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#3b82f6';
+											}}
+										>
+											<FiInfo size={16} />
+											Learn: Worker Tokens vs Client Credentials
+										</button>
+									</div>
 									<p style={{ margin: '8px 0 0 0', fontSize: '12px', fontStyle: 'italic' }}>
 										Reference:{' '}
 										<a
@@ -5776,167 +6285,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											</p>
 										</div>
 									)}
-
-									<div>
-										<strong style={{ color: '#374151', fontSize: '13px' }}>
-											Request Body (application/x-www-form-urlencoded):
-										</strong>
-										<div
-											style={{
-												marginTop: '8px',
-												padding: '12px',
-												background: '#ffffff',
-												border: '1px solid #d1d5db',
-												borderRadius: '6px',
-												fontFamily: 'monospace',
-												fontSize: '13px',
-												color: '#1f2937',
-												whiteSpace: 'pre-wrap',
-												wordBreak: 'break-all',
-											}}
-										>
-											{requestBody.split('&').map((param, idx) => {
-												const [key, value] = param.split('=');
-												// Decode and replace + with spaces (URL encoding for form data)
-												const decodedValue = decodeURIComponent(value || '').replace(/\+/g, ' ');
-												const isSecret = key === 'client_secret';
-												return (
-													<div
-														key={idx}
-														style={{
-															marginBottom: idx < requestBody.split('&').length - 1 ? '4px' : '0',
-														}}
-													>
-														<span style={{ color: '#dc2626', fontWeight: '600' }}>{key}</span>
-														<span style={{ color: '#1f2937' }}>=</span>
-														<span style={{ color: '#2563eb' }}>
-															{isSecret ? '***' : decodedValue}
-														</span>
-													</div>
-												);
-											})}
-										</div>
-
-										{/* JSON Format Display */}
-										<div style={{ marginTop: '16px' }}>
-											<strong style={{ color: '#374151', fontSize: '13px' }}>
-												Request Body (JSON format for reference):
-											</strong>
-											<div
-												style={{
-													marginTop: '8px',
-													padding: '12px',
-													background: '#ffffff',
-													border: '1px solid #d1d5db',
-													borderRadius: '6px',
-													fontFamily: 'monospace',
-													fontSize: '13px',
-													color: '#1f2937',
-													whiteSpace: 'pre-wrap',
-													wordBreak: 'break-all',
-													maxHeight: '300px',
-													overflowY: 'auto',
-												}}
-											>
-												{(() => {
-													// Build JSON object from form parameters
-													const jsonBody: Record<string, string> = {
-														grant_type: 'client_credentials',
-													};
-
-													// Parse scope and show as space-separated
-													const scopeValue = credentials.scopes?.trim() || '';
-													if (scopeValue) {
-														jsonBody.scope = scopeValue;
-													}
-
-													if (authMethod === 'client_secret_post') {
-														jsonBody.client_id = credentials.clientId?.trim() || '';
-														jsonBody.client_secret = '***';
-													}
-
-													return JSON.stringify(jsonBody, null, 2)
-														.split('\n')
-														.map((line, idx) => {
-															// Color code JSON
-															if (
-																line.includes('"grant_type"') ||
-																line.includes('"scope"') ||
-																line.includes('"client_id"') ||
-																line.includes('"client_secret"')
-															) {
-																const keyMatch = line.match(/^(\s*)"([^"]+)":/);
-																if (keyMatch) {
-																	const indent = keyMatch[1];
-																	const key = keyMatch[2];
-																	const value = line.substring(keyMatch[0].length).trim();
-																	return (
-																		<div key={idx}>
-																			<span style={{ color: '#1f2937' }}>{indent}</span>
-																			<span style={{ color: '#dc2626', fontWeight: '600' }}>
-																				"{key}"
-																			</span>
-																			<span style={{ color: '#1f2937' }}>: </span>
-																			<span style={{ color: '#2563eb' }}>{value}</span>
-																		</div>
-																	);
-																}
-															}
-															return (
-																<div key={idx} style={{ color: '#1f2937' }}>
-																	{line}
-																</div>
-															);
-														});
-												})()}
-											</div>
-											<p
-												style={{
-													margin: '8px 0 0 0',
-													fontSize: '11px',
-													color: '#6b7280',
-													fontStyle: 'italic',
-												}}
-											>
-												Note: This is for reference only. The actual request uses
-												application/x-www-form-urlencoded format above.
-											</p>
-										</div>
-
-										<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
-											<strong>Parameters:</strong>
-											<ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
-												<li>
-													<strong style={{ color: '#dc2626' }}>grant_type</strong>: Must be
-													"client_credentials"
-												</li>
-												<li>
-													<strong style={{ color: '#dc2626' }}>scope</strong>: Space-separated list
-													of requested scopes (Management API scopes like p1:read:users,
-													p1:read:environments)
-												</li>
-												{authMethod === 'client_secret_post' && (
-													<>
-														<li>
-															<strong style={{ color: '#dc2626' }}>client_id</strong>: Your
-															application's client ID
-														</li>
-														<li>
-															<strong style={{ color: '#dc2626' }}>client_secret</strong>: Your
-															application's client secret
-														</li>
-													</>
-												)}
-											</ul>
-										</div>
-									</div>
 								</div>
 							);
 						})()}
 					</div>
 				)}
 
-				{/* Request Token Button */}
+				{/* Request Device Authorization Button */}
 				{!isComplete && (
 					<button
 						type="button"
@@ -6006,7 +6361,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						`${MODULE_TAG} ❌ CRITICAL: PKCE enabled but no codes found in sessionStorage or flowState`
 					);
 					console.error(
-						`${MODULE_TAG} User must either: 1) Go to Step 1 and generate PKCE codes, or 2) Disable PKCE in configuration`
+						`${MODULE_TAG} User must either: 1) Go to Step 0 (Configuration) and generate PKCE codes in Advanced Options, or 2) Disable PKCE in configuration`
 					);
 				}
 			}
@@ -6055,7 +6410,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				console.error(
 					`${MODULE_TAG} ❌ VALIDATION FAILED: PKCE required but code verifier missing`
 				);
-				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 1 (PKCE) to generate PKCE codes.`;
+				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
 				setError(errorMsg);
 				nav.setValidationErrors([errorMsg]);
 				toastV8.error(errorMsg);
@@ -6216,7 +6571,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				// Check if error is about missing code_verifier (PKCE required by server)
 				if (message.includes('code_verifier') || message.includes('PKCE')) {
-					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Enable the "Use PKCE" checkbox\n3. Complete Step 1 to generate PKCE parameters\n4. Start the flow again from Step 2`;
+					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
 					setError(enhancedMessage);
 					nav.setValidationErrors([enhancedMessage]);
 					toastV8.error('PKCE required - please enable PKCE and restart the flow');
@@ -6336,14 +6691,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		fetchUserInfoWithDiscovery,
 	]);
 
-	// Introspect access token
-	const handleIntrospectToken = useCallback(async () => {
+	// Introspect token (access, refresh, or ID token)
+	const handleIntrospectToken = useCallback(async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
 		console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
+		console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
 		console.log(`${MODULE_TAG} Credentials check:`, {
 			hasEnvironmentId: !!credentials.environmentId,
 			hasClientId: !!credentials.clientId,
 			hasClientSecret: !!credentials.clientSecret,
 			hasAccessToken: !!flowState.tokens?.accessToken,
+			hasRefreshToken: !!flowState.tokens?.refreshToken,
+			hasIdToken: !!flowState.tokens?.idToken,
 			clientAuthMethod: credentials.clientAuthMethod,
 		});
 
@@ -6373,18 +6731,37 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			return;
 		}
 
+		// Get the token to introspect based on token type
+		let tokenToIntrospect: string | undefined;
+		let tokenName: string;
+		switch (tokenType) {
+			case 'access':
+				tokenToIntrospect = flowState.tokens?.accessToken;
+				tokenName = 'Access Token';
+				break;
+			case 'refresh':
+				tokenToIntrospect = flowState.tokens?.refreshToken;
+				tokenName = 'Refresh Token';
+				break;
+			case 'id':
+				tokenToIntrospect = flowState.tokens?.idToken;
+				tokenName = 'ID Token';
+				break;
+		}
+
 		if (
 			!credentials.environmentId ||
 			!credentials.clientId ||
 			!credentials.clientSecret ||
-			!flowState.tokens?.accessToken
+			!tokenToIntrospect
 		) {
-			const errorMsg = 'Missing required credentials for token introspection';
+			const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
 			console.error(`${MODULE_TAG} ${errorMsg}`, {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret ? 'present' : 'missing',
-				accessToken: flowState.tokens?.accessToken ? 'present' : 'missing',
+				tokenType,
+				tokenAvailable: !!tokenToIntrospect,
 			});
 			toastV8.error(errorMsg);
 			return;
@@ -6425,14 +6802,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
 
 			// Use backend proxy to avoid CORS issues
-			const backendUrl =
+			// Use relative URL in development to go through Vite proxy (avoids SSL errors)
+			const proxyEndpoint =
 				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-			const proxyEndpoint = `${backendUrl}/api/introspect-token`;
+					? 'https://oauth-playground.vercel.app/api/introspect-token'
+					: '/api/introspect-token';
 
 			console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
-				tokenLength: flowState.tokens.accessToken.length,
+				tokenType,
+				tokenLength: tokenToIntrospect.length,
 				clientId: credentials.clientId,
 				introspectionEndpoint,
 				proxyEndpoint,
@@ -6444,7 +6822,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					token: flowState.tokens.accessToken,
+					token: tokenToIntrospect,
+					token_type_hint: tokenType === 'refresh' ? 'refresh_token' : tokenType === 'id' ? 'id_token' : 'access_token',
 					client_id: credentials.clientId,
 					client_secret: credentials.clientSecret,
 					introspection_endpoint: introspectionEndpoint,
@@ -6470,7 +6849,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			console.log(`${MODULE_TAG} Introspection data received:`, data);
 
 			setIntrospectionData(data);
-			toastV8.success('Token introspected successfully!');
+			setIntrospectionTokenType(tokenType);
+			toastV8.success(`${tokenName} introspected successfully!`);
 			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to introspect token';
@@ -6482,6 +6862,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			setIntrospectionLoading(false);
 		}
 	}, [
+		selectedTokenType,
 		credentials.environmentId,
 		credentials.clientId,
 		credentials.clientSecret,
@@ -6642,7 +7023,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<div>
 							<strong style={{ color: '#1e40af' }}>Next Step:</strong>
 							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
-								Click "Next Step" to proceed to Token Introspection & UserInfo (optional).
+								Click "Next Step" or "View Introspection" to proceed to Token Introspection & UserInfo step. 
+							The introspection step will show you what operations are available for your flow, even if 
+							introspection or UserInfo cannot be used.
 							</p>
 						</div>
 					</div>
@@ -6684,16 +7067,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				case 'device-code':
 					return 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
 				case 'hybrid':
-					return isPKCERequired ? 6 : 5; // Step 7 or 6 depending on PKCE
+					return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
 				default:
-					return isPKCERequired ? 6 : 5; // Step 7 or 6 depending on PKCE
+					return 5; // Step 6 (PKCE is in Advanced Options, not a separate step)
 			}
 		})();
 
 		return (
 			<div className="step-content">
 				<h2>Step {introspectionStepNumber + 1}: Token Introspection & UserInfo</h2>
-				<p>Validate your access token and retrieve user information (optional).</p>
+				<p>
+					Validate your access token and retrieve user information (optional). This step is always 
+					available to show you what operations are supported for your flow type and configuration.
+				</p>
 
 				{/* Status indicator - show if tokens are missing */}
 				{!hasAccessToken && (
@@ -6989,8 +7375,101 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							fontSize: '14px',
 						}}
 					>
-						Validate your access token and retrieve its metadata.
+						Validate your tokens and retrieve their metadata.
 					</p>
+
+					{/* Token Type Selector */}
+					<div
+						style={{
+							marginBottom: '12px',
+							display: 'flex',
+							gap: '8px',
+							flexWrap: 'wrap',
+						}}
+					>
+						<button
+							type="button"
+							onClick={() => {
+								setSelectedTokenType('access');
+								setIntrospectionData(null); // Clear previous introspection when switching
+								setIntrospectionTokenType(null);
+							}}
+							disabled={!hasAccessToken}
+							style={{
+								padding: '8px 16px',
+								background: selectedTokenType === 'access' ? '#f59e0b' : '#e5e7eb',
+								color: selectedTokenType === 'access' ? 'white' : '#6b7280',
+								border: `2px solid ${selectedTokenType === 'access' ? '#d97706' : '#d1d5db'}`,
+								borderRadius: '6px',
+								cursor: !hasAccessToken ? 'not-allowed' : 'pointer',
+								fontSize: '14px',
+								fontWeight: selectedTokenType === 'access' ? '600' : '400',
+								opacity: !hasAccessToken ? 0.5 : 1,
+							}}
+							title={!hasAccessToken ? 'Access token not available' : 'Select Access Token'}
+						>
+							Access Token {hasAccessToken && '✓'}
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setSelectedTokenType('refresh');
+								setIntrospectionData(null);
+								setIntrospectionTokenType(null);
+							}}
+							disabled={!hasRefreshToken || !operationRules.canIntrospectRefreshToken}
+							style={{
+								padding: '8px 16px',
+								background: selectedTokenType === 'refresh' ? '#f59e0b' : '#e5e7eb',
+								color: selectedTokenType === 'refresh' ? 'white' : '#6b7280',
+								border: `2px solid ${selectedTokenType === 'refresh' ? '#d97706' : '#d1d5db'}`,
+								borderRadius: '6px',
+								cursor: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 'not-allowed' : 'pointer',
+								fontSize: '14px',
+								fontWeight: selectedTokenType === 'refresh' ? '600' : '400',
+								opacity: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 0.5 : 1,
+							}}
+							title={
+								!hasRefreshToken
+									? 'Refresh token not available'
+									: !operationRules.canIntrospectRefreshToken
+										? 'Refresh token introspection not supported'
+										: 'Select Refresh Token'
+							}
+						>
+							Refresh Token {hasRefreshToken && operationRules.canIntrospectRefreshToken && '✓'}
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								setSelectedTokenType('id');
+								setIntrospectionData(null);
+								setIntrospectionTokenType(null);
+							}}
+							disabled={!hasIdToken || !operationRules.canIntrospectIdToken}
+							style={{
+								padding: '8px 16px',
+								background: selectedTokenType === 'id' ? '#f59e0b' : '#e5e7eb',
+								color: selectedTokenType === 'id' ? 'white' : '#6b7280',
+								border: `2px solid ${selectedTokenType === 'id' ? '#d97706' : '#d1d5db'}`,
+								borderRadius: '6px',
+								cursor: !hasIdToken || !operationRules.canIntrospectIdToken ? 'not-allowed' : 'pointer',
+								fontSize: '14px',
+								fontWeight: selectedTokenType === 'id' ? '600' : '400',
+								opacity: !hasIdToken || !operationRules.canIntrospectIdToken ? 0.5 : 1,
+							}}
+							title={
+								!hasIdToken
+									? 'ID token not available'
+									: !operationRules.canIntrospectIdToken
+										? 'ID token introspection not recommended - validate locally instead'
+										: 'Select ID Token'
+							}
+						>
+							ID Token {hasIdToken && operationRules.canIntrospectIdToken && '✓'}
+						</button>
+					</div>
+
 					{introspectionError && (
 						<div
 							style={{
@@ -7017,8 +7496,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									marginBottom: '12px',
 								}}
 							>
-								✅ Token introspected successfully
+								✅ {introspectionTokenType === 'access' ? 'Access Token' : introspectionTokenType === 'refresh' ? 'Refresh Token' : 'ID Token'} introspected successfully
 							</div>
+							{introspectionTokenType !== selectedTokenType && (
+								<div
+									style={{
+										padding: '8px 12px',
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '6px',
+										color: '#78350f',
+										marginBottom: '12px',
+										fontSize: '13px',
+									}}
+								>
+									💡 Showing introspection for {introspectionTokenType === 'access' ? 'Access Token' : introspectionTokenType === 'refresh' ? 'Refresh Token' : 'ID Token'}. Select a different token type above to introspect it.
+								</div>
+							)}
 							<div
 								style={{
 									padding: '16px',
@@ -7059,36 +7553,56 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					) : (
 						<button
 							type="button"
-							onClick={handleIntrospectToken}
+							onClick={() => handleIntrospectToken(selectedTokenType)}
 							disabled={
-								!hasAccessToken || !operationRules.canIntrospectAccessToken || introspectionLoading
+								(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+								(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+								(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken)) ||
+								introspectionLoading
 							}
 							style={{
 								padding: '10px 16px',
 								background:
-									!hasAccessToken || !operationRules.canIntrospectAccessToken
+									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
 										? '#9ca3af'
-										: '#f59e0b',
+										: '#22c55e', // Green color when enabled
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
 								cursor:
-									!hasAccessToken || !operationRules.canIntrospectAccessToken
+									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
 										? 'not-allowed'
 										: 'pointer',
 								fontSize: '14px',
 								fontWeight: '600',
-								opacity: !hasAccessToken || !operationRules.canIntrospectAccessToken ? 0.6 : 1,
+								opacity:
+									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
+										? 0.6
+										: 1,
 							}}
 							title={
-								!hasAccessToken
+								selectedTokenType === 'access' && !hasAccessToken
 									? 'Access token required - complete previous steps first'
-									: !operationRules.canIntrospectAccessToken
-										? operationRules.introspectionReason
-										: 'Introspect access token'
+									: selectedTokenType === 'refresh' && !hasRefreshToken
+										? 'Refresh token not available'
+										: selectedTokenType === 'id' && !hasIdToken
+											? 'ID token not available'
+											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
+												? operationRules.introspectionReason
+												: selectedTokenType === 'refresh' && !operationRules.canIntrospectRefreshToken
+													? 'Refresh token introspection not supported'
+													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
+														? 'ID token introspection not recommended'
+														: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`
 							}
 						>
-							{introspectionLoading ? 'Introspecting...' : 'Introspect Token'}
+							{introspectionLoading ? 'Introspecting...' : `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`}
 						</button>
 					)}
 				</div>
@@ -7418,6 +7932,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									const username =
 										payload.preferred_username || payload.name || payload.email || payload.sub;
 									const sub = payload.sub;
+									const subStr = typeof sub === 'string' ? sub : String(sub || '');
 
 									return (
 										<div
@@ -7466,7 +7981,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													>
 														{String(username)}
 													</div>
-													{sub && (
+													{subStr && (
 														<div
 															style={{
 																fontSize: '11px',
@@ -7476,7 +7991,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 																wordBreak: 'break-all',
 															}}
 														>
-															# {String(sub)}
+															# {subStr}
 														</div>
 													)}
 												</div>
@@ -7516,8 +8031,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									// Extract common user claims
 									const name =
 										payload.name || payload.given_name || payload.preferred_username || payload.sub;
-									const email = payload.email;
-									const username = payload.preferred_username;
+									const email = typeof payload.email === 'string' ? payload.email : undefined;
+									const username = typeof payload.preferred_username === 'string' ? payload.preferred_username : undefined;
 
 									return (
 										<div style={{ marginBottom: '12px' }}>
@@ -7561,12 +8076,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 														</div>
 														{email && (
 															<div style={{ fontSize: '12px', opacity: 0.9 }}>
-																📧 {String(email)}
+																📧 {email}
 															</div>
 														)}
 														{username && username !== email && (
 															<div style={{ fontSize: '12px', opacity: 0.9 }}>
-																🔑 {String(username)}
+																🔑 {username}
 															</div>
 														)}
 													</div>
@@ -7756,14 +8271,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 *   3: Display Tokens
 	 *   4: Introspection & UserInfo
 	 *
-	 * Authorization Code / Hybrid (7 steps - PKCE step always shown):
-	 *   0: Config (parent)
-	 *   1: Generate PKCE Parameters (always shown)
-	 *   2: Generate Authorization URL (with or without PKCE based on setting)
-	 *   3: Handle Callback (extract authorization code)
-	 *   4: Exchange Code for Tokens (with or without code_verifier based on PKCE setting)
-	 *   5: Display Tokens
-	 *   6: Introspection & UserInfo
+	 * Authorization Code / Hybrid (6 steps - PKCE in Advanced Options):
+	 *   0: Config (parent) - PKCE configuration is in Advanced Options
+	 *   1: Generate Authorization URL (with or without PKCE based on setting)
+	 *   2: Handle Callback (extract authorization code)
+	 *   3: Exchange Code for Tokens (with or without code_verifier based on PKCE setting)
+	 *   4: Display Tokens
+	 *   5: Introspection & UserInfo
 	 *
 	 * @returns {JSX.Element | null} The rendered step content, or null if step is invalid
 	 */
@@ -7788,10 +8302,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'client-credentials') {
 					return renderStep2RequestToken();
 				}
-				// PKCE step for oauth-authz and hybrid flows - ALWAYS show regardless of PKCE setting
+				// For oauth-authz and hybrid, Step 1 is PKCE generation
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
 					console.log(
-						`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) - always shown for ${flowType}`
+						`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`
 					);
 					return renderStep1PKCE();
 				}
@@ -7800,8 +8314,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				return renderStep1AuthUrl();
 
 			case 2:
-				// For oauth-authz and hybrid, Step 2 is Authorization URL (always after PKCE step)
+				// For oauth-authz and hybrid, Step 2 is Authorization URL (after PKCE)
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					console.log(
+						`${MODULE_TAG} [STEP ROUTING] Showing Auth URL step (Step 2) for ${flowType}`
+					);
 					return renderStep1AuthUrl();
 				}
 				// For other flows, Step 2 is callback/fragment handling
@@ -7816,20 +8333,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			case 3:
 				// For oauth-authz and hybrid, Step 3 is callback handling (after Auth URL)
-				if (flowType === 'oauth-authz') {
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
 					return renderStep2Callback();
-				}
-				if (flowType === 'hybrid') {
-					// Hybrid flow can have both callback and fragment - show callback handler
-					return renderStep2Callback();
-				}
-				if (flowType === 'client-credentials') {
-					// Client Credentials: Step 3 is Introspection & UserInfo (after Tokens at step 2)
-					return renderStep6IntrospectionUserInfo();
 				}
 				// For implicit and device-code, Step 3 is Tokens
 				if (flowType === 'implicit' || flowType === 'device-code') {
 					return renderStep3Tokens();
+				}
+				// Client credentials - Step 3 is Introspection & UserInfo (after Tokens at step 2)
+				if (flowType === 'client-credentials') {
+					return renderStep6IntrospectionUserInfo();
 				}
 				// All other flows - show tokens
 				return renderStep3Tokens();
@@ -7843,15 +8356,25 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'implicit' || flowType === 'device-code') {
 					return renderStep6IntrospectionUserInfo();
 				}
-				// All other flows - show tokens (shouldn't reach here for flows with 4 steps)
+				// All other flows - shouldn't reach here
 				return renderStep3Tokens();
 
 			case 5:
 				// For oauth-authz and hybrid, Step 5 is display tokens (after exchange)
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					return renderStep3Tokens();
+				}
+				// For implicit and device-code, Step 5 is Introspection & UserInfo (after Tokens at step 3)
+				if (flowType === 'implicit' || flowType === 'device-code') {
+					return renderStep6IntrospectionUserInfo();
+				}
 				return renderStep3Tokens();
 
 			case 6:
 				// For oauth-authz and hybrid, Step 6 is introspection & userinfo
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					return renderStep6IntrospectionUserInfo();
+				}
 				return renderStep6IntrospectionUserInfo();
 
 			default:
@@ -8131,7 +8654,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<span>Restart Flow</span>
 					</button>
 
-					{/* Next Button - Green with white text and arrow - Hidden on last step */}
+					{/* Next Button - Green with white text and arrow - Always show except on last step */}
 					{currentStep < totalSteps - 1 && (
 						<button
 							type="button"
@@ -8151,6 +8674,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
 						</button>
 					)}
+					{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
+					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={() => navigateToStep(totalSteps - 1)}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								minWidth: '120px',
+								marginLeft: '8px',
+							}}
+							title="Go to Token Introspection & UserInfo step"
+						>
+							<span>View Introspection</span>
+							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
+						</button>
+					)}
 				</div>
 			</div>
 
@@ -8162,6 +8705,134 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			{/* Polling Timeout Modal */}
 			{renderPollingTimeoutModal()}
+
+			{/* PingOne Request Details Modal */}
+			{showPingOneRequestModal && pendingPingOneRequest && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
+					}}
+					onClick={() => setShowPingOneRequestModal(false)}
+				>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							maxWidth: '800px',
+							maxHeight: '90vh',
+							overflow: 'auto',
+							boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>PingOne Authorization Request</h2>
+							<button
+								type="button"
+								onClick={() => setShowPingOneRequestModal(false)}
+								style={{
+									background: 'none',
+									border: 'none',
+									fontSize: '24px',
+									cursor: 'pointer',
+									color: '#6b7280',
+								}}
+							>
+								×
+							</button>
+						</div>
+
+						<div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#eff6ff', borderRadius: '6px' }}>
+							<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
+								<strong>What happens next?</strong> You're about to make a POST request to PingOne's authorization endpoint.
+								This modal shows the request details that will be sent. After you click "Proceed", the request will be made
+								and you may be prompted to enter your credentials.
+							</p>
+						</div>
+
+						<div style={{ marginBottom: '16px' }}>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Request URL</h3>
+							<div
+								style={{
+									padding: '12px',
+									backgroundColor: '#f3f4f6',
+									borderRadius: '6px',
+									fontFamily: 'monospace',
+									fontSize: '14px',
+									wordBreak: 'break-all',
+								}}
+							>
+								{pendingPingOneRequest.method} {pendingPingOneRequest.url}
+							</div>
+						</div>
+
+						<div style={{ marginBottom: '16px' }}>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Request Body</h3>
+							<div
+								style={{
+									padding: '12px',
+									backgroundColor: '#f3f4f6',
+									borderRadius: '6px',
+									fontFamily: 'monospace',
+									fontSize: '12px',
+									overflow: 'auto',
+									maxHeight: '400px',
+								}}
+							>
+								<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+									{JSON.stringify(pendingPingOneRequest.body, null, 2)}
+								</pre>
+							</div>
+						</div>
+
+						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
+							<button
+								type="button"
+								onClick={() => setShowPingOneRequestModal(false)}
+								style={{
+									padding: '10px 20px',
+									background: '#6b7280',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleProceedWithPingOneRequest}
+								style={{
+									padding: '10px 20px',
+									background: '#2196f3',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Proceed to PingOne
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
 			{/* Redirectless Login Modal */}
 			<RedirectlessLoginModal
 				isOpen={showRedirectlessModal}
@@ -8175,6 +8846,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				subtitle="Enter your credentials to continue with redirectless authentication"
 				isLoading={isRedirectlessAuthenticating}
 				error={redirectlessAuthError}
+			/>
+
+			{/* Worker Token vs Client Credentials Education Modal */}
+			<WorkerTokenVsClientCredentialsEducationModalV8
+				isOpen={showWorkerTokenVsClientCredentialsModal}
+				onClose={() => setShowWorkerTokenVsClientCredentialsModal(false)}
+				context={flowType === 'client-credentials' ? 'client-credentials' : 'general'}
 			/>
 		</>
 	);

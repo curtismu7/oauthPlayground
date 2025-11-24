@@ -1,2 +1,1732 @@
-<testsuites id="" name="" tests="0" failures="0" skipped="0" errors="0" time="0.06992599999999999">
+<testsuites id="" name="" tests="410" failures="0" skipped="410" errors="0" time="0.206673">
+<testsuite name="tests/comprehensive-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth Playground - Comprehensive User Flows › Application loads successfully" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Sidebar navigation works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Configuration forms are accessible" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › OAuth flow buttons are present and clickable" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Error handling displays user-friendly messages" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Responsive design works on mobile viewport" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Token display components work correctly" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › API health check endpoint responds" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Environment configuration endpoint works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration persistence across sessions" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Environment variable override" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration export/import" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Security settings validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Advanced configuration options" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/integration.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="16" failures="0" skipped="16" time="0" errors="0">
+<testcase name="Frontend-Backend Integration Tests › Frontend can load environment configuration from backend" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Frontend health check integration works" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token exchange flow integration (mock)" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Client credentials flow integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token introspection integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › UserInfo endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token validation integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Device authorization integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › PAR endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › JWKS endpoint integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › OpenID Discovery integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › User JWKS generation integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Public JWKS endpoint serves content" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › CORS headers are properly set" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Error responses have proper structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Backend handles malformed JSON gracefully" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/navigation/ui-navigation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Navigation and UI › Sidebar menu persistence across page refreshes" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Navigation between different flow categories" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Dashboard loads correctly" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Configuration page functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Responsive sidebar behavior" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Search and filter functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Error handling and user feedback" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Loading states and performance" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-authorization-code.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization Code Flow UI elements are present" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › PKCE parameters can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › State parameter handling works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Scope configuration is available" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization URL generation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token exchange simulation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Client authentication method selection works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › JWT Bearer authentication can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token response display works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Error scenarios are handled gracefully" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oauth-2-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Complete flow with PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Without PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - ID Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Access Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Hybrid flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Client Credentials Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Device Authorization Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Refresh" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Revocation" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oidc-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="OpenID Connect Flows › OIDC Authorization Code Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - ID Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Hybrid Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Device Authorization Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Resource Owner Password Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Session Management" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Discovery" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/pingone-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="PingOne Specific Flows › PingOne PAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Worker Token Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne CIBA Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Redirectless Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne MFA Test" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne RAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/ui-interactions.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="chromium" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="UI Component Interactions › Cards are interactive and display content properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Buttons respond to user interactions" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Form inputs handle user input correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Select dropdowns work correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Modal dialogs open and close properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Loading spinners appear during async operations" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Copy to clipboard functionality works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Responsive design adapts to different screen sizes" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Keyboard navigation works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Color contrast and visual accessibility" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/comprehensive-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth Playground - Comprehensive User Flows › Application loads successfully" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Sidebar navigation works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Configuration forms are accessible" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › OAuth flow buttons are present and clickable" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Error handling displays user-friendly messages" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Responsive design works on mobile viewport" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Token display components work correctly" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › API health check endpoint responds" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Environment configuration endpoint works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration persistence across sessions" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Environment variable override" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration export/import" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Security settings validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Advanced configuration options" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/integration.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="16" failures="0" skipped="16" time="0" errors="0">
+<testcase name="Frontend-Backend Integration Tests › Frontend can load environment configuration from backend" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Frontend health check integration works" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token exchange flow integration (mock)" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Client credentials flow integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token introspection integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › UserInfo endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token validation integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Device authorization integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › PAR endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › JWKS endpoint integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › OpenID Discovery integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › User JWKS generation integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Public JWKS endpoint serves content" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › CORS headers are properly set" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Error responses have proper structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Backend handles malformed JSON gracefully" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/navigation/ui-navigation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Navigation and UI › Sidebar menu persistence across page refreshes" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Navigation between different flow categories" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Dashboard loads correctly" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Configuration page functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Responsive sidebar behavior" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Search and filter functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Error handling and user feedback" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Loading states and performance" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-authorization-code.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization Code Flow UI elements are present" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › PKCE parameters can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › State parameter handling works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Scope configuration is available" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization URL generation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token exchange simulation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Client authentication method selection works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › JWT Bearer authentication can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token response display works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Error scenarios are handled gracefully" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oauth-2-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Complete flow with PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Without PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - ID Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Access Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Hybrid flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Client Credentials Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Device Authorization Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Refresh" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Revocation" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oidc-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="OpenID Connect Flows › OIDC Authorization Code Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - ID Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Hybrid Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Device Authorization Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Resource Owner Password Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Session Management" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Discovery" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/pingone-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="PingOne Specific Flows › PingOne PAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Worker Token Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne CIBA Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Redirectless Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne MFA Test" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne RAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/ui-interactions.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="firefox" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="UI Component Interactions › Cards are interactive and display content properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Buttons respond to user interactions" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Form inputs handle user input correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Select dropdowns work correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Modal dialogs open and close properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Loading spinners appear during async operations" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Copy to clipboard functionality works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Responsive design adapts to different screen sizes" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Keyboard navigation works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Color contrast and visual accessibility" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/comprehensive-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth Playground - Comprehensive User Flows › Application loads successfully" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Sidebar navigation works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Configuration forms are accessible" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › OAuth flow buttons are present and clickable" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Error handling displays user-friendly messages" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Responsive design works on mobile viewport" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Token display components work correctly" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › API health check endpoint responds" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Environment configuration endpoint works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration persistence across sessions" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Environment variable override" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration export/import" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Security settings validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Advanced configuration options" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/integration.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="16" failures="0" skipped="16" time="0" errors="0">
+<testcase name="Frontend-Backend Integration Tests › Frontend can load environment configuration from backend" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Frontend health check integration works" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token exchange flow integration (mock)" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Client credentials flow integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token introspection integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › UserInfo endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token validation integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Device authorization integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › PAR endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › JWKS endpoint integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › OpenID Discovery integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › User JWKS generation integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Public JWKS endpoint serves content" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › CORS headers are properly set" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Error responses have proper structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Backend handles malformed JSON gracefully" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/navigation/ui-navigation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Navigation and UI › Sidebar menu persistence across page refreshes" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Navigation between different flow categories" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Dashboard loads correctly" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Configuration page functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Responsive sidebar behavior" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Search and filter functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Error handling and user feedback" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Loading states and performance" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-authorization-code.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization Code Flow UI elements are present" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › PKCE parameters can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › State parameter handling works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Scope configuration is available" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization URL generation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token exchange simulation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Client authentication method selection works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › JWT Bearer authentication can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token response display works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Error scenarios are handled gracefully" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oauth-2-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Complete flow with PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Without PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - ID Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Access Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Hybrid flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Client Credentials Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Device Authorization Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Refresh" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Revocation" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oidc-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="OpenID Connect Flows › OIDC Authorization Code Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - ID Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Hybrid Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Device Authorization Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Resource Owner Password Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Session Management" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Discovery" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/pingone-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="PingOne Specific Flows › PingOne PAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Worker Token Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne CIBA Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Redirectless Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne MFA Test" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne RAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/ui-interactions.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="webkit" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="UI Component Interactions › Cards are interactive and display content properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Buttons respond to user interactions" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Form inputs handle user input correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Select dropdowns work correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Modal dialogs open and close properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Loading spinners appear during async operations" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Copy to clipboard functionality works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Responsive design adapts to different screen sizes" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Keyboard navigation works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Color contrast and visual accessibility" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/comprehensive-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth Playground - Comprehensive User Flows › Application loads successfully" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Sidebar navigation works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Configuration forms are accessible" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › OAuth flow buttons are present and clickable" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Error handling displays user-friendly messages" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Responsive design works on mobile viewport" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Token display components work correctly" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › API health check endpoint responds" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Environment configuration endpoint works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration persistence across sessions" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Environment variable override" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration export/import" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Security settings validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Advanced configuration options" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/integration.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="16" failures="0" skipped="16" time="0" errors="0">
+<testcase name="Frontend-Backend Integration Tests › Frontend can load environment configuration from backend" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Frontend health check integration works" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token exchange flow integration (mock)" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Client credentials flow integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token introspection integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › UserInfo endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token validation integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Device authorization integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › PAR endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › JWKS endpoint integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › OpenID Discovery integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › User JWKS generation integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Public JWKS endpoint serves content" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › CORS headers are properly set" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Error responses have proper structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Backend handles malformed JSON gracefully" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/navigation/ui-navigation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Navigation and UI › Sidebar menu persistence across page refreshes" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Navigation between different flow categories" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Dashboard loads correctly" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Configuration page functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Responsive sidebar behavior" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Search and filter functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Error handling and user feedback" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Loading states and performance" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-authorization-code.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization Code Flow UI elements are present" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › PKCE parameters can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › State parameter handling works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Scope configuration is available" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization URL generation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token exchange simulation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Client authentication method selection works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › JWT Bearer authentication can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token response display works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Error scenarios are handled gracefully" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oauth-2-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Complete flow with PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Without PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - ID Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Access Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Hybrid flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Client Credentials Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Device Authorization Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Refresh" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Revocation" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oidc-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="OpenID Connect Flows › OIDC Authorization Code Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - ID Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Hybrid Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Device Authorization Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Resource Owner Password Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Session Management" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Discovery" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/pingone-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="PingOne Specific Flows › PingOne PAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Worker Token Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne CIBA Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Redirectless Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne MFA Test" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne RAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/ui-interactions.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Chrome" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="UI Component Interactions › Cards are interactive and display content properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Buttons respond to user interactions" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Form inputs handle user input correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Select dropdowns work correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Modal dialogs open and close properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Loading spinners appear during async operations" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Copy to clipboard functionality works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Responsive design adapts to different screen sizes" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Keyboard navigation works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Color contrast and visual accessibility" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/comprehensive-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth Playground - Comprehensive User Flows › Application loads successfully" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Sidebar navigation works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Configuration forms are accessible" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › OAuth flow buttons are present and clickable" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Error handling displays user-friendly messages" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Responsive design works on mobile viewport" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Token display components work correctly" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › API health check endpoint responds" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Playground - Comprehensive User Flows › Environment configuration endpoint works" classname="tests/comprehensive-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration persistence across sessions" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Environment variable override" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Configuration export/import" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Security settings validation" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Configuration and Settings › Advanced configuration options" classname="tests/configuration/config-validation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/integration.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="16" failures="0" skipped="16" time="0" errors="0">
+<testcase name="Frontend-Backend Integration Tests › Frontend can load environment configuration from backend" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Frontend health check integration works" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token exchange flow integration (mock)" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Client credentials flow integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token introspection integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › UserInfo endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Token validation integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Device authorization integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › PAR endpoint integration structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › JWKS endpoint integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › OpenID Discovery integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › User JWKS generation integration" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Public JWKS endpoint serves content" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › CORS headers are properly set" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Error responses have proper structure" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Frontend-Backend Integration Tests › Backend handles malformed JSON gracefully" classname="tests/integration.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/navigation/ui-navigation.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="Navigation and UI › Sidebar menu persistence across page refreshes" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Navigation between different flow categories" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Dashboard loads correctly" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Configuration page functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Responsive sidebar behavior" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Search and filter functionality" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Error handling and user feedback" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="Navigation and UI › Loading states and performance" classname="tests/navigation/ui-navigation.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-authorization-code.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization Code Flow UI elements are present" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › PKCE parameters can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › State parameter handling works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Scope configuration is available" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Authorization URL generation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token exchange simulation works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Client authentication method selection works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › JWT Bearer authentication can be configured" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Token response display works" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth Authorization Code Flow - E2E › Error scenarios are handled gracefully" classname="tests/oauth-authorization-code.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oauth-2-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="9" failures="0" skipped="9" time="0" errors="0">
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Complete flow with PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Authorization Code Flow - Without PKCE" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - ID Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Access Token only" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Implicit Flow - Hybrid flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Client Credentials Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Device Authorization Flow" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Refresh" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OAuth 2.0 Flows › Token Revocation" classname="tests/oauth-flows/oauth-2-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/oidc-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="8" failures="0" skipped="8" time="0" errors="0">
+<testcase name="OpenID Connect Flows › OIDC Authorization Code Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - ID Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Implicit Flow - Token" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Hybrid Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Device Authorization Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Resource Owner Password Flow" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Session Management" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="OpenID Connect Flows › OIDC Discovery" classname="tests/oauth-flows/oidc-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/oauth-flows/pingone-flows.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="6" failures="0" skipped="6" time="0" errors="0">
+<testcase name="PingOne Specific Flows › PingOne PAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Worker Token Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne CIBA Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne Redirectless Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne MFA Test" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="PingOne Specific Flows › PingOne RAR Flow" classname="tests/oauth-flows/pingone-flows.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/ui-interactions.spec.ts" timestamp="2025-11-23T13:58:50.639Z" hostname="Mobile Safari" tests="10" failures="0" skipped="10" time="0" errors="0">
+<testcase name="UI Component Interactions › Cards are interactive and display content properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Buttons respond to user interactions" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Form inputs handle user input correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Select dropdowns work correctly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Modal dialogs open and close properly" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Loading spinners appear during async operations" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Copy to clipboard functionality works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Responsive design adapts to different screen sizes" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Keyboard navigation works" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+<testcase name="UI Component Interactions › Color contrast and visual accessibility" classname="tests/ui-interactions.spec.ts" time="0">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
 </testsuites>

@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from 'react-icons/fi';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastManager';
+import ConfirmationModal from './ConfirmationModal';
 
 export type FlowStep =
 	| 'authorization'
@@ -570,6 +571,7 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 	const [theme, setTheme] = useState<'light' | 'vs-dark'>('light');
 	const [copied, setCopied] = useState(false);
 	const [codeUpdated, setCodeUpdated] = useState(false);
+	const [showResetModal, setShowResetModal] = useState(false);
 	const [config, setConfig] = useState({
 		environmentId: 'YOUR_ENVIRONMENT_ID',
 		clientId: 'YOUR_CLIENT_ID',
@@ -643,10 +645,14 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 	};
 
 	const handleReset = () => {
-		if (window.confirm('Reset code to original? Your changes will be lost.')) {
-			setCode(initialCode);
-			v4ToastManager.showSuccess('Code reset to original');
-		}
+		setShowResetModal(true);
+	};
+
+	const confirmReset = () => {
+		setCode(initialCode);
+		v4ToastManager.showSuccess('Code reset to original');
+		console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`);
+		setShowResetModal(false);
 	};
 
 	const handleFormat = () => {
@@ -928,6 +934,18 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 					</SpinnerSubtext>
 				</SpinnerModal>
 			</SpinnerOverlay>
+
+			{/* Reset Confirmation Modal */}
+			<ConfirmationModal
+				isOpen={showResetModal}
+				onClose={() => setShowResetModal(false)}
+				onConfirm={confirmReset}
+				title="Reset Code"
+				message="Reset code to original? Your changes will be lost."
+				confirmText="Reset"
+				cancelText="Cancel"
+				variant="danger"
+			/>
 		</>
 	);
 };

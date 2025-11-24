@@ -12,7 +12,7 @@
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { SharedCredentialsServiceV8 } from '@/v8/services/sharedCredentialsServiceV8';
-import type { UnifiedFlowCredentials } from '@/v8u/types/flowTypes';
+import type { UnifiedFlowCredentials } from '@/v8u/services/unifiedFlowIntegrationV8U';
 
 const MODULE_TAG = '[🔄 CREDENTIAL-RELOAD-V8U]';
 
@@ -165,12 +165,14 @@ export function reloadCredentialsAfterReset(flowKey: string): UnifiedFlowCredent
 			...(typeof flowSpecific.useRedirectless === 'boolean'
 				? { useRedirectless: flowSpecific.useRedirectless }
 				: {}),
+			...(typeof flowSpecific.usePAR === 'boolean' ? { usePAR: flowSpecific.usePAR } : {}),
 
 			// OAuth/OIDC advanced parameters - load from flow-specific storage
 			...(flowSpecific.responseMode ? { responseMode: flowSpecific.responseMode } : {}),
 			...(flowSpecific.loginHint ? { loginHint: flowSpecific.loginHint } : {}),
 			...(typeof flowSpecific.maxAge === 'number' ? { maxAge: flowSpecific.maxAge } : {}),
 			...(flowSpecific.display ? { display: flowSpecific.display } : {}),
+			...(flowSpecific.prompt ? { prompt: flowSpecific.prompt } : {}),
 		};
 
 		console.log(`${MODULE_TAG} ✅ Credentials reloaded from storage`, {
@@ -221,13 +223,20 @@ export function saveCredentialsBeforeReset(
 		CredentialsServiceV8.saveCredentials(flowKey, credentials);
 
 		// Save shared credentials
-		SharedCredentialsServiceV8.saveSharedCredentials({
+		const sharedCreds: {
+			environmentId: string;
+			clientId: string;
+			clientSecret?: string;
+			issuerUrl?: string;
+			clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+		} = {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
-			clientSecret: credentials.clientSecret,
-			issuerUrl: credentials.issuerUrl,
-			clientAuthMethod: credentials.clientAuthMethod,
-		});
+			...(credentials.clientSecret ? { clientSecret: credentials.clientSecret } : {}),
+			...(credentials.issuerUrl ? { issuerUrl: credentials.issuerUrl } : {}),
+			...(credentials.clientAuthMethod ? { clientAuthMethod: credentials.clientAuthMethod } : {}),
+		};
+		SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
 
 		console.log(`${MODULE_TAG} ✅ Credentials saved before reset`);
 	} catch (error) {
