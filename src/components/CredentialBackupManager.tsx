@@ -5,6 +5,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
+import ConfirmationModal from './ConfirmationModal';
+import { v4ToastManager } from '../utils/v4ToastManager';
 
 const Container = styled.div`
 	background: #ffffff;
@@ -176,6 +178,7 @@ interface CredentialBackupManagerProps {
 export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = ({ onRefresh }) => {
 	const [backupData, setBackupData] = useState<EnvBackupData>({});
 	const [isLoading, setIsLoading] = useState(false);
+	const [showClearModal, setShowClearModal] = useState(false);
 
 	const loadBackupData = useCallback(() => {
 		setIsLoading(true);
@@ -198,15 +201,16 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 	};
 
 	const handleClearAll = () => {
-		if (
-			window.confirm(
-				'Are you sure you want to clear all credential backups? This action cannot be undone.'
-			)
-		) {
-			credentialBackupService.clearAllBackups();
-			loadBackupData();
-			onRefresh?.();
-		}
+		setShowClearModal(true);
+	};
+
+	const confirmClearAll = () => {
+		credentialBackupService.clearAllBackups();
+		loadBackupData();
+		onRefresh?.();
+		v4ToastManager.showSuccess('All credential backups cleared successfully');
+		console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credential backups cleared successfully in CredentialBackupManager`);
+		setShowClearModal(false);
 	};
 
 	const handleRefresh = () => {
@@ -294,6 +298,18 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 					these configurations for easy restoration.
 				</InfoText>
 			</InfoBox>
+
+			{/* Clear All Backups Confirmation Modal */}
+			<ConfirmationModal
+				isOpen={showClearModal}
+				onClose={() => setShowClearModal(false)}
+				onConfirm={confirmClearAll}
+				title="Clear All Backups"
+				message="Are you sure you want to clear all credential backups? This action cannot be undone."
+				confirmText="Clear All"
+				cancelText="Cancel"
+				variant="danger"
+			/>
 		</Container>
 	);
 };
