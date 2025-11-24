@@ -65,15 +65,34 @@ export class OidcDiscoveryServiceV8 {
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				let errorBody: { error?: string; message?: string };
+				let errorBody: { error?: string; message?: string; details?: string };
 				try {
-					errorBody = JSON.parse(errorText) as { error?: string; message?: string };
+					errorBody = JSON.parse(errorText) as { error?: string; message?: string; details?: string };
 				} catch {
 					errorBody = { error: errorText };
 				}
-				throw new Error(
-					errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`
-				);
+
+				// Provide more helpful error messages
+				let errorMessage = errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`;
+				
+				if (response.status === 403) {
+					errorMessage = `OIDC Discovery forbidden (403). This may indicate:
+- The issuer URL is incorrect or the environment doesn't exist
+- The PingOne environment requires authentication for discovery
+- Network or CORS restrictions
+
+Original error: ${errorMessage}`;
+				} else if (response.status === 404) {
+					errorMessage = `OIDC Discovery endpoint not found (404). Please verify the issuer URL is correct: ${normalized}`;
+				}
+
+				console.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
+					issuerUrl: normalized,
+					error: errorMessage,
+					details: errorBody.details,
+				});
+
+				throw new Error(errorMessage);
 			}
 
 			const data = await response.json();
