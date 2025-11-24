@@ -15,6 +15,8 @@ export interface FIDO2RegistrationResult {
 	success: boolean;
 	credentialId?: string;
 	publicKey?: string;
+	attestationObject?: string;
+	clientDataJSON?: string;
 	error?: string;
 	userHandle?: string;
 }
@@ -52,6 +54,7 @@ export interface FIDO2Config {
  * 3. Support for both platform and cross-platform authenticators
  * 4. Proper error handling and user feedback
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: shared utility service for WebAuthn helpers
 export class FIDO2Service {
 	private static readonly DEFAULT_TIMEOUT = 60000; // 60 seconds
 	private static readonly DEFAULT_RP_ID = window.location.hostname;
@@ -108,6 +111,19 @@ export class FIDO2Service {
 			// Convert challenge from base64 to ArrayBuffer
 			const challengeBuffer = FIDO2Service.base64ToArrayBuffer(config.challenge);
 
+			const authenticatorSelection: AuthenticatorSelectionCriteria = {
+				userVerification: config.authenticatorSelection?.userVerification ?? 'preferred',
+			};
+
+			if (config.authenticatorSelection?.residentKey) {
+				authenticatorSelection.residentKey = config.authenticatorSelection.residentKey;
+			}
+
+			if (config.authenticatorSelection?.authenticatorAttachment) {
+				authenticatorSelection.authenticatorAttachment =
+					config.authenticatorSelection.authenticatorAttachment;
+			}
+
 			// Create credential creation options
 			const createOptions: CredentialCreationOptions = {
 				publicKey: {
@@ -127,11 +143,7 @@ export class FIDO2Service {
 					],
 					timeout: config.timeout || FIDO2Service.DEFAULT_TIMEOUT,
 					attestation: config.attestation || 'none',
-					authenticatorSelection: {
-						authenticatorAttachment: config.authenticatorSelection?.authenticatorAttachment,
-						userVerification: config.authenticatorSelection?.userVerification || 'preferred',
-						residentKey: config.authenticatorSelection?.residentKey || 'preferred',
-					},
+					authenticatorSelection,
 				},
 			};
 
@@ -146,11 +158,14 @@ export class FIDO2Service {
 			}
 
 			// Extract credential data
-			const response = credential.response as AuthenticatorAttestationResponse;
+			const response = credential.response as AuthenticatorAttestationResponse & {
+				getPublicKey?: () => ArrayBuffer | null;
+			};
 			const credentialId = FIDO2Service.arrayBufferToBase64(credential.rawId);
-			const publicKey = FIDO2Service.arrayBufferToBase64(response.publicKey || new ArrayBuffer(0));
+			const rawPublicKey = response.getPublicKey?.() || null;
+			const publicKey = rawPublicKey ? FIDO2Service.arrayBufferToBase64(rawPublicKey) : undefined;
 			const attestationObject = FIDO2Service.arrayBufferToBase64(response.attestationObject);
-			const _clientDataJSON = FIDO2Service.arrayBufferToBase64(response.clientDataJSON);
+			const clientDataJSON = FIDO2Service.arrayBufferToBase64(response.clientDataJSON);
 
 			console.log('✅ [FIDO2] Credential registered successfully', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
@@ -161,25 +176,36 @@ export class FIDO2Service {
 			return {
 				success: true,
 				credentialId,
-				publicKey,
+				...(publicKey ? { publicKey } : {}),
+				attestationObject,
+				clientDataJSON,
 				userHandle: config.userHandle,
 			};
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error('❌ [FIDO2] Credential registration failed:', error);
 
 			let errorMessage = 'Credential registration failed';
-			if (error.name === 'NotAllowedError') {
-				errorMessage = 'Registration was cancelled or not allowed';
-			} else if (error.name === 'NotSupportedError') {
-				errorMessage = 'This authenticator is not supported';
-			} else if (error.name === 'SecurityError') {
-				errorMessage = 'Security error during registration';
-			} else if (error.name === 'InvalidStateError') {
-				errorMessage = 'Authenticator is already registered';
-			} else if (error.name === 'ConstraintError') {
-				errorMessage = 'Authenticator does not meet requirements';
-			} else if (error.name === 'TimeoutError') {
-				errorMessage = 'Registration timed out';
+			if (error instanceof DOMException) {
+				switch (error.name) {
+					case 'NotAllowedError':
+						errorMessage = 'Registration was cancelled or not allowed';
+						break;
+					case 'NotSupportedError':
+						errorMessage = 'This authenticator is not supported';
+						break;
+					case 'SecurityError':
+						errorMessage = 'Security error during registration';
+						break;
+					case 'InvalidStateError':
+						errorMessage = 'Authenticator is already registered';
+						break;
+					case 'ConstraintError':
+						errorMessage = 'Authenticator does not meet requirements';
+						break;
+					case 'TimeoutError':
+						errorMessage = 'Registration timed out';
+						break;
+				}
 			}
 
 			return {
@@ -244,8 +270,9 @@ export class FIDO2Service {
 			// Extract authentication data
 			const response = credential.response as AuthenticatorAssertionResponse;
 			const signature = FIDO2Service.arrayBufferToBase64(response.signature);
-			const _authenticatorData = FIDO2Service.arrayBufferToBase64(response.authenticatorData);
-			const _clientDataJSON = FIDO2Service.arrayBufferToBase64(response.clientDataJSON);
+			const userHandle = response.userHandle
+				? FIDO2Service.arrayBufferToBase64(response.userHandle)
+				: undefined;
 
 			console.log('✅ [FIDO2] Credential authenticated successfully', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
@@ -256,26 +283,33 @@ export class FIDO2Service {
 				success: true,
 				credentialId,
 				signature,
-				userHandle: response.userHandle
-					? FIDO2Service.arrayBufferToBase64(response.userHandle)
-					: undefined,
+				...(userHandle ? { userHandle } : {}),
 			};
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error('❌ [FIDO2] Credential authentication failed:', error);
 
 			let errorMessage = 'Authentication failed';
-			if (error.name === 'NotAllowedError') {
-				errorMessage = 'Authentication was cancelled or not allowed';
-			} else if (error.name === 'NotSupportedError') {
-				errorMessage = 'This authenticator is not supported';
-			} else if (error.name === 'SecurityError') {
-				errorMessage = 'Security error during authentication';
-			} else if (error.name === 'InvalidStateError') {
-				errorMessage = 'Authenticator is not registered';
-			} else if (error.name === 'ConstraintError') {
-				errorMessage = 'Authenticator does not meet requirements';
-			} else if (error.name === 'TimeoutError') {
-				errorMessage = 'Authentication timed out';
+			if (error instanceof DOMException) {
+				switch (error.name) {
+					case 'NotAllowedError':
+						errorMessage = 'Authentication was cancelled or not allowed';
+						break;
+					case 'NotSupportedError':
+						errorMessage = 'This authenticator is not supported';
+						break;
+					case 'SecurityError':
+						errorMessage = 'Security error during authentication';
+						break;
+					case 'InvalidStateError':
+						errorMessage = 'Authenticator is not registered';
+						break;
+					case 'ConstraintError':
+						errorMessage = 'Authenticator does not meet requirements';
+						break;
+					case 'TimeoutError':
+						errorMessage = 'Authentication timed out';
+						break;
+				}
 			}
 
 			return {
@@ -299,7 +333,7 @@ export class FIDO2Service {
 	 */
 	private static isPlatformAuthenticatorSupported(): boolean {
 		try {
-			return PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== undefined;
+			return typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
 		} catch {
 			return false;
 		}
@@ -325,9 +359,6 @@ export class FIDO2Service {
 		return btoa(binary);
 	}
 
-	/**
-	 * Convert base64 string to ArrayBuffer
-	 */
 	private static base64ToArrayBuffer(base64: string): ArrayBuffer {
 		const binary = atob(base64);
 		const bytes = new Uint8Array(binary.length);

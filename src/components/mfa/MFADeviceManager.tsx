@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap';
-import { toast } from 'react-toastify';
 import {
 	EnhancedPingOneMfaService,
 	type MfaDevice,
 } from '../../services/enhancedPingOneMfaService';
+import ConfirmationModal from '../ConfirmationModal';
+import { v4ToastManager } from '../../utils/v4ToastManager';
 
 interface MFADeviceManagerProps {
 	credentials: {
@@ -30,6 +31,8 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 	const [isAdding, setIsAdding] = useState(false);
 	const [selectedDeviceType, setSelectedDeviceType] = useState<'SMS' | 'TOTP'>('TOTP');
 	const [phoneNumber, setPhoneNumber] = useState('');
+	const [showRemoveModal, setShowRemoveModal] = useState(false);
+	const [deviceToRemove, setDeviceToRemove] = useState<string | null>(null);
 
 	// Load devices on mount
 	useEffect(() => {
@@ -43,7 +46,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			setDevices(deviceList);
 		} catch (error) {
 			console.error('Failed to load MFA devices:', error);
-			toast.error('Failed to load MFA devices');
+			v4ToastManager.showError('Failed to load MFA devices');
 		} finally {
 			setIsLoading(false);
 		}
@@ -54,7 +57,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			setIsAdding(true);
 
 			if (selectedDeviceType === 'SMS' && !phoneNumber) {
-				toast.error('Please enter a phone number');
+				v4ToastManager.showError('Please enter a phone number');
 				return;
 			}
 
@@ -65,7 +68,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			}
 		} catch (error) {
 			console.error('Failed to add device:', error);
-			toast.error(
+			v4ToastManager.showError(
 				`Failed to add device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		} finally {
@@ -81,7 +84,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		// In a real app, you would send an SMS challenge here
 		// For now, we'll just show a success message
-		toast.success(
+		v4ToastManager.showSuccess(
 			'SMS device added successfully. Please check your phone for a verification code.'
 		);
 		setActiveDevice(device);
@@ -104,7 +107,7 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		// In a real app, you would show a modal with the QR code and secret
 		// For now, we'll just show a success message
-		toast.success('TOTP device added. Please scan the QR code with your authenticator app.');
+		v4ToastManager.showSuccess('TOTP device added. Please scan the QR code with your authenticator app.');
 		console.log('TOTP Secret:', secret); // In a real app, show this to the user in a secure way
 		console.log('QR Code:', qrCode); // In a real app, display this image
 	};
@@ -121,14 +124,14 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 				verificationCode
 			);
 
-			toast.success('Device activated successfully');
+			v4ToastManager.showSuccess('Device activated successfully');
 			setActiveDevice(null);
 			setVerificationCode('');
 			loadDevices();
 			onDeviceAdded?.(activeDevice);
 		} catch (error) {
 			console.error('Failed to verify device:', error);
-			toast.error(
+			v4ToastManager.showError(
 				`Failed to verify device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
 		} finally {
@@ -136,21 +139,28 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 		}
 	};
 
-	const handleRemoveDevice = async (deviceId: string) => {
-		if (!window.confirm('Are you sure you want to remove this device?')) {
-			return;
-		}
+	const handleRemoveDevice = (deviceId: string) => {
+		setDeviceToRemove(deviceId);
+		setShowRemoveModal(true);
+	};
+
+	const confirmRemoveDevice = async () => {
+		if (!deviceToRemove) return;
 
 		try {
-			await EnhancedPingOneMfaService.deleteDevice(credentials, deviceId);
-			toast.success('Device removed successfully');
-			setDevices(devices.filter((d) => d.id !== deviceId));
-			onDeviceRemoved?.(deviceId);
+			await EnhancedPingOneMfaService.deleteDevice(credentials, deviceToRemove);
+			v4ToastManager.showSuccess('Device removed successfully');
+			setDevices(devices.filter((d) => d.id !== deviceToRemove));
+			onDeviceRemoved?.(deviceToRemove);
+			console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Device removed successfully in MFADeviceManager: ${deviceToRemove}`);
 		} catch (error) {
 			console.error('Failed to remove device:', error);
-			toast.error(
+			v4ToastManager.showError(
 				`Failed to remove device: ${error instanceof Error ? error.message : 'Unknown error'}`
 			);
+		} finally {
+			setShowRemoveModal(false);
+			setDeviceToRemove(null);
 		}
 	};
 
@@ -299,6 +309,18 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 					</Button>
 				</Modal.Footer>
 			</Modal>
+
+			{/* Remove Device Confirmation Modal */}
+			<ConfirmationModal
+				isOpen={showRemoveModal}
+				onClose={() => setShowRemoveModal(false)}
+				onConfirm={confirmRemoveDevice}
+				title="Remove Device"
+				message="Are you sure you want to remove this device?"
+				confirmText="Remove"
+				cancelText="Cancel"
+				variant="danger"
+			/>
 		</div>
 	);
 };
