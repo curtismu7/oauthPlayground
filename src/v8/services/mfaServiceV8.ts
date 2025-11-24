@@ -91,6 +91,15 @@ export interface OTPValidationResult {
 	valid: boolean;
 }
 
+interface CompleteFIDO2RegistrationParams {
+	environmentId: string;
+	userId: string;
+	deviceId: string;
+	credentialId: string;
+	attestationObject: string;
+	clientDataJSON: string;
+}
+
 export interface MFASettings {
 	pairing?: {
 		maxAllowedDevices?: number;
@@ -473,161 +482,6 @@ export class MFAServiceV8 {
 			};
 		} catch (error) {
 			console.error(`${MODULE_TAG} Device registration error`, error);
-			throw error;
-		}
-	}
-
-	/**
-	 * Send OTP to device
-	 * @param params - OTP sending parameters
-	 */
-	static async sendOTP(params: SendOTPParams): Promise<void> {
-		console.log(`${MODULE_TAG} Sending OTP`, {
-			username: params.username,
-			deviceId: params.deviceId,
-		});
-
-		try {
-			// Look up user by username
-			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
-
-			// Get worker token
-			const accessToken = await MFAServiceV8.getWorkerToken();
-
-			// Validate token before sending
-			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
-				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
-			}
-
-			// Normalize token: remove any existing Bearer prefix and whitespace
-			let cleanToken = accessToken.trim();
-			cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
-			cleanToken = cleanToken.replace(/\s+/g, '');
-
-			// Validate token looks like a JWT (should have 3 parts separated by dots)
-			const tokenParts = cleanToken.split('.');
-			if (tokenParts.length !== 3) {
-				console.error(`${MODULE_TAG} Token does not appear to be a valid JWT format`, {
-					partsCount: tokenParts.length,
-					tokenLength: cleanToken.length,
-					tokenStart: cleanToken.substring(0, 30),
-				});
-				throw new Error(
-					'Worker token is not a valid JWT format. Please generate a new worker token.'
-				);
-			}
-
-			// Validate token parts are not empty
-			if (tokenParts.some((part) => part.length === 0)) {
-				console.error(`${MODULE_TAG} Token has empty parts`, {
-					tokenLength: cleanToken.length,
-					partsLength: tokenParts.map((p) => p.length),
-				});
-				throw new Error('Worker token is malformed. Please generate a new worker token.');
-			}
-
-			// Validate token is long enough (JWT should be at least 100 characters)
-			if (cleanToken.length < 100) {
-				console.error(`${MODULE_TAG} Token is too short to be a valid JWT`, {
-					tokenLength: cleanToken.length,
-					tokenStart: cleanToken.substring(0, 50),
-				});
-				throw new Error(
-					'Worker token appears to be corrupted or incomplete. Please generate a new worker token.'
-				);
-			}
-
-			// Send OTP via backend proxy
-			console.log(`${MODULE_TAG} Calling OTP endpoint`, {
-				userId: user.id,
-				tokenLength: accessToken.length,
-				tokenPrefix: accessToken.substring(0, 20),
-			});
-
-			const requestBody = {
-				environmentId: params.environmentId,
-				userId: user.id,
-				deviceId: params.deviceId,
-				workerToken: cleanToken, // Use the normalized token
-			};
-
-			const startTime = Date.now();
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'POST',
-				url: '/api/pingone/mfa/send-otp',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: { ...requestBody, workerToken: '***REDACTED***' },
-				step: 'Send OTP',
-			});
-
-			let response: Response;
-			try {
-				response = await fetch('/api/pingone/mfa/send-otp', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
-
-			const responseClone = response.clone();
-			let responseData: unknown;
-
-			// PingOne returns 204 No Content or empty body for successful OTP sends
-			if (response.status === 204) {
-				responseData = { success: true, message: 'OTP sent successfully' };
-			} else {
-				try {
-					const text = await responseClone.text();
-					if (text && text.trim()) {
-						responseData = JSON.parse(text);
-					} else {
-						// Empty response body - treat as success
-						responseData = { success: true, message: 'OTP sent successfully' };
-					}
-				} catch {
-					// If parsing fails, that's okay for empty responses
-					responseData = response.ok
-						? { success: true, message: 'OTP sent successfully' }
-						: { error: 'Unknown error' };
-				}
-			}
-
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					headers: Object.fromEntries(response.headers.entries()),
-					data: responseData,
-				},
-				Date.now() - startTime
-			);
-
-			if (!response.ok) {
-				const errorData = responseData as PingOneResponse;
-				throw new Error(
-					`Failed to send OTP: ${errorData.message || errorData.error || response.statusText}`
-				);
-			}
-
-			console.log(`${MODULE_TAG} OTP sent successfully`);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Send OTP error`, error);
 			throw error;
 		}
 	}
@@ -1305,6 +1159,373 @@ export class MFAServiceV8 {
 			console.log(`${MODULE_TAG} Device unblocked successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Unblock device error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Complete FIDO2 registration
+	 * @param params - FIDO2 completion parameters
+	 * @returns Registration result
+	 */
+	static async completeFIDO2Registration(
+		params: CompleteFIDO2RegistrationParams
+	): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Completing FIDO2 registration`, {
+			deviceId: params.deviceId,
+			userId: params.userId,
+		});
+
+		const accessToken = await MFAServiceV8.getWorkerToken();
+
+		const requestBody = {
+			environmentId: params.environmentId,
+			userId: params.userId,
+			deviceId: params.deviceId,
+			credentialId: params.credentialId,
+			attestationObject: params.attestationObject,
+			clientDataJSON: params.clientDataJSON,
+			workerToken: accessToken.trim(),
+		};
+
+		const startTime = Date.now();
+		const callId = apiCallTrackerService.trackApiCall({
+			method: 'POST',
+			url: '/api/pingone/mfa/complete-fido2-registration',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: { ...requestBody, workerToken: '***REDACTED***' },
+			step: 'Complete FIDO2 Registration',
+		});
+
+		let response: Response;
+		try {
+			response = await fetch('/api/pingone/mfa/complete-fido2-registration', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
+		} catch (error) {
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: 0,
+					statusText: 'Network Error',
+					error: error instanceof Error ? error.message : String(error),
+				},
+				Date.now() - startTime
+			);
+			throw error;
+		}
+
+		const responseClone = response.clone();
+		let responseData: unknown;
+		try {
+			responseData = await responseClone.json();
+		} catch {
+			responseData = { error: 'Failed to parse response' };
+		}
+
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				headers: Object.fromEntries(response.headers.entries()),
+				data: responseData,
+			},
+			Date.now() - startTime
+		);
+
+		if (!response.ok) {
+			const errorData = responseData as PingOneResponse;
+			throw new Error(
+				`FIDO2 attestation submission failed: ${
+					errorData.message || errorData.error || response.statusText
+				}`
+			);
+		}
+
+		return responseData as Record<string, unknown>;
+	}
+
+	/**
+	 * Activate TOTP device (OATH token)
+	 * POST /environments/{environmentId}/users/{userId}/devices/{deviceId}
+	 * @param params - Device activation parameters
+	 */
+	static async activateTOTPDevice(params: SendOTPParams): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Activating TOTP device`, {
+			username: params.username,
+			deviceId: params.deviceId,
+		});
+
+		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Get worker token
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// Activate TOTP device via Management API
+			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: deviceEndpoint,
+				headers: {
+					Authorization: 'Bearer ***REDACTED***',
+					'Content-Type': 'application/json',
+				},
+				body: { status: 'ACTIVE' },
+				step: 'Activate TOTP Device',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch(deviceEndpoint, {
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ status: 'ACTIVE' }),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let deviceData: unknown;
+			try {
+				deviceData = await responseClone.json();
+			} catch {
+				deviceData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: deviceData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = deviceData as PingOneResponse;
+				throw new Error(
+					`Failed to activate TOTP device: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} TOTP device activated successfully`);
+			return deviceData as Record<string, unknown>;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Activate TOTP device error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Resend pairing code (for SMS/EMAIL devices)
+	 * POST /environments/{environmentId}/users/{userId}/devices/{deviceId}/otp
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-resend-pairing-code
+	 * @param params - Device parameters
+	 */
+	static async resendPairingCode(params: SendOTPParams): Promise<void> {
+		console.log(`${MODULE_TAG} Resending pairing code`, {
+			username: params.username,
+			deviceId: params.deviceId,
+		});
+
+		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Get worker token
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// Resend pairing code via backend proxy
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				deviceId: params.deviceId,
+				workerToken: accessToken.trim(),
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/resend-pairing-code',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: { ...requestBody, workerToken: '***REDACTED***' },
+				step: 'Resend Pairing Code',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch('/api/pingone/mfa/resend-pairing-code', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as PingOneResponse;
+				throw new Error(
+					`Failed to resend pairing code: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Pairing code resent successfully`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Resend pairing code error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Activate MFA user device
+	 * POST /environments/{environmentId}/users/{userId}/devices/{deviceId}
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device
+	 * @param params - Device parameters
+	 * @returns Activated device data
+	 */
+	static async activateDevice(params: SendOTPParams): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Activating device`, {
+			username: params.username,
+			deviceId: params.deviceId,
+		});
+
+		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Get worker token
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// Activate device via backend proxy
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				deviceId: params.deviceId,
+				workerToken: accessToken.trim(),
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/activate-device',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: { ...requestBody, workerToken: '***REDACTED***' },
+				step: 'Activate Device',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch('/api/pingone/mfa/activate-device', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let deviceData: unknown;
+			try {
+				deviceData = await responseClone.json();
+			} catch {
+				deviceData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: deviceData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = deviceData as PingOneResponse;
+				throw new Error(
+					`Failed to activate device: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Device activated successfully`);
+			return deviceData as Record<string, unknown>;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Activate device error`, error);
 			throw error;
 		}
 	}

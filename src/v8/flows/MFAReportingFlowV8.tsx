@@ -25,6 +25,7 @@ import {
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAReportingServiceV8, type ReportParams } from '@/v8/services/mfaReportingServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -56,8 +57,18 @@ export const MFAReportingFlowV8: React.FC = () => {
 			includeScopes: false,
 		});
 
+		// Get global environment ID if not in flow-specific storage
+		const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+		const environmentId = stored.environmentId || globalEnvId || '';
+
+		console.log(`${MODULE_TAG} Loading credentials`, {
+			flowSpecificEnvId: stored.environmentId,
+			globalEnvId,
+			usingEnvId: environmentId,
+		});
+
 		return {
-			environmentId: stored.environmentId || '',
+			environmentId,
 		};
 	});
 
@@ -101,11 +112,27 @@ export const MFAReportingFlowV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
+		
+		// Save environment ID globally so it's shared across all flows
+		if (credentials.environmentId) {
+			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
+			console.log(`${MODULE_TAG} Environment ID saved globally`, {
+				environmentId: credentials.environmentId,
+			});
+		}
 	}, [credentials]);
 
-	const handleManageWorkerToken = () => {
+	const handleManageWorkerToken = async () => {
 		if (tokenStatus.isValid) {
-			if (confirm('Worker token is currently stored.\n\nDo you want to remove it?')) {
+			const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+			const confirmed = await uiNotificationServiceV8.confirm({
+				title: 'Remove Worker Token',
+				message: 'Worker token is currently stored.\n\nDo you want to remove it?',
+				confirmText: 'Remove',
+				cancelText: 'Cancel',
+				severity: 'warning',
+			});
+			if (confirmed) {
 				workerTokenServiceV8.clearToken();
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());

@@ -12,7 +12,7 @@
  * />
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { FiInfo, FiUser } from 'react-icons/fi';
 
 const MODULE_TAG = '[👤 LOGIN-HINT-V8]';
@@ -31,10 +31,33 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 	className = '',
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
+	const [displayValue, setDisplayValue] = useState(value); // Debounced value for display
+	const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Debounce the display value - only update after user stops typing for 500ms
+	useEffect(() => {
+		// Clear existing timer
+		if (debounceTimerRef.current) {
+			clearTimeout(debounceTimerRef.current);
+		}
+
+		// Set new timer to update display value after user stops typing
+		debounceTimerRef.current = setTimeout(() => {
+			setDisplayValue(value);
+		}, 500); // 500ms delay
+
+		// Cleanup on unmount
+		return () => {
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
+			}
+		};
+	}, [value]);
 
 	const handleChange = (newValue: string) => {
 		console.log(`${MODULE_TAG} Login hint changed`, { value: newValue });
 		onChange(newValue);
+		// Don't update displayValue immediately - let debounce handle it
 	};
 
 	return (
@@ -127,8 +150,8 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 				/>
 			</div>
 
-			{/* Description */}
-			{value && (
+			{/* Description - Only show after user stops typing (debounced) */}
+			{displayValue && displayValue.trim() && (
 				<div
 					style={{
 						marginTop: '8px',
@@ -140,7 +163,7 @@ export const LoginHintInputV8: React.FC<LoginHintInputV8Props> = ({
 						color: '#166534', // Dark green text - high contrast
 					}}
 				>
-					✅ Login form will be pre-filled with: <strong>{value}</strong>
+					✅ Login form will be pre-filled with: <strong>{displayValue}</strong>
 				</div>
 			)}
 

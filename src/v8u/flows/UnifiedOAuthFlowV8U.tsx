@@ -28,13 +28,19 @@ import {
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
-import { FlowNotAvailableModal } from '../components/FlowNotAvailableModal';
+// FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -175,6 +181,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// Validate URL flow type and sync if different from current state
 		// Note: 'ropc' is removed - it's a mock flow, not supported by PingOne
+		// CRITICAL: Only sync FROM URL if URL has a valid flow type and it's different
+		// Don't sync if the URL flow type is the same as current (prevents loops)
 		if (
 			urlFlowType &&
 			['oauth-authz', 'implicit', 'client-credentials', 'device-code', 'hybrid'].includes(
@@ -196,6 +204,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		} else if (urlFlowType === flowType) {
 			// URL and state are in sync - mark as synced
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
+		} else if (!urlFlowType) {
+			// URL doesn't have a flow type - mark current flow as synced to prevent loops
+			lastSyncedUrlFlowTypeRef.current = flowType;
 		}
 	}, [urlFlowType, flowType, currentStep, location.pathname]);
 
@@ -243,7 +254,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		});
 		console.log(`${MODULE_TAG} ✅ Updated last used timestamp for flow`, { flowType });
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// Intentionally omitting specVersion from dependencies to prevent loops
 	}, [flowType]);
 
 	// Credentials section collapsed state - collapsed by default after step 0
@@ -255,9 +266,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Track previous step to detect step changes
 	const prevStepRef = useRef(currentStep);
 
-	// Flow not available modal state
-	const [showFlowNotAvailableModal, setShowFlowNotAvailableModal] = useState(false);
-	const [requestedFlow, setRequestedFlow] = useState<FlowType | null>(null);
+	// Flow not available modal state - REMOVED: Dropdown already filters flows, so modal is not needed
+	// All modal-related state and logic has been removed since FlowTypeSelector filters flows by spec version
 
 	// Auto-collapse credentials after step 0, but always expand on step 0
 	useEffect(() => {
@@ -445,8 +455,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 			// Check worker token status
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			if (!tokenStatus.isValid || !tokenStatus.token) {
+			if (!tokenStatus.isValid) {
 				console.log(`${MODULE_TAG} No valid worker token - skipping app config fetch`);
+				setAppConfig(null);
+				return;
+			}
+
+			// Get the actual token from the service
+			const token = await workerTokenServiceV8.getToken();
+			if (!token) {
+				console.log(`${MODULE_TAG} No worker token available - skipping app config fetch`);
 				setAppConfig(null);
 				return;
 			}
@@ -455,13 +473,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				const config = await ConfigCheckerServiceV8.fetchAppConfig(
 					credentials.environmentId,
 					credentials.clientId,
-					tokenStatus.token
+					token
 				);
 
 				if (config) {
 					setAppConfig({
-						pkceRequired: config.pkceRequired,
-						pkceEnforced: config.pkceEnforced,
+						...(config.pkceRequired !== undefined && { pkceRequired: config.pkceRequired }),
+						...(config.pkceEnforced !== undefined && { pkceEnforced: config.pkceEnforced }),
 					});
 					console.log(`${MODULE_TAG} ✅ App config fetched`, {
 						pkceRequired: config.pkceRequired,
@@ -559,108 +577,55 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 * CRITICAL: This effect must NOT depend on requestedFlow or showFlowNotAvailableModal
 	 * to prevent infinite loops. We use a ref to track what we've already handled.
 	 */
-	const flowAvailabilityCheckRef = useRef<string | null>(null);
-
+	/**
+	 * Auto-correct flow type when spec version changes and current flow becomes invalid
+	 *
+	 * Since the FlowTypeSelector dropdown already filters flows by spec version,
+	 * users can only select valid flows. This effect only runs when the spec version
+	 * changes (not when flowType changes), to prevent resetting user selections.
+	 *
+	 * This ensures the flow type is always valid for the current spec version,
+	 * but only when the spec version changes, not when the user selects a flow.
+	 */
+	const lastSpecVersionRef = useRef<SpecVersion | null>(null);
+	const isUserChangingFlowRef = useRef(false);
+	
 	useEffect(() => {
-		// Create a stable key for this flow/spec combination
-		const checkKey = `${flowType}-${specVersion}`;
-
-		// Early return if we've already checked this combination - prevents loops
-		if (flowAvailabilityCheckRef.current === checkKey) {
+		// Only auto-correct when spec version changes, not when flow type changes
+		if (lastSpecVersionRef.current === specVersion) {
 			return;
 		}
 
-		// Get fresh available flows (don't rely on memoized version to avoid stale closures)
+		// Don't auto-correct if user is actively changing the flow type
+		if (isUserChangingFlowRef.current) {
+			lastSpecVersionRef.current = specVersion;
+			return;
+		}
+
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-
-		// CRITICAL: Ensure we're comparing strings correctly
-		// Sometimes flowType might be a different type or have whitespace
-		const normalizedFlowType = String(flowType).trim();
-		const normalizedAvailableFlows = currentAvailableFlows.map((f) => String(f).trim());
-		const isFlowAvailableNormalized = normalizedAvailableFlows.includes(normalizedFlowType);
-
-		// Also check with original includes for safety
 		const isFlowAvailable = currentAvailableFlows.includes(flowType);
 
-		// Use normalized check if original check fails (defensive programming)
-		const finalIsFlowAvailable = isFlowAvailable || isFlowAvailableNormalized;
+		// Mark this spec version as processed
+		lastSpecVersionRef.current = specVersion;
 
-		// CRITICAL: Explicit check for known valid combinations to prevent false positives
-		// This is a safety net in case the array check fails for any reason
-		const knownValidCombinations: Array<{ spec: SpecVersion; flow: FlowType }> = [
-			{ spec: 'oauth2.0', flow: 'oauth-authz' },
-			{ spec: 'oauth2.0', flow: 'implicit' },
-			{ spec: 'oauth2.0', flow: 'client-credentials' }, // CRITICAL: Client Credentials IS valid for OAuth 2.0
-			{ spec: 'oauth2.0', flow: 'device-code' },
-			{ spec: 'oauth2.1', flow: 'oauth-authz' },
-			{ spec: 'oauth2.1', flow: 'client-credentials' },
-			{ spec: 'oauth2.1', flow: 'device-code' },
-			{ spec: 'oidc', flow: 'oauth-authz' },
-			{ spec: 'oidc', flow: 'implicit' },
-			{ spec: 'oidc', flow: 'hybrid' },
-			{ spec: 'oidc', flow: 'device-code' },
-		];
-
-		const isKnownValid = knownValidCombinations.some(
-			(combo) => combo.spec === specVersion && combo.flow === flowType
-		);
-
-		// Mark as checked
-		flowAvailabilityCheckRef.current = checkKey;
-
-		// CRITICAL: If flow IS available (by array check OR known valid), NEVER show modal
-		if (finalIsFlowAvailable || isKnownValid) {
-			// Clear modal state if it was showing
-			if (requestedFlow === flowType) {
-				console.log(`${MODULE_TAG} ✅ Flow is available - clearing modal state`, {
-					flowType,
-					specVersion,
-					finalIsFlowAvailable,
-					isKnownValid,
-				});
-				setRequestedFlow(null);
-				setShowFlowNotAvailableModal(false);
-			}
-			return; // Early return - flow is valid, no modal needed
-		}
-
-		// Flow is NOT available - show modal (but only if we haven't already)
-		// CRITICAL: Double-check that the flow is actually not available before showing modal
-		// This prevents false positives from race conditions
-		if (requestedFlow !== flowType && !finalIsFlowAvailable && !isKnownValid) {
-			// Final safety check: verify one more time that flow is not available
-			const finalCheck = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-			const isActuallyAvailable = finalCheck.includes(flowType);
-
-			if (!isActuallyAvailable) {
-				console.error(`${MODULE_TAG} ⚠️ Flow type not available for spec - showing modal`, {
-					flowType,
-					specVersion,
-					currentAvailableFlows,
-					finalCheck,
-					finalIsFlowAvailable,
-					isActuallyAvailable,
-				});
-				// Store the requested flow to prevent duplicate modals
-				setRequestedFlow(flowType);
-				setShowFlowNotAvailableModal(true);
-			} else {
-				// Flow is actually available - clear any pending modal state
-				console.log(`${MODULE_TAG} ✅ Flow is actually available - preventing modal`, {
-					flowType,
-					specVersion,
-					finalCheck,
-				});
-				if (requestedFlow === flowType) {
-					setRequestedFlow(null);
-					setShowFlowNotAvailableModal(false);
-				}
+		// If flow is not available, automatically switch to first available flow
+		// This only happens when spec version changes, not when user selects a flow
+		if (!isFlowAvailable && currentAvailableFlows.length > 0) {
+			const fallbackFlow = currentAvailableFlows[0];
+			console.log(`${MODULE_TAG} 🔄 Auto-correcting flow type for spec version change`, {
+				specVersion,
+				from: flowType,
+				to: fallbackFlow,
+				availableFlows: currentAvailableFlows,
+			});
+			setFlowType(fallbackFlow);
+			// Update URL to reflect new flow type
+			if (currentStep !== undefined) {
+				const path = `/v8u/unified/${fallbackFlow}/${currentStep}`;
+				navigate(path, { replace: true });
 			}
 		}
-		// CRITICAL: Only depend on flowType and specVersion - NOT on requestedFlow or showFlowNotAvailableModal
-		// This prevents infinite loops when we set those state values
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [flowType, specVersion]);
+	}, [specVersion, flowType, currentStep, navigate]);
 
 	// Field visibility and checkbox availability are computed by UnifiedFlowIntegrationV8U
 	// but not currently used in this component - kept for potential future use
@@ -1275,9 +1240,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
 		console.log(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
 
-		// Clear any pending modal state FIRST to prevent loops
-		setRequestedFlow(null);
-		setShowFlowNotAvailableModal(false);
+		// Modal state removed - dropdown already filters flows
 
 		// Validate flow type is still available BEFORE changing spec version
 		const newAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(newSpec);
@@ -1299,10 +1262,71 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		console.log(`${MODULE_TAG} ✅ Saved spec version for flow`, { flowType, specVersion: newSpec });
 	};
 
-	const handleFlowTypeChange = (newFlowType: FlowType) => {
+	const handleFlowTypeChange = async (newFlowType: FlowType) => {
 		// Prevent changing to the same flow type (prevents loops)
 		if (newFlowType === flowType) {
 			return;
+		}
+
+		// CRITICAL: Validate that the new flow type is available for the current spec version
+		// If not, automatically switch to a compatible spec version
+		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
+		if (!currentAvailableFlows.includes(newFlowType)) {
+			console.log(`${MODULE_TAG} ⚠️ Flow type not available for current spec version`, {
+				newFlowType,
+				specVersion,
+				availableFlows: currentAvailableFlows,
+			});
+
+			// Find a spec version that supports this flow type
+			const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
+			const compatibleSpec = compatibleSpecVersions.find((spec) => {
+				const flows = UnifiedFlowIntegrationV8U.getAvailableFlows(spec);
+				return flows.includes(newFlowType);
+			});
+
+			if (compatibleSpec) {
+				console.log(`${MODULE_TAG} 🔄 Auto-switching to compatible spec version`, {
+					from: specVersion,
+					to: compatibleSpec,
+					flowType: newFlowType,
+				});
+				// Switch spec version first, then flow type
+				setSpecVersion(compatibleSpec);
+				FlowSettingsServiceV8U.saveSpecVersion(newFlowType, compatibleSpec);
+			} else {
+				console.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
+					newFlowType,
+				});
+				toastV8.error(
+					`${newFlowType} flow is not supported. Please select a different flow type.`
+				);
+				return;
+			}
+		}
+
+		// Check if there are API calls to clear
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const apiCalls = apiCallTrackerService.getApiCalls();
+		const hasApiCalls = apiCalls.length > 0;
+
+		// If there are API calls, ask for confirmation before clearing
+		if (hasApiCalls) {
+			const confirmed = await uiNotificationServiceV8.confirm({
+				title: 'Clear API Calls?',
+				message: `Changing the flow type will clear all ${apiCalls.length} API call${apiCalls.length !== 1 ? 's' : ''} from the display. This action cannot be undone.`,
+				confirmText: 'Clear and Change Flow',
+				cancelText: 'Cancel',
+				severity: 'warning',
+			});
+
+			if (!confirmed) {
+				console.log(`${MODULE_TAG} User cancelled flow type change to preserve API calls`);
+				// Reset the dropdown to the current flow type
+				// Note: The FlowTypeSelector component should handle this automatically
+				// by being controlled by the flowType state
+				return;
+			}
 		}
 
 		console.log(`${MODULE_TAG} 🔄 Flow type changed via selector`, {
@@ -1312,11 +1336,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			currentStep,
 		});
 
-		// Reset all refs so effects can run properly for the new flow type
-		lastProcessedFlowTypeRef.current = null;
-		lastSyncedUrlFlowTypeRef.current = null;
-		flowAvailabilityCheckRef.current = null; // Reset flow availability check
+		// Clear API calls when flow type changes (only if confirmed or no calls exist)
+		if (hasApiCalls) {
+			apiCallTrackerService.clearApiCalls();
+			console.log(`${MODULE_TAG} 🧹 Cleared API calls due to flow type change`);
+		}
 
+		// CRITICAL: Mark that user is changing flow type to prevent auto-correct from interfering
+		isUserChangingFlowRef.current = true;
+		
+		// CRITICAL: Mark URL as synced BEFORE updating flow type and URL
+		// This prevents the URL sync effect from resetting the flow type
+		lastSyncedUrlFlowTypeRef.current = newFlowType;
+		lastProcessedFlowTypeRef.current = null;
+
+		// Update flow type state
 		setFlowType(newFlowType);
 
 		// Navigate to current step with new flow type to update URL
@@ -1325,6 +1359,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			console.log(`${MODULE_TAG} Updating URL for new flow type`, { path });
 			navigate(path, { replace: true });
 		}
+
+		// Reset the flag after a short delay to allow state updates to complete
+		setTimeout(() => {
+			isUserChangingFlowRef.current = false;
+		}, 100);
 	};
 
 	// Get API documentation URL for the current flow type
@@ -1639,6 +1678,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				</div>
 			)}
 
+			{/* API Display Toggle - Show/Hide API Calls */}
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'flex-end',
+					marginBottom: '16px',
+				}}
+			>
+				<ApiDisplayCheckbox />
+			</div>
+
 			{/* Credentials Form - Collapsible */}
 			<div
 				style={{
@@ -1759,7 +1809,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					flowType={effectiveFlowType}
 					credentials={credentials}
 					onCredentialsChange={handleCredentialsChange}
-					appConfig={appConfig || undefined}
+					appConfig={appConfig ?? undefined}
 					onFlowReset={() => {
 						// Flow reset - preserve credentials, spec version, and flow type
 						console.log(
@@ -1788,80 +1838,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				/>
 			)}
 
-			{/* Flow Not Available Modal */}
-			{requestedFlow &&
-				(() => {
-					// CRITICAL: Final check before showing modal - verify flow is actually not available
-					// This prevents showing modal with wrong spec version due to race conditions
-					const finalAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-					const isFlowActuallyAvailable = finalAvailableFlows.includes(requestedFlow);
+			{/* Flow Not Available Modal - REMOVED: Dropdown already filters flows by spec version */}
 
-					// If flow is actually available, don't show modal
-					if (isFlowActuallyAvailable) {
-						console.log(`${MODULE_TAG} ⚠️ Flow is actually available - preventing modal`, {
-							requestedFlow,
-							specVersion,
-							finalAvailableFlows,
-						});
-						// Clear modal state
-						if (showFlowNotAvailableModal) {
-							setShowFlowNotAvailableModal(false);
-							setRequestedFlow(null);
-						}
-						return null;
-					}
-
-					return (
-						<FlowNotAvailableModal
-							isOpen={showFlowNotAvailableModal}
-							onClose={() => {
-								console.log(`${MODULE_TAG} Modal closed - clearing requested flow`);
-								// Clear modal state FIRST to prevent loops
-								setShowFlowNotAvailableModal(false);
-								setRequestedFlow(null);
-								// Only update flowType if it's actually different AND the effective flow is valid
-								// Don't update if the current flowType is actually valid (prevents loops)
-								const currentAvailableFlows =
-									UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-								const isCurrentFlowValid = currentAvailableFlows.includes(flowType);
-								if (!isCurrentFlowValid && effectiveFlowType !== flowType) {
-									console.log(`${MODULE_TAG} Auto-updating flow type to effective flow`, {
-										from: flowType,
-										to: effectiveFlowType,
-										isCurrentFlowValid,
-									});
-									setFlowType(effectiveFlowType);
-								}
-							}}
-							requestedFlow={requestedFlow}
-							specVersion={specVersion}
-							fallbackFlow={effectiveFlowType}
-							// CRITICAL: Log what we're passing to the modal to debug issues
-							// This helps identify if specVersion is wrong
-							key={`${requestedFlow}-${specVersion}`}
-							onAccept={() => {
-								// User accepted the fallback flow
-								console.log(`${MODULE_TAG} User accepted fallback flow`, {
-									from: requestedFlow,
-									to: effectiveFlowType,
-								});
-								// Clear modal state FIRST to prevent loops
-								setRequestedFlow(null);
-								setShowFlowNotAvailableModal(false);
-								// Then update flow type
-								setFlowType(effectiveFlowType);
-							}}
-							onChangeSpec={() => {
-								// User wants to change spec version - focus on spec selector
-								console.log(`${MODULE_TAG} User wants to change spec version`);
-								// Clear modal state FIRST to prevent loops
-								setRequestedFlow(null);
-								setShowFlowNotAvailableModal(false);
-								// Optionally scroll to spec selector or highlight it
-							}}
-						/>
-					);
-				})()}
+			{/* Super Simple API Display - Toggleable, hidden by default - Only shows Unified flow calls */}
+			<SuperSimpleApiDisplayV8 flowFilter="unified" />
 		</div>
 	);
 };
