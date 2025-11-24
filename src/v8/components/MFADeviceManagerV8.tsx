@@ -108,7 +108,15 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleBlock = async (deviceId: string) => {
-		if (!confirm('Are you sure you want to block this device?')) {
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const confirmed = await uiNotificationServiceV8.confirm({
+			title: 'Block Device',
+			message: 'Are you sure you want to block this device?',
+			confirmText: 'Block',
+			cancelText: 'Cancel',
+			severity: 'warning',
+		});
+		if (!confirmed) {
 			return;
 		}
 
@@ -150,7 +158,15 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	};
 
 	const handleDelete = async (deviceId: string) => {
-		if (!confirm('Are you sure you want to delete this device? This action cannot be undone.')) {
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const confirmed = await uiNotificationServiceV8.confirm({
+			title: 'Delete Device',
+			message: 'Are you sure you want to delete this device? This action cannot be undone.',
+			confirmText: 'Delete',
+			cancelText: 'Cancel',
+			severity: 'danger',
+		});
+		if (!confirmed) {
 			return;
 		}
 

@@ -635,13 +635,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{
 						id: 'mfa-playground-v8',
 						path: '/v8/mfa',
-						label: 'OTP MFA',
+						label: 'PingOne MFA',
 						icon: (
 							<ColoredIcon $color="#10b981">
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="V8: OTP MFA Playground">NEW</MigrationBadge>,
+						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
 					},
 					{
 						id: 'resources-api-v8',
@@ -670,6 +670,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: (
 							<MigrationBadge title="Enhanced PingOne authentication with token endpoint auth help">
 								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'api-display-demo',
+						path: '/api-display-demo',
+						label: '⚡ API Display Demo',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Interactive demo of API Display Service - closeable panel with centralized state management">
+								DEMO
 							</MigrationBadge>
 						),
 					},

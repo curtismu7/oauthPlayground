@@ -18,6 +18,7 @@ import styled from 'styled-components';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -348,6 +349,8 @@ export const CredentialManagement: React.FC = () => {
 		expiresAt?: number;
 		timeRemaining?: string;
 	}>({ status: 'missing' });
+	const [showClearAllModal, setShowClearAllModal] = useState(false);
+	const [isClearingAll, setIsClearingAll] = useState(false);
 
 	const loadFlowCredentials = async () => {
 		setLoading(true);
@@ -504,14 +507,7 @@ export const CredentialManagement: React.FC = () => {
 	};
 
 	const handleClearAllCredentials = async () => {
-		if (
-			!window.confirm(
-				'Are you sure you want to clear ALL credentials? This action cannot be undone.'
-			)
-		) {
-			return;
-		}
-
+		setIsClearingAll(true);
 		try {
 			let clearedCount = 0;
 
@@ -528,9 +524,14 @@ export const CredentialManagement: React.FC = () => {
 
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
+
+			console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`);
 		} catch (error) {
-			console.error('[CredentialManagement] Clear failed:', error);
+			console.error(`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`, error);
 			v4ToastManager.showError('Failed to clear all credentials');
+		} finally {
+			setIsClearingAll(false);
+			setShowClearAllModal(false);
 		}
 	};
 
@@ -646,7 +647,7 @@ export const CredentialManagement: React.FC = () => {
 						<HiddenFileInput type="file" accept=".json" onChange={handleImportCredentials} />
 					</ImportButton>
 
-					<ClearButton onClick={handleClearAllCredentials}>
+					<ClearButton onClick={() => setShowClearAllModal(true)}>
 						<FiTrash2 />
 						Clear All Credentials
 					</ClearButton>
@@ -715,8 +716,19 @@ export const CredentialManagement: React.FC = () => {
 					</FlowGrid>
 				)}
 			</Card>
+
+			{/* Clear All Credentials Confirmation Modal */}
+			<ConfirmationModal
+				isOpen={showClearAllModal}
+				onClose={() => setShowClearAllModal(false)}
+				onConfirm={handleClearAllCredentials}
+				title="Clear All Credentials"
+				message="Are you sure you want to clear ALL credentials? This action cannot be undone."
+				confirmText="Clear All"
+				cancelText="Cancel"
+				variant="danger"
+				isLoading={isClearingAll}
+			/>
 		</Container>
 	);
 };
-
-export default CredentialManagement;

@@ -1178,13 +1178,39 @@ app.post('/api/introspect-token', async (req, res) => {
 		console.log(`[Introspect Token] Request body keys:`, Array.from(introspectionBody.keys()));
 		console.log(`[Introspect Token] Request headers:`, headers);
 
-		const response = await global.fetch(introspection_endpoint, {
-			method: 'POST',
-			headers: headers,
-			body: introspectionBody,
-		});
+		let response;
+		try {
+			response = await global.fetch(introspection_endpoint, {
+				method: 'POST',
+				headers: headers,
+				body: introspectionBody,
+			});
+		} catch (fetchError) {
+			console.error(`[Introspect Token] Fetch failed:`, {
+				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+				introspectionEndpoint: introspection_endpoint,
+			});
+			throw new Error(`Failed to connect to introspection endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+		}
 
-		const data = await response.json();
+		let data;
+		try {
+			const responseText = await response.text();
+			if (!responseText) {
+				throw new Error('Empty response from introspection endpoint');
+			}
+			data = JSON.parse(responseText);
+		} catch (parseError) {
+			console.error(`[Introspect Token] Failed to parse response:`, {
+				status: response.status,
+				statusText: response.statusText,
+				error: parseError instanceof Error ? parseError.message : String(parseError),
+			});
+			return res.status(500).json({
+				error: 'invalid_response',
+				error_description: `Failed to parse introspection response: ${parseError instanceof Error ? parseError.message : 'Invalid JSON'}`,
+			});
+		}
 
 		if (!response.ok) {
 			console.error(`[Introspect Token] PingOne error (${response.status}):`, {
@@ -1204,9 +1230,17 @@ app.post('/api/introspect-token', async (req, res) => {
 		res.json(data);
 	} catch (error) {
 		console.error('[Introspect Token] Server error:', error);
+		const errorMessage = error instanceof Error ? error.message : String(error || 'Internal server error');
+		const errorStack = error instanceof Error ? error.stack : undefined;
+		console.error('[Introspect Token] Error details:', {
+			message: errorMessage,
+			stack: errorStack,
+			type: typeof error,
+		});
 		res.status(500).json({
 			error: 'server_error',
-			error_description: 'Internal server error during token introspection',
+			error_description: errorMessage || 'Internal server error during token introspection',
+			details: errorStack ? 'Check server logs for details' : undefined,
 		});
 	}
 });
@@ -2289,7 +2323,17 @@ app.get('/api/device-userinfo', async (req, res) => {
 // PAR (Pushed Authorization Request) Endpoint (proxy to PingOne)
 app.post('/api/par', async (req, res) => {
 	try {
-		const { environment_id, client_id, client_secret, ...parParams } = req.body;
+		const { environment_id, client_id, client_secret, client_auth_method, ...parParams } = req.body;
+		
+		// Log incoming request for debugging
+		console.log(`[PAR] Incoming request:`, {
+			hasEnvironmentId: !!environment_id,
+			hasClientId: !!client_id,
+			hasClientSecret: !!client_secret,
+			clientSecretLength: client_secret?.length || 0,
+			clientAuthMethod: client_auth_method || 'not provided',
+			requestBodyKeys: Object.keys(req.body),
+		});
 
 		if (!environment_id || !client_id) {
 			return res.status(400).json({
@@ -2305,13 +2349,26 @@ app.post('/api/par', async (req, res) => {
 			environmentId: environment_id,
 			clientId: client_id,
 			hasClientSecret: !!client_secret,
-			parParams: parParams,
+			clientSecretLength: client_secret?.length || 0,
+			clientAuthMethod: parParams.client_auth_method,
+			parParams: Object.keys(parParams),
 			redirectUri: parParams.redirect_uri,
 		});
 
+		// Validate that we have client secret for confidential clients
+		// client_auth_method can be in parParams or directly in req.body
+		const authMethod = client_auth_method || parParams.client_auth_method || 'client_secret_post';
+		
 		const formData = new URLSearchParams();
+		
+		// Add PAR parameters to form data (excluding auth-related fields which are handled separately)
 		Object.entries(parParams).forEach(([key, value]) => {
-			if (value !== undefined && value !== null) {
+			if (value !== undefined && value !== null && 
+				key !== 'client_auth_method' && 
+				key !== 'client_id' && 
+				key !== 'client_secret' &&
+				key !== 'client_assertion_type' &&
+				key !== 'client_assertion') {
 				formData.append(key, value.toString());
 			}
 		});
@@ -2320,27 +2377,65 @@ app.post('/api/par', async (req, res) => {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			Accept: 'application/json',
 		};
-
-		// Add client authentication based on PingOne configuration
-		// For "Client Secret Basic" method, use Authorization header AND include client_id in form data
-		if (client_secret) {
+		
+		// Add client authentication based on method
+		if (authMethod === 'client_secret_basic' && client_secret) {
+			// For "Client Secret Basic" method, use Authorization header AND include client_id in form data
 			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 			headers['Authorization'] = `Basic ${credentials}`;
-			// PingOne still requires client_id in the form data even with Basic auth
 			formData.append('client_id', client_id);
 			console.log(`[PAR] Using Basic authentication for client: ${client_id}`);
-		} else {
-			// Fallback to client_secret_post method if no client_secret provided
+		} else if (authMethod === 'client_secret_post' && client_secret) {
+			// For "Client Secret Post" method, include both client_id and client_secret in form data
 			formData.append('client_id', client_id);
+			formData.append('client_secret', client_secret);
 			console.log(`[PAR] Using client_secret_post method for client: ${client_id}`);
+		} else if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+			// JWT-based authentication methods
+			const { client_assertion_type, client_assertion } = req.body;
+
+			if (client_assertion_type && client_assertion) {
+				console.log(`[PAR] Using JWT assertion for ${authMethod}:`, {
+					clientId: `${client_id?.substring(0, 8)}...`,
+					assertionType: client_assertion_type,
+					assertionLength: client_assertion?.length || 0,
+				});
+
+				formData.append('client_id', client_id);
+				formData.append('client_assertion_type', client_assertion_type);
+				formData.append('client_assertion', client_assertion);
+				// Don't add client_secret for JWT methods
+			} else {
+				console.error(`[PAR] Missing JWT assertion for ${authMethod}`);
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: `client_assertion and client_assertion_type are required for ${authMethod} authentication`,
+				});
+			}
+		} else if (!client_secret) {
+			// No client secret provided - this might be a public client or missing secret
+			formData.append('client_id', client_id);
+			console.warn(`[PAR] ⚠️ No client secret provided for client: ${client_id}`, {
+				authMethod,
+				note: 'This may cause 401 if the application requires client authentication',
+			});
+		} else {
+			// Unknown auth method or other case
+			formData.append('client_id', client_id);
+			if (authMethod !== 'none') {
+				console.warn(`[PAR] ⚠️ Unhandled authentication method: ${authMethod}`, {
+					hasClientSecret: !!client_secret,
+				});
+			}
 		}
 
 		console.log(`[PAR] Sending to PingOne:`, {
 			url: parEndpoint,
-			headers: headers,
-			body: formData.toString(),
+			headers: { ...headers, Authorization: headers.Authorization ? '[REDACTED]' : undefined },
+			body: formData.toString().replace(/client_secret=[^&]*/g, 'client_secret=[REDACTED]'),
 			redirectUri: formData.get('redirect_uri'),
-			authMethod: client_secret ? 'Basic' : 'client_secret_post',
+			authMethod: authMethod,
+			hasClientSecret: !!client_secret,
 		});
 
 		const response = await global.fetch(parEndpoint, {
@@ -2349,11 +2444,31 @@ app.post('/api/par', async (req, res) => {
 			body: formData,
 		});
 
-		const data = await response.json();
+		const responseText = await response.text();
+		let data;
+		try {
+			data = JSON.parse(responseText);
+		} catch {
+			data = { error: 'parse_error', error_description: responseText };
+		}
 
 		if (!response.ok) {
-			console.error(`[PAR] PingOne error:`, data);
-			return res.status(response.status).json(data);
+			console.error(`[PAR] PingOne error:`, {
+				status: response.status,
+				statusText: response.statusText,
+				authMethod: authMethod,
+				hasClientSecret: !!client_secret,
+				clientSecretLength: client_secret?.length || 0,
+				error: data,
+				responseText: responseText.substring(0, 500),
+			});
+			return res.status(response.status).json({
+				...data,
+				debug: {
+					authMethod,
+					hasClientSecret: !!client_secret,
+				},
+			});
 		}
 
 		console.log(`[PAR] Success for client: ${client_id}`);
@@ -3458,6 +3573,8 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			state,
 			username,
 			password,
+			requestUri, // PAR request_uri (when using PAR)
+			request_uri, // Alternative naming
 		} = req.body;
 
 		if (!environmentId || !clientId) {
@@ -3481,49 +3598,67 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 
 		// Build authorization request parameters (per PingOne pi.flow documentation)
 		const authParams = new URLSearchParams();
-		authParams.set('response_type', 'code');
-		authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
-		authParams.set('client_id', clientId);
-		// Ensure 'openid' is included in scopes for OIDC flows
-		const scopeList = (scopes || 'openid').trim().split(/\s+/);
-		if (!scopeList.includes('openid')) {
-			scopeList.unshift('openid'); // Add 'openid' at the beginning if missing
-		}
-		const finalScopes = scopeList.join(' ');
-		authParams.set('scope', finalScopes);
-		console.log(`[PingOne Redirectless] Final scopes: ${finalScopes}`);
-		authParams.set('state', state || `pi-flow-${Date.now()}`);
-
-		// CRITICAL: Even though docs say redirect_uri is optional for pi.flow,
-		// PingOne may still require it for validation if it's registered in the app
-		// Include it if provided to match registered redirect URIs exactly
-		if (redirectUri) {
-			authParams.set('redirect_uri', redirectUri);
-			console.log(`[PingOne Redirectless] Including redirect_uri: ${redirectUri}`);
+		
+		// Check if PAR request_uri is provided (when using PAR)
+		const parRequestUri = requestUri || request_uri;
+		if (parRequestUri) {
+			console.log(`[PingOne Redirectless] Using PAR request_uri: ${parRequestUri.substring(0, 50)}...`);
+			// When using PAR, only send request_uri and client_id
+			authParams.set('response_type', 'code');
+			authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
+			authParams.set('client_id', clientId);
+			authParams.set('request_uri', parRequestUri);
+			if (state) {
+				authParams.set('state', state);
+			}
+			// Don't add other parameters - they're in the PAR request_uri
 		} else {
-			console.log(
-				`[PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri`
-			);
-		}
+			// Regular flow (not using PAR) - build all parameters
+			authParams.set('response_type', 'code');
+			authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
+			authParams.set('client_id', clientId);
+			
+			// Ensure 'openid' is included in scopes for OIDC flows
+			const scopeList = (scopes || 'openid').trim().split(/\s+/);
+			if (!scopeList.includes('openid')) {
+				scopeList.unshift('openid'); // Add 'openid' at the beginning if missing
+			}
+			const finalScopes = scopeList.join(' ');
+			authParams.set('scope', finalScopes);
+			console.log(`[PingOne Redirectless] Final scopes: ${finalScopes}`);
+			authParams.set('state', state || `pi-flow-${Date.now()}`);
 
-		// Add PKCE parameters - REQUIRED for redirectless flows with PKCE
-		if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
-			authParams.set('code_challenge', codeChallenge.trim());
-			authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
-			console.log(
-				`[PingOne Redirectless] Added PKCE: code_challenge=${codeChallenge.substring(0, 20)}... (length: ${codeChallenge.length})`
-			);
-		} else {
-			console.error(`[PingOne Redirectless] ERROR: Invalid code_challenge provided:`, {
-				hasCodeChallenge: !!codeChallenge,
-				type: typeof codeChallenge,
-				length: codeChallenge?.length,
-				value: codeChallenge?.substring(0, 50),
-			});
-			return res.status(400).json({
-				error: 'invalid_request',
-				error_description: 'code_challenge is required for PKCE flow',
-			});
+			// CRITICAL: Even though docs say redirect_uri is optional for pi.flow,
+			// PingOne may still require it for validation if it's registered in the app
+			// Include it if provided to match registered redirect URIs exactly
+			if (redirectUri) {
+				authParams.set('redirect_uri', redirectUri);
+				console.log(`[PingOne Redirectless] Including redirect_uri: ${redirectUri}`);
+			} else {
+				console.log(
+					`[PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri`
+				);
+			}
+
+			// Add PKCE parameters - REQUIRED for redirectless flows with PKCE
+			if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
+				authParams.set('code_challenge', codeChallenge.trim());
+				authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
+				console.log(
+					`[PingOne Redirectless] Added PKCE: code_challenge=${codeChallenge.substring(0, 20)}... (length: ${codeChallenge.length})`
+				);
+			} else {
+				console.error(`[PingOne Redirectless] ERROR: Invalid code_challenge provided:`, {
+					hasCodeChallenge: !!codeChallenge,
+					type: typeof codeChallenge,
+					length: codeChallenge?.length,
+					value: codeChallenge?.substring(0, 50),
+				});
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'code_challenge is required for PKCE flow',
+				});
+			}
 		}
 
 		// CORRECT pi.flow PATTERN (per documentation):
@@ -4398,24 +4533,50 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 
 		console.log('[OIDC Discovery] Requesting:', wellKnownUrl);
 
-		const response = await fetch(wellKnownUrl, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json',
-			},
-		});
+		let response;
+		try {
+			response = await fetch(wellKnownUrl, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+				},
+			});
+		} catch (fetchError) {
+			console.error('[OIDC Discovery] Fetch failed:', {
+				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+				wellKnownUrl,
+			});
+			throw new Error(`Failed to connect to discovery endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+		}
 
 		if (!response.ok) {
 			const errorText = await response.text();
 			console.error('[OIDC Discovery] Failed:', response.status, response.statusText);
 			return res.status(response.status).json({
 				error: 'discovery_failed',
-				message: `HTTP ${response.status}: ${response.statusText}`,
+				error_description: `HTTP ${response.status}: ${response.statusText}`,
 				details: errorText,
 			});
 		}
 
-		const data = await response.json();
+		let data;
+		try {
+			const responseText = await response.text();
+			if (!responseText) {
+				throw new Error('Empty response from discovery endpoint');
+			}
+			data = JSON.parse(responseText);
+		} catch (parseError) {
+			console.error('[OIDC Discovery] Failed to parse response:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: parseError instanceof Error ? parseError.message : String(parseError),
+			});
+			return res.status(500).json({
+				error: 'invalid_response',
+				error_description: `Failed to parse discovery response: ${parseError instanceof Error ? parseError.message : 'Invalid JSON'}`,
+			});
+		}
 
 		console.log('[OIDC Discovery] Success:', {
 			issuer: data.issuer,
@@ -4427,9 +4588,17 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 		res.json(data);
 	} catch (error) {
 		console.error('[OIDC Discovery] Error:', error);
+		const errorMessage = error instanceof Error ? error.message : String(error || 'Internal server error');
+		const errorStack = error instanceof Error ? error.stack : undefined;
+		console.error('[OIDC Discovery] Error details:', {
+			message: errorMessage,
+			stack: errorStack,
+			type: typeof error,
+		});
 		res.status(500).json({
 			error: 'server_error',
-			message: error.message || 'Internal server error',
+			error_description: errorMessage,
+			details: errorStack ? 'Check server logs for details' : undefined,
 		});
 	}
 });
@@ -5560,31 +5729,71 @@ app.get('/api/pingone/applications', async (req, res) => {
 			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
 			const controller1 = new AbortController();
 			const timeout1 = setTimeout(() => controller1.abort(), 10000); // 10s timeout
-			const tokenResponse = await fetch(tokenEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: new URLSearchParams({
-					grant_type: 'client_credentials',
-					client_id: clientId,
-					client_secret: clientSecret,
-					scope: 'p1:read:environments p1:read:applications p1:read:connections',
-				}),
-				signal: controller1.signal,
-			});
+			let tokenResponse;
+			try {
+				tokenResponse = await fetch(tokenEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: new URLSearchParams({
+						grant_type: 'client_credentials',
+						client_id: clientId,
+						client_secret: clientSecret,
+						scope: 'p1:read:environments p1:read:applications p1:read:connections',
+					}),
+					signal: controller1.signal,
+				});
+			} catch (fetchError) {
+				clearTimeout(timeout1);
+				console.error('[Config Checker] Token fetch failed:', {
+					error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+					tokenEndpoint,
+				});
+				return res.status(500).json({
+					error: 'fetch_error',
+					error_description: `Failed to connect to token endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`,
+				});
+			}
 			clearTimeout(timeout1);
 
 			if (!tokenResponse.ok) {
 				const errorText = await tokenResponse.text();
-				console.error('[Config Checker] Token request failed:', errorText);
+				console.error('[Config Checker] Token request failed:', {
+					status: tokenResponse.status,
+					statusText: tokenResponse.statusText,
+					errorText,
+				});
 				return res.status(400).json({
 					error: 'invalid_token_request',
-					error_description: 'Failed to get worker token',
+					error_description: `Failed to get worker token: ${tokenResponse.status} ${tokenResponse.statusText}`,
+					details: errorText,
 				});
 			}
 
-			const tokenData = await tokenResponse.json();
+			let tokenData;
+			try {
+				const responseText = await tokenResponse.text();
+				if (!responseText) {
+					throw new Error('Empty response from token endpoint');
+				}
+				tokenData = JSON.parse(responseText);
+			} catch (parseError) {
+				console.error('[Config Checker] Failed to parse token response:', parseError);
+				return res.status(500).json({
+					error: 'invalid_response',
+					error_description: `Failed to parse token response: ${parseError instanceof Error ? parseError.message : 'Invalid JSON'}`,
+				});
+			}
+
+			if (!tokenData.access_token) {
+				console.error('[Config Checker] Token response missing access_token:', tokenData);
+				return res.status(500).json({
+					error: 'invalid_token_response',
+					error_description: 'Token response missing access_token',
+				});
+			}
+
 			tokenToUse = tokenData.access_token;
 			console.log('[Config Checker] Worker token obtained');
 		} else {
@@ -5606,28 +5815,60 @@ app.get('/api/pingone/applications', async (req, res) => {
 
 		console.log(`[Config Checker] Fetching applications from: ${applicationsUrl}`);
 
-		const controller2 = new AbortController();
-		const timeout2 = setTimeout(() => controller2.abort(), 10000); // 10s timeout
-		const response = await fetch(applicationsUrl, {
-			method: 'GET',
-			headers: {
-				Authorization: `Bearer ${tokenToUse}`,
-				'Content-Type': 'application/json',
-			},
-			signal: controller2.signal,
-		});
-		clearTimeout(timeout2);
+		let response;
+		try {
+			const controller2 = new AbortController();
+			const timeout2 = setTimeout(() => controller2.abort(), 10000); // 10s timeout
+			response = await fetch(applicationsUrl, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${tokenToUse}`,
+					'Content-Type': 'application/json',
+				},
+				signal: controller2.signal,
+			});
+			clearTimeout(timeout2);
+		} catch (fetchError) {
+			console.error('[Config Checker] Fetch failed:', {
+				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
+				applicationsUrl,
+			});
+			throw new Error(`Failed to connect to applications endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+		}
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error('[Config Checker] Applications request failed:', errorText);
+			console.error('[Config Checker] Applications request failed:', {
+				status: response.status,
+				statusText: response.statusText,
+				errorText,
+			});
 			return res.status(response.status).json({
 				error: 'api_request_failed',
 				error_description: `Failed to fetch applications: ${response.status} ${response.statusText}`,
+				details: errorText,
 			});
 		}
 
-		const data = await response.json();
+		let data;
+		try {
+			const responseText = await response.text();
+			if (!responseText) {
+				throw new Error('Empty response from applications endpoint');
+			}
+			data = JSON.parse(responseText);
+		} catch (parseError) {
+			console.error('[Config Checker] Failed to parse applications response:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: parseError instanceof Error ? parseError.message : String(parseError),
+			});
+			return res.status(500).json({
+				error: 'invalid_response',
+				error_description: `Failed to parse applications response: ${parseError instanceof Error ? parseError.message : 'Invalid JSON'}`,
+			});
+		}
+
 		console.log(
 			`[Config Checker] Successfully fetched ${data._embedded?.applications?.length || 0} applications`
 		);
@@ -5641,10 +5882,218 @@ app.get('/api/pingone/applications', async (req, res) => {
 				error_description: 'Request timed out',
 			});
 		} else {
-			console.error('[Config Checker] Error fetching applications:', error);
+			const errorMessage = error instanceof Error ? error.message : String(error || 'Unknown error');
+			const errorStack = error instanceof Error ? error.stack : undefined;
+			console.error('[Config Checker] Error fetching applications:', {
+				message: errorMessage,
+				stack: errorStack,
+				type: typeof error,
+				name: error?.name,
+			});
 			res.status(500).json({
 				error: 'server_error',
-				error_description: 'Internal server error while fetching applications',
+				error_description: errorMessage || 'Internal server error while fetching applications',
+				details: errorStack ? 'Check server logs for details' : undefined,
+			});
+		}
+	}
+});
+
+// Get a single application with its client secret
+// According to PingOne Workflow Library: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#get-step-19-get-the-application-secret
+app.get('/api/pingone/applications/:appId', async (req, res) => {
+	try {
+		const { appId } = req.params;
+		const { environmentId, clientId, clientSecret, region = 'na', workerToken } = req.query;
+
+		if (!environmentId || !appId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, appId',
+			});
+		}
+
+		let tokenToUse = workerToken;
+		if (!tokenToUse) {
+			// Get worker token using app credentials
+			if (!clientId || !clientSecret) {
+				console.log('[Application Fetch] Missing clientId or clientSecret for token request');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: clientId, clientSecret',
+				});
+			}
+
+			console.log('[Application Fetch] Getting worker token...');
+			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			const controller1 = new AbortController();
+			const timeout1 = setTimeout(() => controller1.abort(), 10000);
+			const tokenResponse = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientId,
+					client_secret: clientSecret,
+					scope: 'p1:read:environments p1:read:applications p1:read:connections',
+				}),
+				signal: controller1.signal,
+			});
+			clearTimeout(timeout1);
+
+			if (!tokenResponse.ok) {
+				const errorText = await tokenResponse.text();
+				console.error('[Application Fetch] Token request failed:', errorText);
+				return res.status(400).json({
+					error: 'invalid_token_request',
+					error_description: 'Failed to get worker token',
+				});
+			}
+
+			const tokenData = await tokenResponse.json();
+			tokenToUse = tokenData.access_token;
+			console.log('[Application Fetch] Worker token obtained');
+		} else {
+			console.log('[Application Fetch] Using provided worker token');
+		}
+
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['na'];
+		const applicationUrl = `${baseUrl}/v1/environments/${environmentId}/applications/${appId}`;
+
+		console.log(`[Application Fetch] Fetching application from: ${applicationUrl}`);
+
+		const controller2 = new AbortController();
+		const timeout2 = setTimeout(() => controller2.abort(), 10000);
+		const response = await fetch(applicationUrl, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${tokenToUse}`,
+				'Content-Type': 'application/json',
+			},
+			signal: controller2.signal,
+		});
+		clearTimeout(timeout2);
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			let errorData = {};
+			try {
+				errorData = JSON.parse(errorText);
+			} catch {
+				errorData = { message: errorText };
+			}
+			console.error('[Application Fetch] Application request failed:', {
+				status: response.status,
+				statusText: response.statusText,
+				url: applicationUrl,
+				error: errorData,
+				errorText: errorText.substring(0, 500),
+			});
+			return res.status(response.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch application: ${response.status} ${response.statusText}`,
+				details: errorData,
+			});
+		}
+
+		const data = await response.json();
+		
+		// Log detailed response to help debug clientSecret availability
+		console.log(`[Application Fetch] Successfully fetched application ${appId}`, {
+			hasClientSecret: 'clientSecret' in data,
+			clientSecretType: typeof data.clientSecret,
+			clientSecretLength: data.clientSecret?.length || 0,
+		});
+
+		// PingOne Management API does NOT return clientSecret in GET /applications/:id response
+		// We need to make a separate call to GET /applications/:id/secret endpoint
+		// Reference: https://apidocs.pingidentity.com/pingone/main/v1/api/#get-application-secret
+		const secretUrl = `${baseUrl}/v1/environments/${environmentId}/applications/${appId}/secret`;
+		console.log(`[Application Fetch] Fetching client secret from: ${secretUrl}`);
+
+		try {
+			const secretController = new AbortController();
+			const secretTimeout = setTimeout(() => secretController.abort(), 10000);
+			const secretResponse = await fetch(secretUrl, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${tokenToUse}`,
+					'Content-Type': 'application/json',
+				},
+				signal: secretController.signal,
+			});
+			clearTimeout(secretTimeout);
+
+			if (secretResponse.ok) {
+				const secretData = await secretResponse.json();
+				console.log(`[Application Fetch] ✅ Client secret retrieved successfully`, {
+					responseKeys: Object.keys(secretData),
+					hasSecret: 'secret' in secretData,
+					hasClientSecret: 'clientSecret' in secretData,
+					hasValue: 'value' in secretData,
+					secretValue: secretData.secret ? `${secretData.secret.substring(0, 10)}...` : 'none',
+					fullResponse: JSON.stringify(secretData),
+				});
+				// According to PingOne API docs: https://apidocs.pingidentity.com/pingone/platform/v1/api/#application-secret
+				// The response contains a "secret" field
+				const extractedSecret = secretData.secret || secretData.clientSecret || secretData.value || secretData.id;
+				if (extractedSecret && typeof extractedSecret === 'string' && extractedSecret.trim().length > 0) {
+					data.clientSecret = extractedSecret;
+					console.log(`[Application Fetch] ✅ Client secret extracted and added to response`, {
+						secretLength: extractedSecret.length,
+					});
+				} else {
+					console.warn(`[Application Fetch] ⚠️ Secret extracted but is empty or invalid`, {
+						extractedSecret: extractedSecret ? `${extractedSecret.substring(0, 10)}...` : 'null/undefined',
+						type: typeof extractedSecret,
+					});
+				}
+			} else {
+				const secretErrorText = await secretResponse.text();
+				console.warn(`[Application Fetch] ⚠️ Could not retrieve client secret: ${secretResponse.status} ${secretResponse.statusText}`, {
+					error: secretErrorText.substring(0, 200),
+				});
+				// Continue without client secret - it's not always available
+			}
+		} catch (secretError) {
+			if (secretError.name === 'AbortError') {
+				console.warn(`[Application Fetch] ⚠️ Client secret request timed out`);
+			} else {
+				console.warn(`[Application Fetch] ⚠️ Error fetching client secret:`, secretError.message || secretError);
+			}
+			// Continue without client secret - it's not always available
+		}
+
+		console.log(`[Application Fetch] Final response`, {
+			hasClientSecret: !!data.clientSecret,
+			clientSecretLength: data.clientSecret?.length || 0,
+		});
+
+		res.json(data);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.error('[Application Fetch] Request timed out');
+			res.status(504).json({
+				error: 'timeout',
+				error_description: 'Request timed out',
+			});
+		} else {
+			console.error('[Application Fetch] Error fetching application:', error);
+			res.status(500).json({
+				error: 'server_error',
+				error_description: 'Internal server error while fetching application',
 			});
 		}
 	}
@@ -6300,23 +6749,50 @@ app.get('/api/pingone/oidc-config', async (req, res) => {
 app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 	try {
 		const { environmentId, username, workerToken } = req.body;
+		
+		console.log('[MFA Lookup User] Request:', {
+			environmentId: environmentId?.substring(0, 8) + '...',
+			username,
+			hasToken: !!workerToken,
+		});
+		
 		if (!environmentId || !username || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${username}"`;
+		
+		// Escape username for SCIM filter (handle special characters)
+		const escapedUsername = username.replace(/"/g, '\\"');
+		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${escapedUsername}"`;
+		
+		console.log('[MFA Lookup User] Calling PingOne:', usersEndpoint);
+		
 		const response = await global.fetch(usersEndpoint, {
 			method: 'GET',
 			headers: { Authorization: `Bearer ${workerToken}` },
 		});
+		
 		if (!response.ok) {
 			const errorData = await response.json();
+			console.error('[MFA Lookup User] PingOne error:', {
+				status: response.status,
+				error: errorData,
+			});
 			return res.status(response.status).json(errorData);
 		}
+		
 		const data = await response.json();
+		
+		console.log('[MFA Lookup User] PingOne response:', {
+			userCount: data._embedded?.users?.length || 0,
+		});
+		
 		if (!data._embedded?.users || data._embedded.users.length === 0) {
 			return res.status(404).json({ error: 'User not found', username });
 		}
+		
 		const user = data._embedded.users[0];
+		console.log('[MFA Lookup User] User found:', { id: user.id, username: user.username });
+		
 		res.json({ id: user.id, username: user.username, email: user.email, name: user.name });
 	} catch (error) {
 		console.error('[MFA Lookup User] Error:', error);
@@ -6708,6 +7184,77 @@ app.post('/api/pingone/mfa/get-mfa-settings', async (req, res) => {
 	} catch (error) {
 		console.error('[MFA Get Settings] Error:', error);
 		res.status(500).json({ error: 'Failed to get MFA settings', message: error.message });
+	}
+});
+
+// Resend Pairing Code (POST /environments/{environmentId}/users/{userId}/devices/{deviceId}/otp)
+app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const otpEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/otp`;
+		
+		console.log('[MFA Resend Pairing Code] Sending request to:', otpEndpoint);
+		
+		const response = await global.fetch(otpEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify({}),
+		});
+		
+		if (!response.ok && response.status !== 204) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Resend Pairing Code] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+		
+		console.log('[MFA Resend Pairing Code] Success');
+		res.status(200).json({ success: true, message: 'Pairing code resent successfully' });
+	} catch (error) {
+		console.error('[MFA Resend Pairing Code] Error:', error);
+		res.status(500).json({ error: 'Failed to resend pairing code', message: error.message });
+	}
+});
+
+// Activate MFA User Device (POST /environments/{environmentId}/users/{userId}/devices/{deviceId})
+app.post('/api/pingone/mfa/activate-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
+		
+		console.log('[MFA Activate Device] Activating device:', deviceId);
+		
+		const response = await global.fetch(deviceEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify({ status: 'ACTIVE' }),
+		});
+		
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Activate Device] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+		
+		const deviceData = await response.json();
+		console.log('[MFA Activate Device] Success:', { deviceId: deviceData.id, status: deviceData.status });
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[MFA Activate Device] Error:', error);
+		res.status(500).json({ error: 'Failed to activate device', message: error.message });
 	}
 });
 
