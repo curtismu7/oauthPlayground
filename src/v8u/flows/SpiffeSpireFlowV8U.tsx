@@ -13,6 +13,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -24,11 +25,12 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { EnhancedApiCallDisplay } from '@/components/EnhancedApiCallDisplay';
 import type { EnhancedApiCallData } from '@/services/enhancedApiCallDisplayService';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
-import { TokenDisplayV8U } from '@/v8u/components/TokenDisplayV8U';
 
 const MODULE_TAG = '[🔐 SPIFFE-SPIRE-FLOW-V8U]';
 
@@ -633,6 +635,47 @@ interface PingOneToken {
 	idToken?: string;
 }
 
+// SPIFFE/SPIRE lab types
+type SpiffeTrustDomain = string;
+
+type WorkloadSelector = {
+	type: string; // e.g. "k8s"
+	value: string; // e.g. "sa:orders-sa"
+};
+
+type Workload = {
+	id: string;
+	name: string;
+	namespace?: string;
+	selectors: WorkloadSelector[];
+};
+
+type SpireRegistrationEntry = {
+	spiffeId: string;
+	parentId: string;
+	selectors: WorkloadSelector[];
+	ttlSeconds: number;
+};
+
+// Helper builders for SPIFFE IDs and registration entries
+const buildSpiffeId = (trustDomain: SpiffeTrustDomain, workload: Workload): string => {
+	const ns = workload.namespace || 'default';
+	// Opinionated SPIFFE ID layout similar to common SPIRE-on-Kubernetes patterns:
+	// spiffe://trust-domain/ns/<namespace>/sa/<workload-name>
+	return `spiffe://${trustDomain}/ns/${ns}/sa/${workload.name}`;
+};
+
+const buildRegistrationEntry = (
+	trustDomain: SpiffeTrustDomain,
+	workload: Workload,
+	ttlSeconds: number = 3600,
+): SpireRegistrationEntry => ({
+	spiffeId: buildSpiffeId(trustDomain, workload),
+	parentId: `spiffe://${trustDomain}/spire/server`,
+	selectors: workload.selectors,
+	ttlSeconds,
+});
+
 // Mock data generators
 const generateSVID = (config: WorkloadConfig): SVID => {
 	const spiffeId = `spiffe://${config.trustDomain}/${config.workloadPath}`;
@@ -698,6 +741,7 @@ const generatePingOneToken = (svid: SVID, environmentId: string): PingOneToken =
 
 export const SpiffeSpireFlowV8U: React.FC = () => {
 	console.log(`${MODULE_TAG} Initializing SPIFFE/SPIRE mock flow`);
+	const navigate = useNavigate();
 
 	// State
 	const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
@@ -714,12 +758,17 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [showEducation, setShowEducation] = useState(true);
+	const [showTrustDomainInfo, setShowTrustDomainInfo] = useState(false);
+	const [showSpiffeIdInfo, setShowSpiffeIdInfo] = useState(false);
+	const [showRegistrationInfo, setShowRegistrationInfo] = useState(false);
 	const [showPhaseTransition, setShowPhaseTransition] = useState(false);
 	const [transitionMessage, setTransitionMessage] = useState('');
-	const [apiCalls, setApiCalls] = useState<EnhancedApiCallData[]>([]);
 
 	// Load environment ID from global storage on mount
 	useEffect(() => {
+		// Clear shared API call history when this lab loads, similar to MFA flow
+		apiCallTrackerService.clearApiCalls();
+
 		const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (storedEnvId) {
 			setEnvironmentId(storedEnvId);
@@ -797,13 +846,23 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			};
 			attestationApiCall.duration = 1200;
 
+			// Track attestation via shared API call tracker for bottom-docked viewer
+			apiCallTrackerService.trackApiCall({
+				method: attestationApiCall.method as 'POST',
+				url: attestationApiCall.url,
+				headers: attestationApiCall.headers || { 'Content-Type': 'application/json' },
+				body: attestationApiCall.body ?? null,
+				step: 'spiffe-spire-attest-agent',
+			});
+
 			const generatedSVID = generateSVID(workloadConfig);
 			setSvid(generatedSVID);
-			setApiCalls([attestationApiCall]);
 			setShowPhaseTransition(false);
 			setTimeout(() => {
 				setCurrentStep(2);
 				setIsLoading(false);
+				// Move to dedicated SVID page
+				navigate('/v8u/spiffe-spire/svid');
 			}, 300);
 			console.log(`${MODULE_TAG} SVID generated`, { spiffeId: generatedSVID.spiffeId });
 		}, 1500);
@@ -858,11 +917,20 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			};
 			validationApiCall.duration = 800;
 
-			setApiCalls((prev) => [...prev, validationApiCall]);
+			// Track validation via shared API call tracker for bottom-docked viewer
+			apiCallTrackerService.trackApiCall({
+				method: validationApiCall.method as 'POST',
+				url: validationApiCall.url,
+				headers: validationApiCall.headers || { 'Content-Type': 'application/json' },
+				body: validationApiCall.body ?? null,
+				step: 'spiffe-spire-validate-svid',
+			});
 			setShowPhaseTransition(false);
 			setTimeout(() => {
 				setCurrentStep(3);
 				setIsLoading(false);
+				// Move to dedicated validation page
+				navigate('/v8u/spiffe-spire/validate');
 			}, 300);
 			console.log(`${MODULE_TAG} SVID validated successfully`);
 		}, 1000);
@@ -880,7 +948,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		setTransitionMessage('🔄 Exchanging SVID for PingOne Token...');
 		setShowPhaseTransition(true);
 
-		// Create mock API call for token exchange
+		// Create mock API call for token exchange (for detailed SPIFFE/SPIRE view)
 		const tokenExchangeApiCall: EnhancedApiCallData = {
 			method: 'POST',
 			url: `https://auth.pingone.com/${environmentId}/as/token`,
@@ -904,6 +972,15 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			timestamp: new Date(),
 		};
 
+		// Track PingOne token exchange via shared API call tracker (used by SuperSimpleApiDisplayV8)
+		const trackerId = apiCallTrackerService.trackApiCall({
+			method: 'POST',
+			url: tokenExchangeApiCall.url,
+			headers: tokenExchangeApiCall.headers || { 'Content-Type': 'application/x-www-form-urlencoded' },
+			body: tokenExchangeApiCall.body ?? null,
+			step: 'spiffe-spire-token-exchange',
+		});
+
 		// Simulate token exchange service
 		setTimeout(() => {
 			const token = generatePingOneToken(svid, environmentId);
@@ -921,12 +998,35 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			};
 			tokenExchangeApiCall.duration = 1300;
 
+			// Update shared API call tracker with mock response so MFA-style viewer can render it
+			apiCallTrackerService.updateApiCallResponse(trackerId, {
+				status: 200,
+				statusText: 'OK',
+				data: {
+					access_token: token.accessToken,
+					id_token: token.idToken,
+					token_type: token.tokenType,
+					expires_in: token.expiresIn,
+					scope: token.scope,
+				},
+			}, tokenExchangeApiCall.duration);
+
 			setPingOneToken(token);
-			setApiCalls((prev) => [...prev, tokenExchangeApiCall]);
 			setShowPhaseTransition(false);
 			setTimeout(() => {
 				setCurrentStep(4);
 				setIsLoading(false);
+				// Automatically navigate to dedicated token display page with generated tokens
+				navigate('/v8u/spiffe-spire/tokens', {
+					state: {
+						// Match TokenDisplayV8UProps shape expected by SpiffeSpireTokenDisplayV8U
+						tokens: {
+							accessToken: token.accessToken,
+							idToken: token.idToken,
+							expiresIn: token.expiresIn,
+						},
+					},
+				});
 			}, 300);
 			console.log(`${MODULE_TAG} Token exchange successful`);
 		}, 1500);
@@ -947,6 +1047,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		setCurrentStep(1);
 		setSvid(null);
 		setPingOneToken(null);
+		navigate('/v8u/spiffe-spire/attest');
 	};
 
 	return (
@@ -1213,7 +1314,26 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 						)}
 
 						<FormGroup>
-							<Label>Trust Domain</Label>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<Label>Trust Domain</Label>
+								<button
+									type="button"
+									onClick={() => setShowTrustDomainInfo((prev) => !prev)}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '0.25rem',
+										background: 'transparent',
+										border: 'none',
+										color: '#6b7280',
+										fontSize: '0.75rem',
+										cursor: 'pointer',
+									}}
+								>
+									<FiInfo size={14} />
+									<span>{showTrustDomainInfo ? 'Hide info' : "What's this?"}</span>
+								</button>
+							</div>
 							<Input
 								type="text"
 								value={workloadConfig.trustDomain}
@@ -1226,6 +1346,15 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							<HelperText>
 								💡 <strong>Use the default:</strong> example.org (or enter your own)
 							</HelperText>
+							{showTrustDomainInfo && (
+								<HelperText>
+									<strong>Trust domain</strong> is the root of your SPIFFE identity namespace and trust
+										bundle. All SVIDs in this domain chain back to a CA owned by this name.
+									<br />
+									Examples: <code>example.org</code>, <code>internal.ping.local</code>,
+									<code>prod.bank.internal</code>.
+								</HelperText>
+							)}
 						</FormGroup>
 
 						<FormGroup>
@@ -1394,7 +1523,26 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							</Alert>
 
 							<FormGroup>
-								<Label>SPIFFE ID</Label>
+								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+									<Label>SPIFFE ID</Label>
+									<button
+										type="button"
+										onClick={() => setShowSpiffeIdInfo((prev) => !prev)}
+										style={{
+											display: 'inline-flex',
+											alignItems: 'center',
+											gap: '0.25rem',
+											background: 'transparent',
+											border: 'none',
+											color: '#6b7280',
+											fontSize: '0.75rem',
+											cursor: 'pointer',
+										}}
+									>
+										<FiInfo size={14} />
+										<span>{showSpiffeIdInfo ? 'Hide info' : "What's this?"}</span>
+									</button>
+								</div>
 								<TokenDisplay>
 									<CopyButton onClick={async () => await handleCopy(svid.spiffeId, 'SPIFFE ID')}>
 										{copiedField === 'SPIFFE ID' ? <FiCheckCircle /> : <FiCopy />}
@@ -1404,6 +1552,15 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								<HelperText>
 									📋 This unique ID identifies your workload across all systems
 								</HelperText>
+								{showSpiffeIdInfo && (
+									<HelperText>
+										<strong>SPIFFE ID</strong> is a globally unique name for your workload in the form
+											<code>spiffe://trust-domain/path/to/workload</code>. It is not a secret; security
+											comes from proving possession of an SVID that contains this ID.
+										<br />
+										Examples: <code>spiffe://example.org/ns/orders/sa/orders-api</code>
+									</HelperText>
+								)}
 							</FormGroup>
 
 							<FormGroup>
@@ -1428,50 +1585,159 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 						</Card>
 					)}
 
+					{/* Simulated SPIRE registration entry based on current workload config */}
+					{workloadConfig && (
+						<Card style={{ marginTop: svid ? '2rem' : 0 }}>
+							<CardHeader>
+								<FiServer />
+								<h2>SPIRE Registration Entry (Simulated)</h2>
+							</CardHeader>
+							{(() => {
+								const derivedWorkload: Workload = {
+									id: 'primary-workload',
+									name:
+										workloadConfig.serviceAccount ||
+										workloadConfig.workloadPath.split('/').pop() ||
+										'workload',
+									namespace: workloadConfig.namespace || 'default',
+									selectors:
+										workloadConfig.workloadType === 'kubernetes'
+											? [
+												{
+													type: 'k8s',
+													value: `sa:${workloadConfig.serviceAccount || 'frontend-sa'}`,
+												},
+											]
+											: [
+												{
+													type: workloadConfig.workloadType,
+													value: `path:${workloadConfig.workloadPath}`,
+												},
+											],
+								};
+
+								const entry = buildRegistrationEntry(
+									workloadConfig.trustDomain as SpiffeTrustDomain,
+									derivedWorkload,
+								);
+
+								return (
+									<>
+										<FormGroup>
+											<div
+												style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													alignItems: 'center',
+												}}
+											>
+												<Label>Registration Entry JSON</Label>
+												<button
+													type="button"
+													onClick={() => setShowRegistrationInfo((prev) => !prev)}
+													style={{
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.25rem',
+														background: 'transparent',
+														border: 'none',
+														color: '#6b7280',
+														fontSize: '0.75rem',
+														cursor: 'pointer',
+													}}
+												>
+													<FiInfo size={14} />
+													<span>{showRegistrationInfo ? 'Hide info' : "What's this?"}</span>
+												</button>
+											</div>
+											<CodeBlock>{JSON.stringify(entry, null, 2)}</CodeBlock>
+											<HelperText>
+												This object shows how SPIRE maps your workload's selectors to a SPIFFE ID.
+											</HelperText>
+											{showRegistrationInfo && (
+												<HelperText>
+													<strong>Registration entry</strong> is a rule on the SPIRE Server that says
+														"for workloads with these selectors, issue this SPIFFE ID from this parent".
+													<br />
+													Key fields:
+													<ul>
+														<li>
+															<strong>spiffeId</strong>: the SPIFFE ID the workload receives.
+														</li>
+														<li>
+															<strong>parentId</strong>: who is allowed to sign SVIDs for this
+																workload (often the SPIRE Server).
+														</li>
+														<li>
+															<strong>selectors</strong>: platform attributes that identify which
+																workloads this entry applies to (e.g., Kubernetes service account).
+														</li>
+														<li>
+															<strong>ttlSeconds</strong>: how long each SVID is valid before it must
+																be rotated.
+														</li>
+													</ul>
+												</HelperText>
+											)}
+										</FormGroup>
+									</>
+								);
+							})()}
+						</Card>
+					)}
+
 					{pingOneToken && (
 						<Card style={{ marginTop: '2rem' }}>
 							<CardHeader>
 								<FiShield />
-								<h2>PingOne OAuth Token</h2>
+								<h2>PingOne OAuth Token (Dedicated View)</h2>
 							</CardHeader>
 
 							<Alert $type="info" style={{ marginBottom: '1rem' }}>
 								<FiInfo />
 								<div>
 									<strong>Token Exchange Complete!</strong> Your workload's SVID was validated and
-									exchanged for OAuth tokens. Now your workload can access PingOne-protected APIs
-									and resources using these tokens instead of the SVID.
+									exchanged for OAuth tokens. View and analyze those tokens on a dedicated page.
 								</div>
 							</Alert>
 
-							<Alert $type="success">
+							<Alert $type="success" style={{ marginBottom: '1rem' }}>
 								<FiCheckCircle />
 								<div>
 									<strong>Token Exchange Successful</strong>
 									<br />
-									Workload can now access PingOne-protected resources
+									Workload can now access PingOne-protected resources using these tokens.
 								</div>
 							</Alert>
 
 							<FormGroup>
-								<Label>OAuth/OIDC Tokens</Label>
-								<TokenDisplayV8U
-									tokens={{
-										accessToken: pingOneToken.accessToken,
-										idToken: pingOneToken.idToken,
-										expiresIn: pingOneToken.expiresIn,
+								<Button
+									$variant="primary"
+									onClick={() => {
+										if (!pingOneToken) return;
+										navigate('/v8u/spiffe-spire/tokens', {
+											state: {
+												tokens: {
+													accessToken: pingOneToken.accessToken,
+													idToken: pingOneToken.idToken,
+													expiresIn: pingOneToken.expiresIn,
+												},
+											},
+										});
 									}}
-									showDecodeButtons={true}
-									showCopyButtons={true}
-									showMaskToggle={false}
-								/>
-								<HelperText style={{ marginTop: '1rem' }}>
-									💡 <strong>How to use:</strong> Include the access token in API requests:{' '}
-									<code>Authorization: Bearer [token]</code>
-									<br />
-									Decode the tokens above to see the workload's SPIFFE ID in the claims.
-								</HelperText>
+								>
+									<FiShield /> View Tokens on Dedicated Page
+								</Button>
 							</FormGroup>
+						</Card>
+					)}
+
+					{pingOneToken && (
+						<Card style={{ marginTop: '2rem' }}>
+							<CardHeader>
+								<FiShield />
+								<h2>PingOne OAuth Token</h2>
+							</CardHeader>
 
 							<FormGroup>
 								<Label>Token Metadata</Label>
@@ -1500,42 +1766,8 @@ Issued At: ${new Date().toISOString()}`}
 			</FlowContainer>
 
 			{/* API Call Display Section - Full Width at Bottom */}
-			{apiCalls.length > 0 && (
-				<ApiCallSection>
-					<Card>
-						<CardHeader>
-							<FiServer />
-							<h2>API Call History ({apiCalls.length})</h2>
-						</CardHeader>
-						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
-							<FiInfo />
-							<div>
-								<strong>Mock API Interactions:</strong> These show the API calls that would happen
-								in a real SPIFFE/SPIRE + PingOne integration. Expand each call to see
-								request/response details, cURL commands, and educational notes.
-							</div>
-						</Alert>
-						{apiCalls.map((apiCall, index) => (
-							<div
-								key={index}
-								style={{ marginBottom: index < apiCalls.length - 1 ? '1.5rem' : '0' }}
-							>
-								<EnhancedApiCallDisplay
-									apiCall={apiCall}
-									initiallyCollapsed={true}
-									options={{
-										includeHeaders: true,
-										includeBody: true,
-										prettyPrint: true,
-										showEducationalNotes: true,
-										showFlowContext: true,
-									}}
-								/>
-							</div>
-						))}
-					</Card>
-				</ApiCallSection>
-			)}
+			{/* MFA-style bottom-docked PingOne/SPIFFE API history (shared across V8 flows) */}
+			<SuperSimpleApiDisplayV8 />
 		</PageContainer>
 	);
 };

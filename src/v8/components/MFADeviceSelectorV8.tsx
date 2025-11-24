@@ -141,7 +141,7 @@ export const MFADeviceSelectorV8: React.FC<MFADeviceSelectorV8Props> = ({
 													marginBottom: '4px',
 												}}
 											>
-												{getDeviceIcon(dev.type)} {dev.nickname || 'Unnamed Device'}
+												{getDeviceIcon(dev.type)} {dev.nickname || dev.type}
 											</div>
 											<div style={{ fontSize: '12px', color: '#6b7280' /* Grey text */ }}>
 												Type: {dev.type} • Status: {dev.status}

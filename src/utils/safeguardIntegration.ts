@@ -345,13 +345,9 @@ export class SafeguardIntegration {
 	 */
 	private triggerCriticalAlert(status: SafeguardStatus): void {
 		// In a real implementation, this would send alerts to monitoring systems
-		// For now, we'll show a user notification
-		if (window?.alert) {
-			window.alert('Critical issues detected in safeguard system. Check console for details.');
-		}
-
-		// Log detailed status
+		// For now, we'll log to console
 		console.error('[CRITICAL ALERT] Detailed status:', status);
+		console.log(`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical issues detected in safeguard system. Check console for details.`);
 	}
 
 	/**

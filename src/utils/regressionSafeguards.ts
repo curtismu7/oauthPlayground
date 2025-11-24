@@ -411,12 +411,10 @@ export class RegressionSafeguards {
 	private alertCriticalFailure(flowName: string, testSuite: RegressionTestSuite): void {
 		const failedTests = testSuite.tests.filter((test) => !test.passed);
 		console.error(`[CRITICAL] Flow ${flowName} failed validation:`, failedTests);
+		console.log(`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical flow ${flowName} failed validation. Check console for details.`);
 
 		// In a real implementation, this would send alerts to monitoring systems
-		// For now, we'll log to console and potentially show user notification
-		if (window?.alert) {
-			window.alert(`Critical flow ${flowName} failed validation. Check console for details.`);
-		}
+		// For now, we'll log to console
 	}
 
 	/**

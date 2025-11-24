@@ -237,12 +237,9 @@ export class OAuthIntegrationServiceV8 {
 		console.log(`${MODULE_TAG} Code Verifier length:`, codeVerifier?.length);
 
 		try {
-			// Use backend proxy to avoid CORS issues
-			const backendUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
+			// Use relative path to leverage Vite proxy (proxies /api to http://localhost:3001)
+			// This avoids SSL protocol errors and CORS issues
+			const tokenEndpoint = '/api/token-exchange';
 			console.log(`${MODULE_TAG} Token endpoint (via proxy):`, tokenEndpoint);
 
 			const bodyParams: Record<string, string> = {
@@ -286,6 +283,21 @@ export class OAuthIntegrationServiceV8 {
 				has_client_secret: !!credentials.clientSecret,
 			});
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: tokenEndpoint,
+				body: {
+					...bodyParams,
+					code: '***REDACTED***', // Don't expose authorization code in display
+					code_verifier: bodyParams.code_verifier ? '***REDACTED***' : undefined,
+					client_secret: bodyParams.client_secret ? '***REDACTED***' : undefined,
+				},
+				step: 'unified-token-exchange',
+			});
+
 			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -295,19 +307,38 @@ export class OAuthIntegrationServiceV8 {
 				body: JSON.stringify(bodyParams),
 			});
 
+			// Update API call with response
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
 			console.log(`${MODULE_TAG} Response status:`, response.status);
 			console.log(`${MODULE_TAG} Response status text:`, response.statusText);
 
 			if (!response.ok) {
 				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
-				const errorData = await response.json();
+				const errorData = responseData as Record<string, unknown>;
 				console.error(`${MODULE_TAG} Error response:`, errorData);
 				throw new Error(
-					`Token exchange failed: ${errorData.error} - ${errorData.error_description || ''}`
+					`Token exchange failed: ${errorData.error} - ${(errorData.error_description || '') as string}`
 				);
 			}
 
-			const tokens: TokenResponse = await response.json();
+			const tokens: TokenResponse = responseData as TokenResponse;
 
 			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
 				hasAccessToken: !!tokens.access_token,
@@ -349,11 +380,9 @@ export class OAuthIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
+			// Use relative path to leverage Vite proxy (proxies /api to http://localhost:3001)
+			// This avoids SSL protocol errors and CORS issues
+			const tokenEndpoint = '/api/token-exchange';
 
 			const bodyParams: Record<string, string> = {
 				grant_type: 'refresh_token',

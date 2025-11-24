@@ -12,6 +12,9 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import { ApiDisplayServiceDemo } from './v8/components/__tests__/ApiDisplayServiceDemo';
+import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
+import { PromptModalV8 } from './v8/components/PromptModalV8';
 
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
@@ -72,6 +75,7 @@ import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import LogoutCallback from './components/LogoutCallback';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import ServerStatusProvider from './components/ServerStatusProvider';
+import { StartupWrapper } from './components/StartupWrapper';
 import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import AdvancedSecuritySettingsComparison from './pages/AdvancedSecuritySettingsComparison';
@@ -165,12 +169,14 @@ import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import MFAHubV8 from './v8/flows/MFAHubV8';
+import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import SpiffeSpireFlowV8U from './v8u/flows/SpiffeSpireFlowV8U';
+import SpiffeSpireTokenDisplayV8U from './v8u/pages/SpiffeSpireTokenDisplayV8U';
 import UnifiedOAuthFlowV8U from './v8u/flows/UnifiedOAuthFlowV8U';
 
 // Import test pages
@@ -453,7 +459,9 @@ const AppRoutes: React.FC = () => {
 							<Route path="/login" element={<Login />} />
 							<Route path="/callback" element={<Callback />} />
 							{/* Per-flow callback routes */}
-							{/* Note: /authz-callback is handled by V8U CallbackHandlerV8U below */}
+							{/* V8U Unified Callback Handler - handles all V8U flows */}
+							<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
+							<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
@@ -505,6 +513,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa" element={<MFAFlowV8 />} />
 							<Route path="/v8/mfa-hub" element={<MFAHubV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
+							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
 							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
 							<Route path="/flows/oauth-authorization-code-v7-mock" element={<TestMock />} />
 							<Route
@@ -621,19 +630,16 @@ const AppRoutes: React.FC = () => {
 								element={<UnifiedCredentialsMockupV8 />}
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
-							<Route path="/v8u/unified" element={<UnifiedOAuthFlowV8U />} />
-							<Route path="/v8u/unified/:flowType/:step" element={<UnifiedOAuthFlowV8U />} />
-							{/* V8U OAuth Callback Handler - Automatically captures callback parameters */}
-							<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
-							<Route path="/callback/logout" element={<LogoutCallback />} />
-							{/* V8U SPIFFE/SPIRE Mock Flow */}
-							<Route path="/v8u/spiffe-spire" element={<SpiffeSpireFlowV8U />} />
-							{/* Legacy V6 routes - redirect to V7 equivalents for backward compatibility */}
+							<Route path="/v8u/unified/:flowType?/:step?" element={<UnifiedOAuthFlowV8U />} />
+							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
-								path="/flows/oauth-implicit-v6"
-								element={<Navigate to="/flows/implicit-v7" replace />}
+								path="/v8u/spiffe-spire"
+								element={<Navigate to="/v8u/spiffe-spire/attest" replace />}
 							/>
+							<Route path="/v8u/spiffe-spire/attest" element={<SpiffeSpireFlowV8U />} />
+							<Route path="/v8u/spiffe-spire/svid" element={<SpiffeSpireFlowV8U />} />
+							<Route path="/v8u/spiffe-spire/validate" element={<SpiffeSpireFlowV8U />} />
+							<Route path="/v8u/spiffe-spire/tokens" element={<SpiffeSpireTokenDisplayV8U />} />
 							<Route
 								path="/flows/oidc-implicit-v6"
 								element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />}
@@ -822,6 +828,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples" element={<CodeExamplesDemo />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
+							<Route path="/api-display-demo" element={<ApiDisplayServiceDemo />} />
 							<Route
 								path="/compact-app-picker-demo"
 								element={
@@ -922,6 +929,10 @@ const AppRoutes: React.FC = () => {
 				authorizationUrl={authRequestData?.authorizationUrl || ''}
 				requestParams={authRequestData?.requestParams || {}}
 			/>
+
+			{/* Global Confirmation and Prompt Modals - Replace system modals */}
+			<ConfirmationModalV8 />
+			<PromptModalV8 />
 
 			<PageChangeSpinner isVisible={showPageSpinner} message="Loading page..." />
 		</>
@@ -1140,12 +1151,14 @@ function AppContent() {
 					<AuthErrorBoundary>
 						<NotificationProvider>
 							<AuthProvider>
-								<PageStyleProvider>
-									<GlobalStyle />
-									<NotificationContainer />
-									<ApiRequestModalProvider />
-									<AppRoutes />
-								</PageStyleProvider>
+								<StartupWrapper>
+									<PageStyleProvider>
+										<GlobalStyle />
+										<NotificationContainer />
+										<ApiRequestModalProvider />
+										<AppRoutes />
+									</PageStyleProvider>
+								</StartupWrapper>
 							</AuthProvider>
 						</NotificationProvider>
 					</AuthErrorBoundary>
