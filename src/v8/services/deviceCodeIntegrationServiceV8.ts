@@ -73,11 +73,11 @@ export class DeviceCodeIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl =
+			// Use relative URL in development to go through Vite proxy (avoids SSL errors)
+			const deviceAuthEndpoint =
 				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-			const deviceAuthEndpoint = `${backendUrl}/api/device-authorization`;
+					? 'https://oauth-playground.vercel.app/api/device-authorization'
+					: '/api/device-authorization';
 
 			// Validate and handle scopes for Device Authorization Flow
 			const finalScopes = credentials.scopes?.trim() || '';
@@ -132,15 +132,61 @@ export class DeviceCodeIntegrationServiceV8 {
 			};
 
 			// Handle Client Authentication - pass to backend proxy
+			// Always send client_auth_method if client_secret is provided, or if explicitly set to 'none'
 			if (credentials.clientSecret) {
 				requestBody.client_secret = credentials.clientSecret;
 				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
+				console.log(`${MODULE_TAG} Including client authentication`, {
+					authMethod: requestBody.client_auth_method,
+					hasSecret: !!requestBody.client_secret,
+					secretLength: requestBody.client_secret?.length || 0,
+				});
+			} else if (credentials.clientAuthMethod === 'none') {
+				// Explicitly set to 'none' for public clients
+				requestBody.client_auth_method = 'none';
+				console.log(`${MODULE_TAG} Public client (no authentication)`);
+			} else {
+				// No client secret and no explicit 'none' - this might cause 403 if app requires auth
+				console.warn(`${MODULE_TAG} No client secret provided and auth method not set to 'none'`, {
+					clientAuthMethod: credentials.clientAuthMethod,
+					note: 'This may cause 403 Forbidden if your PingOne application requires client authentication',
+				});
 			}
 
 			// Add scope if provided
 			if (finalScopes) {
 				requestBody.scope = finalScopes;
 			}
+
+			// Log the complete request being sent (without exposing full secret)
+			console.log(`${MODULE_TAG} 📤 Request being sent to backend:`, {
+				endpoint: deviceAuthEndpoint,
+				environment_id: requestBody.environment_id,
+				client_id: requestBody.client_id?.substring(0, 8) + '...',
+				client_auth_method: requestBody.client_auth_method,
+				has_client_secret: !!requestBody.client_secret,
+				client_secret_length: requestBody.client_secret?.length || 0,
+				client_secret_preview: requestBody.client_secret
+					? `${requestBody.client_secret.substring(0, 4)}...${requestBody.client_secret.substring(requestBody.client_secret.length - 4)}`
+					: 'none',
+				scope: requestBody.scope || 'none',
+				fullRequestBody: {
+					...requestBody,
+					client_secret: requestBody.client_secret
+						? `${requestBody.client_secret.substring(0, 4)}...${requestBody.client_secret.substring(requestBody.client_secret.length - 4)}`
+						: undefined,
+				},
+			});
+
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: deviceAuthEndpoint,
+				body: requestBody,
+				step: 'unified-device-authorization',
+			});
 
 			const response = await fetch(deviceAuthEndpoint, {
 				method: 'POST',
@@ -150,10 +196,31 @@ export class DeviceCodeIntegrationServiceV8 {
 				body: JSON.stringify(requestBody),
 			});
 
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
 			if (!response.ok) {
-				const errorData = await response.json();
-				const errorMessage = errorData.error_description || errorData.error || 'Unknown error';
-				const errorCode = errorData.error || 'unknown_error';
+				// Use already parsed responseData instead of parsing again
+				const errorData = responseData as Record<string, unknown>;
+				const errorMessage = (errorData.error_description || errorData.error || 'Unknown error') as string;
+				const errorCode = (errorData.error || 'unknown_error') as string;
 
 				// Extract correlation ID from error data or error message
 				let correlationId = errorData.correlation_id || errorData.correlationId;
@@ -169,6 +236,51 @@ export class DeviceCodeIntegrationServiceV8 {
 					errorMessage.toLowerCase().includes('missing required grant type') ||
 					(errorMessage.toLowerCase().includes('grant type') &&
 						errorMessage.toLowerCase().includes('device_code'));
+
+				// Check for 403 Forbidden - often means missing client authentication or grant type
+				if (response.status === 403) {
+					const hasClientSecret = !!credentials.clientSecret;
+					const authMethod = credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
+					
+					console.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
+						errorCode,
+						errorMessage,
+						correlationId,
+						clientId: credentials.clientId?.substring(0, 8) + '...',
+						hasClientSecret,
+						authMethod,
+						possibleCauses: [
+							!hasClientSecret && authMethod !== 'none' ? 'Missing client secret (app may require authentication)' : null,
+							'Device Code grant type not enabled in PingOne application',
+							'Invalid client credentials',
+							'Application configuration mismatch',
+						].filter(Boolean),
+					});
+
+					let helpfulMessage = `403 Forbidden: ${errorMessage}\n\n`;
+					
+					if (!hasClientSecret && authMethod !== 'none') {
+						helpfulMessage += `🔐 Client Authentication Issue:\n`;
+						helpfulMessage += `Your PingOne application appears to require client authentication, but no client secret was provided.\n\n`;
+						helpfulMessage += `🔧 How to Fix:\n`;
+						helpfulMessage += `1. Check if your application requires client authentication\n`;
+						helpfulMessage += `2. If yes, enter your Client Secret in the configuration section above\n`;
+						helpfulMessage += `3. If your application is a public client, set Client Auth Method to "None"\n\n`;
+					}
+					
+					helpfulMessage += `📋 Grant Type Configuration:\n`;
+					helpfulMessage += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
+					helpfulMessage += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
+					helpfulMessage += `3. Click the "Configuration" tab\n`;
+					helpfulMessage += `4. Under "Grant Types", ensure "Device Code" (or "DEVICE_CODE") is checked\n`;
+					helpfulMessage += `5. Under "Token Endpoint Authentication Method", verify it matches your selection\n`;
+					helpfulMessage += `6. Click "Save"\n`;
+					helpfulMessage += `7. Try the request again\n\n`;
+					helpfulMessage += `📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n`;
+					helpfulMessage += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
+
+					throw new Error(helpfulMessage);
+				}
 
 				if (errorCode === 'unauthorized_client' && isMissingGrantType) {
 					console.error(`${MODULE_TAG} Missing grant type error`, {
@@ -243,11 +355,14 @@ export class DeviceCodeIntegrationServiceV8 {
 		});
 
 		// Use backend proxy to avoid CORS issues
-		const backendUrl =
-			process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: 'https://localhost:3001';
-		const tokenEndpoint = `${backendUrl}/api/token-exchange`;
+			// Use relative URL for development (same origin), absolute for production
+			const tokenEndpoint =
+				process.env.NODE_ENV === 'production'
+					? 'https://oauth-playground.vercel.app/api/token-exchange'
+					: '/api/token-exchange';
+
+		// Track API call for display
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
 		for (let attempt = 0; attempt < maxAttempts; attempt++) {
 			try {
@@ -265,6 +380,18 @@ export class DeviceCodeIntegrationServiceV8 {
 					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
 				}
 
+				// Track API call for display
+				const pollStartTime = Date.now();
+				const pollCallId = apiCallTrackerService.trackApiCall({
+					method: 'POST',
+					url: tokenEndpoint,
+					body: {
+						...requestBody,
+						device_code: '***REDACTED***', // Don't expose device code in display
+					},
+					step: 'unified-device-token-poll',
+				});
+
 				const response = await fetch(tokenEndpoint, {
 					method: 'POST',
 					headers: {
@@ -272,6 +399,25 @@ export class DeviceCodeIntegrationServiceV8 {
 					},
 					body: JSON.stringify(requestBody),
 				});
+
+				// Update API call with response
+				const responseClone = response.clone();
+				let pollResponseData: unknown;
+				try {
+					pollResponseData = await responseClone.json();
+				} catch {
+					pollResponseData = { error: 'Failed to parse response' };
+				}
+
+				apiCallTrackerService.updateApiCallResponse(
+					pollCallId,
+					{
+						status: response.status,
+						statusText: response.statusText,
+						data: pollResponseData,
+					},
+					Date.now() - pollStartTime
+				);
 
 				if (response.ok) {
 					const tokens: TokenResponse = await response.json();
