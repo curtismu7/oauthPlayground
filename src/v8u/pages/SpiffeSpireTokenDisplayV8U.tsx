@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiArrowLeft, FiKey, FiShield } from 'react-icons/fi';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import TokenDisplayV8U, { type TokenDisplayV8UProps } from '@/v8u/components/TokenDisplayV8U';
 
 const PageContainer = styled.div`
@@ -141,6 +142,13 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 					claims, and copy tokens for testing.
 				</p>
 			</Header>
+
+			{/* Navigation */}
+			<MFANavigationV8
+				currentPage="hub"
+				showRestartFlow={false}
+				showBackToMain={true}
+			/>
 
 			{normalizedTokens ? (
 				<Card>
