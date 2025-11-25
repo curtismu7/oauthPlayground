@@ -28,8 +28,6 @@ import styled from 'styled-components';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { EnhancedApiCallDisplay } from '@/components/EnhancedApiCallDisplay';
-import type { EnhancedApiCallData } from '@/services/enhancedApiCallDisplayService';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
@@ -591,24 +589,6 @@ const ConceptText = styled.div`
 	color: #4b5563; // Secondary dark text
 	font-size: 0.875rem;
 	line-height: 1.6;
-`;
-
-const ApiCallSection = styled.div`
-	margin-top: 3rem;
-	padding-top: 2rem;
-	border-top: 3px solid #e5e7eb;
-	animation: slideUp 0.5s ease-out;
-
-	@keyframes slideUp {
-		from {
-			opacity: 0;
-			transform: translateY(20px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
 `;
 
 // Types
