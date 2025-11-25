@@ -25,9 +25,8 @@
  * });
  */
 
-import { WorkerTokenManager } from '../../services/workerTokenManager';
-import { apiCallTrackerService } from './apiCallTrackerServiceV8';
-import { MFADeviceEducationServiceV8 } from './mfaEducationServiceV8';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 
@@ -131,23 +130,24 @@ export interface UserLookupResult {
  */
 export class MFAServiceV8 {
 	/**
-	 * Get worker token from WorkerTokenManager
+	 * Get worker token from WorkerTokenServiceV8
 	 * @returns Access token
 	 */
 	static async getWorkerToken(): Promise<string> {
-		console.log(`${MODULE_TAG} Getting worker token from WorkerTokenManager`);
-
-		const workerTokenManager = WorkerTokenManager.getInstance();
+		console.log(`${MODULE_TAG} Getting worker token from WorkerTokenServiceV8`);
 
 		try {
-			const token = await workerTokenManager.getAccessToken();
-			console.log(`${MODULE_TAG} Using worker token from WorkerTokenManager`, {
+			const token = await workerTokenServiceV8.getToken();
+			if (!token) {
+				throw new Error('Worker token is not available');
+			}
+			console.log(`${MODULE_TAG} Using worker token from WorkerTokenServiceV8`, {
 				tokenLength: token.length,
 				tokenPrefix: token.substring(0, 20),
 			});
 			return token;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to get worker token from WorkerTokenManager`, error);
+			console.error(`${MODULE_TAG} Failed to get worker token from WorkerTokenServiceV8`, error);
 			throw new Error(
 				'Failed to get worker token. Please configure worker token credentials first.'
 			);
@@ -266,6 +266,51 @@ export class MFAServiceV8 {
 
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// STEP 1: Initialize device authentication FIRST (per PingOne MFA Native SDK flow)
+			// This uses the auth server endpoint: {{authPath}}/{{envID}}/deviceAuthentications
+			console.log(
+				`${MODULE_TAG} Step 1: Initializing device authentication before device creation`
+			);
+			try {
+				const authInitResponse = await fetch(
+					'/api/pingone/mfa/initialize-device-authentication-auth',
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							environmentId: params.environmentId,
+							userId: user.id,
+							workerToken: accessToken.trim(),
+						}),
+					}
+				);
+
+				if (!authInitResponse.ok) {
+					const errorData = await authInitResponse.json().catch(() => ({ error: 'Unknown error' }));
+					console.warn(
+						`${MODULE_TAG} Device authentication initialization returned error (continuing anyway):`,
+						errorData
+					);
+					// Continue with device registration even if initialization fails
+					// Some environments may not require this step
+				} else {
+					const authData = await authInitResponse.json();
+					console.log(`${MODULE_TAG} Device authentication initialized successfully:`, {
+						authenticationId: authData.id,
+						status: authData.status,
+						nextStep: authData.nextStep,
+					});
+				}
+			} catch (authInitError) {
+				console.warn(
+					`${MODULE_TAG} Device authentication initialization failed (continuing anyway):`,
+					authInitError
+				);
+				// Continue with device registration - initialization may not be required for all flows
+			}
 
 			// Build device registration payload
 			const devicePayload: Record<string, unknown> = {
@@ -895,8 +940,9 @@ export class MFAServiceV8 {
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
-			// Get all devices via Management API
-			const devicesEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices`;
+			// Use backend proxy to avoid CORS issues
+			const proxyEndpoint = '/api/pingone/mfa/get-all-devices';
+			const devicesEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices?_t=${Date.now()}`;
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -910,11 +956,21 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch(devicesEndpoint, {
-					method: 'GET',
+				// Add cache-busting timestamp to request body to ensure fresh data
+				response = await fetch(`${proxyEndpoint}?_t=${Date.now()}`, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
+						'Cache-Control': 'no-cache, no-store, must-revalidate',
+						Pragma: 'no-cache',
 					},
+					cache: 'no-store', // Prevent browser caching
+					body: JSON.stringify({
+						environmentId: params.environmentId,
+						userId: user.id,
+						workerToken: accessToken.trim(),
+						_timestamp: Date.now(), // Additional cache-busting in body
+					}),
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -955,6 +1011,7 @@ export class MFAServiceV8 {
 				);
 			}
 
+			// Backend proxy returns { _embedded: { devices: [...] } }
 			const devices =
 				(devicesData as { _embedded?: { devices?: Array<Record<string, unknown>> } })._embedded
 					?.devices || [];
@@ -992,30 +1049,41 @@ export class MFAServiceV8 {
 			// Get worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
-			// Update device via Management API
+			// Update device via backend proxy to avoid CORS
+			const proxyEndpoint = '/api/pingone/mfa/update-device';
 			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'PATCH',
-				url: deviceEndpoint,
+				url: proxyEndpoint,
 				headers: {
-					Authorization: 'Bearer ***REDACTED***',
 					'Content-Type': 'application/json',
 				},
-				body: updates,
+				body: {
+					environmentId: params.environmentId,
+					userId: user.id,
+					deviceId: params.deviceId,
+					updates,
+					workerToken: accessToken.trim(),
+				},
 				step: 'mfa-Update Device',
 			});
 
 			let response: Response;
 			try {
-				response = await fetch(deviceEndpoint, {
-					method: 'PATCH',
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify(updates),
+					body: JSON.stringify({
+						environmentId: params.environmentId,
+						userId: user.id,
+						deviceId: params.deviceId,
+						updates,
+						workerToken: accessToken.trim(),
+					}),
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -1422,12 +1490,7 @@ export class MFAServiceV8 {
 		orderedDeviceIds: string[]
 	): Promise<Record<string, unknown>> {
 		const token = await MFAServiceV8.getWorkerToken();
-		const url = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/order`;
 		const requestId = `mfa-set-device-order-${Date.now()}`;
-
-		const requestData = {
-			devices: orderedDeviceIds.map((id) => ({ id })),
-		};
 
 		try {
 			console.log(`${MODULE_TAG} Setting device order for user ${userId}`, {
@@ -1436,20 +1499,25 @@ export class MFAServiceV8 {
 				requestId,
 			});
 
-			const response = await fetch(url, {
+			// Use backend proxy to avoid CORS issues
+			const response = await fetch('/api/pingone/mfa/device-order', {
 				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json',
 					'X-Request-ID': requestId,
 				},
-				body: JSON.stringify(requestData),
+				body: JSON.stringify({
+					environmentId,
+					userId,
+					deviceIds: orderedDeviceIds, // Backend expects deviceIds array
+					workerToken: token.trim(),
+				}),
 			});
 
 			const data = await response.json();
 
 			if (!response.ok) {
-				const errorMsg = data.message || 'Failed to update device order';
+				const errorMsg = data.message || data.error || 'Failed to update device order';
 				console.error(`${MODULE_TAG} Error setting device order:`, {
 					status: response.status,
 					error: errorMsg,
