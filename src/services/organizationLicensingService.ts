@@ -113,13 +113,15 @@ export async function getEnvironmentLicensingInfo(
 	});
 
 	try {
-		const response = await fetch(`https://api.pingone.com/v1/environments/${environmentId}`, {
-			method: 'GET',
+		const response = await fetch('/api/pingone/environment/licensing', {
+			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
 				'Content-Type': 'application/json',
-				Accept: 'application/json',
 			},
+			body: JSON.stringify({
+				environmentId,
+				accessToken,
+			}),
 		});
 
 		if (!response.ok) {

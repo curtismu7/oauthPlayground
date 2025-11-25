@@ -7796,6 +7796,239 @@ app.post('/api/pingone/mfa/update-device', async (req, res) => {
 	}
 });
 
+// Get MFA Methods
+app.post('/api/pingone/mfa/get-methods', async (req, res) => {
+	try {
+		const { environmentId, accessToken } = req.body;
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({ error: 'Missing environmentId or accessToken' });
+		}
+
+		console.log('[MFA Get Methods] Getting MFA methods for environment:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/mfa/methods`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const methodsData = await response.json();
+		res.json(methodsData);
+	} catch (error) {
+		console.error('[MFA Get Methods] Error:', error);
+		res.status(500).json({ error: 'Failed to get MFA methods', message: error.message });
+	}
+});
+
+// Select MFA Method
+app.post('/api/pingone/mfa/select-method', async (req, res) => {
+	try {
+		const { environmentId, method, accessToken } = req.body;
+		if (!environmentId || !method || !accessToken) {
+			return res.status(400).json({ error: 'Missing environmentId, method, or accessToken' });
+		}
+
+		console.log('[MFA Select Method] Selecting MFA method:', { environmentId, method });
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/mfa/methods/${method}/select`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({}),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const selectionData = await response.json();
+		res.json(selectionData);
+	} catch (error) {
+		console.error('[MFA Select Method] Error:', error);
+		res.status(500).json({ error: 'Failed to select MFA method', message: error.message });
+	}
+});
+
+// Verify MFA Code
+app.post('/api/pingone/mfa/verify-code', async (req, res) => {
+	try {
+		const { environmentId, method, code, accessToken, userId, sessionId } = req.body;
+		if (!environmentId || !method || !code || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[MFA Verify Code] Verifying MFA code:', { environmentId, method });
+
+		const requestBody = {
+			method,
+			code,
+			userId: userId || 'current-user-id',
+			sessionId: sessionId || 'current-session-id',
+		};
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/mfa/methods/${method}/verify`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const verificationData = await response.json();
+		res.json(verificationData);
+	} catch (error) {
+		console.error('[MFA Verify Code] Error:', error);
+		res.status(500).json({ error: 'Failed to verify MFA code', message: error.message });
+	}
+});
+
+// Get Environment Licensing
+app.post('/api/pingone/environment/licensing', async (req, res) => {
+	try {
+		const { environmentId, accessToken } = req.body;
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({ error: 'Missing environmentId or accessToken' });
+		}
+
+		console.log('[Environment Licensing] Getting licensing info for environment:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const environmentData = await response.json();
+		res.json(environmentData);
+	} catch (error) {
+		console.error('[Environment Licensing] Error:', error);
+		res.status(500).json({ error: 'Failed to get environment licensing', message: error.message });
+	}
+});
+
+// Worker Token Test - Get Environment
+app.post('/api/pingone/worker-test/environment', async (req, res) => {
+	try {
+		const { environmentId, token } = req.body;
+		if (!environmentId || !token) {
+			return res.status(400).json({ error: 'Missing environmentId or token' });
+		}
+
+		console.log('[Worker Test] Testing environment access:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
+
+		const environmentData = await response.json();
+		res.status(response.status).json(environmentData);
+	} catch (error) {
+		console.error('[Worker Test - Environment] Error:', error);
+		res.status(500).json({ error: 'Failed to test environment', message: error.message });
+	}
+});
+
+// Worker Token Test - Get Users
+app.post('/api/pingone/worker-test/users', async (req, res) => {
+	try {
+		const { environmentId, token } = req.body;
+		if (!environmentId || !token) {
+			return res.status(400).json({ error: 'Missing environmentId or token' });
+		}
+
+		console.log('[Worker Test] Testing users access:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users?limit=1`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
+
+		const usersData = await response.json();
+		res.status(response.status).json(usersData);
+	} catch (error) {
+		console.error('[Worker Test - Users] Error:', error);
+		res.status(500).json({ error: 'Failed to test users', message: error.message });
+	}
+});
+
+// Worker Token Test - Get Applications
+app.post('/api/pingone/worker-test/applications', async (req, res) => {
+	try {
+		const { environmentId, token } = req.body;
+		if (!environmentId || !token) {
+			return res.status(400).json({ error: 'Missing environmentId or token' });
+		}
+
+		console.log('[Worker Test] Testing applications access:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/applications?limit=1`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`,
+					'Content-Type': 'application/json',
+				},
+			}
+		);
+
+		const applicationsData = await response.json();
+		res.status(response.status).json(applicationsData);
+	} catch (error) {
+		console.error('[Worker Test - Applications] Error:', error);
+		res.status(500).json({ error: 'Failed to test applications', message: error.message });
+	}
+});
+
 // Get Device Authentication Policy
 app.post('/api/pingone/mfa/get-device-auth-policy', async (req, res) => {
 	try {
