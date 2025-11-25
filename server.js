@@ -2742,8 +2742,8 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Sending recovery code...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		// PingOne Platform API - Send recovery code
@@ -2815,8 +2815,8 @@ app.post('/api/pingone/password/recover', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Recovering password...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2874,8 +2874,8 @@ app.post('/api/pingone/password/force-change', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Forcing password change...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2933,8 +2933,8 @@ app.post('/api/pingone/password/change', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Changing password...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2993,8 +2993,8 @@ app.post('/api/pingone/password/check', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Checking password...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/check`;
@@ -3051,8 +3051,8 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Unlocking password...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/unlock`;
@@ -3116,8 +3116,8 @@ app.get('/api/pingone/password/state', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Reading password state...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -3171,8 +3171,8 @@ app.put('/api/pingone/password/admin-set', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password (admin)...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3245,8 +3245,8 @@ app.put('/api/pingone/password/set', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3319,8 +3319,8 @@ app.put('/api/pingone/password/set-value', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password value...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3400,8 +3400,8 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password via LDAP Gateway...', {
-			environmentId: environmentId?.substring(0, 8) + '...',
-			userId: userId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -4267,7 +4267,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 			);
 			console.log(
 				`[PingOne Resume] Cookie header preview:`,
-				cookieString.substring(0, 150) + (cookieString.length > 150 ? '...' : '')
+				`${cookieString.substring(0, 150)}${cookieString.length > 150 ? '...' : ''}`
 			);
 		} else {
 			console.error(
@@ -6948,7 +6948,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 		const { environmentId, username, workerToken } = req.body;
 
 		console.log('[MFA Lookup User] Request:', {
-			environmentId: environmentId?.substring(0, 8) + '...',
+			environmentId: `${environmentId?.substring(0, 8)}...`,
 			username,
 			hasToken: !!workerToken,
 		});
