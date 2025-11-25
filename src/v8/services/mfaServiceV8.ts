@@ -1057,7 +1057,6 @@ export class MFAServiceV8 {
 
 			// Update device via backend proxy to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/update-device';
-			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
