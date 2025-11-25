@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import { type MfaDevice, PingOneMfaService } from '../services/pingOneMfaService';
 
@@ -49,7 +49,10 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 	const [isRemovingDevice, setIsRemovingDevice] = useState(false);
 	const [isVerifyingCode, setIsVerifyingCode] = useState(false);
 
-	const credentials = { accessToken, environmentId, userId };
+	const credentials = useMemo(
+		() => ({ workerToken: accessToken, environmentId, userId }),
+		[accessToken, environmentId, userId]
+	);
 
 	const loadDevices = useCallback(async () => {
 		try {
@@ -90,14 +93,16 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 					toast.success('SMS device added. A verification code has been sent to your phone.');
 					return { device, requiresVerification: true };
 				} else {
-					const { device, secret, qrCode } = await PingOneMfaService.createTotpDeviceWithQRCode(
-						credentials,
-						{
-							name: 'Authenticator App',
-							issuer: 'Your App',
-							accountName: userId,
-						}
-					);
+					const setupData = await PingOneMfaService.createTotpDeviceWithQRCode(credentials, {
+						name: 'Authenticator App',
+						issuer: 'Your App',
+						accountName: userId,
+					});
+
+					// Extract the needed properties from the setup data
+					const device = setupData.device;
+					const secret = setupData.qrCodeData?.manualEntry?.key || '';
+					const qrCode = setupData.qrCodeData?.qrCode || '';
 
 					// Refresh the device list
 					await loadDevices();
@@ -128,7 +133,10 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 				setIsVerifyingCode(true);
 				setError(null);
 
-				await PingOneMfaService.activateDevice(credentials, deviceId, code);
+				await PingOneMfaService.activateDevice(credentials, {
+					deviceId,
+					otp: code,
+				});
 
 				// Refresh the device list
 				await loadDevices();
@@ -172,7 +180,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 		[credentials]
 	);
 
-	const resendVerificationCode = useCallback(async (_deviceId: string) => {
+	const resendVerificationCode = useCallback(async (deviceId: string) => {
 		try {
 			setError(null);
 
