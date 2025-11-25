@@ -9,4 +9,6 @@ export type { OTPState, ValidationState, DeviceSelectionState, FlowControllerCal
 
 export { SMSFlowController, getFullPhoneNumber } from './SMSFlowController';
 export { EmailFlowController, isValidEmail } from './EmailFlowController';
+export { TOTPFlowController } from './TOTPFlowController';
+export { FIDO2FlowController } from './FIDO2FlowController';
 
