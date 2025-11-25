@@ -8,6 +8,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
@@ -28,6 +29,7 @@ export interface MFAFlowBaseProps {
 	renderStep1: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	renderStep2: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	renderStep3: (props: MFAFlowBaseRenderProps) => React.ReactNode;
+	renderStep4: (props: MFAFlowBaseRenderProps) => React.ReactNode;
 	validateStep0: (
 		credentials: MFACredentials,
 		tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>,
@@ -59,14 +61,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	renderStep1,
 	renderStep2,
 	renderStep3,
+	renderStep4,
 	validateStep0,
-	stepLabels = ['Configure', 'Register Device', 'Validate', 'Success'],
+	stepLabels = ['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate'],
 }) => {
 	console.log(`${MODULE_TAG} Initializing MFA flow for ${deviceType}`);
 
 	usePageScroll({ pageName: 'MFA Flow V8', force: true });
 
-	const nav = useStepNavigationV8(4, {
+	const nav = useStepNavigationV8(5, {
 		onStepChange: (step) => {
 			console.log(`${MODULE_TAG} Step changed to`, { step });
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -182,6 +185,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				return renderStep2(renderProps);
 			case 3:
 				return renderStep3(renderProps);
+			case 4:
+				return renderStep4(renderProps);
 			default:
 				return renderStep0(renderProps);
 		}
@@ -216,6 +221,17 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				</div>
 			</div>
 
+			{/* Navigation */}
+			<MFANavigationV8
+				currentPage="registration"
+				showRestartFlow={true}
+				onRestartFlow={() => {
+					FlowResetServiceV8.resetFlow(FLOW_KEY);
+					window.location.reload();
+				}}
+				showBackToMain={true}
+			/>
+
 			<div className="flow-container">
 				<div className="step-breadcrumb">
 					{stepLabels.map((label, idx) => (
@@ -236,7 +252,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				<StepActionButtonsV8
 					currentStep={nav.currentStep}
-					totalSteps={4}
+					totalSteps={5}
 					isNextDisabled={isNextDisabled()}
 					onPrevious={() => {
 						nav.setValidationErrors([]);
@@ -313,7 +329,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				.flow-header {
 					background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-					padding: 28px 40px;
+					padding: 12px 20px;
 					margin-bottom: 0;
 					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 				}
@@ -341,9 +357,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}
 
 				.flow-header h1 {
-					font-size: 26px;
+					font-size: 20px;
 					font-weight: 700;
-					margin: 0 0 4px 0;
+					margin: 0 0 2px 0;
 					color: #1a1a1a;
 				}
 
@@ -360,11 +376,11 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				.step-badge {
 					background: rgba(255, 255, 255, 0.95);
-					padding: 12px 20px;
-					border-radius: 24px;
+					padding: 6px 12px;
+					border-radius: 16px;
 					display: flex;
 					align-items: center;
-					gap: 8px;
+					gap: 4px;
 					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 				}
 
@@ -388,26 +404,26 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				.step-breadcrumb {
 					background: linear-gradient(to bottom, #d1fae5, #a7f3d0);
-					padding: 28px 40px;
+					padding: 10px 16px;
 					border-bottom: 2px solid #10b981;
 					display: flex;
 					align-items: center;
-					gap: 16px;
+					gap: 8px;
 					flex-wrap: wrap;
 				}
 
 				.breadcrumb-item {
 					display: flex;
 					align-items: center;
-					gap: 16px;
+					gap: 6px;
 				}
 
 				.breadcrumb-text {
-					font-size: 15px;
+					font-size: 12px;
 					font-weight: 500;
 					color: #6b7280;
-					padding: 10px 16px;
-					border-radius: 6px;
+					padding: 4px 10px;
+					border-radius: 4px;
 					background: white;
 					border: 1px solid #e8e8e8;
 					transition: all 0.3s ease;
@@ -441,40 +457,41 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				.flow-container {
 					display: flex;
 					flex-direction: column;
-					gap: 16px;
+					gap: 8px;
 				}
 
 				.step-content-wrapper {
 					background: white;
 					border: 1px solid #ddd;
 					border-radius: 8px;
-					padding: 20px;
+					padding: 12px;
 					min-height: auto;
 				}
 
 				.step-content h2 {
-					font-size: 20px;
+					font-size: 16px;
 					font-weight: 600;
-					margin: 0 0 8px 0;
+					margin: 0 0 4px 0;
 					color: #1f2937;
 				}
 
 				.step-content > p {
-					font-size: 14px;
+					font-size: 12px;
 					color: #6b7280;
-					margin: 0 0 20px 0;
+					margin: 0 0 8px 0;
 				}
 
 				.credentials-grid {
 					display: grid;
 					grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-					gap: 16px;
+					gap: 0;
 				}
 
 				.form-group {
 					display: flex;
 					flex-direction: column;
-					gap: 6px;
+					gap: 4px;
+					margin-bottom: 0;
 				}
 
 				.form-group label {
@@ -490,10 +507,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 				.form-group input,
 				.form-group select {
-					padding: 10px 12px;
+					padding: 6px 10px;
 					border: 1px solid #d1d5db;
-					border-radius: 6px;
-					font-size: 14px;
+					border-radius: 4px;
+					font-size: 13px;
 					color: #1f2937;
 					background: white;
 				}
@@ -513,42 +530,42 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				.info-box {
 					background: #dbeafe;
 					border: 1px solid #93c5fd;
-					border-radius: 8px;
-					padding: 16px;
-					margin: 16px 0;
+					border-radius: 6px;
+					padding: 8px 12px;
+					margin: 8px 0;
 				}
 
 				.info-box p {
-					margin: 8px 0;
-					font-size: 14px;
+					margin: 4px 0;
+					font-size: 12px;
 					color: #1e40af;
 				}
 
 				.success-box {
 					background: #d1fae5;
 					border: 1px solid #6ee7b7;
-					border-radius: 8px;
-					padding: 16px;
-					margin: 16px 0;
+					border-radius: 6px;
+					padding: 8px 12px;
+					margin: 8px 0;
 				}
 
 				.success-box h3 {
-					margin: 0 0 12px 0;
-					font-size: 18px;
+					margin: 0 0 6px 0;
+					font-size: 14px;
 					color: #065f46;
 				}
 
 				.success-box p {
-					margin: 8px 0;
-					font-size: 14px;
+					margin: 4px 0;
+					font-size: 12px;
 					color: #047857;
 				}
 
 				.btn {
-					padding: 12px 24px;
+					padding: 6px 12px;
 					border: none;
-					border-radius: 6px;
-					font-size: 14px;
+					border-radius: 4px;
+					font-size: 12px;
 					font-weight: 500;
 					cursor: pointer;
 					transition: all 0.2s ease;

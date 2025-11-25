@@ -4,7 +4,17 @@
  * @description Shared types and interfaces for MFA flows
  */
 
-export type DeviceType = 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2';
+export type DeviceType = 
+	| 'SMS' 
+	| 'EMAIL' 
+	| 'TOTP' 
+	| 'FIDO2' 
+	| 'MOBILE' 
+	| 'OATH_TOKEN' 
+	| 'VOICE' 
+	| 'WHATSAPP' 
+	| 'PLATFORM' 
+	| 'SECURITY_KEY';
 
 export interface MFACredentials {
 	environmentId: string;

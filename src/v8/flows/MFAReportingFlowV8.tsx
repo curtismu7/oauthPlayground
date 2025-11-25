@@ -19,10 +19,8 @@
 import React, { useEffect, useState } from 'react';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import {
-	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -77,7 +75,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
 	const [selectedReport, setSelectedReport] = useState<ReportType>('user-auth');
-	const [reports, setReports] = useState<any[]>([]);
+	const [reports, setReports] = useState<Array<Record<string, unknown>>>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [dateRange, setDateRange] = useState({
 		startDate: '',
@@ -169,7 +167,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 			if (dateRange.startDate) params.startDate = dateRange.startDate;
 			if (dateRange.endDate) params.endDate = dateRange.endDate;
 
-			let data: any[] = [];
+			let data: Array<Record<string, unknown>> = [];
 
 			switch (selectedReport) {
 				case 'user-auth':
@@ -220,53 +218,17 @@ export const MFAReportingFlowV8: React.FC = () => {
 
 	return (
 		<div className="mfa-reporting-flow-v8">
-			<div className="flow-header">
-				<div className="header-content">
-					<div className="header-left">
-						<span className="version-tag">V8</span>
-						<div className="header-text">
-							<h1>MFA Reporting</h1>
-							<p>View MFA usage reports and analytics</p>
-						</div>
-					</div>
-				</div>
-			</div>
+			<MFAHeaderV8
+				title="MFA Reporting"
+				description="View MFA usage reports and analytics"
+				versionTag="V8"
+				currentPage="reporting"
+				showRestartFlow={false}
+				showBackToMain={true}
+				headerColor="purple"
+			/>
 
 			<div className="flow-container">
-				{/* MFA Navigation Links */}
-				<div
-					style={{
-						display: 'flex',
-						justifyContent: 'space-between',
-						alignItems: 'center',
-						marginBottom: '16px',
-					}}
-				>
-					<div className="mfa-nav-links" style={{ marginBottom: 0 }}>
-						<button
-							onClick={() => (window.location.href = '/v8/mfa-hub')}
-							className="nav-link-btn"
-							title="Go to MFA Hub"
-						>
-							🏠 MFA Hub
-						</button>
-						<button
-							onClick={() => (window.location.href = '/v8/mfa')}
-							className="nav-link-btn"
-							title="Register MFA Devices"
-						>
-							📱 Device Registration
-						</button>
-						<button
-							onClick={() => (window.location.href = '/v8/mfa-device-management')}
-							className="nav-link-btn"
-							title="Manage MFA Devices"
-						>
-							🔧 Device Management
-						</button>
-					</div>
-					<ApiDisplayCheckbox />
-				</div>
 
 				{/* Setup Section */}
 				<div className="setup-section">
@@ -475,80 +437,8 @@ export const MFAReportingFlowV8: React.FC = () => {
 					padding-bottom: 100px;
 				}
 
-				.flow-header {
-					background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-					padding: 28px 40px;
-					margin-bottom: 0;
-					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-				}
-
-				.header-content {
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-				}
-
-				.header-left {
-					display: flex;
-					align-items: flex-start;
-					gap: 20px;
-					flex: 1;
-				}
-
-				.version-tag {
-					font-size: 11px;
-					font-weight: 700;
-					color: rgba(255, 255, 255, 0.8);
-					letter-spacing: 1.5px;
-					text-transform: uppercase;
-					padding-top: 2px;
-				}
-
-				.header-text h1 {
-					font-size: 26px;
-					font-weight: 700;
-					margin: 0 0 4px 0;
-					color: white;
-				}
-
-				.header-text p {
-					font-size: 13px;
-					color: rgba(255, 255, 255, 0.9);
-					margin: 0;
-				}
-
 				.flow-container {
 					padding: 20px;
-				}
-
-				.mfa-nav-links {
-					display: flex;
-					gap: 12px;
-					padding: 16px 0;
-					flex-wrap: wrap;
-				}
-
-				.nav-link-btn {
-					padding: 10px 20px;
-					background: white;
-					color: #1f2937;
-					border: 1px solid #e5e7eb;
-					border-radius: 8px;
-					font-size: 14px;
-					font-weight: 500;
-					cursor: pointer;
-					transition: all 0.2s ease;
-					display: flex;
-					align-items: center;
-					gap: 8px;
-				}
-
-				.nav-link-btn:hover {
-					background: #f9fafb;
-					border-color: #8b5cf6;
-					color: #8b5cf6;
-					transform: translateY(-2px);
-					box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 				}
 
 				.setup-section, .reports-section {

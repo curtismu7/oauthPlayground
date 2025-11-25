@@ -18,8 +18,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
-
-const MODULE_TAG = '[🏠 MFA-HUB-V8]';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 
 interface FeatureCard {
 	title: string;
@@ -97,17 +96,15 @@ export const MFAHubV8: React.FC = () => {
 
 	return (
 		<div className="mfa-hub-v8">
-			<div className="hub-header">
-				<div className="header-content">
-					<div className="header-left">
-						<span className="version-tag">V8</span>
-						<div className="header-text">
-							<h1>PingOne MFA Hub</h1>
-							<p>Comprehensive MFA device and authentication management</p>
-						</div>
-					</div>
-				</div>
-			</div>
+			<MFAHeaderV8
+				title="PingOne MFA Hub"
+				description="Comprehensive MFA device and authentication management"
+				versionTag="V8"
+				currentPage="hub"
+				showRestartFlow={false}
+				showBackToMain={false}
+				headerColor="purple"
+			/>
 
 			<div className="hub-container">
 				<div className="welcome-section">
@@ -188,46 +185,6 @@ export const MFAHubV8: React.FC = () => {
 					margin: 0 auto;
 					background: #f8f9fa;
 					min-height: 100vh;
-				}
-
-				.hub-header {
-					background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-					padding: 40px;
-					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-				}
-
-				.header-content {
-					display: flex;
-					align-items: center;
-					justify-content: space-between;
-				}
-
-				.header-left {
-					display: flex;
-					align-items: flex-start;
-					gap: 20px;
-				}
-
-				.version-tag {
-					font-size: 11px;
-					font-weight: 700;
-					color: rgba(255, 255, 255, 0.8);
-					letter-spacing: 1.5px;
-					text-transform: uppercase;
-					padding-top: 2px;
-				}
-
-				.header-text h1 {
-					font-size: 32px;
-					font-weight: 700;
-					margin: 0 0 8px 0;
-					color: white;
-				}
-
-				.header-text p {
-					font-size: 16px;
-					color: rgba(255, 255, 255, 0.9);
-					margin: 0;
 				}
 
 				.hub-container {
