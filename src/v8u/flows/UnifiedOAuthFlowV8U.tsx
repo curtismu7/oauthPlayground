@@ -41,6 +41,7 @@ import {
 	ApiDisplayCheckbox,
 	SuperSimpleApiDisplayV8,
 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -1458,6 +1459,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					Single UI for all OAuth 2.0, OAuth 2.1, and OpenID Connect flows using real PingOne APIs
 				</p>
 			</div>
+
+			{/* Navigation */}
+			<MFANavigationV8
+				currentPage="hub"
+				showRestartFlow={false}
+				showBackToMain={false}
+			/>
 
 			{/* Compact Selectors Row with API Docs Link */}
 			<div
