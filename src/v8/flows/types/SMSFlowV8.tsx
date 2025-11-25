@@ -13,7 +13,8 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials } from '../shared/MFATypes';
-import { SMSFlowController, getFullPhoneNumber } from '../controllers/SMSFlowController';
+import { getFullPhoneNumber } from '../controllers/SMSFlowController';
+import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
@@ -252,8 +253,10 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 
 // Device selection state management wrapper
 const SMSFlowV8WithDeviceSelection: React.FC = () => {
-	// Initialize controller
-	const controller = useMemo(() => new SMSFlowController(), []);
+	// Initialize controller using factory
+	const controller = useMemo(() => 
+		MFAFlowControllerFactory.create({ deviceType: 'SMS' }), []
+	);
 
 	// Device selection state
 	const [deviceSelection, setDeviceSelection] = useState({
@@ -311,7 +314,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			};
 
 			loadDevices();
-		}, [nav.currentStep, credentials.environmentId, credentials.username, tokenStatus.isValid]);
+		}, [nav.currentStep, credentials, tokenStatus]);
 
 		// Handle selecting an existing device
 		const handleSelectExistingDevice = (deviceId: string) => {
@@ -408,10 +411,10 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					devices={deviceSelection.existingDevices.map((d) => ({
 						id: d.id as string,
 						type: d.type as string,
-						nickname: d.nickname as string | undefined,
-						name: d.name as string | undefined,
-						phone: d.phone as string | undefined,
-						status: d.status as string | undefined,
+						nickname: d.nickname || undefined,
+						name: d.name || undefined,
+						phone: d.phone || undefined,
+						status: d.status || undefined,
 					}))}
 					loading={deviceSelection.loadingDevices}
 					selectedDeviceId={deviceSelection.selectedExistingDevice}

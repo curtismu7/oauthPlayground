@@ -630,7 +630,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	const [loadingDevices, setLoadingDevices] = useState(false);
 	const [selectedExistingDevice, setSelectedExistingDevice] = useState<string>(''); // 'new' or deviceId
 	const [showRegisterForm, setShowRegisterForm] = useState(false);
-	const [currentStep, setCurrentStep] = useState(0);
 	const [credentialsForDeviceLoad, setCredentialsForDeviceLoad] = useState<MFACredentials | null>(null);
 	const [tokenStatusForDeviceLoad, setTokenStatusForDeviceLoad] = useState<ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus> | null>(null);
 	
@@ -650,19 +649,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				return;
 			}
 
-			if (currentStep === 1 && existingDevices.length === 0 && !loadingDevices) {
+			if (existingDevices.length === 0 && !loadingDevices) {
 				console.log(`${MODULE_TAG} Loading existing devices`);
 				setLoadingDevices(true);
 
 				try {
 					const devices = await MFAServiceV8.getAllDevices({
-						environmentId: credentialsForDeviceLoad.environmentId,
-						username: credentialsForDeviceLoad.username,
+						...credentialsForDeviceLoad,
 						deviceType: 'EMAIL',
-						countryCode: credentialsForDeviceLoad.countryCode,
-						phoneNumber: credentialsForDeviceLoad.phoneNumber,
-						email: credentialsForDeviceLoad.email,
-						deviceName: credentialsForDeviceLoad.deviceName,
 					});
 
 					console.log(`${MODULE_TAG} Loaded ${devices.length} devices`);
@@ -686,15 +680,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		loadExistingDevices();
-	}, [currentStep, credentialsForDeviceLoad, tokenStatusForDeviceLoad, existingDevices.length, loadingDevices]);
+	}, [credentialsForDeviceLoad, tokenStatusForDeviceLoad, existingDevices.length, loadingDevices]);
 
 	// Enhanced renderStep1 with device selection
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal } = props;
 
-		// Update state for device loading
+		// Update state when navigation or props change
 		useEffect(() => {
-			setCurrentStep(nav.currentStep);
 			setCredentialsForDeviceLoad(credentials);
 			setTokenStatusForDeviceLoad(props.tokenStatus);
 		}, [nav.currentStep, credentials, props.tokenStatus]);
@@ -758,8 +751,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							}}
 						>
 							{existingDevices.map((device: Record<string, unknown>) => (
-								<div
+								<button
 									key={device.id as string}
+									type="button"
 									onClick={() => handleSelectExistingDevice(device.id as string)}
 									style={{
 										padding: '16px',
@@ -809,7 +803,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 				{!loadingDevices && (
 					<div style={{ marginBottom: '20px' }}>
-						<div
+						<button
+							type="button"
 							onClick={handleSelectNewDevice}
 							style={{
 								padding: '16px',
@@ -935,13 +930,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 									// Refresh device list
 									const devices = await MFAServiceV8.getAllDevices({
-										environmentId: credentials.environmentId,
-										username: credentials.username,
+										...credentials,
 										deviceType: 'EMAIL',
-										countryCode: credentials.countryCode,
-										phoneNumber: credentials.phoneNumber,
-										email: credentials.email,
-										deviceName: credentials.deviceName,
 									});
 									const emailDevices = devices.filter(
 										(d: Record<string, unknown>) => d.type === 'EMAIL'
