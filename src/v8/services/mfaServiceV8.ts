@@ -51,12 +51,18 @@ interface PingOneResponse {
 }
 
 export interface RegisterDeviceParams extends MFACredentials {
-	type: 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2';
-	phone?: string;
-	email?: string;
+	type: 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2' | 'MOBILE' | 'OATH_TOKEN' | 'VOICE' | 'WHATSAPP' | 'PLATFORM' | 'SECURITY_KEY';
+	phone?: string; // Required for SMS, VOICE, WHATSAPP
+	email?: string; // Required for EMAIL
 	name?: string;
 	nickname?: string;
-	status?: 'ACTIVE' | 'ACTIVATION_REQUIRED'; // Device status: ACTIVE or ACTIVATION_REQUIRED
+	status?: 'ACTIVE' | 'ACTIVATION_REQUIRED'; // Device status: ACTIVE (pre-paired) or ACTIVATION_REQUIRED (user must activate)
+	notification?: {
+		// Custom device pairing notification (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
+		message?: string;
+		variant?: string;
+	};
 	// FIDO2-specific fields
 	credentialId?: string;
 	publicKey?: string;
@@ -323,7 +329,8 @@ export class MFAServiceV8 {
 				type: params.type,
 			};
 
-			if (params.type === 'SMS' && params.phone) {
+			// Add phone for SMS, VOICE, and WHATSAPP devices
+			if ((params.type === 'SMS' || params.type === 'VOICE' || params.type === 'WHATSAPP') && params.phone) {
 				devicePayload.phone = params.phone;
 			} else if (params.type === 'EMAIL' && params.email) {
 				devicePayload.email = params.email;
@@ -336,9 +343,17 @@ export class MFAServiceV8 {
 				devicePayload.nickname = deviceNickname.trim();
 			}
 
-			// Add device status if provided (ACTIVE or PENDING)
+			// Add device status if provided (ACTIVE or ACTIVATION_REQUIRED)
+			// ACTIVE: Device is pre-paired (Worker App can set this, user doesn't need to activate)
+			// ACTIVATION_REQUIRED: User must activate device before first use
 			if (params.status) {
 				devicePayload.status = params.status;
+			}
+
+			// Add notification property if provided (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
+			if (params.notification && params.status === 'ACTIVATION_REQUIRED') {
+				devicePayload.notification = params.notification;
 			}
 
 			// Register device via backend proxy
@@ -355,8 +370,8 @@ export class MFAServiceV8 {
 				workerToken: accessToken.trim(),
 			};
 
-			// Only include phone for SMS devices
-			if (params.type === 'SMS' && devicePayload.phone) {
+			// Include phone for SMS, VOICE, and WHATSAPP devices
+			if ((params.type === 'SMS' || params.type === 'VOICE' || params.type === 'WHATSAPP') && devicePayload.phone) {
 				requestBody.phone = devicePayload.phone;
 			}
 
@@ -370,9 +385,14 @@ export class MFAServiceV8 {
 				requestBody.nickname = devicePayload.nickname;
 			}
 
-			// Include status if provided (required for TOTP, optional for SMS/EMAIL)
+			// Include status if provided (ACTIVE or ACTIVATION_REQUIRED)
 			if (devicePayload.status) {
 				requestBody.status = devicePayload.status;
+			}
+
+			// Include notification if provided (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+			if (devicePayload.notification) {
+				requestBody.notification = devicePayload.notification;
 			}
 
 			console.log(`${MODULE_TAG} Registering device with payload:`, {
@@ -1375,23 +1395,47 @@ export class MFAServiceV8 {
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
+				console.error(`${MODULE_TAG} Worker token validation failed`, {
+					hasToken: !!accessToken,
+					tokenType: typeof accessToken,
+					tokenLength: accessToken?.length || 0,
+				});
 				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
 			}
 
-			const trimmedToken = accessToken.trim();
+			// Remove any Bearer prefix if present and trim whitespace
+			const cleanToken = accessToken.trim().replace(/^Bearer\s+/i, '');
+			
+			// Validate JWT format (should have 3 parts separated by dots)
+			const tokenParts = cleanToken.split('.');
+			if (tokenParts.length !== 3 || tokenParts.some(part => part.length === 0)) {
+				console.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
+					tokenLength: cleanToken.length,
+					partsCount: tokenParts.length,
+					partsLength: tokenParts.map(p => p.length),
+					tokenStart: cleanToken.substring(0, 30),
+				});
+				throw new Error('Worker token is not in valid JWT format. Please generate a new worker token.');
+			}
+			
+			console.log(`${MODULE_TAG} Worker token validated`, {
+				tokenLength: cleanToken.length,
+				partsCount: tokenParts.length,
+				hasBearerPrefix: accessToken.trim().startsWith('Bearer '),
+			});
 
 			// Send OTP via backend proxy
 			const requestBody = {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
-				workerToken: trimmedToken,
+				workerToken: cleanToken, // Use cleaned token without Bearer prefix
 			};
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
-				url: '/api/pingone/mfa/resend-pairing-code',
+				url: '/api/pingone/mfa/send-otp',
 				headers: {
 					'Content-Type': 'application/json',
 				},
@@ -1401,7 +1445,7 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/resend-pairing-code', {
+				response = await fetch('/api/pingone/mfa/send-otp', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
