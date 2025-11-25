@@ -8029,6 +8029,330 @@ app.post('/api/pingone/worker-test/applications', async (req, res) => {
 	}
 });
 
+// Enhanced PingOne MFA Service - Get Device
+app.post('/api/pingone/enhanced-mfa/get-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, accessToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Getting device:', { environmentId, userId, deviceId });
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Get Device] Error:', error);
+		res.status(500).json({ error: 'Failed to get device', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Send Challenge (Enhanced version)
+app.post('/api/pingone/enhanced-mfa/send-challenge', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, challengeType, accessToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Sending challenge:', {
+			environmentId,
+			userId,
+			deviceId,
+			challengeType,
+		});
+
+		const requestBody = challengeType ? { type: challengeType } : {};
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/challenges`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const challengeData = await response.json();
+		res.json(challengeData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Send Challenge] Error:', error);
+		res.status(500).json({ error: 'Failed to send challenge', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Verify Challenge
+app.post('/api/pingone/enhanced-mfa/verify-challenge', async (req, res) => {
+	try {
+		const { environmentId, userId, challengeId, code, accessToken } = req.body;
+		if (!environmentId || !userId || !challengeId || !code || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Verifying challenge:', {
+			environmentId,
+			userId,
+			challengeId,
+		});
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/authentications/${challengeId}`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({ code }),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const verificationData = await response.json();
+		res.json(verificationData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Verify Challenge] Error:', error);
+		res.status(500).json({ error: 'Failed to verify challenge', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Create TOTP Device
+app.post('/api/pingone/enhanced-mfa/create-totp-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceName, accessToken } = req.body;
+		if (!environmentId || !userId || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Creating TOTP device:', {
+			environmentId,
+			userId,
+			deviceName,
+		});
+
+		const requestBody = deviceName ? { name: deviceName } : {};
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					type: 'TOTP',
+					...requestBody,
+				}),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Create TOTP Device] Error:', error);
+		res.status(500).json({ error: 'Failed to create TOTP device', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Create SMS Device
+app.post('/api/pingone/enhanced-mfa/create-sms-device', async (req, res) => {
+	try {
+		const { environmentId, userId, phoneNumber, deviceName, accessToken } = req.body;
+		if (!environmentId || !userId || !phoneNumber || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Creating SMS device:', {
+			environmentId,
+			userId,
+			phoneNumber,
+		});
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					type: 'SMS',
+					phoneNumber,
+					name: deviceName || `SMS Device - ${phoneNumber}`,
+				}),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Create SMS Device] Error:', error);
+		res.status(500).json({ error: 'Failed to create SMS device', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Create Email Device
+app.post('/api/pingone/enhanced-mfa/create-email-device', async (req, res) => {
+	try {
+		const { environmentId, userId, email, deviceName, accessToken } = req.body;
+		if (!environmentId || !userId || !email || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Creating email device:', { environmentId, userId, email });
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					type: 'EMAIL',
+					email,
+					name: deviceName || `Email Device - ${email}`,
+				}),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Create Email Device] Error:', error);
+		res.status(500).json({ error: 'Failed to create email device', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Create FIDO2 Device
+app.post('/api/pingone/enhanced-mfa/create-fido2-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceName, publicKey, accessToken } = req.body;
+		if (!environmentId || !userId || !publicKey || !accessToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		console.log('[Enhanced MFA Service] Creating FIDO2 device:', {
+			environmentId,
+			userId,
+			deviceName,
+		});
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify({
+					type: 'FIDO2',
+					name: deviceName || 'FIDO2 Security Key',
+					publicKey,
+				}),
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Create FIDO2 Device] Error:', error);
+		res.status(500).json({ error: 'Failed to create FIDO2 device', message: error.message });
+	}
+});
+
+// Enhanced PingOne MFA Service - Get MFA Policies
+app.post('/api/pingone/enhanced-mfa/get-policies', async (req, res) => {
+	try {
+		const { environmentId, accessToken } = req.body;
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({ error: 'Missing environmentId or accessToken' });
+		}
+
+		console.log('[Enhanced MFA Service] Getting MFA policies for environment:', environmentId);
+
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/mfaPolicies`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const policiesData = await response.json();
+		res.json(policiesData);
+	} catch (error) {
+		console.error('[Enhanced MFA Service - Get Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to get MFA policies', message: error.message });
+	}
+});
+
 // Get Device Authentication Policy
 app.post('/api/pingone/mfa/get-device-auth-policy', async (req, res) => {
 	try {
