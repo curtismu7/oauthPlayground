@@ -11,8 +11,6 @@ import type { MFACredentials } from '../shared/MFATypes';
 import { MFAFlowController, type FlowControllerCallbacks } from './MFAFlowController';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 
-const MODULE_TAG = '[📱 SMS-CONTROLLER]';
-
 /**
  * Get full phone number with country code (PingOne format: +1.5125201234)
  */
