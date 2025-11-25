@@ -13,8 +13,8 @@
  * - Error recovery suggestions
  */
 
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🛡️ UNIFIED-FLOW-ERROR-HANDLER-V8U]';
@@ -100,8 +100,7 @@ export class UnifiedFlowErrorHandler {
 					message,
 					userFriendlyMessage:
 						'CORS error: Direct API calls to PingOne are blocked. All requests must go through the backend proxy.',
-					recoverySuggestion:
-						'This is an internal error. Please report this issue if it persists.',
+					recoverySuggestion: 'This is an internal error. Please report this issue if it persists.',
 					errorCode: 'cors_error',
 				};
 			}
@@ -155,14 +154,11 @@ export class UnifiedFlowErrorHandler {
 			const errorMessage =
 				(typeof errorBody.error === 'string' ? errorBody.error : '') ||
 				(typeof errorBody.message === 'string' ? errorBody.message : '') ||
-				(typeof errorBody.error_description === 'string'
-					? errorBody.error_description
-					: '') ||
+				(typeof errorBody.error_description === 'string' ? errorBody.error_description : '') ||
 				errorText;
 
-			const errorCode =
-				(typeof errorBody.error === 'string' ? errorBody.error : '') ||
-				response.status.toString();
+			const _errorCode =
+				(typeof errorBody.error === 'string' ? errorBody.error : '') || response.status.toString();
 
 			return UnifiedFlowErrorHandler.parsePingOneError(new Error(errorMessage));
 		} catch (parseError) {
@@ -236,16 +232,13 @@ export class UnifiedFlowErrorHandler {
 
 		// Log error
 		if (logError) {
-			UnifiedFlowLoggerService.error(
-				`API Error: ${parsedError.message}`,
-				{
-					...context,
-					status: response.status,
-					statusText: response.statusText,
-					errorCode: parsedError.errorCode,
-					recoverySuggestion: parsedError.recoverySuggestion,
-				}
-			);
+			UnifiedFlowLoggerService.error(`API Error: ${parsedError.message}`, {
+				...context,
+				status: response.status,
+				statusText: response.statusText,
+				errorCode: parsedError.errorCode,
+				recoverySuggestion: parsedError.recoverySuggestion,
+			});
 		}
 
 		// Show toast notification
@@ -293,4 +286,3 @@ export class UnifiedFlowErrorHandler {
 		return parsedError.recoverySuggestion;
 	}
 }
-
