@@ -275,7 +275,7 @@ export class PingOneMfaService {
 				};
 			} else if (activationData.otp) {
 				// Activate with OTP for SMS/EMAIL/VOICE devices
-				const _activationResult = await PingOneMfaService.activateDevice(credentials, {
+				await PingOneMfaService.activateDevice(credentials, {
 					deviceId,
 					otp: activationData.otp,
 				});
@@ -353,7 +353,7 @@ export class PingOneMfaService {
 	static async validateChallenge(
 		credentials: MfaCredentials,
 		challengeId: string,
-		response: string
+		responseCode: string
 	): Promise<ValidationResult> {
 		try {
 			console.log(`[PingOneMfaService] Validating challenge: ${challengeId}`);
@@ -499,7 +499,7 @@ export class PingOneMfaService {
 	static async createDevice(
 		credentials: MfaCredentials,
 		deviceType: string,
-		deviceData: any
+		deviceData: Record<string, unknown>
 	): Promise<MfaDevice> {
 		const response = await fetch(
 			`${PingOneMfaService.baseUrl}/environments/${credentials.environmentId}/users/${credentials.userId}/devices`,
@@ -529,7 +529,7 @@ export class PingOneMfaService {
 	static async activateDevice(
 		credentials: MfaCredentials,
 		request: DeviceActivationRequest
-	): Promise<any> {
+	): Promise<Record<string, unknown>> {
 		const response = await fetch(
 			`${PingOneMfaService.baseUrl}/environments/${credentials.environmentId}/users/${credentials.userId}/devices/${request.deviceId}`,
 			{
@@ -557,7 +557,7 @@ export class PingOneMfaService {
 	static async sendChallenge(
 		credentials: MfaCredentials,
 		request: MfaChallengeRequest
-	): Promise<any> {
+	): Promise<Record<string, unknown>> {
 		const response = await fetch(
 			`${PingOneMfaService.baseUrl}/environments/${credentials.environmentId}/users/${credentials.userId}/devices/${request.deviceId}/authentications`,
 			{
