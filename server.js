@@ -1190,7 +1190,9 @@ app.post('/api/introspect-token', async (req, res) => {
 				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
 				introspectionEndpoint: introspection_endpoint,
 			});
-			throw new Error(`Failed to connect to introspection endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+			throw new Error(
+				`Failed to connect to introspection endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`
+			);
 		}
 
 		let data;
@@ -1230,7 +1232,8 @@ app.post('/api/introspect-token', async (req, res) => {
 		res.json(data);
 	} catch (error) {
 		console.error('[Introspect Token] Server error:', error);
-		const errorMessage = error instanceof Error ? error.message : String(error || 'Internal server error');
+		const errorMessage =
+			error instanceof Error ? error.message : String(error || 'Internal server error');
 		const errorStack = error instanceof Error ? error.stack : undefined;
 		console.error('[Introspect Token] Error details:', {
 			message: errorMessage,
@@ -2324,7 +2327,7 @@ app.get('/api/device-userinfo', async (req, res) => {
 app.post('/api/par', async (req, res) => {
 	try {
 		const { environment_id, client_id, client_secret, client_auth_method, ...parParams } = req.body;
-		
+
 		// Log incoming request for debugging
 		console.log(`[PAR] Incoming request:`, {
 			hasEnvironmentId: !!environment_id,
@@ -2358,17 +2361,20 @@ app.post('/api/par', async (req, res) => {
 		// Validate that we have client secret for confidential clients
 		// client_auth_method can be in parParams or directly in req.body
 		const authMethod = client_auth_method || parParams.client_auth_method || 'client_secret_post';
-		
+
 		const formData = new URLSearchParams();
-		
+
 		// Add PAR parameters to form data (excluding auth-related fields which are handled separately)
 		Object.entries(parParams).forEach(([key, value]) => {
-			if (value !== undefined && value !== null && 
-				key !== 'client_auth_method' && 
-				key !== 'client_id' && 
+			if (
+				value !== undefined &&
+				value !== null &&
+				key !== 'client_auth_method' &&
+				key !== 'client_id' &&
 				key !== 'client_secret' &&
 				key !== 'client_assertion_type' &&
-				key !== 'client_assertion') {
+				key !== 'client_assertion'
+			) {
 				formData.append(key, value.toString());
 			}
 		});
@@ -2377,7 +2383,7 @@ app.post('/api/par', async (req, res) => {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			Accept: 'application/json',
 		};
-		
+
 		// Add client authentication based on method
 		if (authMethod === 'client_secret_basic' && client_secret) {
 			// For "Client Secret Basic" method, use Authorization header AND include client_id in form data
@@ -2481,6 +2487,91 @@ app.post('/api/par', async (req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during PAR request',
+		});
+	}
+});
+
+// Set MFA Device Order
+// POST /api/pingone/mfa/device-order
+// Sets the order of MFA devices for a user
+app.post('/api/pingone/mfa/device-order', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceIds, workerToken } = req.body;
+
+		if (!environmentId || !userId || !Array.isArray(deviceIds) || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description:
+					'Missing required parameters: environmentId, userId, deviceIds (array), or workerToken',
+				timestamp: new Date().toISOString(),
+			});
+		}
+
+		console.log(`[PingOne MFA] Setting device order for user ${userId}`, {
+			environmentId,
+			deviceCount: deviceIds.length,
+			requestId: req.id,
+		});
+
+		// Call PingOne MFA API to set device order
+		const response = await fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/order`,
+			{
+				method: 'POST',
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+					'X-Request-ID': randomUUID(),
+				},
+				body: JSON.stringify({
+					devices: deviceIds.map((id) => ({ id })),
+				}),
+			}
+		);
+
+		const responseData = await response.json();
+
+		if (!response.ok) {
+			console.error(`[PingOne MFA] Failed to set device order:`, {
+				status: response.status,
+				error: responseData,
+				timestamp: new Date().toISOString(),
+			});
+
+			return res.status(response.status).json({
+				error: responseData.error || 'set_device_order_failed',
+				error_description: responseData.error_description || 'Failed to set device order',
+				details: responseData,
+				timestamp: new Date().toISOString(),
+			});
+		}
+
+		console.log(`[PingOne MFA] Successfully set device order for user ${userId}`, {
+			environmentId,
+			deviceCount: deviceIds.length,
+			timestamp: new Date().toISOString(),
+		});
+
+		res.json({
+			success: true,
+			environmentId,
+			userId,
+			deviceCount: deviceIds.length,
+			updatedAt: new Date().toISOString(),
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		console.error(`[PingOne MFA] Error setting device order:`, {
+			error: error.message,
+			stack: error.stack,
+			timestamp: new Date().toISOString(),
+		});
+
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error while setting device order',
+			details: error.message,
+			timestamp: new Date().toISOString(),
 		});
 	}
 });
@@ -3598,11 +3689,13 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 
 		// Build authorization request parameters (per PingOne pi.flow documentation)
 		const authParams = new URLSearchParams();
-		
+
 		// Check if PAR request_uri is provided (when using PAR)
 		const parRequestUri = requestUri || request_uri;
 		if (parRequestUri) {
-			console.log(`[PingOne Redirectless] Using PAR request_uri: ${parRequestUri.substring(0, 50)}...`);
+			console.log(
+				`[PingOne Redirectless] Using PAR request_uri: ${parRequestUri.substring(0, 50)}...`
+			);
 			// When using PAR, only send request_uri and client_id
 			authParams.set('response_type', 'code');
 			authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
@@ -3617,7 +3710,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			authParams.set('response_type', 'code');
 			authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
 			authParams.set('client_id', clientId);
-			
+
 			// Ensure 'openid' is included in scopes for OIDC flows
 			const scopeList = (scopes || 'openid').trim().split(/\s+/);
 			if (!scopeList.includes('openid')) {
@@ -3640,24 +3733,29 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 				);
 			}
 
-			// Add PKCE parameters - REQUIRED for redirectless flows with PKCE
+			// Add PKCE parameters - Optional for redirectless flows
+			// Only add PKCE if codeChallenge is provided and valid
 			if (codeChallenge && typeof codeChallenge === 'string' && codeChallenge.trim().length > 0) {
 				authParams.set('code_challenge', codeChallenge.trim());
 				authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
 				console.log(
 					`[PingOne Redirectless] Added PKCE: code_challenge=${codeChallenge.substring(0, 20)}... (length: ${codeChallenge.length})`
 				);
-			} else {
-				console.error(`[PingOne Redirectless] ERROR: Invalid code_challenge provided:`, {
+			} else if (codeChallenge !== undefined && codeChallenge !== null && codeChallenge !== '') {
+				// If codeChallenge was provided but is invalid, log warning but don't fail
+				console.warn(`[PingOne Redirectless] Invalid code_challenge provided, skipping PKCE:`, {
 					hasCodeChallenge: !!codeChallenge,
 					type: typeof codeChallenge,
 					length: codeChallenge?.length,
-					value: codeChallenge?.substring(0, 50),
+					value:
+						typeof codeChallenge === 'string'
+							? codeChallenge.substring(0, 50)
+							: String(codeChallenge),
 				});
-				return res.status(400).json({
-					error: 'invalid_request',
-					error_description: 'code_challenge is required for PKCE flow',
-				});
+			} else {
+				console.log(
+					`[PingOne Redirectless] No PKCE code_challenge provided - proceeding without PKCE`
+				);
 			}
 		}
 
@@ -4539,6 +4637,7 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 				method: 'GET',
 				headers: {
 					Accept: 'application/json',
+					'User-Agent': 'OAuth-Playground/1.0',
 				},
 			});
 		} catch (fetchError) {
@@ -4546,7 +4645,9 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
 				wellKnownUrl,
 			});
-			throw new Error(`Failed to connect to discovery endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+			throw new Error(
+				`Failed to connect to discovery endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`
+			);
 		}
 
 		if (!response.ok) {
@@ -4588,7 +4689,8 @@ app.post('/api/pingone/oidc-discovery', async (req, res) => {
 		res.json(data);
 	} catch (error) {
 		console.error('[OIDC Discovery] Error:', error);
-		const errorMessage = error instanceof Error ? error.message : String(error || 'Internal server error');
+		const errorMessage =
+			error instanceof Error ? error.message : String(error || 'Internal server error');
 		const errorStack = error instanceof Error ? error.stack : undefined;
 		console.error('[OIDC Discovery] Error details:', {
 			message: errorMessage,
@@ -5833,7 +5935,9 @@ app.get('/api/pingone/applications', async (req, res) => {
 				error: fetchError instanceof Error ? fetchError.message : String(fetchError),
 				applicationsUrl,
 			});
-			throw new Error(`Failed to connect to applications endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`);
+			throw new Error(
+				`Failed to connect to applications endpoint: ${fetchError instanceof Error ? fetchError.message : 'Unknown error'}`
+			);
 		}
 
 		if (!response.ok) {
@@ -5882,7 +5986,8 @@ app.get('/api/pingone/applications', async (req, res) => {
 				error_description: 'Request timed out',
 			});
 		} else {
-			const errorMessage = error instanceof Error ? error.message : String(error || 'Unknown error');
+			const errorMessage =
+				error instanceof Error ? error.message : String(error || 'Unknown error');
 			const errorStack = error instanceof Error ? error.stack : undefined;
 			console.error('[Config Checker] Error fetching applications:', {
 				message: errorMessage,
@@ -6009,7 +6114,7 @@ app.get('/api/pingone/applications/:appId', async (req, res) => {
 		}
 
 		const data = await response.json();
-		
+
 		// Log detailed response to help debug clientSecret availability
 		console.log(`[Application Fetch] Successfully fetched application ${appId}`, {
 			hasClientSecret: 'clientSecret' in data,
@@ -6048,30 +6153,43 @@ app.get('/api/pingone/applications/:appId', async (req, res) => {
 				});
 				// According to PingOne API docs: https://apidocs.pingidentity.com/pingone/platform/v1/api/#application-secret
 				// The response contains a "secret" field
-				const extractedSecret = secretData.secret || secretData.clientSecret || secretData.value || secretData.id;
-				if (extractedSecret && typeof extractedSecret === 'string' && extractedSecret.trim().length > 0) {
+				const extractedSecret =
+					secretData.secret || secretData.clientSecret || secretData.value || secretData.id;
+				if (
+					extractedSecret &&
+					typeof extractedSecret === 'string' &&
+					extractedSecret.trim().length > 0
+				) {
 					data.clientSecret = extractedSecret;
 					console.log(`[Application Fetch] ✅ Client secret extracted and added to response`, {
 						secretLength: extractedSecret.length,
 					});
 				} else {
 					console.warn(`[Application Fetch] ⚠️ Secret extracted but is empty or invalid`, {
-						extractedSecret: extractedSecret ? `${extractedSecret.substring(0, 10)}...` : 'null/undefined',
+						extractedSecret: extractedSecret
+							? `${extractedSecret.substring(0, 10)}...`
+							: 'null/undefined',
 						type: typeof extractedSecret,
 					});
 				}
 			} else {
 				const secretErrorText = await secretResponse.text();
-				console.warn(`[Application Fetch] ⚠️ Could not retrieve client secret: ${secretResponse.status} ${secretResponse.statusText}`, {
-					error: secretErrorText.substring(0, 200),
-				});
+				console.warn(
+					`[Application Fetch] ⚠️ Could not retrieve client secret: ${secretResponse.status} ${secretResponse.statusText}`,
+					{
+						error: secretErrorText.substring(0, 200),
+					}
+				);
 				// Continue without client secret - it's not always available
 			}
 		} catch (secretError) {
 			if (secretError.name === 'AbortError') {
 				console.warn(`[Application Fetch] ⚠️ Client secret request timed out`);
 			} else {
-				console.warn(`[Application Fetch] ⚠️ Error fetching client secret:`, secretError.message || secretError);
+				console.warn(
+					`[Application Fetch] ⚠️ Error fetching client secret:`,
+					secretError.message || secretError
+				);
 			}
 			// Continue without client secret - it's not always available
 		}
@@ -6749,50 +6867,163 @@ app.get('/api/pingone/oidc-config', async (req, res) => {
 app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 	try {
 		const { environmentId, username, workerToken } = req.body;
-		
+
 		console.log('[MFA Lookup User] Request:', {
 			environmentId: environmentId?.substring(0, 8) + '...',
 			username,
 			hasToken: !!workerToken,
 		});
-		
+
 		if (!environmentId || !username || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Lookup User] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				debug: {
+					tokenParts: tokenParts.length,
+					tokenLength: cleanToken.length,
+				},
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			console.error('[MFA Lookup User] Token has empty parts', {
+				tokenLength: cleanToken.length,
+				partsLength: tokenParts.map((p) => p.length),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
 		// Escape username for SCIM filter (handle special characters)
 		const escapedUsername = username.replace(/"/g, '\\"');
 		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${escapedUsername}"`;
-		
+
+		console.log('[MFA Lookup User] Token validation:', {
+			tokenLength: cleanToken.length,
+			tokenStart: cleanToken.substring(0, 30),
+			partsCount: tokenParts.length,
+		});
+
 		console.log('[MFA Lookup User] Calling PingOne:', usersEndpoint);
-		
+
 		const response = await global.fetch(usersEndpoint, {
 			method: 'GET',
-			headers: { Authorization: `Bearer ${workerToken}` },
+			headers: { Authorization: `Bearer ${cleanToken}` },
 		});
-		
+
+		// Clone response BEFORE reading to allow multiple reads if needed
+		const responseClone = response.clone();
+
 		if (!response.ok) {
-			const errorData = await response.json();
-			console.error('[MFA Lookup User] PingOne error:', {
-				status: response.status,
-				error: errorData,
-			});
-			return res.status(response.status).json(errorData);
+			let errorData;
+			try {
+				errorData = await response.json();
+				console.error('[MFA Lookup User] PingOne error:', {
+					status: response.status,
+					error: errorData,
+				});
+				return res.status(response.status).json(errorData);
+			} catch (parseError) {
+				// If JSON parsing fails, try to get text from cloned response
+				try {
+					const errorText = await responseClone.text();
+					console.error('[MFA Lookup User] PingOne error (non-JSON):', {
+						status: response.status,
+						statusText: response.statusText,
+						body: errorText.substring(0, 200),
+					});
+					return res.status(response.status).json({
+						error: 'User lookup failed',
+						message: response.statusText || 'Unknown error',
+						status: response.status,
+						details: errorText.substring(0, 200),
+					});
+				} catch (textError) {
+					console.error('[MFA Lookup User] Failed to read error response:', textError);
+					return res.status(response.status).json({
+						error: 'User lookup failed',
+						message: response.statusText || 'Unknown error',
+						status: response.status,
+					});
+				}
+			}
 		}
-		
-		const data = await response.json();
-		
+
+		// Response is OK, try to parse as JSON
+		let data;
+		try {
+			data = await response.json();
+		} catch (parseError) {
+			// If JSON parsing fails, try to get text from cloned response for debugging
+			let responseText = '';
+			try {
+				responseText = await responseClone.text();
+				console.error('[MFA Lookup User] Failed to parse response as JSON:', {
+					error: parseError.message,
+					status: response.status,
+					statusText: response.statusText,
+					contentType: response.headers.get('content-type'),
+					bodyPreview: responseText.substring(0, 500),
+				});
+			} catch (textError) {
+				console.error('[MFA Lookup User] Failed to read response body:', textError);
+			}
+
+			return res.status(500).json({
+				error: 'Failed to parse response',
+				message: 'The server returned an invalid response format',
+				details: responseText
+					? `Response body: ${responseText.substring(0, 200)}`
+					: 'Unable to read response body',
+			});
+		}
+
 		console.log('[MFA Lookup User] PingOne response:', {
 			userCount: data._embedded?.users?.length || 0,
 		});
-		
+
 		if (!data._embedded?.users || data._embedded.users.length === 0) {
 			return res.status(404).json({ error: 'User not found', username });
 		}
-		
+
 		const user = data._embedded.users[0];
 		console.log('[MFA Lookup User] User found:', { id: user.id, username: user.username });
-		
+
 		res.json({ id: user.id, username: user.username, email: user.email, name: user.name });
 	} catch (error) {
 		console.error('[MFA Lookup User] Error:', error);
@@ -6803,16 +7034,37 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 // Register MFA Device
 app.post('/api/pingone/mfa/register-device', async (req, res) => {
 	try {
-		const { environmentId, userId, type, phone, email, nickname, name, workerToken } = req.body;
+		const { environmentId, userId, type, phone, email, nickname, name, status, workerToken } =
+			req.body;
 		if (!environmentId || !userId || !type || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
 		const cleanToken = String(workerToken).trim();
 		const devicePayload = { type };
-		if (type === 'SMS' && phone) devicePayload.phone = phone;
-		else if (type === 'EMAIL' && email) devicePayload.email = email;
+
+		// Add type-specific fields
+		if (type === 'SMS' && phone) {
+			devicePayload.phone = phone;
+		} else if (type === 'EMAIL' && email) {
+			devicePayload.email = email;
+		}
+		// TOTP devices don't need phone or email
+
 		// PingOne API uses 'nickname' field for device name
 		if (nickname || name) devicePayload.nickname = nickname || name;
+
+		// Add status if provided (ACTIVE or ACTIVATION_REQUIRED)
+		if (status) {
+			devicePayload.status = status;
+		}
+
+		console.log('[MFA Register Device] Device payload:', {
+			type: devicePayload.type,
+			status: devicePayload.status,
+			hasPhone: !!devicePayload.phone,
+			hasEmail: !!devicePayload.email,
+			nickname: devicePayload.nickname,
+		});
 		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
@@ -7001,8 +7253,66 @@ app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 		if (!environmentId || !userId || !deviceId || !otp || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		const cleanToken = String(workerToken).trim();
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Validate OTP] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				debug: {
+					tokenParts: tokenParts.length,
+					tokenLength: cleanToken.length,
+				},
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			console.error('[MFA Validate OTP] Token has empty parts', {
+				tokenLength: cleanToken.length,
+				partsLength: tokenParts.map((p) => p.length),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
 		const validateEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/otp/check`;
+
+		console.log('[MFA Validate OTP] Sending request to:', validateEndpoint);
+		console.log('[MFA Validate OTP] Token validation:', {
+			tokenLength: cleanToken.length,
+			tokenStart: cleanToken.substring(0, 30),
+			partsCount: tokenParts.length,
+		});
 		const response = await global.fetch(validateEndpoint, {
 			method: 'POST',
 			headers: {
@@ -7194,26 +7504,111 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 		if (!environmentId || !userId || !deviceId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		const cleanToken = String(workerToken).trim();
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		// BUT preserve the token structure - only remove whitespace between characters
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		// DO NOT remove '=' characters - they are valid in JWT tokens
+		// JWT tokens can have '=' padding in base64url encoding
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		// JWT tokens contain: base64url characters (A-Z, a-z, 0-9, -, _)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Resend Pairing Code] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+				tokenEnd: cleanToken.substring(cleanToken.length - 10),
+				fullToken: cleanToken,
+				originalToken: workerToken,
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				debug: {
+					tokenParts: tokenParts.length,
+					tokenLength: cleanToken.length,
+					expectedFormat: 'JWT (3 parts separated by dots)',
+				},
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			console.error('[MFA Resend Pairing Code] Token has empty parts', {
+				tokenLength: cleanToken.length,
+				partsLength: tokenParts.map((p) => p.length),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
 		const otpEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/otp`;
-		
+
 		console.log('[MFA Resend Pairing Code] Sending request to:', otpEndpoint);
-		
+		console.log('[MFA Resend Pairing Code] Token validation:', {
+			tokenLength: cleanToken.length,
+			tokenStart: cleanToken.substring(0, 30),
+			tokenEnd: cleanToken.substring(cleanToken.length - 10),
+			partsCount: tokenParts.length,
+			hasEquals: cleanToken.includes('='),
+		});
+
+		// Ensure Authorization header is properly formatted
+		const authHeader = `Bearer ${cleanToken}`;
+
+		console.log('[MFA Resend Pairing Code] Authorization header format:', {
+			headerLength: authHeader.length,
+			headerStart: authHeader.substring(0, 40),
+			hasBearer: authHeader.startsWith('Bearer '),
+			tokenPartLength: cleanToken.length,
+			tokenParts: cleanToken.split('.').length,
+			tokenStart: cleanToken.substring(0, 30),
+			tokenEnd: cleanToken.substring(cleanToken.length - 10),
+			hasEquals: cleanToken.includes('='),
+			originalTokenLength: workerToken.length,
+			originalTokenStart: workerToken.substring(0, 30),
+			originalTokenEnd: workerToken.substring(workerToken.length - 10),
+		});
+
 		const response = await global.fetch(otpEndpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${cleanToken}`,
+				Accept: 'application/json',
+				Authorization: authHeader,
 			},
 			body: JSON.stringify({}),
 		});
-		
+
 		if (!response.ok && response.status !== 204) {
 			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 			console.error('[MFA Resend Pairing Code] Error:', errorData);
 			return res.status(response.status).json(errorData);
 		}
-		
+
 		console.log('[MFA Resend Pairing Code] Success');
 		res.status(200).json({ success: true, message: 'Pairing code resent successfully' });
 	} catch (error) {
@@ -7229,11 +7624,45 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 		if (!environmentId || !userId || !deviceId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
-		const cleanToken = String(workerToken).trim();
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		// Remove all whitespace, newlines, carriage returns, and tabs (but preserve = for base64 padding)
+		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Activate Device] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
 		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
-		
+
 		console.log('[MFA Activate Device] Activating device:', deviceId);
-		
+
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
 			headers: {
@@ -7242,19 +7671,231 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			},
 			body: JSON.stringify({ status: 'ACTIVE' }),
 		});
-		
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
 			console.error('[MFA Activate Device] Error:', errorData);
 			return res.status(response.status).json(errorData);
 		}
-		
+
 		const deviceData = await response.json();
-		console.log('[MFA Activate Device] Success:', { deviceId: deviceData.id, status: deviceData.status });
+		console.log('[MFA Activate Device] Success:', {
+			deviceId: deviceData.id,
+			status: deviceData.status,
+		});
 		res.json(deviceData);
 	} catch (error) {
 		console.error('[MFA Activate Device] Error:', error);
 		res.status(500).json({ error: 'Failed to activate device', message: error.message });
+	}
+});
+
+// Activate FIDO2 MFA User Device
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/devices/{deviceId}/fido2/activate
+app.post('/api/pingone/mfa/activate-fido2-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, fido2Data, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const deviceEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/fido2/activate`;
+
+		console.log('[MFA Activate FIDO2 Device] Activating FIDO2 device:', deviceId);
+
+		const requestBody = fido2Data || {};
+		const response = await global.fetch(deviceEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Activate FIDO2 Device] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const deviceData = await response.json();
+		console.log('[MFA Activate FIDO2 Device] Success:', {
+			deviceId: deviceData.id,
+			status: deviceData.status,
+		});
+		res.json(deviceData);
+	} catch (error) {
+		console.error('[MFA Activate FIDO2 Device] Error:', error);
+		res.status(500).json({ error: 'Failed to activate FIDO2 device', message: error.message });
+	}
+});
+
+// Start MFA Device Authentication
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/devices/{deviceId}/authentications
+app.post('/api/pingone/mfa/start-authentication', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const authEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/authentications`;
+
+		console.log('[MFA Start Authentication] Starting authentication for device:', deviceId);
+
+		const response = await global.fetch(authEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify({}),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Start Authentication] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const authData = await response.json();
+		console.log('[MFA Start Authentication] Success:', {
+			authenticationId: authData.id,
+			status: authData.status,
+		});
+		res.json(authData);
+	} catch (error) {
+		console.error('[MFA Start Authentication] Error:', error);
+		res.status(500).json({ error: 'Failed to start authentication', message: error.message });
+	}
+});
+
+// Complete MFA Device Authentication
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/devices/{deviceId}/authentications/{authenticationId}
+app.post('/api/pingone/mfa/complete-authentication', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, authenticationId, otp, fido2Assertion, workerToken } =
+			req.body;
+		if (!environmentId || !userId || !deviceId || !authenticationId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		if (!otp && !fido2Assertion) {
+			return res.status(400).json({ error: 'Either otp or fido2Assertion must be provided' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const authEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/authentications/${authenticationId}`;
+
+		console.log('[MFA Complete Authentication] Completing authentication:', {
+			deviceId,
+			authenticationId,
+			hasOTP: !!otp,
+			hasFIDO2: !!fido2Assertion,
+		});
+
+		const requestBody = {};
+		if (otp) {
+			requestBody.otp = otp;
+		}
+		if (fido2Assertion) {
+			requestBody.fido2Assertion = fido2Assertion;
+		}
+
+		const response = await global.fetch(authEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Complete Authentication] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const resultData = await response.json();
+		console.log('[MFA Complete Authentication] Success:', {
+			authenticationId: resultData.id,
+			status: resultData.status,
+		});
+		res.json(resultData);
+	} catch (error) {
+		console.error('[MFA Complete Authentication] Error:', error);
+		res.status(500).json({ error: 'Failed to complete authentication', message: error.message });
+	}
+});
+
+// Get User Authentication Reports
+// GET /environments/{environmentId}/userMfaDeviceAuthentications
+app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
+	try {
+		const { environmentId, queryParams, workerToken } = req.body;
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/userMfaDeviceAuthentications${queryParams ? `?${queryParams}` : ''}`;
+
+		console.log('[MFA User Authentication Reports] Fetching reports:', {
+			environmentId,
+			hasQueryParams: !!queryParams,
+		});
+
+		const response = await global.fetch(reportsEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA User Authentication Reports] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const reportsData = await response.json();
+		console.log('[MFA User Authentication Reports] Success:', {
+			count: reportsData._embedded?.userMfaDeviceAuthentications?.length || 0,
+		});
+		res.json(reportsData);
+	} catch (error) {
+		console.error('[MFA User Authentication Reports] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to get user authentication reports', message: error.message });
 	}
 });
 
@@ -7391,6 +8032,256 @@ app.post('/api/pingone/mfa/set-user-bypass', async (req, res) => {
 	} catch (error) {
 		console.error('[MFA Set User Bypass] Error:', error);
 		res.status(500).json({ error: 'Failed to set user MFA bypass', message: error.message });
+	}
+});
+
+// Initialize Device Authentication
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
+app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, workerToken } = req.body;
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		// Remove all whitespace, newlines, carriage returns, and tabs (but preserve = for base64 padding)
+		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Initialize Device Auth] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		// Determine region from environmentId or use default
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		// Build request body - deviceId is optional
+		const requestBody = {};
+		if (deviceId) {
+			requestBody.device = { id: deviceId };
+		}
+
+		const mfaEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/deviceAuthentications`;
+
+		console.log('[MFA Initialize Device Auth] Request:', {
+			url: mfaEndpoint,
+			hasDeviceId: !!deviceId,
+		});
+
+		const response = await global.fetch(mfaEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Initialize Device Auth] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const authData = await response.json();
+		console.log('[MFA Initialize Device Auth] Success:', {
+			id: authData.id,
+			status: authData.status,
+			nextStep: authData.nextStep,
+		});
+		res.json(authData);
+	} catch (error) {
+		console.error('[MFA Initialize Device Auth] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to initialize device authentication', message: error.message });
+	}
+});
+
+// Validate OTP for Device Authentication
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications/{authenticationId}/otp
+app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
+	try {
+		const { environmentId, userId, authenticationId, otp, workerToken } = req.body;
+		if (!environmentId || !userId || !authenticationId || !otp || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error(
+				'[MFA Validate OTP for Device] Token does not appear to be a valid JWT format',
+				{
+					partsCount: tokenParts.length,
+					tokenLength: cleanToken.length,
+					tokenStart: cleanToken.substring(0, 30),
+				}
+			);
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				debug: {
+					tokenParts: tokenParts.length,
+					tokenLength: cleanToken.length,
+				},
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			console.error('[MFA Validate OTP for Device] Token has empty parts', {
+				tokenLength: cleanToken.length,
+				partsLength: tokenParts.map((p) => p.length),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const mfaEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/deviceAuthentications/${authenticationId}/otp`;
+
+		console.log('[MFA Validate OTP for Device] Sending request to:', mfaEndpoint);
+		console.log('[MFA Validate OTP for Device] Token validation:', {
+			tokenLength: cleanToken.length,
+			tokenStart: cleanToken.substring(0, 30),
+			partsCount: tokenParts.length,
+		});
+
+		const response = await global.fetch(mfaEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify({ otp }),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			// Return error in consistent format
+			return res.status(response.status).json({
+				status: 'FAILED',
+				error: errorData.error || errorData.message || 'OTP validation failed',
+				message: errorData.message || errorData.error || 'Invalid OTP code',
+				...errorData,
+			});
+		}
+
+		const validationData = await response.json();
+		// Return in consistent format
+		res.json({
+			status: validationData.status || 'COMPLETED',
+			message: validationData.message || 'OTP validated successfully',
+			...validationData,
+		});
+	} catch (error) {
+		console.error('[MFA Validate OTP for Device] Error:', error);
+		res.status(500).json({ error: 'Failed to validate OTP', message: error.message });
+	}
+});
+
+// Select Device for Authentication
+// POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications/{authenticationId}/selectDevice
+app.post('/api/pingone/mfa/select-device-for-authentication', async (req, res) => {
+	try {
+		const { environmentId, userId, authenticationId, deviceId, workerToken } = req.body;
+		if (!environmentId || !userId || !authenticationId || !deviceId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const mfaEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/deviceAuthentications/${authenticationId}/selectDevice`;
+
+		const response = await global.fetch(mfaEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${workerToken}`,
+			},
+			body: JSON.stringify({ device: { id: deviceId } }),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			return res.status(response.status).json(errorData);
+		}
+
+		const selectData = await response.json();
+		res.json(selectData);
+	} catch (error) {
+		console.error('[MFA Select Device] Error:', error);
+		res.status(500).json({ error: 'Failed to select device', message: error.message });
 	}
 });
 
