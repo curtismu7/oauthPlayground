@@ -2507,20 +2507,63 @@ app.post('/api/pingone/mfa/device-order', async (req, res) => {
 			});
 		}
 
-		console.log(`[PingOne MFA] Setting device order for user ${userId}`, {
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken).trim();
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Device Order] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		console.log(`[MFA Device Order] Setting device order for user ${userId}`, {
 			environmentId,
 			deviceCount: deviceIds.length,
-			requestId: req.id,
 		});
 
 		// Call PingOne MFA API to set device order
-		const response = await fetch(
+		const response = await global.fetch(
 			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/order`,
 			{
 				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${workerToken}`,
+					Authorization: `Bearer ${cleanToken}`,
 					'Content-Type': 'application/json',
+					Accept: 'application/json',
 					'X-Request-ID': randomUUID(),
 				},
 				body: JSON.stringify({
@@ -2529,27 +2572,70 @@ app.post('/api/pingone/mfa/device-order', async (req, res) => {
 			}
 		);
 
-		const responseData = await response.json();
-
 		if (!response.ok) {
-			console.error(`[PingOne MFA] Failed to set device order:`, {
+			let errorData;
+			let errorText = '';
+			try {
+				errorText = await response.text();
+				if (errorText) {
+					errorData = JSON.parse(errorText);
+				}
+			} catch (parseError) {
+				// If parsing fails, errorData will be undefined, but we have errorText
+				console.error(`[MFA Device Order] Failed to parse error response:`, {
+					parseError: parseError.message,
+					status: response.status,
+					statusText: response.statusText,
+					bodyPreview: errorText.substring(0, 200),
+				});
+			}
+
+			console.error(`[MFA Device Order] PingOne error:`, {
 				status: response.status,
-				error: responseData,
-				timestamp: new Date().toISOString(),
+				error: errorData || errorText.substring(0, 200),
 			});
 
 			return res.status(response.status).json({
-				error: responseData.error || 'set_device_order_failed',
-				error_description: responseData.error_description || 'Failed to set device order',
-				details: responseData,
-				timestamp: new Date().toISOString(),
+				error: errorData?.error || 'set_device_order_failed',
+				error_description:
+					errorData?.error_description ||
+					errorData?.message ||
+					response.statusText ||
+					'Failed to set device order',
+				details: errorData || (errorText ? { body: errorText.substring(0, 200) } : {}),
 			});
 		}
 
-		console.log(`[PingOne MFA] Successfully set device order for user ${userId}`, {
+		// Handle successful response
+		let responseData;
+		try {
+			const responseText = await response.text();
+			if (responseText && responseText.trim()) {
+				responseData = JSON.parse(responseText);
+			} else {
+				// Some endpoints return 204 No Content on success
+				responseData = { success: true };
+			}
+		} catch (parseError) {
+			console.error(`[MFA Device Order] Failed to parse response:`, {
+				error: parseError.message,
+				status: response.status,
+				statusText: response.statusText,
+			});
+			// If parsing fails but status is 2xx, treat as success
+			if (response.status >= 200 && response.status < 300) {
+				responseData = { success: true };
+			} else {
+				return res.status(500).json({
+					error: 'Failed to parse response',
+					message: 'The server returned an invalid response format',
+				});
+			}
+		}
+
+		console.log(`[MFA Device Order] Successfully set device order for user ${userId}`, {
 			environmentId,
 			deviceCount: deviceIds.length,
-			timestamp: new Date().toISOString(),
 		});
 
 		res.json({
@@ -2558,20 +2644,13 @@ app.post('/api/pingone/mfa/device-order', async (req, res) => {
 			userId,
 			deviceCount: deviceIds.length,
 			updatedAt: new Date().toISOString(),
-			timestamp: new Date().toISOString(),
+			...responseData,
 		});
 	} catch (error) {
-		console.error(`[PingOne MFA] Error setting device order:`, {
-			error: error.message,
-			stack: error.stack,
-			timestamp: new Date().toISOString(),
-		});
-
+		console.error(`[MFA Device Order] Error:`, error);
 		res.status(500).json({
-			error: 'server_error',
-			error_description: 'Internal server error while setting device order',
-			details: error.message,
-			timestamp: new Date().toISOString(),
+			error: 'Failed to set device order',
+			message: error.message,
 		});
 	}
 });
@@ -7087,6 +7166,298 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 	}
 });
 
+// Get All Devices for a User
+app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken).trim();
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Get All Devices] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Add cache-busting query parameter to ensure fresh data
+		const devicesEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices?_t=${Date.now()}`;
+
+		console.log('[MFA Get All Devices] Calling PingOne:', devicesEndpoint);
+
+		const response = await global.fetch(devicesEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				Accept: 'application/json',
+				'Cache-Control': 'no-cache, no-store, must-revalidate',
+				Pragma: 'no-cache',
+			},
+		});
+
+		if (!response.ok) {
+			let errorData;
+			let errorText = '';
+			try {
+				errorText = await response.text();
+				if (errorText) {
+					errorData = JSON.parse(errorText);
+				}
+			} catch (parseError) {
+				// If parsing fails, errorData will be undefined, but we have errorText
+				console.error('[MFA Get All Devices] Failed to parse error response:', {
+					parseError: parseError.message,
+					status: response.status,
+					statusText: response.statusText,
+					bodyPreview: errorText.substring(0, 200),
+				});
+			}
+
+			console.error('[MFA Get All Devices] PingOne error:', {
+				status: response.status,
+				error: errorData || errorText.substring(0, 200),
+			});
+
+			return res.status(response.status).json(
+				errorData || {
+					error: 'Failed to get devices',
+					message: response.statusText || 'Unknown error',
+					status: response.status,
+					details: errorText ? errorText.substring(0, 200) : undefined,
+				}
+			);
+		}
+
+		let data;
+		try {
+			data = await response.json();
+		} catch (parseError) {
+			let responseText = '';
+			try {
+				responseText = await response.text();
+				console.error('[MFA Get All Devices] Failed to parse response as JSON:', {
+					error: parseError.message,
+					status: response.status,
+					statusText: response.statusText,
+					contentType: response.headers.get('content-type'),
+					bodyPreview: responseText.substring(0, 500),
+				});
+			} catch (textError) {
+				console.error('[MFA Get All Devices] Failed to read response body:', textError);
+			}
+
+			return res.status(500).json({
+				error: 'Failed to parse response',
+				message: 'The server returned an invalid response format',
+				details: responseText
+					? `Response body: ${responseText.substring(0, 200)}`
+					: 'Unable to read response body',
+			});
+		}
+
+		const devices = data._embedded?.devices || [];
+
+		console.log('[MFA Get All Devices] PingOne response:', {
+			deviceCount: devices.length,
+		});
+
+		// Set cache-control headers to prevent browser caching
+		res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+		res.setHeader('Pragma', 'no-cache');
+		res.setHeader('Expires', '0');
+
+		res.json({ _embedded: { devices } });
+	} catch (error) {
+		console.error('[MFA Get All Devices] Error:', error);
+		res.status(500).json({ error: 'Failed to get devices', message: error.message });
+	}
+});
+
+// Update Device
+app.post('/api/pingone/mfa/update-device', async (req, res) => {
+	try {
+		const { environmentId, userId, deviceId, updates, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !updates || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken).trim();
+
+		// Remove any existing "Bearer " prefix if accidentally included
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+
+		// Remove all whitespace, newlines, carriage returns, and tabs
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Update Device] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		console.log('[MFA Update Device] Updating device:', {
+			environmentId,
+			userId,
+			deviceId,
+			updates,
+		});
+
+		// Call PingOne MFA API to update device
+		const response = await global.fetch(
+			`https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`,
+			{
+				method: 'PATCH',
+				headers: {
+					Authorization: `Bearer ${cleanToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+				body: JSON.stringify(updates),
+			}
+		);
+
+		if (!response.ok) {
+			let errorData;
+			let errorText = '';
+			try {
+				errorText = await response.text();
+				if (errorText) {
+					errorData = JSON.parse(errorText);
+				}
+			} catch (parseError) {
+				// If parsing fails, errorData will be undefined, but we have errorText
+				console.error('[MFA Update Device] Failed to parse error response:', {
+					parseError: parseError.message,
+					status: response.status,
+					statusText: response.statusText,
+					bodyPreview: errorText.substring(0, 200),
+				});
+			}
+
+			console.error('[MFA Update Device] PingOne error:', {
+				status: response.status,
+				error: errorData || errorText.substring(0, 200),
+			});
+
+			return res.status(response.status).json({
+				error: errorData?.error || 'update_device_failed',
+				error_description:
+					errorData?.error_description ||
+					errorData?.message ||
+					response.statusText ||
+					'Failed to update device',
+				details: errorData || (errorText ? { body: errorText.substring(0, 200) } : {}),
+			});
+		}
+
+		// Handle successful response
+		let responseData;
+		try {
+			const responseText = await response.text();
+			if (responseText && responseText.trim()) {
+				responseData = JSON.parse(responseText);
+			} else {
+				// Some endpoints return 204 No Content on success
+				responseData = { success: true };
+			}
+		} catch (parseError) {
+			console.error('[MFA Update Device] Failed to parse response:', {
+				error: parseError.message,
+				status: response.status,
+				statusText: response.statusText,
+			});
+			// If parsing fails but status is 2xx, treat as success
+			if (response.status >= 200 && response.status < 300) {
+				responseData = { success: true };
+			} else {
+				return res.status(500).json({
+					error: 'Failed to parse response',
+					message: 'The server returned an invalid response format',
+				});
+			}
+		}
+
+		console.log('[MFA Update Device] Successfully updated device:', {
+			deviceId,
+			environmentId,
+		});
+
+		res.json({
+			success: true,
+			device: responseData,
+			environmentId,
+			userId,
+			deviceId,
+			updatedAt: new Date().toISOString(),
+			...responseData,
+		});
+	} catch (error) {
+		console.error('[MFA Update Device] Error:', error);
+		res.status(500).json({
+			error: 'Failed to update device',
+			message: error.message,
+		});
+	}
+});
+
 // Send OTP
 app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 	try {
@@ -8035,7 +8406,88 @@ app.post('/api/pingone/mfa/set-user-bypass', async (req, res) => {
 	}
 });
 
-// Initialize Device Authentication
+// Initialize Device Authentication (Auth Server Endpoint)
+// POST {{authPath}}/{{envID}}/deviceAuthentications
+// This is called BEFORE device creation per PingOne MFA Native SDK flow
+app.post('/api/pingone/mfa/initialize-device-authentication-auth', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Determine region/TLD from environmentId or use default
+		const region = req.body.region || 'na';
+		const tld = region === 'eu' ? 'eu' : region === 'asia' ? 'asia' : 'com';
+		const authPath = `https://auth.pingone.${tld}`;
+
+		// Auth server endpoint: {{authPath}}/{{envID}}/deviceAuthentications
+		const authEndpoint = `${authPath}/${environmentId}/deviceAuthentications`;
+
+		// Request body requires user.id per PingOne API docs
+		const requestBody = {
+			user: {
+				id: userId,
+			},
+		};
+
+		console.log('[MFA Initialize Device Auth (Auth Server)] Request:', {
+			url: authEndpoint,
+			userId,
+		});
+
+		const response = await global.fetch(authEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Initialize Device Auth (Auth Server)] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const authData = await response.json();
+		console.log('[MFA Initialize Device Auth (Auth Server)] Success:', {
+			id: authData.id,
+			status: authData.status,
+			nextStep: authData.nextStep,
+		});
+		res.json(authData);
+	} catch (error) {
+		console.error('[MFA Initialize Device Auth (Auth Server)] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to initialize device authentication', message: error.message });
+	}
+});
+
+// Initialize Device Authentication (API Server Endpoint - for existing devices)
 // POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
 app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
 	try {
