@@ -26,6 +26,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { EnhancedApiCallDisplay } from '@/components/EnhancedApiCallDisplay';
 import type { EnhancedApiCallData } from '@/services/enhancedApiCallDisplayService';
@@ -1069,6 +1070,13 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				</h1>
 				<p>Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens</p>
 			</Header>
+
+			{/* Navigation */}
+			<MFANavigationV8
+				currentPage="hub"
+				showRestartFlow={false}
+				showBackToMain={true}
+			/>
 
 			<Alert $type="info">
 				<FiExternalLink />
