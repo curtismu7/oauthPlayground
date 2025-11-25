@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { toast } from 'react-toastify';
-import { EnhancedPingOneMfaService, type MfaDevice } from '../services/enhancedPingOneMfaService';
+import { type MfaDevice, PingOneMfaService } from '../services/pingOneMfaService';
 
 interface MFAContextType {
 	devices: MfaDevice[];
@@ -55,7 +55,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 		try {
 			setIsLoading(true);
 			setError(null);
-			const deviceList = await EnhancedPingOneMfaService.getDevices(credentials);
+			const deviceList = await PingOneMfaService.getDevices(credentials);
 			setDevices(deviceList);
 			return deviceList;
 		} catch (err) {
@@ -79,7 +79,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 				}
 
 				if (type === 'SMS') {
-					const device = await EnhancedPingOneMfaService.createDevice(credentials, 'SMS', {
+					const device = await PingOneMfaService.createDevice(credentials, 'SMS', {
 						phoneNumber: phoneNumber!,
 						name: 'SMS Device',
 					});
@@ -90,7 +90,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 					toast.success('SMS device added. A verification code has been sent to your phone.');
 					return { device, requiresVerification: true };
 				} else {
-					const { device, secret, qrCode } = await EnhancedPingOneMfaService.createTotpDevice(
+					const { device, secret, qrCode } = await PingOneMfaService.createTotpDeviceWithQRCode(
 						credentials,
 						{
 							name: 'Authenticator App',
@@ -128,7 +128,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 				setIsVerifyingCode(true);
 				setError(null);
 
-				await EnhancedPingOneMfaService.activateDevice(credentials, deviceId, code);
+				await PingOneMfaService.activateDevice(credentials, deviceId, code);
 
 				// Refresh the device list
 				await loadDevices();
@@ -153,7 +153,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 				setIsRemovingDevice(true);
 				setError(null);
 
-				await EnhancedPingOneMfaService.deleteDevice(credentials, deviceId);
+				await PingOneMfaService.deleteDevice(credentials, deviceId);
 
 				// Update the device list
 				setDevices((prev) => prev.filter((device) => device.id !== deviceId));
@@ -177,7 +177,7 @@ export const MFAProvider: React.FC<MFAProviderProps> = ({
 			setError(null);
 
 			// In a real app, you would call a method to resend the verification code
-			// For example: await EnhancedPingOneMfaService.resendVerificationCode(credentials, deviceId);
+			// For example: await PingOneMfaService.resendVerificationCode(credentials, deviceId);
 
 			toast.info('Verification code resent');
 			return true;
