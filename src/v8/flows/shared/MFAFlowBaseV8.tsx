@@ -41,7 +41,7 @@ export interface MFAFlowBaseRenderProps {
 	credentials: MFACredentials;
 	setCredentials: (credentials: MFACredentials | ((prev: MFACredentials) => MFACredentials)) => void;
 	mfaState: MFAState;
-	setMfaState: (state: MFAState | ((prev: MFAState) => MFAState)) => void;
+	setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void;
 	tokenStatus: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
@@ -140,18 +140,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 	}, [credentials]);
 
-	const handleManageWorkerToken = () => {
-		if (tokenStatus.isValid) {
-			workerTokenServiceV8.clearToken();
-			window.dispatchEvent(new Event('workerTokenUpdated'));
-			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			setTokenStatus(newStatus);
-			toastV8.success('Worker token removed');
-		} else {
-			setShowWorkerTokenModal(true);
-		}
-	};
-
 	const handleWorkerTokenGenerated = () => {
 		window.dispatchEvent(new Event('workerTokenUpdated'));
 		const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -159,12 +147,21 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		toastV8.success('Worker token generated and saved!');
 	};
 
+	// Wrapper for setMfaState to handle Partial<MFAState>
+	const handleSetMfaState = (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => {
+		if (typeof state === 'function') {
+			setMfaState(state);
+		} else {
+			setMfaState((prev) => ({ ...prev, ...state }));
+		}
+	};
+
 	const renderStepContent = () => {
 		const renderProps: MFAFlowBaseRenderProps = {
 			credentials,
 			setCredentials,
 			mfaState,
-			setMfaState,
+			setMfaState: handleSetMfaState,
 			tokenStatus,
 			isLoading,
 			setIsLoading,
@@ -214,7 +211,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						<div className="step-badge">
 							<span className="step-number">{nav.currentStep + 1}</span>
 							<span className="step-divider">/</span>
-							<span className="step-total">{nav.totalSteps}</span>
+							<span className="step-total">{stepLabels.length}</span>
 						</div>
 					</div>
 				</div>
@@ -285,6 +282,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			{/* Modals */}
 			{showWorkerTokenModal && (
 				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={handleWorkerTokenGenerated}
 				/>
@@ -292,6 +290,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			{showSettingsModal && credentials.environmentId && (
 				<MFASettingsModalV8
+					isOpen={showSettingsModal}
 					environmentId={credentials.environmentId}
 					onClose={() => setShowSettingsModal(false)}
 				/>
@@ -299,9 +298,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			{showDeviceLimitModal && (
 				<MFADeviceLimitModalV8
-					environmentId={credentials.environmentId}
-					username={credentials.username}
+					isOpen={showDeviceLimitModal}
 					onClose={() => setShowDeviceLimitModal(false)}
+					deviceType="MFA"
 				/>
 			)}
 
