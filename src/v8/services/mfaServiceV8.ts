@@ -1355,6 +1355,106 @@ export class MFAServiceV8 {
 	}
 
 	/**
+	 * Send OTP to device (for SMS/EMAIL devices)
+	 * POST /environments/{environmentId}/users/{userId}/devices/{deviceId}/otp
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-resend-pairing-code
+	 * @param params - Device parameters
+	 */
+	static async sendOTP(params: SendOTPParams): Promise<void> {
+		console.log(`${MODULE_TAG} Sending OTP`, {
+			username: params.username,
+			deviceId: params.deviceId,
+		});
+
+		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Get worker token
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// Validate token before sending
+			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
+				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
+			}
+
+			const trimmedToken = accessToken.trim();
+
+			// Send OTP via backend proxy
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				deviceId: params.deviceId,
+				workerToken: trimmedToken,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/resend-pairing-code',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: { ...requestBody, workerToken: '***REDACTED***' },
+				step: 'mfa-Send OTP',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch('/api/pingone/mfa/resend-pairing-code', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as PingOneResponse;
+				throw new Error(
+					`Failed to send OTP: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} OTP sent successfully`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Send OTP error`, error);
+			throw error;
+		}
+	}
+
+	/**
 	 * Resend pairing code (for SMS/EMAIL devices)
 	 * POST /environments/{environmentId}/users/{userId}/devices/{deviceId}/otp
 	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-resend-pairing-code
