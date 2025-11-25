@@ -126,7 +126,13 @@ export interface UserLookupResult {
 /**
  * MFAServiceV8
  *
- * Service for PingOne MFA operations using WorkerTokenManager
+ * Service for PingOne MFA operations using WorkerTokenServiceV8
+ *
+ * NOTE: This is intentionally designed as a class with static methods for:
+ * 1. Clear namespacing and organization
+ * 2. Consistent API with other V8 services
+ * 3. Future extensibility to instance methods if needed
+ * 4. Better IDE support and method discovery
  */
 export class MFAServiceV8 {
 	/**

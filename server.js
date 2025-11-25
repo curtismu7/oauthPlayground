@@ -948,7 +948,7 @@ app.get('/api/pingone/active-identity-counts', async (req, res) => {
 		console.log('[PingOne Active Identity Counts] Using region:', region, '| Base URL:', baseUrl);
 		console.log(
 			'[PingOne Active Identity Counts] Token preview:',
-			tokenToUse ? tokenToUse.substring(0, 20) + '...' : 'NONE'
+			tokenToUse ? `${tokenToUse.substring(0, 20)}...` : 'NONE'
 		);
 
 		const metricsController = new AbortController();
@@ -1326,8 +1326,8 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 				: 'undefined',
 			accessTokenValue: accessToken
 				? typeof accessToken === 'string'
-					? accessToken.substring(0, 20) + '...'
-					: String(accessToken).substring(0, 20) + '...'
+					? `${accessToken.substring(0, 20)}...`
+					: `${String(accessToken).substring(0, 20)}...`
 				: 'undefined',
 			identifierValue: identifier
 				? typeof identifier === 'string'
@@ -2742,8 +2742,8 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Sending recovery code...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		// PingOne Platform API - Send recovery code
@@ -2815,8 +2815,8 @@ app.post('/api/pingone/password/recover', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Recovering password...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2874,8 +2874,8 @@ app.post('/api/pingone/password/force-change', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Forcing password change...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2933,8 +2933,8 @@ app.post('/api/pingone/password/change', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Changing password...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -2993,8 +2993,8 @@ app.post('/api/pingone/password/check', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Checking password...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/check`;
@@ -3051,8 +3051,8 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Unlocking password...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/unlock`;
@@ -3116,8 +3116,8 @@ app.get('/api/pingone/password/state', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Reading password state...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 		});
 
 		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -3171,8 +3171,8 @@ app.put('/api/pingone/password/admin-set', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password (admin)...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3245,8 +3245,8 @@ app.put('/api/pingone/password/set', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3319,8 +3319,8 @@ app.put('/api/pingone/password/set-value', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password value...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -3400,8 +3400,8 @@ app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
 		}
 
 		console.log('[🔐 PASSWORD] Setting password via LDAP Gateway...', {
-			environmentId: environmentId?.substring(0, 20) + '...',
-			userId: userId?.substring(0, 20) + '...',
+			environmentId: environmentId?.substring(0, 8) + '...',
+			userId: userId?.substring(0, 8) + '...',
 			forceChange: forceChange || false,
 			bypassPasswordPolicy: bypassPasswordPolicy || false,
 		});
@@ -4800,7 +4800,7 @@ app.post('/api/pingone/userinfo', async (req, res) => {
 		}
 
 		console.log('[UserInfo] Fetching user information from:', userInfoEndpoint);
-		console.log('[UserInfo] Token preview:', accessToken.substring(0, 20) + '...');
+		console.log('[UserInfo] Token preview:', `${accessToken.substring(0, 20)}...`);
 
 		const response = await fetch(userInfoEndpoint, {
 			method: 'GET',
@@ -4963,7 +4963,7 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 			);
 			console.log(
 				`[PingOne Flow Check] Cookie header preview:`,
-				cookieString.substring(0, 100) + '...'
+				`${cookieString.substring(0, 100)}...`
 			);
 		} else {
 			console.warn(
