@@ -48,7 +48,7 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 }) => {
 	if (loading) {
 		return (
-			<div className="info-box" style={{ textAlign: 'center', padding: '20px' }}>
+			<div className="info-box" style={{ textAlign: 'center', padding: '10px' }}>
 				<p>🔄 Loading existing devices...</p>
 			</div>
 		);
@@ -57,44 +57,47 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 	return (
 		<>
 			{devices.length > 0 && (
-				<div style={{ marginBottom: '20px' }}>
-					<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+				<div style={{ marginBottom: '10px' }}>
+					<h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
 						Existing {deviceType} Devices
 					</h3>
 					<div
 						style={{
 							display: 'flex',
 							flexDirection: 'column',
-							gap: '12px',
-							marginBottom: '16px',
+							gap: '0',
+							marginBottom: '0',
 						}}
 					>
-						{devices.map((device) => (
+						{devices.map((device, index) => (
 							<div
 								key={device.id}
 								onClick={() => onSelectDevice(device.id)}
 								style={{
-									padding: '16px',
-									border: `2px solid ${selectedDeviceId === device.id ? '#10b981' : '#e5e7eb'}`,
-									borderRadius: '8px',
+									padding: '8px 12px',
+									border: `1px solid ${selectedDeviceId === device.id ? '#10b981' : '#e5e7eb'}`,
+									borderTop: index === 0 ? `1px solid ${selectedDeviceId === device.id ? '#10b981' : '#e5e7eb'}` : 'none',
+									borderBottom: `1px solid ${selectedDeviceId === device.id ? '#10b981' : '#e5e7eb'}`,
+									borderRadius: '0',
 									background: selectedDeviceId === device.id ? '#f0fdf4' : 'white',
 									cursor: 'pointer',
 									transition: 'all 0.2s',
+									marginBottom: '0',
 								}}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									<input
 										type="radio"
 										checked={selectedDeviceId === device.id}
 										onChange={() => onSelectDevice(device.id)}
 										style={{ margin: 0 }}
 									/>
-									<span style={{ fontSize: '20px' }}>{DEVICE_ICONS[deviceType]}</span>
+									<span style={{ fontSize: '16px' }}>{DEVICE_ICONS[deviceType]}</span>
 									<div style={{ flex: 1 }}>
-										<div style={{ fontWeight: '600', marginBottom: '4px' }}>
+										<div style={{ fontWeight: '600', marginBottom: '2px', fontSize: '13px' }}>
 											{device.nickname || device.name || 'Unnamed Device'}
 										</div>
-										<div style={{ fontSize: '13px', color: '#6b7280' }}>
+										<div style={{ fontSize: '11px', color: '#6b7280' }}>
 											{renderDeviceInfo ? renderDeviceInfo(device) : (
 												<>
 													{device.phone && `Phone: ${device.phone}`}
@@ -114,7 +117,7 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 							type="button"
 							className="btn btn-primary"
 							onClick={onUseSelected}
-							style={{ marginBottom: '20px' }}
+							style={{ marginBottom: '10px' }}
 						>
 							Use Selected Device
 						</button>
@@ -122,20 +125,20 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 				</div>
 			)}
 
-			<div style={{ marginBottom: '20px' }}>
+			<div style={{ marginBottom: '10px' }}>
 				<div
 					onClick={onSelectNew}
 					style={{
-						padding: '16px',
+						padding: '8px 12px',
 						border: `2px dashed ${selectedDeviceId === 'new' ? '#10b981' : '#d1d5db'}`,
-						borderRadius: '8px',
+						borderRadius: '6px',
 						background: selectedDeviceId === 'new' ? '#f0fdf4' : '#f9fafb',
 						cursor: 'pointer',
 						transition: 'all 0.2s',
-						marginBottom: selectedDeviceId === 'new' ? '20px' : '0',
+						marginBottom: selectedDeviceId === 'new' ? '10px' : '0',
 					}}
 				>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 						<input
 							type="radio"
 							checked={selectedDeviceId === 'new'}

@@ -15,8 +15,8 @@ import type { DeviceType } from '../shared/MFATypes';
 import type { FlowControllerCallbacks } from '../controllers/MFAFlowController';
 import { SMSFlowController } from '../controllers/SMSFlowController';
 import { EmailFlowController } from '../controllers/EmailFlowController';
-// Future: import { TOTPFlowController } from '../controllers/TOTPFlowController';
-// Future: import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
+import { TOTPFlowController } from '../controllers/TOTPFlowController';
+import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 
 const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
 
@@ -62,12 +62,10 @@ export class MFAFlowControllerFactory {
 				return new EmailFlowController(callbacks);
 			
 			case 'TOTP':
-				// TODO: Implement TOTPFlowController
-				throw new Error('TOTP controller not yet implemented');
+				return new TOTPFlowController(callbacks);
 			
 			case 'FIDO2':
-				// TODO: Implement FIDO2FlowController
-				throw new Error('FIDO2 controller not yet implemented');
+				return new FIDO2FlowController(callbacks);
 			
 			default:
 				console.warn(`${MODULE_TAG} Unknown device type: ${deviceType}, defaulting to SMS`);
@@ -76,18 +74,25 @@ export class MFAFlowControllerFactory {
 	}
 
 	/**
-	 * Check if a device type is supported
+	 * Check if a device type is supported (has a dedicated controller)
 	 */
 	static isSupported(deviceType: DeviceType): boolean {
-		const supportedTypes: DeviceType[] = ['SMS', 'EMAIL'];
+		const supportedTypes: DeviceType[] = ['SMS', 'EMAIL', 'TOTP', 'FIDO2'];
 		return supportedTypes.includes(deviceType);
 	}
 
 	/**
-	 * Get all supported device types
+	 * Get all supported device types (with dedicated controllers)
 	 */
 	static getSupportedTypes(): DeviceType[] {
-		return ['SMS', 'EMAIL'];
+		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2'];
+	}
+
+	/**
+	 * Get all available device types (including those that fall back to SMS)
+	 */
+	static getAllDeviceTypes(): DeviceType[] {
+		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'MOBILE', 'OATH_TOKEN', 'VOICE', 'WHATSAPP', 'PLATFORM', 'SECURITY_KEY'];
 	}
 }
 

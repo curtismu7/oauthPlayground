@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { StepNavigationV8 } from '../components/StepNavigationV8';
 
 const Container = styled.div`
@@ -105,18 +105,14 @@ const ToggleSlider = styled.span`
   }
 `;
 
-const ComingSoonBadge = styled.span`
-  background-color: #fbbf24;
-  color: #78350f;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-`;
+interface SettingItem {
+  label: string;
+  value: string | 'toggle';
+  enabled?: boolean;
+}
 
 export const MFASettingsV8: React.FC = () => {
   const navigate = useNavigate();
-  const showBackButton = true;
 
   const settings = [
     {
@@ -171,7 +167,7 @@ export const MFASettingsV8: React.FC = () => {
     },
   ];
 
-  const renderSettingValue = (item: any) => {
+  const renderSettingValue = (item: SettingItem) => {
     if (item.value === 'toggle') {
       return (
         <ToggleSwitch>
@@ -185,75 +181,22 @@ export const MFASettingsV8: React.FC = () => {
 
   return (
     <Container>
-      <div className="flow-header" style={{
-        marginBottom: '2rem',
-        padding: '1.5rem',
-        background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)',
-        borderRadius: '8px',
-        color: 'white',
-      }}>
-        <div className="header-content" style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <div className="header-left">
-            <span className="version-tag" style={{
-              display: 'inline-block',
-              padding: '0.25rem 0.5rem',
-              background: 'rgba(255, 255, 255, 0.2)',
-              borderRadius: '4px',
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              marginBottom: '0.5rem',
-            }}>V8</span>
-            <div className="header-text">
-              <h1 style={{
-                margin: '0 0 0.5rem 0',
-                fontSize: '1.875rem',
-                fontWeight: '700',
-              }}>MFA Settings</h1>
-              <p style={{
-                margin: 0,
-                fontSize: '1rem',
-                opacity: 0.9,
-              }}>Configure multi-factor authentication policies and settings</p>
-            </div>
-          </div>
-          {showBackButton && (
-            <button
-              onClick={() => navigate('/v8/mfa-hub')}
-              style={{
-                padding: '0.5rem 1rem',
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '6px',
-                color: 'white',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '500',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255, 255, 255, 0.2)';
-              }}
-            >
-              ← Back
-            </button>
-          )}
-        </div>
-      </div>
-
-      <MFANavigationV8 currentPage="settings" showBackToMain={true} />
+      <MFAHeaderV8
+        title="MFA Settings"
+        description="Configure multi-factor authentication policies and settings"
+        versionTag="V8"
+        currentPage="settings"
+        showRestartFlow={false}
+        showBackToMain={true}
+        headerColor="blue"
+      />
 
       <SettingsGrid>
         {settings.map((section, index) => (
           <SettingsCard key={index}>
             <CardTitle>{section.title}</CardTitle>
             <CardDescription>{section.description}</CardDescription>
-            {section.items.map((item: any, itemIndex: number) => (
+            {section.items.map((item: SettingItem, itemIndex: number) => (
               <SettingItem key={itemIndex}>
                 <SettingLabel>{item.label}</SettingLabel>
                 {renderSettingValue(item)}

@@ -311,12 +311,16 @@ export class ClientCredentialsIntegrationServiceV8 {
 				body: proxyRequestBody,
 			};
 
-			// Add auth method and headers if using Basic auth
+			// Add auth method and headers
+			// IMPORTANT: For JWT-based authentication (client_secret_jwt, private_key_jwt),
+			// the JWT assertion must be in the request body (client_assertion), NOT in headers.
+			// Only Basic auth uses the Authorization header.
 			if (authMethod === 'client_secret_basic') {
 				proxyRequest.auth_method = 'client_secret_basic';
-				proxyRequest.headers = headers;
+				proxyRequest.headers = headers; // Only include headers for Basic auth
 			} else {
 				proxyRequest.auth_method = authMethod;
+				// Explicitly do NOT include headers for JWT methods - assertion is in body
 			}
 
 			// Track API call for display

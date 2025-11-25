@@ -1,7 +1,7 @@
 /**
- * @file EmailFlowV8.tsx
+ * @file TOTPFlowV8.tsx
  * @module v8/flows/types
- * @description Email-specific MFA flow component (Refactored with Controller Pattern)
+ * @description TOTP-specific MFA flow component (Refactored with Controller Pattern)
  * @version 8.2.0
  */
 
@@ -18,9 +18,9 @@ import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 
-const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
+const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
-// Step 0: Configure Credentials (Email-specific)
+// Step 0: Configure Credentials (TOTP-specific - no phone/email needed)
 const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 	const { credentials, setCredentials, tokenStatus } = props;
 
@@ -33,13 +33,12 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 			<p>Enter your PingOne environment details and user information</p>
 
 			{/* Worker Token Status */}
-			<div style={{ marginBottom: '10px' }}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+			<div style={{ marginBottom: '20px' }}>
+				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
 					<button
 						type="button"
 						onClick={() => {
 							if (tokenStatus.isValid) {
-								// Remove token directly
 								import('@/v8/services/workerTokenServiceV8').then(({ workerTokenServiceV8 }) => {
 									workerTokenServiceV8.clearToken();
 									window.dispatchEvent(new Event('workerTokenUpdated'));
@@ -52,7 +51,7 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 						}}
 						className="token-button"
 						style={{
-							padding: '6px 12px',
+							padding: '10px 16px',
 							background: tokenStatus.isValid ? '#10b981' : '#ef4444',
 							color: 'white',
 							border: 'none',
@@ -74,7 +73,7 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 						onClick={() => props.setShowSettingsModal(true)}
 						className="token-button"
 						style={{
-							padding: '6px 12px',
+							padding: '10px 16px',
 							background:
 								!tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
 							color: !tokenStatus.isValid || !credentials.environmentId ? '#9ca3af' : 'white',
@@ -158,16 +157,17 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 					/>
 					<small>PingOne username to register MFA device for</small>
 				</div>
+
 			</div>
 		</div>
 	);
 };
 
 // Device selection state management wrapper
-const EmailFlowV8WithDeviceSelection: React.FC = () => {
+const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	// Initialize controller using factory
 	const controller = useMemo(() => 
-		MFAFlowControllerFactory.create({ deviceType: 'EMAIL' }), []
+		MFAFlowControllerFactory.create({ deviceType: 'TOTP' }), []
 	);
 
 	// Device selection state
@@ -178,12 +178,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		showRegisterForm: false,
 	});
 
-	// OTP state
-	const [otpState, setOtpState] = useState({
-		otpSent: false,
-		sendError: null as string | null,
-		sendRetryCount: 0,
-	});
+	// TOTP-specific state (QR code, secret)
+	const [totpSecret, setTotpSecret] = useState<string>('');
+	const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
 	// Validation state
 	const [validationState, setValidationState] = useState({
@@ -241,7 +238,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+		const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
 		if (nav.currentStep === 1) {
@@ -293,11 +290,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				deviceId: '',
 				deviceStatus: '',
 			});
-			// Reset device name to device type when selecting new device
-			setCredentials({
-				...credentials,
-				deviceName: credentials.deviceType || 'EMAIL',
-			});
+			// Set default device name based on device type if not already set
+			if (!credentials.deviceName?.trim()) {
+				setCredentials({
+					...credentials,
+					deviceName: credentials.deviceType || 'TOTP',
+				});
+			}
 		};
 
 		// Handle using selected existing device
@@ -310,70 +309,39 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 		// Handle device registration
 		const handleRegisterDevice = async () => {
-			if (!credentials.email?.trim()) {
-				nav.setValidationErrors(['Email address is required. Please enter a valid email address.']);
-				return;
-			}
-			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-				nav.setValidationErrors(['Please enter a valid email address format.']);
-				return;
-			}
-			// Set default device name to device type if not provided
-			const finalDeviceName = credentials.deviceName?.trim() || credentials.deviceType || 'EMAIL';
-			if (!finalDeviceName) {
-				nav.setValidationErrors(['Device name is required. Please enter a name for this device.']);
-				return;
-			}
-			// Update credentials with device name if it was empty
-			if (!credentials.deviceName?.trim()) {
-				setCredentials({ ...credentials, deviceName: finalDeviceName });
-			}
-
 			setIsLoading(true);
 			try {
-				// Ensure device name is set before registration
-				const registrationCredentials = {
-					...credentials,
-					deviceName: finalDeviceName,
-				};
-				const result = await controller.registerDevice(registrationCredentials, controller.getDeviceRegistrationParams(registrationCredentials));
+				const result = await controller.registerDevice(credentials, controller.getDeviceRegistrationParams(credentials));
 				
+				// TOTP devices return secret and QR code in the response
+				const deviceResponse = result as Record<string, unknown> & {
+					secret?: string;
+					qrCode?: { href?: string };
+				};
+
 				setMfaState({
 					...mfaState,
 					deviceId: result.deviceId,
 					deviceStatus: result.status,
 				});
 
+				// Store TOTP-specific data
+				if (deviceResponse.secret) {
+					setTotpSecret(deviceResponse.secret as string);
+				}
+				if (deviceResponse.qrCode?.href) {
+					setQrCodeUrl(deviceResponse.qrCode.href as string);
+				}
+
 				// Refresh device list
-				const devices = await controller.loadExistingDevices(registrationCredentials, tokenStatus);
+				const devices = await controller.loadExistingDevices(credentials, tokenStatus);
 				setDeviceSelection((prev) => ({
 					...prev,
 					existingDevices: devices,
 				}));
 
-				// Automatically send OTP after device registration
-				console.log(`${MODULE_TAG} Device registered, automatically sending OTP...`);
-				try {
-					await controller.sendOTP(
-						registrationCredentials,
-						result.deviceId,
-						otpState,
-						setOtpState,
-						nav,
-						setIsLoading
-					);
-					// OTP sent successfully, navigate to validation step
-					nav.markStepComplete();
-					nav.goToNext(); // Go to Validate OTP step (Step 4)
-					toastV8.success('Email device registered and OTP sent successfully!');
-				} catch (otpError) {
-					// Device registered but OTP send failed - still navigate to Send OTP step
-					console.error(`${MODULE_TAG} Device registered but OTP send failed:`, otpError);
-					nav.markStepComplete();
-					nav.goToNext(); // Go to Send OTP step (Step 3) so user can retry
-					toastV8.success('Email device registered successfully!');
-					toastV8.warning('OTP could not be sent automatically. Please send it manually on the next step.');
-				}
+				nav.markStepComplete();
+				toastV8.success('TOTP device registered successfully!');
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				const isDeviceLimitError =
@@ -396,21 +364,20 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 		return (
 			<div className="step-content">
-				<h2>Select or Register Email Device</h2>
-				<p>Choose an existing device or register a new one</p>
+				<h2>Select or Register TOTP Device</h2>
+				<p>Choose an existing device or register a new authenticator app</p>
 
 				<MFADeviceSelector
-					devices={deviceSelection.existingDevices as Array<{ id: string; type: string; nickname?: string; name?: string; email?: string; status?: string }>}
+					devices={deviceSelection.existingDevices as Array<{ id: string; type: string; nickname?: string; name?: string; status?: string }>}
 					loading={deviceSelection.loadingDevices}
 					selectedDeviceId={deviceSelection.selectedExistingDevice}
-					deviceType="EMAIL"
+					deviceType="TOTP"
 					onSelectDevice={handleSelectExistingDevice}
 					onSelectNew={handleSelectNewDevice}
 					onUseSelected={handleUseSelectedDevice}
 					renderDeviceInfo={(device) => (
 						<>
-							{device.email && `Email: ${device.email}`}
-							{device.status && ` • Status: ${device.status}`}
+							{device.status && `Status: ${device.status}`}
 						</>
 					)}
 				/>
@@ -433,16 +400,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								value={credentials.deviceType}
 								onChange={(e) => {
 									const newDeviceType = e.target.value as DeviceType;
-									// If device name matches old device type, update it to new device type
-									// Otherwise, if device name is empty, set it to new device type
-									const oldDeviceType = credentials.deviceType;
-									const shouldUpdateDeviceName = 
-										!credentials.deviceName?.trim() || 
-										credentials.deviceName === oldDeviceType;
+									// Set default device name based on device type if not already set
+									const defaultDeviceName = newDeviceType;
 									const updatedCredentials = {
 										...credentials,
 										deviceType: newDeviceType,
-										deviceName: shouldUpdateDeviceName ? newDeviceType : credentials.deviceName,
+										deviceName: credentials.deviceName || defaultDeviceName,
 									};
 									setCredentials(updatedCredentials);
 									// Save credentials and trigger flow reload
@@ -479,115 +442,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							<small>Select the type of MFA device you want to register</small>
 						</div>
 
-						{credentials.deviceType === 'EMAIL' && (
-							<>
-								<div className="form-group" style={{ marginTop: '0' }}>
-									<label htmlFor="mfa-email-register">
-										Email Address <span className="required">*</span>
-									</label>
-									<input
-										id="mfa-email-register"
-										type="email"
-										value={credentials.email}
-										onChange={(e) => setCredentials({ ...credentials, email: e.target.value.trim() })}
-										placeholder="user@example.com"
-										style={{
-											padding: '10px 12px',
-											border: `1px solid ${
-												credentials.email
-													? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)
-														? '#10b981'
-														: '#ef4444'
-													: '#d1d5db'
-											}`,
-											borderRadius: '6px',
-											fontSize: '14px',
-											color: '#1f2937',
-											background: 'white',
-											width: '100%',
-										}}
-									/>
-									<small>
-										Enter a valid email address
-										{credentials.email && (
-											<span
-												style={{
-													marginLeft: '8px',
-													color: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email) ? '#10b981' : '#ef4444',
-													fontWeight: '500',
-												}}
-											>
-												{/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)
-													? `✓ Valid (${credentials.email})`
-													: '✗ Invalid email format'}
-											</span>
-										)}
-									</small>
-								</div>
-
-								<div className="form-group" style={{ marginTop: '0' }}>
-									<label htmlFor="mfa-device-name-register">
-										Device Name <span className="required">*</span>
-									</label>
-									<input
-										id="mfa-device-name-register"
-										type="text"
-										value={credentials.deviceName || credentials.deviceType || 'EMAIL'}
-										onChange={(e) => setCredentials({ ...credentials, deviceName: e.target.value })}
-										placeholder={credentials.deviceType || 'EMAIL'}
-										style={{
-											padding: '10px 12px',
-											border: `1px solid ${credentials.deviceName ? '#10b981' : '#d1d5db'}`,
-											borderRadius: '6px',
-											fontSize: '14px',
-											color: '#1f2937',
-											background: 'white',
-											width: '100%',
-										}}
-									/>
-									<small>
-										Enter a friendly name to identify this device (e.g., "My Work Email", "Personal Email")
-										{credentials.deviceName && (
-											<span
-												style={{
-													marginLeft: '8px',
-													color: '#10b981',
-													fontWeight: '500',
-												}}
-											>
-												✓ Device will be registered as: "{credentials.deviceName}"
-											</span>
-										)}
-									</small>
-								</div>
-
-								<div
-									style={{
-										marginBottom: '16px',
-										padding: '12px',
-										background: '#fef3c7',
-										border: '1px solid #fbbf24',
-										borderRadius: '6px',
-									}}
-								>
-									<p style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600', color: '#92400e' }}>
-										📋 Email Address Preview:
-									</p>
-									<p style={{ margin: '0', fontSize: '14px', fontFamily: 'monospace', color: '#1f2937' }}>
-										<strong>Will register:</strong> {credentials.email}
-									</p>
-								</div>
-
-								<button
-									type="button"
-									className="btn btn-primary"
-									disabled={isLoading || !credentials.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email) || !credentials.deviceName?.trim()}
-									onClick={handleRegisterDevice}
-								>
-									{isLoading ? '🔄 Registering...' : 'Register Email Device'}
-								</button>
-							</>
-						)}
+						<button
+							type="button"
+							className="btn btn-primary"
+							disabled={isLoading}
+							onClick={handleRegisterDevice}
+						>
+							{isLoading ? '🔄 Registering...' : 'Register TOTP Device'}
+						</button>
 					</div>
 				)}
 
@@ -600,135 +462,65 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						<p>
 							<strong>Status:</strong> {mfaState.deviceStatus}
 						</p>
+						{totpSecret && (
+							<div style={{ marginTop: '16px', padding: '12px', background: '#f9fafb', borderRadius: '6px' }}>
+								<p style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600' }}>
+									🔑 Secret Key:
+								</p>
+								<p style={{ margin: '0', fontFamily: 'monospace', fontSize: '14px', wordBreak: 'break-all' }}>
+									{totpSecret}
+								</p>
+							</div>
+						)}
+						{qrCodeUrl && (
+							<div style={{ marginTop: '16px', textAlign: 'center' }}>
+								<p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600' }}>
+									📱 QR Code:
+								</p>
+								<img src={qrCodeUrl} alt="TOTP QR Code" style={{ maxWidth: '300px', border: '1px solid #d1d5db', borderRadius: '6px' }} />
+								<p style={{ marginTop: '12px', fontSize: '13px', color: '#6b7280' }}>
+									Scan this QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)
+								</p>
+							</div>
+						)}
 					</div>
 				)}
 			</div>
 		);
 	};
 
-	// Step 2: Send OTP (using controller)
-	const createRenderStep2 = (
-		otpSent: boolean,
-		setOtpSent: (value: boolean) => void,
-		sendError: string | null,
-		setSendError: (value: string | null) => void,
-		sendRetryCount: number,
-		setSendRetryCount: (value: number | ((prev: number) => number)) => void
-	) => {
+	// Step 2: TOTP Device Ready (skip OTP sending - codes come from app)
+	const createRenderStep2 = () => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, nav, setIsLoading, isLoading } = props;
-
-			const handleSendOTP = async () => {
-				await controller.sendOTP(
-					credentials,
-					mfaState.deviceId,
-					{ otpSent, sendError, sendRetryCount },
-					(state) => {
-						if (typeof state === 'function') {
-							const current = { otpSent, sendError, sendRetryCount };
-							const updated = state(current);
-							setOtpSent(updated.otpSent ?? current.otpSent);
-							setSendError(updated.sendError ?? current.sendError);
-							setSendRetryCount(updated.sendRetryCount ?? current.sendRetryCount);
-						} else {
-							if (state.otpSent !== undefined) setOtpSent(state.otpSent);
-							if (state.sendError !== undefined) setSendError(state.sendError);
-							if (state.sendRetryCount !== undefined) setSendRetryCount(state.sendRetryCount);
-						}
-					},
-					nav,
-					setIsLoading
-				);
-			};
+			const { mfaState } = props;
 
 			return (
 				<div className="step-content">
 					<h2>
-						Send OTP Code
-						<MFAInfoButtonV8 contentKey="factor.email" displayMode="modal" />
+						TOTP Device Ready
+						<MFAInfoButtonV8 contentKey="factor.totp" displayMode="modal" />
 					</h2>
-					<p>Send a one-time password to the registered email address</p>
+					<p>Your authenticator app is set up and ready to use</p>
 
 					<div className="info-box">
 						<p>
 							<strong>Device ID:</strong> {mfaState.deviceId}
 						</p>
 						<p>
-							<strong>Email Address:</strong> {credentials.email}
+							<strong>Status:</strong> {mfaState.deviceStatus || 'Ready'}
 						</p>
-						{sendRetryCount > 0 && (
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#92400e' }}>
-								⚠️ Attempt {sendRetryCount + 1} - If you continue to have issues, check your email address and try again.
-							</p>
-						)}
 					</div>
 
-					<div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
-						<button
-							type="button"
-							className="btn btn-primary"
-							onClick={handleSendOTP}
-							disabled={isLoading}
-						>
-							{isLoading ? '🔄 Sending...' : otpSent ? '🔄 Resend OTP Code' : 'Send OTP Code'}
-						</button>
-
-						{otpSent && (
-							<button
-								type="button"
-								className="btn"
-								onClick={() => {
-									setOtpSent(false);
-									setSendRetryCount(0);
-									setSendError(null);
-								}}
-								style={{
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-								}}
-							>
-								Clear Status
-							</button>
-						)}
+					<div className="success-box" style={{ marginTop: '20px' }}>
+						<h3>✅ Setup Complete</h3>
+						<p>Your TOTP device has been registered successfully.</p>
+						<p style={{ marginTop: '12px', fontSize: '14px' }}>
+							Open your authenticator app and enter the 6-digit code to verify the setup.
+						</p>
+						<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
+							💡 <strong>Tip:</strong> TOTP codes refresh every 30 seconds. Make sure you're entering the current code from your app.
+						</p>
 					</div>
-
-					{sendError && (
-						<div
-							className="info-box"
-							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
-								color: '#991b1b',
-								marginTop: '16px',
-							}}
-						>
-							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>⚠️ Error Sending OTP</h4>
-							<p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{sendError}</p>
-							<div style={{ marginTop: '12px', fontSize: '13px' }}>
-								<strong>Recovery Options:</strong>
-								<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-									<li>Verify your email address is correct</li>
-									<li>Check that your worker token is valid</li>
-									<li>Wait a few minutes and try again (rate limiting)</li>
-									<li>Go back and select a different device</li>
-								</ul>
-							</div>
-						</div>
-					)}
-
-					{otpSent && !sendError && (
-						<div className="success-box" style={{ marginTop: '20px' }}>
-							<h3>✅ OTP Sent</h3>
-							<p>Check your email for the verification code</p>
-							<p style={{ marginTop: '12px', fontSize: '14px' }}>
-								After receiving the code, proceed to the next step to validate it.
-							</p>
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-								💡 <strong>Tip:</strong> OTP codes typically expire after 5-10 minutes. If you don't receive the code, click "Resend OTP Code" above.
-							</p>
-						</div>
-					)}
 				</div>
 			);
 		};
@@ -749,7 +541,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				return (
 					<div className="step-content">
 						<h2>MFA Verification Complete</h2>
-						<p>Your Email device has been successfully verified</p>
+						<p>Your TOTP device has been successfully verified</p>
 
 						<div className="success-box">
 							<h3>✅ Verification Successful</h3>
@@ -762,9 +554,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								</p>
 							)}
 							<p>
-								<strong>Email Address:</strong> {credentials.email}
-							</p>
-							<p>
 								<strong>Status:</strong>{' '}
 								{mfaState.verificationResult?.status || mfaState.deviceStatus || 'Verified'}
 							</p>
@@ -773,33 +562,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 									<strong>Message:</strong> {mfaState.verificationResult.message}
 								</p>
 							)}
-							{mfaState.environmentId && (
-								<p>
-									<strong>Environment ID:</strong> {mfaState.environmentId}
-								</p>
-							)}
-							{mfaState.userId && (
-								<p>
-									<strong>User ID:</strong> {mfaState.userId}
-								</p>
-							)}
-							{mfaState.createdAt && (
-								<p>
-									<strong>Created At:</strong> {new Date(mfaState.createdAt).toLocaleString()}
-								</p>
-							)}
-							{mfaState.updatedAt && (
-								<p>
-									<strong>Updated At:</strong> {new Date(mfaState.updatedAt).toLocaleString()}
-								</p>
-							)}
 						</div>
 
 						<div className="info-box">
 							<h4>What's Next?</h4>
 							<ul>
 								<li>This device can now be used for MFA challenges</li>
-								<li>Users will receive OTP codes via email during authentication</li>
+								<li>Users will generate codes using their authenticator app</li>
 								<li>You can test MFA in your authentication flows</li>
 							</ul>
 						</div>
@@ -814,14 +583,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						Validate OTP Code
 						<MFAInfoButtonV8 contentKey="otp.validation" displayMode="modal" />
 					</h2>
-					<p>Enter the verification code sent to your email</p>
+					<p>Enter the 6-digit code from your authenticator app</p>
 
 					<div className="info-box">
 						<p>
 							<strong>Device ID:</strong> {mfaState.deviceId}
 						</p>
 						<p>
-							<strong>Email Address:</strong> {credentials.email}
+							<strong>Device Name:</strong> {mfaState.nickname || 'TOTP Device'}
 						</p>
 					</div>
 
@@ -830,7 +599,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						onChange={(value) => setMfaState({ ...mfaState, otpCode: value })}
 						disabled={isLoading}
 					/>
-					<small>Enter the 6-digit code from your email</small>
+					<small>Enter the 6-digit code from your authenticator app (Google Authenticator, Authy, etc.)</small>
 
 					<div style={{ display: 'flex', gap: '12px', marginTop: '20px', marginBottom: '20px' }}>
 						<button
@@ -863,22 +632,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						>
 							{isLoading ? '🔄 Validating...' : 'Validate OTP'}
 						</button>
-
-						<button
-							type="button"
-							className="btn"
-							onClick={() => {
-								// Go back to step 2 to resend OTP
-								nav.goToStep(1);
-							}}
-							style={{
-								background: '#f3f4f6',
-								color: '#374151',
-								border: '1px solid #d1d5db',
-							}}
-						>
-							↩️ Request New Code
-						</button>
 					</div>
 
 					{validationAttempts > 0 && (
@@ -901,9 +654,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								<div style={{ marginTop: '12px', fontSize: '13px' }}>
 									<strong>Recovery Options:</strong>
 									<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-										<li>Click "Request New Code" to get a fresh OTP</li>
-										<li>Verify you're entering the code from the most recent email</li>
-										<li>Check that the code hasn't expired (typically 5-10 minutes)</li>
+										<li>Make sure you're entering the current code (codes refresh every 30 seconds)</li>
+										<li>Verify your device time is synchronized</li>
+										<li>Check that you scanned the QR code correctly</li>
 										<li>Go back and select a different device if available</li>
 									</ul>
 								</div>
@@ -927,20 +680,21 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	return (
 		<>
 			<MFAFlowBaseV8
-				deviceType="EMAIL"
+				deviceType="TOTP"
 				renderStep0={renderStep0}
 				renderStep1={renderStep1WithSelection}
-				renderStep2={createRenderStep2(otpState.otpSent, (v) => setOtpState({ ...otpState, otpSent: v }), otpState.sendError, (v) => setOtpState({ ...otpState, sendError: v }), otpState.sendRetryCount, (v) => setOtpState({ ...otpState, sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v }))}
+				renderStep2={createRenderStep2()}
 				renderStep3={createRenderStep3(validationState.validationAttempts, (v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }), validationState.lastValidationError, (v) => setValidationState({ ...validationState, lastValidationError: v }))}
 				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select/Register Device', 'Send OTP', 'Validate']}
+				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Validate']}
 			/>
 			<SuperSimpleApiDisplayV8 />
 		</>
 	);
 };
 
-// Main Email Flow Component
-export const EmailFlowV8: React.FC = () => {
-	return <EmailFlowV8WithDeviceSelection />;
+// Main TOTP Flow Component
+export const TOTPFlowV8: React.FC = () => {
+	return <TOTPFlowV8WithDeviceSelection />;
 };
+
