@@ -387,28 +387,31 @@ const mfaMethods = [
 const selectedMethod = '${formData.selectedMFA}';
 console.log('Selected MFA method:', selectedMethod);
 
-// Get available MFA methods from PingOne MFA API
-const mfaMethodsResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods\`, {
-  method: 'GET',
+// Get available MFA methods from PingOne MFA API via backend proxy
+const mfaMethodsResponse = await fetch('/api/pingone/mfa/get-methods', {
+  method: 'POST',
   headers: {
-    'Authorization': \`Bearer \${access_token}\`,
     'Content-Type': 'application/json'
-  }
+  },
+  body: JSON.stringify({
+    environmentId,
+    accessToken: access_token
+  })
 });
 
 const availableMethods = await mfaMethodsResponse.json();
 console.log('Available MFA methods:', availableMethods);
 
-// Select MFA method
-const mfaSelectionResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods/\${selectedMethod}/select\`, {
+// Select MFA method via backend proxy
+const mfaSelectionResponse = await fetch('/api/pingone/mfa/select-method', {
   method: 'POST',
   headers: {
-    'Authorization': \`Bearer \${access_token}\`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
+    environmentId,
     method: selectedMethod,
-    userId: 'current-user-id' // This would be the actual user ID
+    accessToken: access_token
   })
 });
 
@@ -491,16 +494,17 @@ console.log('MFA method selection result:', selectionResult);`,
 const mfaCode = '${mfaCode}';
 const selectedMethod = '${formData.selectedMFA}';
 
-// Verify MFA code using PingOne MFA API
-const verificationResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods/\${selectedMethod}/verify\`, {
+// Verify MFA code using PingOne MFA API via backend proxy
+const verificationResponse = await fetch('/api/pingone/mfa/verify-code', {
   method: 'POST',
   headers: {
-    'Authorization': \`Bearer \${access_token}\`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
+    environmentId,
     method: selectedMethod,
     code: mfaCode,
+    accessToken: access_token,
     userId: 'current-user-id',
     sessionId: 'current-session-id'
   })
