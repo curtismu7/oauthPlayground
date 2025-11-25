@@ -15,18 +15,22 @@
  * <MFAFlowV8 />
  */
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { SMSFlowV8 } from './types/SMSFlowV8';
-import { EmailFlowV8 } from './types/EmailFlowV8';
 import type { DeviceType } from './shared/MFATypes';
+import { MFAFlowComponentFactory } from './factories/MFAFlowComponentFactory';
 
 const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
 
 /**
  * Main MFA Flow Router Component
- * Routes to device-specific flow components based on device type
+ * Routes to device-specific flow components using Factory pattern
+ * 
+ * Architecture:
+ * - Router: Routes to device-specific components (this file)
+ * - Factory: Creates components dynamically (MFAFlowComponentFactory)
+ * - Controller: Handles business logic (MFAFlowController)
  */
 export const MFAFlowV8: React.FC = () => {
 	console.log(`${MODULE_TAG} Initializing MFA flow router`);
@@ -45,31 +49,14 @@ export const MFAFlowV8: React.FC = () => {
 		return (stored.deviceType as DeviceType) || 'SMS';
 	});
 
-	// Route to appropriate flow component based on device type
-	switch (deviceType) {
-		case 'SMS':
-			return <SMSFlowV8 />;
-		case 'EMAIL':
-			return <EmailFlowV8 />;
-		case 'TOTP':
-			// TODO: Implement TOTPFlowV8
-			return (
-				<div style={{ padding: '40px', textAlign: 'center' }}>
-					<h2>TOTP Flow - Coming Soon</h2>
-					<p>TOTP device flow is not yet implemented. Please use SMS flow for now.</p>
-				</div>
-			);
-		case 'FIDO2':
-			// TODO: Implement FIDO2FlowV8
-			return (
-				<div style={{ padding: '40px', textAlign: 'center' }}>
-					<h2>FIDO2 Flow - Coming Soon</h2>
-					<p>FIDO2 device flow is not yet implemented. Please use SMS flow for now.</p>
-				</div>
-			);
-		default:
-			return <SMSFlowV8 />;
-	}
+	// Use factory to create the appropriate component
+	const FlowComponent = MFAFlowComponentFactory.create(deviceType);
+
+	return (
+		<Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading flow...</div>}>
+			<FlowComponent />
+		</Suspense>
+	);
 };
 
 export default MFAFlowV8;
