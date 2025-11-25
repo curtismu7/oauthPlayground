@@ -48,24 +48,7 @@ export class SMSFlowController extends MFAFlowController {
 			errors.push('Username is required');
 		}
 
-		if (!credentials.phoneNumber?.trim()) {
-			errors.push('Phone Number is required for SMS devices');
-		} else {
-			const cleanedPhone = credentials.phoneNumber.replace(/[^\d]/g, '');
-			if (credentials.countryCode === '+1') {
-				if (cleanedPhone.length !== 10) {
-					errors.push(
-						`US/Canada phone numbers must be exactly 10 digits (you have ${cleanedPhone.length})`
-					);
-				}
-			} else {
-				if (cleanedPhone.length < 6) {
-					errors.push('Phone number is too short (minimum 6 digits)');
-				} else if (cleanedPhone.length > 15) {
-					errors.push('Phone number is too long (maximum 15 digits)');
-				}
-			}
-		}
+		// Phone number validation is now done in Step 1 (registration), not Step 0
 
 		if (!tokenStatus.isValid) {
 			errors.push('Worker token is required - please add a token first');
@@ -77,10 +60,16 @@ export class SMSFlowController extends MFAFlowController {
 
 	getDeviceRegistrationParams(credentials: MFACredentials): Partial<RegisterDeviceParams> {
 		const fullPhone = getFullPhoneNumber(credentials);
+		// Use device name from credentials if provided, otherwise generate default
+		const deviceName = credentials.deviceName?.trim() || `SMS Device - ${new Date().toLocaleDateString()}`;
 		return {
 			phone: fullPhone,
-			name: `SMS Device - ${new Date().toLocaleDateString()}`,
-			nickname: `SMS Device - ${new Date().toLocaleDateString()}`,
+			name: deviceName,
+			nickname: deviceName,
+			// Set to ACTIVE since we're using Worker App (actor making request on behalf of user)
+			// Per PingOne API: Worker App can set ACTIVE (pre-paired, no activation required) or ACTIVATION_REQUIRED
+			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
+			status: 'ACTIVE',
 		};
 	}
 }
