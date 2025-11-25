@@ -739,7 +739,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		validationAttempts: number,
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
-		setLastValidationError: (value: string | null) => void
+		setLastValidationError: (value: string | null) => void,
+		otpState: { otpSent: boolean; sendError: string | null; sendRetryCount: number },
+		setOtpState: (state: Partial<typeof otpState> | ((prev: typeof otpState) => Partial<typeof otpState>)) => void
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
@@ -867,9 +869,26 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						<button
 							type="button"
 							className="btn"
-							onClick={() => {
-								// Go back to step 2 to resend OTP
-								nav.goToStep(1);
+							disabled={isLoading}
+							onClick={async () => {
+								// Resend OTP directly from validation step
+								setIsLoading(true);
+								try {
+									await controller.sendOTP(
+										credentials,
+										mfaState.deviceId,
+										otpState,
+										setOtpState,
+										nav,
+										setIsLoading
+									);
+									toastV8.success('OTP code resent successfully!');
+								} catch (error) {
+									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+									toastV8.error(`Failed to resend OTP: ${errorMessage}`);
+								} finally {
+									setIsLoading(false);
+								}
 							}}
 							style={{
 								background: '#f3f4f6',
@@ -877,7 +896,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 								border: '1px solid #d1d5db',
 							}}
 						>
-							↩️ Request New Code
+							{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
 						</button>
 					</div>
 
@@ -931,7 +950,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep0={renderStep0}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={createRenderStep2(otpState.otpSent, (v) => setOtpState({ ...otpState, otpSent: v }), otpState.sendError, (v) => setOtpState({ ...otpState, sendError: v }), otpState.sendRetryCount, (v) => setOtpState({ ...otpState, sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v }))}
-				renderStep3={createRenderStep3(validationState.validationAttempts, (v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }), validationState.lastValidationError, (v) => setValidationState({ ...validationState, lastValidationError: v }))}
+				renderStep3={createRenderStep3(
+					validationState.validationAttempts,
+					(v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }),
+					validationState.lastValidationError,
+					(v) => setValidationState({ ...validationState, lastValidationError: v }),
+					otpState,
+					setOtpState
+				)}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Send OTP', 'Validate']}
 			/>
