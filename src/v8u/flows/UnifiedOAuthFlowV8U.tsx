@@ -256,7 +256,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		console.log(`${MODULE_TAG} ✅ Updated last used timestamp for flow`, { flowType });
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
 		// Intentionally omitting specVersion from dependencies to prevent loops
-		// biome-ignore lint/correctness/useExhaustiveDependencies: Intentional omission to prevent infinite loops
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [flowType]);
 
 	// Credentials section collapsed state - collapsed by default after step 0
