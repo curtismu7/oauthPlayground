@@ -1031,8 +1031,13 @@ app.post('/api/client-credentials', async (req, res) => {
 		const headers = {
 			'Content-Type': 'application/x-www-form-urlencoded',
 			Accept: 'application/json',
-			...customHeaders, // Include any custom headers from client authentication
 		};
+
+		// Only include custom headers (like Authorization for Basic auth) if NOT using JWT-based authentication
+		// JWT assertions (client_secret_jwt, private_key_jwt) should be in the request body, NOT in headers
+		if (customHeaders && auth_method !== 'client_secret_jwt' && auth_method !== 'private_key_jwt') {
+			Object.assign(headers, customHeaders);
+		}
 
 		// Prepare body for the request to PingOne
 		const body = new URLSearchParams(requestBody);
@@ -7122,19 +7127,29 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		const devicePayload = { type };
 
 		// Add type-specific fields
-		if (type === 'SMS' && phone) {
+		// Phone required for SMS, VOICE, and WHATSAPP devices
+		if ((type === 'SMS' || type === 'VOICE' || type === 'WHATSAPP') && phone) {
 			devicePayload.phone = phone;
 		} else if (type === 'EMAIL' && email) {
 			devicePayload.email = email;
 		}
-		// TOTP devices don't need phone or email
+		// TOTP, FIDO2, OATH_TOKEN, MOBILE, PLATFORM, SECURITY_KEY devices don't need phone or email
 
 		// PingOne API uses 'nickname' field for device name
 		if (nickname || name) devicePayload.nickname = nickname || name;
 
 		// Add status if provided (ACTIVE or ACTIVATION_REQUIRED)
+		// ACTIVE: Device is pre-paired (Worker App can set this, user doesn't need to activate)
+		// ACTIVATION_REQUIRED: User must activate device before first use
 		if (status) {
 			devicePayload.status = status;
+		}
+
+		// Add notification property if provided (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
+		const { notification } = req.body;
+		if (notification && status === 'ACTIVATION_REQUIRED') {
+			devicePayload.notification = notification;
 		}
 
 		console.log('[MFA Register Device] Device payload:', {
