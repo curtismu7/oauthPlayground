@@ -19,14 +19,16 @@ const MODULE_TAG = '[🏭 MFA-COMPONENT-FACTORY]';
 // Lazy load flow components for code splitting
 const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default: m.SMSFlowV8 })));
 const EmailFlowV8 = lazy(() => import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 })));
+const TOTPFlowV8 = lazy(() => import('../types/TOTPFlowV8').then((m) => ({ default: m.TOTPFlowV8 })));
+const FIDO2FlowV8 = lazy(() => import('../types/FIDO2FlowV8').then((m) => ({ default: m.FIDO2FlowV8 })));
 
 // Placeholder component for unsupported types
 const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
-	return (
-		<div style={{ padding: '40px', textAlign: 'center' }}>
-			<h2>{deviceType} Flow - Coming Soon</h2>
-			<p>{deviceType} device flow is not yet implemented. Please use SMS flow for now.</p>
-		</div>
+	return React.createElement(
+		'div',
+		{ style: { padding: '40px', textAlign: 'center' } },
+		React.createElement('h2', null, `${deviceType} Flow - Coming Soon`),
+		React.createElement('p', null, `${deviceType} device flow is not yet implemented. Please use SMS flow for now.`)
 	);
 };
 
@@ -47,8 +49,8 @@ export class MFAFlowComponentFactory {
 	static initialize(): void {
 		MFAFlowComponentFactory.register('SMS', SMSFlowV8);
 		MFAFlowComponentFactory.register('EMAIL', EmailFlowV8);
-		// Future: MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
-		// Future: MFAFlowComponentFactory.register('FIDO2', FIDO2FlowV8);
+		MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
+		MFAFlowComponentFactory.register('FIDO2', FIDO2FlowV8);
 	}
 
 	/**
@@ -78,7 +80,7 @@ export class MFAFlowComponentFactory {
 
 		// Return placeholder for unsupported types
 		console.warn(`${MODULE_TAG} Component not found for ${deviceType}, returning placeholder`);
-		return () => <ComingSoonComponent deviceType={deviceType} />;
+		return (() => React.createElement(ComingSoonComponent, { deviceType })) as ComponentType;
 	}
 
 	/**

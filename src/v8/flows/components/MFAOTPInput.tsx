@@ -40,7 +40,7 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 				disabled={disabled}
 				placeholder={placeholder}
 				style={{
-					padding: '10px 12px',
+					padding: '6px 10px',
 					border: `1px solid ${value.length === maxLength ? '#10b981' : '#d1d5db'}`,
 					borderRadius: '6px',
 					fontSize: '18px',
