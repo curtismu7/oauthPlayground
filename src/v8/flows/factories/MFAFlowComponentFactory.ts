@@ -21,12 +21,14 @@ const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default
 const EmailFlowV8 = lazy(() => import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 })));
 
 // Placeholder component for unsupported types
-const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => (
-	<div style={{ padding: '40px', textAlign: 'center' }}>
-		<h2>{deviceType} Flow - Coming Soon</h2>
-		<p>{deviceType} device flow is not yet implemented. Please use SMS flow for now.</p>
-	</div>
-);
+const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
+	return (
+		<div style={{ padding: '40px', textAlign: 'center' }}>
+			<h2>{deviceType} Flow - Coming Soon</h2>
+			<p>{deviceType} device flow is not yet implemented. Please use SMS flow for now.</p>
+		</div>
+	);
+};
 
 /**
  * Factory for creating MFA flow React components
