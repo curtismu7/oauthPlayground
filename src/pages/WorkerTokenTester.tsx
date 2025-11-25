@@ -138,22 +138,28 @@ const WorkerTokenTester: React.FC = () => {
 
 		try {
 			// Test 1: Get Environment
-			const envUrl = `https://api.pingone.com/v1/environments/${environmentId}`;
+			const envUrl = '/api/pingone/worker-test/environment';
 			const envCallId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
+				method: 'POST',
 				url: envUrl,
 				headers: {
-					Authorization: `Bearer ${token.substring(0, 20)}...`,
 					'Content-Type': 'application/json',
+				},
+				body: {
+					environmentId,
+					token: `${token.substring(0, 20)}...`,
 				},
 			});
 
 			const envResponse = await fetch(envUrl, {
-				method: 'GET',
+				method: 'POST',
 				headers: {
-					Authorization: `Bearer ${token}`,
 					'Content-Type': 'application/json',
 				},
+				body: JSON.stringify({
+					environmentId,
+					token,
+				}),
 			});
 
 			const envData = await envResponse.json();
@@ -198,22 +204,28 @@ const WorkerTokenTester: React.FC = () => {
 
 			// Test 2: List Users (if first test passed)
 			if (envResponse.ok) {
-				const usersUrl = `https://api.pingone.com/v1/environments/${environmentId}/users?limit=1`;
+				const usersUrl = '/api/pingone/worker-test/users';
 				const usersCallId = apiCallTrackerService.trackApiCall({
-					method: 'GET',
+					method: 'POST',
 					url: usersUrl,
 					headers: {
-						Authorization: `Bearer ${token.substring(0, 20)}...`,
 						'Content-Type': 'application/json',
+					},
+					body: {
+						environmentId,
+						token: `${token.substring(0, 20)}...`,
 					},
 				});
 
 				const usersResponse = await fetch(usersUrl, {
-					method: 'GET',
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${token}`,
 						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify({
+						environmentId,
+						token,
+					}),
 				});
 
 				const usersData = await usersResponse.json();
@@ -252,22 +264,28 @@ const WorkerTokenTester: React.FC = () => {
 				}
 
 				// Test 3: List Applications
-				const appsUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications?limit=1`;
+				const appsUrl = '/api/pingone/worker-test/applications';
 				const appsCallId = apiCallTrackerService.trackApiCall({
-					method: 'GET',
+					method: 'POST',
 					url: appsUrl,
 					headers: {
-						Authorization: `Bearer ${token.substring(0, 20)}...`,
 						'Content-Type': 'application/json',
+					},
+					body: {
+						environmentId,
+						token: `${token.substring(0, 20)}...`,
 					},
 				});
 
 				const appsResponse = await fetch(appsUrl, {
-					method: 'GET',
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${token}`,
 						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify({
+						environmentId,
+						token,
+					}),
 				});
 
 				const appsData = await appsResponse.json();
