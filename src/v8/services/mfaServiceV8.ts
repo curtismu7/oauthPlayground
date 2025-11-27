@@ -26,6 +26,7 @@
  */
 
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { pingOneFetch } from '@/utils/pingOneFetch';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 
@@ -247,27 +248,14 @@ export class MFAServiceV8 {
 				step: 'mfa-User Lookup',
 			});
 
-			let response: Response;
-			try {
-				response = await fetch('/api/pingone/mfa/lookup-user', {
+			const response = await pingOneFetch('/api/pingone/mfa/lookup-user', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let user: unknown;
@@ -339,7 +327,7 @@ export class MFAServiceV8 {
 				`${MODULE_TAG} Step 1: Initializing device authentication before device creation`
 			);
 			try {
-				const authInitResponse = await fetch(
+				const authInitResponse = await pingOneFetch(
 					'/api/pingone/mfa/initialize-device-authentication-auth',
 					{
 						method: 'POST',
@@ -470,7 +458,7 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/register-device', {
+				response = await pingOneFetch('/api/pingone/mfa/register-device', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -611,9 +599,9 @@ export class MFAServiceV8 {
 				// Fallback to our proxy endpoint
 				endpoint = '/api/pingone/mfa/validate-otp-for-device';
 				requestBody = {
-					environmentId: params.environmentId,
+				environmentId: params.environmentId,
 					authenticationId: params.deviceAuthId,
-					otp: params.otp,
+				otp: params.otp,
 					workerToken: cleanToken,
 				};
 				console.log(`${MODULE_TAG} Using fallback validate-otp-for-device endpoint`);
@@ -626,13 +614,14 @@ export class MFAServiceV8 {
 				usingLinks: !!params.otpCheckUrl,
 			});
 
-			const response = await fetch(endpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await pingOneFetch(endpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
 					...(params.otpCheckUrl ? { Authorization: `Bearer ${cleanToken}` } : {}),
-				},
-				body: JSON.stringify(requestBody),
+					},
+					body: JSON.stringify(requestBody),
+				retry: { maxAttempts: 3 },
 			});
 
 			if (!response.ok) {
@@ -694,25 +683,13 @@ export class MFAServiceV8 {
 			});
 
 			let response: Response;
-			try {
-				response = await fetch(deviceEndpoint, {
+			const response = await pingOneFetch(deviceEndpoint, {
 					method: 'GET',
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
 					},
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let deviceData: unknown;
@@ -783,8 +760,7 @@ export class MFAServiceV8 {
 			});
 
 			let response: Response;
-			try {
-				response = await fetch('/api/pingone/mfa/get-mfa-settings', {
+			const response = await pingOneFetch('/api/pingone/mfa/get-mfa-settings', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -793,19 +769,8 @@ export class MFAServiceV8 {
 						environmentId,
 						workerToken: accessToken,
 					}),
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let settingsData: unknown;
@@ -873,8 +838,7 @@ export class MFAServiceV8 {
 			});
 
 			let response: Response;
-			try {
-				response = await fetch('/api/pingone/mfa/update-mfa-settings', {
+			const response = await pingOneFetch('/api/pingone/mfa/update-mfa-settings', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -884,19 +848,8 @@ export class MFAServiceV8 {
 						settings,
 						workerToken: accessToken,
 					}),
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let settingsData: unknown;
@@ -969,25 +922,13 @@ export class MFAServiceV8 {
 			});
 
 			let response: Response;
-			try {
-				response = await fetch(deviceEndpoint, {
+			const response = await pingOneFetch(deviceEndpoint, {
 					method: 'DELETE',
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
 					},
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			apiCallTrackerService.updateApiCallResponse(
 				callId,
@@ -1058,9 +999,7 @@ export class MFAServiceV8 {
 			});
 
 			let response: Response;
-			try {
-				// Add cache-busting timestamp to request body to ensure fresh data
-				response = await fetch(`${proxyEndpoint}?_t=${Date.now()}`, {
+			const response = await pingOneFetch(`${proxyEndpoint}?_t=${Date.now()}`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -1074,19 +1013,8 @@ export class MFAServiceV8 {
 						workerToken: accessToken.trim(),
 						_timestamp: Date.now(), // Additional cache-busting in body
 					}),
-				});
-			} catch (error) {
-				apiCallTrackerService.updateApiCallResponse(
-					callId,
-					{
-						status: 0,
-						statusText: 'Network Error',
-						error: error instanceof Error ? error.message : String(error),
-					},
-					Date.now() - startTime
-				);
-				throw error;
-			}
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let devicesData: unknown;
@@ -1557,7 +1485,7 @@ export class MFAServiceV8 {
 				hasContact: !!(params.email || params.phone),
 			});
 
-			const response = await fetch('/api/pingone/mfa/initialize-one-time-device-authentication', {
+			const response = await pingOneFetch('/api/pingone/mfa/initialize-one-time-device-authentication', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -1662,11 +1590,11 @@ export class MFAServiceV8 {
 				deviceId: params.deviceId,
 			});
 
-			const initResponse = await fetch('/api/pingone/mfa/initialize-device-authentication', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+			const initResponse = await pingOneFetch('/api/pingone/mfa/initialize-device-authentication', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
 				body: JSON.stringify(initRequestBody),
 			});
 
@@ -1702,7 +1630,7 @@ export class MFAServiceV8 {
 
 			console.log(`${MODULE_TAG} Sending OTP to device`, { deviceAuthId, deviceId: params.deviceId });
 
-			const otpResponse = await fetch('/api/pingone/mfa/send-otp-to-device', {
+			const otpResponse = await pingOneFetch('/api/pingone/mfa/send-otp-to-device', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -1797,12 +1725,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/resend-pairing-code', {
+				response = await pingOneFetch('/api/pingone/mfa/resend-pairing-code', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -1881,7 +1810,7 @@ export class MFAServiceV8 {
 			});
 
 			// Use backend proxy to avoid CORS issues
-			const response = await fetch('/api/pingone/mfa/device-order', {
+			const response = await pingOneFetch('/api/pingone/mfa/device-order', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -1965,12 +1894,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/activate-device', {
+				response = await pingOneFetch('/api/pingone/mfa/activate-device', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2064,12 +1994,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/get-user-mfa-enabled', {
+				response = await pingOneFetch('/api/pingone/mfa/get-user-mfa-enabled', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2166,12 +2097,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/update-user-mfa-enabled', {
+				response = await pingOneFetch('/api/pingone/mfa/update-user-mfa-enabled', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2305,12 +2237,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
+				response = await pingOneFetch('/api/pingone/mfa/initialize-device-authentication', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2356,14 +2289,14 @@ export class MFAServiceV8 {
 					userId: user.id,
 					tokenLength: trimmedToken.length,
 				});
-
+				
 				if (response.status === 403) {
 					throw new Error(
 						`Failed to initialize device authentication: ${errorMessage}. ` +
 							`Verify the worker token has the necessary permissions for MFA operations.`
 					);
 				}
-
+				
 				throw new Error(`Failed to initialize device authentication: ${errorMessage}`);
 			}
 
@@ -2454,12 +2387,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/read-device-authentication', {
+				response = await pingOneFetch('/api/pingone/mfa/read-device-authentication', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2553,12 +2487,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/validate-otp-for-device', {
+				response = await pingOneFetch('/api/pingone/mfa/validate-otp-for-device', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2663,12 +2598,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/cancel-device-authentication', {
+				response = await pingOneFetch('/api/pingone/mfa/cancel-device-authentication', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2771,12 +2707,13 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/select-device-for-authentication', {
+				response = await pingOneFetch('/api/pingone/mfa/select-device-for-authentication', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -2855,7 +2792,7 @@ export class MFAServiceV8 {
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/device-authentication-policies', {
+				response = await pingOneFetch('/api/pingone/mfa/device-authentication-policies', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -2864,6 +2801,7 @@ export class MFAServiceV8 {
 						environmentId,
 						workerToken: accessToken.trim(),
 					}),
+					retry: { maxAttempts: 3 },
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
