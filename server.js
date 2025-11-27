@@ -203,7 +203,7 @@ app.use((err, _req, res, _next) => {
 	try {
 		console.error('[Server] Unhandled error:', err);
 		if (res.headersSent) return;
-		const message = err && err.message ? err.message : 'Internal Server Error';
+		const message = err?.message ?? 'Internal Server Error';
 		res.status(500).json({
 			error: 'internal_server_error',
 			error_description: message,
@@ -519,14 +519,14 @@ app.post('/api/token-exchange', async (req, res) => {
 			console.log('🔑 [Server] Validating client_credentials grant type');
 		} else if (grant_type === 'password') {
 			// Resource Owner Password Credentials grant (ROPC) - RFC 6749 Section 4.3
-			if (!req.body.username || req.body.username.trim() === '') {
+			if (!username || username.trim() === '') {
 				console.error('❌ [Server] Missing username for password grant');
 				return res.status(400).json({
 					error: 'invalid_request',
 					error_description: 'Missing required parameter: username',
 				});
 			}
-			if (!req.body.password || req.body.password.trim() === '') {
+			if (!password || password.trim() === '') {
 				console.error('❌ [Server] Missing password for password grant');
 				return res.status(400).json({
 					error: 'invalid_request',
@@ -1487,7 +1487,8 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 				} catch (parseError) {
 					console.error(
 						`[PingOne User Lookup] Failed to parse response for filter ${filter}:`,
-						payloadText.substring(0, 200)
+						payloadText.substring(0, 200),
+						parseError
 					);
 					continue;
 				}
@@ -1652,7 +1653,7 @@ app.get('/api/pingone/user/:userId/groups', async (req, res) => {
 						return item;
 					}
 					// Check if item has _links.group.href for expansion
-					if (item._links && item._links.group && item._links.group.href) {
+					if (item._links?.group?.href) {
 						// Extract group ID from href or mark for fetching via href
 						const href = item._links.group.href;
 						const groupIdMatch = href.match(/\/groups\/([^/?]+)/);
@@ -1823,7 +1824,7 @@ app.get('/api/pingone/user/:userId/roles', async (req, res) => {
 						return assignment;
 					}
 					// Check if assignment has _links.role.href for expansion
-					if (assignment._links && assignment._links.role && assignment._links.role.href) {
+					if (assignment._links?.role?.href) {
 						const href = assignment._links.role.href;
 						const roleIdMatch = href.match(/\/roles\/([^/?]+)/);
 						if (roleIdMatch) {
@@ -2601,7 +2602,7 @@ app.post('/api/pingone/mfa/device-order', async (req, res) => {
 				error_description:
 					errorData?.error_description ||
 					errorData?.message ||
-					response.statusText ||
+					response?.statusText ||
 					'Failed to set device order',
 				details: errorData || (errorText ? { body: errorText.substring(0, 200) } : {}),
 			});
@@ -2611,7 +2612,7 @@ app.post('/api/pingone/mfa/device-order', async (req, res) => {
 		let responseData;
 		try {
 			const responseText = await response.text();
-			if (responseText && responseText.trim()) {
+			if (responseText?.trim()) {
 				responseData = JSON.parse(responseText);
 			} else {
 				// Some endpoints return 204 No Content on success
@@ -2766,7 +2767,7 @@ app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
 		let responseData;
 		try {
 			responseData = await pingOneResponse.json();
-		} catch (e) {
+		} catch {
 			// If response is not JSON (e.g., 204 No Content), treat as success
 			if (pingOneResponse.ok) {
 				responseData = { success: true };
@@ -3071,7 +3072,7 @@ app.post('/api/pingone/password/unlock', async (req, res) => {
 		let responseData;
 		try {
 			responseData = await pingOneResponse.json();
-		} catch (e) {
+		} catch {
 			if (pingOneResponse.ok) {
 				responseData = { success: true };
 			} else {
@@ -3686,7 +3687,7 @@ app.post('/api/device/register', async (req, res) => {
 });
 
 // Network connectivity check endpoint
-app.get('/api/network/check', async (req, res) => {
+app.get('/api/network/check', async (_req, res) => {
 	try {
 		console.log(`[Network Check] Testing connectivity to PingOne...`);
 
@@ -3935,7 +3936,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 				responseText = await authResponse.text();
 				try {
 					responseData = JSON.parse(responseText);
-				} catch (e) {
+				} catch {
 					// If it's HTML or other text, log it
 					console.error(
 						`[PingOne Redirectless] Response is not valid JSON:`,
@@ -3951,7 +3952,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			if (!responseText) {
 				try {
 					responseText = await authResponse.text();
-				} catch (e) {
+				} catch {
 					responseText = 'Unable to read response body';
 				}
 			}
@@ -4138,7 +4139,7 @@ app.post('/api/pingone/redirectless/poll', async (req, res) => {
 		let responseData;
 		try {
 			responseData = await pingOneResponse.json();
-		} catch (e) {
+		} catch {
 			// If response is not JSON, treat as error
 			return res.status(pingOneResponse.status).json({
 				error: 'invalid_response',
@@ -4303,14 +4304,14 @@ app.post('/api/pingone/resume', async (req, res) => {
 					const locationUrl = new URL(locationHeader);
 					code = locationUrl.searchParams.get('code');
 					state = locationUrl.searchParams.get('state');
-				} catch (urlError) {
+				} catch {
 					// If not absolute URL, try as relative URL (e.g., /callback?code=abc123)
 					try {
 						const baseUrl = new URL(finalResumeUrl);
 						const locationUrl = new URL(locationHeader, baseUrl.origin);
 						code = locationUrl.searchParams.get('code');
 						state = locationUrl.searchParams.get('state');
-					} catch (relativeError) {
+					} catch {
 						// Fallback: try to extract code using regex
 						const codeMatch = locationHeader.match(/[?&]code=([^&]+)/);
 						const stateMatch = locationHeader.match(/[?&]state=([^&]+)/);
@@ -4363,7 +4364,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 								errorDetails = { message: decodeURIComponent(errorParam) };
 							}
 						}
-					} catch (urlError) {
+					} catch {
 						console.error(`[PingOne Resume] Failed to parse error URL:`, urlError);
 					}
 
@@ -4479,7 +4480,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 			hasUserId: !!responseData.userId,
 			// Check ALL keys for common patterns
 			allStringValues: Object.entries(responseData)
-				.filter(([k, v]) => typeof v === 'string' && v.length > 0)
+				.filter(([k, v]) => typeof v === 'string' && v?.length > 0)
 				.map(([k, v]) => `${k}:${v.substring(0, 30)}...`)
 				.slice(0, 10),
 		});
@@ -4540,7 +4541,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 					responseData.location = locationHeader;
 					responseData.redirect = true;
 				}
-			} catch (urlError) {
+			} catch {
 				console.warn(`[PingOne Resume] Could not parse Location header URL:`, urlError);
 			}
 		}
@@ -4879,7 +4880,7 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 			JSON.stringify(sanitizeRequestBody(req.body), null, 2)
 		);
 
-		const { flowUrl, username, password, cookies, sessionId } = req.body;
+		const { flowUrl, username, password, sessionId } = req.body;
 
 		if (!flowUrl) {
 			return res.status(400).json({
@@ -5182,7 +5183,7 @@ app.post('/api/ciba-backchannel', async (req, res) => {
 			const text = await response.text();
 			try {
 				data = JSON.parse(text);
-			} catch (parseError) {
+			} catch {
 				// Response is not JSON - might be HTML error page or plain text
 				console.error(
 					`[CIBA Backchannel] Non-JSON response from PingOne (${response.status}):`,
@@ -6514,9 +6515,9 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 					});
 
 					// Extract region from issuer URL: https://auth.pingone.{region}/{envId}/as
-					if (payload.iss && payload.iss.includes('auth.pingone.')) {
+					if (payload.iss?.includes('auth.pingone.')) {
 						const issMatch = payload.iss.match(/auth\.pingone\.([a-z0-9-]+)/);
-						if (issMatch && issMatch[1]) {
+						if (issMatch?.[1]) {
 							regionFromToken = issMatch[1];
 							console.log(
 								'[PingOne Org Licensing] Extracted region from token issuer:',
@@ -6739,7 +6740,7 @@ app.post('/api/pingone/organization-licensing', async (req, res) => {
 		if (organizationInfo.region) {
 			region = organizationInfo.region;
 			console.log('[PingOne Org Licensing] Using region from organizationInfo.region:', region);
-		} else if (organizationInfo.organization && organizationInfo.organization.region) {
+		} else if (organizationInfo.organization?.region) {
 			region = organizationInfo.organization.region;
 			console.log(
 				'[PingOne Org Licensing] Using region from organizationInfo.organization.region:',
@@ -7038,7 +7039,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 					error: errorData,
 				});
 				return res.status(response.status).json(errorData);
-			} catch (parseError) {
+			} catch {
 				// If JSON parsing fails, try to get text from cloned response
 				try {
 					const errorText = await responseClone.text();
@@ -7049,7 +7050,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 					});
 					return res.status(response.status).json({
 						error: 'User lookup failed',
-						message: response.statusText || 'Unknown error',
+						message: response?.statusText || 'Unknown error',
 						status: response.status,
 						details: errorText.substring(0, 200),
 					});
@@ -7057,7 +7058,7 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 					console.error('[MFA Lookup User] Failed to read error response:', textError);
 					return res.status(response.status).json({
 						error: 'User lookup failed',
-						message: response.statusText || 'Unknown error',
+						message: response?.statusText || 'Unknown error',
 						status: response.status,
 					});
 				}
@@ -7261,7 +7262,7 @@ app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
 			return res.status(response.status).json(
 				errorData || {
 					error: 'Failed to get devices',
-					message: response.statusText || 'Unknown error',
+					message: response?.statusText || 'Unknown error',
 					status: response.status,
 					details: errorText ? errorText.substring(0, 200) : undefined,
 				}
@@ -7271,7 +7272,7 @@ app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
 		let data;
 		try {
 			data = await response.json();
-		} catch (parseError) {
+		} catch {
 			let responseText = '';
 			try {
 				responseText = await response.text();
@@ -7413,7 +7414,7 @@ app.post('/api/pingone/mfa/update-device', async (req, res) => {
 				error_description:
 					errorData?.error_description ||
 					errorData?.message ||
-					response.statusText ||
+					response?.statusText ||
 					'Failed to update device',
 				details: errorData || (errorText ? { body: errorText.substring(0, 200) } : {}),
 			});
@@ -7423,7 +7424,7 @@ app.post('/api/pingone/mfa/update-device', async (req, res) => {
 		let responseData;
 		try {
 			const responseText = await response.text();
-			if (responseText && responseText.trim()) {
+			if (responseText?.trim()) {
 				responseData = JSON.parse(responseText);
 			} else {
 				// Some endpoints return 204 No Content on success
@@ -7603,7 +7604,7 @@ app.post('/api/pingone/mfa/send-otp-to-device', async (req, res) => {
 			}
 			// Empty response body - treat as success
 			return res.status(200).json({ success: true, message: 'OTP sent successfully' });
-		} catch (parseError) {
+		} catch {
 			// If parsing fails, that's okay - return success
 			console.log('[MFA Send OTP to Device] Response was not JSON, treating as success');
 			return res.status(200).json({ success: true, message: 'OTP sent successfully' });
@@ -7771,7 +7772,7 @@ app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 			}
 			// Empty response body - treat as success
 			return res.status(200).json({ success: true, message: 'OTP sent successfully' });
-		} catch (parseError) {
+		} catch {
 			// If parsing fails, that's okay - return success
 			console.log('[MFA Send OTP] Response was not JSON, treating as success');
 			return res.status(200).json({ success: true, message: 'OTP sent successfully' });
