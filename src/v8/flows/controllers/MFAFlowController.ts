@@ -130,14 +130,21 @@ export abstract class MFAFlowController {
 		setState({ sendError: null });
 
 		try {
-			await MFAServiceV8.sendOTP({
+			const workerToken = await MFAServiceV8.getWorkerToken();
+			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
+			
+			const { deviceAuthId } = await MFAServiceV8.sendOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
 			});
 
 			console.log(`${MODULE_TAG} OTP sent successfully`);
-			setState({ otpSent: true, sendRetryCount: 0 });
+			setState({ 
+				otpSent: true, 
+				sendRetryCount: 0,
+				deviceAuthId // Store deviceAuthId for validation
+			});
 			nav.markStepComplete();
 			toastV8.success('OTP sent successfully!');
 
@@ -181,17 +188,20 @@ export abstract class MFAFlowController {
 		setValidationState({ lastValidationError: null });
 
 		try {
+			const workerToken = await MFAServiceV8.getWorkerToken();
+			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
+
 			const result = await MFAServiceV8.validateOTP({
 				environmentId: credentials.environmentId,
-				username: credentials.username,
-				deviceId,
+				deviceAuthId: mfaState.deviceAuthId || '',
 				otp: otpCode,
+				workerToken: cleanToken
 			});
 
 			setMfaState({
 				verificationResult: {
-					status: result.status,
-					message: result.message || 'OTP validated successfully',
+					status: result.valid ? 'SUCCESS' : 'FAILED',
+					message: result.message || (result.valid ? 'OTP validated successfully' : 'Invalid OTP code')
 				},
 			});
 
@@ -264,6 +274,164 @@ export abstract class MFAFlowController {
 			nav.setValidationErrors([`OTP validation failed: ${errorMessage}`]);
 		}
 		toastV8.error(`Validation failed: ${errorMessage}`);
+	}
+
+	/**
+	 * Initialize device authentication (for existing devices)
+	 * Uses Auth Server endpoint: POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
+	 * Per master-sms.md guidance: This is the correct endpoint for authentication flows
+	 * Request body: { user: { id }, policy: { id } (optional), device: { id } (optional) }
+	 * When deviceId is provided, it immediately triggers authentication for that device
+	 */
+	async initializeDeviceAuthentication(
+		credentials: MFACredentials,
+		deviceId?: string
+	): Promise<{
+		authenticationId: string;
+		status: string;
+		nextStep?: string;
+		devices?: Array<{ id: string; type: string; nickname?: string }>;
+		challengeId?: string;
+		[key: string]: unknown;
+	}> {
+		if (!credentials.deviceAuthenticationPolicyId) {
+			const errorMessage =
+				'Device Authentication Policy ID is required. Configure it via PingOne (Settings ▶ Device Authentication Policies).';
+			console.error(`${MODULE_TAG} Missing deviceAuthenticationPolicyId`, {
+				deviceType: this.deviceType,
+				username: credentials.username,
+			});
+			throw new Error(errorMessage);
+		}
+
+		console.log(`${MODULE_TAG} Initializing device authentication for ${this.deviceType} (using Auth Server endpoint)`, {
+			policyId: credentials.deviceAuthenticationPolicyId,
+		});
+		
+		// Use Auth Server endpoint per master-sms.md guidance
+		// This endpoint accepts deviceId in request body to immediately trigger authentication
+		const result = await MFAServiceV8.initializeDeviceAuthentication({
+			...credentials,
+			deviceId, // Pass deviceId to immediately trigger authentication for this device
+		});
+
+		if (result.status === 'DEVICE_SELECTION_REQUIRED' && deviceId && result.id) {
+			console.warn(
+				`${MODULE_TAG} initializeDeviceAuthentication returned DEVICE_SELECTION_REQUIRED even though a deviceId was provided. Returning initial response; backend should already be triggering authentication.`
+			);
+		}
+
+		// DeviceId was passed, authentication should be triggered directly
+		return {
+			authenticationId: result.id,
+			status: result.status,
+			nextStep: result.nextStep,
+			devices: result.devices,
+			challengeId: result.challengeId,
+			...result,
+		};
+	}
+
+	/**
+	 * Cancel device authentication
+	 * POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications/{authenticationId}/cancel
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-cancel-device-authentication
+	 */
+	async cancelDeviceAuthentication(
+		credentials: MFACredentials,
+		authenticationId: string
+	): Promise<{ status: string; [key: string]: unknown }> {
+		return await MFAServiceV8.cancelDeviceAuthentication({
+			...credentials,
+			authenticationId,
+		});
+	}
+
+	/**
+	 * Select device for authentication (when multiple devices available)
+	 */
+	async selectDeviceForAuthentication(
+		credentials: MFACredentials,
+		authenticationId: string,
+		deviceId: string
+	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
+		console.log(`${MODULE_TAG} Selecting device for authentication`);
+		return await MFAServiceV8.selectDeviceForAuthentication({
+			...credentials,
+			authenticationId,
+			deviceId,
+		});
+	}
+
+	/**
+	 * Validate OTP for device authentication (for existing devices)
+	 */
+	async validateOTPForDevice(
+		credentials: MFACredentials,
+		authenticationId: string,
+		otpCode: string,
+		mfaState: MFAState,
+		setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void,
+		validationState: ValidationState,
+		setValidationState: (state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => void,
+		nav: ReturnType<typeof useStepNavigationV8>,
+		setIsLoading: (loading: boolean) => void
+	): Promise<boolean> {
+		console.log(`${MODULE_TAG} Validating OTP for device authentication`);
+		setIsLoading(true);
+		setValidationState({ lastValidationError: null });
+
+		try {
+			const result = await MFAServiceV8.validateOTPForDevice({
+				environmentId: credentials.environmentId,
+				username: credentials.username,
+				authenticationId,
+				otp: otpCode,
+			});
+
+			setMfaState({
+				...mfaState,
+				verificationResult: {
+					status: result.status,
+					message: (result.message as string) || 'OTP validated successfully',
+				},
+			});
+
+			if (result.status === 'COMPLETED') {
+				setValidationState({ validationAttempts: 0, lastValidationError: null });
+				nav.markStepComplete();
+				toastV8.success('Authentication successful!');
+
+				if (this.callbacks.onOTPValidated) {
+					this.callbacks.onOTPValidated();
+				}
+				return true;
+			} else {
+				setValidationState({
+					validationAttempts: validationState.validationAttempts + 1,
+					lastValidationError: 'Invalid OTP code',
+				});
+				nav.setValidationErrors(['Invalid OTP code. Please try again.']);
+				toastV8.error('Invalid OTP code');
+				return false;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} OTP validation for device authentication failed`, error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			setValidationState({
+				validationAttempts: validationState.validationAttempts + 1,
+				lastValidationError: errorMessage,
+			});
+
+			this.handleOTPValidationError(errorMessage, nav);
+
+			if (this.callbacks.onError) {
+				this.callbacks.onError(errorMessage);
+			}
+			return false;
+		} finally {
+			setIsLoading(false);
+		}
 	}
 
 	/**
