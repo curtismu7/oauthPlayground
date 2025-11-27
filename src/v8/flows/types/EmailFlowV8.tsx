@@ -6,6 +6,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -17,6 +18,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { FiShield } from 'react-icons/fi';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
