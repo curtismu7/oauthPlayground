@@ -16,17 +16,10 @@
  */
 
 /**
- * PingOne worker token scopes required for MFA device management.
- * Keep this list tightly scoped to the minimum rights needed for device lifecycle operations.
+ * NOTE: Worker token scopes are not required for MFA operations
+ * The worker token itself provides the necessary permissions
  */
-export const PINGONE_WORKER_MFA_SCOPES = [
-	'p1:read:user',
-	'p1:update:user',
-	'p1:create:device',
-	'p1:read:device',
-	'p1:update:device',
-	'p1:delete:device',
-] as const;
+export const PINGONE_WORKER_MFA_SCOPES = [] as const;
 
 /**
  * Space-delimited version of the required PingOne worker scopes for MFA.
