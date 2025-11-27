@@ -162,11 +162,20 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 			setError(null);
 
 			try {
-				const response = await MFAServiceV8.readDeviceAuthentication({
-					environmentId: trimmedEnv,
-					authenticationId: trimmedAuth,
-					region: region?.trim() || undefined,
-				});
+				const requestParams: {
+				environmentId: string;
+				authenticationId: string;
+				region?: string;
+			} = {
+				environmentId: trimmedEnv,
+				authenticationId: trimmedAuth,
+			};
+
+			if (region?.trim()) {
+				requestParams.region = region.trim();
+			}
+
+			const response = await MFAServiceV8.readDeviceAuthentication(requestParams);
 
 				setResult(response);
 				if (!options?.suppressToast) {
@@ -196,10 +205,10 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 		const status = (record?.status as string | undefined) || (record?.state as string | undefined) || '';
 		const device = record?.device as Record<string, unknown> | undefined;
 		const deviceType = (device?.type as string | undefined) || (record?.authenticationType as string | undefined) || '';
-		const channel = (record?.channel as string) || '';
-		const step = (record?.nextStep as string) || (record?.next?.status as string) || '';
-		const updated = (record?.updatedAt as string) || (record?.lastUpdated as string) || (record?.modifiedAt as string);
-		const created = (record?.createdAt as string) || '';
+		const channel = (record?.channel as string | undefined) || '';
+		const step = (record?.nextStep as string | undefined) || ((record?.next as Record<string, unknown>)?.status as string | undefined) || '';
+		const updated = (record?.updatedAt as string | undefined) || (record?.lastUpdated as string | undefined) || (record?.modifiedAt as string | undefined);
+		const created = (record?.createdAt as string | undefined) || '';
 
 		return {
 			status,
@@ -219,7 +228,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 		const html = buildJsonHtml(data);
 		// biome lint justification: buildJsonHtml properly escapes HTML entities before adding syntax highlighting
-		// biome-ignore lint/security/noDangerouslySetInnerHtml: HTML is escaped via escapeHtml function
+		/* biome-ignore lint/security/noDangerouslySetInnerHtml: HTML is escaped via escapeHtml function */
 		return (
 			<pre
 				className="json-display"
