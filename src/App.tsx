@@ -172,6 +172,7 @@ import MFAHubV8 from './v8/flows/MFAHubV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
+import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
@@ -519,6 +520,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa-hub" element={<MFAHubV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
+							<Route path="/v8/mfa/device-authentication-details" element={<DeviceAuthenticationDetailsV8 />} />
 							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
 							<Route path="/flows/oauth-authorization-code-v7-mock" element={<TestMock />} />
 							<Route
