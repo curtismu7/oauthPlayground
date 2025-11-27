@@ -42,6 +42,7 @@ export interface UnifiedFlowCredentials {
 	environmentId: string;
 	clientId: string;
 	clientSecret?: string;
+	privateKey?: string; // For private_key_jwt authentication
 	redirectUri?: string;
 	postLogoutRedirectUri?: string;
 	logoutUri?: string;
@@ -378,7 +379,7 @@ export class UnifiedFlowIntegrationV8U {
 					}
 
 					console.log(`${MODULE_TAG} ✅ PAR request pushed successfully`, {
-						requestUri: parResponse.requestUri?.substring(0, 50) + '...',
+						requestUri: `${parResponse.requestUri?.substring(0, 50)}...`,
 						fullRequestUri: parResponse.requestUri,
 						expiresIn: parResponse.expiresIn,
 					});
@@ -397,8 +398,8 @@ export class UnifiedFlowIntegrationV8U {
 					console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with PAR`, {
 						prefixedState,
 						hasPKCE: !!pkceCodes,
-						requestUri: parResponse.requestUri?.substring(0, 50) + '...',
-						authorizationUrl: authorizationUrl.substring(0, 200) + '...',
+						requestUri: `${parResponse.requestUri?.substring(0, 50)}...`,
+						authorizationUrl: `${authorizationUrl.substring(0, 200)}...`,
 						urlContainsRequestUri: authorizationUrl.includes('request_uri'),
 					});
 
@@ -751,7 +752,7 @@ export class UnifiedFlowIntegrationV8U {
 		maxAttempts: number = 60
 	) {
 		console.log(`${MODULE_TAG} Polling for tokens`, {
-			deviceCode: deviceCode.substring(0, 20) + '...',
+			deviceCode: `${deviceCode.substring(0, 20)}...`,
 			interval,
 			maxAttempts,
 		});
@@ -1019,7 +1020,9 @@ export class UnifiedFlowIntegrationV8U {
 				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri || '',
 				scopes: credentials.scopes || 'openid profile email',
+				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
 			};
+			
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
 				console.log(
@@ -1028,6 +1031,14 @@ export class UnifiedFlowIntegrationV8U {
 			} else {
 				console.log(`${MODULE_TAG} No client secret provided`);
 			}
+			
+			// Add private key for private_key_jwt authentication
+			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
+				oauthCredentials.privateKey = credentials.privateKey;
+				console.log(`${MODULE_TAG} Private key included for private_key_jwt authentication`);
+			}
+			
+			console.log(`${MODULE_TAG} OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`);
 
 			console.log(`${MODULE_TAG} OAuth credentials prepared:`, {
 				environmentId: oauthCredentials.environmentId,
@@ -1075,9 +1086,15 @@ export class UnifiedFlowIntegrationV8U {
 				responseType:
 					(credentials.responseType as 'code id_token' | 'code token' | 'code token id_token') ||
 					'code id_token',
+				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
 			};
 			if (credentials.clientSecret) {
 				hybridCredentials.clientSecret = credentials.clientSecret;
+			}
+			// Add private key for private_key_jwt authentication
+			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
+				hybridCredentials.privateKey = credentials.privateKey;
+				console.log(`${MODULE_TAG} Private key included for hybrid flow private_key_jwt authentication`);
 			}
 			return HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
 				hybridCredentials,
