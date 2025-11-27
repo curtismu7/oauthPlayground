@@ -17,6 +17,8 @@ export interface OTPState {
 	otpSent: boolean;
 	sendError: string | null;
 	sendRetryCount: number;
+	deviceAuthId?: string; // Store deviceAuthId from initialize response
+	otpCheckUrl?: string; // Store otp.check URL from _links
 }
 
 export interface ValidationState {
@@ -133,17 +135,18 @@ export abstract class MFAFlowController {
 			const workerToken = await MFAServiceV8.getWorkerToken();
 			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
 			
-			const { deviceAuthId } = await MFAServiceV8.sendOTP({
+			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
 			});
 
-			console.log(`${MODULE_TAG} OTP sent successfully`);
+			console.log(`${MODULE_TAG} OTP sent successfully`, { hasOtpCheckUrl: !!otpCheckUrl });
 			setState({ 
 				otpSent: true, 
 				sendRetryCount: 0,
-				deviceAuthId // Store deviceAuthId for validation
+				deviceAuthId, // Store deviceAuthId for validation
+				otpCheckUrl // Store otpCheckUrl for validation
 			});
 			nav.markStepComplete();
 			toastV8.success('OTP sent successfully!');
@@ -195,7 +198,8 @@ export abstract class MFAFlowController {
 				environmentId: credentials.environmentId,
 				deviceAuthId: mfaState.deviceAuthId || '',
 				otp: otpCode,
-				workerToken: cleanToken
+				workerToken: cleanToken,
+				otpCheckUrl: mfaState.otpCheckUrl // Use otp.check URL from _links if available
 			});
 
 			setMfaState({
