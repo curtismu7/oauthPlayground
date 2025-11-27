@@ -17,8 +17,6 @@ import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
-const MODULE_TAG = '[🔐 PAR-RAR-INTEGRATION-V8U]';
-
 /**
  * PAR Request Interface (RFC 9126)
  */
@@ -217,7 +215,7 @@ export class PARRARIntegrationServiceV8U {
 		if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 			// JWT-based authentication: Generate client assertion
 			try {
-				const { createClientAssertion } = await import('@/utils/clientAuthentication');
+				const { createClientAssertion } = await import('../../utils/clientAuthentication');
 				const parEndpointUrl = `https://auth.pingone.com/${parRequest.environmentId}/as/par`;
 				
 				let assertion: string;
@@ -402,7 +400,7 @@ export class PARRARIntegrationServiceV8U {
 			};
 
 			UnifiedFlowLoggerService.success('PAR request pushed successfully', {
-				requestUri: requestUri.substring(0, 50) + '...',
+				requestUri: `${requestUri.substring(0, 50)}...`,
 				expiresIn,
 			});
 
@@ -431,7 +429,7 @@ export class PARRARIntegrationServiceV8U {
 		const authorizationUrl = `${authEndpoint}?${params.toString()}`;
 
 		UnifiedFlowLoggerService.debug('Generated authorization URL with PAR', {
-			requestUri: requestUri.substring(0, 50) + '...',
+			requestUri: `${requestUri.substring(0, 50)}...`,
 		});
 
 		return authorizationUrl;

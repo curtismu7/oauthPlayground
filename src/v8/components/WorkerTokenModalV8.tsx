@@ -11,6 +11,7 @@ import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -30,6 +31,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
+	const [scopeInput, setScopeInput] = useState(PINGONE_WORKER_MFA_SCOPE_STRING);
 	const [region, setRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>('us');
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_basic');
 	const [showSecret, setShowSecret] = useState(false);
@@ -45,6 +47,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		};
 		authMethod: AuthMethodV8;
 		region: 'us' | 'eu' | 'ap' | 'ca';
+		resolvedHeaders: Record<string, string>;
+		resolvedBody: string;
 	} | null>(null);
 	const [saveCredentials, setSaveCredentials] = useState(true);
 
@@ -69,6 +73,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					setEnvironmentId(parsed.environmentId || propEnvironmentId);
 					setClientId(parsed.clientId || '');
 					setClientSecret(parsed.clientSecret || '');
+					setScopeInput(
+						Array.isArray(parsed.scopes) && parsed.scopes.length
+							? parsed.scopes.join(' ')
+							: PINGONE_WORKER_MFA_SCOPE_STRING
+					);
 					setRegion(parsed.region || 'us');
 					setAuthMethod(parsed.authMethod || 'client_secret_basic');
 					console.log(`${MODULE_TAG} Loaded saved credentials`);
@@ -79,6 +88,20 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		}
 	}, [isOpen, propEnvironmentId]);
 
+	React.useEffect(() => {
+		const handleScopeUpdate = (event: Event) => {
+			const detail = (event as CustomEvent<{ scopes?: string[] }>).detail;
+			if (detail?.scopes?.length) {
+				setScopeInput(detail.scopes.join(' '));
+			}
+		};
+
+		window.addEventListener('workerTokenMissingScopes', handleScopeUpdate as EventListener);
+		return () => {
+			window.removeEventListener('workerTokenMissingScopes', handleScopeUpdate as EventListener);
+		};
+	}, []);
+
 	if (!isOpen) return null;
 
 	const handleGenerate = async () => {
@@ -87,12 +110,25 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			return;
 		}
 
+		const normalizedScopes = scopeInput
+			.split(/\s+/)
+			.map((scope) => scope.trim())
+			.filter(Boolean);
+
+		if (normalizedScopes.length === 0) {
+			toastV8.error('Please provide at least one scope for the worker token');
+			return;
+		}
+
+		setScopeInput(normalizedScopes.join(' '));
+
 		// Save credentials if checkbox is checked
 		if (saveCredentials) {
 			const credsToSave = {
 				environmentId: environmentId.trim(),
 				clientId: clientId.trim(),
 				clientSecret: clientSecret.trim(),
+				scopes: normalizedScopes,
 				region,
 				authMethod,
 			};
@@ -110,20 +146,35 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		const domain = regionDomains[region];
 		const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
+		const params = new URLSearchParams({
+			grant_type: 'client_credentials',
+			client_id: clientId.trim(),
+			scope: normalizedScopes.join(' '),
+		});
+
+		const headers: Record<string, string> = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		};
+
+		if (authMethod === 'client_secret_post') {
+			params.set('client_secret', clientSecret.trim());
+		} else if (authMethod === 'client_secret_basic') {
+			const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
+			headers.Authorization = `Basic ${basicAuth}`;
+		}
+
 		const details = {
 			tokenEndpoint,
 			requestParams: {
 				grant_type: 'client_credentials',
 				client_id: clientId.trim(),
 				client_secret: clientSecret.trim(),
-				// Required scopes for application discovery API access
-				// p1:read:environments - Read environment metadata
-				// p1:read:applications - Read application configurations (required for discovery)
-				// p1:read:connections - Read connection configurations
-				scope: 'p1:read:environments p1:read:applications p1:read:connections',
+				scope: normalizedScopes.join(' '),
 			},
 			authMethod,
 			region,
+			resolvedHeaders: headers,
+			resolvedBody: params.toString(),
 		};
 
 		setRequestDetails(details);
@@ -137,12 +188,18 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		try {
 			console.log(`${MODULE_TAG} Generating worker token`, { environmentId, region });
 
+			const scopeList = requestDetails.requestParams.scope
+				.split(/\s+/)
+				.map((scope) => scope.trim())
+				.filter(Boolean);
+
 			// First, save credentials to workerTokenServiceV8
 			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
 			await workerTokenServiceV8.saveCredentials({
 				environmentId: environmentId.trim(),
 				clientId: clientId.trim(),
 				clientSecret: clientSecret.trim(),
+				scopes: scopeList,
 				region,
 				tokenEndpointAuthMethod: authMethod,
 			});
@@ -150,15 +207,30 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			const response = await fetch(requestDetails.tokenEndpoint, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: new URLSearchParams(requestDetails.requestParams),
+				headers: requestDetails.resolvedHeaders,
+				body: requestDetails.resolvedBody,
 			});
 
 			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.error_description || 'Token generation failed');
+				let errorMessage = `Token generation failed (HTTP ${response.status})`;
+				try {
+					const errorJson = await response.json();
+					errorMessage = errorJson.error_description || errorJson.error || errorMessage;
+				} catch {
+					const errorText = await response.text();
+					if (errorText) {
+						errorMessage = `${errorMessage}: ${errorText}`;
+					}
+				}
+
+				if (/client authentication failed/i.test(errorMessage)) {
+					errorMessage +=
+						'. Verify the client secret and make sure the token endpoint authentication method matches your PingOne app (try switching between Client Secret Post and Client Secret Basic).';
+				} else if (/unsupported_grant_type/i.test(errorMessage)) {
+					errorMessage += '. Double-check that the Worker app allows the client_credentials grant.';
+				}
+
+				throw new Error(errorMessage);
 			}
 
 			const data = await response.json();
@@ -168,6 +240,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await workerTokenServiceV8.saveToken(token, expiresAt);
 			console.log(`${MODULE_TAG} Token saved to workerTokenServiceV8`);
+
+			if (typeof data.scope === 'string' && data.scope.trim().length > 0) {
+				console.log(`${MODULE_TAG} Token scopes:`, data.scope);
+			}
 
 			// Dispatch event for status update
 			window.dispatchEvent(new Event('workerTokenUpdated'));
@@ -317,6 +393,24 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							<strong>1 hour</strong> after generation. You will need to generate a new token after
 							it expires.
 						</div>
+						<div
+							style={{
+								marginTop: '8px',
+								padding: '8px',
+								background: '#fff7ed',
+								borderRadius: '4px',
+								border: '1px solid #fdba74',
+								color: '#9a3412',
+							}}
+						>
+							<strong>✅ Recommended MFA scopes:</strong>
+							<div style={{ marginTop: '6px', fontFamily: 'monospace', fontSize: '12px' }}>
+								{PINGONE_WORKER_MFA_SCOPE_STRING}
+							</div>
+							<p style={{ marginTop: '6px', fontSize: '12px' }}>
+								You can adjust the scope list below to match your PingOne Worker application.
+							</p>
+						</div>
 					</div>
 
 					{/* How to Get Credentials */}
@@ -340,6 +434,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							<li>Create or select a Worker application</li>
 							<li>Copy the Environment ID, Client ID, and Client Secret</li>
 							<li>Ensure the app has required roles assigned</li>
+								<li>
+									Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If you see
+									“client authentication failed”, try switching between <em>Client Secret Post</em>{' '}
+									and <em>Client Secret Basic</em>.
+								</li>
 						</ol>
 					</div>
 
@@ -456,6 +555,39 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 									{showSecret ? '👁️' : '👁️‍🗨️'}
 								</button>
 							</div>
+						</div>
+
+						{/* Scopes */}
+						<div>
+							<label
+								style={{
+									display: 'block',
+									fontWeight: '600',
+									fontSize: '13px',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
+								Scopes <span style={{ color: '#ef4444' }}>*</span>
+							</label>
+							<textarea
+								value={scopeInput}
+								onChange={(e) => setScopeInput(e.target.value)}
+								rows={3}
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '4px',
+									fontSize: '13px',
+									fontFamily: 'monospace',
+									resize: 'vertical',
+								}}
+							/>
+							<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+								Space-separated list. Recommended:{' '}
+								<span style={{ fontFamily: 'monospace' }}>{PINGONE_WORKER_MFA_SCOPE_STRING}</span>
+							</small>
 						</div>
 
 						{/* Region */}

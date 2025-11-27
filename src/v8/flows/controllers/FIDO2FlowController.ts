@@ -42,6 +42,10 @@ export class FIDO2FlowController extends MFAFlowController {
 			errors.push('Username is required');
 		}
 
+		if (!credentials.deviceAuthenticationPolicyId?.trim()) {
+			errors.push('Device Authentication Policy ID is required');
+		}
+
 		if (!tokenStatus.isValid) {
 			errors.push('Worker token is required - please add a token first');
 		}
