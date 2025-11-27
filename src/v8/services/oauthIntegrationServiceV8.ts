@@ -24,6 +24,8 @@ export interface OAuthCredentials {
 	clientSecret?: string;
 	redirectUri: string;
 	scopes: string;
+	clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+	privateKey?: string; // For private_key_jwt authentication
 }
 
 export interface PKCECodes {
@@ -265,12 +267,67 @@ export class OAuthIntegrationServiceV8 {
 				console.log(`${MODULE_TAG} ⚠️ No code_verifier provided (non-PKCE flow)`);
 			}
 
-			// Add client secret if provided (confidential client)
-			if (credentials.clientSecret) {
-				bodyParams.client_secret = credentials.clientSecret;
-				console.log(`${MODULE_TAG} ✅ Including client_secret in request (confidential client)`);
+			// Handle client authentication based on method
+			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+			console.log(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
+
+			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+				// JWT assertion authentication
+				try {
+					const { createClientAssertion } = await import('../../utils/clientAuthentication');
+					const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					
+					let assertion: string;
+					if (authMethod === 'client_secret_jwt') {
+						if (!credentials.clientSecret) {
+							throw new Error('Client secret is required for client_secret_jwt authentication');
+						}
+						assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							credentials.clientSecret,
+							'HS256'
+						);
+					} else {
+						// private_key_jwt
+						if (!credentials.privateKey) {
+							throw new Error('Private key is required for private_key_jwt authentication');
+						}
+						assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							credentials.privateKey,
+							'RS256'
+						);
+					}
+					
+					bodyParams.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+					bodyParams.client_assertion = assertion;
+					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
+					throw new Error(
+						`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
 			} else {
-				console.log(`${MODULE_TAG} ⚠️ No client_secret provided (public client)`);
+				// Basic authentication methods (client_secret_basic, client_secret_post, none)
+				if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
+					if (credentials.clientSecret) {
+						if (authMethod === 'client_secret_post') {
+							bodyParams.client_secret = credentials.clientSecret;
+							console.log(`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`);
+						} else {
+							// client_secret_basic - will be handled in Authorization header
+							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);
+						}
+					} else {
+						throw new Error(`Client secret is required for ${authMethod} authentication`);
+					}
+				} else {
+					// none - public client, no authentication
+					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
+				}
 			}
 
 			console.log(`${MODULE_TAG} Request body parameters:`, {
@@ -281,19 +338,41 @@ export class OAuthIntegrationServiceV8 {
 				scope: bodyParams.scope,
 				has_code_verifier: !!bodyParams.code_verifier,
 				has_client_secret: !!credentials.clientSecret,
+				auth_method: authMethod,
+				has_client_assertion: !!bodyParams.client_assertion,
 			});
+
+			// Prepare request headers
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/json',
+			};
+
+			// Add Authorization header for client_secret_basic
+			if (authMethod === 'client_secret_basic' && credentials.clientSecret) {
+				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+				headers.Authorization = `Basic ${basicAuth}`;
+				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
+			}
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
+			
+			const trackedHeaders: Record<string, string> = { ...headers };
+			if (trackedHeaders.Authorization) {
+				trackedHeaders.Authorization = '***REDACTED***';
+			}
+			
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
+				headers: trackedHeaders,
 				body: {
 					...bodyParams,
 					code: '***REDACTED***', // Don't expose authorization code in display
 					code_verifier: bodyParams.code_verifier ? '***REDACTED***' : undefined,
 					client_secret: bodyParams.client_secret ? '***REDACTED***' : undefined,
+					client_assertion: bodyParams.client_assertion ? '***REDACTED***' : undefined,
 				},
 				step: 'unified-token-exchange',
 			});
@@ -301,9 +380,7 @@ export class OAuthIntegrationServiceV8 {
 			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers,
 				body: JSON.stringify(bodyParams),
 			});
 

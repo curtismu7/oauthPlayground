@@ -48,6 +48,10 @@ export class SMSFlowController extends MFAFlowController {
 			errors.push('Username is required');
 		}
 
+		if (!credentials.deviceAuthenticationPolicyId?.trim()) {
+			errors.push('Device Authentication Policy ID is required');
+		}
+
 		// Phone number validation is now done in Step 1 (registration), not Step 0
 
 		if (!tokenStatus.isValid) {
@@ -58,7 +62,7 @@ export class SMSFlowController extends MFAFlowController {
 		return errors.length === 0;
 	}
 
-	getDeviceRegistrationParams(credentials: MFACredentials): Partial<RegisterDeviceParams> {
+	getDeviceRegistrationParams(credentials: MFACredentials, status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'): Partial<RegisterDeviceParams> {
 		const fullPhone = getFullPhoneNumber(credentials);
 		// Use device name from credentials if provided, otherwise generate default
 		const deviceName = credentials.deviceName?.trim() || `SMS Device - ${new Date().toLocaleDateString()}`;
@@ -66,10 +70,12 @@ export class SMSFlowController extends MFAFlowController {
 			phone: fullPhone,
 			name: deviceName,
 			nickname: deviceName,
-			// Set to ACTIVE since we're using Worker App (actor making request on behalf of user)
-			// Per PingOne API: Worker App can set ACTIVE (pre-paired, no activation required) or ACTIVATION_REQUIRED
+			// Status determines if device needs activation:
+			// ACTIVE: Pre-paired device, ready to use immediately (no OTP needed)
+			// ACTIVATION_REQUIRED: User must activate device via OTP before first use
+			// Per PingOne API: Worker App can set ACTIVE (pre-paired) or ACTIVATION_REQUIRED
 			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
-			status: 'ACTIVE',
+			status,
 		};
 	}
 }
