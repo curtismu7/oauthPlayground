@@ -430,13 +430,15 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 					// Update state with authentication info
 					// Don't check device status - just trigger authentication immediately
-					setMfaState({
-						...mfaState,
+					setMfaState((prev) => ({
+						...prev,
 						deviceId: deviceSelection.selectedExistingDevice,
 						nickname: (device.nickname as string) || (device.name as string) || '',
 						authenticationId: authResult.authenticationId,
+						deviceAuthId: authResult.authenticationId,
+						environmentId: credentials.environmentId,
 						nextStep: authResult.nextStep,
-					});
+					}));
 
 					// Handle nextStep response
 					if (authResult.nextStep === 'COMPLETED') {
@@ -783,6 +785,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, nav, setIsLoading, isLoading } = props;
+			const navigate = useNavigate();
 
 			const handleSendOTP = async () => {
 				await controller.sendOTP(
@@ -807,6 +810,33 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				);
 			};
 
+			const handleViewDeviceAuthentication = () => {
+				if (!mfaState.authenticationId) {
+					return;
+				}
+
+				const params = new URLSearchParams({
+					environmentId: credentials.environmentId?.trim() || '',
+					authenticationId: mfaState.authenticationId,
+				});
+
+				if (credentials.deviceAuthenticationPolicyId?.trim()) {
+					params.set('policyId', credentials.deviceAuthenticationPolicyId.trim());
+				}
+
+				if (credentials.username?.trim()) {
+					params.set('username', credentials.username.trim());
+				}
+
+				if (mfaState.deviceId) {
+					params.set('deviceId', mfaState.deviceId);
+				}
+
+				navigate(`/v8/mfa/device-authentication-details?${params.toString()}`, {
+					state: { autoFetch: true },
+				});
+			};
+
 			return (
 				<div className="step-content">
 					<h2>
@@ -828,6 +858,50 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							</p>
 						)}
 					</div>
+
+					{mfaState.authenticationId && (
+						<div
+							style={{
+								marginTop: '16px',
+								padding: '14px 16px',
+								background: '#f0f9ff',
+								border: '1px solid #bae6fd',
+								borderRadius: '10px',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+							}}
+						>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+								<div>
+									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>Device Authentication ID</p>
+									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>{mfaState.authenticationId}</p>
+								</div>
+								<button
+									type="button"
+									onClick={handleViewDeviceAuthentication}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '8px 12px',
+										borderRadius: '8px',
+										border: '1px solid #3b82f6',
+										background: '#ffffff',
+										color: '#1d4ed8',
+										fontWeight: 600,
+										cursor: 'pointer',
+									}}
+								>
+									<FiShield />
+									View Session Details
+								</button>
+							</div>
+							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
+								Track PingOne&apos;s real-time status for this authentication by opening the Device Authentication Details page.
+							</p>
+						</div>
+					)}
 
 					<div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
 						<button

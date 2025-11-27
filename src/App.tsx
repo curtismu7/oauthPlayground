@@ -12,7 +12,6 @@ import './styles/button-text-white-enforcement.css'; // CRITICAL: Ensures all bu
 import { lazy, Suspense } from 'react';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
-import { ApiDisplayServiceDemo } from './v8/components/__tests__/ApiDisplayServiceDemo';
 import { ConfirmationModalV8 } from './v8/components/ConfirmationModalV8';
 import { PromptModalV8 } from './v8/components/PromptModalV8';
 
@@ -835,7 +834,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples" element={<CodeExamplesDemo />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
-							<Route path="/api-display-demo" element={<ApiDisplayServiceDemo />} />
 							<Route
 								path="/compact-app-picker-demo"
 								element={

@@ -593,6 +593,7 @@ export class MFAServiceV8 {
 		deviceAuthId: string;
 		otp: string;
 		workerToken: string;
+		otpCheckUrl?: string; // Optional: URL from _links.otp.check.href
 	}): Promise<{ valid: boolean; status: string; message?: string }> {
 		console.log(`${MODULE_TAG} Validating OTP for device authentication`);
 
@@ -624,24 +625,39 @@ export class MFAServiceV8 {
 				throw new Error('Invalid worker token format');
 			}
 
-			// Use the validate-otp-for-device endpoint
-			const requestBody = {
-				environmentId: params.environmentId,
-				authenticationId: params.deviceAuthId,
-				otp: params.otp,
-				workerToken: cleanToken,
-			};
+			// Prefer the otp.check URL from _links if provided (per Phase 1 spec)
+			let endpoint: string;
+			let requestBody: Record<string, unknown>;
+			
+			if (params.otpCheckUrl) {
+				// Use the URL from PingOne's _links response
+				endpoint = params.otpCheckUrl;
+				requestBody = { otp: params.otp };
+				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
+			} else {
+				// Fallback to our proxy endpoint
+				endpoint = '/api/pingone/mfa/validate-otp-for-device';
+				requestBody = {
+					environmentId: params.environmentId,
+					authenticationId: params.deviceAuthId,
+					otp: params.otp,
+					workerToken: cleanToken,
+				};
+				console.log(`${MODULE_TAG} Using fallback validate-otp-for-device endpoint`);
+			}
 
 			console.log(`${MODULE_TAG} Validating OTP`, {
 				deviceAuthId: params.deviceAuthId,
 				otpLength: params.otp.length,
 				tokenLength: cleanToken.length,
+				usingLinks: !!params.otpCheckUrl,
 			});
 
-			const response = await fetch('/api/pingone/mfa/validate-otp-for-device', {
+			const response = await fetch(endpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					...(params.otpCheckUrl ? { Authorization: `Bearer ${cleanToken}` } : {}),
 				},
 				body: JSON.stringify(requestBody),
 			});
@@ -1492,7 +1508,7 @@ export class MFAServiceV8 {
 	 * 2. Send OTP to the device
 	 * @param params - Device parameters
 	 */
-	static async sendOTP(params: SendOTPParams): Promise<{ deviceAuthId: string }> {
+	static async sendOTP(params: SendOTPParams): Promise<{ deviceAuthId: string; otpCheckUrl?: string }> {
 		console.log(`${MODULE_TAG} Initializing device authentication for OTP`);
 
 		try {
@@ -1563,7 +1579,19 @@ export class MFAServiceV8 {
 			const authData = await initResponse.json();
 			const deviceAuthId = authData.id;
 
-			console.log(`${MODULE_TAG} Device authentication initialized`, { deviceAuthId });
+			// Extract otp.check URL from _links per Phase 1 spec
+			let otpCheckUrl: string | undefined;
+			if (authData._links?.['otp.check']?.href) {
+				otpCheckUrl = authData._links['otp.check'].href;
+				console.log(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
+			} else {
+				console.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
+			}
+
+			console.log(`${MODULE_TAG} Device authentication initialized`, { 
+				deviceAuthId, 
+				hasOtpCheckLink: !!otpCheckUrl 
+			});
 
 			// Step 2: Send OTP to the selected device
 			const otpRequestBody = {
@@ -1588,8 +1616,8 @@ export class MFAServiceV8 {
 				throw new Error(errorData.error || errorData.message || 'Failed to send OTP');
 			}
 
-			console.log(`${MODULE_TAG} OTP sent successfully`, { deviceAuthId });
-			return { deviceAuthId };
+			console.log(`${MODULE_TAG} OTP sent successfully`, { deviceAuthId, hasOtpCheckUrl: !!otpCheckUrl });
+			return { deviceAuthId, otpCheckUrl };
 
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error in OTP flow:`, error);

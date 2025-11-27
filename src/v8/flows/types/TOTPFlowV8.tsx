@@ -6,6 +6,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -17,6 +18,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { FiShield } from 'react-icons/fi';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
@@ -427,13 +429,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 					// Update state with authentication info
 					// Don't check device status - just trigger authentication immediately
-					setMfaState({
-						...mfaState,
+					setMfaState((prev) => ({
+						...prev,
 						deviceId: deviceSelection.selectedExistingDevice,
 						nickname: (device.nickname as string) || (device.name as string) || '',
 						authenticationId: authResult.authenticationId,
+						deviceAuthId: authResult.authenticationId,
+						environmentId: credentials.environmentId,
 						nextStep: authResult.nextStep,
-					});
+					}));
 
 					// Handle nextStep response
 					if (authResult.nextStep === 'COMPLETED') {
@@ -694,6 +698,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
+			const navigate = useNavigate();
 
 			// If validation is complete, show success screen
 			if (mfaState.verificationResult && mfaState.verificationResult.status === 'COMPLETED') {
@@ -752,6 +757,71 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							<strong>Device Name:</strong> {mfaState.nickname || 'TOTP Device'}
 						</p>
 					</div>
+
+					{mfaState.authenticationId && (
+						<div
+							style={{
+								marginBottom: '16px',
+								padding: '14px 16px',
+								background: '#f0f9ff',
+								border: '1px solid #bae6fd',
+								borderRadius: '10px',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+							}}
+						>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+								<div>
+									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>Device Authentication ID</p>
+									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>{mfaState.authenticationId}</p>
+								</div>
+								<button
+									type="button"
+									onClick={() => {
+										const params = new URLSearchParams({
+											environmentId: credentials.environmentId?.trim() || '',
+											authenticationId: mfaState.authenticationId!,
+										});
+
+										if (credentials.deviceAuthenticationPolicyId?.trim()) {
+											params.set('policyId', credentials.deviceAuthenticationPolicyId.trim());
+										}
+
+										if (credentials.username?.trim()) {
+											params.set('username', credentials.username.trim());
+										}
+
+										if (mfaState.deviceId) {
+											params.set('deviceId', mfaState.deviceId);
+										}
+
+										navigate(`/v8/mfa/device-authentication-details?${params.toString()}`, {
+											state: { autoFetch: true },
+										});
+									}}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '8px 12px',
+										borderRadius: '8px',
+										border: '1px solid #3b82f6',
+										background: '#ffffff',
+										color: '#1d4ed8',
+										fontWeight: 600,
+										cursor: 'pointer',
+									}}
+								>
+									<FiShield />
+									View Session Details
+								</button>
+							</div>
+							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
+								Need to troubleshoot this authentication? Review the PingOne record immediately after initialization.
+							</p>
+						</div>
+					)}
 
 					<MFAOTPInput
 						value={mfaState.otpCode}
