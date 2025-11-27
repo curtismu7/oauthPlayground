@@ -8775,8 +8775,8 @@ app.post('/api/pingone/mfa/resend-pairing-code', async (req, res) => {
 // Activate MFA User Device (POST /environments/{environmentId}/users/{userId}/devices/{deviceId})
 app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 	try {
-		const { environmentId, userId, deviceId, workerToken } = req.body;
-		if (!environmentId || !userId || !deviceId || !workerToken) {
+		const { environmentId, userId, deviceId, otp, workerToken } = req.body;
+		if (!environmentId || !userId || !deviceId || !otp || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
 		// Normalize and validate worker token
@@ -8814,9 +8814,16 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 			});
 		}
 
-		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
+		// Use the correct activate operation endpoint per Phase 1 spec
+		// POST /v1/environments/{environmentId}/users/{userId}/devices/{deviceId}/operations/activate
+		const { otp } = req.body; // OTP is required for activation
+		if (!otp) {
+			return res.status(400).json({ error: 'Missing OTP for device activation' });
+		}
 
-		console.log('[MFA Activate Device] Activating device:', deviceId);
+		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/operations/activate`;
+
+		console.log('[MFA Activate Device] Activating device with OTP:', deviceId);
 
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
@@ -8824,7 +8831,7 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${cleanToken}`,
 			},
-			body: JSON.stringify({ status: 'ACTIVE' }),
+			body: JSON.stringify({ otp }), // Send OTP in request body
 		});
 
 		if (!response.ok) {
@@ -9293,16 +9300,21 @@ app.post('/api/pingone/mfa/initialize-device-authentication-auth', async (req, r
 // POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
 app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
 	try {
-		const { environmentId, userId, deviceId, workerToken } = req.body;
+		const {
+			environmentId,
+			userId,
+			deviceId,
+			workerToken,
+			policyId,
+			deviceAuthenticationPolicyId,
+			region,
+		} = req.body;
 		if (!environmentId || !userId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
 
-		// Normalize and validate worker token
 		let cleanToken = String(workerToken);
-		// Remove any existing "Bearer " prefix if accidentally included
 		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
-		// Remove all whitespace, newlines, carriage returns, and tabs (but preserve = for base64 padding)
 		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
 
 		if (cleanToken.length === 0) {
@@ -9312,7 +9324,6 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			});
 		}
 
-		// Basic JWT format check (should have 3 parts separated by dots)
 		const tokenParts = cleanToken.split('.');
 		if (tokenParts.length !== 3) {
 			console.error('[MFA Initialize Device Auth] Token does not appear to be a valid JWT format', {
@@ -9325,7 +9336,6 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			});
 		}
 
-		// Validate token parts are not empty
 		if (tokenParts.some((part) => part.length === 0)) {
 			return res.status(400).json({
 				error: 'Invalid worker token format',
@@ -9333,41 +9343,37 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			});
 		}
 
-		// Determine region from environmentId or use default
-		const region = req.body.region || 'na';
+		const normalizedRegion = region || 'na';
 		const apiBase =
-			region === 'eu'
+			normalizedRegion === 'eu'
 				? 'https://api.pingone.eu'
-				: region === 'asia'
+				: normalizedRegion === 'asia'
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
-		// Build request body - deviceId is optional
 		const requestBody = {};
 		if (deviceId) {
 			requestBody.device = { id: deviceId };
 		}
 
+		const resolvedPolicyId = policyId || deviceAuthenticationPolicyId;
+		if (resolvedPolicyId) {
+			requestBody.policy = { id: resolvedPolicyId };
+		}
+
 		const mfaEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/users/${userId}/deviceAuthentications`;
 
-		console.log('[MFA Initialize Device Auth] Full Request Details:', {
-			method: 'POST',
+		console.log('[MFA Initialize Device Auth] Request details', {
 			url: mfaEndpoint,
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${cleanToken.substring(0, 20)}...${cleanToken.substring(cleanToken.length - 10)} (${cleanToken.length} chars)`,
-			},
-			body: requestBody,
-			hasDeviceId: !!deviceId,
+			method: 'POST',
 			environmentId,
 			userId,
+			hasDeviceId: !!deviceId,
+			hasPolicyId: !!resolvedPolicyId,
+			region: normalizedRegion,
 			tokenLength: cleanToken.length,
-			tokenPrefix: cleanToken.substring(0, 30),
-			tokenSuffix: cleanToken.substring(cleanToken.length - 10),
+			tokenStart: cleanToken.substring(0, 30),
 		});
-
-		console.log('[MFA Initialize Device Auth] Full URI:', mfaEndpoint);
-		console.log('[MFA Initialize Device Auth] Request Body:', JSON.stringify(requestBody, null, 2));
 
 		const response = await global.fetch(mfaEndpoint, {
 			method: 'POST',
@@ -9378,54 +9384,168 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			body: JSON.stringify(requestBody),
 		});
 
-		console.log('[MFA Initialize Device Auth] Response Status:', {
+		const rawText = await response.text();
+		let authData = {};
+		if (rawText && rawText.trim()) {
+			try {
+				authData = JSON.parse(rawText);
+			} catch (parseError) {
+				console.error('[MFA Initialize Device Auth] Failed to parse JSON response', {
+					error: parseError instanceof Error ? parseError.message : String(parseError),
+					bodyPreview: rawText.substring(0, 200),
+				});
+				authData = { raw: rawText };
+			}
+		}
+
+		console.log('[MFA Initialize Device Auth] Response summary', {
 			status: response.status,
 			statusText: response.statusText,
 			ok: response.ok,
-			headers: Object.fromEntries(response.headers.entries()),
 		});
 
 		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-			console.error('[MFA Initialize Device Auth] Error Response:', {
-				status: response.status,
-				statusText: response.statusText,
-				url: mfaEndpoint,
-				errorData,
-				environmentId,
-				userId,
-				hasDeviceId: !!deviceId,
-				tokenLength: cleanToken.length,
-				tokenPrefix: cleanToken.substring(0, 30),
-				requestBody,
+			return res.status(response.status).json({
+				error: authData.error || 'Failed to initialize device authentication',
+				message: authData.message || response.statusText,
+				details: authData,
 			});
-			console.error('[MFA Initialize Device Auth] Full Error Details:', JSON.stringify({
-				request: {
-					method: 'POST',
-					url: mfaEndpoint,
-					body: requestBody,
-				},
-				response: {
-					status: response.status,
-					statusText: response.statusText,
-					error: errorData,
-				},
-			}, null, 2));
-			return res.status(response.status).json(errorData);
 		}
 
-		const authData = await response.json();
-		console.log('[MFA Initialize Device Auth] Success:', {
-			id: authData.id,
-			status: authData.status,
-			nextStep: authData.nextStep,
-		});
-		res.json(authData);
+		return res.json(authData);
 	} catch (error) {
 		console.error('[MFA Initialize Device Auth] Error:', error);
 		res
 			.status(500)
 			.json({ error: 'Failed to initialize device authentication', message: error.message });
+	}
+});
+
+// Read Device Authentication details
+// GET /mfa/v1/environments/{environmentId}/deviceAuthentications/{deviceAuthenticationId}
+app.post('/api/pingone/mfa/read-device-authentication', async (req, res) => {
+	try {
+		const { environmentId, authenticationId, workerToken, region } = req.body;
+		if (!environmentId || !authenticationId || !workerToken) {
+			return res.status(400).json({
+				error: 'Missing required fields',
+				missing: {
+					environmentId: !environmentId,
+					authenticationId: !authenticationId,
+					workerToken: !workerToken,
+				},
+			});
+		}
+
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		let cleanToken = String(workerToken);
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Read Device Auth] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+				debug: {
+					tokenParts: tokenParts.length,
+					tokenLength: cleanToken.length,
+				},
+			});
+		}
+
+		if (tokenParts.some((part) => part.length === 0)) {
+			console.error('[MFA Read Device Auth] Token has empty parts', {
+				tokenLength: cleanToken.length,
+				partsLength: tokenParts.map((p) => p.length),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const detailsEndpoint = `${apiBase}/mfa/v1/environments/${environmentId}/deviceAuthentications/${authenticationId}`;
+
+		console.log('[MFA Read Device Auth] Request details', {
+			url: detailsEndpoint,
+			environmentId,
+			authenticationId,
+			region: normalizedRegion,
+			tokenLength: cleanToken.length,
+			tokenStart: cleanToken.substring(0, 30),
+		});
+
+		const response = await global.fetch(detailsEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		const rawText = await response.text();
+		let responseData = {};
+		if (rawText && rawText.trim()) {
+			try {
+				responseData = JSON.parse(rawText);
+			} catch (parseError) {
+				console.error('[MFA Read Device Auth] Failed to parse response JSON', {
+					error: parseError instanceof Error ? parseError.message : String(parseError),
+					bodyPreview: rawText.substring(0, 200),
+				});
+				responseData = { raw: rawText };
+			}
+		}
+
+		console.log('[MFA Read Device Auth] Response summary', {
+			status: response.status,
+			statusText: response.statusText,
+			ok: response.ok,
+			hasBody: !!rawText,
+		});
+
+		if (!response.ok) {
+			return res.status(response.status).json({
+				error: responseData.error || 'Failed to read device authentication',
+				message: responseData.message || response.statusText,
+				details: responseData,
+			});
+		}
+
+		return res.json({
+			success: true,
+			environmentId,
+			authenticationId,
+			region: normalizedRegion,
+			response: responseData,
+		});
+	} catch (error) {
+		console.error('[MFA Read Device Auth] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to read device authentication', message: error.message });
 	}
 });
 // Validate OTP for Device Authentication (Auth Server endpoint)
@@ -9492,37 +9612,35 @@ app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 			});
 		}
 
-		// Use Auth Server endpoint per master-sms.md guidance
-		// POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications/{DEVICE_AUTHENTICATION_ID}/passcode
+		// Use Auth Server endpoint for OTP validation per Phase 1 spec
+		// Use the otp.check operation on the device authentication resource
 		const region = req.body.region || 'na';
 		const tld = region === 'eu' ? 'eu' : region === 'asia' ? 'asia' : 'com';
 		const authPath = `https://auth.pingone.${tld}`;
 
-		const passcodeEndpoint = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}`;
+		// Per Phase 1 spec: Use the otp.check operation for the deviceAuthenticationId
+		// This is the standard PingOne MFA endpoint for OTP validation
+		const otpCheckEndpoint = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}/otp/check`;
 
-		// Request body per master-sms.md: { otp, deviceAuthenticationId }
+		// Request body per PingOne MFA API docs for otp.check
 		const requestBody = {
-			otp,
-			deviceAuthenticationId: authenticationId,
+			otp: otp
 		};
 
-		console.log('[MFA Validate OTP for Device] Sending request to:', passcodeEndpoint);
+		console.log('[MFA Validate OTP for Device] Sending request to:', otpCheckEndpoint);
 		console.log('[MFA Validate OTP for Device] Token validation:', {
 			tokenLength: cleanToken.length,
 			tokenStart: cleanToken.substring(0, 30),
 			partsCount: tokenParts.length,
 		});
 
-		const response = await global.fetch(passcodeEndpoint, {
+		const response = await global.fetch(otpCheckEndpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/vnd.pingidentity.otp.check+json',
 				Authorization: `Bearer ${cleanToken}`,
 			},
-			body: JSON.stringify({
-				otp,
-				deviceAuthenticationId: authenticationId,
-			}),
+			body: JSON.stringify(requestBody),
 		});
 
 		if (!response.ok) {
