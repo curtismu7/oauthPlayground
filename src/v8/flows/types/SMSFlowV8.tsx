@@ -138,6 +138,8 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps> = ({
 				...prev,
 				deviceId,
 				authenticationId: authResult.authenticationId,
+				deviceAuthId: authResult.authenticationId,
+				environmentId: credentials.environmentId,
 				...(nextStep ? { nextStep } : {}),
 			}));
 
