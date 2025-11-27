@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -16,15 +16,282 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
-import { MFADeviceSelector } from '../components/MFADeviceSelector';
+import { MFADeviceSelector, type Device } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
-// Step 0: Configure Credentials (SMS-specific)
-const renderStep0 = (props: MFAFlowBaseRenderProps) => {
+type DeviceSelectionState = {
+	existingDevices: Record<string, unknown>[];
+	loadingDevices: boolean;
+	selectedExistingDevice: string;
+	showRegisterForm: boolean;
+};
+
+type OTPState = {
+	otpSent: boolean;
+	sendError: string | null;
+	sendRetryCount: number;
+};
+
+type ValidationState = {
+	validationAttempts: number;
+	lastValidationError: string | null;
+};
+
+interface DeviceSelectionStepProps extends MFAFlowBaseRenderProps {
+	controller: ReturnType<typeof MFAFlowControllerFactory.create>;
+	deviceSelection: DeviceSelectionState;
+	setDeviceSelection: React.Dispatch<React.SetStateAction<DeviceSelectionState>>;
+	updateOtpState: (update: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => void;
+}
+
+const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps> = ({
+	controller,
+	deviceSelection,
+	setDeviceSelection,
+	updateOtpState,
+	credentials,
+	setCredentials,
+	mfaState,
+	setMfaState,
+	nav,
+	setIsLoading,
+	tokenStatus,
+}) => {
+	const lastLookupRef = React.useRef<{ environmentId: string; username: string } | null>(null);
+
+	const environmentId = credentials.environmentId?.trim();
+	const username = credentials.username?.trim();
+
+	React.useEffect(() => {
+		if (nav.currentStep !== 1) {
+			return;
+		}
+		if (!environmentId || !username || !tokenStatus.isValid) {
+			return;
+		}
+
+		const alreadyLoaded =
+			lastLookupRef.current &&
+			lastLookupRef.current.environmentId === environmentId &&
+			lastLookupRef.current.username === username &&
+			deviceSelection.existingDevices.length > 0;
+
+		if (alreadyLoaded) {
+			return;
+		}
+
+		let cancelled = false;
+		setDeviceSelection((prev) => ({ ...prev, loadingDevices: true }));
+
+		const fetchDevices = async () => {
+			try {
+				const devices = await controller.loadExistingDevices(credentials, tokenStatus);
+				if (cancelled) {
+					return;
+				}
+				lastLookupRef.current = { environmentId, username };
+				setDeviceSelection({
+					existingDevices: devices,
+					loadingDevices: false,
+					selectedExistingDevice: devices.length === 0 ? 'new' : '',
+					showRegisterForm: devices.length === 0,
+				});
+			} catch (error) {
+				if (cancelled) {
+					return;
+				}
+				console.error(`${MODULE_TAG} Failed to load devices`, error);
+				setDeviceSelection((prev) => ({
+					...prev,
+					loadingDevices: false,
+					selectedExistingDevice: 'new',
+					showRegisterForm: true,
+				}));
+			}
+		};
+
+		void fetchDevices();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [
+		controller,
+		deviceSelection.existingDevices.length,
+		environmentId,
+		nav.currentStep,
+		setDeviceSelection,
+		tokenStatus.isValid,
+		username,
+	]);
+
+	const authenticateExistingDevice = async (deviceId: string) => {
+		setIsLoading(true);
+		try {
+			const authResult = await controller.initializeDeviceAuthentication(credentials, deviceId);
+			const nextStep = authResult.nextStep ?? authResult.status;
+
+			setMfaState((prev) => ({
+				...prev,
+				deviceId,
+				authenticationId: authResult.authenticationId,
+				...(nextStep ? { nextStep } : {}),
+			}));
+
+			switch (nextStep) {
+				case 'COMPLETED':
+					nav.markStepComplete();
+					nav.goToStep(4);
+					toastV8.success('Authentication successful!');
+					break;
+				case 'OTP_REQUIRED':
+					updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
+					nav.markStepComplete();
+					nav.goToStep(3);
+					toastV8.success('OTP sent to your device. Proceed to validate the code.');
+					break;
+				case 'SELECTION_REQUIRED':
+					nav.setValidationErrors([
+						'Multiple devices require selection. Please choose the specific device to authenticate.',
+					]);
+					toastV8.warning('Please select a specific device');
+					break;
+				default:
+					updateOtpState({ otpSent: nextStep === 'OTP_REQUIRED', sendRetryCount: 0, sendError: null });
+					nav.markStepComplete();
+					nav.goToStep(3);
+					toastV8.success('Device selected for authentication. Follow the next step to continue.');
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Unknown error';
+			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
+			toastV8.error(`Authentication failed: ${message}`);
+			updateOtpState({ otpSent: false });
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleSelectExistingDevice = (deviceId: string) => {
+		setDeviceSelection((prev) => ({
+			...prev,
+			selectedExistingDevice: deviceId,
+			showRegisterForm: false,
+		}));
+		updateOtpState({ otpSent: false, sendError: null });
+		const device = deviceSelection.existingDevices.find((d) => d.id === deviceId);
+		if (device) {
+			setMfaState({
+				...mfaState,
+				deviceId,
+				deviceStatus: (device.status as string) || 'ACTIVE',
+				nickname: (device.nickname as string) || (device.name as string) || '',
+			});
+			void authenticateExistingDevice(deviceId);
+		}
+	};
+
+	const handleSelectNewDevice = () => {
+		setDeviceSelection((prev) => ({
+			...prev,
+			selectedExistingDevice: 'new',
+			showRegisterForm: false,
+		}));
+		setMfaState({
+			...mfaState,
+			deviceId: '',
+			deviceStatus: '',
+		});
+		setCredentials({
+			...credentials,
+			deviceName: credentials.deviceType || 'SMS',
+		});
+		nav.goToStep(2);
+	};
+
+	return (
+		<div className="step-content">
+			<h2>Select SMS Device</h2>
+			<p>Choose an existing device or register a new one</p>
+
+			<MFADeviceSelector
+				devices={deviceSelection.existingDevices.map((d) => {
+					const mappedDevice: Device = {
+						id: String(d.id ?? ''),
+						type: typeof d.type === 'string' ? (d.type as string) : 'SMS',
+					};
+
+					if (typeof d.nickname === 'string') {
+						mappedDevice.nickname = d.nickname as string;
+					}
+					if (typeof d.name === 'string') {
+						mappedDevice.name = d.name as string;
+					}
+					if (typeof d.phone === 'string') {
+						mappedDevice.phone = d.phone as string;
+					}
+					if (typeof d.status === 'string') {
+						mappedDevice.status = d.status as string;
+					}
+
+					return mappedDevice;
+				})}
+				loading={deviceSelection.loadingDevices}
+				selectedDeviceId={deviceSelection.selectedExistingDevice}
+				deviceType="SMS"
+				onSelectDevice={handleSelectExistingDevice}
+				onSelectNew={handleSelectNewDevice}
+				renderDeviceInfo={(device) => (
+					<>
+						{device.phone && `Phone: ${device.phone}`}
+						{device.status && ` • Status: ${device.status}`}
+					</>
+				)}
+			/>
+
+			{mfaState.deviceId && (
+				<div className="success-box" style={{ marginTop: '10px' }}>
+					<h3>✅ Device Ready</h3>
+					<p>
+						<strong>Device ID:</strong> {mfaState.deviceId}
+					</p>
+					<p>
+						<strong>Status:</strong> {mfaState.deviceStatus}
+					</p>
+				</div>
+			)}
+		</div>
+	);
+};
+
+const SMSConfigureStep: React.FC<MFAFlowBaseRenderProps> = (props) => {
 	const { credentials, setCredentials, tokenStatus } = props;
+	const [isClearingToken, setIsClearingToken] = React.useState(false);
+
+	const handleTokenButtonClick = async () => {
+		if (!tokenStatus.isValid) {
+			props.setShowWorkerTokenModal(true);
+			return;
+		}
+
+		setIsClearingToken(true);
+		try {
+			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+			await workerTokenServiceV8.clearToken();
+			window.dispatchEvent(new Event('workerTokenUpdated'));
+			WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			toastV8.success('Worker token removed');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to remove worker token`, error);
+			toastV8.error('Failed to remove worker token. Please try again.');
+		} finally {
+			setIsClearingToken(false);
+		}
+	};
 
 	return (
 		<div className="step-content">
@@ -39,19 +306,8 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
 					<button
 						type="button"
-						onClick={() => {
-							if (tokenStatus.isValid) {
-								// Remove token directly
-								import('@/v8/services/workerTokenServiceV8').then(({ workerTokenServiceV8 }) => {
-									workerTokenServiceV8.clearToken();
-									window.dispatchEvent(new Event('workerTokenUpdated'));
-									WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-									toastV8.success('Worker token removed');
-								});
-							} else {
-								props.setShowWorkerTokenModal(true);
-							}
-						}}
+						onClick={handleTokenButtonClick}
+						disabled={isClearingToken}
 						className="token-button"
 						style={{
 							padding: '6px 12px',
@@ -61,14 +317,16 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 							borderRadius: '4px',
 							fontSize: '12px',
 							fontWeight: '600',
-							cursor: 'pointer',
+							cursor: isClearingToken ? 'not-allowed' : 'pointer',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '6px',
+							minWidth: '130px',
+							justifyContent: 'center',
 						}}
 					>
-						<span>🔑</span>
-						<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
+						<span>{isClearingToken ? '⏳' : '🔑'}</span>
+						<span>{tokenStatus.isValid ? (isClearingToken ? 'Removing…' : 'Remove Token') : 'Add Token'}</span>
 					</button>
 
 					<button
@@ -165,6 +423,8 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 	);
 };
 
+const renderStep0 = (props: MFAFlowBaseRenderProps) => <SMSConfigureStep {...props} />;
+
 // Device selection state management wrapper
 const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	// Initialize controller using factory
@@ -173,197 +433,56 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	);
 
 	// Device selection state
-	const [deviceSelection, setDeviceSelection] = useState({
-		existingDevices: [] as Array<Record<string, unknown>>,
+	const [deviceSelection, setDeviceSelection] = useState<DeviceSelectionState>({
+		existingDevices: [],
 		loadingDevices: false,
 		selectedExistingDevice: '',
 		showRegisterForm: false,
 	});
 
 	// OTP state
-	const [otpState, setOtpState] = useState({
+	const [otpState, setOtpState] = useState<OTPState>({
 		otpSent: false,
-		sendError: null as string | null,
+		sendError: null,
 		sendRetryCount: 0,
 	});
 
 	// Validation state
-	const [validationState, setValidationState] = useState({
+	const [validationState, setValidationState] = useState<ValidationState>({
 		validationAttempts: 0,
-		lastValidationError: null as string | null,
+		lastValidationError: null,
 	});
 
-	// State to trigger device loading - updated from render function
-	const [deviceLoadTrigger, setDeviceLoadTrigger] = useState<{
-		currentStep: number;
-		environmentId: string;
-		username: string;
-		tokenValid: boolean;
-	} | null>(null);
+	const updateOtpState = useCallback(
+		(update: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => {
+			setOtpState((prev) => {
+				const patch = typeof update === 'function' ? update(prev) : update;
+				return { ...prev, ...patch };
+			});
+		},
+		[]
+	);
 
-	// Load devices when entering step 1 - moved to parent component level
-	useEffect(() => {
-		if (!deviceLoadTrigger) return;
-
-		const loadDevices = async () => {
-			if (!deviceLoadTrigger.environmentId || !deviceLoadTrigger.username || !deviceLoadTrigger.tokenValid) {
-				return;
-			}
-
-			if (deviceLoadTrigger.currentStep === 1 && deviceSelection.existingDevices.length === 0 && !deviceSelection.loadingDevices) {
-				setDeviceSelection((prev) => ({ ...prev, loadingDevices: true }));
-
-				try {
-					const credentials: MFACredentials = {
-						environmentId: deviceLoadTrigger.environmentId,
-						username: deviceLoadTrigger.username,
-					};
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					const devices = await controller.loadExistingDevices(credentials, tokenStatus);
-					setDeviceSelection({
-						existingDevices: devices,
-						loadingDevices: false,
-						selectedExistingDevice: devices.length === 0 ? 'new' : '',
-						showRegisterForm: devices.length === 0,
-					});
-				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
-					setDeviceSelection((prev) => ({
-						...prev,
-						loadingDevices: false,
-						selectedExistingDevice: 'new',
-						showRegisterForm: true,
-					}));
-				}
-			}
-		};
-
-		loadDevices();
-	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid]);
+	const updateValidationState = useCallback(
+		(update: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => {
+			setValidationState((prev) => {
+				const patch = typeof update === 'function' ? update(prev) : update;
+				return { ...prev, ...patch };
+			});
+		},
+		[]
+	);
 
 	// Step 1: Device Selection/Registration (using controller)
-	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
-
-		// Update trigger state for device loading effect (only when on step 1 and values changed)
-		if (nav.currentStep === 1) {
-			const newTrigger = {
-				currentStep: nav.currentStep,
-				environmentId: credentials.environmentId || '',
-				username: credentials.username || '',
-				tokenValid: tokenStatus.isValid,
-			};
-			// Only update if values actually changed to avoid infinite loops
-			if (
-				!deviceLoadTrigger ||
-				deviceLoadTrigger.currentStep !== newTrigger.currentStep ||
-				deviceLoadTrigger.environmentId !== newTrigger.environmentId ||
-				deviceLoadTrigger.username !== newTrigger.username ||
-				deviceLoadTrigger.tokenValid !== newTrigger.tokenValid
-			) {
-				setDeviceLoadTrigger(newTrigger);
-			}
-		}
-
-		// Handle selecting an existing device
-		const handleSelectExistingDevice = (deviceId: string) => {
-			setDeviceSelection((prev) => ({
-				...prev,
-				selectedExistingDevice: deviceId,
-				showRegisterForm: false,
-			}));
-			const device = deviceSelection.existingDevices.find((d: Record<string, unknown>) => d.id === deviceId);
-			if (device) {
-				setMfaState({
-					...mfaState,
-					deviceId: deviceId,
-					deviceStatus: (device.status as string) || 'ACTIVE',
-					nickname: (device.nickname as string) || (device.name as string) || '',
-				});
-			}
-		};
-
-		// Handle selecting "new device" - navigate to registration page
-		const handleSelectNewDevice = () => {
-			setDeviceSelection((prev) => ({
-				...prev,
-				selectedExistingDevice: 'new',
-				showRegisterForm: false,
-			}));
-			setMfaState({
-				...mfaState,
-				deviceId: '',
-				deviceStatus: '',
-			});
-			// Reset device name to device type when selecting new device
-			setCredentials({
-				...credentials,
-				deviceName: credentials.deviceType || 'SMS',
-			});
-			// Navigate to registration step (Step 2)
-			nav.goToStep(2);
-		};
-
-		// Handle using selected existing device
-		const handleUseSelectedDevice = () => {
-			if (deviceSelection.selectedExistingDevice && deviceSelection.selectedExistingDevice !== 'new') {
-				const device = deviceSelection.existingDevices.find((d: Record<string, unknown>) => d.id === deviceSelection.selectedExistingDevice);
-				if (device) {
-					setMfaState({
-						...mfaState,
-						deviceId: deviceSelection.selectedExistingDevice,
-						deviceStatus: (device.status as string) || 'ACTIVE',
-						nickname: (device.nickname as string) || (device.name as string) || '',
-					});
-				}
-				nav.markStepComplete();
-				nav.goToNext(); // Go to Send OTP step
-				toastV8.success('Device selected successfully!');
-			}
-		};
-
-		return (
-			<div className="step-content">
-				<h2>Select SMS Device</h2>
-				<p>Choose an existing device or register a new one</p>
-
-				<MFADeviceSelector
-					devices={deviceSelection.existingDevices.map((d) => ({
-						id: d.id as string,
-						type: d.type as string,
-						nickname: d.nickname || undefined,
-						name: d.name || undefined,
-						phone: d.phone || undefined,
-						status: d.status || undefined,
-					}))}
-					loading={deviceSelection.loadingDevices}
-					selectedDeviceId={deviceSelection.selectedExistingDevice}
-					deviceType="SMS"
-					onSelectDevice={handleSelectExistingDevice}
-					onSelectNew={handleSelectNewDevice}
-					onUseSelected={handleUseSelectedDevice}
-					renderDeviceInfo={(device) => (
-						<>
-							{device.phone && `Phone: ${device.phone}`}
-							{device.status && ` • Status: ${device.status}`}
-						</>
-					)}
-				/>
-
-				{mfaState.deviceId && (
-					<div className="success-box" style={{ marginTop: '10px' }}>
-						<h3>✅ Device Ready</h3>
-						<p>
-							<strong>Device ID:</strong> {mfaState.deviceId}
-						</p>
-						<p>
-							<strong>Status:</strong> {mfaState.deviceStatus}
-						</p>
-					</div>
-				)}
-			</div>
-		);
-	};
+	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => (
+		<SMSDeviceSelectionStep
+			controller={controller}
+			deviceSelection={deviceSelection}
+			setDeviceSelection={setDeviceSelection}
+			updateOtpState={updateOtpState}
+			{...props}
+		/>
+	);
 
 	// Step 2: Register Device (using controller)
 	const renderStep2Register = (props: MFAFlowBaseRenderProps) => {
@@ -427,26 +546,26 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 				// Automatically send OTP after device registration
 				console.log(`${MODULE_TAG} Device registered, automatically sending OTP...`);
-				try {
-					await controller.sendOTP(
-						registrationCredentials,
-						result.deviceId,
-						otpState,
-						setOtpState,
-						nav,
-						setIsLoading
-					);
-					// OTP sent successfully, navigate to validation step
-					nav.markStepComplete();
-					nav.goToNext(); // Go to Validate OTP step (Step 4)
-					toastV8.success('SMS device registered and OTP sent successfully!');
-				} catch (otpError) {
-					// Device registered but OTP send failed - still navigate to Send OTP step
-					console.error(`${MODULE_TAG} Device registered but OTP send failed:`, otpError);
-					nav.markStepComplete();
-					nav.goToNext(); // Go to Send OTP step (Step 3) so user can retry
-					toastV8.success('SMS device registered successfully!');
-					toastV8.warning('OTP could not be sent automatically. Please send it manually on the next step.');
+					try {
+						await controller.sendOTP(
+							registrationCredentials,
+							result.deviceId,
+							otpState,
+							updateOtpState,
+							nav,
+							setIsLoading
+						);
+						// OTP sent successfully, navigate to validation step
+						nav.markStepComplete();
+						nav.goToNext(); // Go to Validate OTP step (Step 4)
+						toastV8.success('SMS device registered and OTP sent successfully!');
+					} catch (otpError) {
+						// Device registered but OTP send failed - still navigate to Send OTP step
+						console.error(`${MODULE_TAG} Device registered but OTP send failed:`, otpError);
+						nav.markStepComplete();
+						nav.goToNext(); // Go to Send OTP step (Step 3) so user can retry
+						toastV8.success('SMS device registered successfully!');
+						toastV8.warning('OTP could not be sent automatically. Please send it manually on the next step.');
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -674,7 +793,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					credentials,
 					mfaState.deviceId,
 					otpState,
-					setOtpState,
+					updateOtpState,
 					nav,
 					setIsLoading
 				);
@@ -717,7 +836,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								type="button"
 								className="btn"
 								onClick={() => {
-									setOtpState({
+									updateOtpState({
 										otpSent: false,
 										sendRetryCount: 0,
 										sendError: null,
@@ -874,54 +993,54 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							className="btn btn-primary"
 							disabled={isLoading || mfaState.otpCode.length !== 6}
 							onClick={async () => {
-								await controller.validateOTP(
-									credentials,
-									mfaState.deviceId,
-									mfaState.otpCode,
-									mfaState,
-									setMfaState,
-									validationState,
-									setValidationState,
-									nav,
-									setIsLoading
-								);
+									await controller.validateOTP(
+										credentials,
+										mfaState.deviceId,
+										mfaState.otpCode,
+										mfaState,
+										setMfaState,
+										validationState,
+									updateValidationState,
+										nav,
+										setIsLoading
+									);
 							}}
 						>
 							{isLoading ? '🔄 Validating...' : 'Validate OTP'}
 						</button>
 
-						<button
-							type="button"
-							className="btn"
-							disabled={isLoading}
-							onClick={async () => {
+							<button
+								type="button"
+								className="btn"
+								disabled={isLoading}
+								onClick={async () => {
 								// Resend OTP directly from validation step
-								setIsLoading(true);
-								try {
-									await controller.sendOTP(
-										credentials,
-										mfaState.deviceId,
-										otpState,
-										setOtpState,
-										nav,
-										setIsLoading
-									);
-									toastV8.success('OTP code resent successfully!');
-								} catch (error) {
-									const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-									toastV8.error(`Failed to resend OTP: ${errorMessage}`);
-								} finally {
-									setIsLoading(false);
-								}
-							}}
-							style={{
-								background: '#f3f4f6',
-								color: '#374151',
-								border: '1px solid #d1d5db',
-							}}
-						>
-							{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
-						</button>
+									setIsLoading(true);
+									try {
+										await controller.sendOTP(
+											credentials,
+											mfaState.deviceId,
+											otpState,
+											updateOtpState,
+											nav,
+											setIsLoading
+										);
+										toastV8.success('OTP code resent successfully!');
+									} catch (error) {
+										const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+										toastV8.error(`Failed to resend OTP: ${errorMessage}`);
+									} finally {
+										setIsLoading(false);
+									}
+								}}
+								style={{
+									background: '#f3f4f6',
+									color: '#374151',
+									border: '1px solid #d1d5db',
+								}}
+							>
+								{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
+							</button>
 					</div>
 
 					{validationState.validationAttempts > 0 && (

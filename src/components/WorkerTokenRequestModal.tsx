@@ -12,9 +12,29 @@ import {
 	FiKey,
 	FiShield,
 	FiX,
+	FiCode,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+
+// Helper function to decode JWT
+const decodeJWT = (token: string) => {
+	try {
+		const base64Url = token.split('.')[1];
+		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+		const hex = (c: string) => c.charCodeAt(0).toString(16).padStart(2, '0');
+		const jsonPayload = decodeURIComponent(
+			atob(base64)
+				.split('')
+				.map((c) => `%${hex(c)}`)
+				.join('')
+		);
+		return JSON.parse(jsonPayload);
+	} catch (error) {
+		console.error('Failed to decode JWT:', error);
+		return { error: 'Invalid token format' };
+	}
+};
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	position: fixed;
@@ -184,19 +204,33 @@ const ParameterLabel = styled.div`
 `;
 
 const ParameterValue = styled.div`
-	color: #6b7280;
-	font-size: 0.75rem;
-	word-break: break-all;
-	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+	grid-column: 2;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
+	font-family: 'Fira Code', monospace;
+	font-size: 0.8rem;
+	color: #1e293b;
+	background: #f8fafc;
+	padding: 0.5rem 0.75rem;
+	border-radius: 0.375rem;
+	border: 1px solid #e2e8f0;
+	overflow-x: auto;
+	max-width: 100%;
+	white-space: nowrap;
+	position: relative;
+  
+	pre {
+		margin: 0;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
 `;
 
 const ToggleSecretButton = styled.button`
 	background: none;
 	border: none;
-	color: #6b7280;
+	color: #64748b;
 	cursor: pointer;
 	padding: 0.25rem;
 	display: flex;
@@ -204,10 +238,64 @@ const ToggleSecretButton = styled.button`
 	justify-content: center;
 	border-radius: 0.25rem;
 	transition: all 0.2s ease;
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
 
 	&:hover {
-		background: #f3f4f6;
-		color: #374151;
+		background: #e2e8f0;
+		color: #475569;
+	}
+`;
+
+const FormField = styled.div`
+	margin-bottom: 1rem;
+`;
+
+const FormLabel = styled.label`
+	display: block;
+	margin-bottom: 0.5rem;
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: #1e293b;
+`;
+
+const FormInput = styled.input`
+	width: 100%;
+	padding: 0.625rem 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	transition: border-color 0.2s;
+	background-color: #fff;
+  
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 1px #3b82f6;
+	}
+`;
+
+const PasswordToggle = styled.button`
+	background: none;
+	border: none;
+	color: #64748b;
+	cursor: pointer;
+	padding: 0.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 0.25rem;
+	transition: all 0.2s ease;
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+
+	&:hover {
+		background: #e2e8f0;
+		color: #475569;
 	}
 `;
 
@@ -253,12 +341,17 @@ const ModalActions = styled.div`
 	background: #f9fafb;
 `;
 
-const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
+const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary'; disabled?: boolean }>`
+	opacity: ${({ disabled }) => (disabled ? 0.7 : 1)};
+	cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
 	padding: 0.625rem 1.25rem;
-	border-radius: 0.5rem;
-	font-size: 0.8rem;
-	font-weight: 600;
+	border-radius: 0.375rem;
 	border: none;
+	font-weight: 600;
+	font-size: 0.875rem;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	display: flex;
@@ -295,10 +388,16 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	}}
 `;
 
+const ButtonGroup = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+`;
+
 interface WorkerTokenRequestModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onProceed: () => void;
+	onProceed: (token: string) => void;
 	tokenEndpoint: string;
 	requestParams: {
 		grant_type: string;
@@ -321,12 +420,63 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 }) => {
 	const [copiedCurl, setCopiedCurl] = useState(false);
 	const [showSecret, setShowSecret] = useState(false);
+	const [generatedToken, setGeneratedToken] = useState<string>('');
+	const [showToken, setShowToken] = useState(false);
+	const [isTokenStep, setIsTokenStep] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const handleCopyCurl = () => {
 		const curlCommand = generateCurlCommand();
 		navigator.clipboard.writeText(curlCommand);
 		setCopiedCurl(true);
 		setTimeout(() => setCopiedCurl(false), 2000);
+	};
+
+	const handleSendRequest = async () => {
+		try {
+			setIsLoading(true);
+			const response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+					...(authMethod === 'client_secret_basic' && {
+						Authorization: `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`,
+					}),
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					...(authMethod !== 'client_secret_basic' && {
+						client_id: requestParams.client_id,
+						client_secret: requestParams.client_secret,
+					}),
+					...(requestParams.scope && { scope: requestParams.scope }),
+				}).toString(),
+			});
+
+			const data = await response.json();
+			if (data.access_token) {
+				setGeneratedToken(data.access_token);
+				setIsTokenStep(true);
+			} else {
+				throw new Error(data.error_description || 'Failed to get access token');
+			}
+		} catch (error) {
+			console.error('Error generating token:', error);
+			// Handle error (show toast or error message)
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleCopyToken = () => {
+		navigator.clipboard.writeText(generatedToken);
+		// Show toast notification that token was copied
+		v4ToastManager.showSuccess('Token copied to clipboard');
+	};
+
+	const handleUseToken = () => {
+		onProceed(generatedToken);
+		onClose();
 	};
 
 	const generateCurlCommand = () => {
@@ -400,15 +550,72 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 				</ModalHeader>
 
 				<ModalContent>
-					<InfoBox>
-						<InfoIcon>
-							<FiInfo size={14} />
-						</InfoIcon>
-						<InfoText>
-							<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges
-							worker credentials for an access token.
-						</InfoText>
-					</InfoBox>
+					{isTokenStep ? (
+						<>
+							<Section>
+								<SectionTitle>
+									<FiKey size={14} />
+									Generated Access Token
+								</SectionTitle>
+								<InfoBox>
+									<InfoIcon>
+										<FiInfo size={14} />
+									</InfoIcon>
+									<InfoText>
+										<strong>Token Generated Successfully!</strong> This token will be used for API calls.
+									</InfoText>
+								</InfoBox>
+
+								<FormField>
+									<FormLabel>Access Token</FormLabel>
+									<div style={{ position: 'relative' }}>
+										<FormInput
+											type={showToken ? 'text' : 'password'}
+											value={generatedToken}
+											readOnly
+											style={{ paddingRight: '2.5rem' }}
+										/>
+										<PasswordToggle
+											onClick={() => setShowToken(!showToken)}
+											title={showToken ? 'Hide token' : 'Show token'}
+										>
+											{showToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+										</PasswordToggle>
+									</div>
+								</FormField>
+
+								<Section>
+									<SectionTitle>
+										<FiCode size={14} />
+										Token Details
+									</SectionTitle>
+									<CodeBlock>
+										<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
+									</CodeBlock>
+									<ButtonGroup>
+										<ActionButton 
+											$variant="secondary" 
+											onClick={handleCopyToken}
+											size="small"
+										>
+											<FiCopy size={12} />
+											Copy Token
+										</ActionButton>
+									</ButtonGroup>
+								</Section>
+							</Section>
+						</>
+					) : (
+						<>
+							<InfoBox>
+								<InfoIcon>
+									<FiInfo size={14} />
+								</InfoIcon>
+								<InfoText>
+									<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges
+									worker credentials for an access token.
+								</InfoText>
+							</InfoBox>
 
 					<Section>
 						<SectionTitle>
@@ -480,31 +687,51 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
 							{copiedCurl ? 'Copied!' : 'Copy cURL'}
 						</CopyButton>
-					</Section>
+						</Section>
 
-					<InfoBox
-						style={{
-							background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-							border: '1px solid #f59e0b',
-							marginBottom: 0,
-						}}
-					>
-						<InfoIcon style={{ color: '#d97706' }}>
-							<FiInfo size={14} />
-						</InfoIcon>
-						<InfoText style={{ color: '#92400e' }}>
-							<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
-						</InfoText>
-					</InfoBox>
+						<InfoBox
+							style={{
+								background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+								border: '1px solid #f59e0b',
+								marginBottom: 0,
+							}}
+						>
+							<InfoIcon style={{ color: '#d97706' }}>
+								<FiInfo size={14} />
+							</InfoIcon>
+							<InfoText style={{ color: '#92400e' }}>
+								<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
+							</InfoText>
+						</InfoBox>
+					</>
+				)}
 				</ModalContent>
 
 				<ModalActions>
 					<ActionButton $variant="secondary" onClick={onClose}>
 						Cancel
 					</ActionButton>
-					<ActionButton $variant="primary" onClick={onProceed}>
-						<FiKey size={14} />
-						Send Request
+					<ActionButton 
+						$variant="primary" 
+						onClick={isTokenStep ? handleUseToken : handleSendRequest}
+						disabled={isLoading}
+					>
+						{isLoading ? (
+							<>
+								<FiRefreshCw className="animate-spin" size={14} />
+								Generating...
+							</>
+						) : isTokenStep ? (
+						<>
+							<FiCheck size={14} />
+							Use Token
+						</>
+						) : (
+						<>
+							<FiKey size={14} />
+							Send Request
+						</>
+						)}
 					</ActionButton>
 				</ModalActions>
 			</ModalContainer>
