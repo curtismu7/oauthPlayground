@@ -23,9 +23,11 @@ export interface HybridFlowCredentials {
 	environmentId: string;
 	clientId: string;
 	clientSecret?: string;
+	privateKey?: string; // For private_key_jwt authentication
 	redirectUri: string;
 	scopes: string;
 	responseType?: 'code id_token' | 'code token' | 'code token id_token';
+	clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
 }
 
 export interface HybridAuthorizationUrlParams {
@@ -141,14 +143,17 @@ export class HybridFlowIntegrationServiceV8 {
 			responseType,
 		});
 
-		return {
+		const result: HybridAuthorizationUrlParams = {
 			authorizationUrl,
 			state,
 			nonce,
-			codeChallenge,
-			codeChallengeMethod,
-			codeVerifier,
 		};
+		
+		if (codeChallenge) result.codeChallenge = codeChallenge;
+		if (codeChallengeMethod) result.codeChallengeMethod = codeChallengeMethod;
+		if (codeVerifier) result.codeVerifier = codeVerifier;
+		
+		return result;
 	}
 
 	/**
@@ -202,12 +207,15 @@ export class HybridFlowIntegrationServiceV8 {
 				hasIdToken: !!idToken,
 			});
 
-			return {
-				code: code || undefined,
-				access_token: accessToken || undefined,
-				id_token: idToken || undefined,
+			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {
 				state,
 			};
+			
+			if (code) result.code = code;
+			if (accessToken) result.access_token = accessToken;
+			if (idToken) result.id_token = idToken;
+			
+			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error parsing callback fragment`, { error });
 			throw error;
@@ -252,16 +260,84 @@ export class HybridFlowIntegrationServiceV8 {
 				bodyParams.code_verifier = codeVerifier;
 			}
 
-			// Add client secret if provided (confidential client)
-			if (credentials.clientSecret) {
-				bodyParams.client_secret = credentials.clientSecret;
+			// Handle client authentication based on method
+			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+			console.log(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
+
+			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
+				// JWT assertion authentication
+				try {
+					const { createClientAssertion } = await import('../../utils/clientAuthentication');
+					const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					
+					let assertion: string;
+					if (authMethod === 'client_secret_jwt') {
+						if (!credentials.clientSecret) {
+							throw new Error('Client secret is required for client_secret_jwt authentication');
+						}
+						assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							credentials.clientSecret,
+							'HS256'
+						);
+					} else {
+						// private_key_jwt
+						if (!credentials.privateKey) {
+							throw new Error('Private key is required for private_key_jwt authentication');
+						}
+						assertion = await createClientAssertion(
+							credentials.clientId,
+							actualTokenEndpoint,
+							credentials.privateKey,
+							'RS256'
+						);
+					}
+					
+					bodyParams.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+					bodyParams.client_assertion = assertion;
+					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
+					throw new Error(
+						`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			} else {
+				// Basic authentication methods (client_secret_basic, client_secret_post, none)
+				if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
+					if (credentials.clientSecret) {
+						if (authMethod === 'client_secret_post') {
+							bodyParams.client_secret = credentials.clientSecret;
+							console.log(`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`);
+						} else {
+							// client_secret_basic - will be handled in Authorization header
+							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);
+						}
+					} else {
+						throw new Error(`Client secret is required for ${authMethod} authentication`);
+					}
+				} else {
+					// none - public client, no authentication
+					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
+				}
+			}
+
+			// Prepare request headers
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/json',
+			};
+
+			// Add Authorization header for client_secret_basic
+			if (authMethod === 'client_secret_basic' && credentials.clientSecret) {
+				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+				headers.Authorization = `Basic ${basicAuth}`;
+				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+				headers,
 				body: JSON.stringify(bodyParams),
 			});
 

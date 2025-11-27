@@ -23,7 +23,15 @@ const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
 // Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
 const renderStep0 = (props: MFAFlowBaseRenderProps) => {
-	const { credentials, setCredentials, tokenStatus } = props;
+	const {
+		credentials,
+		setCredentials,
+		tokenStatus,
+		deviceAuthPolicies,
+		isLoadingPolicies,
+		policiesError,
+		refreshDeviceAuthPolicies,
+	} = props;
 
 	// Check WebAuthn support
 	const [webAuthnSupported, setWebAuthnSupported] = useState(false);
@@ -180,6 +188,107 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 				</div>
 
 				<div className="form-group">
+					<label htmlFor="mfa-device-auth-policy">
+						Device Authentication Policy <span className="required">*</span>
+					</label>
+
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '12px',
+							flexWrap: 'wrap',
+							marginBottom: '12px',
+						}}
+					>
+						<button
+							type="button"
+							onClick={() => void refreshDeviceAuthPolicies()}
+							className="token-button"
+							style={{
+								padding: '8px 18px',
+								background: '#0284c7',
+								color: 'white',
+								border: 'none',
+								borderRadius: '999px',
+								fontSize: '13px',
+								fontWeight: '700',
+								cursor: isLoadingPolicies ? 'not-allowed' : 'pointer',
+								opacity: isLoadingPolicies ? 0.6 : 1,
+								boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
+								transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+							}}
+							disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
+							onMouseEnter={(e) => {
+								if (!isLoadingPolicies) {
+									(e.currentTarget.style.transform = 'translateY(-1px)');
+								}
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.transform = 'translateY(0)';
+							}}
+						>
+							{isLoadingPolicies ? 'Refreshing…' : 'Refresh Policies'}
+						</button>
+						<span style={{ fontSize: '13px', color: '#475569' }}>
+							Select which PingOne policy governs FIDO2 authentications.
+						</span>
+					</div>
+
+					{policiesError && (
+						<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}>
+							<strong>Failed to load policies:</strong> {policiesError}. Retry after verifying access.
+						</div>
+					)}
+
+					{deviceAuthPolicies.length > 0 ? (
+						<select
+							id="mfa-device-auth-policy"
+							value={credentials.deviceAuthenticationPolicyId || ''}
+							onChange={(e) =>
+								setCredentials({
+									...credentials,
+									deviceAuthenticationPolicyId: e.target.value,
+								})
+							}
+						>
+							{deviceAuthPolicies.map((policy) => (
+								<option key={policy.id} value={policy.id}>
+									{policy.name || policy.id} ({policy.id})
+								</option>
+							))}
+						</select>
+					) : (
+						<input
+							id="mfa-device-auth-policy"
+							type="text"
+							value={credentials.deviceAuthenticationPolicyId || ''}
+							onChange={(e) =>
+								setCredentials({
+									...credentials,
+									deviceAuthenticationPolicyId: e.target.value.trim(),
+								})
+							}
+							placeholder="Enter a Device Authentication Policy ID"
+						/>
+					)}
+
+					<div
+						style={{
+							marginTop: '12px',
+							padding: '12px 14px',
+							background: '#f1f5f9',
+							borderRadius: '10px',
+							fontSize: '12px',
+							color: '#475569',
+							lineHeight: 1.5,
+						}}
+					>
+						Policies are fetched from PingOne Device Authentication Policies.
+					</div>
+				</div>
+
+				<div className="form-group">
 					<label htmlFor="mfa-username">
 						Username <span className="required">*</span>
 					</label>
@@ -328,11 +437,61 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			}
 		};
 
-		// Handle using selected existing device
-		const handleUseSelectedDevice = () => {
+		// Handle using selected existing device - trigger authentication flow
+		const handleUseSelectedDevice = async () => {
 			if (deviceSelection.selectedExistingDevice && deviceSelection.selectedExistingDevice !== 'new') {
-				nav.markStepComplete();
-				toastV8.success('Device selected successfully!');
+				const device = deviceSelection.existingDevices.find((d: Record<string, unknown>) => d.id === deviceSelection.selectedExistingDevice);
+				if (!device) {
+					toastV8.error('Device not found');
+					return;
+				}
+
+				setIsLoading(true);
+				try {
+					// Initialize device authentication for existing device
+					const authResult = await controller.initializeDeviceAuthentication(
+						credentials,
+						deviceSelection.selectedExistingDevice
+					);
+
+					// Update state with authentication info
+					// Don't check device status - just trigger authentication immediately
+					setMfaState({
+						...mfaState,
+						deviceId: deviceSelection.selectedExistingDevice,
+						nickname: (device.nickname as string) || (device.name as string) || '',
+						authenticationId: authResult.authenticationId,
+						nextStep: authResult.nextStep,
+					});
+
+					// Handle nextStep response
+					if (authResult.nextStep === 'COMPLETED') {
+						// Authentication already complete
+						nav.markStepComplete();
+						nav.goToStep(3); // Go to success step
+						toastV8.success('Authentication successful!');
+					} else if (authResult.nextStep === 'ASSERTION_REQUIRED') {
+						// For FIDO2, user needs to complete WebAuthn assertion
+						nav.markStepComplete();
+						nav.goToStep(3); // Go to WebAuthn assertion step
+						toastV8.success('Device selected. Please complete WebAuthn authentication.');
+					} else if (authResult.nextStep === 'SELECTION_REQUIRED') {
+						// Shouldn't happen if deviceId is provided, but handle it
+						nav.setValidationErrors(['Multiple devices found. Please select a specific device.']);
+						toastV8.warning('Please select a specific device');
+					} else {
+						nav.markStepComplete();
+						nav.goToStep(3); // Default to assertion step
+						toastV8.success('Device selected successfully!');
+					}
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+					nav.setValidationErrors([`Failed to authenticate: ${errorMessage}`]);
+					toastV8.error(`Authentication failed: ${errorMessage}`);
+				} finally {
+					setIsLoading(false);
+				}
 			}
 		};
 
