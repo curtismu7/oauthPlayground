@@ -32,7 +32,7 @@ const MODULE_TAG = '[🎛️ API-DISPLAY-SERVICE-V8]';
 type VisibilityChangeListener = (isVisible: boolean) => void;
 
 class ApiDisplayServiceV8 {
-	private visible: boolean = true;
+	private visible: boolean = false;
 	private listeners: Set<VisibilityChangeListener> = new Set();
 
 	constructor() {
