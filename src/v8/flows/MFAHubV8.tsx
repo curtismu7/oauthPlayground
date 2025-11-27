@@ -185,6 +185,8 @@ export const MFAHubV8: React.FC = () => {
 					margin: 0 auto;
 					background: #f8f9fa;
 					min-height: 100vh;
+					overflow-y: auto;
+					padding-bottom: 40px;
 				}
 
 				.hub-container {

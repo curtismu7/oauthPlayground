@@ -16,6 +16,24 @@
  */
 
 /**
+ * PingOne worker token scopes required for MFA device management.
+ * Keep this list tightly scoped to the minimum rights needed for device lifecycle operations.
+ */
+export const PINGONE_WORKER_MFA_SCOPES = [
+	'p1:read:user',
+	'p1:update:user',
+	'p1:create:device',
+	'p1:read:device',
+	'p1:update:device',
+	'p1:delete:device',
+] as const;
+
+/**
+ * Space-delimited version of the required PingOne worker scopes for MFA.
+ */
+export const PINGONE_WORKER_MFA_SCOPE_STRING = PINGONE_WORKER_MFA_SCOPES.join(' ');
+
+/**
  * Flow identifiers used throughout the application
  * These keys are used for storage, routing, and service configuration
  */

@@ -11,6 +11,7 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiKey,
+	FiRefreshCw,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
@@ -19,7 +20,16 @@ import {
 	jwtAuthServiceV8,
 	type PrivateKeyJWTConfig,
 } from '../services/jwtAuthServiceV8';
+import {
+	assessSecurityStrength,
+	type GeneratedKeyPair,
+	type GeneratedSecret,
+	generateClientSecret,
+	generateRSAKeyPair,
+} from '../utils/keyGeneration';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+
+const MODULE_TAG = '[🔐 JWT-CONFIG-V8]';
 
 interface JWTConfigV8Props {
 	type: 'client_secret_jwt' | 'private_key_jwt';
@@ -150,24 +160,6 @@ const ButtonGroup = styled.div`
   margin-top: 0.5rem;
 `;
 
-const ResultBox = styled.div<{ $success: boolean }>`
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background: ${({ $success }) => ($success ? '#f0fdf4' : '#fef2f2')};
-  border: 1px solid ${({ $success }) => ($success ? '#86efac' : '#fecaca')};
-`;
-
-const ResultHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: ${({ $success }: { $success: boolean }) => ($success ? '#166534' : '#991b1b')};
-`;
-
 const JWTDisplay = styled.div`
   background: #ffffff;
   border: 1px solid rgba(148, 163, 184, 0.3);
@@ -249,11 +241,53 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 		(initialConfig as PrivateKeyJWTConfig)?.privateKey || ''
 	);
 	const [keyId, setKeyId] = useState((initialConfig as PrivateKeyJWTConfig)?.keyId || '');
-	const [_showPrivateKey, _setShowPrivateKey] = useState(false);
 
 	// Generation result
 	const [result, setResult] = useState<JWTGenerationResult | null>(null);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+
+	// Handle client secret generation
+	const handleGenerateSecret = async () => {
+		setIsGeneratingKey(true);
+		try {
+			const generatedSecret: GeneratedSecret = generateClientSecret(32, 'hex');
+			setClientSecret(generatedSecret.secret);
+
+			const strength = assessSecurityStrength.clientSecret(generatedSecret.secret);
+			v4ToastManager.showSuccess(
+				`Client secret generated! Strength: ${strength.strength.toUpperCase()} (${strength.score}/6)`
+			);
+
+			if (strength.recommendations.length > 0) {
+				console.log(`${MODULE_TAG} Security recommendations:`, strength.recommendations);
+			}
+		} catch (error) {
+			v4ToastManager.showError('Failed to generate client secret');
+			console.error('Secret generation error:', error);
+		} finally {
+			setIsGeneratingKey(false);
+		}
+	};
+
+	// Handle RSA key pair generation
+	const handleGenerateKeyPair = async () => {
+		setIsGeneratingKey(true);
+		try {
+			const generatedKeyPair: GeneratedKeyPair = await generateRSAKeyPair(2048);
+			setPrivateKey(generatedKeyPair.privateKey);
+			setKeyId(generatedKeyPair.keyId);
+
+			const strength = assessSecurityStrength.keyPair(2048);
+			v4ToastManager.showSuccess(`RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`);
+			v4ToastManager.showInfo(strength.recommendation);
+		} catch (error) {
+			v4ToastManager.showError('Failed to generate RSA key pair');
+			console.error('Key generation error:', error);
+		} finally {
+			setIsGeneratingKey(false);
+		}
+	};
 
 	const handleGenerate = async () => {
 		setIsGenerating(true);
@@ -269,14 +303,17 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 					return;
 				}
 
-				generationResult = await jwtAuthServiceV8.generateClientSecretJWT({
+				const clientSecretConfig: ClientSecretJWTConfig = {
 					clientId,
 					tokenEndpoint,
 					clientSecret,
-					issuer: issuer || undefined,
-					subject: subject || undefined,
 					expiryMinutes: expiryMinutes || 5,
-				});
+				};
+
+				if (issuer) clientSecretConfig.issuer = issuer;
+				if (subject) clientSecretConfig.subject = subject;
+
+				generationResult = await jwtAuthServiceV8.generateClientSecretJWT(clientSecretConfig);
 			} else {
 				if (!clientId || !tokenEndpoint || !privateKey) {
 					v4ToastManager.showError('Please fill in all required fields');
@@ -292,15 +329,18 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 					return;
 				}
 
-				generationResult = await jwtAuthServiceV8.generatePrivateKeyJWT({
+				const privateKeyConfig: PrivateKeyJWTConfig = {
 					clientId,
 					tokenEndpoint,
 					privateKey,
-					keyId: keyId || undefined,
-					issuer: issuer || undefined,
-					subject: subject || undefined,
 					expiryMinutes: expiryMinutes || 5,
-				});
+				};
+
+				if (keyId) privateKeyConfig.keyId = keyId;
+				if (issuer) privateKeyConfig.issuer = issuer;
+				if (subject) privateKeyConfig.subject = subject;
+
+				generationResult = await jwtAuthServiceV8.generatePrivateKeyJWT(privateKeyConfig);
 			}
 
 			setResult(generationResult);
@@ -326,7 +366,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 		try {
 			await navigator.clipboard.writeText(result.jwt);
 			v4ToastManager.showSuccess('JWT copied to clipboard');
-		} catch (_error) {
+		} catch {
 			v4ToastManager.showError('Failed to copy JWT');
 		}
 	};
@@ -372,6 +412,21 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
 						</button>
 					</PasswordInputWrapper>
+					<ButtonGroup>
+						<Button
+							onClick={handleGenerateSecret}
+							disabled={isGeneratingKey}
+							style={{
+								background: '#10b981',
+								borderColor: '#059669',
+								fontSize: '0.75rem',
+								padding: '0.5rem 0.75rem',
+							}}
+						>
+							<FiRefreshCw size={14} />
+							{isGeneratingKey ? 'Generating...' : 'Generate Secret'}
+						</Button>
+					</ButtonGroup>
 				</Field>
 			) : (
 				<>
@@ -384,6 +439,21 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 								placeholder="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
 							/>
 						</PasswordInputWrapper>
+						<ButtonGroup>
+							<Button
+								onClick={handleGenerateKeyPair}
+								disabled={isGeneratingKey}
+								style={{
+									background: '#10b981',
+									borderColor: '#059669',
+									fontSize: '0.75rem',
+									padding: '0.5rem 0.75rem',
+								}}
+							>
+								<FiRefreshCw size={14} />
+								{isGeneratingKey ? 'Generating...' : 'Generate Key Pair'}
+							</Button>
+						</ButtonGroup>
 					</Field>
 					<Field>
 						<FieldLabel>Key ID (kid)</FieldLabel>
@@ -391,7 +461,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							type="text"
 							value={keyId}
 							onChange={(e) => setKeyId(e.target.value)}
-							placeholder="default (optional)"
+							placeholder="Generated automatically when creating key pair"
 						/>
 					</Field>
 				</>
@@ -438,13 +508,31 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			</ButtonGroup>
 
 			{result && (
-				<ResultBox $success={result.success}>
+				<div
+					style={{
+						marginTop: '1rem',
+						padding: '1rem',
+						borderRadius: '0.5rem',
+						background: result.success ? '#f0fdf4' : '#fef2f2',
+						border: `1px solid ${result.success ? '#86efac' : '#fecaca'}`,
+					}}
+				>
 					{result.success && result.jwt ? (
 						<>
-							<ResultHeader $success={true}>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.75rem',
+									fontWeight: '600',
+									fontSize: '0.875rem',
+									color: '#166534',
+								}}
+							>
 								<FiCheckCircle size={16} />
 								JWT Generated Successfully
-							</ResultHeader>
+							</div>
 							<JWTDisplay>{result.jwt}</JWTDisplay>
 							<ButtonGroup>
 								<CopyButton onClick={handleCopyJWT}>
@@ -472,15 +560,25 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 							)}
 						</>
 					) : (
-						<ResultHeader $success={false}>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								marginBottom: '0.75rem',
+								fontWeight: '600',
+								fontSize: '0.875rem',
+								color: '#991b1b',
+							}}
+						>
 							<FiAlertCircle size={16} />
 							Generation Failed
 							{result.error && (
 								<span style={{ fontWeight: 'normal', marginLeft: '0.5rem' }}>{result.error}</span>
 							)}
-						</ResultHeader>
+						</div>
 					)}
-				</ResultBox>
+				</div>
 			)}
 		</Container>
 	);

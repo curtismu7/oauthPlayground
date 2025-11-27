@@ -49,6 +49,10 @@ export class EmailFlowController extends MFAFlowController {
 			errors.push('Username is required');
 		}
 
+		if (!credentials.deviceAuthenticationPolicyId?.trim()) {
+			errors.push('Device Authentication Policy ID is required');
+		}
+
 		// Email address validation is now done in Step 1 (registration), not Step 0
 		// Device name validation is also done in Step 1 (registration), not Step 0
 

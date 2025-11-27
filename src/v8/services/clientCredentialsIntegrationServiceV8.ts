@@ -194,7 +194,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						throw new Error('Client secret is required for client_secret_jwt authentication');
 					}
 					try {
-						const { createClientAssertion } = await import('@/utils/clientAuthentication');
+						const { createClientAssertion } = await import('../../utils/clientAuthentication');
 						const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const assertion = await createClientAssertion(
 							credentials.clientId,
@@ -225,7 +225,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 						throw new Error('Private key is required for private_key_jwt authentication');
 					}
 					try {
-						const { createClientAssertion } = await import('@/utils/clientAuthentication');
+						const { createClientAssertion } = await import('../../utils/clientAuthentication');
 						const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 						const assertion = await createClientAssertion(
 							credentials.clientId,

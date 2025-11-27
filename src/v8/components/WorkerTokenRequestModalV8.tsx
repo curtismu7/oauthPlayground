@@ -22,6 +22,8 @@ interface WorkerTokenRequestModalV8Props {
 		};
 		authMethod: string;
 		region: string;
+		resolvedHeaders: Record<string, string>;
+		resolvedBody: string;
 	};
 	isExecuting: boolean;
 }
@@ -374,6 +376,60 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									</div>
 								</div>
 							</div>
+
+							{/* Scope */}
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: '140px 1fr',
+									borderTop: '1px solid #e5e7eb',
+								}}
+							>
+								<div
+									style={{
+										padding: '12px',
+										background: '#f9fafb',
+										fontWeight: '600',
+										fontSize: '13px',
+										color: '#374151',
+									}}
+								>
+									scope
+								</div>
+								<div
+									style={{
+										padding: '12px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+									}}
+								>
+									<span
+										style={{
+											fontFamily: 'monospace',
+											fontSize: '12px',
+											color: '#6b7280',
+											wordBreak: 'break-all',
+										}}
+									>
+										{requestDetails.requestParams.scope}
+									</span>
+									<button
+										onClick={() => handleCopy(requestDetails.requestParams.scope, 'scope')}
+										style={{
+											padding: '4px 8px',
+											background: 'none',
+											border: 'none',
+											color: '#6b7280',
+											cursor: 'pointer',
+											fontSize: '12px',
+											marginLeft: '8px',
+										}}
+									>
+										{copiedField === 'scope' ? '✓' : '📋'}
+									</button>
+								</div>
+							</div>
 						</div>
 					</div>
 
@@ -399,6 +455,65 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 								Credentials sent in request body (POST parameters)
 							</div>
 						</div>
+					</div>
+
+					{/* Headers */}
+					<div style={{ marginBottom: '20px' }}>
+						<h3
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}
+						>
+							📬 HTTP Headers
+						</h3>
+						<div
+							style={{
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '6px',
+								padding: '12px',
+							}}
+						>
+							{Object.entries(requestDetails.resolvedHeaders).map(([key, value]) => (
+								<div
+									key={key}
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										borderBottom: '1px solid #e5e7eb',
+										padding: '8px 0',
+									}}
+								>
+									<span
+										style={{ fontWeight: 600, color: '#1f2937', fontSize: '12px', marginRight: '12px' }}
+									>
+										{key}
+									</span>
+									<code style={{ fontSize: '12px', color: '#4b5563', wordBreak: 'break-all' }}>{value}</code>
+								</div>
+							))}
+						</div>
+					</div>
+
+					{/* Body */}
+					<div style={{ marginBottom: '20px' }}>
+						<h3
+							style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#374151' }}
+						>
+							📦 Request Body (application/x-www-form-urlencoded)
+						</h3>
+						<pre
+							style={{
+								background: '#0f172a',
+								color: '#bfdbfe',
+								padding: '12px',
+								borderRadius: '6px',
+								maxHeight: '200px',
+								overflow: 'auto',
+								fontSize: '12px',
+							}}
+						>
+							{requestDetails.resolvedBody}
+						</pre>
 					</div>
 
 					{/* Warning Box */}
