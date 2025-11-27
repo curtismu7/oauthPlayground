@@ -1503,6 +1503,132 @@ export class MFAServiceV8 {
 	}
 
 	/**
+	 * Initialize one-time device authentication (Phase 2)
+	 * Uses selectedDevice.oneTime instead of registered device ID
+	 * @param params - One-time device parameters
+	 */
+	static async initializeOneTimeDeviceAuthentication(params: {
+		environmentId: string;
+		username: string;
+		type: 'EMAIL' | 'SMS';
+		email?: string; // Required for EMAIL type
+		phone?: string; // Required for SMS type
+		workerToken?: string;
+		deviceAuthenticationPolicyId?: string;
+		region?: string;
+	}): Promise<{
+		id: string;
+		status: string;
+		_links?: Record<string, { href: string }>;
+		[key: string]: unknown;
+	}> {
+		console.log(`${MODULE_TAG} Initializing one-time device authentication`, {
+			type: params.type,
+			environmentId: params.environmentId,
+			username: params.username,
+		});
+
+		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Get worker token
+			const accessToken = params.workerToken || await MFAServiceV8.getWorkerToken();
+
+			// Validate token before sending
+			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
+				console.error(`${MODULE_TAG} Worker token validation failed`, {
+					hasToken: !!accessToken,
+					tokenType: typeof accessToken,
+					tokenLength: accessToken?.length || 0,
+				});
+				throw new Error('Worker token is missing or invalid. Please generate a new worker token.');
+			}
+
+			// Remove any Bearer prefix if present and trim whitespace
+			const cleanToken = accessToken.trim().replace(/^Bearer\s+/i, '');
+			
+			// Validate JWT format (should have 3 parts separated by dots)
+			const tokenParts = cleanToken.split('.');
+			if (tokenParts.length !== 3 || tokenParts.some(part => part.length === 0)) {
+				console.error(`${MODULE_TAG} Worker token is not a valid JWT`, {
+					tokenLength: cleanToken.length,
+					partsCount: tokenParts.length,
+					partsLength: tokenParts.map(p => p.length),
+					tokenStart: cleanToken.substring(0, 30),
+				});
+				throw new Error('Worker token is not in valid JWT format. Please generate a new worker token.');
+			}
+			
+			console.log(`${MODULE_TAG} Worker token validated`, {
+				tokenLength: cleanToken.length,
+				partsCount: tokenParts.length,
+				hasBearerPrefix: accessToken.trim().startsWith('Bearer '),
+			});
+
+			// Build request body for one-time device authentication
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				type: params.type,
+				[params.type.toLowerCase()]: params.type === 'EMAIL' ? params.email : params.phone,
+				workerToken: cleanToken,
+				deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
+				region: params.region,
+			};
+
+			console.log(`${MODULE_TAG} Sending one-time device authentication request`, {
+				environmentId: params.environmentId,
+				userId: user.id,
+				type: params.type,
+				hasContact: !!(params.email || params.phone),
+			});
+
+			const response = await fetch('/api/pingone/mfa/initialize-one-time-device-authentication', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(errorData.error || errorData.message || 'Failed to initialize one-time device authentication');
+			}
+
+			const authData = await response.json();
+			const deviceAuthId = authData.id;
+
+			// Extract otp.check URL from _links per Phase 2 spec
+			let otpCheckUrl: string | undefined;
+			if (authData._links?.['otp.check']?.href) {
+				otpCheckUrl = authData._links['otp.check'].href;
+				console.log(`${MODULE_TAG} Extracted otp.check URL from _links:`, otpCheckUrl);
+			} else {
+				console.warn(`${MODULE_TAG} No otp.check URL found in _links, will use fallback endpoint`);
+			}
+
+			console.log(`${MODULE_TAG} One-time device authentication initialized`, { 
+				deviceAuthId, 
+				status: authData.status,
+				hasOtpCheckLink: !!otpCheckUrl 
+			});
+
+			return {
+				id: deviceAuthId,
+				status: authData.status,
+				_links: authData._links,
+				...authData
+			};
+
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error in one-time device authentication:`, error);
+			throw error;
+		}
+	}
+
+	/**
 	 * Send OTP to device using the new MFA API pattern
 	 * 1. Initialize device authentication to get deviceAuthId
 	 * 2. Send OTP to the device
