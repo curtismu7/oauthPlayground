@@ -28,11 +28,6 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
-import { WorkerTokenServiceV8 } from './workerTokenServiceV8';
-import type { ApiCallRecord } from './apiDisplayServiceV8';
-import { ApiDisplayServiceV8 } from './apiDisplayServiceV8';
 import { PINGONE_WORKER_MFA_SCOPES, PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
@@ -190,16 +185,16 @@ export class MFAServiceV8 {
 				const rawScopes: string[] | string | undefined = payload.scp ?? payload.scope;
 				let scopes: string[] = [];
 				if (Array.isArray(rawScopes)) {
-					scopes = rawScopes;
-				} else if (typeof rawScopes === 'string') {
-					scopes = rawScopes.split(/\s+/).filter(Boolean);
+					scopes.push(...rawScopes);
+				} else if (rawScopes) {
+					scopes.push(...rawScopes.split(/\s+/).filter(Boolean));
 				}
 
 				if (scopes.length === 0) {
 					try {
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (credentials?.scopes?.length) {
-							scopes = credentials.scopes;
+							scopes.push(...credentials.scopes);
 						}
 					} catch (credError) {
 						console.warn(`${MODULE_TAG} Unable to inspect worker token credentials scopes`, credError);
