@@ -17,6 +17,8 @@
  * const tokens = await HybridFlowIntegrationServiceV8.exchangeCodeForTokens(credentials, code, codeVerifier);
  */
 
+import { pingOneFetch } from '@/utils/pingOneFetch';
+
 const MODULE_TAG = '[🔀 HYBRID-FLOW-V8]';
 
 export interface HybridFlowCredentials {
@@ -335,7 +337,7 @@ export class HybridFlowIntegrationServiceV8 {
 				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
-			const response = await fetch(tokenEndpoint, {
+			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
 				body: JSON.stringify(bodyParams),
