@@ -23,7 +23,6 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { FiX } from 'react-icons/fi';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
-import { PINGONE_WORKER_MFA_SCOPES } from '@/v8/config/constants';
 
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -242,21 +241,7 @@ useEffect(() => {
 	}, [nav.validationErrors, showWorkerTokenPromptModal]);
 
 	useEffect(() => {
-		const handleMissingScopes = (event: Event) => {
-			const detail = (event as CustomEvent<{ scopes?: string[] }>).detail;
-			const scopeList = detail?.scopes && detail.scopes.length ? detail.scopes : [...PINGONE_WORKER_MFA_SCOPES];
-			toastV8.warning(
-				`Worker token is missing recommended MFA scopes. We've updated your saved scope list to include: ${scopeList.join(
-					', '
-				)}. Please regenerate the worker token to apply these changes.`
-			);
-			setShowWorkerTokenPromptModal(true);
-		};
-
-		window.addEventListener('workerTokenMissingScopes', handleMissingScopes as EventListener);
-		return () => {
-			window.removeEventListener('workerTokenMissingScopes', handleMissingScopes as EventListener);
-		};
+		// NOTE: Scope checking removed - worker token provides necessary permissions
 	}, []);
 
 	const handleWorkerTokenGenerated = () => {
@@ -265,31 +250,7 @@ useEffect(() => {
 			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			setTokenStatus(newStatus);
 			nav.setValidationErrors([]);
-			toastV8.success('Worker token generated and saved! Ensuring required scopes are included...');
-
-			// Warn if required scopes are missing
-			const requiredScopes = [...PINGONE_WORKER_MFA_SCOPES];
-
-			try {
-				const token = (await workerTokenServiceV8.getToken()) ?? '';
-				if (token) {
-					const payloadPart = token.split('.')[1];
-					const payload = payloadPart
-						? JSON.parse(atob(payloadPart.replace(/-/g, '+').replace(/_/g, '/')))
-						: undefined;
-					const scopes = payload?.scp ?? [];
-					const missingScopes = requiredScopes.filter((scope) => !scopes.includes(scope));
-					if (missingScopes.length > 0) {
-						toastV8.warning(
-							`Worker token is missing recommended MFA scopes: ${missingScopes.join(
-								', '
-							)}. Please regenerate the token with these scopes.`
-						);
-					}
-				}
-			} catch (error) {
-				console.warn(`${MODULE_TAG} Unable to inspect worker token scopes`, error);
-			}
+			toastV8.success('Worker token generated and saved!');
 
 			await fetchDeviceAuthPolicies();
 		})();
