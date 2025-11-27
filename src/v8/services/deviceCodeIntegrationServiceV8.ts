@@ -16,6 +16,8 @@
  * const tokens = await DeviceCodeIntegrationServiceV8.pollForTokens(credentials, deviceAuth.device_code);
  */
 
+import { pingOneFetch } from '@/utils/pingOneFetch';
+
 const MODULE_TAG = '[📱 DEVICE-CODE-V8]';
 
 export interface DeviceCodeCredentials {
@@ -188,7 +190,7 @@ export class DeviceCodeIntegrationServiceV8 {
 				step: 'unified-device-authorization',
 			});
 
-			const response = await fetch(deviceAuthEndpoint, {
+			const response = await pingOneFetch(deviceAuthEndpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
