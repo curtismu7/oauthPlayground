@@ -2108,16 +2108,18 @@ export class MFAServiceV8 {
 	}
 
 	/**
-	 * Initialize device authentication using Auth Server endpoint
-	 * POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
-	 * Per master-sms2 guidance: Auth Server endpoint drives login-time MFA challenges.
-	 * This endpoint triggers OTP and returns deviceAuthID in one call.
-	 * Use this for authentication flows (existing devices).
+	 * Initialize device authentication using the PingOne MFA API
+	 * POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-initialize-device-authentication
 	 * @param params - Device authentication parameters (deviceId optional, policy recommended)
 	 * @returns Authentication data including authenticationId (deviceAuthID)
 	 */
-	static async initializeDeviceAuthenticationAuth(
-		params: MFACredentials & { deviceId?: string; deviceAuthenticationPolicyId?: string }
+	static async initializeDeviceAuthentication(
+		params: MFACredentials & {
+			deviceId?: string;
+			deviceAuthenticationPolicyId?: string;
+			region?: string;
+		}
 	): Promise<{
 		id: string; // authenticationId (deviceAuthID)
 		status: string;
@@ -2126,64 +2128,64 @@ export class MFAServiceV8 {
 		challengeId?: string;
 		[key: string]: unknown;
 	}> {
-		console.log(`${MODULE_TAG} Initializing device authentication (Auth Server endpoint)`, {
+		console.log(`${MODULE_TAG} Initializing device authentication via PingOne MFA API`, {
 			username: params.username,
 			deviceId: params.deviceId,
+			policyId: params.deviceAuthenticationPolicyId,
 		});
 
 		try {
-			// Lookup user by username
+			// Lookup user by username to obtain the PingOne user ID required by the MFA API
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get worker token
+			// Retrieve and trim the worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();
+			const trimmedToken = accessToken.trim();
 
-			// Initialize device authentication via Auth Server endpoint (triggers OTP and returns deviceAuthID)
-			// Per master-sms.md: POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
-			// Request body: { user: { id }, policy: { id } (optional), device: { id } (optional) }
 			const requestBody: {
 				environmentId: string;
 				userId: string;
 				workerToken: string;
 				deviceId?: string;
 				policyId?: string;
+				region?: string;
 			} = {
 				environmentId: params.environmentId,
 				userId: user.id,
-				workerToken: accessToken.trim(),
+				workerToken: trimmedToken,
 			};
 
-			// Include deviceId if provided to immediately trigger authentication
 			if (params.deviceId) {
 				requestBody.deviceId = params.deviceId;
 			}
 
-			// Include policyId if provided (Device Authentication Policy)
-			// This is optional but recommended per master-sms.md
 			if (params.deviceAuthenticationPolicyId) {
 				requestBody.policyId = params.deviceAuthenticationPolicyId;
 			}
 
-			console.log(`${MODULE_TAG} Making request to Auth Server endpoint:`, {
-				url: '/api/pingone/mfa/initialize-device-authentication-auth',
-				method: 'POST',
+			if (params.region) {
+				requestBody.region = params.region;
+			}
+
+			console.log(`${MODULE_TAG} Calling backend initialize-device-authentication endpoint`, {
+				url: '/api/pingone/mfa/initialize-device-authentication',
 				body: requestBody,
 			});
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
-				url: '/api/pingone/mfa/initialize-device-authentication-auth',
+				url: '/api/pingone/mfa/initialize-device-authentication',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				body: requestBody,
-				step: 'mfa-Initialize Device Authentication (Auth Server)',
+				step: 'mfa-Initialize Device Authentication',
 			});
 
 			let response: Response;
 			try {
-				response = await fetch('/api/pingone/mfa/initialize-device-authentication-auth', {
+				response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
@@ -2216,13 +2218,7 @@ export class MFAServiceV8 {
 				{
 					status: response.status,
 					statusText: response.statusText,
-					headers: (() => {
-	const headers: Record<string, string> = {};
-	response.headers.forEach((value, key) => {
-		headers[key] = value;
-	});
-	return headers;
-})(),
+					headers: Object.fromEntries(response.headers.entries()),
 					data: responseData,
 				},
 				Date.now() - startTime
@@ -2231,27 +2227,24 @@ export class MFAServiceV8 {
 			if (!response.ok) {
 				const errorData = responseData as PingOneResponse;
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				console.error(`${MODULE_TAG} Initialize device authentication (Auth Server) failed:`, {
+
+				console.error(`${MODULE_TAG} Initialize device authentication (PingOne MFA API) failed`, {
 					status: response.status,
 					statusText: response.statusText,
 					errorData,
 					environmentId: params.environmentId,
 					userId: user.id,
-					tokenLength: accessToken.length,
+					tokenLength: trimmedToken.length,
 				});
-				
-				// Provide more helpful error message for 403
+
 				if (response.status === 403) {
 					throw new Error(
 						`Failed to initialize device authentication: ${errorMessage}. ` +
-						`This usually means your worker token doesn't have the required MFA scopes. ` +
-						`Please ensure your worker token includes: ${PINGONE_WORKER_MFA_SCOPE_STRING}.`
+							`Verify the worker token includes the required PingOne MFA scopes: ${PINGONE_WORKER_MFA_SCOPE_STRING}.`
 					);
 				}
-				
-				throw new Error(
-					`Failed to initialize device authentication: ${errorMessage}`
-				);
+
+				throw new Error(`Failed to initialize device authentication: ${errorMessage}`);
 			}
 
 			const authData = responseData as {
@@ -2263,27 +2256,27 @@ export class MFAServiceV8 {
 				[key: string]: unknown;
 			};
 
-			console.log(`${MODULE_TAG} Device authentication initialized (Auth Server):`, {
+			console.log(`${MODULE_TAG} Device authentication initialized via PingOne API`, {
 				id: authData.id,
 				status: authData.status,
 				nextStep: authData.nextStep,
 				hasDevices: !!authData.devices,
 			});
+
 			return authData;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Initialize device authentication (Auth Server) error`, error);
+			console.error(`${MODULE_TAG} Initialize device authentication error`, error);
 			throw error;
 		}
 	}
 
 	/**
-	 * Initialize Device Authentication (deprecated helper)
-	 * Historically pointed at the MFA v1 Platform endpoint. The master-sms2 guidance
-	 * requires using the Auth Server deviceAuthentications endpoint instead.
-	 * TODO: Remove once all callers use initializeDeviceAuthenticationAuth directly.
+	 * @deprecated Use initializeDeviceAuthentication instead.
+	 * Retained for backwards compatibility with earlier flows that referenced the
+	 * auth.pingone.com endpoint directly.
 	 */
-	static async initializeDeviceAuthentication(
-		params: MFACredentials & { deviceId?: string; deviceAuthenticationPolicyId?: string }
+	static async initializeDeviceAuthenticationAuth(
+		params: MFACredentials & { deviceId?: string; deviceAuthenticationPolicyId?: string; region?: string }
 	): Promise<{
 		id: string;
 		status: string;
@@ -2293,11 +2286,11 @@ export class MFAServiceV8 {
 		[key: string]: unknown;
 	}> {
 		console.warn(
-			`${MODULE_TAG} initializeDeviceAuthentication (legacy) called. Delegating to initializeDeviceAuthenticationAuth.`,
+			`${MODULE_TAG} initializeDeviceAuthenticationAuth is deprecated. Forwarding to initializeDeviceAuthentication().`,
 			{ hasPolicy: !!params.deviceAuthenticationPolicyId }
 		);
 
-		return MFAServiceV8.initializeDeviceAuthenticationAuth(params);
+		return MFAServiceV8.initializeDeviceAuthentication(params);
 	}
 
 	/**
