@@ -119,13 +119,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	includePatterns = [],
 }) => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
-	const [expandedId, setExpandedId] = useState<string | null>(null);
+	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [height, setHeight] = useState(300);
 	const [isResizing, setIsResizing] = useState(false);
 	const [showClearConfirm, setShowClearConfirm] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [sidebarWidth, setSidebarWidth] = useState(280);
+	const [previousCallCount, setPreviousCallCount] = useState(0);
 
 	// Use refs to track array props and prevent infinite loops from reference changes
 	const excludePatternsRef = useRef<string[]>(excludePatterns);
@@ -344,8 +345,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					return apiCall;
 				});
 
-			if (relevantCalls.length > 0) {
-				console.log(`${MODULE_TAG} Found ${relevantCalls.length} API calls`);
+			// Only log when call count changes to reduce console noise
+			if (relevantCalls.length !== previousCallCount) {
+				if (relevantCalls.length > 0) {
+					console.log(`${MODULE_TAG} Found ${relevantCalls.length} API calls`);
+				}
+				setPreviousCallCount(relevantCalls.length);
 			}
 			setApiCalls(relevantCalls);
 		} catch (error) {
@@ -420,7 +425,28 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	};
 
 	const toggleExpand = (id: string) => {
-		setExpandedId(expandedId === id ? null : id);
+		setExpandedIds((prev) => {
+			const newSet = new Set(prev);
+			if (newSet.has(id)) {
+				newSet.delete(id);
+			} else {
+				newSet.add(id);
+			}
+			return newSet;
+		});
+	};
+
+	const expandAll = () => {
+		const allIds = new Set(apiCalls.map((call) => call.id));
+		setExpandedIds(allIds);
+	};
+
+	const collapseAll = () => {
+		setExpandedIds(new Set());
+	};
+
+	const isExpanded = (id: string) => {
+		return expandedIds.has(id);
 	};
 
 	const handleCopy = async (text: string, field: string) => {
@@ -569,6 +595,44 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								⚡ API Calls ({apiCalls.length})
 							</div>
 							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+								{apiCalls.length > 0 && (
+									<>
+										<button
+											type="button"
+											onClick={expandAll}
+											style={{
+												padding: '3px 8px',
+												background: expandedIds.size === apiCalls.length ? '#10b981' : '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '4px',
+												cursor: 'pointer',
+												fontSize: '10px',
+												fontWeight: '600',
+											}}
+											title="Expand all API calls"
+										>
+											▼ Expand All
+										</button>
+										<button
+											type="button"
+											onClick={collapseAll}
+											style={{
+												padding: '3px 8px',
+												background: expandedIds.size === 0 ? '#6b7280' : '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '4px',
+												cursor: 'pointer',
+												fontSize: '10px',
+												fontWeight: '600',
+											}}
+											title="Collapse all API calls"
+										>
+											▲ Collapse All
+										</button>
+									</>
+								)}
 								<button
 									type="button"
 									onClick={() => setShowClearConfirm(true)}
@@ -729,16 +793,16 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													onClick={() => toggleExpand(call.id)}
 													style={{
 														cursor: 'pointer',
-														background: expandedId === call.id ? '#f3f4f6' : 'white',
+														background: isExpanded(call.id) ? '#f3f4f6' : 'white',
 														borderBottom: '1px solid #e5e7eb',
 													}}
 													onMouseEnter={(e) => {
-														if (expandedId !== call.id) {
+														if (!isExpanded(call.id)) {
 															e.currentTarget.style.background = '#f9fafb';
 														}
 													}}
 													onMouseLeave={(e) => {
-														if (expandedId !== call.id) {
+														if (!isExpanded(call.id)) {
 															e.currentTarget.style.background = 'white';
 														}
 													}}
@@ -814,7 +878,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 												</tr>
 
 												{/* Expanded Details Row */}
-												{expandedId === call.id &&
+												{isExpanded(call.id) &&
 													((): ReactElement => {
 														const hasBody =
 															call.body &&
@@ -1071,7 +1135,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																				type="button"
 																				onClick={(e) => {
 																					e.stopPropagation();
-																					setExpandedId(null);
+																					setExpandedIds((prev) => {
+																						const newSet = new Set(prev);
+																						newSet.delete(call.id);
+																						return newSet;
+																					});
 																				}}
 																				style={{
 																					padding: '4px 12px',
@@ -1157,7 +1225,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								onClick={() => {
 									apiCallTrackerService.clearApiCalls();
 									setApiCalls([]);
-									setExpandedId(null);
+									setExpandedIds(new Set());
+									setPreviousCallCount(0);
 									setShowClearConfirm(false);
 								}}
 								style={{

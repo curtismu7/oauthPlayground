@@ -1144,8 +1144,21 @@ const TokenManagement = () => {
 	}, [tokens, decodeJWT, tokenString, location]);
 
 	const handleTokenInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setTokenString(e.target.value);
+		const { value } = e.target;
+		setTokenString(value);
 		setSuccessMessage(null); // Clear success message when user types
+
+		const nativeEvent = e.nativeEvent as InputEvent | undefined;
+		const inputType = nativeEvent?.inputType;
+		const pasted =
+			inputType === 'insertFromPaste' || inputType === 'insertReplacementText';
+
+		if (pasted) {
+			const trimmed = value.trim();
+			if (trimmed) {
+				setTimeout(() => decodeJWT(trimmed), 0);
+			}
+		}
 	};
 
 	const handleDecodeClick = () => {
@@ -1178,7 +1191,7 @@ const TokenManagement = () => {
 			return;
 		}
 
-		decodeJWT(tokenString);
+		decodeJWT(tokenString.trim());
 	};
 
 	const _handleGetToken = async () => {
@@ -2298,6 +2311,25 @@ const TokenManagement = () => {
 								}}
 							/>
 						</TokenSurface>
+						<div style={{ marginTop: '1rem' }}>
+							<ActionButton
+								id={decodeTokenButtonId}
+								onClick={handleDecodeClick}
+								disabled={!tokenString?.trim() || isLoading}
+								style={{
+									backgroundColor: '#059669',
+									borderColor: '#059669',
+									color: 'white',
+									width: '100%',
+									justifyContent: 'center',
+									fontSize: '1rem',
+									padding: '1rem',
+								}}
+							>
+								<FiEye />
+								Decode JWT
+							</ActionButton>
+						</div>
 
 						{/* Success Message */}
 						{successMessage && (
@@ -2554,17 +2586,6 @@ const TokenManagement = () => {
 						>
 							<FiShield />
 							Introspect {isAccessToken ? 'Access Token' : 'ID Token'}
-						</ActionButton>
-
-						<ActionButton
-							id={decodeTokenButtonId}
-							className="primary"
-							onClick={handleDecodeClick}
-							disabled={!tokenString || isLoading}
-							style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
-						>
-							<FiEye />
-							Decode JWT
 						</ActionButton>
 
 						<ActionButton

@@ -10,9 +10,9 @@ import {
 	FiXCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ApiCallList from '../components/ApiCallList';
 import { apiCallTrackerService } from '../services/apiCallTrackerService';
 import { v4ToastManager } from '../utils/v4ToastManager';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 
 interface TokenPayload {
 	client_id?: string;
@@ -562,7 +562,7 @@ const WorkerTokenTester: React.FC = () => {
 						)}
 					</Section>
 
-					<ApiCallList title="API Calls to PingOne" showLegend={true} />
+					<SuperSimpleApiDisplayV8 />
 				</>
 			)}
 		</Container>
@@ -576,6 +576,7 @@ const Container = styled.div`
 	padding: 2rem;
 	box-sizing: border-box;
 	overflow-x: auto;
+	overflow-y: auto;
 	min-width: 0; /* Allow flex items to shrink below content size */
 	
 	@media (max-width: 1024px) {
