@@ -360,7 +360,7 @@ const ResizeHandle = styled.div`
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const location = useLocation();
-	const _navigate = useNavigate();
+	// const _navigate = useNavigate(); // Unused - keeping for potential future use
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
 			const saved = localStorage.getItem('sidebar.width');
@@ -379,16 +379,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const renderTimestampRef = useRef(Date.now());
 	const renderTimestamp = renderTimestampRef.current;
 
-	// Helper function to get V6 flow styles
-	const _getV6FlowStyles = (isActive: boolean) => ({
-		background: '#dcfce7', // Light green for all V6 flows
-		color: '#166534', // Dark green text
-		borderLeft: '3px solid #22c55e',
-		borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
-		fontWeight: isActive ? '700' : '600',
-		transition: 'all 0.2s ease',
-		cursor: 'pointer',
-	});
+	// Helper function to get V6 flow styles - currently unused but kept for reference
+	// const _getV6FlowStyles = (isActive: boolean) => ({
+	// 	background: '#dcfce7', // Light green for all V6 flows
+	// 	color: '#166534', // Dark green text
+	// 	borderLeft: '3px solid #22c55e',
+	// 	borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
+	// 	fontWeight: isActive ? '700' : '600',
+	// 	transition: 'all 0.2s ease',
+	// 	cursor: 'pointer',
+	// });
 
 	// Helper function to get V6 flow hover styles
 	// const _getV6FlowHoverStyles = () => ({
@@ -452,55 +452,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		};
 	});
 
-	const _isActive = (path: string) => location.pathname === path;
-
-	// Get friendly flow name from path for toast notification
-	const _getFlowName = (path: string): string | undefined => {
-		const flowNames: Record<string, string> = {
-			'/dashboard': 'Dashboard',
-			'/configuration': 'Configuration',
-			'/flows/oauth-authorization-code-v6': 'OAuth Authorization Code',
-			'/flows/oauth-authorization-code-v7': 'Authorization Code V7',
-			'/flows/oauth2-compliant-authorization-code': 'RFC 6749 Compliant OAuth 2.0',
-			'/flows/oidc-compliant-authorization-code': 'OIDC Core 1.0 Compliant',
-			'/flows/oauth-implicit-v6': 'OAuth Implicit Flow',
-			'/flows/oidc-authorization-code-v6': 'OIDC Authorization Code',
-			'/flows/oidc-implicit-v6': 'OIDC Implicit Flow',
-			'/flows/oidc-hybrid-v6': 'OIDC Hybrid Flow',
-			'/flows/oidc-hybrid-v7': 'Hybrid Flow V7',
-			'/flows/implicit-v7': 'Implicit Flow V7',
-			'/flows/token-exchange-v7': 'Token Exchange V8M',
-			'/flows/device-authorization-v7': 'Device Authorization V7',
-			'/documentation/oidc-overview': 'OIDC Overview',
-			'/auto-discover': 'OIDC Discovery',
-			'/flows/ciba-v7': 'OIDC CIBA Flow V7',
-			'/flows/ciba-v6': 'OIDC CIBA Flow V6',
-			'/flows/client-credentials-v6': 'Client Credentials',
-			'/flows/client-credentials-v7': 'OAuth Client Credentials (V7)',
-			'/flows/oauth-ropc-v7': 'OAuth Resource Owner Password (V7)',
-			'/flows/device-authorization-v6': 'Device Authorization',
-			'/flows/oidc-device-authorization-v6': 'OIDC Device Authorization',
-			'/flows/worker-token-v6': 'Worker Token (V6)',
-			'/flows/worker-token-v7': 'Worker Token (V7)',
-			'/flows/jwt-bearer-token-v6': 'JWT Bearer Token',
-			'/flows/jwt-bearer-token-v7': 'JWT Bearer Token V7',
-			'/flows/saml-bearer-assertion-v7': 'SAML Bearer Assertion V7',
-			'/flows/advanced-oauth-params-demo': 'Advanced OAuth Parameters Demo',
-			'/flows/pingone-par-v6': 'PingOne PAR',
-			'/flows/redirectless-v6-real': 'Redirectless Flow V6',
-			'/flows/pingone-mfa-v6': 'PingOne MFA V6',
-			'/flows/rar-v6': 'Rich Authorization Request',
-			'/flows/rar-v7': 'RAR Flow V7',
-			'/flows/resource-owner-password-v6': 'Resource Owner Password',
-			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
-			'/flows/pingone-mfa-v7': 'PingOne MFA V7',
-			'/v8/mfa': 'MFA Playground (V8)',
-			'/pingone-authentication': 'PingOne Authentication',
-			'/pingone-mock-features': 'PingOne Mock Features',
-			'/pingone-identity-metrics': 'PingOne Identity Metrics',
-		};
-		return flowNames[path];
-	};
+	// Get friendly flow name from path for toast notification - currently unused
+	// const _getFlowName = (path: string): string | undefined => {
+	// 	const flowNames: Record<string, string> = {
+	// 		'/dashboard': 'Dashboard',
+	// 		'/configuration': 'Configuration',
+	// 		// ... (other flow names would be here)
+	// 		'/v8/mfa': 'MFA Playground (V8)',
+	// 		'/pingone-authentication': 'PingOne Authentication',
+	// 	};
+	// 	return flowNames[path];
+	// };
 
 	// const _handleNavigation = (path: string, state?: unknown) => {
 	// 	console.log('Navigating to:', path, 'with state:', state);
