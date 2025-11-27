@@ -252,3 +252,55 @@ When implementing Phase 2:
 
 This file is ONLY for **Phase 2** one-time-device behavior.  
 Ensure Phase 1 (standard registered devices) is fully implemented first using the other spec file, then layer this on top.
+
+---
+
+## 8. Follow the URLs Returned by PingOne (Hypermedia Links) – One-Time Mode
+
+PingOne MFA and Device Authentication APIs are **hypermedia-driven**.  
+The example responses in the docs (and actual responses) include `_links` that tell you **exactly which URL to call next**, for example:
+
+- `self` – canonical URL of the current `deviceAuthentication`
+- `otp.check` – the URL for validating an OTP for this deviceAuthentication
+- `device.select` – for changing or confirming the device being used
+- Other operation-specific links, depending on the flow
+
+**AI RULE (CRITICAL FOR PHASE 2):**
+
+- When implementing One-time Device Authentication with `selectedDevice.oneTime`, you MUST:
+  - Parse `_links` from the `deviceAuthentications` response.
+  - Use the `otp.check` (and any other relevant) links directly for follow-up calls.
+  - Avoid hard-coding guessed URLs for OTP validation, device selection, etc.
+
+Example pattern (pseudo-code):
+
+```ts
+const initRes = await initializeOneTimeDeviceAuthentication({
+  userId,
+  policyId,
+  type: "SMS",          // or "EMAIL"
+  phone: "+15551234567" // or email for EMAIL
+});
+
+const otpCheckUrl = initRes._links?.["otp.check"]?.href;
+if (!otpCheckUrl) {
+  // TODO: fallback to documented static path or throw a clear error
+}
+
+await fetch(otpCheckUrl, {
+  method: "POST",
+  headers: {
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ otp }), // use the exact field name from PingOne docs/Postman
+});
+```
+
+Benefits:
+
+- You always call **server-provided URLs**, which reduces the risk of incorrect paths.
+- The AI does not invent `/otp`, `/verify`, or other ad-hoc suffixes.
+- Your implementation stays aligned with PingOne’s documented hypermedia contract.
+
+When unsure, always inspect the **Example Response** in the PingOne MFA API docs and mirror how `_links` is used there.
