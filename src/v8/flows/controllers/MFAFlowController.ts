@@ -278,10 +278,9 @@ export abstract class MFAFlowController {
 
 	/**
 	 * Initialize device authentication (for existing devices)
-	 * Uses Auth Server endpoint: POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
-	 * Per master-sms.md guidance: This is the correct endpoint for authentication flows
-	 * Request body: { user: { id }, policy: { id } (optional), device: { id } (optional) }
-	 * When deviceId is provided, it immediately triggers authentication for that device
+	 * Uses PingOne MFA API: POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-initialize-device-authentication
+	 * When deviceId is provided, the request immediately targets that device for OTP delivery.
 	 */
 	async initializeDeviceAuthentication(
 		credentials: MFACredentials,
@@ -304,12 +303,12 @@ export abstract class MFAFlowController {
 			throw new Error(errorMessage);
 		}
 
-		console.log(`${MODULE_TAG} Initializing device authentication for ${this.deviceType} (using Auth Server endpoint)`, {
+		console.log(`${MODULE_TAG} Initializing device authentication for ${this.deviceType} via PingOne MFA API`, {
 			policyId: credentials.deviceAuthenticationPolicyId,
 		});
 		
-		// Use Auth Server endpoint per master-sms.md guidance
-		// This endpoint accepts deviceId in request body to immediately trigger authentication
+		// Use PingOne MFA API so the backend follows the official Initialize Device Authentication flow
+		// DeviceId in the request body immediately targets this device for OTP
 		const result = await MFAServiceV8.initializeDeviceAuthentication({
 			...credentials,
 			deviceId, // Pass deviceId to immediately trigger authentication for this device
