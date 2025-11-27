@@ -6,6 +6,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -19,6 +20,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { MFADeviceSelector, type Device } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { FiShield } from 'react-icons/fi';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -789,6 +791,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	const createRenderStep3 = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, nav, setIsLoading, isLoading } = props;
+			const navigate = useNavigate();
 
 			const handleSendOTP = async () => {
 				await controller.sendOTP(
@@ -799,6 +802,33 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					nav,
 					setIsLoading
 				);
+			};
+
+			const handleViewDeviceAuthentication = () => {
+				if (!mfaState.authenticationId) {
+					return;
+				}
+
+				const params = new URLSearchParams({
+					environmentId: credentials.environmentId?.trim() || '',
+					authenticationId: mfaState.authenticationId,
+				});
+
+				if (credentials.deviceAuthenticationPolicyId?.trim()) {
+					params.set('policyId', credentials.deviceAuthenticationPolicyId.trim());
+				}
+
+				if (credentials.username?.trim()) {
+					params.set('username', credentials.username.trim());
+				}
+
+				if (mfaState.deviceId) {
+					params.set('deviceId', mfaState.deviceId);
+				}
+
+				navigate(`/v8/mfa/device-authentication-details?${params.toString()}`, {
+					state: { autoFetch: true },
+				});
 			};
 
 			return (
@@ -822,6 +852,51 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							</p>
 						)}
 					</div>
+
+					{mfaState.authenticationId && (
+						<div
+							style={{
+								marginTop: '16px',
+								padding: '14px 16px',
+								background: '#f0f9ff',
+								border: '1px solid #bae6fd',
+								borderRadius: '10px',
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '8px',
+							}}
+						>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+								<div>
+									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>Device Authentication ID</p>
+									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>{mfaState.authenticationId}</p>
+								</div>
+								<button
+									type="button"
+									onClick={handleViewDeviceAuthentication}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '8px 12px',
+										borderRadius: '8px',
+										border: '1px solid #3b82f6',
+										background: '#ffffff',
+										color: '#1d4ed8',
+										fontWeight: 600,
+										cursor: 'pointer',
+									}}
+								>
+									<FiShield />
+									View Session Details
+								</button>
+							</div>
+							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
+								Open the Device Authentication Details page to inspect the real-time status returned by PingOne after
+								initialization.
+							</p>
+						</div>
+					)}
 
 					<div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
 						<button
