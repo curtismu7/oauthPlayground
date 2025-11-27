@@ -14,6 +14,8 @@
  * const tokens = await ClientCredentialsIntegrationServiceV8.requestToken(credentials);
  */
 
+import { pingOneFetch } from '@/utils/pingOneFetch';
+
 const MODULE_TAG = '[🔑 CLIENT-CREDENTIALS-V8]';
 
 export type ClientAuthMethod =
@@ -339,7 +341,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 				step: 'unified-client-credentials-token',
 			});
 
-			const response = await fetch(tokenEndpoint, {
+			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
