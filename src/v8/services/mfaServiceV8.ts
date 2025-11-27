@@ -632,7 +632,6 @@ export class MFAServiceV8 {
 			// Use the validate-otp-for-device endpoint
 			const requestBody = {
 				environmentId: params.environmentId,
-				userId: '', // Not needed for validation
 				authenticationId: params.deviceAuthId,
 				otp: params.otp,
 				workerToken: cleanToken,
@@ -1574,7 +1573,6 @@ export class MFAServiceV8 {
 			// Step 2: Send OTP to the selected device
 			const otpRequestBody = {
 				environmentId: params.environmentId,
-				userId: user.id,
 				deviceAuthId,
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
@@ -2291,6 +2289,100 @@ export class MFAServiceV8 {
 		);
 
 		return MFAServiceV8.initializeDeviceAuthentication(params);
+	}
+
+	/**
+	 * Read device authentication details from PingOne MFA API
+	 * GET /mfa/v1/environments/{environmentId}/deviceAuthentications/{deviceAuthenticationId}
+	 * @param params - Environment & authentication identifiers
+	 * @returns Device authentication record
+	 */
+	static async readDeviceAuthentication(params: {
+		environmentId: string;
+		authenticationId: string;
+		region?: string;
+	}): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Reading device authentication record`, {
+			environmentId: params.environmentId,
+			authenticationId: params.authenticationId,
+			region: params.region || 'na',
+		});
+
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+			const trimmedToken = accessToken.trim();
+
+			const requestBody = {
+				environmentId: params.environmentId,
+				authenticationId: params.authenticationId,
+				workerToken: trimmedToken,
+				...(params.region ? { region: params.region } : {}),
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/read-device-authentication',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: requestBody,
+				step: 'mfa-Read Device Authentication',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch('/api/pingone/mfa/read-device-authentication', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as PingOneResponse;
+				throw new Error(
+					`Failed to read device authentication: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			return responseData as Record<string, unknown>;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Read device authentication error`, error);
+			throw error instanceof Error ? error : new Error(String(error));
+		}
 	}
 
 	/**
