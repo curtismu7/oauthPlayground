@@ -25,6 +25,17 @@ export interface MFACredentials {
 	phoneNumber: string;
 	email: string;
 	deviceName: string;
+	deviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED'; // Device status determines if OTP is sent
+	deviceAuthenticationPolicyId?: string; // Auth policy to use during device authentication (runtime MFA)
+	registrationPolicyId?: string; // Optional policy for registration if tenant requires it
+	[key: string]: unknown;
+}
+
+export interface DeviceAuthenticationPolicy {
+	id: string;
+	name: string;
+	description?: string;
+	status?: string;
 	[key: string]: unknown;
 }
 
@@ -42,6 +53,9 @@ export interface MFAState {
 	userId?: string;
 	createdAt?: string;
 	updatedAt?: string;
+	// Authentication flow fields (for existing devices)
+	authenticationId?: string;
+	nextStep?: string; // OTP_REQUIRED, ASSERTION_REQUIRED, SELECTION_REQUIRED, COMPLETED
 	// TOTP-specific fields
 	qrCodeUrl?: string;
 	totpSecret?: string;
@@ -49,6 +63,8 @@ export interface MFAState {
 	fido2CredentialId?: string;
 	fido2PublicKey?: string;
 	fido2RegistrationComplete?: boolean;
+	// Device authentication ID for the new MFA flow
+	deviceAuthId?: string;
 }
 
 export interface MFAFlowProps {
