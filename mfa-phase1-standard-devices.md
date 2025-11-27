@@ -43,9 +43,7 @@ Use OAuth2 client_credentials to obtain a worker token for PingOne API:
 POST https://auth.pingone.com/{ENV_ID}/as/token
 ```
 
-- Scopes must include the **PingOne API** device + user scopes as defined in `mfascopes.md`:
-  - `p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device p1:delete:device`
-- Wrap this in a `PingOneTokenClient` (as already described in other docs).
+We should be using worker token for all API calls, no special scopes.
 
 ### 2.2 Device Management (Registration)
 
@@ -206,3 +204,48 @@ When generating or updating code for Phase 1:
 
 This file is ONLY for the **standard PingOne-managed MFA device model** (Phase 1).  
 Do not implement the one-time device pattern here – that is Phase 2 and has its own spec.
+
+---
+
+## 6. Follow the URLs Returned by PingOne (Hypermedia Links)
+
+PingOne APIs are **hypermedia-driven**: the example responses in the docs (and the real responses at runtime) include the **next URLs you should call** in the `_links` section.
+
+For example, a `deviceAuthentications` response may contain:
+
+- `self` – the canonical URL of this deviceAuthentication
+- `otp.check` – the exact URL to call to validate the OTP
+- `device.select` – URL to select a different device
+- Other operation-specific links
+
+**AI RULE (VERY IMPORTANT):**
+
+- When implementing MFA flows, prefer to **follow the URLs from `_links`** instead of hard-coding paths.
+- In code, extract the relevant link from the response and call that URL directly.
+- Only fall back to hard-coded paths when documented, and even then, keep them centralized.
+
+Example pattern (pseudo-code):
+
+```ts
+const initRes = await initializeDeviceAuthentication(...);
+
+// Prefer the URL from the API response:
+const otpCheckUrl = initRes._links?.["otp.check"]?.href;
+if (!otpCheckUrl) {
+  // TODO: fallback to documented static path or throw a clear error
+}
+
+await fetch(otpCheckUrl, {
+  method: "POST",
+  headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+  body: JSON.stringify({ otp }),
+});
+```
+
+This ensures:
+
+- You are always using **documented, server-provided URLs**.
+- You are resilient to minor path changes.
+- The AI does not invent new subpaths (it just follows what PingOne tells it to use).
+
+When in doubt, look at the **Example Response** section of each PingOne MFA API in the docs and mirror the `_links` usage in code.
