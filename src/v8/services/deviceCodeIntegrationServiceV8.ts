@@ -394,7 +394,7 @@ export class DeviceCodeIntegrationServiceV8 {
 					step: 'unified-device-token-poll',
 				});
 
-				const response = await fetch(tokenEndpoint, {
+				const response = await pingOneFetch(tokenEndpoint, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
