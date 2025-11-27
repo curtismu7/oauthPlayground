@@ -491,7 +491,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										Environment ID
 									</span>
 									<p style={{ margin: '6px 0 0', fontFamily: 'monospace', color: '#111827' }}>
-										{result.environmentId ?? environmentId.trim() || '—'}
+										{(result.environmentId ?? environmentId.trim()) || '—'}
 									</p>
 								</div>
 								<div
