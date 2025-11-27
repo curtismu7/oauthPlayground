@@ -644,6 +644,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
 					},
 					{
+						id: 'mfa-one-time-devices-v8',
+						path: '/v8/mfa-one-time-devices',
+						label: 'MFA One-Time Devices',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: <MigrationBadge title="Phase 2: One-time MFA where app controls device info">EXPERIMENTAL</MigrationBadge>,
+					},
+					{
 						id: 'resources-api-v8',
 						path: '/v8/resources-api',
 						label: 'Resources API Tutorial',
