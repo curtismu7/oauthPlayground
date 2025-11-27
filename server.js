@@ -7475,7 +7475,7 @@ app.post('/api/pingone/mfa/update-device', async (req, res) => {
 // API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-send-otp-to-device
 app.post('/api/pingone/mfa/send-otp-to-device', async (req, res) => {
 	try {
-		const { environmentId, userId, deviceAuthId, deviceId, workerToken } = req.body;
+		const { environmentId, deviceAuthId, deviceId, workerToken } = req.body;
 		if (!environmentId || !deviceAuthId || !deviceId || !workerToken) {
 			return res.status(400).json({
 				error: 'Missing required fields',
@@ -8816,10 +8816,7 @@ app.post('/api/pingone/mfa/activate-device', async (req, res) => {
 
 		// Use the correct activate operation endpoint per Phase 1 spec
 		// POST /v1/environments/{environmentId}/users/{userId}/devices/{deviceId}/operations/activate
-		const { otp } = req.body; // OTP is required for activation
-		if (!otp) {
-			return res.status(400).json({ error: 'Missing OTP for device activation' });
-		}
+		// OTP is already destructured from req.body above
 
 		const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/operations/activate`;
 
@@ -9553,8 +9550,8 @@ app.post('/api/pingone/mfa/read-device-authentication', async (req, res) => {
 // Per documentation: Use the deviceAuthId endpoint with application/vnd.pingidentity.otp.check+json content type
 app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
 	try {
-		const { environmentId, userId, authenticationId, otp, workerToken } = req.body;
-		if (!environmentId || !userId || !authenticationId || !otp || !workerToken) {
+		const { environmentId, authenticationId, otp, workerToken } = req.body;
+		if (!environmentId || !authenticationId || !otp || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields' });
 		}
 
