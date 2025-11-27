@@ -165,7 +165,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 				const response = await MFAServiceV8.readDeviceAuthentication({
 					environmentId: trimmedEnv,
 					authenticationId: trimmedAuth,
-					region: region.trim() || undefined,
+					region: region?.trim() || undefined,
 				});
 
 				setResult(response);
@@ -189,14 +189,13 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 		if (initialEnvironmentId && initialAuthId && fromNav) {
 			void runLookup({ suppressToast: true });
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+	}, [initialEnvironmentId, initialAuthId, location.state, runLookup]);
 
 	const summary = useMemo(() => {
 		const record = result?.response as Record<string, unknown> | undefined;
-		const status = (record?.status as string) || (record?.state as string) || '';
+		const status = (record?.status as string | undefined) || (record?.state as string | undefined) || '';
 		const device = record?.device as Record<string, unknown> | undefined;
-		const deviceType = (device?.type as string) || (record?.authenticationType as string) || '';
+		const deviceType = (device?.type as string | undefined) || (record?.authenticationType as string | undefined) || '';
 		const channel = (record?.channel as string) || '';
 		const step = (record?.nextStep as string) || (record?.next?.status as string) || '';
 		const updated = (record?.updatedAt as string) || (record?.lastUpdated as string) || (record?.modifiedAt as string);
@@ -219,6 +218,8 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 		}
 
 		const html = buildJsonHtml(data);
+		// biome lint justification: buildJsonHtml properly escapes HTML entities before adding syntax highlighting
+		// biome-ignore lint/security/noDangerouslySetInnerHtml: HTML is escaped via escapeHtml function
 		return (
 			<pre
 				className="json-display"
@@ -506,7 +507,7 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										Authentication ID
 									</span>
 									<p style={{ margin: '6px 0 0', fontFamily: 'monospace', color: '#111827' }}>
-										{result.authenticationId ?? authenticationId.trim() || '—'}
+										{(result.authenticationId ?? authenticationId.trim()) || '—'}
 									</p>
 								</div>
 								<div
