@@ -9918,8 +9918,8 @@ app.post('/api/pingone/mfa/initialize-one-time-device-authentication', async (re
 					oneTime: {
 						type: requestBody.selectedDevice.oneTime.type,
 						[type === 'EMAIL' ? 'email' : 'phone']: type === 'EMAIL' 
-							? email.substring(0, 2) + '•••@' + email.split('@')[1]
-							: phone.substring(0, 3) + '••••' + phone.slice(-4)
+							? `${email.substring(0, 2)}•••@${email.split('@')[1]}`
+							: `${phone.substring(0, 3)}••••${phone.slice(-4)}`
 					}
 				},
 				hasPolicyId: !!policyId,
