@@ -204,7 +204,10 @@ const ContentColumn = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
 `;
 
 const MainContent = styled.main<{ $sidebarWidth: number }>`
@@ -214,6 +217,8 @@ const MainContent = styled.main<{ $sidebarWidth: number }>`
   margin-top: 100px;
   padding-bottom: 2rem;
   overflow: visible;
+  min-height: 0;
+  min-width: 0;
   transition: margin 0.3s ease;
   animation: fadeInPage 0.3s ease-in-out;
 
