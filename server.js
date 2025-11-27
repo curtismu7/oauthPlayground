@@ -9803,6 +9803,169 @@ app.post('/api/pingone/mfa/select-device-for-authentication', async (req, res) =
 	}
 });
 
+// Initialize One-Time Device Authentication (Phase 2)
+// POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
+// Uses selectedDevice.oneTime instead of registered device ID
+// API Reference: PingOne MFA v1 docs - Device Authentication (One-time Email/SMS)
+app.post('/api/pingone/mfa/initialize-one-time-device-authentication', async (req, res) => {
+	try {
+		const { environmentId, userId, type, email, phone, workerToken, deviceAuthenticationPolicyId } = req.body;
+		
+		if (!environmentId || !userId || !type || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+
+		// Validate type
+		if (!['EMAIL', 'SMS'].includes(type)) {
+			return res.status(400).json({ error: 'Invalid device type. Must be EMAIL or SMS' });
+		}
+
+		// Validate contact info based on type
+		if (type === 'EMAIL' && !email) {
+			return res.status(400).json({ error: 'Email is required for EMAIL type' });
+		}
+		if (type === 'SMS' && !phone) {
+			return res.status(400).json({ error: 'Phone is required for SMS type' });
+		}
+
+		// Validate worker token format
+		if (typeof workerToken !== 'string') {
+			return res.status(400).json({ error: 'Worker token must be a string' });
+		}
+
+		// Normalize and validate worker token
+		let cleanToken = String(workerToken);
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		// Basic JWT format check (should have 3 parts separated by dots)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Initialize One-Time Device Auth] Token does not appear to be a valid JWT format', {
+				partsCount: tokenParts.length,
+				tokenLength: cleanToken.length,
+				tokenStart: cleanToken.substring(0, 30),
+			});
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Validate token parts are not empty
+		if (tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token is malformed. Please generate a new token.',
+			});
+		}
+
+		// Use Auth Server endpoint for Device Authentication per Phase 2 spec
+		// POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications
+		const region = req.body.region || 'na';
+		const tld = region === 'eu' ? 'eu' : region === 'asia' ? 'asia' : 'com';
+		const authPath = `https://auth.pingone.${tld}`;
+
+		const mfaEndpoint = `${authPath}/${environmentId}/deviceAuthentications`;
+
+		// Build request body per Phase 2 spec for one-time devices
+		// Must include user.id and selectedDevice.oneTime
+		const requestBody = {
+			user: { id: userId }
+		};
+
+		// Add one-time device configuration
+		if (type === 'EMAIL') {
+			requestBody.selectedDevice = {
+				oneTime: {
+					type: 'EMAIL',
+					email: email
+				}
+			};
+		} else if (type === 'SMS') {
+			requestBody.selectedDevice = {
+				oneTime: {
+					type: 'SMS',
+					phone: phone
+				}
+			};
+		}
+
+		// Add policy if provided (optional)
+		const policyId = deviceAuthenticationPolicyId;
+		if (policyId) {
+			requestBody.policy = { id: policyId };
+		}
+
+		console.log('[MFA Initialize One-Time Device Auth] Full Request Details:', {
+			method: 'POST',
+			url: mfaEndpoint,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken.substring(0, 20)}...${cleanToken.substring(cleanToken.length - 10)} (${cleanToken.length} chars)`,
+			},
+			body: {
+				...requestBody,
+				// Mask sensitive info in logs
+				selectedDevice: {
+					oneTime: {
+						type: requestBody.selectedDevice.oneTime.type,
+						[type === 'EMAIL' ? 'email' : 'phone']: type === 'EMAIL' 
+							? email.substring(0, 2) + '•••@' + email.split('@')[1]
+							: phone.substring(0, 3) + '••••' + phone.slice(-4)
+					}
+				},
+				hasPolicyId: !!policyId,
+			},
+		});
+
+		const response = await global.fetch(mfaEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		console.log('[MFA Initialize One-Time Device Auth] Response summary', {
+			status: response.status,
+			statusText: response.statusText,
+			ok: response.ok,
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Initialize One-Time Device Auth] Error response:', errorData);
+			return res.status(response.status).json({
+				error: errorData.error || errorData.message || 'Failed to initialize one-time device authentication',
+				...errorData,
+			});
+		}
+
+		const authData = await response.json();
+		console.log('[MFA Initialize One-Time Device Auth] Success:', {
+			deviceAuthenticationId: authData.id,
+			status: authData.status,
+			hasLinks: !!authData._links,
+		});
+
+		res.json(authData);
+	} catch (error) {
+		console.error('[MFA Initialize One-Time Device Auth] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to initialize one-time device authentication', message: error.message });
+	}
+});
+
 // Get User MFA Bypass Status
 app.post('/api/pingone/mfa/get-user-bypass', async (req, res) => {
 	try {
