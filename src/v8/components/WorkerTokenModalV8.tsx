@@ -7,11 +7,9 @@
  */
 
 import React, { useState } from 'react';
-import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
-import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -61,6 +59,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				document.body.style.overflow = originalOverflow;
 			};
 		}
+		return undefined;
 	}, [isOpen]);
 
 	// Load saved credentials on mount
@@ -76,7 +75,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					setScopeInput(
 						Array.isArray(parsed.scopes) && parsed.scopes.length
 							? parsed.scopes.join(' ')
-							: PINGONE_WORKER_MFA_SCOPE_STRING
+							: ''
 					);
 					setRegion(parsed.region || 'us');
 					setAuthMethod(parsed.authMethod || 'client_secret_basic');
@@ -269,6 +268,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					justifyContent: 'center',
 				}}
 				onClick={onClose}
+				onKeyUp={(e) => e.key === 'Enter' && onClose()}
+				onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
+				role="button"
+				tabIndex={0}
+				aria-label="Close modal"
 			/>
 
 			{/* Modal */}
@@ -289,6 +293,12 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					overflow: 'auto',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyUp={(e) => e.key === 'Escape' && onClose()}
+				onKeyDown={(e) => e.key === 'Escape' && e.preventDefault()}
+				role="dialog"
+				tabIndex={-1}
+				aria-modal="true"
+				aria-labelledby="modal-title"
 			>
 				<style>{`
 					.worker-token-modal-v8 input[type="text"],
@@ -328,6 +338,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							</p>
 						</div>
 						<button
+							type="button"
 							onClick={onClose}
 							style={{
 								background: 'none',
@@ -337,6 +348,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								color: '#92400e',
 								padding: '4px 8px',
 							}}
+							aria-label="Close modal"
 						>
 							×
 						</button>
@@ -443,6 +455,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						{/* Environment ID */}
 						<div>
 							<label
+								htmlFor="environmentId"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -454,6 +467,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Environment ID <span style={{ color: '#ef4444' }}>*</span>
 							</label>
 							<input
+								id="environmentId"
 								type="text"
 								value={environmentId}
 								onChange={(e) => setEnvironmentId(e.target.value)}
@@ -472,6 +486,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						{/* Client ID */}
 						<div>
 							<label
+								htmlFor="clientId"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -483,6 +498,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Client ID <span style={{ color: '#ef4444' }}>*</span>
 							</label>
 							<input
+								id="clientId"
 								type="text"
 								value={clientId}
 								onChange={(e) => setClientId(e.target.value)}
@@ -501,6 +517,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						{/* Client Secret */}
 						<div>
 							<label
+								htmlFor="clientSecret"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -513,6 +530,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							</label>
 							<div style={{ position: 'relative' }}>
 								<input
+									id="clientSecret"
 									type={showSecret ? 'text' : 'password'}
 									value={clientSecret}
 									onChange={(e) => setClientSecret(e.target.value)}
@@ -550,6 +568,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						{/* Scopes */}
 						<div>
 							<label
+								htmlFor="scopes"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -561,6 +580,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Scopes <span style={{ color: '#ef4444' }}>*</span>
 							</label>
 							<textarea
+								id="scopes"
 								value={scopeInput}
 								onChange={(e) => setScopeInput(e.target.value)}
 								rows={3}
@@ -575,14 +595,14 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								}}
 							/>
 							<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
-								Space-separated list. Recommended:{' '}
-								<span style={{ fontFamily: 'monospace' }}>{PINGONE_WORKER_MFA_SCOPE_STRING}</span>
+								Space-separated list. Leave empty for default scopes.
 							</small>
 						</div>
 
 						{/* Region */}
 						<div>
 							<label
+								htmlFor="region"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -594,6 +614,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Region
 							</label>
 							<select
+								id="region"
 								value={region}
 								onChange={(e) => setRegion(e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
 								style={{
@@ -614,6 +635,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 						{/* Token Endpoint Authentication */}
 						<div>
 							<label
+								htmlFor="authMethod"
 								style={{
 									display: 'block',
 									fontWeight: '600',
@@ -625,6 +647,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Token Endpoint Authentication
 							</label>
 							<select
+								id="authMethod"
 								value={authMethod}
 								onChange={(e) => setAuthMethod(e.target.value as AuthMethodV8)}
 								style={{
