@@ -16,6 +16,8 @@
  * const authUrl = service.generateAuthorizationUrl(credentials);
  */
 
+import { pingOneFetch } from '@/utils/pingOneFetch';
+
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
 
 export interface OAuthCredentials {
@@ -378,7 +380,7 @@ export class OAuthIntegrationServiceV8 {
 			});
 
 			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
-			const response = await fetch(tokenEndpoint, {
+			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
 				body: JSON.stringify(bodyParams),
@@ -473,7 +475,7 @@ export class OAuthIntegrationServiceV8 {
 				bodyParams.client_secret = credentials.clientSecret;
 			}
 
-			const response = await fetch(tokenEndpoint, {
+			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
