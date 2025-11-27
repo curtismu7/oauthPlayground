@@ -89,17 +89,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	}, [isOpen, propEnvironmentId]);
 
 	React.useEffect(() => {
-		const handleScopeUpdate = (event: Event) => {
-			const detail = (event as CustomEvent<{ scopes?: string[] }>).detail;
-			if (detail?.scopes?.length) {
-				setScopeInput(detail.scopes.join(' '));
-			}
-		};
-
-		window.addEventListener('workerTokenMissingScopes', handleScopeUpdate as EventListener);
-		return () => {
-			window.removeEventListener('workerTokenMissingScopes', handleScopeUpdate as EventListener);
-		};
+		// NOTE: Scope event handling removed - worker token provides necessary permissions
 	}, []);
 
 	if (!isOpen) return null;

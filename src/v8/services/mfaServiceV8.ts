@@ -28,7 +28,6 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
-import { PINGONE_WORKER_MFA_SCOPES, PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[📱 MFA-SERVICE-V8]';
 
@@ -201,33 +200,7 @@ export class MFAServiceV8 {
 					}
 				}
 
-				const requiredScopes = [...PINGONE_WORKER_MFA_SCOPES];
-
-				const missingScopes = requiredScopes.filter((scope) => !scopes.includes(scope));
-				if (missingScopes.length > 0) {
-					console.warn(
-						`${MODULE_TAG} Worker token is missing recommended MFA scopes: ${missingScopes.join(', ')}`
-					);
-					try {
-						const credentials = await workerTokenServiceV8.loadCredentials();
-						if (credentials) {
-							const combinedScopes = Array.from(
-								new Set([...(credentials.scopes ?? []), ...requiredScopes])
-							);
-							await workerTokenServiceV8.saveCredentials({
-								...credentials,
-								scopes: combinedScopes,
-							});
-							window.dispatchEvent(
-								new CustomEvent('workerTokenMissingScopes', {
-									detail: { missingScopes, scopes: combinedScopes },
-								})
-							);
-						}
-					} catch (scopeError) {
-						console.error(`${MODULE_TAG} Unable to update stored worker token scopes`, scopeError);
-					}
-				}
+				// NOTE: MFA scope requirements removed - worker token provides necessary permissions
 			}
 
 			console.log(`${MODULE_TAG} Using worker token from WorkerTokenServiceV8`, {
@@ -2387,7 +2360,7 @@ export class MFAServiceV8 {
 				if (response.status === 403) {
 					throw new Error(
 						`Failed to initialize device authentication: ${errorMessage}. ` +
-							`Verify the worker token includes the required PingOne MFA scopes: ${PINGONE_WORKER_MFA_SCOPE_STRING}.`
+							`Verify the worker token has the necessary permissions for MFA operations.`
 					);
 				}
 
