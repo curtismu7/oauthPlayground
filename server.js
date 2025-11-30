@@ -6388,6 +6388,73 @@ app.get('/api/pingone/mfa/resume', async (req, res) => {
 	}
 });
 
+// List Device Authentication Policies
+app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => {
+	try {
+		const { environmentId, workerToken } = req.body;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policiesEndpoint = `${apiBase}/v1/environments/${environmentId}/deviceAuthenticationPolicies`;
+
+		console.log('[MFA Device Auth Policies] Request:', {
+			url: policiesEndpoint,
+			environmentId,
+		});
+
+		const response = await global.fetch(policiesEndpoint, {
+			method: 'GET',
+			headers: { Authorization: `Bearer ${cleanToken}` },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Device Auth Policies] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const policiesData = await response.json();
+		res.json(policiesData);
+	} catch (error) {
+		console.error('[MFA Device Auth Policies] Error:', error);
+		res.status(500).json({
+			error: 'Failed to list device authentication policies',
+			message: error instanceof Error ? error.message : String(error),
+		});
+	}
+});
+
 // API endpoint not found handler
 app.use('/api', (req, res) => {
 	res.status(404).json({
@@ -6935,7 +7002,7 @@ app.post('/api/par-request', async (req, res) => {
 		});
 
 		// Make request to PingOne PAR endpoint
-		const parResponse = await fetch(parEndpoint, {
+		const parResponse = await global.fetch(parEndpoint, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
@@ -7252,10 +7319,11 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 	}
 });
 
-// List Device Authentication Policies
-app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => {
+// Read Single Device Authentication Policy (GET with policyId param)
+app.get('/api/pingone/mfa/device-authentication-policies/:policyId', async (req, res) => {
 	try {
-		const { environmentId, workerToken } = req.body;
+		const { policyId } = req.params;
+		const { environmentId, workerToken } = req.query;
 
 		if (!environmentId || !workerToken) {
 			return res
@@ -7282,7 +7350,7 @@ app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => 
 			});
 		}
 
-		const region = req.body.region || 'na';
+		const region = req.query.region || 'na';
 		const apiBase =
 			region === 'eu'
 				? 'https://api.pingone.eu'
@@ -7290,12 +7358,671 @@ app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => 
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
-		const policiesEndpoint = `${apiBase}/v1/environments/${environmentId}/deviceAuthenticationPolicies`;
+		const policyEndpoint = `${apiBase}/v1/environments/${environmentId}/deviceAuthenticationPolicies/${policyId}`;
 
-		console.log('[MFA Device Auth Policies] Request:', {
-			url: policiesEndpoint,
+		console.log('[MFA Device Auth Policy] Request:', {
+			url: policyEndpoint,
 			environmentId,
+			policyId,
 		});
+
+		const response = await global.fetch(policyEndpoint, {
+			method: 'GET',
+			headers: { Authorization: `Bearer ${cleanToken}` },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Device Auth Policy] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const policyData = await response.json();
+		res.json(policyData);
+	} catch (error) {
+		console.error('[MFA Device Auth Policy] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to read device authentication policy', message: error.message });
+	}
+});
+
+// Get User Authentication Reports
+app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
+	try {
+		const { environmentId, queryParams, workerToken } = req.body;
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/userMfaDeviceAuthentications${queryParams ? `?${queryParams}` : ''}`;
+
+		console.log('[MFA User Authentication Reports] Fetching reports:', {
+			environmentId,
+			hasQueryParams: !!queryParams,
+		});
+
+		const response = await global.fetch(reportsEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA User Authentication Reports] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const reportsData = await response.json();
+		console.log('[MFA User Authentication Reports] Success:', {
+			count: reportsData._embedded?.userMfaDeviceAuthentications?.length || 0,
+		});
+		res.json(reportsData);
+	} catch (error) {
+		console.error('[MFA User Authentication Reports] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to get user authentication reports', message: error.message });
+	}
+});
+
+// Get Device Authentication Reports
+app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) => {
+	try {
+		const { environmentId, queryParams, workerToken } = req.body;
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/mfaDeviceAuthentications${queryParams ? `?${queryParams}` : ''}`;
+
+		console.log('[MFA Device Authentication Reports] Fetching reports:', {
+			environmentId,
+			hasQueryParams: !!queryParams,
+		});
+
+		const response = await global.fetch(reportsEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Device Authentication Reports] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const reportsData = await response.json();
+		console.log('[MFA Device Authentication Reports] Success:', {
+			count: reportsData._embedded?.mfaDeviceAuthentications?.length || 0,
+		});
+		res.json(reportsData);
+	} catch (error) {
+		console.error('[MFA Device Authentication Reports] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to get device authentication reports', message: error.message });
+	}
+});
+
+// Initialize Device Authentication (API Server Endpoint - for existing devices)
+app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			userId,
+			username,
+			deviceId,
+			workerToken,
+			policyId,
+			deviceAuthenticationPolicyId,
+			region,
+		} = req.body;
+		if (!environmentId || (!userId && !username) || !workerToken) {
+			return res
+				.status(400)
+				.json({
+					error:
+						'Missing required fields: environmentId, userId (or username), and workerToken are required',
+				});
+		}
+
+		let resolvedUserId = userId;
+		if (!resolvedUserId && username) {
+			try {
+				const lookupResponse = await global.fetch(
+					`https://api.pingone.com/v1/environments/${environmentId}/users?filter=username eq "${encodeURIComponent(username)}"`,
+					{
+						method: 'GET',
+						headers: {
+							Authorization: `Bearer ${String(workerToken)
+								.trim()
+								.replace(/^Bearer\s+/i, '')}`,
+							'Content-Type': 'application/json',
+						},
+					}
+				);
+
+				if (lookupResponse.ok) {
+					const usersData = await lookupResponse.json();
+					const user = usersData._embedded?.users?.[0];
+					if (user) {
+						resolvedUserId = user.id;
+					} else {
+						return res
+							.status(404)
+							.json({
+								error: 'User not found',
+								message: `User with username "${username}" not found`,
+							});
+					}
+				} else {
+					return res
+						.status(lookupResponse.status)
+						.json({ error: 'Failed to lookup user', message: 'Could not find user by username' });
+				}
+			} catch (lookupError) {
+				console.error('[MFA Initialize Device Auth] User lookup error:', lookupError);
+				return res
+					.status(500)
+					.json({
+						error: 'Failed to lookup user',
+						message: lookupError instanceof Error ? lookupError.message : 'Unknown error',
+					});
+			}
+		}
+
+		if (!resolvedUserId) {
+			return res
+				.status(400)
+				.json({ error: 'Missing userId', message: 'Either userId or username must be provided' });
+		}
+
+		let cleanToken = String(workerToken);
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/[\s\n\r\t]/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' ? 'asia' : 'com';
+		const authPath = `https://auth.pingone.${tld}`;
+
+		const mfaEndpoint = `${authPath}/${environmentId}/deviceAuthentications`;
+
+		const requestBody = {
+			user: {
+				id: resolvedUserId,
+			},
+		};
+
+		if (deviceId) {
+			requestBody.device = { id: deviceId };
+		}
+
+		const resolvedPolicyId = policyId || deviceAuthenticationPolicyId;
+		if (resolvedPolicyId) {
+			requestBody.policy = { id: resolvedPolicyId };
+		}
+
+		console.log('[MFA Initialize Device Auth] Request details', {
+			url: mfaEndpoint,
+			method: 'POST',
+			environmentId,
+			userId: resolvedUserId,
+			deviceId: deviceId || 'not provided',
+			policyId: resolvedPolicyId || 'not provided',
+		});
+
+		const response = await global.fetch(mfaEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		const rawText = await response.text();
+		let authData = {};
+		if (rawText && rawText.trim()) {
+			try {
+				authData = JSON.parse(rawText);
+			} catch (parseError) {
+				console.error('[MFA Initialize Device Auth] Failed to parse JSON response', {
+					error: parseError instanceof Error ? parseError.message : String(parseError),
+					bodyPreview: rawText.substring(0, 200),
+				});
+				authData = { raw: rawText };
+			}
+		}
+
+		if (!response.ok) {
+			const errorResponse = {
+				error: authData.error || 'Failed to initialize device authentication',
+				message: authData.message || response.statusText,
+				details: authData,
+			};
+			return res.status(response.status).json(errorResponse);
+		}
+
+		return res.json(authData);
+	} catch (error) {
+		console.error('[MFA Initialize Device Auth] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to initialize device authentication', message: error.message });
+	}
+});
+
+// ============================================================================
+// OATH TOKEN MANAGEMENT ENDPOINTS
+// ============================================================================
+
+// List OATH Tokens
+app.get('/api/pingone/mfa/oath-tokens', async (req, res) => {
+	try {
+		const { environmentId, workerToken, region } = req.query;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const tokensEndpoint = `${apiBase}/v1/environments/${environmentId}/oathTokens`;
+
+		console.log('[OATH Tokens] Listing tokens:', { environmentId, url: tokensEndpoint });
+
+		const response = await global.fetch(tokensEndpoint, {
+			method: 'GET',
+			headers: { Authorization: `Bearer ${cleanToken}` },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[OATH Tokens] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const tokensData = await response.json();
+		res.json(tokensData);
+	} catch (error) {
+		console.error('[OATH Tokens] Error:', error);
+		res.status(500).json({ error: 'Failed to list OATH tokens', message: error.message });
+	}
+});
+
+// Create OATH Token
+app.post('/api/pingone/mfa/oath-tokens', async (req, res) => {
+	try {
+		const { environmentId, workerToken, region, tokenData } = req.body;
+
+		if (!environmentId || !workerToken || !tokenData) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, workerToken, and tokenData',
+			});
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const tokensEndpoint = `${apiBase}/v1/environments/${environmentId}/oathTokens`;
+
+		console.log('[OATH Tokens] Creating token:', { environmentId, tokenType: tokenData.type });
+
+		const response = await global.fetch(tokensEndpoint, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(tokenData),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[OATH Tokens] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const tokenDataResponse = await response.json();
+		res.json(tokenDataResponse);
+	} catch (error) {
+		console.error('[OATH Tokens] Error:', error);
+		res.status(500).json({ error: 'Failed to create OATH token', message: error.message });
+	}
+});
+
+// Resync OATH Token
+app.post('/api/pingone/mfa/oath-tokens/:tokenId/resync', async (req, res) => {
+	try {
+		const { tokenId } = req.params;
+		const { environmentId, workerToken, region, resyncData } = req.body;
+
+		if (!environmentId || !workerToken || !resyncData) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, workerToken, and resyncData',
+			});
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const resyncEndpoint = `${apiBase}/v1/environments/${environmentId}/oathTokens/${tokenId}/resync`;
+
+		console.log('[OATH Tokens] Resyncing token:', { environmentId, tokenId });
+
+		const response = await global.fetch(resyncEndpoint, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(resyncData),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[OATH Tokens] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const resyncResponse = await response.json();
+		res.json(resyncResponse);
+	} catch (error) {
+		console.error('[OATH Tokens] Error:', error);
+		res.status(500).json({ error: 'Failed to resync OATH token', message: error.message });
+	}
+});
+
+// Delete/Revoke OATH Token
+app.delete('/api/pingone/mfa/oath-tokens/:tokenId', async (req, res) => {
+	try {
+		const { tokenId } = req.params;
+		const { environmentId, workerToken, region } = req.query;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const tokenEndpoint = `${apiBase}/v1/environments/${environmentId}/oathTokens/${tokenId}`;
+
+		console.log('[OATH Tokens] Deleting token:', { environmentId, tokenId });
+
+		const response = await global.fetch(tokenEndpoint, {
+			method: 'DELETE',
+			headers: { Authorization: `Bearer ${cleanToken}` },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[OATH Tokens] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		// DELETE may return 204 No Content
+		if (response.status === 204) {
+			return res.status(204).send();
+		}
+
+		const deleteResponse = await response.json().catch(() => ({}));
+		res.json(deleteResponse);
+	} catch (error) {
+		console.error('[OATH Tokens] Error:', error);
+		res.status(500).json({ error: 'Failed to delete OATH token', message: error.message });
+	}
+});
+
+// Batch OATH Token Operations
+app.post('/api/pingone/mfa/oath-tokens/batch', async (req, res) => {
+	try {
+		const { environmentId, workerToken, region, batchData } = req.body;
+
+		if (!environmentId || !workerToken || !batchData) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, workerToken, and batchData',
+			});
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const batchEndpoint = `${apiBase}/v1/environments/${environmentId}/oathTokens/batch`;
+
+		console.log('[OATH Tokens] Batch operation:', { environmentId, type: batchData.type });
+
+		const response = await global.fetch(batchEndpoint, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(batchData),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[OATH Tokens] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const batchResponse = await response.json();
+		res.json(batchResponse);
+	} catch (error) {
+		console.error('[OATH Tokens] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to execute batch OATH token operation', message: error.message });
+	}
+});
+
+// ============================================================================
+// FIDO2 POLICY MANAGEMENT ENDPOINTS
+// ============================================================================
+
+// List FIDO2 Policies
+app.get('/api/pingone/mfa/fido2-policies', async (req, res) => {
+	try {
+		const { environmentId, workerToken, region } = req.query;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policiesEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Policies`;
+
+		console.log('[FIDO2 Policies] Listing policies:', { environmentId, url: policiesEndpoint });
 
 		const response = await global.fetch(policiesEndpoint, {
 			method: 'GET',
@@ -7304,18 +8031,278 @@ app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => 
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-			console.error('[MFA Device Auth Policies] Error:', errorData);
+			console.error('[FIDO2 Policies] Error:', errorData);
 			return res.status(response.status).json(errorData);
 		}
 
 		const policiesData = await response.json();
 		res.json(policiesData);
 	} catch (error) {
-		console.error('[MFA Device Auth Policies] Error:', error);
-		res.status(500).json({
-			error: 'Failed to list device authentication policies',
-			message: error instanceof Error ? error.message : String(error),
+		console.error('[FIDO2 Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to list FIDO2 policies', message: error.message });
+	}
+});
+
+// Get FIDO2 Policy by ID
+app.get('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+	try {
+		const { policyId } = req.params;
+		const { environmentId, workerToken, region } = req.query;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policyEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Policies/${policyId}`;
+
+		console.log('[FIDO2 Policies] Getting policy:', { environmentId, policyId });
+
+		const response = await global.fetch(policyEndpoint, {
+			method: 'GET',
+			headers: { Authorization: `Bearer ${cleanToken}` },
 		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[FIDO2 Policies] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const policyData = await response.json();
+		res.json(policyData);
+	} catch (error) {
+		console.error('[FIDO2 Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to get FIDO2 policy', message: error.message });
+	}
+});
+
+// Create FIDO2 Policy
+app.post('/api/pingone/mfa/fido2-policies', async (req, res) => {
+	try {
+		const { environmentId, workerToken, region, policyData } = req.body;
+
+		if (!environmentId || !workerToken || !policyData) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, workerToken, and policyData',
+			});
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policiesEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Policies`;
+
+		console.log('[FIDO2 Policies] Creating policy:', {
+			environmentId,
+			policyName: policyData.name,
+		});
+
+		const response = await global.fetch(policiesEndpoint, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(policyData),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[FIDO2 Policies] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const createResponse = await response.json();
+		res.json(createResponse);
+	} catch (error) {
+		console.error('[FIDO2 Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to create FIDO2 policy', message: error.message });
+	}
+});
+
+// Update FIDO2 Policy
+app.put('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+	try {
+		const { policyId } = req.params;
+		const { environmentId, workerToken, region, policyData } = req.body;
+
+		if (!environmentId || !workerToken || !policyData) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, workerToken, and policyData',
+			});
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policyEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Policies/${policyId}`;
+
+		console.log('[FIDO2 Policies] Updating policy:', { environmentId, policyId });
+
+		const response = await global.fetch(policyEndpoint, {
+			method: 'PUT',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(policyData),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[FIDO2 Policies] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const updateResponse = await response.json();
+		res.json(updateResponse);
+	} catch (error) {
+		console.error('[FIDO2 Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to update FIDO2 policy', message: error.message });
+	}
+});
+
+// Delete FIDO2 Policy
+app.delete('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
+	try {
+		const { policyId } = req.params;
+		const { environmentId, workerToken, region } = req.query;
+
+		if (!environmentId || !workerToken) {
+			return res
+				.status(400)
+				.json({ error: 'Missing required fields: environmentId and workerToken' });
+		}
+
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const normalizedRegion = region || 'na';
+		const apiBase =
+			normalizedRegion === 'eu'
+				? 'https://api.pingone.eu'
+				: normalizedRegion === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		const policyEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Policies/${policyId}`;
+
+		console.log('[FIDO2 Policies] Deleting policy:', { environmentId, policyId });
+
+		const response = await global.fetch(policyEndpoint, {
+			method: 'DELETE',
+			headers: { Authorization: `Bearer ${cleanToken}` },
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[FIDO2 Policies] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		// DELETE may return 204 No Content
+		if (response.status === 204) {
+			return res.status(204).send();
+		}
+
+		const deleteResponse = await response.json().catch(() => ({}));
+		res.json(deleteResponse);
+	} catch (error) {
+		console.error('[FIDO2 Policies] Error:', error);
+		res.status(500).json({ error: 'Failed to delete FIDO2 policy', message: error.message });
 	}
 });
 
