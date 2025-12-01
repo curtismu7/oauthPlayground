@@ -14,34 +14,29 @@ import { FiCheck, FiCopy, FiHome } from 'react-icons/fi';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 
-interface CompletionResult {
-	accessToken?: string;
-	tokenType?: string;
-	expiresIn?: number;
-}
-
-interface DeviceDetails {
-	id: string;
-	type: string;
-	nickname?: string;
-	name?: string;
-	phone?: string;
-	email?: string;
-	status?: string;
-}
-
 interface LocationState {
 	completionResult?: {
 		accessToken?: string;
 		tokenType?: string;
 		expiresIn?: number;
 		scope?: string;
+		status?: string;
+		message?: string;
 	};
 	username?: string;
 	userId?: string;
 	environmentId?: string;
 	deviceType?: string;
-	deviceDetails?: Record<string, unknown>;
+	deviceDetails?: {
+		id?: string;
+		type?: string;
+		nickname?: string;
+		name?: string;
+		phone?: string;
+		email?: string;
+		status?: string;
+		[key: string]: unknown;
+	};
 	policyId?: string;
 	policyName?: string;
 	authenticationId?: string | null;
