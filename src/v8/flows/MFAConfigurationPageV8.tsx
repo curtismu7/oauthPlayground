@@ -8,7 +8,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { FiCheck, FiX, FiRefreshCw, FiDownload, FiUpload, FiInfo } from 'react-icons/fi';
-import { MFANavigationBar } from '@/v8/components/MFANavigationBar';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import {
 	MFAConfigurationServiceV8,
 	type MFAConfiguration,
@@ -129,7 +129,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 	return (
 		<div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-			<MFANavigationBar />
+			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
 			
 			{/* API Display Toggle - Top */}
 			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>

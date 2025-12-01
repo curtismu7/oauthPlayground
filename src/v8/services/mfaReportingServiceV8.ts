@@ -134,25 +134,33 @@ export class MFAReportingServiceV8 {
 			if (params.endDate) queryParams.append('filter', `createdAt le "${params.endDate}"`);
 			if (params.limit) queryParams.append('limit', params.limit.toString());
 
-			const reportsEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/userMfaDeviceAuthentications?${queryParams.toString()}`;
+			// Use backend proxy to avoid CORS issues
+			const proxyEndpoint = '/api/pingone/mfa/user-authentication-reports';
+			const requestBody = {
+				environmentId: params.environmentId,
+				queryParams: queryParams.toString(),
+				workerToken: accessToken,
+			};
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: reportsEndpoint,
-				headers: {
-					Authorization: 'Bearer ***REDACTED***',
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
 				},
 				step: 'Get User Authentication Reports',
 			});
 
 			let response: Response;
 			try {
-				response = await fetch(reportsEndpoint, {
-					method: 'GET',
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify(requestBody),
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -190,7 +198,7 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get reports: ${response.statusText}`);
 			}
 
-			const reports = (reportsData as any)._embedded?.userMfaDeviceAuthentications || [];
+			const reports = (reportsData as { _embedded?: { userMfaDeviceAuthentications?: UserAuthenticationReport[] } })._embedded?.userMfaDeviceAuthentications || [] as UserAuthenticationReport[];
 
 			console.log(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`);
 			return reports;
@@ -218,25 +226,33 @@ export class MFAReportingServiceV8 {
 			if (params.endDate) queryParams.append('filter', `createdAt le "${params.endDate}"`);
 			if (params.limit) queryParams.append('limit', params.limit.toString());
 
-			const reportsEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/mfaDeviceAuthentications?${queryParams.toString()}`;
+			// Use backend proxy to avoid CORS issues
+			const proxyEndpoint = '/api/pingone/mfa/device-authentication-reports';
+			const requestBody = {
+				environmentId: params.environmentId,
+				queryParams: queryParams.toString(),
+				workerToken: accessToken,
+			};
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: reportsEndpoint,
-				headers: {
-					Authorization: 'Bearer ***REDACTED***',
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
 				},
 				step: 'Get Device Authentication Reports',
 			});
 
 			let response: Response;
 			try {
-				response = await fetch(reportsEndpoint, {
-					method: 'GET',
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify(requestBody),
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -274,7 +290,7 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get reports: ${response.statusText}`);
 			}
 
-			const reports = (reportsData as any)._embedded?.mfaDeviceAuthentications || [];
+			const reports = (reportsData as { _embedded?: { mfaDeviceAuthentications?: DeviceAuthenticationReport[] } })._embedded?.mfaDeviceAuthentications || [];
 
 			console.log(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`);
 			return reports;
@@ -298,25 +314,33 @@ export class MFAReportingServiceV8 {
 			const queryParams = new URLSearchParams();
 			if (params.limit) queryParams.append('limit', params.limit.toString());
 
-			const reportsEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/fido2Devices?${queryParams.toString()}`;
+			// Use backend proxy to avoid CORS issues
+			const proxyEndpoint = '/api/pingone/mfa/fido2-device-reports';
+			const requestBody = {
+				environmentId: params.environmentId,
+				queryParams: queryParams.toString(),
+				workerToken: accessToken,
+			};
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
-				method: 'GET',
-				url: reportsEndpoint,
-				headers: {
-					Authorization: 'Bearer ***REDACTED***',
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
 				},
 				step: 'Get FIDO2 Device Reports',
 			});
 
 			let response: Response;
 			try {
-				response = await fetch(reportsEndpoint, {
-					method: 'GET',
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify(requestBody),
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
@@ -354,7 +378,7 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get reports: ${response.statusText}`);
 			}
 
-			const reports = (reportsData as any)._embedded?.fido2Devices || [];
+			const reports = (reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded?.fido2Devices || [] as FIDO2DeviceReport[];
 
 			console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
 			return reports;

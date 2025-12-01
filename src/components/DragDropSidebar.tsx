@@ -452,21 +452,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
 					},
-					{
-						id: 'api-display-demo',
-						path: '/api-display-demo',
-						label: '⚡ API Display Demo',
-						icon: (
-							<ColoredIcon $color="#f59e0b">
-								<FiZap />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8: Interactive demo of API Display Service - closeable panel with centralized state management">
-								DEMO
-							</MigrationBadge>
-						),
-					},
 				],
 			},
 			{
