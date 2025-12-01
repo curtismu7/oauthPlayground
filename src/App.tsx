@@ -537,6 +537,8 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
 							<Route path="/v8/mfa/register/platform" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/platform/device" element={<FIDO2FlowV8 />} />
+							<Route path="/v8/mfa/register/security_key" element={<FIDO2ConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/security_key/device" element={<FIDO2FlowV8 />} />
 							<Route path="/v8/mfa/configure/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
