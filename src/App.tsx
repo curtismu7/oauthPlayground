@@ -4,7 +4,6 @@ import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
-import { PageFooter } from './services/footerService';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
@@ -167,7 +166,13 @@ import WorkerTokenTester from './pages/WorkerTokenTester';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
-import MFAHubV8 from './v8/flows/MFAHubV8';
+import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
+import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
+import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
+import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
+import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
+import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
+import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
@@ -515,8 +520,15 @@ const AppRoutes: React.FC = () => {
 								element={<OAuthAuthorizationCodeFlowV8 />}
 							/>
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
-							<Route path="/v8/mfa" element={<MFAFlowV8 />} />
-							<Route path="/v8/mfa-hub" element={<MFAHubV8 />} />
+							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
+							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
+							<Route path="/v8/mfa/authentication/success" element={<MFAAuthenticationSuccessPage />} />
+							<Route path="/v8/mfa/register/sms" element={<SMSFlowV8 />} />
+							<Route path="/v8/mfa/register/email" element={<EmailFlowV8 />} />
+							<Route path="/v8/mfa/register/totp" element={<TOTPFlowV8 />} />
+							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
+							<Route path="/v8/mfa/configure/fido2" element={<FIDO2ConfigurationPageV8 />} />
+							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
 							<Route path="/v8/mfa/device-authentication-details" element={<DeviceAuthenticationDetailsV8 />} />
@@ -913,7 +925,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="*" element={<NotFoundRedirect />} />
 						</Routes>
 					</MainContent>
-					<PageFooter />
 				</ContentColumn>
 			</AppContainer>
 
