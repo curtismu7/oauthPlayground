@@ -144,7 +144,7 @@ export class ProtectServiceV8 {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.workerToken}`,
 				},
-				body,
+				body: body || null,
 				step: description || 'Protect API Call',
 			});
 
