@@ -146,7 +146,6 @@ export class ProtectServiceV8 {
 				},
 				body,
 				step: description || 'Protect API Call',
-				flowType: 'protect',
 			});
 
 			const response = await fetch(url, {
@@ -155,7 +154,7 @@ export class ProtectServiceV8 {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${credentials.workerToken}`,
 				},
-				body: body ? JSON.stringify(body) : undefined,
+				body: body ? JSON.stringify(body) : null,
 			});
 
 			const responseClone = response.clone();
