@@ -42,6 +42,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		return 'FIDO2'; // default
 	}, [location.pathname]);
 	
+	const [currentDeviceType, setCurrentDeviceType] = useState<string>(getDeviceTypeFromPath());
+	
 	const getDeviceTypeDisplayName = useCallback(() => {
 		switch (currentDeviceType) {
 			case 'SECURITY_KEY': return 'Security Key';
@@ -49,8 +51,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			default: return 'FIDO2';
 		}
 	}, [currentDeviceType]);
-	
-	const [currentDeviceType, setCurrentDeviceType] = useState<string>(getDeviceTypeFromPath());
 	
 	// Environment and token state
 	const [environmentId, setEnvironmentId] = useState<string>('');
