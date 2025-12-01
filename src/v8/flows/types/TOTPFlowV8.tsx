@@ -23,9 +23,25 @@ import { FiShield } from 'react-icons/fi';
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
 // Step 0: Configure Credentials (TOTP-specific - no phone/email needed)
-const createRenderStep0 = (isConfigured: boolean) => {
+const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof useLocation>, credentialsUpdatedRef: React.MutableRefObject<boolean>) => {
 	return (props: MFAFlowBaseRenderProps) => {
-		const { nav } = props;
+		const { nav, credentials, setCredentials } = props;
+		const locationState = location.state as { 
+			configured?: boolean; 
+			deviceAuthenticationPolicyId?: string;
+			policyName?: string;
+		} | null;
+		
+		// Update credentials with policy ID from location.state if available (only once)
+		if (!credentialsUpdatedRef.current && locationState?.deviceAuthenticationPolicyId && 
+			credentials.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId) {
+			console.log(`[🔐 TOTP-FLOW-V8] Updating credentials with policy ID from config page:`, locationState.deviceAuthenticationPolicyId);
+			setCredentials({
+				...credentials,
+				deviceAuthenticationPolicyId: locationState.deviceAuthenticationPolicyId,
+			});
+			credentialsUpdatedRef.current = true;
+		}
 		
 		// If coming from config page, skip step 0 and go to step 1
 		if (isConfigured && nav.currentStep === 0) {
@@ -37,8 +53,6 @@ const createRenderStep0 = (isConfigured: boolean) => {
 		}
 		
 		const {
-			credentials,
-			setCredentials,
 			tokenStatus,
 		deviceAuthPolicies,
 		isLoadingPolicies,
@@ -284,10 +298,15 @@ const createRenderStep0 = (isConfigured: boolean) => {
 			</div>
 		</div>
 	);
+	};
 };
 
 // Device selection state management wrapper
 const TOTPFlowV8WithDeviceSelection: React.FC = () => {
+	const location = useLocation();
+	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	const credentialsUpdatedRef = React.useRef(false);
+	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
 		MFAFlowControllerFactory.create({ deviceType: 'TOTP' }), []
@@ -948,7 +967,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		<>
 			<MFAFlowBaseV8
 				deviceType="TOTP"
-				renderStep0={renderStep0}
+				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={createRenderStep2()}
 				renderStep3={createRenderStep3(validationState.validationAttempts, (v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }), validationState.lastValidationError, (v) => setValidationState({ ...validationState, lastValidationError: v }))}
