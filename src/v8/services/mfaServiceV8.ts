@@ -379,11 +379,11 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get worker token
-			const accessToken = await MFAServiceV8.getWorkerToken();
+		// Get worker token
+		const accessToken = await MFAServiceV8.getWorkerToken();
 
-			// Registration uses Platform APIs only - NO MFA v1 APIs
-			// Build device registration payload
+		// Registration uses Platform APIs only - NO MFA v1 APIs
+		// Build device registration payload
 			const devicePayload: Record<string, unknown> = {
 				type: params.type,
 			};
@@ -1464,9 +1464,7 @@ export class MFAServiceV8 {
 		_links?: Record<string, { href: string }>;
 		[key: string]: unknown;
 	}> {
-		console.warn(
-			`${MODULE_TAG} DEPRECATION WARNING: initializeOneTimeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
-		);
+		console.warn(`${MODULE_TAG} DEPRECATION WARNING: initializeOneTimeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
 		console.log(`${MODULE_TAG} Initializing one-time device authentication`, {
 			type: params.type,
 			environmentId: params.environmentId,
@@ -1603,9 +1601,7 @@ export class MFAServiceV8 {
 	static async sendOTP(
 		params: SendOTPParams
 	): Promise<{ deviceAuthId: string; otpCheckUrl?: string }> {
-		console.warn(
-			`${MODULE_TAG} DEPRECATION WARNING: sendOTP() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
-		);
+		console.warn(`${MODULE_TAG} DEPRECATION WARNING: sendOTP() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
 		console.log(
 			`${MODULE_TAG} Initializing device authentication (OTP will be sent automatically if deviceId provided)`
 		);
@@ -2539,9 +2535,7 @@ export class MFAServiceV8 {
 		otpCheckUrl?: string; // URL from _links['otp.check'].href when OTP_REQUIRED
 		[key: string]: unknown;
 	}> {
-		console.warn(
-			`${MODULE_TAG} DEPRECATION WARNING: initializeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
-		);
+		console.warn(`${MODULE_TAG} DEPRECATION WARNING: initializeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
 		console.log(`${MODULE_TAG} Initializing device authentication via PingOne MFA API`, {
 			username: params.username,
 			deviceId: params.deviceId,
@@ -3461,7 +3455,7 @@ export class MFAServiceV8 {
 					environmentId,
 					endpoint: '/api/pingone/mfa/device-authentication-policies',
 				});
-
+				
 				apiCallTrackerService.updateApiCallResponse(
 					callId,
 					{
@@ -3471,7 +3465,7 @@ export class MFAServiceV8 {
 					},
 					Date.now() - startTime
 				);
-
+				
 				throw new Error(
 					`Failed to connect to backend server. Please ensure the server is running and accessible. ${errorMessage}`
 				);
