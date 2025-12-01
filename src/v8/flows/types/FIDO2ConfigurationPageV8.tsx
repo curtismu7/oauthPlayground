@@ -24,7 +24,7 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { FIDO2Service } from '@/services/fido2Service';
 import { EnhancedFido2Service } from '@/services/enhancedFido2Service';
-import { MFANavigationBar } from '@/v8/components/MFANavigationBar';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 
@@ -198,7 +198,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-			<MFANavigationBar />
+			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
 			
 			{/* API Display Toggle - Top */}
 			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 24px 20px', display: 'flex', justifyContent: 'flex-end' }}>
