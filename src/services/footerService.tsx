@@ -13,7 +13,7 @@ const FooterContainer = styled.footer`
   border-top: 1px solid ${({ theme }) => theme.colors.gray200};
   text-align: left;
   position: relative;
-  z-index: 10;
+  z-index: 1;
   font-size: 0.875rem;
   line-height: 1.6;
 `;

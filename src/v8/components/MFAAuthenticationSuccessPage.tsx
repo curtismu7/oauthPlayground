@@ -383,6 +383,50 @@ export const MFAAuthenticationSuccessPage: React.FC = () => {
 									}}
 								>
 									{deviceType}
+									{deviceDetails && (deviceDetails.phone || deviceDetails.email) && (
+										<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+											{deviceDetails.phone ? `📱 ${deviceDetails.phone}` : deviceDetails.email ? `📧 ${deviceDetails.email}` : ''}
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+						{deviceDetails && (deviceDetails.phone || deviceDetails.email || deviceDetails.nickname) && (
+							<div>
+								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+									Device Details
+								</div>
+								<div
+									style={{
+										fontSize: '14px',
+										fontWeight: '500',
+										color: '#1f2937',
+										padding: '8px 12px',
+										background: '#f0f9ff',
+										borderRadius: '6px',
+										border: '1px solid #bae6fd',
+									}}
+								>
+									{deviceDetails.nickname && (
+										<div style={{ marginBottom: '4px' }}>
+											<strong>Name:</strong> {deviceDetails.nickname}
+										</div>
+									)}
+									{deviceDetails.phone && (
+										<div style={{ marginBottom: '4px' }}>
+											<strong>Phone:</strong> {deviceDetails.phone}
+										</div>
+									)}
+									{deviceDetails.email && (
+										<div style={{ marginBottom: '4px' }}>
+											<strong>Email:</strong> {deviceDetails.email}
+										</div>
+									)}
+									{deviceDetails.status && (
+										<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+											Status: {deviceDetails.status}
+										</div>
+									)}
 								</div>
 							</div>
 						)}
