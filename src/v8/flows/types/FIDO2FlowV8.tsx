@@ -36,7 +36,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	
 	// Initialize controller using factory with dynamic device type
 	const controller = useMemo(() => 
-		MFAFlowControllerFactory.create({ deviceType }) as FIDO2FlowController, [deviceType]
+		MFAFlowControllerFactory.create({ deviceType: deviceType as DeviceType }) as FIDO2FlowController, [deviceType]
 	);
 	
 	// Handle skip step 0 navigation in useEffect to avoid render-phase updates
