@@ -42,7 +42,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		return 'FIDO2'; // default
 	}, [location.pathname]);
 	
-	const [currentDeviceType, setCurrentDeviceType] = useState<string>(getDeviceTypeFromPath());
+	const [currentDeviceType, _setCurrentDeviceType] = useState<string>(getDeviceTypeFromPath());
 	
 	const getDeviceTypeDisplayName = useCallback(() => {
 		switch (currentDeviceType) {
