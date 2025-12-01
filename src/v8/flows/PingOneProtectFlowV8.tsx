@@ -226,7 +226,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		const saveTimeout = setTimeout(() => {
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials as any); // Cast to any for compatibility
+			CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials as Credentials & { flowType?: string });
 		}, 300);
 		return () => clearTimeout(saveTimeout);
 	}, [credentials]);
@@ -257,20 +257,21 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				},
 				body,
 				step: description || 'Protect API Call',
-				flowType: 'protect',
 			});
+
+			const requestBody = body ? JSON.stringify({
+				...body,
+				environmentId: credentials.environmentId,
+				workerToken: credentials.workerToken,
+				region: credentials.region,
+			}) : undefined;
 
 			const response = await fetch(url, {
 				method,
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: body ? JSON.stringify({
-					...body,
-					environmentId: credentials.environmentId,
-					workerToken: credentials.workerToken,
-					region: credentials.region,
-				}) : undefined,
+				body: requestBody,
 			});
 
 			const responseClone = response.clone();
@@ -1117,6 +1118,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
 			{/* Worker Token Modal */}
 			{showWorkerTokenModal && (
 				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 				/>
 			)}
