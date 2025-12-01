@@ -527,8 +527,10 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa/authentication/success" element={<MFAAuthenticationSuccessPage />} />
 							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
-							<Route path="/v8/mfa/register/email" element={<EmailFlowV8 />} />
-							<Route path="/v8/mfa/register/totp" element={<TOTPFlowV8 />} />
+							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/email/device" element={<EmailFlowV8 />} />
+							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
 							<Route path="/v8/mfa/configure/fido2" element={<FIDO2ConfigurationPageV8 />} />
