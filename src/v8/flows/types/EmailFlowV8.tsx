@@ -5,8 +5,8 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -22,12 +22,24 @@ import { FiShield } from 'react-icons/fi';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
-// Step 0: Configure Credentials (Email-specific)
-const renderStep0 = (props: MFAFlowBaseRenderProps) => {
-	const {
-		credentials,
-		setCredentials,
-		tokenStatus,
+// Step 0: Configure Credentials (Email-specific) - will be wrapped in component
+const createRenderStep0 = (isConfigured: boolean) => {
+	return (props: MFAFlowBaseRenderProps) => {
+		const { nav } = props;
+		
+		// If coming from config page, skip step 0 and go to step 1
+		if (isConfigured && nav.currentStep === 0) {
+			setTimeout(() => {
+				console.log(`[📧 EMAIL-FLOW-V8] Skipping step 0, coming from config page`);
+				nav.goToStep(1);
+			}, 0);
+			return null;
+		}
+		
+		const {
+			credentials,
+			setCredentials,
+			tokenStatus,
 		deviceAuthPolicies,
 		isLoadingPolicies,
 		policiesError,
@@ -272,10 +284,14 @@ const renderStep0 = (props: MFAFlowBaseRenderProps) => {
 			</div>
 		</div>
 	);
+	};
 };
 
 // Device selection state management wrapper
 const EmailFlowV8WithDeviceSelection: React.FC = () => {
+	const location = useLocation();
+	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
 		MFAFlowControllerFactory.create({ deviceType: 'EMAIL' }), []
