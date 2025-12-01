@@ -362,6 +362,25 @@ export class MfaAuthenticationServiceV8 {
 				throw new Error('userId is required. Please provide userId or username to lookup.');
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const requestBody = {
+				environmentId: params.environmentId,
+				deviceAuthId: params.authenticationId,
+				deviceId: params.deviceId,
+				workerToken: cleanToken,
+			};
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/select-device',
+				body: {
+					...requestBody,
+					workerToken: cleanToken ? '***REDACTED***' : undefined,
+				},
+				step: 'mfa-select-device',
+			});
+
 			const response = await pingOneFetch(
 				'/api/pingone/mfa/select-device',
 				{
@@ -369,28 +388,50 @@ export class MfaAuthenticationServiceV8 {
 					headers: {
 						'Content-Type': 'application/json',
 					},
-					body: JSON.stringify({
-						environmentId: params.environmentId,
-						deviceAuthId: params.authenticationId,
-						deviceId: params.deviceId,
-						workerToken: cleanToken,
-					}),
+					body: JSON.stringify(requestBody),
 					retry: { maxAttempts: 3 },
 				}
 			);
 
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
 			if (!response.ok) {
-				const errorText = await response.text().catch(() => '');
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
 				throw new Error(`Failed to select device: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
 			}
 
-			const data = await response.json();
+			const result = responseData as Partial<DeviceAuthenticationResponse>;
 			console.log(`${MODULE_TAG} Device selected for authentication`, {
-				status: data.status,
-				nextStep: data.nextStep,
+				status: result.status,
+				nextStep: result.nextStep,
 			});
 
-			return data;
+			// Ensure required fields exist
+			if (!result.id || !result.status) {
+				throw new Error('Invalid response from device selection API: missing required fields');
+			}
+
+			return result as DeviceAuthenticationResponse;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
 			throw error;
