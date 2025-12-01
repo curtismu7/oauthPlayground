@@ -11,6 +11,7 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -396,6 +397,54 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							<strong>1 hour</strong> after generation. You will need to generate a new token after
 							it expires.
 						</div>
+						{(() => {
+							try {
+								const config = MFAConfigurationServiceV8.loadConfiguration();
+								const autoRenewal = config.workerToken.autoRenewal;
+								const renewalThreshold = config.workerToken.renewalThreshold;
+								
+								return (
+									<div
+										style={{
+											marginTop: '8px',
+											padding: '8px',
+											background: autoRenewal ? '#d1fae5' : '#fee2e2',
+											borderRadius: '4px',
+											border: `1px solid ${autoRenewal ? '#86efac' : '#fca5a5'}`,
+											color: autoRenewal ? '#065f46' : '#991b1b',
+										}}
+									>
+										<strong>🔄 Auto-Renewal:</strong>{' '}
+										{autoRenewal ? (
+											<>
+												<strong>Enabled</strong> - Tokens will automatically renew{' '}
+												{renewalThreshold} seconds before expiry during MFA flows.
+											</>
+										) : (
+											<>
+												<strong>Disabled</strong> - You will need to manually generate new tokens when they expire.
+											</>
+										)}{' '}
+										<a
+											href="/v8/mfa-config"
+											onClick={(e) => {
+												e.preventDefault();
+												window.location.href = '/v8/mfa-config';
+											}}
+											style={{
+												color: 'inherit',
+												textDecoration: 'underline',
+												fontWeight: '600',
+											}}
+										>
+											Configure in MFA Settings
+										</a>
+									</div>
+								);
+							} catch {
+								return null;
+							}
+						})()}
 						<div
 							style={{
 								marginTop: '8px',
