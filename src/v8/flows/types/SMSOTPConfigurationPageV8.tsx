@@ -139,9 +139,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		});
 	}, [navigate, selectedDeviceAuthPolicy, tokenStatus.isValid]);
 
-	// Get OTP education content
-	const otpEducation = MFAEducationServiceV8.getFactorEducation('SMS');
-
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />

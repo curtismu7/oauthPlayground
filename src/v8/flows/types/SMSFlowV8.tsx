@@ -478,10 +478,29 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		[]
 	);
 
+	// Track if we've updated credentials from location.state
+	const credentialsUpdatedRef = React.useRef(false);
+	
 	// Step 0: Configure Credentials - skip if coming from config page
 	const renderStep0 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { nav } = props;
+			const { nav, credentials, setCredentials } = props;
+			const locationState = location.state as { 
+				configured?: boolean; 
+				deviceAuthenticationPolicyId?: string;
+				policyName?: string;
+			} | null;
+			
+			// Update credentials with policy ID from location.state if available (only once)
+			if (!credentialsUpdatedRef.current && locationState?.deviceAuthenticationPolicyId && 
+				credentials.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId) {
+				console.log(`${MODULE_TAG} Updating credentials with policy ID from config page:`, locationState.deviceAuthenticationPolicyId);
+				setCredentials({
+					...credentials,
+					deviceAuthenticationPolicyId: locationState.deviceAuthenticationPolicyId,
+				});
+				credentialsUpdatedRef.current = true;
+			}
 			
 			// If coming from config page, skip step 0 and go to step 1
 			if (isConfigured && nav.currentStep === 0) {
@@ -494,7 +513,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			
 			return <SMSConfigureStep {...props} />;
 		};
-	}, [isConfigured]);
+	}, [isConfigured, location]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => (
