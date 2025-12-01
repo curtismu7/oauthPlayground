@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -28,6 +28,9 @@ const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	
+	// Ref to track if we've already skipped step 0
+	const hasSkippedStep0Ref = useRef(false);
 	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
@@ -90,6 +93,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		initializeWebAuthn();
 	}, []);
 
+	// Ref to track if we've already skipped step 0
+	const hasSkippedStep0Ref = useRef(false);
+
 	// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
 	// NO HOOKS INSIDE - all hooks moved to component level
 	const renderStep0 = useMemo(() => {
@@ -105,12 +111,14 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				nav,
 			} = props;
 
-			// Handle skip step 0 logic - use ref to avoid hook
-			if (isConfigured && nav.currentStep === 0) {
-				// Use setTimeout to avoid calling during render
-				setTimeout(() => {
+			// Handle skip step 0 logic - return null and let useEffect handle navigation
+			if (isConfigured && nav.currentStep === 0 && !hasSkippedStep0Ref.current) {
+				hasSkippedStep0Ref.current = true;
+				// Use requestAnimationFrame to defer navigation until after render
+				requestAnimationFrame(() => {
 					nav.goToStep(1);
-				}, 0);
+				});
+				return null;
 			}
 
 			return (
