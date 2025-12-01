@@ -138,6 +138,18 @@ export interface DeviceRegistrationResult {
 	environmentId?: string;
 	createdAt?: string;
 	updatedAt?: string;
+	message?: string;
+	fido2Result?: {
+		credentialId?: string;
+		clientDataJSON?: string;
+		attestationObject?: string;
+		publicKey?: string;
+	};
+	totpResult?: {
+		qrCode?: string;
+		secret?: string;
+		manualEntryKey?: string;
+	};
 }
 
 export interface OTPValidationResult {
