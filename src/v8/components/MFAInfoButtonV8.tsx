@@ -46,7 +46,7 @@ export interface MFAInfoButtonV8Props {
 export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 	contentKey,
 	displayMode = 'tooltip',
-	size = 'medium',
+	size: _size, // Renamed with underscore to indicate intentionally unused
 	label,
 	stopPropagation = false,
 	triggerClassName,

@@ -13,7 +13,6 @@ import { type MFACredentials, type MFAState } from '@/v8/flows/shared/MFATypes';
 import {
 	type MfaDeviceType,
 	mfaDeviceRegistrationService,
-	type RegistrationCompleteParams,
 	type RegistrationStartResult,
 } from '@/v8/services/mfaDeviceRegistrationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';

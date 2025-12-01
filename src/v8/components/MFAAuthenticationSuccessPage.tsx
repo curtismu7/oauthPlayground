@@ -31,13 +31,17 @@ interface DeviceDetails {
 }
 
 interface LocationState {
-	completionResult?: CompletionResult & Record<string, unknown>;
+	completionResult?: {
+		accessToken?: string;
+		tokenType?: string;
+		expiresIn?: number;
+		scope?: string;
+	};
 	username?: string;
 	userId?: string;
 	environmentId?: string;
 	deviceType?: string;
-	deviceId?: string;
-	deviceDetails?: DeviceDetails;
+	deviceDetails?: Record<string, unknown>;
 	policyId?: string;
 	policyName?: string;
 	authenticationId?: string | null;
@@ -56,7 +60,6 @@ export const MFAAuthenticationSuccessPage: React.FC = () => {
 	const userId = state?.userId;
 	const environmentId = state?.environmentId;
 	const deviceType = state?.deviceType;
-	const deviceId = state?.deviceId;
 	const deviceDetails = state?.deviceDetails;
 	const policyId = state?.policyId;
 	const policyName = state?.policyName;
