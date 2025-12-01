@@ -148,8 +148,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 				...credentials,
 				type: deviceType,
 				name: deviceConfig.deviceName,
-				phoneNumber: deviceConfig.phoneNumber,
-				countryCode: deviceConfig.countryCode,
+				phone: deviceConfig.phoneNumber,
 				email: deviceConfig.email,
 			});
 
@@ -545,9 +544,9 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 					{registrationResult?.fido2Result && (
 						<div style={{ marginTop: '12px', fontSize: '12px', color: '#64748b' }}>
 							<div>
-								Credential ID: {registrationResult.fido2Result.credentialId.substring(0, 20)}...
+								Credential ID: {registrationResult.fido2Result?.credentialId?.substring(0, 20)}...
 							</div>
-							<div>Status: {registrationResult.fido2Result.status}</div>
+							<div>Status: {registrationResult.status}</div>
 						</div>
 					)}
 				</div>
@@ -568,10 +567,10 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 						Scan QR Code with Authenticator App
 					</h3>
 
-					{registrationResult.totpResult.qrCode?.href && (
+					{registrationResult.totpResult?.qrCode && (
 						<div style={{ marginBottom: '16px' }}>
 							<img
-								src={registrationResult.totpResult.qrCode.href}
+								src={registrationResult.totpResult.qrCode}
 								alt="TOTP QR Code"
 								style={{
 									width: deviceConfig.totpConfig.qrCodeSize,
