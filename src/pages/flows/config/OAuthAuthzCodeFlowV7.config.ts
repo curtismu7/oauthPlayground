@@ -11,16 +11,17 @@ export const STEP_CONFIGS = [
 		title: 'Step 1: Introduction & Setup',
 		subtitle: 'Understand the OAuth Authorization Code Flow',
 	},
-	{ title: 'Step 2: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
-	{ title: 'Step 3: Authorization Request', subtitle: 'Build and launch the authorization URL' },
+	{ title: 'Step 2: MFA Configuration', subtitle: 'Configure MFA policies and user settings' },
+	{ title: 'Step 3: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
+	{ title: 'Step 4: Authorization Request', subtitle: 'Build and launch the authorization URL' },
 	{
-		title: 'Step 4: Authorization Response',
+		title: 'Step 5: Authorization Response',
 		subtitle: 'Receive the authorization code from PingOne',
 	},
-	{ title: 'Step 5: Token Exchange', subtitle: 'Exchange authorization code for access token' },
-	{ title: 'Step 6: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 7: Security Features', subtitle: 'Advanced security demonstrations' },
-	{ title: 'Step 8: Flow Summary', subtitle: 'Complete flow overview and next steps' },
+	{ title: 'Step 6: Token Exchange', subtitle: 'Exchange authorization code for access token' },
+	{ title: 'Step 7: Token Introspection', subtitle: 'Validate and inspect tokens' },
+	{ title: 'Step 8: Security Features', subtitle: 'Advanced security demonstrations' },
+	{ title: 'Step 9: Flow Summary', subtitle: 'Complete flow overview and next steps' },
 ];
 
 // Service-generated metadata
