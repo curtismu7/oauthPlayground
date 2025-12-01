@@ -19,6 +19,7 @@ export interface ApiCall {
 	timestamp: Date;
 	duration?: number; // milliseconds
 	step?: string; // Optional step identifier
+	flowType?: string; // Optional flow type identifier
 }
 
 class ApiCallTrackerService {

@@ -9,14 +9,14 @@
 import React, { useEffect, useState } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { type MFACredentials, type MFAState } from '@/v8/flows/shared/MFATypes';
-import { MFAServiceV8, type MFADeviceType } from '@/v8/services/mfaServiceV8';
+import { type MFACredentials, type MFAState, type DeviceType } from '@/v8/flows/shared/MFATypes';
+import { MFAServiceV8, type DeviceRegistrationResult } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
 
 interface MFADeviceRegistrationV8Props {
-	deviceType: MfaDeviceType;
+	deviceType: DeviceType;
 	credentials: MFACredentials;
 	mfaState: MFAState;
 	setMfaState: (update: Partial<MFAState> | ((prev: MFAState) => Partial<MFAState>)) => void;
@@ -39,7 +39,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 	setIsLoading,
 }) => {
 	const [currentStep, setCurrentStep] = useState<RegistrationStep>('configure');
-	const [registrationResult, setRegistrationResult] = useState<RegistrationStartResult | null>(
+	const [registrationResult, setRegistrationResult] = useState<DeviceRegistrationResult | null>(
 		null
 	);
 	const [otpCode, setOtpCode] = useState('');
@@ -144,18 +144,13 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 		setValidationErrors([]);
 
 		try {
-			const result = await mfaDeviceRegistrationService.startRegistration(deviceType, {
-				userId: credentials.username,
-				environmentId: credentials.environmentId,
-				deviceType,
+			const result = await MFAServiceV8.registerDevice({
+				...credentials,
+				type: deviceType,
 				deviceName: deviceConfig.deviceName,
 				phoneNumber: deviceConfig.phoneNumber,
 				countryCode: deviceConfig.countryCode,
 				email: deviceConfig.email,
-				// FIDO2 specific
-				fido2Config: deviceType === 'FIDO2' ? deviceConfig.fido2Config : undefined,
-				// TOTP specific
-				totpConfig: deviceType === 'TOTP' ? deviceConfig.totpConfig : undefined,
 			});
 
 			setRegistrationResult(result);
@@ -165,7 +160,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 				deviceStatus: result.status,
 			});
 
-			if (result.requiresOtp) {
+			if (result.status === 'ACTIVATION_REQUIRED') {
 				setCurrentStep('verify');
 				toastV8.success(
 					result.message || 'Device registered successfully. Please verify with OTP.'
@@ -195,7 +190,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			return;
 		}
 
-		if (registrationResult.requiresOtp && !otpCode.trim()) {
+		if (registrationResult.status === 'ACTIVATION_REQUIRED' && !otpCode.trim()) {
 			setValidationErrors(['OTP code is required']);
 			return;
 		}
@@ -204,9 +199,8 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 		setValidationErrors([]);
 
 		try {
-			await mfaDeviceRegistrationService.completeRegistration(deviceType, {
-				userId: credentials.username,
-				environmentId: credentials.environmentId,
+			await MFAServiceV8.activateDevice({
+				...credentials,
 				deviceId: registrationResult.deviceId,
 				otp: otpCode.trim(),
 			});
