@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -304,6 +304,7 @@ const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof us
 // Device selection state management wrapper
 const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
 	const credentialsUpdatedRef = React.useRef(false);
 	
@@ -354,6 +355,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					const credentials: MFACredentials = {
 						environmentId: deviceLoadTrigger.environmentId,
 						username: deviceLoadTrigger.username,
+						clientId: '',
+						deviceType: 'TOTP',
+						countryCode: '',
+						phoneNumber: '',
+						email: '',
+						deviceName: '',
+						deviceAuthenticationPolicyId: '',
 					};
 					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 					const devices = await controller.loadExistingDevices(credentials, tokenStatus);
@@ -380,7 +388,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
 		if (nav.currentStep === 1) {
@@ -467,7 +475,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						authenticationId: authResult.authenticationId,
 						deviceAuthId: authResult.authenticationId,
 						environmentId: credentials.environmentId,
-						nextStep: authResult.nextStep,
+						nextStep: authResult.nextStep || '',
 					}));
 
 					// Handle nextStep response
@@ -725,11 +733,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		validationAttempts: number,
 		setValidationAttempts: (value: number | ((prev: number) => number)) => void,
 		lastValidationError: string | null,
-		setLastValidationError: (value: string | null) => void
+		setLastValidationError: (value: string | null) => void,
+		navigate: ReturnType<typeof useNavigate>
 	) => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
-			const navigate = useNavigate();
 
 			// If validation is complete, show success screen
 			if (mfaState.verificationResult && mfaState.verificationResult.status === 'COMPLETED') {
@@ -970,7 +978,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={createRenderStep2()}
-				renderStep3={createRenderStep3(validationState.validationAttempts, (v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }), validationState.lastValidationError, (v) => setValidationState({ ...validationState, lastValidationError: v }))}
+				renderStep3={createRenderStep3(validationState.validationAttempts, (v) => setValidationState({ ...validationState, validationAttempts: typeof v === 'function' ? v(validationState.validationAttempts) : v }), validationState.lastValidationError, (v) => setValidationState({ ...validationState, lastValidationError: v }), navigate)}
+				renderStep4={() => null}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Validate']}
 			/>
