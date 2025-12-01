@@ -6,7 +6,7 @@
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -427,10 +427,11 @@ const SMSConfigureStep: React.FC<MFAFlowBaseRenderProps> = (props) => {
 	);
 };
 
-const renderStep0 = (props: MFAFlowBaseRenderProps) => <SMSConfigureStep {...props} />;
-
 // Device selection state management wrapper
 const SMSFlowV8WithDeviceSelection: React.FC = () => {
+	const location = useLocation();
+	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
 		MFAFlowControllerFactory.create({ deviceType: 'SMS' }), []
@@ -476,6 +477,24 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		},
 		[]
 	);
+
+	// Step 0: Configure Credentials - skip if coming from config page
+	const renderStep0 = useMemo(() => {
+		return (props: MFAFlowBaseRenderProps) => {
+			const { nav } = props;
+			
+			// If coming from config page, skip step 0 and go to step 1
+			if (isConfigured && nav.currentStep === 0) {
+				setTimeout(() => {
+					console.log(`${MODULE_TAG} Skipping step 0, coming from config page`);
+					nav.goToStep(1);
+				}, 0);
+				return null;
+			}
+			
+			return <SMSConfigureStep {...props} />;
+		};
+	}, [isConfigured]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => (
