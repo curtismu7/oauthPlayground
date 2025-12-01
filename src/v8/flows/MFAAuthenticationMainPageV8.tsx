@@ -43,7 +43,7 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
-import { MFANavigationBar } from '@/v8/components/MFANavigationBar';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
@@ -703,7 +703,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}}
 		>
 			{/* Navigation Bar */}
-			<MFANavigationBar />
+			<MFANavigationV8 currentPage="hub" showBackToMain={false} />
 			
 			{/* API Display Toggle - Top */}
 			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -2527,39 +2527,71 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							</h3>
 						</div>
 						<div style={{ padding: '32px', textAlign: 'center' }}>
-							<p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '15px', lineHeight: '1.5' }}>
-								Enter the verification code sent to your device.
-							</p>
+							{(() => {
+								// Try to find device in authState.devices first, then fallback to userDevices
+								let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
+								if (!selectedDevice && authState.selectedDeviceId) {
+									selectedDevice = userDevices.find((d) => (d.id as string) === authState.selectedDeviceId) as Device | undefined;
+								}
+								
+								return (
+									<>
+										<p style={{ margin: '0 0 8px 0', color: '#6b7280', fontSize: '15px', lineHeight: '1.5' }}>
+											Enter the verification code sent to your device.
+										</p>
+										{selectedDevice && (selectedDevice.phone || selectedDevice.email) && (
+											<p style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '14px', fontWeight: '500', lineHeight: '1.5' }}>
+												{selectedDevice.phone ? `📱 Phone: ${selectedDevice.phone}` : `📧 Email: ${selectedDevice.email}`}
+											</p>
+										)}
+									</>
+								);
+							})()}
 
-						{otpError && (
-							<div
-								style={{
-									padding: '12px',
-									background: '#fef2f2',
-									border: '1px solid #fecaca',
-									borderRadius: '6px',
-									color: '#991b1b',
-									fontSize: '14px',
-									marginBottom: '16px',
-									textAlign: 'left',
-								}}
-							>
-								{otpError}
+							{otpError && (
+								<div
+									style={{
+										padding: '12px',
+										background: '#fef2f2',
+										border: '1px solid #fecaca',
+										borderRadius: '6px',
+										color: '#991b1b',
+										fontSize: '14px',
+										marginBottom: '16px',
+										textAlign: 'center',
+									}}
+								>
+									{otpError}
+								</div>
+							)}
+
+							{(() => {
+								// Try to find device in authState.devices first, then fallback to userDevices
+								let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
+								if (!selectedDevice && authState.selectedDeviceId) {
+									selectedDevice = userDevices.find((d) => (d.id as string) === authState.selectedDeviceId) as Device | undefined;
+								}
+								if (!selectedDevice || (!selectedDevice.phone && !selectedDevice.email)) return null;
+								
+								return (
+									<p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '15px', lineHeight: '1.5', textAlign: 'center' }}>
+										Enter the 6-digit code from {selectedDevice.phone ? `your phone` : `your email`}
+									</p>
+								);
+							})()}
+
+							<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+								<MFAOTPInput
+									value={otpCode}
+									onChange={(value) => {
+										setOtpCode(value);
+										setOtpError(null);
+									}}
+									disabled={isValidatingOTP}
+									placeholder="123456"
+									maxLength={6}
+								/>
 							</div>
-						)}
-
-						<div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-							<MFAOTPInput
-								value={otpCode}
-								onChange={(value) => {
-									setOtpCode(value);
-									setOtpError(null);
-								}}
-								disabled={isValidatingOTP}
-								placeholder="123456"
-								maxLength={6}
-							/>
-						</div>
 
 						<div style={{ display: 'flex', gap: '12px' }}>
 							<button

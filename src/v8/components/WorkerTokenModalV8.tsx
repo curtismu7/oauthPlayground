@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
