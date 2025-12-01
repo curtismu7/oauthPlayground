@@ -23,9 +23,25 @@ import { FiShield } from 'react-icons/fi';
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
 // Step 0: Configure Credentials (Email-specific) - will be wrapped in component
-const createRenderStep0 = (isConfigured: boolean) => {
+const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof useLocation>, credentialsUpdatedRef: React.MutableRefObject<boolean>) => {
 	return (props: MFAFlowBaseRenderProps) => {
-		const { nav } = props;
+		const { nav, credentials, setCredentials } = props;
+		const locationState = location.state as { 
+			configured?: boolean; 
+			deviceAuthenticationPolicyId?: string;
+			policyName?: string;
+		} | null;
+		
+		// Update credentials with policy ID from location.state if available (only once)
+		if (!credentialsUpdatedRef.current && locationState?.deviceAuthenticationPolicyId && 
+			credentials.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId) {
+			console.log(`[📧 EMAIL-FLOW-V8] Updating credentials with policy ID from config page:`, locationState.deviceAuthenticationPolicyId);
+			setCredentials({
+				...credentials,
+				deviceAuthenticationPolicyId: locationState.deviceAuthenticationPolicyId,
+			});
+			credentialsUpdatedRef.current = true;
+		}
 		
 		// If coming from config page, skip step 0 and go to step 1
 		if (isConfigured && nav.currentStep === 0) {
@@ -37,8 +53,6 @@ const createRenderStep0 = (isConfigured: boolean) => {
 		}
 		
 		const {
-			credentials,
-			setCredentials,
 			tokenStatus,
 		deviceAuthPolicies,
 		isLoadingPolicies,
@@ -291,6 +305,7 @@ const createRenderStep0 = (isConfigured: boolean) => {
 const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	const credentialsUpdatedRef = React.useRef(false);
 	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
@@ -1232,7 +1247,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		<>
 			<MFAFlowBaseV8
 				deviceType="EMAIL"
-				renderStep0={createRenderStep0(isConfigured)}
+				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={createRenderStep2(otpState.otpSent, (v) => setOtpState({ ...otpState, otpSent: v }), otpState.sendError, (v) => setOtpState({ ...otpState, sendError: v }), otpState.sendRetryCount, (v) => setOtpState({ ...otpState, sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v }))}
 				renderStep3={createRenderStep3(
