@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
