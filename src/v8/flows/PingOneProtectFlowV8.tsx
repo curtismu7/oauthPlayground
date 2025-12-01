@@ -255,7 +255,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body,
+				body: body || null,
 				step: description || 'Protect API Call',
 			});
 
@@ -271,7 +271,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: requestBody,
+				body: requestBody || null,
 			});
 
 			const responseClone = response.clone();
