@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -23,10 +23,10 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { FIDO2Service } from '@/services/fido2Service';
-import { EnhancedFido2Service } from '@/services/enhancedFido2Service';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
@@ -66,6 +66,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const [deviceAuthPoliciesError, setDeviceAuthPoliciesError] = useState<string | null>(null);
 	const [selectedDeviceAuthPolicy, setSelectedDeviceAuthPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
 
+	// API Display visibility state (for padding adjustment)
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+
 	// Education content
 	const webauthnContent = MFAEducationServiceV8.getContent('fido2.webauthn');
 	const authenticatorContent = MFAEducationServiceV8.getContent('fido2.authenticator');
@@ -82,12 +85,40 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 	// Check WebAuthn support
 	useEffect(() => {
-		const supported = FIDO2Service.isWebAuthnSupported();
-		setWebAuthnSupported(supported);
-		if (supported) {
-			const capabilities = EnhancedFido2Service.getCapabilities();
-			setEnhancedCapabilities(capabilities);
-		}
+		const initializeWebAuthn = async () => {
+			const supported = FIDO2Service.isWebAuthnSupported();
+			setWebAuthnSupported(supported);
+			
+			if (supported) {
+				// Get basic capabilities first
+				const capabilities = FIDO2Service.getCapabilities();
+				
+				// Check platform authenticator availability asynchronously
+				try {
+					const platformAvailable = await FIDO2Service.isPlatformAuthenticatorAvailable();
+					// Adapt FIDO2Service capabilities to match expected structure
+					setEnhancedCapabilities({
+						webAuthnSupported: capabilities.webAuthnSupported,
+						platformAuthenticator: platformAvailable,
+						crossPlatformAuthenticator: capabilities.crossPlatformAuthenticator,
+						passkeySupport: platformAvailable || capabilities.crossPlatformAuthenticator,
+						conditionalUI: false, // Conditional UI detection would require additional checks
+					});
+				} catch (error) {
+					console.warn('Failed to check platform authenticator availability:', error);
+					// Fallback to basic capabilities
+					setEnhancedCapabilities({
+						webAuthnSupported: capabilities.webAuthnSupported,
+						platformAuthenticator: capabilities.platformAuthenticator,
+						crossPlatformAuthenticator: capabilities.crossPlatformAuthenticator,
+						passkeySupport: capabilities.platformAuthenticator || capabilities.crossPlatformAuthenticator,
+						conditionalUI: false,
+					});
+				}
+			}
+		};
+
+		initializeWebAuthn();
 	}, []);
 
 	// Load FIDO2 policies
@@ -179,6 +210,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		void loadDeviceAuthPolicies();
 	}, [environmentId, tokenStatus.isValid]);
 
+	// Subscribe to API display visibility changes
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsApiDisplayVisible(visible);
+		});
+		return () => unsubscribe();
+	}, []);
+
 	// Handle proceed to registration
 	const handleProceedToRegistration = useCallback(() => {
 		if (!selectedFido2PolicyId) {
@@ -186,15 +225,24 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			return;
 		}
 		
-		// Navigate to registration with policy ID in state
-		navigate('/v8/mfa/register/fido2', {
+		if (!tokenStatus.isValid) {
+			toastV8.warning('Please generate a worker token before proceeding');
+			return;
+		}
+		
+		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
+		
+		// Navigate to actual registration flow with policy ID in state
+		// Use a different route for the actual registration flow
+		navigate('/v8/mfa/register/fido2/device', {
+			replace: false,
 			state: {
 				fido2PolicyId: selectedFido2PolicyId,
 				deviceAuthPolicyId: selectedDeviceAuthPolicy?.id,
 				configured: true, // Flag to indicate configuration is complete
 			},
 		});
-	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy]);
+	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -207,7 +255,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 			
-			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 20px' }}>
+			<div style={{ 
+				maxWidth: '1200px', 
+				margin: '0 auto', 
+				padding: '32px 20px',
+				paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
+				transition: 'padding-bottom 0.3s ease',
+			}}>
 				{/* Header */}
 				<div
 					style={{
@@ -611,7 +665,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					</button>
 					<button
 						type="button"
-						onClick={handleProceedToRegistration}
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							console.log(`${MODULE_TAG} Button clicked`, {
+								selectedFido2PolicyId,
+								tokenStatusValid: tokenStatus.isValid,
+								disabled: !selectedFido2PolicyId || !tokenStatus.isValid,
+							});
+							handleProceedToRegistration();
+						}}
 						disabled={!selectedFido2PolicyId || !tokenStatus.isValid}
 						style={{
 							padding: '12px 24px',

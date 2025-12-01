@@ -15,6 +15,7 @@ import {
 } from '@/v8/services/mfaConfigurationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
@@ -22,6 +23,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [config, setConfig] = useState<MFAConfiguration>(() => MFAConfigurationServiceV8.loadConfiguration());
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 
 	// Listen for configuration updates
 	useEffect(() => {
@@ -34,6 +36,14 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		return () => {
 			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
 		};
+	}, []);
+
+	// Subscribe to API display visibility changes
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsApiDisplayVisible(visible);
+		});
+		return () => unsubscribe();
 	}, []);
 
 	const handleSave = () => {
@@ -128,7 +138,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	};
 
 	return (
-		<div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+		<div style={{ 
+			padding: '24px', 
+			paddingBottom: isApiDisplayVisible ? '450px' : '24px',
+			maxWidth: '1200px', 
+			margin: '0 auto',
+			transition: 'padding-bottom 0.3s ease',
+		}}>
 			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
 			
 			{/* API Display Toggle - Top */}

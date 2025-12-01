@@ -333,7 +333,32 @@ export class FIDO2Service {
 	 */
 	private static isPlatformAuthenticatorSupported(): boolean {
 		try {
-			return typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function';
+			// First check if the API method exists
+			if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== 'function') {
+				return false;
+			}
+			
+			// For now, return true if the method exists
+			// In a real implementation, you might want to call the async method
+			// but for synchronous capability checking, this is sufficient
+			return true;
+		} catch {
+			return false;
+		}
+	}
+
+	/**
+	 * Async check if platform authenticator is available
+	 * This is the proper way to check for platform authenticator support
+	 */
+	static async isPlatformAuthenticatorAvailable(): Promise<boolean> {
+		try {
+			if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== 'function') {
+				return false;
+			}
+			
+			const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+			return available;
 		} catch {
 			return false;
 		}
