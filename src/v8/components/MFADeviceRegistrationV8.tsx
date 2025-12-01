@@ -147,7 +147,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 			const result = await MFAServiceV8.registerDevice({
 				...credentials,
 				type: deviceType,
-				deviceName: deviceConfig.deviceName,
+				name: deviceConfig.deviceName,
 				phoneNumber: deviceConfig.phoneNumber,
 				countryCode: deviceConfig.countryCode,
 				email: deviceConfig.email,
@@ -250,7 +250,7 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 					type="text"
 					value={deviceConfig.deviceName}
 					onChange={(e) => setDeviceConfig({ ...deviceConfig, deviceName: e.target.value })}
-					placeholder={`Enter a name for your ${deviceType} device`}
+					placeholder={`Enter a name for your ${String(deviceType)} device`}
 					style={{
 						width: '100%',
 						padding: '10px',

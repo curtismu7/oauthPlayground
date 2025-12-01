@@ -57,7 +57,7 @@ class ApiCallTrackerService {
 	updateApiCallResponse(id: string, response: ApiCall['response'], duration?: number): void {
 		const call = this.apiCalls.find((c) => c.id === id);
 		if (call) {
-			call.response = response;
+			call.response = response || undefined;
 			if (duration !== undefined) {
 				call.duration = duration;
 			}
