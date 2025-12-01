@@ -6,7 +6,6 @@
  */
 
 import React from 'react';
-import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
 interface MFANavigationV8Props {
@@ -99,6 +98,17 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					>
 						📊 Reporting
 					</button>
+					<button
+						onClick={() => (window.location.href = '/v8/mfa-config')}
+						className="nav-link-btn"
+						title="MFA Configuration"
+						style={{
+							opacity: currentPage === 'settings' ? 1 : 0.8,
+							fontWeight: currentPage === 'settings' ? '600' : '500',
+						}}
+					>
+						⚙️ MFA Config
+					</button>
 					{showRestartFlow && (
 						<button
 							onClick={handleRestartFlow}
@@ -133,7 +143,6 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<ApiDisplayCheckbox />
 				</div>
 			</div>
 			<style>{`
