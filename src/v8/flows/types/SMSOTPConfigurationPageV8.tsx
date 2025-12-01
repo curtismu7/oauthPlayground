@@ -47,7 +47,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 	// Load environment ID
 	useEffect(() => {
-		const envId = EnvironmentIdServiceV8.getStoredEnvironmentId();
+		const envId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (envId) {
 			setEnvironmentId(envId);
 		}
