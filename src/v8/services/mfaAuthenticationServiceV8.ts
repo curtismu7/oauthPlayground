@@ -445,79 +445,128 @@ export class MfaAuthenticationServiceV8 {
 	/**
 	 * Get worker token with automatic renewal if expired
 	 * Checks if token exists, and if not, attempts to renew it using stored credentials
+	 * Respects MFA configuration settings for auto-renewal
 	 */
 	private static async getWorkerTokenWithAutoRenew(): Promise<string> {
+		// Load MFA configuration to check auto-renewal settings
+		const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		const autoRenewalEnabled = config.workerToken.autoRenewal;
+		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
+		
 		let workerToken = await workerTokenServiceV8.getToken();
 		
-		// If token is missing or expired, try to renew it
-		if (!workerToken) {
-			console.log(`${MODULE_TAG} Token missing or expired, attempting automatic renewal...`);
-			const credentials = await workerTokenServiceV8.loadCredentials();
-			
-			if (!credentials) {
-				throw new Error('Worker token not found. Please generate a worker token first.');
-			}
-			
-			// Attempt to issue a new token using stored credentials
+		// Decode JWT to check expiry
+		let tokenExpiry: number | null = null;
+		if (workerToken) {
 			try {
-				const region = credentials.region || 'us';
-				const apiBase = 
-					region === 'eu' ? 'https://auth.pingone.eu' :
-					region === 'ap' ? 'https://auth.pingone.asia' :
-					region === 'ca' ? 'https://auth.pingone.ca' :
-					'https://auth.pingone.com';
+				const [, payload] = workerToken.split('.');
+				if (payload) {
+					const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+					if (decoded.exp) {
+						tokenExpiry = decoded.exp * 1000; // Convert to milliseconds
+					}
+				}
+			} catch (error) {
+				console.warn(`${MODULE_TAG} Could not decode token to check expiry:`, error);
+			}
+		}
+		
+		// Check if token is missing, expired, or about to expire
+		const now = Date.now();
+		const isExpired = tokenExpiry && now >= tokenExpiry;
+		const timeRemaining = tokenExpiry ? Math.max(0, tokenExpiry - now) : 0;
+		const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
+		const isAboutToExpire = tokenExpiry && timeRemaining <= (renewalThreshold * 1000);
+		const needsRenewal = !workerToken || isExpired || isAboutToExpire;
+		
+		console.log(`${MODULE_TAG} Worker token check:`, {
+			hasToken: !!workerToken,
+			timeRemainingSeconds,
+			renewalThreshold,
+			isExpired,
+			isAboutToExpire,
+			needsRenewal,
+			autoRenewalEnabled,
+		});
+		
+		if (needsRenewal) {
+			if (!autoRenewalEnabled) {
+				console.log(`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`);
+				if (!workerToken || isExpired) {
+					throw new Error('Worker token not found or expired. Please generate a new worker token.');
+				}
+				// Token exists but is about to expire - warn user but don't auto-renew
+				console.warn(`${MODULE_TAG} Worker token is about to expire (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), but auto-renewal is disabled`);
+			} else {
+				console.log(`${MODULE_TAG} Token needs renewal (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), attempting automatic renewal (auto-renewal enabled)...`);
+				const credentials = await workerTokenServiceV8.loadCredentials();
 				
-				const tokenEndpoint = `${apiBase}/${credentials.environmentId}/as/token`;
-				const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
-				const scopeList = credentials.scopes;
-				const normalizedScopes: string[] = Array.isArray(scopeList) && scopeList.length > 0
-					? scopeList 
-					: defaultScopes;
-				
-				const params = new URLSearchParams({
-					grant_type: 'client_credentials',
-					client_id: credentials.clientId,
-					scope: normalizedScopes.join(' '),
-				});
-				
-				const headers: Record<string, string> = {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				};
-				
-				const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
-				if (authMethod === 'client_secret_post') {
-					params.set('client_secret', credentials.clientSecret);
-				} else if (authMethod === 'client_secret_basic') {
-					const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-					headers.Authorization = `Basic ${basicAuth}`;
+				if (!credentials) {
+					throw new Error('Worker token not found. Please generate a worker token first.');
 				}
 				
-				console.log(`${MODULE_TAG} Renewing worker token...`);
-				const response = await fetch(tokenEndpoint, {
-					method: 'POST',
-					headers,
-					body: params.toString(),
-				});
-				
-				if (!response.ok) {
-					const errorText = await response.text();
-					throw new Error(`Token renewal failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
+				// Attempt to issue a new token using stored credentials
+				try {
+					const region = credentials.region || 'us';
+					const apiBase = 
+						region === 'eu' ? 'https://auth.pingone.eu' :
+						region === 'ap' ? 'https://auth.pingone.asia' :
+						region === 'ca' ? 'https://auth.pingone.ca' :
+						'https://auth.pingone.com';
+					
+					const tokenEndpoint = `${apiBase}/${credentials.environmentId}/as/token`;
+					const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
+					const scopeList = credentials.scopes;
+					const normalizedScopes: string[] = Array.isArray(scopeList) && scopeList.length > 0
+						? scopeList 
+						: defaultScopes;
+					
+					const params = new URLSearchParams({
+						grant_type: 'client_credentials',
+						client_id: credentials.clientId,
+						scope: normalizedScopes.join(' '),
+					});
+					
+					const headers: Record<string, string> = {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					};
+					
+					const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
+					if (authMethod === 'client_secret_post') {
+						params.set('client_secret', credentials.clientSecret);
+					} else if (authMethod === 'client_secret_basic') {
+						const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+						headers.Authorization = `Basic ${basicAuth}`;
+					}
+					
+					console.log(`${MODULE_TAG} Renewing worker token...`);
+					const response = await fetch(tokenEndpoint, {
+						method: 'POST',
+						headers,
+						body: params.toString(),
+					});
+					
+					if (!response.ok) {
+						const errorText = await response.text();
+						throw new Error(`Token renewal failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
+					}
+					
+					const data = await response.json();
+					const newToken = data.access_token;
+					const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
+					
+					await workerTokenServiceV8.saveToken(newToken, expiresAt);
+					console.log(`${MODULE_TAG} Worker token renewed successfully`);
+					
+					// Dispatch event for status update
+					window.dispatchEvent(new Event('workerTokenUpdated'));
+					
+					workerToken = newToken;
+				} catch (renewError) {
+					console.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
+					throw new Error(`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`);
 				}
-				
-				const data = await response.json();
-				const newToken = data.access_token;
-				const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
-				
-				await workerTokenServiceV8.saveToken(newToken, expiresAt);
-				console.log(`${MODULE_TAG} Worker token renewed successfully`);
-				
-				// Dispatch event for status update
-				window.dispatchEvent(new Event('workerTokenUpdated'));
-				
-				workerToken = newToken;
-			} catch (renewError) {
-				console.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
-				throw new Error(`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`);
 			}
 		}
 		
