@@ -65,9 +65,9 @@ export class FIDO2Service {
 	static isWebAuthnSupported(): boolean {
 		return !!(
 			window.PublicKeyCredential &&
-			window.navigator.credentials &&
-			window.navigator.credentials.create &&
-			window.navigator.credentials.get
+			window.navigator?.credentials &&
+			typeof window.navigator.credentials.create === 'function' &&
+			typeof window.navigator.credentials.get === 'function'
 		);
 	}
 
