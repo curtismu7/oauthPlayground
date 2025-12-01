@@ -10,11 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { type MFACredentials, type MFAState } from '@/v8/flows/shared/MFATypes';
-import {
-	type MfaDeviceType,
-	mfaDeviceRegistrationService,
-	type RegistrationStartResult,
-} from '@/v8/services/mfaDeviceRegistrationServiceV8';
+import { MFAServiceV8, type MFADeviceType } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
@@ -283,13 +279,6 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 						<CountryCodePickerV8
 							value={deviceConfig.countryCode}
 							onChange={(countryCode) => setDeviceConfig({ ...deviceConfig, countryCode })}
-							style={{
-								width: '100%',
-								padding: '10px',
-								border: '1px solid #d1d5db',
-								borderRadius: '6px',
-								fontSize: '14px',
-							}}
 						/>
 					</div>
 

@@ -5,8 +5,8 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -23,11 +23,23 @@ import { FiShield } from 'react-icons/fi';
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
 // Step 0: Configure Credentials (TOTP-specific - no phone/email needed)
-const renderStep0 = (props: MFAFlowBaseRenderProps) => {
-	const {
-		credentials,
-		setCredentials,
-		tokenStatus,
+const createRenderStep0 = (isConfigured: boolean) => {
+	return (props: MFAFlowBaseRenderProps) => {
+		const { nav } = props;
+		
+		// If coming from config page, skip step 0 and go to step 1
+		if (isConfigured && nav.currentStep === 0) {
+			setTimeout(() => {
+				console.log(`[🔐 TOTP-FLOW-V8] Skipping step 0, coming from config page`);
+				nav.goToStep(1);
+			}, 0);
+			return null;
+		}
+		
+		const {
+			credentials,
+			setCredentials,
+			tokenStatus,
 		deviceAuthPolicies,
 		isLoadingPolicies,
 		policiesError,

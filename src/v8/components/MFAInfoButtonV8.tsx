@@ -24,8 +24,6 @@ export interface MFAInfoButtonV8Props {
 	contentKey: string;
 	/** Display mode: tooltip (hover) or modal (click) */
 	displayMode?: 'tooltip' | 'modal';
-	/** Button size */
-	size?: 'small' | 'medium' | 'large';
 	/** Custom button label (default: icon only) */
 	label?: string;
 	/** Stop click/key events from bubbling to parent containers */
@@ -46,7 +44,6 @@ export interface MFAInfoButtonV8Props {
 export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 	contentKey,
 	displayMode = 'tooltip',
-	size: _size, // Renamed with underscore to indicate intentionally unused
 	label,
 	stopPropagation = false,
 	triggerClassName,
