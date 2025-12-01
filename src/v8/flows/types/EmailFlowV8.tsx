@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -1232,7 +1232,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		<>
 			<MFAFlowBaseV8
 				deviceType="EMAIL"
-				renderStep0={renderStep0}
+				renderStep0={createRenderStep0(isConfigured)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={createRenderStep2(otpState.otpSent, (v) => setOtpState({ ...otpState, otpSent: v }), otpState.sendError, (v) => setOtpState({ ...otpState, sendError: v }), otpState.sendRetryCount, (v) => setOtpState({ ...otpState, sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v }))}
 				renderStep3={createRenderStep3(
