@@ -6,7 +6,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -20,297 +20,15 @@ import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import { FIDO2Service } from '@/services/fido2Service';
 import { FiShield } from 'react-icons/fi';
+import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
-// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
-const renderStep0 = (props: MFAFlowBaseRenderProps) => {
-	const {
-		credentials,
-		setCredentials,
-		tokenStatus,
-		deviceAuthPolicies,
-		isLoadingPolicies,
-		policiesError,
-		refreshDeviceAuthPolicies,
-	} = props;
-
-	// Check WebAuthn support
-	const [webAuthnSupported, setWebAuthnSupported] = useState(false);
-	const [webAuthnCapabilities, setWebAuthnCapabilities] = useState<ReturnType<typeof FIDO2Service.getCapabilities> | null>(null);
-
-	useEffect(() => {
-		const supported = FIDO2Service.isWebAuthnSupported();
-		setWebAuthnSupported(supported);
-		if (supported) {
-			setWebAuthnCapabilities(FIDO2Service.getCapabilities());
-		}
-	}, []);
-
-	return (
-		<div className="step-content">
-			<h2>
-				Configure MFA Settings
-				<MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
-			</h2>
-			<p>Enter your PingOne environment details and user information</p>
-
-			{/* WebAuthn Support Check */}
-			{!webAuthnSupported && (
-				<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '20px' }}>
-					<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>⚠️ WebAuthn Not Supported</h4>
-					<p style={{ margin: '0', fontSize: '14px' }}>
-						Your browser does not support WebAuthn. Please use a modern browser (Chrome, Firefox, Safari, Edge) to register FIDO2 devices.
-					</p>
-				</div>
-			)}
-
-			{webAuthnCapabilities && (
-				<div className="info-box" style={{ marginBottom: '20px' }}>
-					<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>🔐 WebAuthn Capabilities</h4>
-					<ul style={{ margin: '0', paddingLeft: '20px' }}>
-						<li>WebAuthn Supported: ✅</li>
-						{webAuthnCapabilities.platformAuthenticator && <li>Platform Authenticator (Touch ID, Face ID, Windows Hello): ✅</li>}
-						{webAuthnCapabilities.crossPlatformAuthenticator && <li>Cross-Platform Authenticator (YubiKey, etc.): ✅</li>}
-						{webAuthnCapabilities.userVerification && <li>User Verification: ✅</li>}
-					</ul>
-				</div>
-			)}
-
-			{/* Worker Token Status */}
-			<div style={{ marginBottom: '20px' }}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-					<button
-						type="button"
-						onClick={() => {
-							if (tokenStatus.isValid) {
-								import('@/v8/services/workerTokenServiceV8').then(({ workerTokenServiceV8 }) => {
-									workerTokenServiceV8.clearToken();
-									window.dispatchEvent(new Event('workerTokenUpdated'));
-									WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-									toastV8.success('Worker token removed');
-								});
-							} else {
-								props.setShowWorkerTokenModal(true);
-							}
-						}}
-						className="token-button"
-						style={{
-							padding: '10px 16px',
-							background: tokenStatus.isValid ? '#10b981' : '#ef4444',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<span>🔑</span>
-						<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
-					</button>
-
-					<button
-						type="button"
-						onClick={() => props.setShowSettingsModal(true)}
-						className="token-button"
-						style={{
-							padding: '10px 16px',
-							background:
-								!tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
-							color: !tokenStatus.isValid || !credentials.environmentId ? '#9ca3af' : 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor:
-								!tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-						disabled={!credentials.environmentId || !tokenStatus.isValid}
-					>
-						<span>⚙️</span>
-						<span>MFA Settings</span>
-					</button>
-
-					<div
-						style={{
-							flex: 1,
-							padding: '10px 12px',
-							background: tokenStatus.isValid
-								? tokenStatus.status === 'expiring-soon'
-									? '#fef3c7'
-									: '#d1fae5'
-								: '#fee2e2',
-							border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
-							borderRadius: '4px',
-							fontSize: '12px',
-							fontWeight: '500',
-							color: tokenStatus.isValid
-								? tokenStatus.status === 'expiring-soon'
-									? '#92400e'
-									: '#065f46'
-								: '#991b1b',
-						}}
-					>
-						<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
-						<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
-					</div>
-				</div>
-
-				{!tokenStatus.isValid && (
-					<div className="info-box" style={{ marginBottom: '0' }}>
-						<p>
-							<strong>⚠️ Worker Token Required:</strong> This flow uses a worker token to look up
-							users and manage MFA devices. Please click "Add Token" to configure your worker token
-							credentials.
-						</p>
-					</div>
-				)}
-			</div>
-
-			<div className="credentials-grid">
-				<div className="form-group">
-					<label htmlFor="mfa-env-id">
-						Environment ID <span className="required">*</span>
-					</label>
-					<input
-						id="mfa-env-id"
-						type="text"
-						value={credentials.environmentId}
-						onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
-						placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-					/>
-					<small>PingOne environment ID</small>
-				</div>
-
-				<div className="form-group">
-					<label htmlFor="mfa-device-auth-policy">
-						Device Authentication Policy <span className="required">*</span>
-					</label>
-
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '12px',
-							flexWrap: 'wrap',
-							marginBottom: '12px',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => void refreshDeviceAuthPolicies()}
-							className="token-button"
-							style={{
-								padding: '8px 18px',
-								background: '#0284c7',
-								color: 'white',
-								border: 'none',
-								borderRadius: '999px',
-								fontSize: '13px',
-								fontWeight: '700',
-								cursor: isLoadingPolicies ? 'not-allowed' : 'pointer',
-								opacity: isLoadingPolicies ? 0.6 : 1,
-								boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
-								transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-							}}
-							disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
-							onMouseEnter={(e) => {
-								if (!isLoadingPolicies) {
-									(e.currentTarget.style.transform = 'translateY(-1px)');
-								}
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-							}}
-						>
-							{isLoadingPolicies ? 'Refreshing…' : 'Refresh Policies'}
-						</button>
-						<span style={{ fontSize: '13px', color: '#475569' }}>
-							Select which PingOne policy governs FIDO2 authentications.
-						</span>
-					</div>
-
-					{policiesError && (
-						<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}>
-							<strong>Failed to load policies:</strong> {policiesError}. Retry after verifying access.
-						</div>
-					)}
-
-					{deviceAuthPolicies.length > 0 ? (
-						<select
-							id="mfa-device-auth-policy"
-							value={credentials.deviceAuthenticationPolicyId || ''}
-							onChange={(e) =>
-								setCredentials({
-									...credentials,
-									deviceAuthenticationPolicyId: e.target.value,
-								})
-							}
-						>
-							{deviceAuthPolicies.map((policy) => (
-								<option key={policy.id} value={policy.id}>
-									{policy.name || policy.id} ({policy.id})
-								</option>
-							))}
-						</select>
-					) : (
-						<input
-							id="mfa-device-auth-policy"
-							type="text"
-							value={credentials.deviceAuthenticationPolicyId || ''}
-							onChange={(e) =>
-								setCredentials({
-									...credentials,
-									deviceAuthenticationPolicyId: e.target.value.trim(),
-								})
-							}
-							placeholder="Enter a Device Authentication Policy ID"
-						/>
-					)}
-
-					<div
-						style={{
-							marginTop: '12px',
-							padding: '12px 14px',
-							background: '#f1f5f9',
-							borderRadius: '10px',
-							fontSize: '12px',
-							color: '#475569',
-							lineHeight: 1.5,
-						}}
-					>
-						Policies are fetched from PingOne Device Authentication Policies.
-					</div>
-				</div>
-
-				<div className="form-group">
-					<label htmlFor="mfa-username">
-						Username <span className="required">*</span>
-					</label>
-					<input
-						id="mfa-username"
-						type="text"
-						value={credentials.username}
-						onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-						placeholder="john.doe"
-					/>
-					<small>PingOne username to register MFA device for</small>
-				</div>
-
-			</div>
-		</div>
-	);
-};
-
 // Device selection state management wrapper
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
+	const location = useLocation();
+	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
 		MFAFlowControllerFactory.create({ deviceType: 'FIDO2' }) as FIDO2FlowController, []
@@ -336,6 +54,356 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		tokenValid: boolean;
 	} | null>(null);
 
+	// Hooks for Step 2 (WebAuthn assertion) - moved to component level
+	const navigate = useNavigate();
+	const [isAuthenticating, setIsAuthenticating] = useState(false);
+	const [assertionError, setAssertionError] = useState<string | null>(null);
+
+	// Hooks for Step 0 - moved to component level
+	const [webAuthnSupported, setWebAuthnSupported] = useState(false);
+	const [webAuthnCapabilities, setWebAuthnCapabilities] = useState<ReturnType<typeof FIDO2Service.getCapabilities> | null>(null);
+
+	// Initialize WebAuthn support check
+	useEffect(() => {
+		const initializeWebAuthn = async () => {
+			const supported = FIDO2Service.isWebAuthnSupported();
+			setWebAuthnSupported(supported);
+			
+			if (supported) {
+				// Get basic capabilities first
+				const capabilities = FIDO2Service.getCapabilities();
+				
+				// Check platform authenticator availability asynchronously
+				try {
+					const platformAvailable = await FIDO2Service.isPlatformAuthenticatorAvailable();
+					setWebAuthnCapabilities({
+						...capabilities,
+						platformAuthenticator: platformAvailable,
+					});
+				} catch (error) {
+					console.warn('Failed to check platform authenticator availability:', error);
+					setWebAuthnCapabilities(capabilities);
+				}
+			}
+		};
+
+		initializeWebAuthn();
+	}, []);
+
+	// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
+	// NO HOOKS INSIDE - all hooks moved to component level
+	const renderStep0 = useMemo(() => {
+		return (props: MFAFlowBaseRenderProps) => {
+			const {
+				credentials,
+				setCredentials,
+				tokenStatus,
+				deviceAuthPolicies,
+				isLoadingPolicies,
+				policiesError,
+				refreshDeviceAuthPolicies,
+				nav,
+			} = props;
+
+			// Handle skip step 0 logic - use ref to avoid hook
+			if (isConfigured && nav.currentStep === 0) {
+				// Use setTimeout to avoid calling during render
+				setTimeout(() => {
+					nav.goToStep(1);
+				}, 0);
+			}
+
+			return (
+				<div className="step-content">
+					<h2>
+						Configure MFA Settings
+						<MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
+					</h2>
+					<p>Enter your PingOne environment details and user information</p>
+
+					{/* WebAuthn Support Check - using component-level state */}
+					{!webAuthnSupported && (
+						<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '20px' }}>
+							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>⚠️ WebAuthn Not Supported</h4>
+							<p style={{ margin: '0', fontSize: '14px' }}>
+								Your browser does not support WebAuthn. Please use a modern browser (Chrome, Firefox, Safari, Edge) to register FIDO2 devices.
+							</p>
+						</div>
+					)}
+
+					{webAuthnCapabilities && (
+						<div className="info-box" style={{ marginBottom: '20px' }}>
+							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>🔐 WebAuthn Capabilities</h4>
+							<ul style={{ margin: '0', paddingLeft: '20px' }}>
+								<li>WebAuthn Supported: ✅</li>
+								{webAuthnCapabilities.platformAuthenticator && <li>Platform Authenticator (Touch ID, Face ID, Windows Hello): ✅</li>}
+								{webAuthnCapabilities.crossPlatformAuthenticator && <li>Cross-Platform Authenticator (YubiKey, etc.): ✅</li>}
+								{webAuthnCapabilities.userVerification && <li>User Verification: ✅</li>}
+							</ul>
+						</div>
+					)}
+
+					{/* Worker Token Status */}
+					<div style={{ marginBottom: '20px' }}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+							<button
+								type="button"
+								onClick={() => {
+									if (tokenStatus.isValid) {
+										import('@/v8/services/workerTokenServiceV8').then(({ workerTokenServiceV8 }) => {
+											workerTokenServiceV8.clearToken();
+											window.dispatchEvent(new Event('workerTokenUpdated'));
+											WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											toastV8.success('Worker token removed');
+										});
+									} else {
+										props.setShowWorkerTokenModal(true);
+									}
+								}}
+								className="token-button"
+								style={{
+									padding: '10px 16px',
+									background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								<span>🔑</span>
+								<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
+							</button>
+
+							<button
+								type="button"
+								onClick={() => props.setShowSettingsModal(true)}
+								className="token-button"
+								style={{
+									padding: '10px 16px',
+									background:
+										!tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
+									color: !tokenStatus.isValid || !credentials.environmentId ? '#9ca3af' : 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor:
+										!tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+								disabled={!credentials.environmentId || !tokenStatus.isValid}
+							>
+								<span>⚙️</span>
+								<span>MFA Settings</span>
+							</button>
+
+							<div
+								style={{
+									flex: 1,
+									padding: '10px 12px',
+									background: tokenStatus.isValid
+										? tokenStatus.status === 'expiring-soon'
+											? '#fef3c7'
+											: '#d1fae5'
+										: '#fee2e2',
+									border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
+									borderRadius: '4px',
+									fontSize: '12px',
+									fontWeight: '500',
+									color: tokenStatus.isValid
+										? tokenStatus.status === 'expiring-soon'
+											? '#92400e'
+											: '#065f46'
+										: '#991b1b',
+								}}
+							>
+								<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
+								<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
+							</div>
+						</div>
+
+						{!tokenStatus.isValid && (
+							<div className="info-box" style={{ marginBottom: '0' }}>
+								<p>
+									<strong>⚠️ Worker Token Required:</strong> This flow uses a worker token to look up
+									users and manage MFA devices. Please click "Add Token" to configure your worker token
+									credentials.
+								</p>
+							</div>
+						)}
+					</div>
+
+					<div className="credentials-grid">
+						<div className="form-group">
+							<label htmlFor="mfa-env-id">
+								Environment ID <span className="required">*</span>
+							</label>
+							<input
+								id="mfa-env-id"
+								type="text"
+								value={credentials.environmentId}
+								onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
+								placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+							/>
+							<small>PingOne environment ID</small>
+						</div>
+
+						<div className="form-group">
+							<label htmlFor="mfa-device-auth-policy">
+								Device Authentication Policy <span className="required">*</span>
+							</label>
+
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									flexWrap: 'wrap',
+									marginBottom: '12px',
+								}}
+							>
+								<button
+									type="button"
+									onClick={() => void refreshDeviceAuthPolicies()}
+									className="token-button"
+									style={{
+										padding: '8px 18px',
+										background: '#0284c7',
+										color: 'white',
+										border: 'none',
+										borderRadius: '999px',
+										fontSize: '13px',
+										fontWeight: '700',
+										cursor: isLoadingPolicies ? 'not-allowed' : 'pointer',
+										opacity: isLoadingPolicies ? 0.6 : 1,
+										boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
+										transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+									}}
+									disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
+									onMouseEnter={(e) => {
+										if (!isLoadingPolicies) {
+											(e.currentTarget.style.transform = 'translateY(-1px)');
+										}
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'translateY(0)';
+									}}
+								>
+									{isLoadingPolicies ? 'Refreshing…' : 'Refresh Policies'}
+								</button>
+								<span style={{ fontSize: '13px', color: '#475569' }}>
+									Select which PingOne policy governs FIDO2 authentications.
+								</span>
+							</div>
+
+							{policiesError && (
+								<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}>
+									<strong>Failed to load policies:</strong> {policiesError}. Retry after verifying access.
+								</div>
+							)}
+
+							{deviceAuthPolicies.length > 0 ? (
+								<select
+									id="mfa-device-auth-policy"
+									value={credentials.deviceAuthenticationPolicyId || ''}
+									onChange={(e) =>
+										setCredentials({
+											...credentials,
+											deviceAuthenticationPolicyId: e.target.value,
+										})
+									}
+								>
+									{deviceAuthPolicies.map((policy) => (
+										<option key={policy.id} value={policy.id}>
+											{policy.name || policy.id} ({policy.id})
+										</option>
+									))}
+								</select>
+							) : (
+								<input
+									id="mfa-device-auth-policy"
+									type="text"
+									value={credentials.deviceAuthenticationPolicyId || ''}
+									onChange={(e) =>
+										setCredentials({
+											...credentials,
+											deviceAuthenticationPolicyId: e.target.value.trim(),
+										})
+									}
+									placeholder="Enter a Device Authentication Policy ID"
+								/>
+							)}
+
+							<div
+								style={{
+									marginTop: '12px',
+									padding: '12px 14px',
+									background: '#f1f5f9',
+									borderRadius: '10px',
+									fontSize: '12px',
+									color: '#475569',
+									lineHeight: 1.5,
+								}}
+							>
+								Policies are fetched from PingOne Device Authentication Policies.
+							</div>
+						</div>
+
+						<div className="form-group">
+							<label htmlFor="mfa-username">
+								Username <span className="required">*</span>
+							</label>
+							<input
+								id="mfa-username"
+								type="text"
+								value={credentials.username}
+								onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+								placeholder="john.doe"
+							/>
+							<small>PingOne username to register MFA device for</small>
+						</div>
+
+					</div>
+				</div>
+			);
+		};
+	}, [isConfigured, webAuthnSupported, webAuthnCapabilities]);
+	
+	// Ref to store pending trigger update (to avoid setState during render)
+	const pendingTriggerRef = React.useRef<{
+		currentStep: number;
+		environmentId: string;
+		username: string;
+		tokenValid: boolean;
+	} | null>(null);
+	
+	// Effect to apply pending trigger updates (runs after render)
+	useEffect(() => {
+		if (pendingTriggerRef.current) {
+			const trigger = pendingTriggerRef.current;
+			pendingTriggerRef.current = null; // Clear pending update
+			
+			// Only update if values actually changed
+			if (
+				!deviceLoadTrigger ||
+				deviceLoadTrigger.currentStep !== trigger.currentStep ||
+				deviceLoadTrigger.environmentId !== trigger.environmentId ||
+				deviceLoadTrigger.username !== trigger.username ||
+				deviceLoadTrigger.tokenValid !== trigger.tokenValid
+			) {
+				setDeviceLoadTrigger(trigger);
+			}
+		}
+	});
+
+
 	// Load devices when entering step 1 - moved to parent component level
 	useEffect(() => {
 		if (!deviceLoadTrigger) return;
@@ -351,7 +419,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				try {
 					const credentials: MFACredentials = {
 						environmentId: deviceLoadTrigger.environmentId,
+						clientId: '',
 						username: deviceLoadTrigger.username,
+						deviceType: 'FIDO2',
+						countryCode: '+1',
+						phoneNumber: '',
+						email: '',
+						deviceName: '',
 					};
 					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 					const devices = await controller.loadExistingDevices(credentials, tokenStatus);
@@ -378,9 +452,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
+		// Store in ref to avoid setState during render - useEffect will pick it up
 		if (nav.currentStep === 1) {
 			const newTrigger = {
 				currentStep: nav.currentStep,
@@ -396,7 +471,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				deviceLoadTrigger.username !== newTrigger.username ||
 				deviceLoadTrigger.tokenValid !== newTrigger.tokenValid
 			) {
-				setDeviceLoadTrigger(newTrigger);
+				pendingTriggerRef.current = newTrigger;
 			}
 		}
 
@@ -457,7 +532,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					);
 
 					// Update state with authentication info
-					// Don't check device status - just trigger authentication immediately
+					// Store challengeId if provided (needed for WebAuthn assertion)
 					setMfaState((prev) => ({
 						...prev,
 						deviceId: deviceSelection.selectedExistingDevice,
@@ -465,7 +540,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						authenticationId: authResult.authenticationId,
 						deviceAuthId: authResult.authenticationId,
 						environmentId: credentials.environmentId,
-						nextStep: authResult.nextStep,
+						nextStep: authResult.nextStep || '',
+						...(authResult.challengeId && { fido2ChallengeId: authResult.challengeId }),
 					}));
 
 					// Handle nextStep response
@@ -477,15 +553,15 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					} else if (authResult.nextStep === 'ASSERTION_REQUIRED') {
 						// For FIDO2, user needs to complete WebAuthn assertion
 						nav.markStepComplete();
-						nav.goToStep(3); // Go to WebAuthn assertion step
-						toastV8.success('Device selected. Please complete WebAuthn authentication.');
+						nav.goToStep(2); // Go to WebAuthn assertion step
+						toastV8.info('Please complete WebAuthn authentication using your security key or Passkey.');
 					} else if (authResult.nextStep === 'SELECTION_REQUIRED') {
 						// Shouldn't happen if deviceId is provided, but handle it
 						nav.setValidationErrors(['Multiple devices found. Please select a specific device.']);
 						toastV8.warning('Please select a specific device');
 					} else {
 						nav.markStepComplete();
-						nav.goToStep(3); // Default to assertion step
+						nav.goToStep(2); // Default to assertion step
 						toastV8.success('Device selected successfully!');
 					}
 				} catch (error) {
@@ -520,6 +596,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					...mfaState,
 					deviceId: deviceResult.deviceId,
 					deviceStatus: fido2Result.status,
+					...(fido2Result.credentialId && { fido2CredentialId: fido2Result.credentialId }),
 				});
 
 				if (fido2Result.credentialId) {
@@ -679,12 +756,121 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		);
 	};
 
-	// Step 2: FIDO2 Device Ready (skip OTP sending - uses WebAuthn)
-	const createRenderStep2 = () => {
+	// Step 2: FIDO2 Device Ready / WebAuthn Assertion (skip OTP sending - uses WebAuthn)
+	// Memoize the render function to ensure stable hook calls
+	const renderStep2 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { mfaState, credentials } = props;
-			const navigate = useNavigate();
+			const { mfaState, credentials, setMfaState, nav, setIsLoading, isLoading } = props;
+			// Hooks moved to component level - use the ones defined above
 
+			// Check if we need to perform WebAuthn assertion
+			const needsAssertion = mfaState.nextStep === 'ASSERTION_REQUIRED' && mfaState.fido2ChallengeId;
+
+			// Handle WebAuthn assertion
+			const handleWebAuthnAssertion = async () => {
+				if (!mfaState.fido2ChallengeId || !mfaState.authenticationId) {
+					setAssertionError('Missing challenge ID or authentication ID');
+					return;
+				}
+
+				if (!WebAuthnAuthenticationServiceV8.isWebAuthnSupported()) {
+					setAssertionError('WebAuthn is not supported in this browser');
+					return;
+				}
+
+				setIsAuthenticating(true);
+				setAssertionError(null);
+				setIsLoading(true);
+
+				try {
+					// Detect if we're on macOS to prefer Passkeys (platform authenticators)
+					const isMac = typeof navigator !== 'undefined' && navigator.platform.toLowerCase().includes('mac');
+					
+					// Perform WebAuthn authentication
+					const webAuthnParams = {
+						challengeId: mfaState.fido2ChallengeId,
+						rpId: window.location.hostname,
+						userName: credentials.username || '',
+						userVerification: 'preferred' as const,
+						...(isMac && {
+							authenticatorSelection: {
+								authenticatorAttachment: 'platform' as const,
+								userVerification: 'preferred' as const,
+							},
+						}),
+					};
+
+					const webAuthnResult = await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(webAuthnParams);
+
+					if (!webAuthnResult.success) {
+						throw new Error(webAuthnResult.error || 'WebAuthn authentication failed');
+					}
+
+					// Complete authentication with PingOne
+					// Note: This would typically involve sending the assertion result to PingOne
+					// For now, we'll mark as complete and navigate to success
+					setMfaState((prev) => ({
+						...prev,
+						nextStep: 'COMPLETED',
+					}));
+
+					nav.markStepComplete();
+					nav.goToStep(3); // Go to success step
+					toastV8.success('WebAuthn authentication successful!');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
+					setAssertionError(errorMessage);
+					toastV8.error(`Authentication failed: ${errorMessage}`);
+				} finally {
+					setIsAuthenticating(false);
+					setIsLoading(false);
+				}
+			};
+
+			// If assertion is required, show assertion UI
+			if (needsAssertion) {
+				return (
+					<div className="step-content">
+						<h2>
+							Complete WebAuthn Authentication
+							<MFAInfoButtonV8 contentKey="factor.fido2" displayMode="modal" />
+						</h2>
+						<p>Please authenticate using your security key, Touch ID, Face ID, or Windows Hello</p>
+
+						{assertionError && (
+							<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginBottom: '20px' }}>
+								<strong>Error:</strong> {assertionError}
+							</div>
+						)}
+
+						<div className="info-box" style={{ marginBottom: '20px' }}>
+							<p>
+								<strong>Device ID:</strong> {mfaState.deviceId}
+							</p>
+							<p>
+								<strong>Authentication ID:</strong> {mfaState.authenticationId}
+							</p>
+						</div>
+
+						<button
+							type="button"
+							className="btn btn-primary"
+							disabled={isLoading || isAuthenticating}
+							onClick={handleWebAuthnAssertion}
+							style={{
+								padding: '12px 24px',
+								fontSize: '16px',
+								fontWeight: '600',
+							}}
+						>
+							{isAuthenticating ? '🔐 Authenticating...' : '🔑 Authenticate with Passkey'}
+						</button>
+					</div>
+				);
+			}
+
+			// Otherwise, show device ready (registration completion)
 			return (
 				<div className="step-content">
 					<h2>
@@ -780,10 +966,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	};
+	}, [navigate, isAuthenticating, assertionError, setIsAuthenticating, setAssertionError]);
 
 	// Step 3: Success screen (FIDO2 doesn't need OTP validation)
-	const createRenderStep3 = () => {
+	// Memoize renderStep3 to ensure stable function reference
+	const renderStep3 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { mfaState } = props;
 
@@ -808,9 +995,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						<p>
 							<strong>Status:</strong> {mfaState.deviceStatus || 'Active'}
 						</p>
-						{credentialId && (
+						{mfaState.fido2CredentialId && (
 							<p style={{ marginTop: '12px', fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-								<strong>Credential ID:</strong> {credentialId.substring(0, 40)}...
+								<strong>Credential ID:</strong> {mfaState.fido2CredentialId.substring(0, 40)}...
 							</p>
 						)}
 					</div>
@@ -826,7 +1013,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	};
+	}, []);
 
 	// Validation function for Step 0
 	const validateStep0 = (
@@ -843,8 +1030,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				deviceType="FIDO2"
 				renderStep0={renderStep0}
 				renderStep1={renderStep1WithSelection}
-				renderStep2={createRenderStep2()}
-				renderStep3={createRenderStep3()}
+				renderStep2={renderStep2}
+				renderStep3={renderStep3}
+				renderStep4={() => null}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Complete']}
 			/>

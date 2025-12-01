@@ -63,6 +63,7 @@ export interface MFAState {
 	fido2CredentialId?: string;
 	fido2PublicKey?: string;
 	fido2RegistrationComplete?: boolean;
+	fido2ChallengeId?: string; // Challenge ID for WebAuthn assertion
 	// Device authentication ID for the new MFA flow
 	deviceAuthId?: string;
 }
@@ -75,7 +76,7 @@ export interface MFAFlowProps {
 	tokenStatus: ReturnType<typeof import('@/v8/services/workerTokenStatusServiceV8').WorkerTokenStatusServiceV8.checkWorkerTokenStatus>;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
-	nav: ReturnType<typeof import('@/v8/hooks/useStepNavigationV8')>;
+	nav: import('@/v8/hooks/useStepNavigationV8').UseStepNavigationV8Return;
 	showDeviceLimitModal: boolean;
 	setShowDeviceLimitModal: (show: boolean) => void;
 }
