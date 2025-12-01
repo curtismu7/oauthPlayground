@@ -6236,6 +6236,75 @@ app.get('/api/pingone/mfa/user-devices', async (req, res) => {
 	}
 });
 
+// Get All User Devices (POST version for frontend compatibility)
+app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, userId, workerToken',
+			});
+		}
+
+		// Clean and validate worker token
+		let cleanToken = String(workerToken).trim();
+		if (cleanToken.startsWith('Bearer ')) {
+			cleanToken = cleanToken.substring(7);
+		}
+		if (!cleanToken) {
+			return res.status(400).json({
+				error: 'Invalid worker token: token is empty',
+			});
+		}
+		// Validate JWT format (3 dot-separated parts)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			return res.status(400).json({
+				error: 'Invalid worker token: not a valid JWT format',
+			});
+		}
+
+		console.log('[MFA Devices] Get all devices:', {
+			environmentId: `${environmentId?.substring(0, 8)}...`,
+			userId: `${userId?.substring(0, 8)}...`,
+		});
+
+		// Call PingOne's actual devices API
+		const devicesUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
+
+		const devicesResponse = await fetch(devicesUrl, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!devicesResponse.ok) {
+			const errorData = await devicesResponse.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA Devices] API Error:', errorData);
+			return res.status(devicesResponse.status).json({
+				error: 'Failed to fetch user devices',
+				message: errorData.message || errorData.error || 'PingOne API error',
+				details: errorData,
+			});
+		}
+
+		const devicesData = await devicesResponse.json();
+		console.log('[MFA Devices] Retrieved successfully', {
+			deviceCount: devicesData._embedded?.devices?.length || 0,
+		});
+		res.json(devicesData);
+	} catch (error) {
+		console.error('[MFA Devices] Error:', error);
+		res.status(500).json({
+			error: 'Failed to fetch user devices',
+			message: error instanceof Error ? error.message : String(error),
+		});
+	}
+});
+
 // Select Device for Authentication
 app.post('/api/pingone/mfa/select-device', async (req, res) => {
 	try {
@@ -6253,15 +6322,49 @@ app.post('/api/pingone/mfa/select-device', async (req, res) => {
 			deviceId: `${deviceId?.substring(0, 8)}...`,
 		});
 
+		// Clean and validate worker token
+		let cleanToken = workerToken?.trim() || '';
+		if (cleanToken.startsWith('Bearer ')) {
+			cleanToken = cleanToken.substring(7);
+		}
+
+		// Validate JWT format (3 dot-separated parts)
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3) {
+			console.error('[MFA Device Auth] Invalid worker token format (not a JWT)');
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token must be a valid JWT (3 dot-separated parts)',
+			});
+		}
+
 		// Call PingOne's actual device selection API
-		const selectDeviceUrl = `https://auth.pingone.com/${environmentId}/mfa/deviceAuthentications/${deviceAuthId}/devices/${deviceId}`;
+		// Based on user's curl example: POST /{envID}/deviceAuthentications/{deviceAuthID}
+		// Content-Type: application/vnd.pingidentity.device.select+json
+		// Body: { "device": { "id": "{deviceID}" }, "compatibility": "FULL" }
+		// This matches the unified MFA flow format
+		const selectDeviceUrl = `https://auth.pingone.com/${environmentId}/deviceAuthentications/${deviceAuthId}`;
+
+		const requestBody = {
+			device: { id: deviceId },
+			compatibility: 'FULL',
+		};
+
+		console.log('[MFA Device Auth] Calling PingOne API:', {
+			url: selectDeviceUrl,
+			method: 'POST',
+			contentType: 'application/vnd.pingidentity.device.select+json',
+			body: requestBody,
+			authorizationHeader: `Bearer ${cleanToken.substring(0, 20)}...`,
+		});
 
 		const selectDeviceResponse = await fetch(selectDeviceUrl, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.device.select+json',
+				Authorization: `Bearer ${cleanToken}`,
 			},
+			body: JSON.stringify(requestBody),
 		});
 
 		if (!selectDeviceResponse.ok) {
@@ -6453,26 +6556,6 @@ app.post('/api/pingone/mfa/device-authentication-policies', async (req, res) => 
 			message: error instanceof Error ? error.message : String(error),
 		});
 	}
-});
-
-// API endpoint not found handler
-app.use('/api', (req, res) => {
-	res.status(404).json({
-		error: 'endpoint_not_found',
-		message: 'Sorry for the inconvenience, this feature is coming soon! 🚀',
-		details: `The endpoint ${req.method} ${req.path} is not yet available.`,
-		path: req.path,
-		method: req.method,
-	});
-});
-
-// Catch-all for non-API routes (source files, etc.) - return 404 instead of 500
-app.use((req, res, next) => {
-	// If it's not an API route and not a static file, return 404
-	if (!req.path.startsWith('/api')) {
-		return res.status(404).send('Not Found');
-	}
-	next();
 });
 
 // Error handling middleware
@@ -7485,6 +7568,55 @@ app.post('/api/pingone/mfa/device-authentication-reports', async (req, res) => {
 	}
 });
 
+// Get FIDO2 Device Reports
+app.post('/api/pingone/mfa/fido2-device-reports', async (req, res) => {
+	try {
+		const { environmentId, queryParams, workerToken } = req.body;
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields' });
+		}
+		const cleanToken = String(workerToken).trim();
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/fido2Devices${queryParams ? `?${queryParams}` : ''}`;
+
+		console.log('[MFA FIDO2 Device Reports] Fetching reports:', {
+			environmentId,
+			hasQueryParams: !!queryParams,
+		});
+
+		const response = await global.fetch(reportsEndpoint, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken}`,
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+			console.error('[MFA FIDO2 Device Reports] Error:', errorData);
+			return res.status(response.status).json(errorData);
+		}
+
+		const reportsData = await response.json();
+		console.log('[MFA FIDO2 Device Reports] Success:', {
+			count: reportsData._embedded?.fido2Devices?.length || 0,
+		});
+		res.json(reportsData);
+	} catch (error) {
+		console.error('[MFA FIDO2 Device Reports] Error:', error);
+		res
+			.status(500)
+			.json({ error: 'Failed to get FIDO2 device reports', message: error.message });
+	}
+});
+
 // Initialize Device Authentication (API Server Endpoint - for existing devices)
 app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) => {
 	try {
@@ -8304,6 +8436,22 @@ app.delete('/api/pingone/mfa/fido2-policies/:policyId', async (req, res) => {
 		console.error('[FIDO2 Policies] Error:', error);
 		res.status(500).json({ error: 'Failed to delete FIDO2 policy', message: error.message });
 	}
+});
+
+// API endpoint not found handler - MUST be after all API route definitions
+app.use('/api', (req, res) => {
+	console.error('[API 404] Endpoint not found:', {
+		method: req.method,
+		path: req.path,
+		query: req.query,
+		body: req.body,
+	});
+	res.status(404).json({
+		error: 'endpoint_not_found',
+		message: `API endpoint not found: ${req.method} ${req.path}`,
+		path: req.path,
+		method: req.method,
+	});
 });
 
 // ============================================================================
