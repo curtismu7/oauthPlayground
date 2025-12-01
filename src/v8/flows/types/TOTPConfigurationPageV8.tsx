@@ -12,14 +12,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiClock, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiClock, FiInfo, FiArrowRight, FiSettings, FiBook } from 'react-icons/fi';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
@@ -47,7 +45,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 	// Load environment ID
 	useEffect(() => {
-		const envId = EnvironmentIdServiceV8.getStoredEnvironmentId();
+		const envId = EnvironmentIdServiceV8.getEnvironmentId();
 		if (envId) {
 			setEnvironmentId(envId);
 		}
@@ -138,9 +136,6 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 			},
 		});
 	}, [navigate, selectedDeviceAuthPolicy, tokenStatus.isValid]);
-
-	// Get TOTP education content
-	const totpEducation = MFAEducationServiceV8.getFactorEducation('TOTP');
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
