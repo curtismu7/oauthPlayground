@@ -45,6 +45,7 @@ import { MFAOTPInput } from './components/MFAOTPInput';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -169,6 +170,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [otpCode, setOtpCode] = useState('');
 	const [isValidatingOTP, setIsValidatingOTP] = useState(false);
 	const [otpError, setOtpError] = useState<string | null>(null);
+	
+	// API Display visibility state (for padding adjustment)
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 
 	// FIDO2 state
 	const [isAuthenticatingFIDO2, setIsAuthenticatingFIDO2] = useState(false);
@@ -203,6 +207,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			window.removeEventListener('storage', handleTokenUpdate);
 			clearInterval(interval);
 		};
+	}, []);
+
+	// Subscribe to API display visibility changes
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsApiDisplayVisible(visible);
+		});
+		return () => unsubscribe();
 	}, []);
 
 	// Poll Push authentication status
@@ -697,9 +709,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		<div
 			style={{
 				padding: '32px 20px',
+				paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
 				maxWidth: '1400px',
 				margin: '0 auto',
 				minHeight: '100vh',
+				transition: 'padding-bottom 0.3s ease',
 			}}
 		>
 			{/* Navigation Bar */}
