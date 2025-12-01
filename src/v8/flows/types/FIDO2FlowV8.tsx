@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useMemo, useState, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -28,14 +28,24 @@ const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+	const deviceType = (location.state as { deviceType?: string })?.deviceType || 'FIDO2';
 	
-	// Ref to track if we've already skipped step 0
+	// Ref to track if we've already skipped step 0 and store nav callback
 	const hasSkippedStep0Ref = useRef(false);
+	const skipStep0NavRef = useRef<((step: number) => void) | null>(null);
 	
-	// Initialize controller using factory
+	// Initialize controller using factory with dynamic device type
 	const controller = useMemo(() => 
-		MFAFlowControllerFactory.create({ deviceType: 'FIDO2' }) as FIDO2FlowController, []
+		MFAFlowControllerFactory.create({ deviceType }) as FIDO2FlowController, [deviceType]
 	);
+	
+	// Handle skip step 0 navigation in useEffect to avoid render-phase updates
+	useLayoutEffect(() => {
+		if (isConfigured && skipStep0NavRef.current && !hasSkippedStep0Ref.current) {
+			hasSkippedStep0Ref.current = true;
+			skipStep0NavRef.current(1);
+		}
+	}, [isConfigured]);
 
 	// Device selection state
 	const [deviceSelection, setDeviceSelection] = useState({
@@ -93,9 +103,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		initializeWebAuthn();
 	}, []);
 
-	// Ref to track if we've already skipped step 0
-	const hasSkippedStep0Ref = useRef(false);
-
 	// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
 	// NO HOOKS INSIDE - all hooks moved to component level
 	const renderStep0 = useMemo(() => {
@@ -111,13 +118,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				nav,
 			} = props;
 
-			// Handle skip step 0 logic - return null and let useEffect handle navigation
-			if (isConfigured && nav.currentStep === 0 && !hasSkippedStep0Ref.current) {
-				hasSkippedStep0Ref.current = true;
-				// Use requestAnimationFrame to defer navigation until after render
-				requestAnimationFrame(() => {
-					nav.goToStep(1);
-				});
+			// Store nav callback in ref for useEffect to use
+			if (isConfigured && nav.currentStep === 0) {
+				skipStep0NavRef.current = nav.goToStep;
 				return null;
 			}
 
@@ -429,7 +432,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						environmentId: deviceLoadTrigger.environmentId,
 						clientId: '',
 						username: deviceLoadTrigger.username,
-						deviceType: 'FIDO2',
+						deviceType: deviceType as DeviceType,
 						countryCode: '+1',
 						phoneNumber: '',
 						email: '',
@@ -517,7 +520,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			if (!credentials.deviceName?.trim()) {
 				setCredentials({
 					...credentials,
-					deviceName: credentials.deviceType || 'FIDO2',
+					deviceName: credentials.deviceType || deviceType,
 				});
 			}
 		};
@@ -650,7 +653,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					devices={deviceSelection.existingDevices as Array<{ id: string; type: string; nickname?: string; name?: string; status?: string }>}
 					loading={deviceSelection.loadingDevices}
 					selectedDeviceId={deviceSelection.selectedExistingDevice}
-					deviceType="FIDO2"
+					deviceType={deviceType as DeviceType}
 					onSelectDevice={handleSelectExistingDevice}
 					onSelectNew={handleSelectNewDevice}
 					onUseSelected={handleUseSelectedDevice}
@@ -1035,7 +1038,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	return (
 		<>
 			<MFAFlowBaseV8
-				deviceType="FIDO2"
+				deviceType={deviceType as DeviceType}
 				renderStep0={renderStep0}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2}
