@@ -12,7 +12,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
@@ -32,6 +32,25 @@ const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
+	const location = useLocation();
+	
+	// Detect device type from URL path
+	const getDeviceTypeFromPath = useCallback(() => {
+		const path = location.pathname;
+		if (path.includes('/security_key')) return 'SECURITY_KEY';
+		if (path.includes('/platform')) return 'PLATFORM';
+		return 'FIDO2'; // default
+	}, [location.pathname]);
+	
+	const getDeviceTypeDisplayName = useCallback(() => {
+		switch (currentDeviceType) {
+			case 'SECURITY_KEY': return 'Security Key';
+			case 'PLATFORM': return 'Platform Authenticator';
+			default: return 'FIDO2';
+		}
+	}, [currentDeviceType]);
+	
+	const [currentDeviceType, setCurrentDeviceType] = useState<string>(getDeviceTypeFromPath());
 	
 	// Environment and token state
 	const [environmentId, setEnvironmentId] = useState<string>('');
@@ -233,16 +252,19 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
 		
 		// Navigate to actual registration flow with policy ID in state
-		// Use a different route for the actual registration flow
-		navigate('/v8/mfa/register/fido2/device', {
+		// Use the correct device type route based on current path
+		const devicePath = currentDeviceType.toLowerCase() === 'security_key' ? 'security_key' : 
+		                  currentDeviceType.toLowerCase() === 'platform' ? 'platform' : 'fido2';
+		navigate(`/v8/mfa/register/${devicePath}/device`, {
 			replace: false,
 			state: {
 				fido2PolicyId: selectedFido2PolicyId,
 				deviceAuthPolicyId: selectedDeviceAuthPolicy?.id,
 				configured: true, // Flag to indicate configuration is complete
+				deviceType: currentDeviceType, // Pass the device type to the flow
 			},
 		});
-	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid]);
+	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid, currentDeviceType]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -275,11 +297,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
 						<FiKey size={32} color="white" />
 						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
-							FIDO2 / WebAuthn Configuration
+							{getDeviceTypeDisplayName()} / WebAuthn Configuration
 						</h1>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Configure FIDO2 policies, learn about WebAuthn, and prepare for device registration
+						Configure {getDeviceTypeDisplayName()} policies, learn about WebAuthn, and prepare for device registration
 					</p>
 				</div>
 
@@ -324,7 +346,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							Worker Token Required
 						</h3>
 						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
-							You need a valid worker token to configure FIDO2 policies and register devices.
+							You need a valid worker token to configure {getDeviceTypeDisplayName()} policies and register devices.
 						</p>
 						<button
 							type="button"
