@@ -1733,6 +1733,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep4={createRenderStep4()}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Send OTP', 'Validate']}
+				shouldHideNextButton={(props) => {
+					// Hide final button on success step (step 3) - we have our own "Start Again" button
+					if (props.nav.currentStep === 3) {
+						return true;
+					}
+					return false;
+				}}
 			/>
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
