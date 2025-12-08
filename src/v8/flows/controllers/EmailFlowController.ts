@@ -56,26 +56,43 @@ export class EmailFlowController extends MFAFlowController {
 		// Email address validation is now done in Step 1 (registration), not Step 0
 		// Device name validation is also done in Step 1 (registration), not Step 0
 
-		if (!tokenStatus.isValid) {
-			errors.push('Worker token is required - please add a token first');
+		// Per rightTOTP.md: Check token validity based on token type (worker or user)
+		const tokenType = credentials.tokenType || 'worker';
+		const isTokenValid = tokenType === 'worker' 
+			? tokenStatus.isValid 
+			: !!credentials.userToken?.trim();
+		if (!isTokenValid) {
+			errors.push(`${tokenType === 'worker' ? 'Worker' : 'User'} token is required - please add a token first`);
 		}
 
 		nav.setValidationErrors(errors);
 		return errors.length === 0;
 	}
 
-	getDeviceRegistrationParams(credentials: MFACredentials): Partial<RegisterDeviceParams> {
+	getDeviceRegistrationParams(credentials: MFACredentials, status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'): Partial<RegisterDeviceParams> {
 		// Use device name from credentials if provided
 		const deviceName = credentials.deviceName?.trim() || `Email Device - ${new Date().toLocaleDateString()}`;
-		return {
+		const params: Partial<RegisterDeviceParams> = {
 			email: credentials.email,
 			name: deviceName,
 			nickname: deviceName,
-			// Set to ACTIVE since we're using Worker App (actor making request on behalf of user)
-			// Per PingOne API: Worker App can set ACTIVE (pre-paired, no activation required) or ACTIVATION_REQUIRED
+			// Status determines if device needs activation:
+			// ACTIVE: Pre-paired device, ready to use immediately (no OTP needed)
+			// ACTIVATION_REQUIRED: User must activate device via OTP before first use
+			// Per PingOne API: Worker App can set ACTIVE (pre-paired) or ACTIVATION_REQUIRED
 			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
-			status: 'ACTIVE',
+			status,
 		};
+
+		// Include policy if deviceAuthenticationPolicyId is provided
+		// According to API docs: policy should be an object with id property
+		// Format: { "policy": { "id": "policy-id-string" } }
+		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-email
+		if (credentials.deviceAuthenticationPolicyId?.trim()) {
+			params.policy = { id: credentials.deviceAuthenticationPolicyId.trim() };
+		}
+
+		return params;
 	}
 }
 

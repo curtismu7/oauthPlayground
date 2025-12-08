@@ -18,8 +18,8 @@
  * - Dashboard features (device list, policy summary)
  */
 
-import React, { useCallback, useEffect, useId, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
 	FiAlertCircle,
 	FiCheck,
@@ -30,6 +30,7 @@ import {
 	FiPhone,
 	FiPlus,
 	FiShield,
+	FiTrash2,
 	FiX,
 } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
@@ -44,8 +45,14 @@ import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
+import { oauthStorage } from '@/utils/storage';
+import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import { useAuth } from '@/contexts/NewAuthContext';
+import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -109,7 +116,74 @@ interface AuthenticationState {
  */
 export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const navigate = useNavigate();
+	const [searchParams] = useSearchParams();
+	const authContext = useAuth();
+	const [isClearingTokens, setIsClearingTokens] = useState(false);
+	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
+
+	// Check for OAuth callback code and redirect to the correct flow page
+	useEffect(() => {
+		const code = searchParams.get('code');
+		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+		
+		// If we have a code and user login state, this is a callback from user login
+		if (code && hasUserLoginState) {
+			console.log(`${MODULE_TAG} Detected OAuth callback on hub page, checking for return path`);
+			
+			// Check if we have a stored return path
+			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
+			
+			if (returnToMfaFlow) {
+				try {
+					const mfaPath = JSON.parse(returnToMfaFlow);
+					console.log(`${MODULE_TAG} Found stored return path, redirecting to: ${mfaPath}`);
+					
+					// Preserve callback parameters in the URL when redirecting
+					const callbackParams = new URLSearchParams(window.location.search);
+					const redirectUrl = callbackParams.toString() 
+						? `${mfaPath}?${callbackParams.toString()}`
+						: mfaPath;
+					
+					// Clean up the return path marker
+					sessionStorage.removeItem('user_login_return_to_mfa');
+					
+					// Redirect to the flow page with callback params
+					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
+					window.location.replace(redirectUrl);
+					return;
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
+				}
+			}
+			
+			// If no return path, try to determine from stored credentials
+			const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+				flowKey: FLOW_KEY,
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			
+			if (stored.deviceType) {
+				const deviceType = (stored.deviceType as DeviceType).toLowerCase();
+				const flowPath = `/v8/mfa/register/${deviceType}`;
+				console.log(`${MODULE_TAG} No return path, redirecting to device flow: ${flowPath}`);
+				
+				const callbackParams = new URLSearchParams(window.location.search);
+				const redirectUrl = callbackParams.toString() 
+					? `${flowPath}?${callbackParams.toString()}`
+					: flowPath;
+				
+				window.location.replace(redirectUrl);
+				return;
+			}
+			
+			console.warn(`${MODULE_TAG} OAuth callback detected but no return path or device type found`);
+		}
+	}, [searchParams]);
 
 	// Control Panel State
 	const [credentials, setCredentials] = useState(() => {
@@ -165,6 +239,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [showRegistrationModal, setShowRegistrationModal] = useState(false);
 	const [showPolicyInfoModal, setShowPolicyInfoModal] = useState(false);
 	const [showDeviceSelectionInfoModal, setShowDeviceSelectionInfoModal] = useState(false);
+	const [deviceSearchQuery, setDeviceSearchQuery] = useState('');
 
 	// OTP state
 	const [otpCode, setOtpCode] = useState('');
@@ -191,6 +266,25 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	useEffect(() => {
 		setShowUsernameDecisionModal(false);
 	}, []);
+
+	// Clear auth state when username changes to prevent showing wrong user's data
+	useEffect(() => {
+		// Reset auth state when username changes to ensure we're working with the correct user
+		setAuthState({
+			isLoading: false,
+			authenticationId: null,
+			status: '',
+			nextStep: '',
+			devices: [],
+			showDeviceSelection: false,
+			selectedDeviceId: '',
+			userId: '',
+			challengeId: null,
+			_links: {},
+			completionResult: null,
+		});
+		setUserDevices([]);
+	}, [usernameInput]);
 
 	// Update token status
 	useEffect(() => {
@@ -304,23 +398,39 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return;
 			}
 
+			const currentUsername = usernameInput.trim();
+			console.log(`${MODULE_TAG} Loading devices for user: "${currentUsername}"`, {
+				environmentId: credentials.environmentId,
+				username: currentUsername,
+			});
+
 			setIsLoadingDevices(true);
 			setDevicesError(null);
 
 			try {
 				const devices = await MFAServiceV8.getAllDevices({
 					environmentId: credentials.environmentId,
-					username: usernameInput.trim(),
+					username: currentUsername,
 				});
-				console.log(`${MODULE_TAG} Loaded user devices:`, {
+				console.log(`${MODULE_TAG} ✅ Loaded devices for user "${currentUsername}":`, {
 					count: devices.length,
 					devices: devices.map((d: Record<string, unknown>) => ({
 						id: d.id,
 						type: d.type,
 						nickname: d.nickname || d.name,
+						userId: d.user?.id || 'N/A',
 					})),
+					username: currentUsername,
 				});
-				setUserDevices(devices);
+				// Only set devices if username hasn't changed (prevent race condition)
+				if (usernameInput.trim() === currentUsername) {
+					setUserDevices(devices);
+				} else {
+					console.log(`${MODULE_TAG} Username changed during device load, discarding results`, {
+						loadedFor: currentUsername,
+						currentUsername: usernameInput.trim(),
+					});
+				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
 				
@@ -356,20 +466,37 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	useEffect(() => {
 		if (showDeviceSelectionModal && credentials.environmentId && usernameInput.trim() && tokenStatus.isValid) {
 			const loadUserDevices = async () => {
+				const currentUsername = usernameInput.trim();
+				console.log(`${MODULE_TAG} Loading devices for device selection modal - user: "${currentUsername}"`, {
+					environmentId: credentials.environmentId,
+					username: currentUsername,
+				});
 				try {
+					// Clear devices first to ensure we're loading for the correct user
+					setUserDevices([]);
 					const devices = await MFAServiceV8.getAllDevices({
 						environmentId: credentials.environmentId,
-						username: usernameInput.trim(),
+						username: currentUsername,
 					});
-					console.log(`${MODULE_TAG} Loaded user devices for device selection modal:`, {
+					console.log(`${MODULE_TAG} ✅ Loaded devices for device selection modal - user "${currentUsername}":`, {
 						count: devices.length,
 						devices: devices.map((d: Record<string, unknown>) => ({
 							id: d.id,
 							type: d.type,
 							nickname: d.nickname || d.name,
+							userId: d.user?.id || 'N/A',
 						})),
+						username: currentUsername,
 					});
-					setUserDevices(devices);
+					// Only set devices if username hasn't changed (prevent race condition)
+					if (usernameInput.trim() === currentUsername) {
+						setUserDevices(devices);
+					} else {
+						console.log(`${MODULE_TAG} Username changed during device load, discarding results`, {
+							loadedFor: currentUsername,
+							currentUsername: usernameInput.trim(),
+						});
+					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
 					
@@ -393,19 +520,35 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [showDeviceSelectionModal, credentials.environmentId, usernameInput, tokenStatus.isValid]);
 
+	// Track last fetched environment to prevent duplicate calls
+	const lastFetchedPolicyEnvIdRef = useRef<string | null>(null);
+	const isFetchingPoliciesRef = useRef(false);
+
 	// Load MFA Policies
 	const loadPolicies = useCallback(async (): Promise<DeviceAuthenticationPolicy[]> => {
-		if (!credentials.environmentId || !tokenStatus.isValid) {
+		const envId = credentials.environmentId?.trim();
+		
+		if (!envId || !tokenStatus.isValid) {
 			return [];
 		}
 
+		// Prevent duplicate calls - if we're already fetching or already fetched for this env, skip
+		if (isFetchingPoliciesRef.current || lastFetchedPolicyEnvIdRef.current === envId) {
+			console.log(`${MODULE_TAG} Skipping duplicate policy fetch`, {
+				isFetching: isFetchingPoliciesRef.current,
+				lastFetchedEnv: lastFetchedPolicyEnvIdRef.current,
+				currentEnv: envId,
+			});
+			return deviceAuthPolicies;
+		}
+
+		isFetchingPoliciesRef.current = true;
 		setIsLoadingPolicies(true);
 		setPoliciesError(null);
 
 		try {
-			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(
-				credentials.environmentId
-			);
+			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
+			lastFetchedPolicyEnvIdRef.current = envId;
 			setDeviceAuthPolicies(policies);
 
 			// Auto-select if only one policy
@@ -450,13 +593,20 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			console.error(`${MODULE_TAG} Failed to load policies:`, error);
 			return [];
 		} finally {
+			isFetchingPoliciesRef.current = false;
 			setIsLoadingPolicies(false);
 		}
-	}, [credentials.environmentId, tokenStatus.isValid]);
+	}, [credentials.environmentId, credentials.deviceAuthenticationPolicyId, tokenStatus.isValid, deviceAuthPolicies]);
 
+	// Load policies when environment or token changes (but not when callback changes)
 	useEffect(() => {
-		void loadPolicies();
-	}, [loadPolicies]);
+		const envId = credentials.environmentId?.trim();
+		
+		// Only fetch if environment changed or we haven't fetched yet
+		if (envId && tokenStatus.isValid && lastFetchedPolicyEnvIdRef.current !== envId) {
+			void loadPolicies();
+		}
+	}, [credentials.environmentId, tokenStatus.isValid, loadPolicies]);
 
 	// Extract allowed device types from policy (shared function)
 	const extractAllowedDeviceTypes = useCallback((policy: DeviceAuthenticationPolicy): DeviceType[] => {
@@ -507,7 +657,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		// This means the policy allows all devices (no restrictions)
 		if (uniqueAllowed.length === 0) {
 			console.log(`${MODULE_TAG} No explicit device type restrictions found in policy, defaulting to all common device types`);
-			return ['FIDO2', 'TOTP', 'SMS', 'EMAIL', 'VOICE', 'MOBILE', 'PLATFORM', 'SECURITY_KEY', 'WHATSAPP'] as DeviceType[];
+			return ['FIDO2', 'TOTP', 'SMS', 'EMAIL', 'VOICE', 'MOBILE', 'WHATSAPP'] as DeviceType[];
 		}
 		
 		console.log(`${MODULE_TAG} Extracted allowed device types:`, uniqueAllowed);
@@ -633,7 +783,52 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			
 			// Use devices from authentication response - these are the devices available for this session
 			// Fallback to empty array if no devices in response
-			const authDevices: Device[] = (response.devices || []).map((d: Record<string, unknown>) => {
+			const rawDevices = response.devices || [];
+			console.log(`${MODULE_TAG} 📋 Raw devices from initializeDeviceAuthentication:`, {
+				username: usernameInput.trim(),
+				userId: user.id,
+				deviceCount: rawDevices.length,
+				devices: rawDevices.map((d: Record<string, unknown>) => ({
+					id: d.id,
+					type: d.type,
+					nickname: d.nickname || d.name,
+					status: d.status,
+					userId: d.user?.id || 'N/A',
+					userUsername: d.user?.username || 'N/A',
+					userName: d.user?.name || 'N/A',
+					allKeys: Object.keys(d),
+				})),
+			});
+
+			// Filter devices to ensure they belong to the correct user
+			// PingOne should already filter by user, but we'll double-check
+			const userDevices = rawDevices.filter((d: Record<string, unknown>) => {
+				const deviceUserId = d.user?.id || d.userId;
+				const matches = !deviceUserId || deviceUserId === user.id;
+				if (!matches) {
+					console.warn(`${MODULE_TAG} ⚠️ Device belongs to different user, filtering out:`, {
+						deviceId: d.id,
+						deviceType: d.type,
+						deviceUserId,
+						expectedUserId: user.id,
+						expectedUsername: usernameInput.trim(),
+					});
+				}
+				return matches;
+			});
+
+			console.log(`${MODULE_TAG} ✅ Filtered devices for user "${usernameInput.trim()}":`, {
+				originalCount: rawDevices.length,
+				filteredCount: userDevices.length,
+				removedCount: rawDevices.length - userDevices.length,
+				devices: userDevices.map((d: Record<string, unknown>) => ({
+					id: d.id,
+					type: d.type,
+					nickname: d.nickname || d.name,
+				})),
+			});
+
+			let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
 				const device: Device = {
 					id: (d.id as string) || '',
 					type: (d.type as string) || '',
@@ -644,6 +839,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				if (d.status) device.status = d.status as string;
 				return device;
 			});
+			
+			// Check for session cookies - if present, prefer FIDO2 platform devices even if not default
+			// Per PingOne MFA API: "If the user is paired with a FIDO2 platform device and a session 
+			// token cookie exists on the browser, the FIDO2 platform device is used for authentication 
+			// even if it is not the default device."
+			const { shouldPreferFIDO2PlatformDevice } = await import('@/v8/services/fido2SessionCookieServiceV8');
+			const platformPreference = shouldPreferFIDO2PlatformDevice();
+			
+			if (platformPreference.prefer && authDevices.length > 0) {
+				// Reorder devices to prioritize FIDO2 devices when session cookie exists
+				const fido2Devices = authDevices.filter(d => d.type === 'FIDO2');
+				const otherDevices = authDevices.filter(d => d.type !== 'FIDO2');
+				
+				if (fido2Devices.length > 0) {
+					authDevices = [...fido2Devices, ...otherDevices];
+					console.log(`${MODULE_TAG} Session cookie detected - prioritizing FIDO2 devices:`, {
+						reason: platformPreference.reason,
+						fido2Count: fido2Devices.length,
+						totalDevices: authDevices.length,
+					});
+				}
+			}
 			
 			console.log(`${MODULE_TAG} Devices from authentication response:`, authDevices);
 
@@ -705,6 +922,93 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		usernameInput,
 	]);
 
+	// Clear all tokens (worker and user tokens) and end PingOne session
+	const handleClearTokens = useCallback(async () => {
+		setShowClearTokensModal(false);
+		setIsClearingTokens(true);
+		try {
+			// End PingOne session first (if we have an ID token)
+			const tokens = oauthStorage.getTokens();
+			const idToken = tokens?.id_token || authContext.tokens?.id_token;
+			
+			// Try to get environment ID from various sources
+			let environmentId: string | undefined;
+			if (authContext.config?.pingone?.environmentId) {
+				environmentId = authContext.config.pingone.environmentId;
+			} else if (credentials.environmentId) {
+				environmentId = credentials.environmentId;
+			}
+			
+			if (idToken && environmentId) {
+				try {
+					const logoutResult = await pingOneLogoutService.logout({
+						idToken,
+						environmentId,
+						autoOpen: true,
+						openIn: 'new-tab',
+						clearClientStorage: false, // We'll clear storage ourselves below
+					});
+					
+					if (logoutResult.success) {
+						console.log('[MFA-AUTHN-MAIN-V8] PingOne session logout initiated:', logoutResult.message);
+						toastV8.info('PingOne session logout initiated in a new tab');
+					} else {
+						console.warn('[MFA-AUTHN-MAIN-V8] PingOne logout failed:', logoutResult.error);
+					}
+				} catch (error) {
+					console.warn('[MFA-AUTHN-MAIN-V8] Could not end PingOne session:', error);
+				}
+			} else {
+				console.log('[MFA-AUTHN-MAIN-V8] No ID token or environment ID available for PingOne logout', {
+					hasIdToken: !!idToken,
+					hasEnvironmentId: !!environmentId,
+				});
+			}
+
+			// Call auth context logout to clear local session state
+			try {
+				authContext.logout();
+				console.log('[MFA-AUTHN-MAIN-V8] Auth context logout called');
+			} catch (error) {
+				console.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
+			}
+
+			// Clear worker token
+			await workerTokenServiceV8.clearCredentials();
+			console.log('[MFA-AUTHN-MAIN-V8] Worker token cleared');
+
+			// Clear OAuth tokens from auth context
+			try {
+				oauthStorage.clearTokens();
+				oauthStorage.clearUserInfo();
+				console.log('[MFA-AUTHN-MAIN-V8] OAuth tokens cleared from auth context');
+			} catch (error) {
+				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear OAuth tokens:', error);
+			}
+
+			// Clear user tokens from MFA flow credentials
+			try {
+				if (credentials.userToken) {
+					setCredentials((prev) => ({
+						...prev,
+						userToken: undefined,
+						tokenType: undefined,
+					}));
+					console.log('[MFA-AUTHN-MAIN-V8] User token cleared from credentials');
+				}
+			} catch (error) {
+				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
+			}
+
+			toastV8.success('All tokens cleared successfully!');
+		} catch (error) {
+			console.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
+			toastV8.error('Failed to clear tokens. Please try again.');
+		} finally {
+			setIsClearingTokens(false);
+		}
+	}, [authContext, credentials.environmentId, credentials.userToken, setCredentials]);
+
 	return (
 		<div
 			style={{
@@ -717,12 +1021,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}}
 		>
 			{/* Navigation Bar */}
-			<MFANavigationV8 currentPage="hub" showBackToMain={false} />
-			
-			{/* API Display Toggle - Top */}
-			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
+			<MFANavigationV8 currentPage="hub" showBackToMain={true} />
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 			
@@ -860,8 +1159,54 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<FiKey />
 						Use Passkey / FaceID (username-less)
 					</button>
+
+					{/* Clear Tokens & Session Button */}
+					<button
+						type="button"
+						onClick={() => setShowClearTokensModal(true)}
+						disabled={isClearingTokens}
+						style={{
+							padding: '10px 24px',
+							border: 'none',
+							borderRadius: '6px',
+							background: isClearingTokens ? '#9ca3af' : '#ef4444',
+							color: 'white',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: isClearingTokens ? 'not-allowed' : 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							opacity: isClearingTokens ? 0.6 : 1,
+							transition: 'all 0.2s ease',
+						}}
+					>
+						{isClearingTokens ? (
+							<>
+								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+								Clearing...
+							</>
+						) : (
+							<>
+								<FiTrash2 />
+								Clear Tokens & Session
+							</>
+						)}
+					</button>
 				</div>
 			</div>
+
+			{/* Clear Tokens Confirmation Modal */}
+			<ConfirmModalV8
+				isOpen={showClearTokensModal}
+				title="Clear Tokens & End PingOne Session"
+				message="Are you sure you want to clear all tokens and end your PingOne session?\n\nThis will:\n• Clear worker tokens\n• Clear user tokens (OAuth access tokens)\n• End your PingOne session (logout)\n• Clear all stored authentication data\n\nYou will need to log in again to continue."
+				confirmText="Clear & Logout"
+				cancelText="Cancel"
+				variant="danger"
+				onConfirm={handleClearTokens}
+				onCancel={() => setShowClearTokensModal(false)}
+			/>
 
 			{/* 2. Control Panel: Environment + Worker Token + MFA Policy */}
 			<div
@@ -1375,8 +1720,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						{/* Status */}
 						{authState.status && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
 									Status
+									{(() => {
+										// Map status to education content key
+										const statusKeyMap: Record<string, string> = {
+											'OTP_REQUIRED': 'flow.otp_required',
+											'DEVICE_SELECTION_REQUIRED': 'flow.device_selection_required',
+											'ASSERTION_REQUIRED': 'flow.assertion_required',
+											'PUSH_CONFIRMATION_REQUIRED': 'flow.push_confirmation_required',
+											'PUSH_CONFIRMATION_TIMED_OUT': 'flow.push_confirmation_timed_out',
+										};
+										const contentKey = statusKeyMap[authState.status];
+										if (contentKey) {
+											return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
+										}
+										return null;
+									})()}
 								</div>
 								<div
 									style={{
@@ -1397,8 +1757,24 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						{/* Next Step */}
 						{authState.nextStep && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
 									Next Step
+									{(() => {
+										// Map nextStep to education content key
+										const stepKeyMap: Record<string, string> = {
+											'OTP_REQUIRED': 'flow.otp_required',
+											'DEVICE_SELECTION_REQUIRED': 'flow.device_selection_required',
+											'SELECTION_REQUIRED': 'flow.device_selection_required',
+											'ASSERTION_REQUIRED': 'flow.assertion_required',
+											'PUSH_CONFIRMATION_REQUIRED': 'flow.push_confirmation_required',
+											'PUSH_CONFIRMATION_TIMED_OUT': 'flow.push_confirmation_timed_out',
+										};
+										const contentKey = stepKeyMap[authState.nextStep];
+										if (contentKey) {
+											return <MFAInfoButtonV8 contentKey={contentKey} displayMode="tooltip" />;
+										}
+										return null;
+									})()}
 								</div>
 								<div
 									style={{
@@ -1774,13 +2150,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											}}
 										>
 											{device.type === 'SMS' || device.type === 'VOICE' ? (
-												<FiPhone />
+												<FiPhone color="white" />
 											) : device.type === 'EMAIL' ? (
-												<FiMail />
+												<FiMail color="white" />
 											) : device.type === 'FIDO2' ? (
-												<FiKey />
+												<FiKey color="white" />
 											) : (
-												<FiShield />
+												<FiShield color="white" />
 											)}
 										</div>
 										<div style={{ flex: 1 }}>
@@ -2218,15 +2594,97 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							>
 								Choose how to verify
 							</h3>
+							{usernameInput.trim() && (
+								<p
+									style={{
+										margin: '8px 0 0 0',
+										fontSize: '14px',
+										fontWeight: '400',
+										color: 'rgba(255, 255, 255, 0.9)',
+										textAlign: 'center',
+									}}
+								>
+									For user: <strong>{usernameInput.trim()}</strong>
+								</p>
+							)}
 						</div>
 						<div style={{ padding: '24px', overflow: 'auto', flex: 1 }}>
+							{/* Search Input */}
+							<div style={{ marginBottom: '16px' }}>
+								<div style={{ position: 'relative' }}>
+									<input
+										type="text"
+										placeholder="Search devices by name, phone, email, or type..."
+										value={deviceSearchQuery}
+										onChange={(e) => setDeviceSearchQuery(e.target.value)}
+										style={{
+											width: '100%',
+											padding: '10px 16px 10px 40px',
+											border: '1px solid #d1d5db',
+											borderRadius: '8px',
+											fontSize: '14px',
+											outline: 'none',
+											transition: 'border-color 0.2s',
+										}}
+										onFocus={(e) => {
+											e.currentTarget.style.borderColor = '#10b981';
+										}}
+										onBlur={(e) => {
+											e.currentTarget.style.borderColor = '#d1d5db';
+										}}
+									/>
+									<span
+										style={{
+											position: 'absolute',
+											left: '12px',
+											top: '50%',
+											transform: 'translateY(-50%)',
+											color: '#6b7280',
+											fontSize: '18px',
+										}}
+									>
+										🔍
+									</span>
+									{deviceSearchQuery && (
+										<button
+											type="button"
+											onClick={() => setDeviceSearchQuery('')}
+											style={{
+												position: 'absolute',
+												right: '8px',
+												top: '50%',
+												transform: 'translateY(-50%)',
+												background: 'transparent',
+												border: 'none',
+												cursor: 'pointer',
+												color: '#6b7280',
+												padding: '4px',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.color = '#1f2937';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.color = '#6b7280';
+											}}
+										>
+											<FiX size={16} />
+										</button>
+									)}
+								</div>
+							</div>
+
 							{(() => {
 								// Merge devices from authState and userDevices, deduplicating by ID
-								console.log(`${MODULE_TAG} Device Selection Modal - Merging devices:`, {
+								console.log(`${MODULE_TAG} Device Selection Modal - Merging devices for user "${usernameInput.trim()}":`, {
 									authStateDevices: authState.devices.length,
 									userDevices: userDevices.length,
 									authStateDeviceIds: authState.devices.map(d => d.id),
 									userDeviceIds: userDevices.map((d: Record<string, unknown>) => d.id),
+									currentUsername: usernameInput.trim(),
+									authStateUserId: authState.userId,
 								});
 								
 								const authDevicesMap = new Map(authState.devices.map(d => [d.id, d]));
@@ -2243,15 +2701,72 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								
 								// Merge maps, with authState devices taking precedence
 								const allDevicesMap = new Map([...userDevicesMap, ...authDevicesMap]);
-								const allDevices = Array.from(allDevicesMap.values());
+								let allDevices = Array.from(allDevicesMap.values());
+
+								// Filter devices based on search query
+								if (deviceSearchQuery.trim()) {
+									const query = deviceSearchQuery.toLowerCase().trim();
+									allDevices = allDevices.filter((device) => {
+										const name = (device.nickname || device.name || '').toLowerCase();
+										const phone = (device.phone || '').toLowerCase();
+										const email = (device.email || '').toLowerCase();
+										const type = (device.type || '').toLowerCase();
+										const status = (device.status || '').toLowerCase();
+										
+										return (
+											name.includes(query) ||
+											phone.includes(query) ||
+											email.includes(query) ||
+											type.includes(query) ||
+											status.includes(query)
+										);
+									});
+								}
 								
-								console.log(`${MODULE_TAG} Device Selection Modal - All devices after merge:`, {
+								console.log(`${MODULE_TAG} Device Selection Modal - All devices after merge and filter:`, {
 									totalDevices: allDevices.length,
+									searchQuery: deviceSearchQuery,
 									deviceIds: allDevices.map(d => d.id),
 									deviceTypes: allDevices.map(d => d.type),
 								});
 								
 								if (allDevices.length === 0) {
+									if (deviceSearchQuery.trim()) {
+										return (
+											<div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+												<FiShield style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.5 }} />
+												<p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px', color: '#1f2937' }}>No devices found</p>
+												<p style={{ fontSize: '14px', marginBottom: '24px' }}>
+													No devices match your search: <strong>"{deviceSearchQuery}"</strong>
+												</p>
+												<button
+													type="button"
+													onClick={() => setDeviceSearchQuery('')}
+													style={{
+														padding: '10px 20px',
+														border: '1px solid #d1d5db',
+														borderRadius: '8px',
+														background: 'white',
+														color: '#6b7280',
+														fontSize: '14px',
+														fontWeight: '500',
+														cursor: 'pointer',
+														transition: 'all 0.2s',
+													}}
+													onMouseEnter={(e) => {
+														e.currentTarget.style.borderColor = '#10b981';
+														e.currentTarget.style.color = '#10b981';
+													}}
+													onMouseLeave={(e) => {
+														e.currentTarget.style.borderColor = '#d1d5db';
+														e.currentTarget.style.color = '#6b7280';
+													}}
+												>
+													Clear Search
+												</button>
+											</div>
+										);
+									}
 									return (
 										<div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
 											<FiShield style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.5 }} />
@@ -2291,14 +2806,52 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									);
 								}
 								
+								// Separate devices by status: ACTIVE vs ACTIVATION_REQUIRED
+								const activeDevices = allDevices.filter((d) => {
+									const status = (d.status as string)?.toUpperCase();
+									return status === 'ACTIVE' || !status || status === '';
+								});
+								const activationRequiredDevices = allDevices.filter((d) => {
+									const status = (d.status as string)?.toUpperCase();
+									return status === 'ACTIVATION_REQUIRED';
+								});
+
 								return (
-									<MFADeviceSelector
-										devices={allDevices}
-										loading={false}
-										selectedDeviceId={authState.selectedDeviceId}
-										deviceType={'SMS' as DeviceType} // Device-agnostic: let devices determine their own types (using SMS as default)
-										allowFlowSwitching={false}
-										onSelectDevice={async (deviceId) => {
+									<div>
+										{/* Active Devices Section */}
+										{activeDevices.length > 0 && (
+											<div
+												style={{
+													margin: '0 0 20px 0',
+													padding: '16px',
+													border: '2px solid #10b981',
+													borderRadius: '8px',
+													background: '#f0fdf4',
+												}}
+											>
+												{/* Header */}
+												<div
+													style={{
+														marginBottom: '12px',
+														padding: '10px 12px',
+														background: '#10b981',
+														borderRadius: '6px',
+													}}
+												>
+													<div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>
+														✅ Active Devices ({activeDevices.length})
+													</div>
+													<div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.9)' }}>
+														These devices are ready to use for authentication. They appear in PingOne Console.
+													</div>
+												</div>
+												{/* Device List */}
+												<MFADeviceSelector
+													devices={activeDevices}
+													loading={false}
+													selectedDeviceId={authState.selectedDeviceId}
+													deviceType={'SMS' as DeviceType}
+													onSelectDevice={async (deviceId) => {
 								console.log(`${MODULE_TAG} Device selection triggered:`, {
 									deviceId,
 									deviceIdType: typeof deviceId,
@@ -2387,11 +2940,36 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										deviceId: deviceId.trim(),
 									});
 
-									console.log(`${MODULE_TAG} Device selected successfully:`, data);
+									console.log(`${MODULE_TAG} Device selected successfully:`, {
+										data,
+										challengeId: data.challengeId,
+										status: data.status,
+										nextStep: data.nextStep,
+										_links: data._links,
+										allKeys: Object.keys(data),
+									});
+
+									// Extract challengeId from response - it might be in data.challengeId or in _links
+									let challengeId: string | null = (data.challengeId as string) || null;
+									
+									// Check if challengeId is in _links (e.g., challenge.poll or challenge.check)
+									if (!challengeId && data._links) {
+										const links = data._links as Record<string, { href: string }>;
+										// Extract challengeId from challenge.poll or challenge.check URLs if present
+										const challengePollUrl = links['challenge.poll']?.href || links['challenge.check']?.href;
+										if (challengePollUrl) {
+											// Try to extract challengeId from URL (format: /.../challenges/{challengeId}/poll)
+											const challengeMatch = challengePollUrl.match(/\/challenges\/([^\/]+)/);
+											if (challengeMatch && challengeMatch[1]) {
+												challengeId = challengeMatch[1];
+												console.log(`${MODULE_TAG} Extracted challengeId from URL:`, challengeId);
+											}
+										}
+									}
 
 									// Read the device authentication again to get the latest state including challengeId
+									// Note: This may fail with 403, but we should still have challengeId from the selectDeviceForAuthentication response
 									let authDetails: Record<string, unknown> | null = null;
-									let challengeId: string | null = (data.challengeId as string) || null;
 									
 									try {
 										// Use userId if available, otherwise use username
@@ -2407,11 +2985,40 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											nextStep: authDetails.nextStep,
 											challengeId: authDetails.challengeId,
 										});
-										// Use challengeId from authDetails if available, otherwise from data
-										challengeId = (authDetails.challengeId as string) || challengeId;
+										// Use challengeId from authDetails if available, otherwise keep existing
+										if (authDetails.challengeId) {
+											challengeId = authDetails.challengeId as string;
+										}
 									} catch (readError) {
-										console.warn(`${MODULE_TAG} Failed to read device authentication after selection:`, readError);
+										console.warn(`${MODULE_TAG} Failed to read device authentication after selection (will use challengeId from selection response):`, readError);
+										// Even if read fails, we should have challengeId from the selectDeviceForAuthentication response
+										// Log the current challengeId to help debug
+										console.log(`${MODULE_TAG} Using challengeId from selectDeviceForAuthentication response:`, challengeId);
 									}
+
+									// Ensure challengeId is set - it's critical for FIDO2 authentication
+									if (!challengeId) {
+										console.error(`${MODULE_TAG} ⚠️ WARNING: challengeId is missing after device selection!`, {
+											data,
+											authDetails,
+											_links: data._links,
+											challengeIdFromData: data.challengeId,
+										});
+										// Try to extract from _links as a last resort
+										if (data._links) {
+											const links = data._links as Record<string, { href: string }>;
+											const challengePollUrl = links['challenge.poll']?.href || links['challenge.check']?.href;
+											if (challengePollUrl) {
+												const challengeMatch = challengePollUrl.match(/\/challenges\/([^\/]+)/);
+												if (challengeMatch && challengeMatch[1]) {
+													challengeId = challengeMatch[1];
+													console.log(`${MODULE_TAG} ✅ Extracted challengeId from _links URL as fallback:`, challengeId);
+												}
+											}
+										}
+									}
+
+									console.log(`${MODULE_TAG} Final challengeId for FIDO2 authentication:`, challengeId);
 
 									// Update auth state with response
 									const status = (authDetails?.status as string) || data.status || '';
@@ -2455,8 +3062,113 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									setAuthState((prev) => ({ ...prev, isLoading: false }));
 								}
 							}}
-							// Don't show registration option during authentication - users should only select existing devices
+							onSelectNew={() => {
+								console.log(`${MODULE_TAG} Register New Device clicked`);
+								setShowDeviceSelectionModal(false);
+								// Open registration modal to allow user to choose device type
+								setShowRegistrationModal(true);
+							}}
 									/>
+											</div>
+										)}
+										{/* Activation Required Devices Section */}
+										{activationRequiredDevices.length > 0 && (
+											<div
+												style={{
+													margin: '0',
+													padding: '16px',
+													border: '2px solid #f59e0b',
+													borderRadius: '8px',
+													background: '#fef3c7',
+												}}
+											>
+												{/* Header */}
+												<div
+													style={{
+														marginBottom: '12px',
+														padding: '10px 12px',
+														background: '#f59e0b',
+														borderRadius: '6px',
+													}}
+												>
+													<div style={{ fontSize: '15px', fontWeight: '700', color: 'white', marginBottom: '4px' }}>
+														⚠️ Devices Still in ACTIVATION_REQUIRED ({activationRequiredDevices.length})
+													</div>
+													<div style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.9)' }}>
+														These devices need activation before they can be used for authentication. They are NOT shown in PingOne Console.
+													</div>
+												</div>
+												{/* Device List */}
+												<MFADeviceSelector
+													devices={activationRequiredDevices}
+													loading={false}
+													selectedDeviceId={authState.selectedDeviceId}
+													deviceType={'SMS' as DeviceType}
+													onSelectDevice={async (deviceId) => {
+														// Same handler as active devices
+														console.log(`${MODULE_TAG} Device selection triggered (activation required):`, {
+															deviceId,
+															deviceIdType: typeof deviceId,
+															deviceIdLength: deviceId?.length,
+															devicesAvailable: authState.devices.length,
+															devices: authState.devices.map((d) => ({ id: d.id, type: d.type, nickname: d.nickname })),
+														});
+
+														// Validate deviceId
+														if (!deviceId || deviceId.trim() === '') {
+															console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
+															toastV8.error('Device ID is missing or invalid');
+															return;
+														}
+
+														// Find the selected device to determine its type
+														const selectedDevice = allDevices.find((d) => d.id === deviceId) || authState.devices.find((d) => d.id === deviceId);
+														if (!selectedDevice) {
+															console.error(`${MODULE_TAG} Selected device not found in devices list:`, {
+																deviceId,
+																availableDeviceIds: allDevices.map((d) => d.id),
+																authStateDeviceIds: authState.devices.map((d) => d.id),
+															});
+															toastV8.error('Selected device not found');
+															return;
+														}
+
+														const deviceType = (selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
+														console.log(`${MODULE_TAG} Device selected (activation required):`, {
+															deviceId,
+															deviceType,
+															selectedDevice,
+															authenticationId: authState.authenticationId,
+															userId: authState.userId,
+															username: usernameInput.trim(),
+														});
+
+														// Validate required fields
+														if (!authState.authenticationId) {
+															console.error(`${MODULE_TAG} Missing authenticationId`);
+															toastV8.error('Authentication session not found. Please start authentication again.');
+															return;
+														}
+
+														if (!usernameInput.trim()) {
+															console.error(`${MODULE_TAG} Missing username`);
+															toastV8.error('Username is required');
+															return;
+														}
+
+														// Note: Activation required devices cannot be used for authentication
+														toastV8.warning('This device requires activation before it can be used for authentication. Please activate it first.');
+														setShowDeviceSelectionModal(false);
+													}}
+													onSelectNew={() => {
+														console.log(`${MODULE_TAG} Register New Device clicked`);
+														setShowDeviceSelectionModal(false);
+														setShowRegistrationModal(true);
+													}}
+												/>
+											</div>
+										)}
+									</div>
 								);
 							})()}
 						</div>
@@ -2579,22 +3291,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								</div>
 							)}
 
-							{(() => {
-								// Try to find device in authState.devices first, then fallback to userDevices
-								let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
-								if (!selectedDevice && authState.selectedDeviceId) {
-									selectedDevice = userDevices.find((d) => (d.id as string) === authState.selectedDeviceId) as Device | undefined;
-								}
-								if (!selectedDevice || (!selectedDevice.phone && !selectedDevice.email)) return null;
-								
-								return (
-									<p style={{ margin: '0 0 24px 0', color: '#6b7280', fontSize: '15px', lineHeight: '1.5', textAlign: 'center' }}>
-										Enter the 6-digit code from {selectedDevice.phone ? `your phone` : `your email`}
-									</p>
-								);
-							})()}
-
-							<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+							<div style={{ marginBottom: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
 								<MFAOTPInput
 									value={otpCode}
 									onChange={(value) => {
@@ -2605,6 +3302,20 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									placeholder="123456"
 									maxLength={6}
 								/>
+								{(() => {
+									// Try to find device in authState.devices first, then fallback to userDevices
+									let selectedDevice = authState.devices.find((d) => d.id === authState.selectedDeviceId);
+									if (!selectedDevice && authState.selectedDeviceId) {
+										selectedDevice = userDevices.find((d) => (d.id as string) === authState.selectedDeviceId) as Device | undefined;
+									}
+									if (!selectedDevice || (!selectedDevice.phone && !selectedDevice.email)) return null;
+									
+									return (
+										<p style={{ margin: '0', color: '#6b7280', fontSize: '14px', lineHeight: '1.5', textAlign: 'center', width: '100%' }}>
+											Enter the 6-digit code from {selectedDevice.phone ? `your phone` : `your email`}
+										</p>
+									);
+								})()}
 							</div>
 
 						<div style={{ display: 'flex', gap: '12px' }}>
@@ -2733,6 +3444,109 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									</>
 								) : (
 									'Verify Code'
+								)}
+							</button>
+							<button
+								type="button"
+								onClick={async () => {
+									// Resend OTP by re-selecting the device
+									// According to cursor-optimized.md: Only use verified endpoints
+									// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
+									if (!authState.authenticationId || !authState.selectedDeviceId) {
+										setOtpError('Authentication session or device not found');
+										return;
+									}
+
+									setIsValidatingOTP(true);
+									setOtpError(null);
+									setOtpCode(''); // Clear existing code
+
+									try {
+										// Get userId if not already available
+										let userId = authState.userId;
+										if (!userId) {
+											const user = await MFAServiceV8.lookupUserByUsername(
+												credentials.environmentId,
+												usernameInput.trim()
+											);
+											userId = user.id as string;
+											setAuthState((prev) => ({ ...prev, userId }));
+										}
+
+										// Re-select device to trigger new OTP
+										// According to cursor-optimized.md: Only use verified endpoints
+										// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
+										const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+											{
+												environmentId: credentials.environmentId,
+												username: usernameInput.trim(),
+												userId,
+												authenticationId: authState.authenticationId,
+												deviceId: authState.selectedDeviceId,
+											},
+											{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
+										);
+
+										// Read device authentication to get updated state
+										let authDetails: Record<string, unknown> | null = null;
+										try {
+											authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+												credentials.environmentId,
+												userId || usernameInput.trim(),
+												authState.authenticationId,
+												{ isUserId: !!userId }
+											);
+										} catch (readError) {
+											console.warn(`${MODULE_TAG} Failed to read device authentication after resend:`, readError);
+										}
+
+										// Update auth state with new links
+										const status = (authDetails?.status as string) || data.status || '';
+										const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
+										const links = (data._links as Record<string, { href: string }>) || {};
+
+										setAuthState((prev) => ({
+											...prev,
+											status,
+											nextStep,
+											_links: { ...prev._links, ...links },
+										}));
+
+										toastV8.success('New verification code has been sent. Please check your device.');
+									} catch (error) {
+										console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
+										const errorMessage = error instanceof Error ? error.message : 'Failed to resend code';
+										setOtpError(errorMessage);
+										toastV8.error(`Failed to resend code: ${errorMessage}`);
+									} finally {
+										setIsValidatingOTP(false);
+									}
+								}}
+								disabled={isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId}
+								style={{
+									padding: '10px 24px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId ? '#f3f4f6' : 'white',
+									color: isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId ? '#9ca3af' : '#374151',
+									fontSize: '16px',
+									fontWeight: '500',
+									cursor: isValidatingOTP || !authState.authenticationId || !authState.selectedDeviceId ? 'not-allowed' : 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '8px',
+								}}
+							>
+								{isValidatingOTP ? (
+									<>
+										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+										Sending...
+									</>
+								) : (
+									<>
+										🔄 Resend Code
+									</>
 								)}
 							</button>
 							<button
@@ -2895,6 +3709,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									setFido2Error(null);
 
 									try {
+										// Check for session cookies and native app context to prefer FIDO2 platform devices
+										// Per PingOne MFA API:
+										// 1. If session cookie exists, use FIDO2 platform device even if not default
+										// 2. If native app with device authorization, use native device
+										const { shouldPreferFIDO2PlatformDevice, getAuthenticatorSelectionPreferences } = await import('@/v8/services/fido2SessionCookieServiceV8');
+										const platformPreference = shouldPreferFIDO2PlatformDevice();
+										const authenticatorPrefs = getAuthenticatorSelectionPreferences();
+										
 										// Detect if we're on macOS to prefer Passkeys (platform authenticators)
 										const isMac = typeof navigator !== 'undefined' && navigator.platform.toLowerCase().includes('mac');
 										
@@ -2905,12 +3727,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											userName: usernameInput.trim(),
 											userVerification: 'preferred',
 										};
-										// Prefer platform authenticators (Passkeys) on Mac
-										if (isMac) {
+										
+										// Prefer platform authenticators if:
+										// 1. Session cookie exists (FIDO2 platform device should be used even if not default)
+										// 2. Native app with device authorization enabled
+										// 3. macOS (Passkeys)
+										if (platformPreference.prefer || isMac) {
 											webAuthnParams.authenticatorSelection = {
 												authenticatorAttachment: 'platform',
 												userVerification: 'preferred',
 											};
+											if (platformPreference.prefer) {
+												console.log(`[🔐 MFA-AUTHN-MAIN-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`);
+											}
 										}
 										const webAuthnResult = await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(webAuthnParams);
 
@@ -3003,6 +3832,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									}
 								}}
 								disabled={isAuthenticatingFIDO2 || !WebAuthnAuthenticationServiceV8.isWebAuthnSupported() || !authState.challengeId}
+								title={
+									!authState.challengeId
+										? 'Challenge ID is missing. Please try selecting the device again.'
+										: !WebAuthnAuthenticationServiceV8.isWebAuthnSupported()
+											? 'WebAuthn is not supported in this browser'
+											: isAuthenticatingFIDO2
+												? 'Authenticating...'
+												: 'Click to authenticate with your Passkey or security key'
+								}
 								style={{
 									flex: 1,
 									padding: '10px 24px',
@@ -3288,8 +4126,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									EMAIL: '📧',
 									VOICE: '📞',
 									MOBILE: '📲',
-									PLATFORM: '💻',
-									SECURITY_KEY: '🔐',
 									TEL: '📞',
 									WHATSAPP: '💬',
 								};
@@ -3301,8 +4137,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									EMAIL: 'Email',
 									VOICE: 'Voice Call',
 									MOBILE: 'Mobile App',
-									PLATFORM: 'Platform Authenticator',
-									SECURITY_KEY: 'Security Key',
 									TEL: 'Telephone',
 									WHATSAPP: 'WhatsApp',
 								};
@@ -3363,57 +4197,89 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												marginBottom: '24px',
 											}}
 										>
-											{allowedDeviceTypes.map((deviceType) => (
-												<button
-													key={deviceType}
-													type="button"
-													onClick={() => {
-														setShowRegistrationModal(false);
-														// Navigate to registration with the selected policy
-														// The registration flow will use credentials.deviceAuthenticationPolicyId
-														console.log(`${MODULE_TAG} Navigating to registration for ${deviceType} with policy:`, {
-															deviceType,
-															policyId: credentials.deviceAuthenticationPolicyId,
-															policyName: selectedPolicy.name,
-														});
-														navigate(`/v8/mfa/register/${deviceType.toLowerCase()}`, {
-															state: {
-																deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+											{allowedDeviceTypes.map((deviceType) => {
+												const isFIDO2 = deviceType === 'FIDO2';
+												
+												return (
+													<button
+														key={deviceType}
+														type="button"
+														onClick={() => {
+															setShowRegistrationModal(false);
+															// Navigate to registration with the selected policy
+															// The registration flow will use credentials.deviceAuthenticationPolicyId
+															console.log(`${MODULE_TAG} Navigating to registration for ${deviceType} with policy:`, {
+																deviceType,
+																policyId: credentials.deviceAuthenticationPolicyId,
 																policyName: selectedPolicy.name,
-															},
-														});
-													}}
-													style={{
-														padding: '16px',
-														border: '2px solid #e5e7eb',
-														borderRadius: '12px',
-														background: 'white',
-														cursor: 'pointer',
-														transition: 'all 0.2s',
-														display: 'flex',
-														flexDirection: 'column',
-														alignItems: 'center',
-														gap: '8px',
-													}}
-													onMouseEnter={(e) => {
-														e.currentTarget.style.borderColor = '#10b981';
-														e.currentTarget.style.background = '#f0fdf4';
-													}}
-													onMouseLeave={(e) => {
-														e.currentTarget.style.borderColor = '#e5e7eb';
-														e.currentTarget.style.background = 'white';
-													}}
-												>
-													<span style={{ fontSize: '32px' }}>{deviceIcons[deviceType] || '📱'}</span>
-													<span style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937', textAlign: 'center' }}>
-														{deviceNames[deviceType] || deviceType}
-													</span>
-												</button>
-											))}
+															});
+															navigate(`/v8/mfa/register/${deviceType.toLowerCase()}`, {
+																state: {
+																	deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+																	policyName: selectedPolicy.name,
+																},
+															});
+														}}
+														style={{
+															padding: isFIDO2 ? '24px' : '16px',
+															border: '2px solid #e5e7eb',
+															borderRadius: '12px',
+															background: 'white',
+															color: '#1f2937',
+															cursor: 'pointer',
+															transition: 'all 0.2s',
+															display: 'flex',
+															flexDirection: 'column',
+															alignItems: 'center',
+															gap: '8px',
+															transform: isFIDO2 ? 'scale(1.1)' : 'scale(1)',
+															boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+														}}
+														onMouseEnter={(e) => {
+															e.currentTarget.style.borderColor = '#3b82f6';
+															e.currentTarget.style.background = '#f8fafc';
+															e.currentTarget.style.transform = isFIDO2 ? 'scale(1.15)' : 'scale(1.05)';
+															e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.2)';
+														}}
+														onMouseLeave={(e) => {
+															e.currentTarget.style.borderColor = '#e5e7eb';
+															e.currentTarget.style.background = 'white';
+															e.currentTarget.style.transform = isFIDO2 ? 'scale(1.1)' : 'scale(1)';
+															e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+														}}
+													>
+														<span style={{ fontSize: isFIDO2 ? '40px' : '32px' }}>{deviceIcons[deviceType] || '📱'}</span>
+														<span style={{ fontSize: isFIDO2 ? '15px' : '13px', fontWeight: '600', color: '#1f2937', textAlign: 'center' }}>
+															{deviceNames[deviceType] || deviceType}
+														</span>
+													</button>
+												);
+											})}
 										</div>
 										<button
 											type="button"
 											onClick={() => setShowRegistrationModal(false)}
+											style={{
+												width: '100%',
+												marginTop: '24px',
+												padding: '12px 24px',
+												border: '2px solid #3b82f6',
+												borderRadius: '8px',
+												background: '#3b82f6',
+												color: 'white',
+												fontSize: '16px',
+												fontWeight: '500',
+												cursor: 'pointer',
+												transition: 'all 0.2s',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#2563eb';
+												e.currentTarget.style.borderColor = '#2563eb';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#3b82f6';
+												e.currentTarget.style.borderColor = '#3b82f6';
+											}}
 											style={{
 												width: '100%',
 												padding: '12px 24px',
@@ -3756,10 +4622,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 			
-			{/* API Display Toggle - Bottom */}
-			<div style={{ marginTop: '48px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
 		</div>
 	);
 };

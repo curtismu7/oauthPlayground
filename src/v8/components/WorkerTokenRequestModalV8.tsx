@@ -7,11 +7,12 @@
  */
 
 import React, { useState } from 'react';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 interface WorkerTokenRequestModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
-	onExecute: () => void;
+	onExecute: () => Promise<string | null>; // Return generated token or null
 	requestDetails: {
 		tokenEndpoint: string;
 		requestParams: {
@@ -26,6 +27,7 @@ interface WorkerTokenRequestModalV8Props {
 		resolvedBody: string;
 	};
 	isExecuting: boolean;
+	showTokenAtEnd?: boolean; // Whether to show token after generation
 }
 
 export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props> = ({
@@ -34,9 +36,12 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 	onExecute,
 	requestDetails,
 	isExecuting,
+	showTokenAtEnd = true,
 }) => {
 	const [showSecret, setShowSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [generatedToken, setGeneratedToken] = useState<string | null>(null);
+	const [isTokenStep, setIsTokenStep] = useState(false);
 
 	// Lock body scroll when modal is open
 	React.useEffect(() => {
@@ -49,6 +54,20 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 		}
 	}, [isOpen]);
 
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	if (!isOpen) return null;
 
 	const handleCopy = (text: string, field: string) => {
@@ -56,6 +75,28 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 		setCopiedField(field);
 		setTimeout(() => setCopiedField(null), 2000);
 	};
+
+	const handleExecute = async () => {
+		const token = await onExecute();
+		if (token && showTokenAtEnd) {
+			setGeneratedToken(token);
+			setIsTokenStep(true);
+		} else {
+			onClose();
+		}
+	};
+
+	const handleUseToken = () => {
+		onClose();
+	};
+
+	// Reset state when modal closes
+	React.useEffect(() => {
+		if (!isOpen) {
+			setGeneratedToken(null);
+			setIsTokenStep(false);
+		}
+	}, [isOpen]);
 
 	// Color code the URL parts
 	const renderColoredUrl = (url: string) => {
@@ -127,10 +168,10 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 									color: '#92400e',
 								}}
 							>
-								📡 Worker Token API Request
+								{isTokenStep ? '🔑 Generated Worker Token' : '📡 Worker Token API Request'}
 							</h2>
 							<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
-								Review the request details before executing
+								{isTokenStep ? 'Your worker token has been generated and saved' : 'Review the request details before executing'}
 							</p>
 						</div>
 						<button
@@ -151,23 +192,76 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 
 				{/* Content */}
 				<div style={{ padding: '24px' }}>
-					{/* Info Box */}
-					<div
-						style={{
-							padding: '12px',
-							background: '#d1fae5',
-							borderRadius: '6px',
-							border: '1px solid #10b981',
-							marginBottom: '20px',
-							fontSize: '13px',
-							color: '#065f46',
-						}}
-					>
-						<strong>✅ Educational Mode:</strong> This shows you exactly what API call will be made.
-						Review the details and click "Execute Request" to proceed.
-					</div>
+					{isTokenStep && generatedToken ? (
+						<>
+							{/* Token Display Step */}
+							<div
+								style={{
+									padding: '12px',
+									background: '#d1fae5',
+									borderRadius: '6px',
+									border: '1px solid #10b981',
+									marginBottom: '20px',
+									fontSize: '13px',
+									color: '#065f46',
+								}}
+							>
+								<strong>✅ Token Generated Successfully!</strong> This token will be used for API calls.
+							</div>
 
-					{/* Token Endpoint */}
+							{/* Token Display */}
+							<div style={{ marginBottom: '20px' }}>
+								{UnifiedTokenDisplayService.showTokens(
+									{ access_token: generatedToken },
+									'oauth',
+									'worker-token-v8',
+									{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
+								)}
+							</div>
+
+							{/* Actions */}
+							<div style={{ display: 'flex', gap: '8px' }}>
+								<button
+									onClick={onClose}
+									style={{
+										flex: 1,
+										padding: '10px 16px',
+										background: '#e5e7eb',
+										color: '#1f2937',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									Close
+								</button>
+							</div>
+						</>
+					) : (
+						<>
+							{/* Request Review Step */}
+							{/* Info Box */}
+							<div
+								style={{
+									padding: '12px',
+									background: '#d1fae5',
+									borderRadius: '6px',
+									border: '1px solid #10b981',
+									marginBottom: '20px',
+									fontSize: '13px',
+									color: '#065f46',
+								}}
+							>
+								<strong>✅ Educational Mode:</strong> This shows you exactly what API call will be made.
+								Review the details and click "Execute Request" to proceed.
+							</div>
+
+							{/* Token Endpoint */}
 					<div style={{ marginBottom: '20px' }}>
 						<div
 							style={{
@@ -532,42 +626,44 @@ export const WorkerTokenRequestModalV8: React.FC<WorkerTokenRequestModalV8Props>
 						securely and never expose them in client-side code.
 					</div>
 
-					{/* Actions */}
-					<div style={{ display: 'flex', gap: '8px' }}>
-						<button
-							onClick={onClose}
-							style={{
-								flex: 1,
-								padding: '10px 16px',
-								background: '#e5e7eb',
-								color: '#1f2937',
-								border: 'none',
-								borderRadius: '4px',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: 'pointer',
-							}}
-						>
-							Cancel
-						</button>
-						<button
-							onClick={onExecute}
-							disabled={isExecuting}
-							style={{
-								flex: 1,
-								padding: '10px 16px',
-								background: isExecuting ? '#9ca3af' : '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '4px',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: isExecuting ? 'not-allowed' : 'pointer',
-							}}
-						>
-							{isExecuting ? '🔄 Executing...' : '▶️ Execute Request'}
-						</button>
-					</div>
+							{/* Actions */}
+							<div style={{ display: 'flex', gap: '8px' }}>
+								<button
+									onClick={onClose}
+									style={{
+										flex: 1,
+										padding: '10px 16px',
+										background: '#e5e7eb',
+										color: '#1f2937',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									onClick={handleExecute}
+									disabled={isExecuting}
+									style={{
+										flex: 1,
+										padding: '10px 16px',
+										background: isExecuting ? '#9ca3af' : '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: isExecuting ? 'not-allowed' : 'pointer',
+									}}
+								>
+									{isExecuting ? '🔄 Executing...' : '▶️ Execute Request'}
+								</button>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</>

@@ -12,9 +12,9 @@ export type DeviceType =
 	| 'MOBILE' 
 	| 'OATH_TOKEN' 
 	| 'VOICE' 
-	| 'WHATSAPP' 
-	| 'PLATFORM' 
-	| 'SECURITY_KEY';
+	| 'WHATSAPP';
+
+export type TokenType = 'worker' | 'user'; // Worker token (admin) or User token (access token from implicit flow)
 
 export interface MFACredentials {
 	environmentId: string;
@@ -28,6 +28,10 @@ export interface MFACredentials {
 	deviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED'; // Device status determines if OTP is sent
 	deviceAuthenticationPolicyId?: string; // Auth policy to use during device authentication (runtime MFA)
 	registrationPolicyId?: string; // Optional policy for registration if tenant requires it
+	fido2PolicyId?: string; // FIDO2 policy ID selected in configuration (optional, backward compatible)
+	// Token configuration per rightTOTP.md: Support Worker Token OR User Token (access token from implicit)
+	tokenType?: TokenType; // 'worker' or 'user'
+	userToken?: string; // Access token from implicit flow (when tokenType is 'user')
 	[key: string]: unknown;
 }
 
@@ -36,6 +40,10 @@ export interface DeviceAuthenticationPolicy {
 	name: string;
 	description?: string;
 	status?: string;
+	authentication?: {
+		deviceSelection?: string;
+		[key: string]: unknown;
+	};
 	[key: string]: unknown;
 }
 
@@ -56,6 +64,9 @@ export interface MFAState {
 	// Authentication flow fields (for existing devices)
 	authenticationId?: string;
 	nextStep?: string; // OTP_REQUIRED, ASSERTION_REQUIRED, SELECTION_REQUIRED, COMPLETED
+	// Per rightOTP.md: device.activate URI from device creation response
+	// Use this URI for OTP activation instead of constructing endpoint
+	deviceActivateUri?: string;
 	// TOTP-specific fields
 	qrCodeUrl?: string;
 	totpSecret?: string;
@@ -64,6 +75,7 @@ export interface MFAState {
 	fido2PublicKey?: string;
 	fido2RegistrationComplete?: boolean;
 	fido2ChallengeId?: string; // Challenge ID for WebAuthn assertion
+	fido2AssertionOptions?: PublicKeyCredentialRequestOptions | null;
 	// Device authentication ID for the new MFA flow
 	deviceAuthId?: string;
 }
