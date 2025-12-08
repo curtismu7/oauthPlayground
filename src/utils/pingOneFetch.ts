@@ -5,6 +5,8 @@
  *              (Accept headers, transient retry handling, forward-compatible fallbacks).
  */
 
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+
 const DEFAULT_RETRY_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
 export interface PingOneFetchRetryOptions {
@@ -52,6 +54,110 @@ const normalizeHeaders = (headers: HeadersInit | undefined): Record<string, stri
 	return { ...headers };
 };
 
+const decodeBase64 = (value: string): string => {
+	if (typeof window !== 'undefined' && typeof window.atob === 'function') {
+		return window.atob(value);
+	}
+	if (typeof Buffer !== 'undefined') {
+		return Buffer.from(value, 'base64').toString('utf-8');
+	}
+	throw new Error('No base64 decoder available in this environment');
+};
+
+const fetchBackendCallsById = async (callId: string) => {
+	try {
+		const resp = await fetch(`/api/pingone/calls/${encodeURIComponent(callId)}`, {
+			credentials: 'same-origin',
+		});
+		if (!resp.ok) {
+			return null;
+		}
+		return resp.json() as Promise<{ calls: unknown }>;
+	} catch (error) {
+		console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
+		return null;
+	}
+};
+
+const processBackendCalls = (calls: Array<{
+	url: string;
+	method: string;
+	status: number;
+	statusText?: string;
+	requestId?: string;
+	duration?: number;
+	timestamp?: number;
+	responseBodyBase64?: string;
+	requestBodyBase64?: string;
+	requestHeaders?: Record<string, string>;
+}>) => {
+	if (!Array.isArray(calls)) {
+		return;
+	}
+	calls.forEach((call) => {
+		if (!call?.url || !call?.method) {
+			return;
+		}
+		let body: string | object | null = null;
+		if (call.requestBodyBase64) {
+			try {
+				const decodedBody = decodeBase64(call.requestBodyBase64);
+				body = JSON.parse(decodedBody);
+			} catch {
+				body = decodeBase64(call.requestBodyBase64);
+			}
+		}
+		let responseData: unknown = null;
+		if (call.responseBodyBase64) {
+			try {
+				responseData = JSON.parse(decodeBase64(call.responseBodyBase64));
+			} catch {
+				responseData = decodeBase64(call.responseBodyBase64);
+			}
+		}
+
+		const trackedId = apiCallTrackerService.trackApiCall({
+			method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+			url: call.url,
+			headers: call.requestHeaders || (call.requestId ? { 'pingone-request-id': call.requestId } : undefined),
+			body,
+			source: 'backend',
+			isProxy: false,
+		});
+		apiCallTrackerService.updateApiCallResponse(
+			trackedId,
+			{
+				status: call.status,
+				statusText: call.statusText ?? '',
+				data: responseData ?? undefined,
+			},
+			call.duration
+		);
+	});
+};
+
+const logBackendPingOneCalls = async (response: Response) => {
+	const header = response.headers.get('x-pingone-calls');
+	if (header) {
+		try {
+			const decoded = JSON.parse(decodeBase64(header));
+			processBackendCalls(decoded);
+			return;
+		} catch (error) {
+			console.warn('[pingOneFetch] Failed to parse inline backend call metadata', error);
+		}
+	}
+	const callId = response.headers.get('x-pingone-calls-id');
+	if (!callId) {
+		return;
+	}
+	const payload = await fetchBackendCallsById(callId);
+	if (!payload || !payload.calls) {
+		return;
+	}
+	processBackendCalls(payload.calls);
+};
+
 /**
  * pingOneFetch – wraps fetch with
  *  - Accept header default (JSON + HAL for forward compatibility)
@@ -84,11 +190,12 @@ export async function pingOneFetch(input: RequestInfo | URL, init: PingOneFetchO
 			});
 
 			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
+				await logBackendPingOneCalls(response);
 				return response;
 			}
 
 			const retryAfter = parseRetryAfter(response.headers.get('Retry-After'));
-			const waitTime = retryAfter ?? baseDelayMs * Math.pow(backoffFactor, attempt - 1);
+			const waitTime = retryAfter ?? baseDelayMs * backoffFactor ** (attempt - 1);
 
 			if (response.body) {
 				try {
@@ -99,14 +206,13 @@ export async function pingOneFetch(input: RequestInfo | URL, init: PingOneFetchO
 			}
 
 			await delay(waitTime);
-			continue;
 		} catch (error) {
 			lastError = error;
 			if (attempt >= maxAttempts) {
 				throw error;
 			}
 
-			const waitTime = baseDelayMs * Math.pow(backoffFactor, attempt - 1);
+			const waitTime = baseDelayMs * backoffFactor ** (attempt - 1);
 			await delay(waitTime);
 		}
 	}

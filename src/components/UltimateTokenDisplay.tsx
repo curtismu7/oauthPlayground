@@ -8,8 +8,6 @@ import {
 	FiCode,
 	FiCopy,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiKey,
 	FiLock,
 	FiShield,
@@ -399,12 +397,12 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	subtitle,
 	showCopyButtons = true,
 	showDecodeButtons = true,
-	showMaskToggle = true,
-	showTokenManagement = true,
-	showEducationalInfo = false,
+	showMaskToggle: _showMaskToggle = true,
+	showTokenManagement: _showTokenManagement = true,
+	showEducationalInfo: _showEducationalInfo = false,
 	showMetadata = true,
 	showSyntaxHighlighting = false,
-	defaultMasked = false,
+	defaultMasked: _defaultMasked = false,
 	className,
 	onTokenAnalyze,
 }) => {
@@ -428,6 +426,7 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 		id: false,
 		refresh: false,
 	});
+	const [showInfo, setShowInfo] = useState(false);
 
 	// Computed values
 	const availableTokens = useMemo(() => {
@@ -646,12 +645,54 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	return (
 		<Container $mode={displayMode} className={className}>
 			<Header $mode={displayMode}>
-				<Title $mode={displayMode}>
-					<FiShield size={20} />
-					{displayTitle}
-				</Title>
-				{subtitle !== false && <Subtitle>{displaySubtitle}</Subtitle>}
+				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+					<div>
+						<Title $mode={displayMode}>
+							<FiShield size={20} />
+							{displayTitle}
+						</Title>
+						{subtitle !== false && <Subtitle>{displaySubtitle}</Subtitle>}
+					</div>
+					<button
+						type="button"
+						onClick={() => setShowInfo((prev) => !prev)}
+						style={{
+							padding: '6px 12px',
+							borderRadius: '999px',
+							border: '1px solid #c7d2fe',
+							background: showInfo ? '#e0e7ff' : '#eef2ff',
+							color: '#312e81',
+							fontWeight: 600,
+							cursor: 'pointer',
+							fontSize: '0.85rem',
+							whiteSpace: 'nowrap',
+						}}
+					>
+						{showInfo ? 'Hide token guide' : 'What is this?'}
+					</button>
+				</div>
 			</Header>
+
+			{showInfo && (
+				<div
+					style={{
+						padding: '16px 20px',
+						background: '#fefce8',
+						borderBottom: '1px solid #fcd34d',
+						color: '#7c2d12',
+						fontSize: '0.9rem',
+						lineHeight: 1.6,
+					}}
+				>
+					<strong>Token viewer primer:</strong>
+					<ul style={{ margin: '8px 0 0 20px' }}>
+						<li>Each colored card represents a different token returned from PingOne (access, ID, refresh).</li>
+						<li>Use the copy, decode, and analyze buttons to inspect JWT structure, scopes, and expiry.</li>
+						<li>Masking is off by default so you can see the raw string—use the toggle if you need to hide secrets before screensharing.</li>
+						<li>The metadata grid at the bottom summarizes token type, expiry, and scopes for quick reference.</li>
+					</ul>
+				</div>
+			)}
 
 			{availableTokens.map(renderToken)}
 
