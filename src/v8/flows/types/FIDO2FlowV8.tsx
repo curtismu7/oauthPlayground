@@ -1725,6 +1725,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					if (props.nav.currentStep === 1) {
 						return deviceSelection.showRegisterForm;
 					}
+					// Hide final button on success step (step 3) - we have our own "Start Again" button
+					if (props.nav.currentStep === 3) {
+						return true;
+					}
 					return false;
 				}}
 			/>
