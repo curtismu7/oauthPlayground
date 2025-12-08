@@ -95,6 +95,19 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const toggleSection = (key: keyof typeof collapsedSections) => {
 		setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
 	};
+	const passkeysVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.webauthn');
+	const passkeysVsDeviceBindingContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.device.binding');
+	const biometricsVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.biometrics.vs.webauthn');
+	
+	// Collapsible sections state
+	const [collapsedSections, setCollapsedSections] = useState({
+		advancedConcepts: true,
+		comparisonTable: true,
+	});
+	
+	const toggleSection = (key: keyof typeof collapsedSections) => {
+		setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+	};
 
 	// Load environment ID
 	useEffect(() => {
