@@ -361,6 +361,88 @@ The policy must be configured in PingOne before you can register devices.`,
 			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device-fido2',
 		},
 		
+		'fido2.passkeys.vs.webauthn': {
+			title: 'Passkeys vs WebAuthn',
+			description: `**Passkeys** and **WebAuthn** are related but distinct concepts:
+
+**WebAuthn:**
+- The **browser API** that enables passwordless authentication
+- A technical standard (W3C) that defines how browsers interact with authenticators
+- The underlying protocol that makes passkeys possible
+- Can be used for both passkeys and traditional FIDO2 credentials
+
+**Passkeys:**
+- A **user-friendly term** for WebAuthn credentials that are synced across devices
+- Built on top of WebAuthn technology
+- Designed for seamless, passwordless authentication
+- Can be synced via iCloud Keychain (Apple), Google Password Manager, or Microsoft Account
+- Provides a smoother user experience with automatic credential discovery
+
+**Key Difference:**
+- **WebAuthn** = The technology/protocol
+- **Passkeys** = The user experience built on WebAuthn (synced, discoverable credentials)
+
+All passkeys use WebAuthn, but not all WebAuthn credentials are passkeys. Traditional FIDO2 security keys are WebAuthn-based but not passkeys because they're device-bound.`,
+			learnMoreUrl: 'https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html',
+		},
+		
+		'fido2.passkeys.vs.device.binding': {
+			title: 'Passkeys vs Device Binding',
+			description: `**Passkeys** and **Device Binding** represent different approaches to credential storage:
+
+**Passkeys:**
+- Credentials are **synced across devices** via cloud services (iCloud Keychain, Google Password Manager)
+- Users can authenticate on any device where they're signed in
+- Provides seamless cross-device authentication
+- Better user experience for passwordless flows
+- Credentials are discoverable and automatically suggested
+
+**Device Binding:**
+- Credentials are **bound to a specific device** (hardware security key, device TPM)
+- Cannot be transferred or synced to other devices
+- Higher security isolation - credentials never leave the device
+- Requires physical access to the device for authentication
+- Better for high-security scenarios where credential portability is a concern
+
+**When to Use Each:**
+- **Passkeys**: Consumer applications, convenience-focused authentication, cross-device workflows
+- **Device Binding**: High-security environments, compliance requirements, scenarios where credential portability is a risk`,
+			learnMoreUrl: 'https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html',
+		},
+		
+		'fido2.biometrics.vs.webauthn': {
+			title: 'Biometrics vs WebAuthn',
+			description: `**Biometrics** and **WebAuthn** work together but serve different roles:
+
+**Biometrics (Touch ID, Face ID, Windows Hello):**
+- A **user verification method** used during WebAuthn authentication
+- Provides convenient, secure user authentication
+- Stored locally on the device (never transmitted)
+- Used to unlock the private key stored on the device
+- Part of the WebAuthn user verification process
+
+**WebAuthn:**
+- The **authentication protocol** that defines how credentials are created and used
+- Specifies how biometrics are integrated into the authentication flow
+- Defines the cryptographic operations (key generation, signing)
+- Handles the communication between browser, authenticator, and server
+
+**How They Work Together:**
+1. WebAuthn creates a credential (public/private key pair)
+2. The private key is stored securely on the device
+3. When authenticating, WebAuthn requests user verification
+4. Biometrics (or PIN/password) unlock the private key
+5. The private key signs a challenge, proving user identity
+
+**Key Point:** Biometrics are a **method** of user verification within WebAuthn, not a separate authentication technology.`,
+			learnMoreUrl: 'https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html',
+		},
+		
+		'fido2.comparison.table': {
+			title: 'WebAuthn vs Device Binding/JWS Verification Comparison',
+			description: `This comparison table shows the key differences between WebAuthn and Device Binding/JWS Verification approaches.`,
+		},
+		
 		// ===== SECURITY & BEST PRACTICES =====
 		'security.phishingResistance': {
 			title: 'Phishing Resistance',
