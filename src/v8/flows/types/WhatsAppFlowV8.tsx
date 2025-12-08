@@ -656,6 +656,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Clear success state when navigating to step 1 (moved to useEffect to avoid render warning)
 	React.useEffect(() => {
+		if (!flowNav || typeof flowNav.currentStep !== 'number') return;
 		const currentStep = flowNav.currentStep;
 		if (currentStep === 1 && previousStepRef.current !== 1 && deviceRegisteredActive) {
 			// Clear the state when we first enter step 1
@@ -665,7 +666,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// Reset the ref when we leave step 1
 			previousStepRef.current = currentStep;
 		}
-	}, [flowNav, deviceRegisteredActive, setDeviceRegisteredActive]);
+	}, [flowNav?.currentStep, deviceRegisteredActive, setDeviceRegisteredActive]);
 
 	// Step 1: Device Selection (using separate component like SMS)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
