@@ -441,6 +441,197 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								{phishingContent.description}
 							</p>
 						</div>
+						
+						{/* Advanced Concepts - Collapsible Section */}
+						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+							<button
+								type="button"
+								onClick={() => toggleSection('advancedConcepts')}
+								style={{
+									width: '100%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									background: 'none',
+									border: 'none',
+									padding: '8px 0',
+									cursor: 'pointer',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#3b82f6',
+								}}
+							>
+								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<FiBook size={18} />
+									Advanced Concepts: Passkeys, Device Binding & Biometrics
+								</span>
+								{collapsedSections.advancedConcepts ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+							</button>
+							
+							{!collapsedSections.advancedConcepts && (
+								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
+									<div style={{ marginBottom: '20px' }}>
+										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+											{passkeysVsWebAuthnContent.title}
+											<MFAInfoButtonV8 contentKey="fido2.passkeys.vs.webauthn" displayMode="tooltip" />
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{passkeysVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
+												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+									
+									<div style={{ marginBottom: '20px' }}>
+										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+											{passkeysVsDeviceBindingContent.title}
+											<MFAInfoButtonV8 contentKey="fido2.passkeys.vs.device.binding" displayMode="tooltip" />
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{passkeysVsDeviceBindingContent.description.split('\n\n').map((para, idx) => (
+												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+									
+									<div style={{ marginBottom: '20px' }}>
+										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+											{biometricsVsWebAuthnContent.title}
+											<MFAInfoButtonV8 contentKey="fido2.biometrics.vs.webauthn" displayMode="tooltip" />
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{biometricsVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
+												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+								</div>
+							)}
+						</div>
+						
+						{/* Comparison Table - Collapsible Section */}
+						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+							<button
+								type="button"
+								onClick={() => toggleSection('comparisonTable')}
+								style={{
+									width: '100%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									background: 'none',
+									border: 'none',
+									padding: '8px 0',
+									cursor: 'pointer',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#3b82f6',
+								}}
+							>
+								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<FiShield size={18} />
+									WebAuthn vs Device Binding/JWS Verification Comparison
+								</span>
+								{collapsedSections.comparisonTable ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+							</button>
+							
+							{!collapsedSections.comparisonTable && (
+								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
+									<div style={{
+										background: 'white',
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										overflow: 'hidden',
+										boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+									}}>
+										<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+											<thead>
+												<tr style={{ background: '#f9fafb' }}>
+													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+														Feature
+													</th>
+													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+														WebAuthn
+													</th>
+													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+														Device Binding / JWS Verification
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Technology</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>W3C WebAuthn standard</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>JWS (JSON Web Signature) with device binding</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Credential Storage</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Device authenticator (hardware key, TPM, or platform authenticator)</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Device-specific binding (hardware or software-based)</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>User Experience</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Native browser prompts, biometric authentication</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>App-specific implementation, may require additional steps</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Cross-Device</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Supported via passkeys (synced credentials)</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Device-bound, not transferable</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Security Model</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Public key cryptography, phishing-resistant</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Device attestation, cryptographic binding</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Browser Support</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Native browser API support (Chrome, Firefox, Safari, Edge)</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Requires custom implementation or SDK</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Use Cases</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Web applications, passwordless authentication, passkeys</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>Mobile apps, high-security scenarios, device-specific authentication</td>
+												</tr>
+												<tr style={{ background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Standards</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>W3C WebAuthn, FIDO2 CTAP</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>JWS (RFC 7515), custom device binding protocols</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<p style={{ margin: '16px 0 0 0', fontSize: '13px', color: '#6b7280', fontStyle: 'italic' }}>
+										Reference: <a href="https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>Ping Identity Passkeys Documentation</a>
+									</p>
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* WebAuthn Capabilities */}
