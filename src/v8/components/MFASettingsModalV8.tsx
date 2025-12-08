@@ -29,6 +29,20 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		}
 	}, [isOpen]);
 
+	// Handle ESC key to close modal
+	useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	useEffect(() => {
 		if (isOpen && environmentId) {
 			fetchSettings();

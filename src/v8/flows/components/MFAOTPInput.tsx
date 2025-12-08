@@ -28,8 +28,8 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 	};
 
 	return (
-		<div className="form-group">
-			<label htmlFor="mfa-otp">
+		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+			<label htmlFor="mfa-otp" style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#374151', textAlign: 'center', width: '100%' }}>
 				OTP Code <span className="required">*</span>
 			</label>
 			<input
@@ -40,20 +40,21 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 				disabled={disabled}
 				placeholder={placeholder}
 				style={{
-					padding: '6px 10px',
-					border: `1px solid ${value.length === maxLength ? '#10b981' : '#d1d5db'}`,
-					borderRadius: '6px',
-					fontSize: '18px',
+					padding: '12px 16px',
+					border: `2px solid ${value.length === maxLength ? '#10b981' : '#d1d5db'}`,
+					borderRadius: '8px',
+					fontSize: '20px',
 					fontFamily: 'monospace',
-					letterSpacing: '4px',
+					letterSpacing: '6px',
 					textAlign: 'center',
 					color: '#1f2937',
 					background: 'white',
 					width: '100%',
-					maxWidth: '200px',
+					maxWidth: '240px',
+					outline: 'none',
+					transition: 'border-color 0.2s',
 				}}
 			/>
-			<small>Enter the {maxLength}-digit code from your {placeholder.includes('email') ? 'email' : 'phone'}</small>
 		</div>
 	);
 };
