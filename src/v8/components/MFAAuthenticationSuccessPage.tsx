@@ -8,9 +8,9 @@
  * Displays authentication success with access token and related information.
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiCheck, FiCopy, FiHome } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiHome, FiInfo } from 'react-icons/fi';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 
@@ -63,6 +63,23 @@ export const MFAAuthenticationSuccessPage: React.FC = () => {
 	const timestamp = state?.timestamp;
 	const deviceSelectionBehavior = state?.deviceSelectionBehavior;
 
+	const deviceSummary = useMemo(() => {
+		if (!deviceType && !deviceDetails) {
+			return null;
+		}
+
+		const resolvedType = deviceDetails?.type || deviceType;
+		const resolvedName = deviceDetails?.nickname || deviceDetails?.name;
+		const contactDetail = deviceDetails?.email || deviceDetails?.phone;
+
+		return {
+			resolvedType,
+			resolvedName,
+			contactDetail,
+			status: deviceDetails?.status,
+		};
+	}, [deviceDetails, deviceType]);
+
 	const handleCopyToken = () => {
 		if (completionResult?.accessToken) {
 			navigator.clipboard.writeText(completionResult.accessToken);
@@ -80,6 +97,81 @@ export const MFAAuthenticationSuccessPage: React.FC = () => {
 			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
 				<ApiDisplayCheckbox />
 			</div>
+
+			{/* Flow Summary Card */}
+			{deviceSummary && (
+				<div
+					style={{
+						background: 'white',
+						border: '1px solid #e5e7eb',
+						borderRadius: '12px',
+						padding: '20px',
+						marginBottom: '24px',
+						boxShadow: '0 2px 6px rgba(15, 118, 110, 0.08)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+						<div
+							style={{
+								width: '40px',
+								height: '40px',
+								borderRadius: '10px',
+								background: '#ecfdf5',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								color: '#047857',
+							}}
+						>
+							<FiInfo />
+						</div>
+						<div>
+							<h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#065f46' }}>What was verified</h3>
+							<p style={{ margin: '4px 0 0', color: '#047857', fontSize: '14px' }}>
+								We confirmed your {deviceSummary.resolvedType?.toUpperCase() || 'device'} credentials.
+							</p>
+						</div>
+					</div>
+
+					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+						{deviceSummary.resolvedName && (
+							<div>
+								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Device Name</div>
+								<div style={{ background: '#f9fafb', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e5e7eb', fontWeight: 600 }}>
+									{deviceSummary.resolvedName}
+								</div>
+							</div>
+						)}
+						{deviceSummary.contactDetail && (
+							<div>
+								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+									{deviceDetails?.email ? 'Email' : 'Phone'}
+								</div>
+								<div style={{ background: '#eef2ff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #c7d2fe', fontWeight: 600 }}>
+									{deviceSummary.contactDetail}
+								</div>
+							</div>
+						)}
+						{deviceSummary.status && (
+							<div>
+								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Device Status</div>
+								<div
+									style={{
+										background: deviceSummary.status === 'ACTIVE' ? '#dcfce7' : '#fef3c7',
+										border: `1px solid ${deviceSummary.status === 'ACTIVE' ? '#86efac' : '#fcd34d'}`,
+										padding: '10px 12px',
+										borderRadius: '8px',
+										fontWeight: 600,
+										color: deviceSummary.status === 'ACTIVE' ? '#166534' : '#92400e',
+									}}
+								>
+									{deviceSummary.status}
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 			

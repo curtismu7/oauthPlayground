@@ -37,6 +37,20 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 	flowType,
 	scopes,
 }) => {
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	if (!isOpen) return null;
 
 	const rules = TokenOperationsServiceV8.getOperationRules(flowType, scopes);
@@ -58,9 +72,6 @@ export const TokenOperationsEducationModalV8: React.FC<TokenOperationsEducationM
 					backdropFilter: 'blur(4px)',
 				}}
 				onClick={onClose}
-				onKeyDown={(e) => {
-					if (e.key === 'Escape') onClose();
-				}}
 				role="button"
 				tabIndex={0}
 				aria-label="Close modal"

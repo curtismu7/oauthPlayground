@@ -248,6 +248,20 @@ export const TokenEndpointAuthModal: React.FC<TokenEndpointAuthModalProps> = ({
 		}
 	}, [isOpen]);
 
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	return (
 		<Overlay $isOpen={isOpen} onClick={onClose}>
 			<ModalContainer onClick={(e) => e.stopPropagation()}>
