@@ -1786,6 +1786,13 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep5={createRenderStep5()}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
+				shouldHideNextButton={(props) => {
+					// Hide final button on success step (step 4) - we have our own "Start Again" button
+					if (props.nav.currentStep === 4) {
+						return true;
+					}
+					return false;
+				}}
 			/>
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
