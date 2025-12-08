@@ -19,6 +19,107 @@ import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
 const MODULE_TAG = '[ℹ️ MFA-INFO-BUTTON-V8]';
 
+/**
+ * Render formatted description with proper markdown parsing
+ * Converts markdown-style text to JSX with proper lists and formatting
+ */
+const renderFormattedDescription = (description: string): React.ReactNode => {
+	if (!description) return null;
+
+	const lines = description.split('\n');
+	const elements: React.ReactNode[] = [];
+	let currentList: string[] = [];
+	let currentParagraph: string[] = [];
+
+	const flushList = () => {
+		if (currentList.length > 0) {
+			elements.push(
+				<ul
+					key={`list-${elements.length}`}
+					style={{
+						margin: '8px 0 12px 20px',
+						padding: 0,
+						listStyle: 'disc',
+					}}
+				>
+					{currentList.map((item, idx) => (
+						<li
+							key={idx}
+							style={{
+								margin: '4px 0',
+								paddingLeft: '4px',
+								lineHeight: '1.6',
+							}}
+						>
+							{renderBoldText(item.trim())}
+						</li>
+					))}
+				</ul>
+			);
+			currentList = [];
+		}
+	};
+
+	const flushParagraph = () => {
+		if (currentParagraph.length > 0) {
+			const text = currentParagraph.join(' ').trim();
+			if (text) {
+				elements.push(
+					<p key={`para-${elements.length}`} style={{ margin: '0 0 12px 0' }}>
+						{renderBoldText(text)}
+					</p>
+				);
+			}
+			currentParagraph = [];
+		}
+	};
+
+	const renderBoldText = (text: string): React.ReactNode => {
+		const parts: React.ReactNode[] = [];
+		let lastIndex = 0;
+		const boldRegex = /\*\*(.+?)\*\*/g;
+		let match;
+
+		while ((match = boldRegex.exec(text)) !== null) {
+			if (match.index > lastIndex) {
+				parts.push(text.substring(lastIndex, match.index));
+			}
+			parts.push(
+				<strong key={`bold-${parts.length}`} style={{ fontWeight: '600', color: '#1f2937' }}>
+					{match[1]}
+				</strong>
+			);
+			lastIndex = match.index + match[0].length;
+		}
+
+		if (lastIndex < text.length) {
+			parts.push(text.substring(lastIndex));
+		}
+
+		return parts.length > 0 ? <>{parts}</> : text;
+	};
+
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i].trim();
+
+		if (line.startsWith('- ')) {
+			flushParagraph();
+			currentList.push(line.substring(2));
+		} else if (line === '') {
+			flushList();
+			flushParagraph();
+		} else {
+			flushList();
+			currentParagraph.push(line);
+		}
+	}
+
+	flushList();
+	flushParagraph();
+
+	return <>{elements}</>;
+};
+
 export interface MFAInfoButtonV8Props {
 	/** Education content key from MFAEducationServiceV8 */
 	contentKey: string;
@@ -73,6 +174,20 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 	const handleClose = () => {
 		setIsOpen(false);
 	};
+
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen || displayMode !== 'modal') return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				handleClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, displayMode]);
 
 	// Show tooltip on hover (tooltip mode only)
 	const shouldShowTooltip = displayMode === 'tooltip' && (isHovered || isOpen);
@@ -171,9 +286,9 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 					</div>
 
 					{/* Description */}
-					<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280' /* Dark text on light background */, lineHeight: '1.6' }}>
-						{content.description}
-					</p>
+					<div style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280' /* Dark text on light background */, lineHeight: '1.6' }}>
+						{renderFormattedDescription(content.description)}
+					</div>
 
 					{/* Security note */}
 					{content.securityNote && (
@@ -311,9 +426,9 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 						</div>
 
 						{/* Description */}
-						<p style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#374151' /* Dark text */, lineHeight: '1.7' }}>
-							{content.description}
-						</p>
+						<div style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#374151' /* Dark text */, lineHeight: '1.7' }}>
+							{renderFormattedDescription(content.description)}
+						</div>
 
 						{/* Security note */}
 						{content.securityNote && (

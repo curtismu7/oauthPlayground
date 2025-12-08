@@ -116,7 +116,7 @@ export const checkWorkerTokenStatus = (
 		return {
 			status: 'expired',
 			message:
-				'Worker token expired, this is only needed for Application Picker which gives you a list of apps in your PingOne environment and allows you to apply Credentials.',
+				'Worker token expired. A valid worker token is required for MFA device registration and management operations.',
 			isValid: false,
 			expiresAt: resolvedExpiry,
 		};

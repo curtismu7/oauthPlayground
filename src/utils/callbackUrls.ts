@@ -10,6 +10,7 @@ export interface CallbackUrls {
 	deviceCodeStatus: string;
 	assertion?: string; // For JWT Bearer if applicable
 	dashboard: string; // For dashboard login
+	userLogin: string; // For user login flow
 }
 
 /**
@@ -28,6 +29,7 @@ export function generateCallbackUrls(baseUrl?: string): CallbackUrls {
 		deviceCodeStatus: `${base}/device-code-status`,
 		assertion: `${base}/assertion-callback`, // For JWT Bearer if applicable
 		dashboard: `${base}/dashboard-callback`, // For dashboard login
+		userLogin: `${base}/user-login-callback`, // For user login flow
 	};
 }
 
@@ -91,6 +93,9 @@ export function getCallbackUrlForFlow(flowType: string, baseUrl?: string): strin
 		case 'dashboard':
 		case 'dashboard-login':
 			return urls.dashboard; // Dashboard login callback
+		case 'user-login':
+		case 'user-login-v8':
+			return urls.userLogin; // User login callback
 		default:
 			return urls.authz; // Default to authorization code callback
 	}

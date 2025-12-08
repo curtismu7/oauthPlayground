@@ -7,23 +7,34 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiX, FiRefreshCw, FiDownload, FiUpload, FiInfo } from 'react-icons/fi';
+import { FiCheck, FiRefreshCw, FiDownload, FiUpload } from 'react-icons/fi';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import {
 	MFAConfigurationServiceV8,
 	type MFAConfiguration,
 } from '@/v8/services/mfaConfigurationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
+
+const REGION_DOMAINS: Record<'us' | 'eu' | 'ap' | 'ca', string> = {
+	us: 'auth.pingone.com',
+	eu: 'auth.pingone.eu',
+	ap: 'auth.pingone.asia',
+	ca: 'auth.pingone.ca',
+};
 
 export const MFAConfigurationPageV8: React.FC = () => {
 	const [config, setConfig] = useState<MFAConfiguration>(() => MFAConfigurationServiceV8.loadConfiguration());
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
 	// Listen for configuration updates
 	useEffect(() => {
@@ -66,6 +77,83 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
 			setHasChanges(false);
 			toastV8.success('Configuration reset to defaults');
+		}
+	};
+
+	const handleManualWorkerTokenRefresh = async () => {
+		setIsRefreshingToken(true);
+		try {
+			const credentials = await workerTokenServiceV8.loadCredentials();
+			if (!credentials) {
+				toastV8.error('Worker token credentials are missing. Open the worker token modal to save them first.');
+				setIsRefreshingToken(false);
+				return;
+			}
+
+			const {
+				environmentId,
+				clientId,
+				clientSecret,
+				scopes,
+				region = 'us',
+				tokenEndpointAuthMethod = 'client_secret_post',
+			} = credentials;
+
+			if (!environmentId || !clientId || !clientSecret) {
+				toastV8.error('Saved worker token credentials are incomplete. Please re-enter them.');
+				setIsRefreshingToken(false);
+				return;
+			}
+
+			const resolvedScopes = (scopes?.length ? scopes : PINGONE_WORKER_MFA_SCOPE_STRING.split(/\s+/)).join(' ');
+			const domain = REGION_DOMAINS[region] ?? REGION_DOMAINS.us;
+			const tokenEndpoint = `https://${domain}/${environmentId}/as/token`;
+			const params = new URLSearchParams({
+				grant_type: 'client_credentials',
+				client_id: clientId,
+				scope: resolvedScopes,
+			});
+
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			};
+
+			if (tokenEndpointAuthMethod === 'client_secret_basic') {
+				headers.Authorization = `Basic ${btoa(`${clientId}:${clientSecret}`)}`;
+			} else {
+				params.set('client_secret', clientSecret);
+			}
+
+			const response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers,
+				body: params.toString(),
+			});
+
+			if (!response.ok) {
+				const errorJson = await response.json().catch(() => null);
+				const message = errorJson?.error_description || errorJson?.error || response.statusText || 'Unknown error refreshing worker token';
+				throw new Error(message);
+			}
+
+			const data = await response.json();
+			const token = data.access_token as string | undefined;
+			if (!token) {
+				throw new Error('Token endpoint did not return an access token');
+			}
+			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
+
+			await workerTokenServiceV8.saveToken(token, expiresAt);
+			window.dispatchEvent(new Event('workerTokenUpdated'));
+
+			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus(token, expiresAt);
+			const timeRemainingLabel = status.minutesRemaining ? `${status.minutesRemaining} min remaining` : status.message;
+			toastV8.success(`Worker token refreshed successfully (${timeRemainingLabel}).`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to refresh worker token`, error);
+			toastV8.error(error instanceof Error ? error.message : 'Failed to refresh worker token');
+		} finally {
+			setIsRefreshingToken(false);
 		}
 	};
 
@@ -147,11 +235,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}}>
 			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
 			
-			{/* API Display Toggle - Top */}
-			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
-			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Header */}
@@ -201,6 +284,29 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				>
 					<FiCheck size={16} />
 					{isSaving ? 'Saving...' : 'Save Changes'}
+				</button>
+
+				<button
+					type="button"
+					onClick={handleManualWorkerTokenRefresh}
+					disabled={isRefreshingToken}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '10px 20px',
+						background: '#1f2937',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '14px',
+						fontWeight: '600',
+						cursor: isRefreshingToken ? 'not-allowed' : 'pointer',
+						opacity: isRefreshingToken ? 0.6 : 1,
+					}}
+				>
+					<FiRefreshCw size={16} />
+					{isRefreshingToken ? 'Refreshing Token…' : 'Refresh Worker Token'}
 				</button>
 
 				<button
@@ -303,6 +409,12 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						min={500}
 						max={10000}
 						description="Base delay between retry attempts (uses exponential backoff)"
+					/>
+					<ToggleSetting
+						label="Show Token After Generation"
+						value={config.workerToken.showTokenAtEnd}
+						onChange={(value) => updateNestedConfig('workerToken', 'showTokenAtEnd', value)}
+						description="Display the generated worker token at the end of the generation process"
 					/>
 				</ConfigSection>
 
@@ -758,10 +870,6 @@ const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, on
 				<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>{description}</p>
 			)}
 			
-			{/* API Display Toggle - Bottom */}
-			<div style={{ marginTop: '48px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
 		</div>
 	);
 };

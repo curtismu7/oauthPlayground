@@ -21,6 +21,7 @@ const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default
 const EmailFlowV8 = lazy(() => import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 })));
 const TOTPFlowV8 = lazy(() => import('../types/TOTPFlowV8').then((m) => ({ default: m.TOTPFlowV8 })));
 const FIDO2FlowV8 = lazy(() => import('../types/FIDO2FlowV8').then((m) => ({ default: m.FIDO2FlowV8 })));
+const WhatsAppFlowV8 = lazy(() => import('../types/WhatsAppFlowV8').then((m) => ({ default: m.WhatsAppFlowV8 })));
 
 // Placeholder component for unsupported types
 const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
@@ -51,6 +52,7 @@ export class MFAFlowComponentFactory {
 		MFAFlowComponentFactory.register('EMAIL', EmailFlowV8);
 		MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
 		MFAFlowComponentFactory.register('FIDO2', FIDO2FlowV8);
+		MFAFlowComponentFactory.register('WHATSAPP', WhatsAppFlowV8);
 	}
 
 	/**

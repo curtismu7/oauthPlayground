@@ -23,6 +23,12 @@
  */
 
 const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8]';
+const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
+
+const debugLog = (...args: unknown[]): void => {
+	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
+	console.log(...args);
+};
 
 export interface Credentials {
 	environmentId: string;
@@ -326,7 +332,7 @@ export class CredentialsServiceV8 {
 	 * const creds = CredentialsServiceV8.loadCredentials('oauth-authz-v8', config);
 	 */
 	static loadCredentials(flowKey: string, config: CredentialsConfig): Credentials {
-		console.log(`${MODULE_TAG} Loading credentials from storage`, { flowKey });
+		debugLog(`${MODULE_TAG} Loading credentials from storage`, { flowKey });
 
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
@@ -334,7 +340,7 @@ export class CredentialsServiceV8 {
 
 			if (stored) {
 				const parsed = JSON.parse(stored);
-				console.log(`${MODULE_TAG} Credentials loaded from storage`, { flowKey });
+				debugLog(`${MODULE_TAG} Credentials loaded from storage`, { flowKey });
 				return parsed;
 			}
 		} catch (error) {
@@ -352,7 +358,7 @@ export class CredentialsServiceV8 {
 		flowKey: string,
 		config: CredentialsConfig
 	): Promise<Credentials> {
-		console.log(`${MODULE_TAG} Loading credentials with backup fallback`, { flowKey });
+		debugLog(`${MODULE_TAG} Loading credentials with backup fallback`, { flowKey });
 
 		// Try localStorage first (fast)
 		try {
@@ -361,7 +367,7 @@ export class CredentialsServiceV8 {
 
 			if (stored) {
 				const parsed = JSON.parse(stored);
-				console.log(`${MODULE_TAG} ✅ Credentials loaded from localStorage`, { flowKey });
+				debugLog(`${MODULE_TAG} ✅ Credentials loaded from localStorage`, { flowKey });
 				return parsed;
 			}
 		} catch (error) {
@@ -377,7 +383,7 @@ export class CredentialsServiceV8 {
 				);
 
 				if (backup) {
-					console.log(`${MODULE_TAG} ✅ Credentials restored from IndexedDB backup`, { flowKey });
+					debugLog(`${MODULE_TAG} ✅ Credentials restored from IndexedDB backup`, { flowKey });
 					// Restore to localStorage
 					try {
 						localStorage.setItem(storageKey, JSON.stringify(backup));
@@ -389,7 +395,7 @@ export class CredentialsServiceV8 {
 			}
 		}
 
-		console.log(`${MODULE_TAG} ⚠️ No credentials found, using defaults`, { flowKey });
+		debugLog(`${MODULE_TAG} ⚠️ No credentials found, using defaults`, { flowKey });
 		return CredentialsServiceV8.getDefaultCredentials(flowKey, config);
 	}
 
