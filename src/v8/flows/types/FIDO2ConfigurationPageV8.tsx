@@ -25,7 +25,7 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { FIDO2Service } from '@/services/fido2Service';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
-import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
@@ -34,23 +34,12 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	
-	// Detect device type from URL path
-	const getDeviceTypeFromPath = useCallback(() => {
-		const path = location.pathname;
-		if (path.includes('/security_key')) return 'SECURITY_KEY';
-		if (path.includes('/platform')) return 'PLATFORM';
-		return 'FIDO2'; // default
-	}, [location.pathname]);
-	
-	const currentDeviceType = getDeviceTypeFromPath();
+	// Device type is always FIDO2 (PLATFORM and SECURITY_KEY are deprecated)
+	const currentDeviceType: DeviceType = 'FIDO2';
 	
 	const getDeviceTypeDisplayName = useCallback(() => {
-		switch (currentDeviceType) {
-			case 'SECURITY_KEY': return 'Security Key';
-			case 'PLATFORM': return 'Platform Authenticator';
-			default: return 'FIDO2';
-		}
-	}, [currentDeviceType]);
+		return 'FIDO2';
+	}, []);
 	
 	// Environment and token state
 	const [environmentId, setEnvironmentId] = useState<string>('');
@@ -252,10 +241,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
 		
 		// Navigate to actual registration flow with policy ID in state
-		// Use the correct device type route based on current path
-		const devicePath = currentDeviceType.toLowerCase() === 'security_key' ? 'security_key' : 
-		                  currentDeviceType.toLowerCase() === 'platform' ? 'platform' : 'fido2';
-		navigate(`/v8/mfa/register/${devicePath}/device`, {
+		// Always use FIDO2 route (PLATFORM and SECURITY_KEY are deprecated)
+		navigate(`/v8/mfa/register/fido2/device`, {
 			replace: false,
 			state: {
 				fido2PolicyId: selectedFido2PolicyId,
@@ -269,11 +256,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
-			
-			{/* API Display Toggle - Top */}
-			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px 24px 20px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 			
@@ -729,10 +711,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				/>
 			)}
 			
-			{/* API Display Toggle - Bottom */}
-			<div style={{ maxWidth: '1200px', margin: '32px auto 0 auto', padding: '0 20px', display: 'flex', justifyContent: 'flex-end' }}>
-				<ApiDisplayCheckbox />
-			</div>
 		</div>
 	);
 };

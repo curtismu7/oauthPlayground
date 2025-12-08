@@ -1,6 +1,6 @@
 {
 	"name": "oauth-playground-server",
-	"version": "6.1.1",
+	"version": "7.6.0",
 	"description": "Backend server for OAuth Playground application",
 	"main": "server.js",
 	"scripts": {
