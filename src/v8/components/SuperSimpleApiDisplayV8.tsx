@@ -15,7 +15,7 @@
  * <SuperSimpleApiDisplayV8 />
  */
 
-import React, { type ReactElement, useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
@@ -34,6 +34,334 @@ interface ApiCall {
 		| undefined;
 	timestamp: number;
 }
+
+// Helper function to create fully functional pop-out window
+const createPopOutWindow = (
+	apiCalls: ApiCall[],
+	fontSize: number,
+	_onFontSizeChange: (newSize: number) => void, // Unused - font size changes are handled via postMessage
+	flowFilter: 'unified' | 'mfa' | 'spiffe-spire' | 'all',
+	excludePatterns: string[],
+	includePatterns: string[]
+): Window | null => {
+	const width = 1400;
+	const height = 900;
+	const left = (window.screen.width - width) / 2;
+	const top = (window.screen.height - height) / 2;
+	const newWindow = window.open(
+		'',
+		'apiDisplay',
+		`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+	);
+	
+	if (!newWindow) return null;
+
+	// Create a fully functional HTML page with JavaScript
+	const html = `<!DOCTYPE html>
+<html>
+<head>
+	<title>API Display - Pop Out</title>
+	<style>
+		* { margin: 0; padding: 0; box-sizing: border-box; }
+		body {
+			font-family: monospace;
+			background: white;
+			overflow: hidden;
+		}
+		.expanded-row { background: #f9fafb !important; }
+		.expanded-row td { padding: 12px !important; }
+		.copy-btn { 
+			padding: 2px 6px; 
+			background: #e5e7eb; 
+			color: #374151; 
+			border: none; 
+			border-radius: 3px; 
+			font-size: 9px; 
+			cursor: pointer; 
+			font-weight: 600;
+		}
+		.copy-btn:hover { background: #d1d5db; }
+		.copy-btn.copied { background: #10b981; color: white; }
+		.json-display {
+			background: white;
+			padding: 12px;
+			border-radius: 4px;
+			font-size: 12px;
+			overflow-x: auto;
+			max-height: 400px;
+			overflow-y: auto;
+		}
+		pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
+	</style>
+</head>
+<body>
+	<div id="api-display-root"></div>
+	<script>
+		(function() {
+			let currentApiCalls = ${JSON.stringify(apiCalls)};
+			let currentFontSize = ${fontSize};
+			let expandedIds = new Set();
+			let copiedField = null;
+			const flowFilter = ${JSON.stringify(flowFilter)};
+			const excludePatterns = ${JSON.stringify(excludePatterns)};
+			const includePatterns = ${JSON.stringify(includePatterns)};
+
+			function getStatusDot(status) {
+				if (!status) return '⚪';
+				if (status >= 200 && status < 300) return '🟢';
+				return '🔴';
+			}
+
+			function getApiTypeIcon(url) {
+				const isAdminApi = url.includes('/as/token') || 
+					url.includes('/users?filter=') || 
+					(url.includes('/users/') && (url.includes('/devices') || url.includes('/mfa'))) ||
+					url.includes('lookup-user') || 
+					url.includes('register-device') || 
+					url.includes('mfa/') || 
+					(url.includes('/environments/') && !url.includes('/authorize'));
+				return isAdminApi ? { icon: '🔑', label: 'Admin API (Worker Token)' } : { icon: '👤', label: 'User API' };
+			}
+
+			function getShortUrl(url) {
+				let shortUrl = url
+					.replace('https://api.pingone.com/v1/', '')
+					.replace('https://auth.pingone.com/', 'auth/')
+					.replace('/api/pingone/mfa/', 'mfa/');
+				if (shortUrl.length > 60) {
+					shortUrl = shortUrl.substring(0, 57) + '...';
+				}
+				return shortUrl;
+			}
+
+			function toggleExpand(id) {
+				if (expandedIds.has(id)) {
+					expandedIds.delete(id);
+				} else {
+					expandedIds.add(id);
+				}
+				render();
+			}
+
+			function expandAll() {
+				currentApiCalls.forEach(call => expandedIds.add(call.id));
+				render();
+			}
+
+			function collapseAll() {
+				expandedIds.clear();
+				render();
+			}
+
+			async function handleCopy(text, field) {
+				try {
+					await navigator.clipboard.writeText(text);
+					copiedField = field;
+					setTimeout(() => { copiedField = null; render(); }, 2000);
+					render();
+				} catch (error) {
+					try {
+						const textArea = document.createElement('textarea');
+						textArea.value = text;
+						textArea.style.position = 'fixed';
+						textArea.style.left = '-999999px';
+						document.body.appendChild(textArea);
+						textArea.select();
+						document.execCommand('copy');
+						document.body.removeChild(textArea);
+						copiedField = field;
+						setTimeout(() => { copiedField = null; render(); }, 2000);
+						render();
+					} catch (e) {
+						console.error('Copy failed:', e);
+					}
+				}
+			}
+
+			function decreaseFont() {
+				currentFontSize = Math.max(8, currentFontSize - 1);
+				localStorage.setItem('apiDisplay.fontSize', currentFontSize);
+				if (window.opener) {
+					window.opener.postMessage({ type: 'fontSizeChange', fontSize: currentFontSize }, '*');
+				}
+				render();
+			}
+
+			function increaseFont() {
+				currentFontSize = Math.min(24, currentFontSize + 1);
+				localStorage.setItem('apiDisplay.fontSize', currentFontSize);
+				if (window.opener) {
+					window.opener.postMessage({ type: 'fontSizeChange', fontSize: currentFontSize }, '*');
+				}
+				render();
+			}
+
+			function clearCalls() {
+				if (confirm('Clear all API calls?')) {
+					currentApiCalls = [];
+					expandedIds.clear();
+					if (window.opener) {
+						window.opener.postMessage({ type: 'clearCalls' }, '*');
+					}
+					render();
+				}
+			}
+
+			function render() {
+				const root = document.getElementById('api-display-root');
+				if (!root) return;
+
+				// IMPORTANT: The main window already applies all flow and Hide PROXY
+				// logic when building apiCalls. To guarantee the pop-out shows the
+				// exact same set of calls (including backend PingOne calls), we do
+				// not re-filter here.
+				const filteredCalls = currentApiCalls;
+
+				const html = \`
+					<div style="width: 100%; height: 100vh; display: flex; flex-direction: column; font-family: monospace; font-size: \${currentFontSize}px; background: white;">
+						<div style="padding: 12px 16px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+							<div style="color: #10b981; font-weight: bold; font-size: \${currentFontSize + 2}px;">
+								⚡ API Calls (\${filteredCalls.length}) - Pop Out Window
+							</div>
+							<div style="display: flex; gap: 8px; align-items: center;">
+								<div style="display: flex; gap: 4px; align-items: center; margin-right: 8px; padding: 4px 8px; background: #e5e7eb; border-radius: 4px;">
+									<button onclick="window.decreaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">−</button>
+									<span style="font-size: \${currentFontSize - 2}px; color: #6b7280; min-width: 32px; text-align: center;">\${currentFontSize}px</span>
+									<button onclick="window.increaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">+</button>
+								</div>
+								\${filteredCalls.length > 0 ? \`
+									<button onclick="window.expandAll()" style="padding: 6px 12px; background: \${expandedIds.size === filteredCalls.length ? '#10b981' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▼ Expand All</button>
+									<button onclick="window.collapseAll()" style="padding: 6px 12px; background: \${expandedIds.size === 0 ? '#6b7280' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▲ Collapse All</button>
+									<button onclick="window.clearCalls()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">Clear</button>
+								\` : ''}
+								<button onclick="window.close()" style="padding: 6px 12px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">✕ Close</button>
+							</div>
+						</div>
+						<div style="flex: 1; overflow-y: auto; padding: 16px;">
+							\${filteredCalls.length === 0 ? \`
+								<div style="text-align: center; padding: 40px; color: #9ca3af;">
+									<div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
+									<div style="font-weight: 600; margin-bottom: 8px; color: #6b7280; font-size: \${currentFontSize + 2}px;">No API Calls Yet</div>
+									<div style="font-size: \${currentFontSize}px;">API calls will appear here as you use the flow</div>
+								</div>
+							\` : \`
+								<table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+									<thead style="background: #f3f4f6; position: sticky; top: 0; z-index: 1;">
+										<tr>
+											<th style="padding: 8px 12px; text-align: center; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Type</th>
+											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Status</th>
+											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Method</th>
+											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Code</th>
+											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px; width: 40%;">URL</th>
+											<th style="padding: 8px 12px; text-align: left; color: #374151; font-weight: 600; border-bottom: 1px solid #e5e7eb; font-size: \${currentFontSize}px;">Time</th>
+										</tr>
+									</thead>
+									<tbody>
+										\${filteredCalls.map(call => {
+											const status = call.response?.status || 0;
+											const statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
+											const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
+											const apiType = getApiTypeIcon(call.url);
+											const isExpanded = expandedIds.has(call.id);
+											const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
+											const hasResponse = call.response?.data !== undefined && call.response.data !== null;
+											const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
+											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
+											const bodyTextEscaped = bodyText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
+											const responseTextEscaped = responseText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
+											const urlEscaped = call.url.replace(/'/g, "\\\\'");
+											
+											return \`
+												<tr onclick="window.toggleExpand('\${call.id}')" style="cursor: pointer; background: \${isExpanded ? '#f3f4f6' : 'white'}; border-bottom: 1px solid #e5e7eb;" onmouseover="this.style.background='\${isExpanded ? '#f3f4f6' : '#f9fafb'}'" onmouseout="this.style.background='\${isExpanded ? '#f3f4f6' : 'white'}'">
+													<td style="padding: 12px; text-align: center; font-size: \${currentFontSize + 4}px;" title="\${apiType.label}">\${apiType.icon}</td>
+													<td style="padding: 12px; font-size: \${currentFontSize + 4}px;">\${getStatusDot(status)}</td>
+													<td style="padding: 12px;"><span style="padding: 4px 8px; background: \${methodColor}; color: white; border-radius: 3px; font-size: \${currentFontSize}px; font-weight: bold;">\${call.method}</span></td>
+													<td style="padding: 12px; color: \${statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${status || '...'}</td>
+													<td style="padding: 12px; color: #1f2937; font-size: \${currentFontSize}px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">
+														\${call.url.startsWith('/api/') ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call.url)}</td>
+													<td style="padding: 12px; color: #6b7280; font-size: \${currentFontSize}px;">\${new Date(call.timestamp).toLocaleTimeString()}</td>
+												</tr>
+												\${isExpanded ? \`
+													<tr class="expanded-row">
+														<td colspan="6" style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+															<div style="display: grid; gap: 12px;">
+																<div>
+																	<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">FULL URL:</div>
+																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																	</div>
+																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${call.url}</div>
+																</div>
+																\${hasBody ? \`
+																	<div>
+																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST BODY:</div>
+																			<button class="copy-btn \${copiedField === 'body-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${bodyTextEscaped}', 'body-\${call.id}')">\${copiedField === 'body-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		</div>
+																		<div class="json-display"><pre>\${bodyText}</pre></div>
+																	</div>
+																\` : ''}
+																\${hasResponse ? \`
+																	<div>
+																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">RESPONSE:</div>
+																			<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		</div>
+																		<div class="json-display"><pre>\${responseText}</pre></div>
+																	</div>
+																\` : ''}
+															</div>
+														</td>
+													</tr>
+												\` : ''}
+											\`;
+										}).join('')}
+									</tbody>
+								</table>
+							\`}
+						</div>
+					</div>
+				\`;
+				root.innerHTML = html;
+			}
+
+			// Expose functions to window
+			window.decreaseFont = decreaseFont;
+			window.increaseFont = increaseFont;
+			window.toggleExpand = toggleExpand;
+			window.expandAll = expandAll;
+			window.collapseAll = collapseAll;
+			window.handleCopy = handleCopy;
+			window.clearCalls = clearCalls;
+
+			// Listen for updates from main window
+			window.addEventListener('message', (event) => {
+				if (event.data.type === 'apiCallsUpdate') {
+					currentApiCalls = event.data.apiCalls || [];
+					render();
+				} else if (event.data.type === 'fontSizeChange') {
+					currentFontSize = event.data.fontSize;
+					localStorage.setItem('apiDisplay.fontSize', currentFontSize);
+					render();
+				} else if (event.data.type === 'clearCalls') {
+					currentApiCalls = [];
+					expandedIds.clear();
+					render();
+				}
+			});
+
+			// Initial render
+			render();
+		})();
+	</script>
+</body>
+</html>`;
+
+	newWindow.document.write(html);
+	newWindow.document.close();
+
+	return newWindow;
+};
 
 export const ApiDisplayCheckbox: React.FC = () => {
 	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
@@ -127,6 +455,16 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [sidebarWidth, setSidebarWidth] = useState(280);
 	const [previousCallCount, setPreviousCallCount] = useState(0);
+	const [fontSize, setFontSize] = useState(() => {
+		// Load font size from localStorage, default to 12px
+		try {
+			const saved = localStorage.getItem('apiDisplay.fontSize');
+			return saved ? parseInt(saved, 10) : 12;
+		} catch {
+			return 12;
+		}
+	});
+	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
 
 	// Use refs to track array props and prevent infinite loops from reference changes
 	const excludePatternsRef = useRef<string[]>(excludePatterns);
@@ -154,6 +492,52 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			setIsVisible(visible);
 		});
 		return () => unsubscribe();
+	}, []);
+
+	// Save font size to localStorage when it changes
+	useEffect(() => {
+		try {
+			localStorage.setItem('apiDisplay.fontSize', String(fontSize));
+		} catch {
+			// Ignore localStorage errors
+		}
+	}, [fontSize]);
+
+	// Handle pop-out window close and sync API calls via postMessage
+	useEffect(() => {
+		if (popOutWindow) {
+			const checkClosed = setInterval(() => {
+				if (popOutWindow.closed) {
+					setPopOutWindow(null);
+					clearInterval(checkClosed);
+				} else {
+					// Send API calls update to pop-out window
+					try {
+						popOutWindow.postMessage({
+							type: 'apiCallsUpdate',
+							apiCalls: apiCalls,
+						}, '*');
+					} catch (error) {
+						console.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
+					}
+				}
+			}, 500); // Update every 500ms for real-time sync
+			return () => clearInterval(checkClosed);
+		}
+		return undefined;
+	}, [popOutWindow, apiCalls]);
+
+	// Listen for font size changes from pop-out window
+	useEffect(() => {
+		const handleMessage = (event: MessageEvent) => {
+			if (event.data.type === 'fontSizeChange') {
+				setFontSize(event.data.fontSize);
+			} else if (event.data.type === 'clearCalls') {
+				apiCallTrackerService.clearApiCalls();
+			}
+		};
+		window.addEventListener('message', handleMessage);
+		return () => window.removeEventListener('message', handleMessage);
 	}, []);
 
 	// Detect sidebar width dynamically and adjust accordingly
@@ -252,9 +636,10 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			const relevantCalls = allCalls
 				.filter((call) => {
 					const url = call.url || '';
+					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || '';
 					const step = (call as { step?: string }).step;
 					
-					// Base filter: PingOne API calls
+					// Check both url and actualPingOneUrl for PingOne API calls
 					const isPingOne =
 						url.includes('pingone.com') ||
 						url.includes('auth.pingone') ||
@@ -264,7 +649,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						url.includes('/api/client-credentials') || // Client credentials proxy endpoint
 						url.includes('/api/par') || // PAR (Pushed Authorization Request) proxy endpoint
 						url.includes('/as/device') || // Direct device authorization endpoint
-						url.includes('/as/par'); // Direct PAR endpoint
+						url.includes('/as/par') || // Direct PAR endpoint
+						actualPingOneUrl.includes('pingone.com') || // Check actualPingOneUrl too
+						actualPingOneUrl.includes('auth.pingone');
 					const isSpiffeSpire = !!step && step.startsWith('spiffe-spire-');
 					
 					if (!isPingOne && !isSpiffeSpire) {
@@ -300,7 +687,10 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						return isUnifiedFlow;
 					} else if (flowFilter === 'mfa') {
 						// MFA flow: only MFA calls (device management, challenges, etc.)
-						return url.includes('/api/pingone/mfa/') || step?.startsWith('mfa-');
+						// Check both url, actualPingOneUrl, and step
+						return url.includes('/api/pingone/mfa/') || 
+						       actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices') || // PingOne devices endpoint
+						       step?.startsWith('mfa-');
 					} else if (flowFilter === 'spiffe-spire') {
 						// SPIFFE/SPIRE: only SPIFFE/SPIRE calls (identified by step prefix)
 						return isSpiffeSpire;
@@ -326,10 +716,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					return true;
 				})
 				.map((call) => {
+					// Use actualPingOneUrl if available, otherwise use url
+					const displayUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '';
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
 						method: String(call.method || 'GET'),
-						url: String(call.url || ''),
+						url: String(displayUrl), // Use actual PingOne URL for display
 						body: call.body,
 						timestamp:
 							call.timestamp instanceof Date
@@ -352,34 +744,33 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				}
 				setPreviousCallCount(relevantCalls.length);
 			}
+
 			setApiCalls(relevantCalls);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error updating API calls:`, error);
 		}
-	}, [flowFilter]);
+	}, [flowFilter, previousCallCount]);
 
-	// Store callback ref for pattern change triggers
-	useEffect(() => {
-		updateCallsRef.current = updateCalls;
-		return () => {
-			updateCallsRef.current = null;
-		};
-	}, [updateCalls]);
+	// Store updateCalls in ref so it can be called from other effects
+	updateCallsRef.current = updateCalls;
 
+	// Subscribe to API call updates
 	useEffect(() => {
-		// Initial load
+		const unsubscribe = apiCallTrackerService.subscribe(() => {
+			updateCalls();
+		});
+
+		// Initial update
 		updateCalls();
 
-		// Listen for updates
-		const interval = setInterval(updateCalls, 500);
+		// Poll for updates (in case subscription doesn't catch all updates)
+		const interval = setInterval(updateCalls, 1000);
 
-		return () => clearInterval(interval);
-	}, [updateCalls]); // Depend on flowFilter and pattern version - array props are handled via refs to prevent infinite loops
-
-	// Debug log
-	useEffect(() => {
-		console.log(`${MODULE_TAG} Visibility: ${isVisible}`);
-	}, [isVisible]);
+		return () => {
+			unsubscribe();
+			clearInterval(interval);
+		};
+	}, [updateCalls]);
 
 	const getStatusDot = (status?: number) => {
 		if (!status) {
@@ -512,7 +903,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						flexDirection: 'column',
 						zIndex: 100,
 						fontFamily: 'monospace',
-						fontSize: '12px',
+						fontSize: `${fontSize}px`,
 						boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.15)',
 						borderRadius: '8px 8px 0 0',
 						transition: 'left 0.3s ease',
@@ -591,10 +982,84 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								zIndex: 1,
 							}}
 						>
-							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '12px' }}>
+							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: `${fontSize}px` }}>
 								⚡ API Calls ({apiCalls.length})
 							</div>
 							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+								{/* Font Size Controls */}
+								<div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginRight: '8px', padding: '2px 6px', background: '#e5e7eb', borderRadius: '4px' }}>
+									<button
+										type="button"
+										onClick={() => setFontSize((prev) => Math.max(8, prev - 1))}
+										style={{
+											padding: '2px 6px',
+											background: 'white',
+											color: '#374151',
+											border: '1px solid #d1d5db',
+											borderRadius: '3px',
+											cursor: 'pointer',
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											fontWeight: '600',
+										}}
+										title="Decrease font size"
+									>
+										−
+									</button>
+									<span style={{ fontSize: `${Math.max(8, fontSize - 2)}px`, color: '#6b7280', minWidth: '24px', textAlign: 'center' }}>
+										{fontSize}px
+									</span>
+									<button
+										type="button"
+										onClick={() => setFontSize((prev) => Math.min(24, prev + 1))}
+										style={{
+											padding: '2px 6px',
+											background: 'white',
+											color: '#374151',
+											border: '1px solid #d1d5db',
+											borderRadius: '3px',
+											cursor: 'pointer',
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											fontWeight: '600',
+										}}
+										title="Increase font size"
+									>
+										+
+									</button>
+								</div>
+								{/* Pop Out Button */}
+								<button
+									type="button"
+									onClick={() => {
+										if (popOutWindow && !popOutWindow.closed) {
+											popOutWindow.focus();
+											return;
+										}
+										const newWindow = createPopOutWindow(
+											apiCalls,
+											fontSize,
+											(newSize) => setFontSize(newSize),
+											flowFilter,
+											excludePatterns,
+											includePatterns
+										);
+										if (newWindow) {
+											setPopOutWindow(newWindow);
+										}
+									}}
+									style={{
+										padding: '3px 8px',
+										background: '#8b5cf6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '4px',
+										cursor: 'pointer',
+										fontSize: `${Math.max(8, fontSize - 2)}px`,
+										fontWeight: '600',
+									}}
+									title="Open API display in new window"
+								>
+									🔲 Pop Out
+								</button>
 								{apiCalls.length > 0 && (
 									<>
 										<button
@@ -697,7 +1162,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											fontWeight: '600',
 											width: '50px',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										Type
@@ -710,7 +1175,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											fontWeight: '600',
 											width: '50px',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										Status
@@ -723,7 +1188,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											fontWeight: '600',
 											width: '80px',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										Method
@@ -736,7 +1201,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											fontWeight: '600',
 											width: '60px',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										Code
@@ -748,7 +1213,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											color: '#374151',
 											fontWeight: '600',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										URL
@@ -761,7 +1226,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											fontWeight: '600',
 											width: '100px',
 											borderBottom: '1px solid #e5e7eb',
-											fontSize: '11px',
+											fontSize: `${fontSize}px`,
 										}}
 									>
 										Time
@@ -769,21 +1234,22 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								</tr>
 							</thead>
 							<tbody>
-								{apiCalls.length === 0 ? (
+								{apiCalls.length === 0 && (
 									<tr>
 										<td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center' }}>
-											<div style={{ color: '#9ca3af', fontSize: '14px' }}>
-												<div style={{ fontSize: '32px', marginBottom: '12px' }}>⚡</div>
-												<div style={{ fontWeight: '600', marginBottom: '4px', color: '#6b7280' }}>
+											<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
+												<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>⚡</div>
+												<div style={{ fontWeight: '600', marginBottom: '4px', color: '#6b7280', fontSize: `${fontSize + 2}px` }}>
 													No API Calls Yet
 												</div>
-												<div style={{ fontSize: '12px' }}>
+												<div style={{ fontSize: `${fontSize}px` }}>
 													API calls will appear here as you use the flow
 												</div>
 											</div>
 										</td>
 									</tr>
-								) : (
+								)}
+								{apiCalls.length > 0 &&
 									apiCalls.map((call) => {
 										const apiType = getApiTypeIcon(call.url);
 										return (
@@ -808,12 +1274,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													}}
 												>
 													<td
-														style={{ padding: '12px 16px', textAlign: 'center', fontSize: '16px' }}
+														style={{ padding: '12px 16px', textAlign: 'center', fontSize: `${fontSize + 4}px` }}
 														title={apiType.label}
 													>
 														{apiType.icon}
 													</td>
-													<td style={{ padding: '12px 16px', fontSize: '16px' }}>
+													<td style={{ padding: '12px 16px', fontSize: `${fontSize + 4}px` }}>
 														{getStatusDot(call.response?.status)}
 													</td>
 													<td style={{ padding: '12px 16px' }}>
@@ -832,7 +1298,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					: '#6b7280',
 																color: 'white',
 																borderRadius: '3px',
-																fontSize: '10px',
+																fontSize: `${Math.max(8, fontSize - 2)}px`,
 																fontWeight: 'bold',
 															}}
 														>
@@ -850,12 +1316,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			: '#f59e0b'
 																	: '#6b7280',
 																fontWeight: 'bold',
+																fontSize: `${fontSize}px`,
 															}}
 														>
 															{call.response?.status || '...'}
 														</span>
 													</td>
-													<td style={{ padding: '12px 16px', color: '#1f2937' }}>
+													<td style={{ padding: '12px 16px', color: '#1f2937', fontSize: `${fontSize}px` }}>
 														{call.url.startsWith('/api/') && (
 															<span
 																style={{
@@ -870,32 +1337,99 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																PROXY
 															</span>
 														)}
-														{getShortUrl(call.url)}
+														{call.url}
 													</td>
-													<td style={{ padding: '12px 16px', color: '#6b7280', fontSize: '11px' }}>
+													<td style={{ padding: '12px 16px', color: '#6b7280', fontSize: `${fontSize}px` }}>
 														{new Date(call.timestamp).toLocaleTimeString()}
 													</td>
 												</tr>
 
 												{/* Expanded Details Row */}
-												{isExpanded(call.id) &&
-													((): ReactElement => {
-														const hasBody =
-															call.body &&
-															typeof call.body === 'object' &&
-															call.body !== null &&
-															Object.keys(call.body as Record<string, unknown>).length > 0;
-														const hasResponse =
-															call.response?.data !== undefined && call.response.data !== null;
+												{isExpanded(call.id) && (
+													<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
+														<td
+															colSpan={6}
+															style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}
+														>
+															<div style={{ display: 'grid', gap: '12px' }}>
+																{/* Full URL */}
+																<div>
+																	<div
+																		style={{
+																			display: 'flex',
+																			alignItems: 'center',
+																			justifyContent: 'space-between',
+																			marginBottom: '4px',
+																		}}
+																	>
+																		<div
+																			style={{
+																				color: '#6b7280',
+																				fontSize: '10px',
+																				fontWeight: '600',
+																			}}
+																		>
+																			FULL URL:
+																		</div>
+																		<button
+																			type="button"
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				handleCopy(String(call.url || ''), `url-${call.id}`);
+																			}}
+																			style={{
+																				padding: '2px 6px',
+																				background:
+																					copiedField === `url-${call.id}`
+																						? '#10b981'
+																						: '#e5e7eb',
+																				color:
+																					copiedField === `url-${call.id}`
+																						? 'white'
+																						: '#374151',
+																				border: 'none',
+																				borderRadius: '3px',
+																				fontSize: '9px',
+																				cursor: 'pointer',
+																				fontWeight: '600',
+																			}}
+																			title="Copy full URL"
+																		>
+																			{copiedField === `url-${call.id}`
+																				? '✓ Copied'
+																				: '📋 Copy'}
+																		</button>
+																	</div>
+																	<div
+																		style={{
+																			color: '#2563eb',
+																			fontSize: '11px',
+																			wordBreak: 'break-all',
+																		}}
+																	>
+																		{String(call.url || '')}
+																	</div>
+																</div>
 
-														const expandedRow: ReactElement = (
-															<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
-																<td
-																	colSpan={6}
-																	style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}
-																>
-																	<div style={{ display: 'grid', gap: '12px' }}>
-																		{/* Full URL */}
+																{/* Request Body */}
+																{(() => {
+																	const body = call.body;
+																	if (!body) {
+																		return null;
+																	}
+
+																	let bodyText: string;
+																	if (typeof body === 'string') {
+																		bodyText = body;
+																	} else {
+																		try {
+																			bodyText = JSON.stringify(body, null, 2);
+																		} catch {
+																			bodyText = String(body);
+																		}
+																	}
+
+																	return (
 																		<div>
 																			<div
 																				style={{
@@ -912,22 +1446,22 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						fontWeight: '600',
 																					}}
 																				>
-																					FULL URL:
+																					REQUEST BODY:
 																				</div>
 																				<button
 																					type="button"
 																					onClick={(e) => {
 																						e.stopPropagation();
-																						handleCopy(String(call.url || ''), `url-${call.id}`);
+																						handleCopy(bodyText, `body-${call.id}`);
 																					}}
 																					style={{
 																						padding: '2px 6px',
 																						background:
-																							copiedField === `url-${call.id}`
+																							copiedField === `body-${call.id}`
 																								? '#10b981'
 																								: '#e5e7eb',
 																						color:
-																							copiedField === `url-${call.id}`
+																							copiedField === `body-${call.id}`
 																								? 'white'
 																								: '#374151',
 																						border: 'none',
@@ -936,318 +1470,203 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						cursor: 'pointer',
 																						fontWeight: '600',
 																					}}
-																					title="Copy full URL"
+																					title="Copy request body"
 																				>
-																					{copiedField === `url-${call.id}`
+																					{copiedField === `body-${call.id}`
 																						? '✓ Copied'
 																						: '📋 Copy'}
 																				</button>
 																			</div>
 																			<div
 																				style={{
-																					color: '#2563eb',
-																					fontSize: '11px',
-																					wordBreak: 'break-all',
+																					background: 'white',
+																					padding: '12px',
+																					borderRadius: '4px',
+																					fontSize: '12px',
+																					overflowX: 'auto',
+																					maxHeight: '400px',
+																					overflowY: 'auto',
 																				}}
 																			>
-																				{String(call.url || '')}
+																				<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+																					{bodyText}
+																				</pre>
 																			</div>
 																		</div>
+																	);
+																})()}
 
-																		{/* Request Body */}
-																		{hasBody
-																			? ((): ReactElement => {
-																					const bodyText = (() => {
-																						const body = call.body;
-																						if (!body) {
-																							return '';
-																						}
-																						if (typeof body === 'string') {
-																							return body;
-																						}
-																						try {
-																							return JSON.stringify(body, null, 2);
-																						} catch {
-																							return String(body);
-																						}
-																					})();
+																{/* Response */}
+																{(() => {
+																	const data = call.response?.data;
+																	if (data === null || data === undefined) {
+																		return null;
+																	}
 
-																					return (
-																						<div>
-																							<div
-																								style={{
-																									display: 'flex',
-																									alignItems: 'center',
-																									justifyContent: 'space-between',
-																									marginBottom: '4px',
-																								}}
-																							>
-																								<div
-																									style={{
-																										color: '#6b7280',
-																										fontSize: '10px',
-																										fontWeight: '600',
-																									}}
-																								>
-																									REQUEST BODY:
-																								</div>
-																								<button
-																									type="button"
-																									onClick={(e) => {
-																										e.stopPropagation();
-																										handleCopy(bodyText, `body-${call.id}`);
-																									}}
-																									style={{
-																										padding: '2px 6px',
-																										background:
-																											copiedField === `body-${call.id}`
-																												? '#10b981'
-																												: '#e5e7eb',
-																										color:
-																											copiedField === `body-${call.id}`
-																												? 'white'
-																												: '#374151',
-																										border: 'none',
-																										borderRadius: '3px',
-																										fontSize: '9px',
-																										cursor: 'pointer',
-																										fontWeight: '600',
-																									}}
-																									title="Copy request body"
-																								>
-																									{copiedField === `body-${call.id}`
-																										? '✓ Copied'
-																										: '📋 Copy'}
-																								</button>
-																							</div>
-																							<pre
-																								style={{
-																									margin: 0,
-																									padding: '8px',
-																									background: '#f3f4f6',
-																									border: '1px solid #e5e7eb',
-																									borderRadius: '4px',
-																									color: '#1f2937',
-																									fontSize: '10px',
-																									overflow: 'auto',
-																									maxHeight: '150px',
-																								}}
-																							>
-																								{bodyText}
-																							</pre>
-																						</div>
-																					);
-																				})()
-																			: null}
+																	let responseText: string;
+																	try {
+																		responseText = JSON.stringify(data, null, 2);
+																	} catch {
+																		responseText = String(data);
+																	}
 
-																		{/* Response */}
-																		{hasResponse && call.response
-																			? ((): ReactElement => {
-																					const responseText = (() => {
-																						const responseData = call.response?.data;
-																						if (
-																							responseData === undefined ||
-																							responseData === null
-																						) {
-																							return '';
-																						}
-																						if (typeof responseData === 'string') {
-																							return responseData;
-																						}
-																						try {
-																							return JSON.stringify(responseData, null, 2);
-																						} catch {
-																							return String(responseData);
-																						}
-																					})();
-
-																					return (
-																						<div>
-																							<div
-																								style={{
-																									display: 'flex',
-																									alignItems: 'center',
-																									justifyContent: 'space-between',
-																									marginBottom: '4px',
-																								}}
-																							>
-																								<div
-																									style={{
-																										color: '#6b7280',
-																										fontSize: '10px',
-																										fontWeight: '600',
-																									}}
-																								>
-																									RESPONSE:
-																								</div>
-																								<button
-																									type="button"
-																									onClick={(e) => {
-																										e.stopPropagation();
-																										handleCopy(responseText, `response-${call.id}`);
-																									}}
-																									style={{
-																										padding: '2px 6px',
-																										background:
-																											copiedField === `response-${call.id}`
-																												? '#10b981'
-																												: '#e5e7eb',
-																										color:
-																											copiedField === `response-${call.id}`
-																												? 'white'
-																												: '#374151',
-																										border: 'none',
-																										borderRadius: '3px',
-																										fontSize: '9px',
-																										cursor: 'pointer',
-																										fontWeight: '600',
-																									}}
-																									title="Copy response"
-																								>
-																									{copiedField === `response-${call.id}`
-																										? '✓ Copied'
-																										: '📋 Copy'}
-																								</button>
-																							</div>
-																							<pre
-																								style={{
-																									margin: 0,
-																									padding: '8px',
-																									background: '#f3f4f6',
-																									border: '1px solid #e5e7eb',
-																									borderRadius: '4px',
-																									color: '#1f2937',
-																									fontSize: '10px',
-																									overflow: 'auto',
-																									maxHeight: '200px',
-																								}}
-																							>
-																								{responseText}
-																							</pre>
-																						</div>
-																					);
-																				})()
-																			: null}
-
-																		{/* Close Button */}
-																		<div style={{ textAlign: 'right' }}>
-																			<button
-																				type="button"
-																				onClick={(e) => {
-																					e.stopPropagation();
-																					setExpandedIds((prev) => {
-																						const newSet = new Set(prev);
-																						newSet.delete(call.id);
-																						return newSet;
-																					});
-																				}}
+																	return (
+																		<div>
+																			<div
 																				style={{
-																					padding: '4px 12px',
-																					background: '#6b7280',
-																					color: 'white',
-																					border: 'none',
-																					borderRadius: '4px',
-																					cursor: 'pointer',
-																					fontSize: '11px',
+																					display: 'flex',
+																					alignItems: 'center',
+																					justifyContent: 'space-between',
+																					marginBottom: '4px',
 																				}}
 																			>
-																				Close
-																			</button>
+																				<div
+																					style={{
+																						color: '#6b7280',
+																						fontSize: '10px',
+																						fontWeight: '600',
+																					}}
+																				>
+																					RESPONSE:
+																				</div>
+																				<button
+																					type="button"
+																					onClick={(e) => {
+																						e.stopPropagation();
+																						handleCopy(responseText, `response-${call.id}`);
+																					}}
+																					style={{
+																						padding: '2px 6px',
+																						background:
+																							copiedField === `response-${call.id}`
+																								? '#10b981'
+																								: '#e5e7eb',
+																						color:
+																							copiedField === `response-${call.id}`
+																								? 'white'
+																								: '#374151',
+																						border: 'none',
+																						borderRadius: '3px',
+																						fontSize: '9px',
+																						cursor: 'pointer',
+																						fontWeight: '600',
+																					}}
+																					title="Copy response"
+																				>
+																					{copiedField === `response-${call.id}`
+																						? '✓ Copied'
+																						: '📋 Copy'}
+																				</button>
+																			</div>
+																			<div
+																				style={{
+																					background: 'white',
+																					padding: '12px',
+																					borderRadius: '4px',
+																					fontSize: '12px',
+																					overflowX: 'auto',
+																					maxHeight: '400px',
+																					overflowY: 'auto',
+																				}}
+																			>
+																				<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+																					{responseText}
+																				</pre>
+																			</div>
 																		</div>
-																	</div>
-																</td>
-															</tr>
-														);
-														return expandedRow;
-													})()}
+																	);
+																})()}
+															</div>
+														</td>
+													</tr>
+												)}
 											</React.Fragment>
 										);
-									})
-								)}
-							</tbody>
-						</table>
-					</div>
-					{/* End Scrollable Content */}
-				</div>
-			)}
-
-			{/* Custom Confirmation Modal */}
-			{showClearConfirm && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 10000,
-					}}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '8px',
-							padding: '24px',
-							maxWidth: '400px',
-							boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
-						}}
-					>
-						<h3 style={{ margin: '0 0 12px 0', fontSize: '18px', color: '#1f2937' }}>
-							Clear API Calls?
-						</h3>
-						<p style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#6b7280' }}>
-							This will remove all {apiCalls.length} API call{apiCalls.length !== 1 ? 's' : ''} from
-							the display. This action cannot be undone.
-						</p>
-						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-							<button
-								type="button"
-								onClick={() => setShowClearConfirm(false)}
-								style={{
-									padding: '8px 16px',
-									background: '#f3f4f6',
-									color: '#374151',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: '500',
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								onClick={() => {
-									apiCallTrackerService.clearApiCalls();
-									setApiCalls([]);
-									setExpandedIds(new Set());
-									setPreviousCallCount(0);
-									setShowClearConfirm(false);
-								}}
-								style={{
-									padding: '8px 16px',
-									background: '#ef4444',
-									color: 'white',
-									border: 'none',
-									borderRadius: '6px',
-									cursor: 'pointer',
-									fontSize: '14px',
-									fontWeight: '600',
-								}}
-							>
-								Clear All
-							</button>
+									})}
+								</tbody>
+							</table>
 						</div>
 					</div>
-				</div>
-			)}
+				)}
+				
+				{/* Clear Confirmation Modal */}
+				{showClearConfirm && (
+					<div
+						style={{
+							position: 'fixed',
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							background: 'rgba(0, 0, 0, 0.5)',
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							zIndex: 1000,
+						}}
+						onClick={() => setShowClearConfirm(false)}
+					>
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '8px',
+								padding: '24px',
+								maxWidth: '400px',
+								width: '90%',
+								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+							}}
+							onClick={(e) => e.stopPropagation()}
+						>
+							<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+								Clear All API Calls?
+							</h3>
+							<p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '14px' }}>
+								This will remove all API calls from the display. This action cannot be undone.
+							</p>
+							<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+								<button
+									type="button"
+									onClick={() => setShowClearConfirm(false)}
+									style={{
+										padding: '8px 16px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									onClick={() => {
+										apiCallTrackerService.clearApiCalls();
+										setExpandedIds(new Set());
+										setShowClearConfirm(false);
+										if (popOutWindow && !popOutWindow.closed) {
+											popOutWindow.postMessage({ type: 'clearCalls' }, '*');
+										}
+									}}
+									style={{
+										padding: '8px 16px',
+										background: '#ef4444',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Clear All
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 		</>
 	);
 };
-
-export default SuperSimpleApiDisplayV8;

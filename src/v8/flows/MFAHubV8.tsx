@@ -15,10 +15,17 @@
  * <MFAHubV8 />
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { oauthStorage } from '@/utils/storage';
+import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import { useAuth } from '@/contexts/NewAuthContext';
+import { FiTrash2 } from 'react-icons/fi';
 
 interface FeatureCard {
 	title: string;
@@ -31,9 +38,151 @@ interface FeatureCard {
 
 export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
+	const [isClearingTokens, setIsClearingTokens] = useState(false);
+	const authContext = useAuth();
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Hub V8', force: true });
+
+	// Clear all tokens (worker and user tokens) and end PingOne session
+	const handleClearTokens = async () => {
+		if (!confirm('Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.')) {
+			return;
+		}
+
+		setIsClearingTokens(true);
+		try {
+			// End PingOne session first (if we have an ID token)
+			const tokens = oauthStorage.getTokens();
+			const idToken = tokens?.id_token || authContext.tokens?.id_token;
+			
+			// Try to get environment ID from various sources
+			let environmentId: string | undefined;
+			if (authContext.config?.pingone?.environmentId) {
+				environmentId = authContext.config.pingone.environmentId;
+			} else {
+				// Try to get from MFA flow credentials
+				try {
+					const mfaFlowKey = 'mfa-flow-v8';
+					const credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+						flowKey: mfaFlowKey,
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					if (credentials.environmentId) {
+						environmentId = credentials.environmentId;
+					}
+				} catch (error) {
+					// Ignore
+				}
+			}
+			
+			if (idToken && environmentId) {
+				try {
+					const logoutResult = await pingOneLogoutService.logout({
+						idToken,
+						environmentId,
+						autoOpen: true,
+						openIn: 'new-tab',
+						clearClientStorage: false, // We'll clear storage ourselves below
+					});
+					
+					if (logoutResult.success) {
+						console.log('[MFA-HUB-V8] PingOne session logout initiated:', logoutResult.message);
+						toastV8.info('PingOne session logout initiated in a new tab');
+					} else {
+						console.warn('[MFA-HUB-V8] PingOne logout failed:', logoutResult.error);
+					}
+				} catch (error) {
+					console.warn('[MFA-HUB-V8] Could not end PingOne session:', error);
+				}
+			} else {
+				console.log('[MFA-HUB-V8] No ID token or environment ID available for PingOne logout', {
+					hasIdToken: !!idToken,
+					hasEnvironmentId: !!environmentId,
+				});
+			}
+
+			// Call auth context logout to clear local session state
+			try {
+				authContext.logout();
+				console.log('[MFA-HUB-V8] Auth context logout called');
+			} catch (error) {
+				console.warn('[MFA-HUB-V8] Could not call auth context logout:', error);
+			}
+
+			// Clear worker token
+			await workerTokenServiceV8.clearCredentials();
+			console.log('[MFA-HUB-V8] Worker token cleared');
+
+			// Clear OAuth tokens from auth context
+			try {
+				oauthStorage.clearTokens();
+				oauthStorage.clearUserInfo();
+				console.log('[MFA-HUB-V8] OAuth tokens cleared from auth context');
+			} catch (error) {
+				console.warn('[MFA-HUB-V8] Could not clear OAuth tokens:', error);
+			}
+
+			// Clear user tokens from MFA flow credentials
+			const mfaFlowKey = 'mfa-flow-v8';
+			try {
+				const credentials = CredentialsServiceV8.loadCredentials(mfaFlowKey, {
+					flowKey: mfaFlowKey,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				
+				if (credentials.userToken) {
+					CredentialsServiceV8.saveCredentials(mfaFlowKey, {
+						...credentials,
+						userToken: undefined,
+						tokenType: undefined,
+					});
+					console.log('[MFA-HUB-V8] User token cleared from MFA flow credentials');
+				}
+			} catch (error) {
+				console.warn('[MFA-HUB-V8] Could not clear user token from credentials:', error);
+			}
+
+			// Clear user login credentials
+			const userLoginFlowKey = 'user-login-v8';
+			try {
+				const userLoginCreds = CredentialsServiceV8.loadCredentials(userLoginFlowKey, {
+					flowKey: userLoginFlowKey,
+					flowType: 'oauth',
+					includeClientSecret: true,
+					includeRedirectUri: true,
+					includeLogoutUri: false,
+					includeScopes: true,
+				});
+				
+				if (userLoginCreds.userToken) {
+					CredentialsServiceV8.saveCredentials(userLoginFlowKey, {
+						...userLoginCreds,
+						userToken: undefined,
+						tokenType: undefined,
+					});
+					console.log('[MFA-HUB-V8] User token cleared from user login credentials');
+				}
+			} catch (error) {
+				console.warn('[MFA-HUB-V8] Could not clear user token from user login credentials:', error);
+			}
+
+			toastV8.success('All tokens cleared successfully!');
+		} catch (error) {
+			console.error('[MFA-HUB-V8] Failed to clear tokens:', error);
+			toastV8.error('Failed to clear tokens. Please try again.');
+		} finally {
+			setIsClearingTokens(false);
+		}
+	};
 
 	const features: FeatureCard[] = [
 		{
@@ -45,6 +194,7 @@ export const MFAHubV8: React.FC = () => {
 			features: [
 				'Register SMS devices',
 				'Register Email devices',
+				'Register WhatsApp devices',
 				'Register TOTP devices',
 				'Send and validate OTP',
 				'QR code generation',
@@ -108,11 +258,52 @@ export const MFAHubV8: React.FC = () => {
 
 			<div className="hub-container">
 				<div className="welcome-section">
-					<h2>Welcome to MFA Management</h2>
-					<p>
-						Manage multi-factor authentication devices, view reports, and configure MFA policies for
-						your PingOne environment.
-					</p>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+						<div style={{ flex: 1 }}>
+							<h2>Welcome to MFA Management</h2>
+							<p>
+								Manage multi-factor authentication devices, view reports, and configure MFA policies for
+								your PingOne environment.
+							</p>
+						</div>
+						<button
+							type="button"
+							onClick={handleClearTokens}
+							disabled={isClearingTokens}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '10px 16px',
+								background: '#ef4444',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: isClearingTokens ? 'not-allowed' : 'pointer',
+								opacity: isClearingTokens ? 0.6 : 1,
+								transition: 'all 0.2s ease',
+								boxShadow: '0 2px 4px rgba(239, 68, 68, 0.2)',
+							}}
+							onMouseEnter={(e) => {
+								if (!isClearingTokens) {
+									e.currentTarget.style.background = '#dc2626';
+									e.currentTarget.style.boxShadow = '0 4px 8px rgba(220, 38, 38, 0.3)';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (!isClearingTokens) {
+									e.currentTarget.style.background = '#ef4444';
+									e.currentTarget.style.boxShadow = '0 2px 4px rgba(239, 68, 68, 0.2)';
+								}
+							}}
+							title="Clear all tokens (worker tokens and user tokens)"
+						>
+							<FiTrash2 size={16} />
+							{isClearingTokens ? 'Clearing...' : 'Clear Tokens'}
+						</button>
+					</div>
 				</div>
 
 				<div className="features-grid">

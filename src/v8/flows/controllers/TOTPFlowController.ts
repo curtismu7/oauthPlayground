@@ -43,8 +43,13 @@ export class TOTPFlowController extends MFAFlowController {
 			errors.push('Device Authentication Policy ID is required');
 		}
 
-		if (!tokenStatus.isValid) {
-			errors.push('Worker token is required - please add a token first');
+		// Per rightTOTP.md: Check token validity based on token type (worker or user)
+		const tokenType = credentials.tokenType || 'worker';
+		const isTokenValid = tokenType === 'worker' 
+			? tokenStatus.isValid 
+			: !!credentials.userToken?.trim();
+		if (!isTokenValid) {
+			errors.push(`${tokenType === 'worker' ? 'Worker' : 'User'} token is required - please add a token first`);
 		}
 
 		nav.setValidationErrors(errors);
@@ -53,11 +58,26 @@ export class TOTPFlowController extends MFAFlowController {
 
 	getDeviceRegistrationParams(credentials: MFACredentials): Partial<RegisterDeviceParams> {
 		// Generate a default device name based on username and timestamp
-		const defaultName = `TOTP Device - ${credentials.username || 'User'}`;
-		return {
+		const defaultName = credentials.deviceName?.trim() || `TOTP Device - ${credentials.username || 'User'}`;
+		
+		// According to totp.md spec:
+		// - status must be ACTIVATION_REQUIRED to get secret and keyUri
+		// - policy object should be included if deviceAuthenticationPolicyId is provided
+		const params: Partial<RegisterDeviceParams> = {
 			name: defaultName,
 			nickname: defaultName,
+			status: 'ACTIVATION_REQUIRED', // Required to get secret and keyUri in response
 		};
+		
+		// Include policy if deviceAuthenticationPolicyId is provided
+		if (credentials.deviceAuthenticationPolicyId) {
+			params.policy = {
+				id: credentials.deviceAuthenticationPolicyId,
+				type: 'DEVICE_AUTHENTICATION_POLICY',
+			};
+		}
+		
+		return params;
 	}
 }
 

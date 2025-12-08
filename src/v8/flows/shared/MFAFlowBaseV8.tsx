@@ -5,8 +5,10 @@
  * @version 8.1.0
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { MFASettingsModalV8 } from '@/v8/components/MFASettingsModalV8';
@@ -14,13 +16,13 @@ import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenPromptModalV8 } from '@/v8/components/WorkerTokenPromptModalV8';
+import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { FiX } from 'react-icons/fi';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -40,6 +42,8 @@ export interface MFAFlowBaseProps {
 		nav: ReturnType<typeof useStepNavigationV8>
 	) => boolean;
 	stepLabels?: string[];
+	/** Optional function to determine if Next button should be hidden (e.g., when custom action button is shown) */
+	shouldHideNextButton?: (props: MFAFlowBaseRenderProps) => boolean;
 }
 
 export interface MFAFlowBaseRenderProps {
@@ -55,6 +59,8 @@ export interface MFAFlowBaseRenderProps {
 	setShowDeviceLimitModal: (show: boolean) => void;
 	showWorkerTokenModal: boolean;
 	setShowWorkerTokenModal: (show: boolean) => void;
+	showUserLoginModal: boolean;
+	setShowUserLoginModal: (show: boolean) => void;
 	showSettingsModal: boolean;
 	setShowSettingsModal: (show: boolean) => void;
 	deviceAuthPolicies: DeviceAuthenticationPolicy[];
@@ -72,12 +78,39 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	renderStep4,
 	validateStep0,
 	stepLabels = ['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate'],
+	shouldHideNextButton,
 }) => {
-	console.log(`${MODULE_TAG} Initializing MFA flow for ${deviceType}`);
+	const [searchParams] = useSearchParams();
+	// Track API display visibility for padding
+	const [apiDisplayVisible, setApiDisplayVisible] = useState(false);
+	
+	// Get auth context to check for user tokens from Authorization Code Flow
+	const authContext = useAuth();
+	
+	// Log initialization only once (use ref to track if we've logged)
+	const hasLoggedRef = useRef(false);
+	useEffect(() => {
+		if (!hasLoggedRef.current) {
+			console.log(`${MODULE_TAG} Initializing MFA flow for ${deviceType}`);
+			hasLoggedRef.current = true;
+		}
+	}, [deviceType]);
+
+	// Subscribe to API display visibility changes
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+			setApiDisplayVisible(isVisible);
+		});
+		// Set initial state
+		setApiDisplayVisible(apiDisplayServiceV8.isVisible());
+		return unsubscribe;
+	}, []);
 
 	usePageScroll({ pageName: 'MFA Flow V8', force: true });
 
-	const nav = useStepNavigationV8(5, {
+	const totalSteps = stepLabels.length;
+
+	const nav = useStepNavigationV8(totalSteps, {
 		onStepChange: (step) => {
 			console.log(`${MODULE_TAG} Step changed to`, { step });
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -119,6 +152,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 	const [showDeviceLimitModal, setShowDeviceLimitModal] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showWorkerTokenPromptModal, setShowWorkerTokenPromptModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
 	const [tokenStatus, setTokenStatus] = useState(() =>
@@ -129,6 +163,7 @@ const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticatio
 const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
 const [policiesError, setPoliciesError] = useState<string | null>(null);
 const lastFetchedEnvIdRef = useRef<string | null>(null);
+	const isFetchingPoliciesRef = useRef(false);
 
 	const fetchDeviceAuthPolicies = useCallback(async () => {
 	const envId = credentials.environmentId?.trim();
@@ -140,7 +175,18 @@ const lastFetchedEnvIdRef = useRef<string | null>(null);
 		return;
 	}
 
+	// Prevent duplicate calls - if we're already fetching or already fetched for this env, skip
+	if (isFetchingPoliciesRef.current || lastFetchedEnvIdRef.current === envId) {
+		console.log(`${MODULE_TAG} Skipping duplicate policy fetch`, {
+			isFetching: isFetchingPoliciesRef.current,
+			lastFetchedEnv: lastFetchedEnvIdRef.current,
+			currentEnv: envId,
+		});
+		return;
+	}
+
 	console.log(`${MODULE_TAG} Fetching device authentication policies`, { environmentId: envId });
+	isFetchingPoliciesRef.current = true;
 	setIsLoadingPolicies(true);
 	setPoliciesError(null);
 
@@ -178,9 +224,10 @@ const lastFetchedEnvIdRef = useRef<string | null>(null);
 		console.error(`${MODULE_TAG} Failed to load device authentication policies`, error);
 		toastV8.error(`Failed to load device authentication policies: ${message}`);
 	} finally {
+		isFetchingPoliciesRef.current = false;
 		setIsLoadingPolicies(false);
 	}
-}, [credentials.environmentId, setCredentials, tokenStatus.isValid]);
+}, [credentials.environmentId, tokenStatus.isValid, setCredentials]);
 
 	// Check token status periodically
 	useEffect(() => {
@@ -210,6 +257,7 @@ const lastFetchedEnvIdRef = useRef<string | null>(null);
 	}, [credentials]);
 
 // Fetch device authentication policies when environment or token changes
+// Only fetch if environment actually changed (not on every token status check)
 useEffect(() => {
 	const envId = credentials.environmentId?.trim();
 
@@ -220,10 +268,63 @@ useEffect(() => {
 		return;
 	}
 
-	if (lastFetchedEnvIdRef.current !== envId) {
+	// Only fetch if environment changed (not on every render or token status update)
+	if (lastFetchedEnvIdRef.current !== envId && !isFetchingPoliciesRef.current) {
 		void fetchDeviceAuthPolicies();
 	}
 }, [credentials.environmentId, tokenStatus.isValid, fetchDeviceAuthPolicies]);
+
+	// Auto-populate user token from auth context if available
+	// This handles the case where user logged in via Authorization Code Flow and was redirected back
+	const hasAutoPopulatedRef = useRef(false);
+	useEffect(() => {
+		const authToken = authContext.tokens?.access_token;
+		const isAuthenticated = authContext.isAuthenticated;
+		
+		// Only auto-populate if:
+		// 1. User is authenticated and has an access token
+		// 2. We haven't already auto-populated (prevent re-running)
+		// 3. We don't already have a user token in credentials
+		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
+			// Check current token type - only auto-populate if 'user' or not set
+			const currentTokenType = credentials.tokenType;
+			if (currentTokenType === 'user' || !currentTokenType) {
+				console.log(`${MODULE_TAG} Auto-populating user token from auth context`, {
+					hasToken: !!authToken,
+					tokenLength: authToken.length,
+					tokenPreview: authToken.substring(0, 20) + '...',
+					currentTokenType: currentTokenType,
+				});
+				
+				hasAutoPopulatedRef.current = true;
+				setCredentials((prev) => ({
+					...prev,
+					userToken: authToken,
+					tokenType: 'user' as const,
+				}));
+				
+				toastV8.success('User token automatically loaded from your recent login!');
+			}
+		}
+		
+		// Reset the ref if auth token is cleared (user logged out) or if user token was manually cleared
+		if (!isAuthenticated || !authToken || (!credentials.userToken && hasAutoPopulatedRef.current)) {
+			hasAutoPopulatedRef.current = false;
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [authContext.tokens?.access_token, authContext.isAuthenticated]);
+
+	// Check for OAuth callback code in URL and open UserLoginModal if needed
+	useEffect(() => {
+		const code = searchParams.get('code');
+		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+		
+		// If we have a code and user login state, this is a callback from user login
+		if (code && hasUserLoginState && !showUserLoginModal) {
+			console.log(`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`);
+			setShowUserLoginModal(true);
+		}
+	}, [searchParams, showUserLoginModal]);
 
 	// Watch for worker token errors and show prompt modal
 	useEffect(() => {
@@ -231,6 +332,11 @@ useEffect(() => {
 			(error) =>
 				error.includes('Failed to get worker token') ||
 				error.includes('Please configure worker token credentials first') ||
+				error.includes('Worker token is not available') ||
+				error.includes('Worker token has expired') ||
+				error.includes('Worker token expired') ||
+				error.includes('token is not available') ||
+				error.includes('token has expired') ||
 				(error.includes('Failed to authenticate') && error.includes('worker token'))
 		);
 
@@ -279,6 +385,8 @@ useEffect(() => {
 			setShowDeviceLimitModal,
 			showWorkerTokenModal,
 			setShowWorkerTokenModal,
+			showUserLoginModal,
+			setShowUserLoginModal,
 			showSettingsModal,
 			setShowSettingsModal,
 	deviceAuthPolicies,
@@ -306,13 +414,59 @@ useEffect(() => {
 	const isNextDisabled = () => {
 		if (isLoading) return true;
 		if (nav.currentStep === 0) {
-		return (
-			!tokenStatus.isValid ||
-			!credentials.environmentId.trim() ||
-			!credentials.username.trim() ||
-			isLoadingPolicies ||
-			!credentials.deviceAuthenticationPolicyId?.trim()
-		);
+			// Per rightTOTP.md: Check token validity based on token type (worker or user)
+			const tokenType = credentials.tokenType || 'worker';
+			const isTokenValid = tokenType === 'worker' 
+				? tokenStatus.isValid 
+				: !!credentials.userToken?.trim();
+			
+			// Debug logging for token validation
+			if (tokenType === 'user' && !isTokenValid) {
+				console.log(`${MODULE_TAG} [DEBUG] Next button disabled - user token validation`, {
+					hasUserToken: !!credentials.userToken,
+					userTokenLength: credentials.userToken?.length,
+					tokenType,
+					environmentId: !!credentials.environmentId.trim(),
+					username: !!credentials.username.trim(),
+					isLoadingPolicies,
+					hasPolicy: !!credentials.deviceAuthenticationPolicyId?.trim(),
+				});
+			}
+			
+			return (
+				!isTokenValid ||
+				!credentials.environmentId.trim() ||
+				!credentials.username.trim() ||
+				isLoadingPolicies ||
+				!credentials.deviceAuthenticationPolicyId?.trim()
+			);
+		}
+		return false;
+	};
+
+	const shouldHideNext = () => {
+		if (shouldHideNextButton) {
+			const renderProps: MFAFlowBaseRenderProps = {
+				credentials,
+				setCredentials,
+				mfaState,
+				setMfaState: handleSetMfaState,
+				tokenStatus,
+				isLoading,
+				setIsLoading,
+				nav,
+				showDeviceLimitModal,
+				setShowDeviceLimitModal,
+				showWorkerTokenModal,
+				setShowWorkerTokenModal,
+				showSettingsModal,
+				setShowSettingsModal,
+				deviceAuthPolicies,
+				isLoadingPolicies,
+				policiesError,
+				refreshDeviceAuthPolicies: fetchDeviceAuthPolicies,
+			};
+			return shouldHideNextButton(renderProps);
 		}
 		return false;
 	};
@@ -341,11 +495,6 @@ useEffect(() => {
 			{/* Navigation */}
 			<MFANavigationV8
 				currentPage="registration"
-				showRestartFlow={true}
-				onRestartFlow={() => {
-					FlowResetServiceV8.resetFlow(FLOW_KEY);
-					window.location.reload();
-				}}
 				showBackToMain={true}
 			/>
 
@@ -363,7 +512,7 @@ useEffect(() => {
 					))}
 				</div>
 
-				<div className="step-content-wrapper" style={{ paddingBottom: '80px' }}>{renderStepContent()}</div>
+				<div className="step-content-wrapper" style={{ paddingBottom: '12px' }}>{renderStepContent()}</div>
 
 				<StepValidationFeedbackV8 errors={nav.validationErrors} warnings={nav.validationWarnings} />
 
@@ -451,8 +600,9 @@ useEffect(() => {
 
 				<StepActionButtonsV8
 					currentStep={nav.currentStep}
-					totalSteps={5}
+					totalSteps={totalSteps}
 					isNextDisabled={isNextDisabled()}
+					hideNextButton={shouldHideNext()}
 					onPrevious={() => {
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
@@ -460,7 +610,30 @@ useEffect(() => {
 					}}
 					onNext={() => {
 						if (nav.currentStep === 0) {
-							if (validateStep0(credentials, tokenStatus, nav)) {
+							// Re-check credentials before validation (in case they were just updated)
+							const currentCreds = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+								flowKey: FLOW_KEY,
+								flowType: 'oidc',
+								includeClientSecret: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+								includeScopes: false,
+							});
+							
+							// Use current credentials if they have a userToken but state doesn't
+							const credsToValidate = currentCreds.userToken && !credentials.userToken 
+								? { ...credentials, ...currentCreds }
+								: credentials;
+							
+							console.log(`${MODULE_TAG} Validating step 0 before proceeding`, {
+								hasUserToken: !!credsToValidate.userToken,
+								tokenType: credsToValidate.tokenType,
+								hasEnvironmentId: !!credsToValidate.environmentId,
+								hasUsername: !!credsToValidate.username,
+								hasPolicy: !!credsToValidate.deviceAuthenticationPolicyId,
+							});
+							
+							if (validateStep0(credsToValidate, tokenStatus, nav)) {
 								nav.goToNext();
 							}
 						} else if (nav.currentStep === 1) {
@@ -491,16 +664,6 @@ useEffect(() => {
 						});
 					}}
 				>
-					<button
-						type="button"
-						className="btn btn-reset"
-						onClick={() => {
-							FlowResetServiceV8.resetFlow(FLOW_KEY);
-							window.location.reload();
-						}}
-					>
-						🔄 Reset Flow
-					</button>
 				</StepActionButtonsV8>
 			</div>
 
@@ -525,6 +688,94 @@ useEffect(() => {
 				/>
 			)}
 
+			{showUserLoginModal && (
+				<UserLoginModalV8
+					isOpen={showUserLoginModal}
+					onClose={() => setShowUserLoginModal(false)}
+					onTokenReceived={(token) => {
+						console.log(`${MODULE_TAG} Token received, updating credentials`, { tokenLength: token.length, tokenPreview: token.substring(0, 20) + '...' });
+						
+						// Clean up callback URL parameters to prevent re-processing
+						if (window.location.search.includes('code=') || window.location.search.includes('state=')) {
+							const cleanUrl = window.location.pathname;
+							window.history.replaceState({}, document.title, cleanUrl);
+							console.log(`${MODULE_TAG} Cleaned up callback URL parameters`);
+						}
+						
+						setCredentials((prev) => {
+							const updated = { ...prev, userToken: token, tokenType: 'user' as const };
+							console.log(`${MODULE_TAG} Updated credentials`, { 
+								hasUserToken: !!updated.userToken, 
+								tokenType: updated.tokenType,
+								userTokenLength: updated.userToken?.length 
+							});
+							return updated;
+						});
+						setShowUserLoginModal(false);
+						toastV8.success('User token received and saved!');
+						
+						// Force a re-validation check after state update
+						setTimeout(() => {
+							const currentCreds = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+								flowKey: FLOW_KEY,
+								flowType: 'oidc',
+								includeClientSecret: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+								includeScopes: false,
+							});
+							console.log(`${MODULE_TAG} Post-save credential check`, {
+								hasUserToken: !!currentCreds.userToken,
+								tokenType: currentCreds.tokenType,
+							});
+							
+							// Check if Step 0 is now complete and we can proceed
+							if (nav.currentStep === 0) {
+								const tokenType = currentCreds.tokenType || 'worker';
+								const isTokenValid = tokenType === 'worker' 
+									? tokenStatus.isValid 
+									: !!currentCreds.userToken?.trim();
+								
+								const isStep0Complete = isTokenValid &&
+									currentCreds.environmentId?.trim() &&
+									currentCreds.username?.trim() &&
+									!isLoadingPolicies &&
+									currentCreds.deviceAuthenticationPolicyId?.trim();
+								
+								if (isStep0Complete) {
+									console.log(`${MODULE_TAG} Step 0 is now complete after token receipt - user can proceed to next step`);
+									// Don't auto-advance, let user click Next button
+									// But ensure they stay on the current page
+								}
+							}
+						}, 100);
+					}}
+					onCredentialsSaved={() => {
+						// Reload saved credentials from user-login-v8 flow to sync with MFA flow
+						const savedCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+							flowKey: 'user-login-v8',
+							flowType: 'oidc',
+							includeClientSecret: true,
+							includeRedirectUri: true,
+							includeLogoutUri: false,
+							includeScopes: true,
+						});
+						
+						// Update MFA credentials with saved user login credentials (but don't overwrite existing MFA-specific fields)
+						if (savedCreds.environmentId || savedCreds.clientId) {
+							setCredentials((prev) => ({
+								...prev,
+								environmentId: savedCreds.environmentId || prev.environmentId,
+								clientId: savedCreds.clientId || prev.clientId,
+								// Note: userToken is only set when actually received via onTokenReceived
+							}));
+							console.log(`${MODULE_TAG} Synced saved credentials from User Login Modal`);
+						}
+					}}
+					environmentId={credentials.environmentId}
+				/>
+			)}
+
 			{showSettingsModal && credentials.environmentId && (
 				<MFASettingsModalV8
 					isOpen={showSettingsModal}
@@ -546,9 +797,10 @@ useEffect(() => {
 					max-width: 1000px;
 					margin: 0 auto;
 					background: #f8f9fa;
-					min-height: 100vh;
+					min-height: auto;
 					overflow-y: auto;
-					padding-bottom: 40px;
+					padding-bottom: ${apiDisplayVisible ? '420px' : '16px'};
+					transition: padding-bottom 0.3s ease;
 				}
 
 				body {
@@ -692,14 +944,15 @@ useEffect(() => {
 					display: flex;
 					flex-direction: column;
 					gap: 8px;
-					padding-bottom: 40px;
+					padding-bottom: 16px;
 				}
 
 				.step-content-wrapper {
 					background: white;
 					border: 1px solid #ddd;
 					border-radius: 8px;
-					padding: 12px;
+					padding: 12px 16px;
+					margin: 8px 0;
 					min-height: auto;
 				}
 
@@ -766,8 +1019,28 @@ useEffect(() => {
 					background: #dbeafe;
 					border: 1px solid #93c5fd;
 					border-radius: 6px;
-					padding: 8px 12px;
+					padding: 16px 20px;
 					margin: 8px 0;
+				}
+
+				.info-box h4 {
+					margin: 0 0 12px 0;
+					font-size: 16px;
+					font-weight: 600;
+					color: #1e40af;
+				}
+
+				.info-box ul {
+					margin: 0;
+					padding-left: 20px;
+					color: #1e40af;
+				}
+
+				.info-box li {
+					margin: 6px 0;
+					font-size: 14px;
+					line-height: 1.5;
+					color: #1e40af;
 				}
 
 				.info-box p {

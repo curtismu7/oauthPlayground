@@ -12,6 +12,8 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import pingOneFetch from '@/utils/pingOneFetch';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -63,6 +65,20 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		}
 		return undefined;
 	}, [isOpen]);
+
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
 
 	// Load saved credentials on mount
 	React.useEffect(() => {
@@ -172,8 +188,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		setShowRequestModal(true);
 	};
 
-	const handleExecuteRequest = async () => {
-		if (!requestDetails) return;
+	const handleExecuteRequest = async (): Promise<string | null> => {
+		if (!requestDetails) return null;
 
 		setIsGenerating(true);
 		try {
@@ -196,22 +212,49 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			});
 			console.log(`${MODULE_TAG} Credentials saved to workerTokenServiceV8`);
 
-			const response = await fetch(requestDetails.tokenEndpoint, {
+			// Track the API call
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: requestDetails.tokenEndpoint,
+				headers: requestDetails.resolvedHeaders,
+				body: requestDetails.resolvedBody,
+				step: 'worker-token-request',
+				flowType: 'worker-token',
+				source: 'frontend',
+				isProxy: false,
+			});
+
+			const response = await pingOneFetch(requestDetails.tokenEndpoint, {
 				method: 'POST',
 				headers: requestDetails.resolvedHeaders,
 				body: requestDetails.resolvedBody,
 			});
 
+			let responseData: unknown;
+			try {
+				responseData = await response.json();
+			} catch {
+				const raw = await response.text();
+				responseData = raw ? { raw } : null;
+			}
+
+			// Update API call tracking
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData ?? undefined,
+				},
+				Date.now() - startTime
+			);
+
 			if (!response.ok) {
+				const errorJson = responseData as { error_description?: string; error?: string } | null;
 				let errorMessage = `Token generation failed (HTTP ${response.status})`;
-				try {
-					const errorJson = await response.json();
+				if (errorJson) {
 					errorMessage = errorJson.error_description || errorJson.error || errorMessage;
-				} catch {
-					const errorText = await response.text();
-					if (errorText) {
-						errorMessage = `${errorMessage}: ${errorText}`;
-					}
 				}
 
 				if (/client authentication failed/i.test(errorMessage)) {
@@ -224,7 +267,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				throw new Error(errorMessage);
 			}
 
-			const data = await response.json();
+			const data = responseData as { access_token?: string; expires_in?: number };
 			const token = data.access_token;
 
 			// Now store token using workerTokenServiceV8 (credentials are already saved)
@@ -243,11 +286,20 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			console.log(`${MODULE_TAG} Token generated and stored`);
 
 			onTokenGenerated?.(token);
-			setShowRequestModal(false);
-			onClose();
+
+			// Check if we should show token at end
+			const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			if (!config.workerToken.showTokenAtEnd) {
+				setShowRequestModal(false);
+				onClose();
+			}
+
+			return token;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Token generation error`, error);
 			toastV8.error(error instanceof Error ? error.message : 'Failed to generate token');
+			return null;
 		} finally {
 			setIsGenerating(false);
 		}
@@ -801,10 +853,22 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			{showRequestModal && requestDetails && (
 				<WorkerTokenRequestModalV8
 					isOpen={showRequestModal}
-					onClose={() => setShowRequestModal(false)}
+					onClose={() => {
+						setShowRequestModal(false);
+						onClose(); // Always close main modal when request modal closes
+					}}
 					onExecute={handleExecuteRequest}
 					requestDetails={requestDetails}
 					isExecuting={isGenerating}
+					showTokenAtEnd={(() => {
+						try {
+							const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							return config.workerToken.showTokenAtEnd;
+						} catch {
+							return true; // Default to true if config can't be loaded
+						}
+					})()}
 				/>
 			)}
 		</>
