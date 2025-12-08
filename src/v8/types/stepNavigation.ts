@@ -94,6 +94,8 @@ export interface StepActionButtonsProps {
 	nextDisabledReason?: string;
 	/** Whether to hide the next button entirely (e.g., when a custom action button is shown) */
 	hideNextButton?: boolean;
+	/** Whether to hide the previous button entirely (temporarily disabled as it's broken) */
+	hidePreviousButton?: boolean;
 	/** Callback when user clicks previous */
 	onPrevious: () => void;
 	/** Callback when user clicks next */
