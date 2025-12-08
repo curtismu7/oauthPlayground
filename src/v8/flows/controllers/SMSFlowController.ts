@@ -10,11 +10,21 @@ import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import type { MFACredentials } from '../shared/MFATypes';
 import { MFAFlowController, type FlowControllerCallbacks } from './MFAFlowController';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
+import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
 /**
  * Get full phone number with country code (PingOne format: +1.5125201234)
+ * Uses phone validation utility to handle multiple input formats
  */
 export const getFullPhoneNumber = (credentials: MFACredentials): string => {
+	const phoneValidation = validateAndNormalizePhone(credentials.phoneNumber, credentials.countryCode);
+	
+	// If validation succeeded, use normalized format; otherwise fall back to old logic
+	if (phoneValidation.isValid && phoneValidation.normalizedFullPhone) {
+		return phoneValidation.normalizedFullPhone;
+	}
+	
+	// Fallback to old logic for backward compatibility
 	const cleanedPhone = credentials.phoneNumber.replace(/[^\d]/g, '');
 	const countryCode = credentials.countryCode.replace(/[^\d+]/g, '');
 	return `${countryCode}.${cleanedPhone}`;
@@ -54,8 +64,13 @@ export class SMSFlowController extends MFAFlowController {
 
 		// Phone number validation is now done in Step 1 (registration), not Step 0
 
-		if (!tokenStatus.isValid) {
-			errors.push('Worker token is required - please add a token first');
+		// Per rightTOTP.md: Check token validity based on token type (worker or user)
+		const tokenType = credentials.tokenType || 'worker';
+		const isTokenValid = tokenType === 'worker' 
+			? tokenStatus.isValid 
+			: !!credentials.userToken?.trim();
+		if (!isTokenValid) {
+			errors.push(`${tokenType === 'worker' ? 'Worker' : 'User'} token is required - please add a token first`);
 		}
 
 		nav.setValidationErrors(errors);
@@ -66,7 +81,7 @@ export class SMSFlowController extends MFAFlowController {
 		const fullPhone = getFullPhoneNumber(credentials);
 		// Use device name from credentials if provided, otherwise generate default
 		const deviceName = credentials.deviceName?.trim() || `SMS Device - ${new Date().toLocaleDateString()}`;
-		return {
+		const params: Partial<RegisterDeviceParams> = {
 			phone: fullPhone,
 			name: deviceName,
 			nickname: deviceName,
@@ -77,6 +92,16 @@ export class SMSFlowController extends MFAFlowController {
 			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#enable-users-mfa
 			status,
 		};
+
+		// Include policy if deviceAuthenticationPolicyId is provided
+		// According to API docs: policy should be an object with id property
+		// Format: { "policy": { "id": "policy-id-string" } }
+		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-sms
+		if (credentials.deviceAuthenticationPolicyId?.trim()) {
+			params.policy = { id: credentials.deviceAuthenticationPolicyId.trim() };
+		}
+
+		return params;
 	}
 }
 

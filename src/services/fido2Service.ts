@@ -17,6 +17,7 @@ export interface FIDO2RegistrationResult {
 	publicKey?: string;
 	attestationObject?: string;
 	clientDataJSON?: string;
+	attestation?: string; // Full PublicKeyCredential object as JSON string (required by PingOne)
 	error?: string;
 	userHandle?: string;
 }
@@ -164,13 +165,36 @@ export class FIDO2Service {
 			const credentialId = FIDO2Service.arrayBufferToBase64(credential.rawId);
 			const rawPublicKey = response.getPublicKey?.() || null;
 			const publicKey = rawPublicKey ? FIDO2Service.arrayBufferToBase64(rawPublicKey) : undefined;
-			const attestationObject = FIDO2Service.arrayBufferToBase64(response.attestationObject);
-			const clientDataJSON = FIDO2Service.arrayBufferToBase64(response.clientDataJSON);
+			// PingOne requires base64url encoding for attestationObject and clientDataJSON (RFC 4648 §5)
+			const attestationObject = FIDO2Service.arrayBufferToBase64url(response.attestationObject);
+			const clientDataJSON = FIDO2Service.arrayBufferToBase64url(response.clientDataJSON);
+			
+			// PingOne expects the attestation field to be a JSON string containing the full PublicKeyCredential object
+			// Structure: { id, type, rawId, response: { clientDataJSON, attestationObject }, clientExtensionResults: {} }
+			const rawIdBase64url = FIDO2Service.arrayBufferToBase64url(credential.rawId);
+			const attestationJson = JSON.stringify({
+				id: credential.id,
+				type: credential.type,
+				rawId: rawIdBase64url,
+				response: {
+					clientDataJSON,
+					attestationObject,
+				},
+				clientExtensionResults: {},
+			});
 
 			console.log('✅ [FIDO2] Credential registered successfully', {
 				credentialId: `${credentialId.substring(0, 20)}...`,
 				hasPublicKey: !!publicKey,
 				hasAttestation: !!attestationObject,
+				attestationLength: attestationObject.length,
+				attestationPreview: `${attestationObject.substring(0, 50)}...`,
+				attestationIsBase64url: !attestationObject.includes('+') && !attestationObject.includes('/') && !attestationObject.includes('='),
+				clientDataJSONLength: clientDataJSON.length,
+				clientDataJSONPreview: `${clientDataJSON.substring(0, 50)}...`,
+				clientDataJSONIsBase64url: !clientDataJSON.includes('+') && !clientDataJSON.includes('/') && !clientDataJSON.includes('='),
+				attestationJsonLength: attestationJson.length,
+				attestationJsonPreview: `${attestationJson.substring(0, 100)}...`,
 			});
 
 			return {
@@ -179,6 +203,7 @@ export class FIDO2Service {
 				...(publicKey ? { publicKey } : {}),
 				attestationObject,
 				clientDataJSON,
+				attestation: attestationJson, // Full PublicKeyCredential object as JSON string (required by PingOne)
 				userHandle: config.userHandle,
 			};
 		} catch (error: unknown) {
@@ -382,6 +407,17 @@ export class FIDO2Service {
 			binary += String.fromCharCode(bytes[i]);
 		}
 		return btoa(binary);
+	}
+
+	/**
+	 * Convert ArrayBuffer to base64url string (RFC 4648 §5)
+	 * Base64url is required by PingOne FIDO2 API
+	 * Converts base64 to base64url by replacing + with -, / with _, and removing padding =
+	 */
+	private static arrayBufferToBase64url(buffer: ArrayBuffer): string {
+		const base64 = FIDO2Service.arrayBufferToBase64(buffer);
+		// Convert base64 to base64url: replace + with -, / with _, remove padding =
+		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 	}
 
 	private static base64ToArrayBuffer(base64: string): ArrayBuffer {
