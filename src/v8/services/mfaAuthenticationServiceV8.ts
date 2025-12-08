@@ -131,40 +131,64 @@ export class MfaAuthenticationServiceV8 {
 				throw new Error('Either username or userId must be provided');
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId,
+				deviceId: params.deviceId,
+				deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
+				workerToken: cleanToken,
+			};
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/initialize-device-authentication',
+				body: {
+					...requestBody,
+					workerToken: cleanToken ? '***REDACTED***' : undefined,
+				},
+				step: 'mfa-Initialize Device Authentication',
+				flowType: 'mfa',
+			});
+
 			// Use backend proxy endpoint to avoid CORS violations
 			const response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({
-					environmentId: params.environmentId,
-					userId,
-					deviceId: params.deviceId,
-					deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
-					workerToken: cleanToken,
-				}),
+				body: JSON.stringify(requestBody),
 			});
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorData: unknown = {};
-				try {
-					errorData = JSON.parse(errorText);
-				} catch {
-					errorData = { error: errorText };
-				}
-				console.error(`${MODULE_TAG} Failed to initialize device authentication`, {
-					status: response.status,
-					statusText: response.statusText,
-					errorData,
-				});
-				throw new Error(
-					`Failed to initialize device authentication: ${response.status} ${response.statusText}`
-				);
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
 			}
 
-			const data = await response.json();
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
+				throw new Error(`Failed to initialize device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+			}
+
+			const data = responseData as DeviceAuthenticationResponse;
 			console.log(`${MODULE_TAG} Device authentication initialized`, {
 				authenticationId: data.id,
 				status: data.status,
@@ -219,45 +243,69 @@ export class MfaAuthenticationServiceV8 {
 				throw new Error('Either username or userId must be provided');
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId,
+				deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
+				workerToken: cleanToken,
+				// Phase 2: one-time device data
+				oneTimeDevice: {
+					type: params.type,
+					email: params.email,
+					phone: params.phone,
+				},
+			};
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/initialize-device-authentication',
+				body: {
+					...requestBody,
+					workerToken: cleanToken ? '***REDACTED***' : undefined,
+				},
+				step: 'mfa-Initialize One-Time Device Authentication',
+				flowType: 'mfa',
+			});
+
 			// Use backend proxy endpoint to avoid CORS violations
 			const response = await fetch('/api/pingone/mfa/initialize-device-authentication', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({
-					environmentId: params.environmentId,
-					userId,
-					deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
-					workerToken: cleanToken,
-					// Phase 2: one-time device data
-					oneTimeDevice: {
-						type: params.type,
-						email: params.email,
-						phone: params.phone,
-					},
-				}),
+				body: JSON.stringify(requestBody),
 			});
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorData: unknown = {};
-				try {
-					errorData = JSON.parse(errorText);
-				} catch {
-					errorData = { error: errorText };
-				}
-				console.error(`${MODULE_TAG} Failed to initialize one-time device authentication`, {
-					status: response.status,
-					statusText: response.statusText,
-					errorData,
-				});
-				throw new Error(
-					`Failed to initialize one-time device authentication: ${response.status} ${response.statusText}`
-				);
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
 			}
 
-			const data = await response.json();
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
+				throw new Error(`Failed to initialize one-time device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+			}
+
+			const data = responseData as DeviceAuthenticationResponse;
 			console.log(`${MODULE_TAG} One-time device authentication initialized`, {
 				authenticationId: data.id,
 				status: data.status,
@@ -304,22 +352,70 @@ export class MfaAuthenticationServiceV8 {
 				}
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const cleanTokenStr = cleanToken || '';
+			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}&workerToken=${encodeURIComponent(cleanTokenStr)}`;
+			
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: '/api/pingone/mfa/read-device-authentication',
+				queryParams: cleanTokenStr
+					? {
+							environmentId,
+							userId,
+							authenticationId,
+							workerToken: '***REDACTED***',
+						}
+					: {
+							environmentId,
+							userId,
+							authenticationId,
+						},
+				step: 'mfa-Read Device Authentication',
+				flowType: 'mfa',
+			});
+
 			const response = await pingOneFetch(
-				`/mfa/v1/environments/${environmentId}/users/${encodeURIComponent(userId)}/deviceAuthentications/${authenticationId}`,
+				proxyEndpoint,
 				{
 					method: 'GET',
 					headers: {
-						Authorization: `Bearer ${cleanToken}`,
+						'Content-Type': 'application/json',
 					},
 					retry: { maxAttempts: 3 },
 				}
 			);
 
-			if (!response.ok) {
-				throw new Error(`Failed to read device authentication: ${response.status} ${response.statusText}`);
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
 			}
 
-			const data = await response.json();
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
+				throw new Error(`Failed to read device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+			}
+
+			const data = responseData as DeviceAuthenticationResponse;
 			console.log(`${MODULE_TAG} Device authentication status read`, {
 				status: data.status,
 				nextStep: data.nextStep,
@@ -335,9 +431,12 @@ export class MfaAuthenticationServiceV8 {
 	/**
 	 * Select device for authentication (when multiple devices available)
 	 * POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications/{authenticationId}/devices/{deviceId}
+	 * @param params - Device selection parameters
+	 * @param options - Optional parameters including custom step name for API tracking
 	 */
 	static async selectDeviceForAuthentication(
-		params: DeviceSelectionParams
+		params: DeviceSelectionParams,
+		options?: { stepName?: string }
 	): Promise<DeviceAuthenticationResponse> {
 		console.log(`${MODULE_TAG} Selecting device for authentication`, {
 			authenticationId: params.authenticationId,
@@ -362,6 +461,66 @@ export class MfaAuthenticationServiceV8 {
 				throw new Error('userId is required. Please provide userId or username to lookup.');
 			}
 
+			// Validate device is in allowed list before attempting selection
+			// This prevents 400 errors when PingOne rejects a device that's not allowed by the policy
+			try {
+				const authData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+					params.environmentId,
+					userId,
+					params.authenticationId,
+					{ isUserId: true }
+				);
+
+				// Check if device selection is required and get list of allowed devices
+				const needsDeviceSelection = 
+					authData.status === 'DEVICE_SELECTION_REQUIRED' || 
+					authData.nextStep === 'SELECTION_REQUIRED' ||
+					authData.nextStep === 'DEVICE_SELECTION_REQUIRED';
+
+				if (needsDeviceSelection) {
+					// Get list of allowed devices from _embedded.devices or devices array
+					const allowedDevices = (authData._embedded as { devices?: Array<{ id: string; type?: string; nickname?: string }> })?.devices || 
+						(authData.devices as Array<{ id: string; type?: string; nickname?: string }> | undefined) || 
+						[];
+
+					console.log(`${MODULE_TAG} Validating device selection:`, {
+						selectedDeviceId: params.deviceId,
+						allowedDeviceIds: allowedDevices.map(d => d.id),
+						allowedDeviceCount: allowedDevices.length,
+					});
+
+					// Check if selected device is in the allowed list
+					const isDeviceAllowed = allowedDevices.some(device => device.id === params.deviceId);
+
+					if (!isDeviceAllowed && allowedDevices.length > 0) {
+						const allowedDeviceList = allowedDevices.map(d => 
+							`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
+						).join(', ');
+						
+						throw new Error(
+							`Device ${params.deviceId} is not allowed by the current authentication policy. ` +
+							`Please select one of the allowed devices: ${allowedDeviceList}. ` +
+							`You may need to re-run "Initialize Authentication" to get the current list of allowed devices.`
+						);
+					} else if (!isDeviceAllowed && allowedDevices.length === 0) {
+						throw new Error(
+							`Device ${params.deviceId} is not allowed by the current authentication policy. ` +
+							`No devices are currently available for selection. Please re-run "Initialize Authentication" to refresh the device list.`
+						);
+					}
+				}
+			} catch (validationError) {
+				// If validation fails, check if it's our custom error (device not allowed)
+				// or a different error (e.g., can't read auth data)
+				if (validationError instanceof Error && validationError.message.includes('is not allowed')) {
+					// Re-throw our validation error
+					throw validationError;
+				}
+				// For other errors (e.g., can't read auth data), log warning but continue
+				// The actual selection call will fail if device is invalid
+				console.warn(`${MODULE_TAG} Could not validate device before selection (will attempt anyway):`, validationError);
+			}
+
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
@@ -378,7 +537,8 @@ export class MfaAuthenticationServiceV8 {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : undefined,
 				},
-				step: 'mfa-select-device',
+				step: options?.stepName || 'mfa-Select Device for Authentication',
+				flowType: 'mfa',
 			});
 
 			const response = await pingOneFetch(
@@ -417,6 +577,39 @@ export class MfaAuthenticationServiceV8 {
 				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
 					? String(responseData.message)
 					: response.statusText;
+				
+				// If it's a 400 error, try to read the device authentication to get allowed devices
+				if (response.status === 400) {
+					try {
+						const authData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+							params.environmentId,
+							userId,
+							params.authenticationId,
+							{ isUserId: true }
+						);
+						
+						const allowedDevices = (authData._embedded as { devices?: Array<{ id: string; type?: string; nickname?: string }> })?.devices || 
+							(authData.devices as Array<{ id: string; type?: string; nickname?: string }> | undefined) || 
+							[];
+						
+						if (allowedDevices.length > 0) {
+							const allowedDeviceList = allowedDevices.map(d => 
+								`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
+							).join(', ');
+							
+							throw new Error(
+								`Device selection failed: ${errorText}. ` +
+								`The selected device (${params.deviceId}) is not allowed by the current authentication policy. ` +
+								`Allowed devices: ${allowedDeviceList}. ` +
+								`Please re-run "Initialize Authentication" and select a device from the allowed list.`
+							);
+						}
+					} catch (readError) {
+						// If we can't read auth data, just use the original error
+						console.warn(`${MODULE_TAG} Could not read device authentication for better error message:`, readError);
+					}
+				}
+				
 				throw new Error(`Failed to select device: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
 			}
 
@@ -515,7 +708,8 @@ export class MfaAuthenticationServiceV8 {
 						region === 'ca' ? 'https://auth.pingone.ca' :
 						'https://auth.pingone.com';
 					
-					const tokenEndpoint = `${apiBase}/${credentials.environmentId}/as/token`;
+					const actualPingOneUrl = `${apiBase}/${credentials.environmentId}/as/token`;
+					const proxyEndpoint = '/api/pingone/token';
 					const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
 					const scopeList = credentials.scopes;
 					const normalizedScopes: string[] = Array.isArray(scopeList) && scopeList.length > 0
@@ -540,21 +734,83 @@ export class MfaAuthenticationServiceV8 {
 						headers.Authorization = `Basic ${basicAuth}`;
 					}
 					
-					console.log(`${MODULE_TAG} Renewing worker token...`);
-					const response = await fetch(tokenEndpoint, {
+					// Track API call
+					const startTime = Date.now();
+					const callId = apiCallTrackerService.trackApiCall({
 						method: 'POST',
-						headers,
-						body: params.toString(),
+						url: actualPingOneUrl,
+						actualPingOneUrl,
+						headers: {
+							...headers,
+							Authorization: headers.Authorization ? 'Basic ***REDACTED***' : undefined,
+						},
+						body: {
+							grant_type: 'client_credentials',
+							client_id: credentials.clientId,
+							scope: normalizedScopes.join(' '),
+							client_secret: authMethod === 'client_secret_post' ? '***REDACTED***' : undefined,
+						},
+						step: 'mfa-Renew Worker Token',
+						flowType: 'mfa',
 					});
 					
-					if (!response.ok) {
-						const errorText = await response.text();
-						throw new Error(`Token renewal failed: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`);
+					console.log(`${MODULE_TAG} Renewing worker token...`);
+					let response: Response;
+					try {
+						response = await fetch(proxyEndpoint, {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								environment_id: credentials.environmentId,
+								region,
+								body: params.toString(),
+								auth_method: authMethod,
+								headers: authMethod === 'client_secret_basic' ? headers : undefined,
+							}),
+						});
+					} catch (error) {
+						apiCallTrackerService.updateApiCallResponse(
+							callId,
+							{
+								status: 0,
+								statusText: 'Network Error',
+								error: error instanceof Error ? error.message : String(error),
+							},
+							Date.now() - startTime
+						);
+						throw error;
 					}
 					
-					const data = await response.json();
-					const newToken = data.access_token;
-					const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
+					const responseClone = response.clone();
+					let data: unknown;
+					try {
+						data = await responseClone.json();
+					} catch {
+						const errorText = await response.text();
+						data = { error: 'Failed to parse response', rawResponse: errorText.substring(0, 200) };
+					}
+					
+					// Update API call with response
+					apiCallTrackerService.updateApiCallResponse(
+						callId,
+						{
+							status: response.status,
+							statusText: response.statusText,
+							data,
+						},
+						Date.now() - startTime
+					);
+					
+					if (!response.ok) {
+						const errorData = data as { error?: string; rawResponse?: string };
+						throw new Error(`Token renewal failed: ${response.status} ${response.statusText} - ${errorData.error || errorData.rawResponse || 'Unknown error'}`);
+					}
+					
+					const tokenData = data as { access_token: string; expires_in?: number };
+					const newToken = tokenData.access_token;
+					const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
 					
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
 					console.log(`${MODULE_TAG} Worker token renewed successfully`);
@@ -614,20 +870,62 @@ export class MfaAuthenticationServiceV8 {
 				contentType = 'application/json';
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const requestBody = {
+				otp: params.otp,
+			};
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: endpoint,
+				headers: cleanToken
+					? {
+							'Content-Type': contentType,
+							Authorization: 'Bearer ***REDACTED***',
+						}
+					: {
+							'Content-Type': contentType,
+						},
+				body: requestBody,
+				step: 'mfa-Validate OTP',
+				flowType: 'mfa',
+			});
+
 			const response = await pingOneFetch(endpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': contentType,
 					Authorization: `Bearer ${cleanToken}`,
 				},
-				body: JSON.stringify({
-					otp: params.otp,
-				}),
+				body: JSON.stringify(requestBody),
 				retry: { maxAttempts: 3 },
 			});
 
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
 			if (!response.ok) {
-				const errorText = await response.text();
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
 				console.error(`${MODULE_TAG} OTP validation failed`, {
 					status: response.status,
 					statusText: response.statusText,
@@ -636,14 +934,12 @@ export class MfaAuthenticationServiceV8 {
 
 				// Parse error for attempts remaining
 				let attemptsRemaining: number | undefined;
-				try {
-					const errorData = JSON.parse(errorText);
-					attemptsRemaining = errorData.details?.[0]?.innerError?.attemptsRemaining;
-				} catch {
-					// Ignore JSON parse errors
+				if (typeof responseData === 'object' && responseData !== null) {
+					const errorData = responseData as Record<string, unknown>;
+					attemptsRemaining = (errorData.details as Array<{ innerError?: { attemptsRemaining?: number } }>)?.[0]?.innerError?.attemptsRemaining;
 				}
 
-				const otpError = new Error(`OTP validation failed: ${response.status} ${response.statusText}`) as Error & {
+				const otpError = new Error(`OTP validation failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`) as Error & {
 					attemptsRemaining?: number;
 				};
 				if (attemptsRemaining !== undefined) {
@@ -652,12 +948,12 @@ export class MfaAuthenticationServiceV8 {
 				throw otpError;
 			}
 
-			const data = await response.json();
+			const data = responseData as Partial<OTPValidationResult>;
 			const result: OTPValidationResult = {
 				status: data.status || 'UNKNOWN',
-				message: data.message,
+				...(data.message && { message: data.message }),
 				valid: data.status === 'COMPLETED',
-				_links: data._links,
+				...(data._links && { _links: data._links }),
 			};
 
 			console.log(`${MODULE_TAG} OTP validation result`, {
@@ -722,6 +1018,25 @@ export class MfaAuthenticationServiceV8 {
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: completeUrl,
+				headers: cleanToken
+					? {
+							'Content-Type': 'application/json',
+							Authorization: 'Bearer ***REDACTED***',
+						}
+					: {
+							'Content-Type': 'application/json',
+						},
+				body: {},
+				step: 'mfa-Complete Authentication',
+				flowType: 'mfa',
+			});
+
 			const response = await pingOneFetch(completeUrl, {
 				method: 'POST',
 				headers: {
@@ -732,24 +1047,63 @@ export class MfaAuthenticationServiceV8 {
 				retry: { maxAttempts: 3 },
 			});
 
-			if (!response.ok) {
-				throw new Error(`Failed to complete authentication: ${response.status} ${response.statusText}`);
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
 			}
 
-			const data = await response.json();
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
+				throw new Error(`Failed to complete authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+			}
+
+			const data = responseData as Record<string, unknown>;
 			console.log(`${MODULE_TAG} Authentication completed`, {
 				hasAccessToken: !!data.access_token,
 				tokenType: data.token_type,
 				expiresIn: data.expires_in,
 			});
 
-			return {
+			const result: AuthenticationCompletionResult = {
 				status: 'COMPLETED',
-				accessToken: data.access_token,
-				tokenType: data.token_type,
-				expiresIn: data.expires_in,
-				...data,
 			};
+			
+			// Add optional properties if they exist
+			if (data.access_token) {
+				result.accessToken = String(data.access_token);
+			}
+			if (data.token_type) {
+				result.tokenType = String(data.token_type);
+			}
+			if (data.expires_in) {
+				result.expiresIn = Number(data.expires_in);
+			}
+			
+			// Add any additional properties from the response
+			Object.keys(data).forEach((key) => {
+				if (key !== 'access_token' && key !== 'token_type' && key !== 'expires_in' && key !== 'status') {
+					result[key] = data[key];
+				}
+			});
+			
+			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error completing authentication`, error);
 			throw error;
@@ -770,31 +1124,189 @@ export class MfaAuthenticationServiceV8 {
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
+			const actualPingOneUrl = `https://api.pingone.com/mfa/v1/environments/${environmentId}/users/${encodeURIComponent(
+				username
+			)}/deviceAuthentications/${authenticationId}/cancel`;
+			const proxyEndpoint = '/api/pingone/mfa/cancel-device-authentication';
+
+			// Track API call
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: actualPingOneUrl,
+				actualPingOneUrl,
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ***REDACTED***`,
+				},
+				body: {},
+				step: 'mfa-Cancel Device Authentication',
+				flowType: 'mfa',
+			});
+
 			const response = await pingOneFetch(
-				`/mfa/v1/environments/${environmentId}/users/${encodeURIComponent(
-					username
-				)}/deviceAuthentications/${authenticationId}/cancel`,
+				proxyEndpoint,
 				{
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${cleanToken}`,
 					},
-					body: JSON.stringify({}),
+					body: JSON.stringify({
+						environmentId,
+						userId: username,
+						authenticationId,
+						workerToken: cleanToken,
+					}),
 					retry: { maxAttempts: 3 },
 				}
 			);
 
-			if (!response.ok) {
-				throw new Error(`Failed to cancel device authentication: ${response.status} ${response.statusText}`);
+			const responseClone = response.clone();
+			let data: unknown;
+			try {
+				data = await responseClone.json();
+			} catch {
+				data = { error: 'Failed to parse response' };
 			}
 
-			const data = await response.json();
-			console.log(`${MODULE_TAG} Device authentication canceled`, { status: data.status });
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = data as { error?: string; message?: string };
+				throw new Error(`Failed to cancel device authentication: ${response.status} ${response.statusText} - ${errorData.error || errorData.message || 'Unknown error'}`);
+			}
+
+			const result = data as { status: string; [key: string]: unknown };
+			console.log(`${MODULE_TAG} Device authentication canceled`, { status: result.status });
+
+			return result;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error canceling device authentication`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Check Assertion (FIDO Device)
+	 * POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
+	 * Content-Type: application/vnd.pingidentity.assertion.check+json
+	 * 
+	 * Validates the WebAuthn assertion for a FIDO2 device in an MFA authentication flow
+	 * when the device authentication status is ASSERTION_REQUIRED.
+	 * 
+	 * @param deviceAuthId - The device authentication ID
+	 * @param assertion - WebAuthn assertion result from navigator.credentials.get()
+	 */
+	static async checkFIDO2Assertion(
+		deviceAuthId: string,
+		assertion: {
+			id: string;
+			rawId: string;
+			type: string;
+			response: {
+				clientDataJSON: string;
+				authenticatorData: string;
+				signature: string;
+				userHandle?: string;
+			};
+		}
+	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
+		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
+			deviceAuthId,
+			hasAssertion: !!assertion,
+		});
+
+		try {
+			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
+
+			// Build assertion body according to PingOne API spec
+			const assertionBody = {
+				assertion: {
+					id: assertion.id,
+					rawId: assertion.rawId,
+					type: assertion.type,
+					response: {
+						clientDataJSON: assertion.response.clientDataJSON,
+						authenticatorData: assertion.response.authenticatorData,
+						signature: assertion.response.signature,
+						...(assertion.response.userHandle && { userHandle: assertion.response.userHandle }),
+					},
+				},
+			};
+
+			// Track API call for display
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const startTime = Date.now();
+			const requestBody = {
+				deviceAuthId,
+				assertion: assertionBody.assertion,
+			};
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/check-fido2-assertion',
+				body: {
+					deviceAuthId,
+					assertion: assertionBody.assertion, // Include assertion data for display
+				},
+				step: 'mfa-Check FIDO2 Assertion',
+				flowType: 'mfa',
+			});
+
+			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${cleanToken}`,
+				},
+				body: JSON.stringify(requestBody),
+				retry: { maxAttempts: 3 },
+			});
+
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
+					? String(responseData.message)
+					: response.statusText;
+				throw new Error(`Failed to check FIDO2 assertion: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+			}
+
+			const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
+			console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
+				status: data.status,
+				nextStep: data.nextStep,
+			});
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error canceling device authentication`, error);
+			console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
 			throw error;
 		}
 	}
@@ -808,6 +1320,7 @@ export class MfaAuthenticationServiceV8 {
 		deviceUpdate?: string;
 		complete?: string;
 		cancel?: string;
+		assertionCheck?: string;
 	} {
 		const links = response._links || {};
 		
@@ -817,6 +1330,7 @@ export class MfaAuthenticationServiceV8 {
 			deviceUpdate: links['device.update']?.href,
 			complete: links.complete?.href,
 			cancel: links.cancel?.href,
+			assertionCheck: links['assertion.check']?.href,
 		};
 	}
 }

@@ -44,6 +44,20 @@ export const OidcDiscoveryModalV8: React.FC<OidcDiscoveryModalV8Props> = ({
 		}
 	}, [isOpen]);
 
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	if (!isOpen || !result) return null;
 
 	const handleCopy = (text: string, field: string) => {

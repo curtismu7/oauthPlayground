@@ -1,0 +1,500 @@
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 1,
+  "size": 1
+}
+
+******************************************************************************************************************************************************
+* ✅ Lookup User by Username - SUCCESS (200 OK)
+* 📅 Date/Time: 12/07/2025, 08:21:33 (2025-12-07T14:21:33.667Z)
+* ⏱️  Duration: 108ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?filter=username eq "steven73125"
+* 🔧 Method: GET
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "username": "steven73125",
+*     "filter": "username eq \"steven73125\""
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Lookup User by Username
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Register MFA Device
+*  📅 Timestamp: 2025-12-07T14:21:33.866Z
+*  🕐 Local Time: 12/07/2025, 08:21:33
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices
+🔧 METHOD: POST
+📋 REQUEST HEADERS: {
+  "Content-Type": "application/json",
+  "Authorization": "Bearer eyJhbGciOiJSUzI1NiIs...c8A8Vg6Ikg"
+}
+📦 REQUEST BODY (JSON): {
+  "type": "FIDO2",
+  "rp": {
+    "id": "localhost",
+    "name": "localhost"
+  },
+  "policy": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  }
+}
+📦 REQUEST BODY (Raw): {
+  "type": "FIDO2",
+  "rp": {
+    "id": "localhost",
+    "name": "localhost"
+  },
+  "policy": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  }
+}
+📊 REQUEST METADATA: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+  "deviceType": "FIDO2",
+  "statusMatch": false,
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "tokenType": "worker",
+  "tokenLength": 936,
+  "tokenHasExp": true,
+  "returnedStatus": "ACTIVATION_REQUIRED",
+  "deviceId": "57c57610-4a9c-4382-824f-7ef3861ab750",
+  "hasDeviceActivateUri": false,
+  "isFIDO2": true,
+  "hasPublicKeyCredentialCreationOptions": true,
+  "publicKeyCredentialCreationOptionsLength": 826
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 201 Created
+⏱️  DURATION: 139ms
+📋 RESPONSE HEADERS: {
+  "access-control-allow-credentials": "true",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "connection": "keep-alive",
+  "content-length": "2070",
+  "content-type": "application/hal+json;charset=UTF-8",
+  "correlation-id": "f9529b37-89ce-4810-9d87-dfc2d4805768",
+  "date": "Sun, 07 Dec 2025 14:21:33 GMT",
+  "expires": "0",
+  "pragma": "no-cache",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 9b3bff8ad607506969166da683ad5188.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "VOMJOEnDCYcF7zw=",
+  "x-amz-cf-id": "K7LE6E1QAMocPKk_8wsO33VqZ0IsjdCTpEjr1qDr29NwSK4KqFmtvg==",
+  "x-amz-cf-pop": "ATL59-P14",
+  "x-amzn-requestid": "f9529b37-89ce-4810-9d87-dfc2d4805768",
+  "x-amzn-trace-id": "Root=1-69358d6d-0852f2cc0283f83c73df09a7;Parent=5747f6e49c0c4fe4;Sampled=0;Lineage=1:a3dff340:0",
+  "x-cache": "Miss from cloudfront",
+  "x-content-type-options": "nosniff"
+}
+📦 RESPONSE BODY (JSON): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750"
+    },
+    "environment": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+    },
+    "device.activate": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750"
+    }
+  },
+  "id": "57c57610-4a9c-4382-824f-7ef3861ab750",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "user": {
+    "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb"
+  },
+  "type": "FIDO2",
+  "status": "ACTIVATION_REQUIRED",
+  "createdAt": "2025-12-07T14:21:33.917Z",
+  "updatedAt": "2025-12-07T14:21:33.917Z",
+  "rp": {
+    "id": "localhost",
+    "name": "localhost"
+  },
+  "publicKeyCredentialCreationOptions": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[43,119,92,-99,-20,-84,-75,88,119,-109,121,-24,78,-45,-78,50,26,-109,-28,15,27,-56,-48,-101,-15,-4,56,3,-53,-120,-72,-106],\"displayName\":\"steven73125@mailinator.com - trial_ping_identity_1274825138 Arvest\",\"name\":\"steven73125@mailinator.com - trial_ping_identity_1274825138 Arvest\"},\"challenge\":[-115,-93,-89,26,15,-74,91,-52,36,-99,16,48,-79,-123,-14,-76,-42,41,88,124,-33,109,-63,-26,58,-57,-16,108,-16,-124,-61,-106],\"pubKeyCredParams\":[{\"type\":\"public-key\",\"alg\":\"-7\"},{\"type\":\"public-key\",\"alg\":\"-37\"},{\"type\":\"public-key\",\"alg\":\"-257\"}],\"timeout\":120000,\"excludeCredentials\":[],\"authenticatorSelection\":{\"residentKey\":\"required\",\"requireResidentKey\":true,\"userVerification\":\"required\"},\"attestation\":\"none\",\"extensions\":{\"credProps\":true,\"hmacCreateSecret\":true}}"
+}
+📦 RESPONSE BODY (Raw): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750"
+    },
+    "environment": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+    },
+    "device.activate": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750"
+    }
+  },
+  "id": "57c57610-4a9c-4382-824f-7ef3861ab750",
+  "environment": {
+    "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+  },
+  "user": {
+    "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb"
+  },
+  "type": "FIDO2",
+  "status": "ACTIVATION_REQUIRED",
+  "createdAt": "2025-12-07T14:21:33.917Z",
+  "updatedAt": "2025-12-07T14:21:33.917Z",
+  "rp": {
+    "id": "localhost",
+    "name": "localhost"
+  },
+  "publicKeyCredentialCreationOptions": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[43,119,92,-99,-20,-84,-75,88,119,-109,121,-24,78,-45,-78,50,26,-109,-28,15,27,-56,-48,-101,-15,-4,56,3,-53,-120,-72,-106],\"displayName\":\"steven73125@mailinator.com - trial_ping_identity_1274825138 Arvest\",\"name\":\"steven73125@mailinator.com - trial_ping_identity_1274825138 Arvest\"},\"challenge\":[-115,-93,-89,26,15,-74,91,-52,36,-99,16,48,-79,-123,-14,-76,-42,41,88,124,-33,109,-63,-26,58,-57,-16,108,-16,-124,-61,-106],\"pubKeyCredParams\":[{\"type\":\"public-key\",\"alg\":\"-7\"},{\"type\":\"public-key\",\"alg\":\"-37\"},{\"type\":\"public-key\",\"alg\":\"-257\"}],\"timeout\":120000,\"excludeCredentials\":[],\"authenticatorSelection\":{\"residentKey\":\"required\",\"requireResidentKey\":true,\"userVerification\":\"required\"},\"attestation\":\"none\",\"extensions\":{\"credProps\":true,\"hmacCreateSecret\":true}}"
+}
+
+******************************************************************************************************************************************************
+* ✅ Register MFA Device - SUCCESS (201 Created)
+* 📅 Date/Time: 12/07/2025, 08:21:33 (2025-12-07T14:21:33.866Z)
+* ⏱️  Duration: 139ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices
+* 🔧 Method: POST
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "userId": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+*     "deviceType": "FIDO2",
+*     "statusMatch": false,
+*     "hasPolicy": true,
+*     "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+*     "tokenType": "worker",
+*     "tokenLength": 936,
+*     "tokenHasExp": true,
+*     "returnedStatus": "ACTIVATION_REQUIRED",
+*     "deviceId": "57c57610-4a9c-4382-824f-7ef3861ab750",
+*     "hasDeviceActivateUri": false,
+*     "isFIDO2": true,
+*     "hasPublicKeyCredentialCreationOptions": true,
+*     "publicKeyCredentialCreationOptionsLength": 826
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Register MFA Device
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Lookup User by Username
+*  📅 Timestamp: 2025-12-07T14:21:36.769Z
+*  🕐 Local Time: 12/07/2025, 08:21:36
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?filter=username eq "steven73125"
+🔧 METHOD: GET
+📋 REQUEST HEADERS: {
+  "Authorization": "Bearer eyJhbGciOiJSUzI1NiIs...c8A8Vg6Ikg"
+}
+📦 REQUEST BODY (JSON): null
+📦 REQUEST BODY (Raw): null
+📊 REQUEST METADATA: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "username": "steven73125",
+  "filter": "username eq \"steven73125\""
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 200 OK
+⏱️  DURATION: 104ms
+📋 RESPONSE HEADERS: {
+  "access-control-allow-credentials": "true",
+  "access-control-allow-origin": "*",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "connection": "keep-alive",
+  "content-length": "2625",
+  "content-type": "application/hal+json;charset=UTF-8",
+  "correlation-id": "bc2fcb06-84b3-4759-b378-b6c5c0a03a2b",
+  "date": "Sun, 07 Dec 2025 14:21:36 GMT",
+  "expires": "0",
+  "pragma": "no-cache",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 9b3bff8ad607506969166da683ad5188.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "VOMJrFj9CYcF8Xw=",
+  "x-amz-cf-id": "XYk0fchHiYKzu6W0BVd0nyVQjCOlciQzsD_qM_chLgI_tPBgIMG5sw==",
+  "x-amz-cf-pop": "ATL59-P14",
+  "x-amzn-requestid": "bc2fcb06-84b3-4759-b378-b6c5c0a03a2b",
+  "x-amzn-trace-id": "Root=1-69358d70-0bdad2ac6577de7540b0ba94;Parent=38346a221542d0e2;Sampled=0;Lineage=1:a3dff340:0",
+  "x-cache": "Miss from cloudfront",
+  "x-content-type-options": "nosniff"
+}
+📦 RESPONSE BODY (JSON): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=100&filter=username%20eq%20%22steven73125%22"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          }
+        },
+        "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.897Z",
+        "email": "steven73125@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe",
+          "honorificPrefix": "Mrs"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-11-13T13:53:58.062Z",
+        "username": "steven73125",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 1,
+  "size": 1
+}
+📦 RESPONSE BODY (Raw): {
+  "_links": {
+    "self": {
+      "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?limit=100&filter=username%20eq%20%22steven73125%22"
+    }
+  },
+  "_embedded": {
+    "users": [
+      {
+        "_links": {
+          "password": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.set": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "account.sendVerificationCode": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "linkedAccounts": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/linkedAccounts"
+          },
+          "self": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb"
+          },
+          "password.check": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.reset": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          },
+          "password.recover": {
+            "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/password"
+          }
+        },
+        "id": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+        "environment": {
+          "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+        },
+        "account": {
+          "canAuthenticate": true,
+          "status": "OK"
+        },
+        "createdAt": "2025-07-07T18:43:33.897Z",
+        "email": "steven73125@mailinator.com",
+        "enabled": true,
+        "identityProvider": {
+          "type": "PING_ONE"
+        },
+        "lifecycle": {
+          "status": "ACCOUNT_OK"
+        },
+        "mfaEnabled": true,
+        "name": {
+          "given": "Jane",
+          "family": "Doe",
+          "honorificPrefix": "Mrs"
+        },
+        "population": {
+          "id": "3840c98d-202d-4f6a-8871-f3bc66cb3fa8"
+        },
+        "updatedAt": "2025-11-13T13:53:58.062Z",
+        "username": "steven73125",
+        "verifyStatus": "NOT_INITIATED"
+      }
+    ]
+  },
+  "count": 1,
+  "size": 1
+}
+
+******************************************************************************************************************************************************
+* ✅ Lookup User by Username - SUCCESS (200 OK)
+* 📅 Date/Time: 12/07/2025, 08:21:36 (2025-12-07T14:21:36.769Z)
+* ⏱️  Duration: 104ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users?filter=username eq "steven73125"
+* 🔧 Method: GET
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "username": "steven73125",
+*     "filter": "username eq \"steven73125\""
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Lookup User by Username
+******************************************************************************************************************************************************
+
+******************************************************************************************************************************************************
+*                                                                                                                                                    *
+*  🌐 PINGONE API CALL: Activate FIDO2 Device
+*  📅 Timestamp: 2025-12-07T14:21:36.901Z
+*  🕐 Local Time: 12/07/2025, 08:21:36
+*                                                                                                                                                    *
+******************************************************************************************************************************************************
+
+═══════════════════════════════════════════════════════════════════════════════
+📤 REQUEST
+═══════════════════════════════════════════════════════════════════════════════
+📍 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750/activate/fido2
+🔧 METHOD: POST
+📋 REQUEST HEADERS: {
+  "Content-Type": "application/vnd.pingidentity.device.activate+json",
+  "Authorization": "Bearer eyJhbGciOiJSUzI1NiIs...c8A8Vg6Ikg",
+  "Accept": "application/json"
+}
+📦 REQUEST BODY (JSON): {
+  "origin": "https://localhost:3000",
+  "attestation": "{\"id\":\"1SksDoblFNJJZ3_sln1zvvLJAQgzr_RnSEfYhbuI39o\",\"type\":\"public-key\",\"rawId\":\"1SksDoblFNJJZ3_sln1zvvLJAQgzr_RnSEfYhbuI39o\",\"response\":{\"clientDataJSON\":\"eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiamFPbkdnLTJXOHdrblJBd3NZWHl0TllwV0h6ZmJjSG1Pc2Z3YlBDRXc1WSIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0OjMwMDAiLCJjcm9zc09yaWdpbiI6ZmFsc2V9\",\"attestationObject\":\"o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVikSZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NFAAAAAK3OAAI1vMYKZIsLJfHwVQMAINUpLA6G5RTSSWd_7JZ9c77yyQEIM6_0Z0hH2IW7iN_apQECAyYgASFYIIbL8NOp8AJleAL86WcTspx1efJAPlndD00B8yhSStHaIlggyUQ7fsdHQwshgNbiKda1a8B-hMvU9Yu5ArRrIVy6h1I\"},\"clientExtensionResults\":{\"credProps\":{\"rk\":true},\"hmacCreateSecret\":false}}"
+}
+📦 REQUEST BODY (Raw): {
+  "origin": "https://localhost:3000",
+  "attestation": "{\"id\":\"1SksDoblFNJJZ3_sln1zvvLJAQgzr_RnSEfYhbuI39o\",\"type\":\"public-key\",\"rawId\":\"1SksDoblFNJJZ3_sln1zvvLJAQgzr_RnSEfYhbuI39o\",\"response\":{\"clientDataJSON\":\"eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiamFPbkdnLTJXOHdrblJBd3NZWHl0TllwV0h6ZmJjSG1Pc2Z3YlBDRXc1WSIsIm9yaWdpbiI6Imh0dHBzOi8vbG9jYWxob3N0OjMwMDAiLCJjcm9zc09yaWdpbiI6ZmFsc2V9\",\"attestationObject\":\"o2NmbXRkbm9uZWdhdHRTdG10oGhhdXRoRGF0YVikSZYN5YgOjGh0NBcPZHZgW4_krrmihjLHmVzzuoMdl2NFAAAAAK3OAAI1vMYKZIsLJfHwVQMAINUpLA6G5RTSSWd_7JZ9c77yyQEIM6_0Z0hH2IW7iN_apQECAyYgASFYIIbL8NOp8AJleAL86WcTspx1efJAPlndD00B8yhSStHaIlggyUQ7fsdHQwshgNbiKda1a8B-hMvU9Yu5ArRrIVy6h1I\"},\"clientExtensionResults\":{\"credProps\":{\"rk\":true},\"hmacCreateSecret\":false}}"
+}
+📊 REQUEST METADATA: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+  "deviceId": "57c57610-4a9c-4382-824f-7ef3861ab750",
+  "hasAttestation": true,
+  "attestationLength": 701,
+  "hasOrigin": true,
+  "origin": "https://localhost:3000",
+  "isFIDO2": true,
+  "tokenLength": 936,
+  "tokenStartsWithEyJ": true,
+  "tokenIsJWT": true
+}
+
+─────────────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════════════════════════
+📥 RESPONSE
+═══════════════════════════════════════════════════════════════════════════════
+📊 STATUS: 403 Forbidden
+⏱️  DURATION: 106ms
+📋 RESPONSE HEADERS: {
+  "connection": "keep-alive",
+  "content-length": "177",
+  "content-type": "application/json",
+  "date": "Sun, 07 Dec 2025 14:21:36 GMT",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
+  "via": "1.1 9408c960e7407a9ca4e017c067585f20.cloudfront.net (CloudFront)",
+  "x-amz-apigw-id": "VOMJtGNhCYcFexg=",
+  "x-amz-cf-id": "RhmY157T5_RnHeIOxaeJWfAe7idPUuXDTVQ-hyWS4dhy3jgqmJAlFw==",
+  "x-amz-cf-pop": "ATL59-P14",
+  "x-amzn-errortype": "IncompleteSignatureException",
+  "x-amzn-requestid": "38f7cd6e-38ee-4dba-915e-634ce24310cb",
+  "x-cache": "Error from cloudfront"
+}
+📦 RESPONSE BODY (JSON): {
+  "message": "Invalid key=value pair (missing equal-sign) in Authorization header (hashed with SHA-256 and encoded with Base64): 'nnNNyyN/cE2MVAcnqAxGf/bFF13ml99MHerlrmgu+xM='."
+}
+📦 RESPONSE BODY (Raw): {
+  "message": "Invalid key=value pair (missing equal-sign) in Authorization header (hashed with SHA-256 and encoded with Base64): 'nnNNyyN/cE2MVAcnqAxGf/bFF13ml99MHerlrmgu+xM='."
+}
+
+******************************************************************************************************************************************************
+* ❌ Activate FIDO2 Device - ERROR (403 Forbidden)
+* 📅 Date/Time: 12/07/2025, 08:21:36 (2025-12-07T14:21:36.901Z)
+* ⏱️  Duration: 106ms
+* 🔗 URL: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/12003cc0-e49e-4e5c-a750-432f4b9417bb/devices/57c57610-4a9c-4382-824f-7ef3861ab750/activate/fido2
+* 🔧 Method: POST
+* 📊 Metadata:
+*   {
+*     "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+*     "userId": "12003cc0-e49e-4e5c-a750-432f4b9417bb",
+*     "deviceId": "57c57610-4a9c-4382-824f-7ef3861ab750",
+*     "hasAttestation": true,
+*     "attestationLength": 701,
+*     "hasOrigin": true,
+*     "origin": "https://localhost:3000",
+*     "isFIDO2": true,
+*     "tokenLength": 936,
+*     "tokenStartsWithEyJ": true,
+*     "tokenIsJWT": true
+*   }
+* ────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────── *
+* END OF API CALL: Activate FIDO2 Device
+******************************************************************************************************************************************************

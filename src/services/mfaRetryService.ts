@@ -101,14 +101,23 @@ class MFARetryService {
     const nextRetryAt = lastAttempt?.nextRetryAt;
     const resetAt = new Date(Date.now() + retryConfig.resetWindow * 60 * 1000);
 
-    return {
+    const result: RetryStatus = {
       canRetry: canRetry && (!nextRetryAt || new Date() >= nextRetryAt),
       attemptsRemaining,
-      nextRetryAt,
       totalAttempts,
-      lastAttemptAt: lastAttempt?.timestamp,
-      resetAt
     };
+
+    if (lastAttempt?.timestamp) {
+      result.lastAttemptAt = lastAttempt.timestamp;
+    }
+    if (resetAt) {
+      result.resetAt = resetAt;
+    }
+    if (nextRetryAt) {
+      result.nextRetryAt = nextRetryAt;
+    }
+
+    return result;
   }
 
   /**
@@ -153,14 +162,19 @@ class MFARetryService {
     // Check if limit would be exceeded
     const limited = requestsInWindow.length >= rateLimitConfig.maxRequests;
     
-    return {
+    const status: RateLimitStatus = {
       limited,
       requestsInWindow: requestsInWindow.length,
       maxRequests: rateLimitConfig.maxRequests,
       windowResetAt,
-      blockUntil,
       violationCount: data.violations
     };
+
+    if (blockUntil) {
+      status.blockUntil = blockUntil;
+    }
+
+    return status;
   }
 
   /**
@@ -205,11 +219,18 @@ class MFARetryService {
       operation: context.operation,
       timestamp: new Date(),
       success,
-      errorCode,
-      errorMessage,
-      retryNumber,
-      nextRetryAt
+      retryNumber
     };
+
+    if (errorCode) {
+      attempt.errorCode = errorCode;
+    }
+    if (errorMessage) {
+      attempt.errorMessage = errorMessage;
+    }
+    if (nextRetryAt) {
+      attempt.nextRetryAt = nextRetryAt;
+    }
 
     attempts.push(attempt);
     MFARetryService.retryAttempts.set(key, attempts);
@@ -417,295 +438,3 @@ class MFARetryService {
     return `${context.userId}_${context.operation}`;
   }
 }
-
-export default MFARetryService;At?:
- Date;
-    resetAt?: Date;
-  } {
-    const retryConfig = { ...this.DEFAULT_RETRY_CONFIG, ...config };
-    const key = this.getRetryKey(userId, deviceId, operationType);
-    
-    const attempts = this.getRetryCount(key, retryConfig.resetWindow);
-    const canRetry = attempts < retryConfig.maxAttempts;
-    const attemptsRemaining = Math.max(0, retryConfig.maxAttempts - attempts);
-    
-    let nextRetryAt: Date | undefined;
-    let resetAt: Date | undefined;
-    
-    if (!canRetry) {
-      const lastAttempt = this.getLastAttempt(key);
-      if (lastAttempt) {
-        resetAt = new Date(lastAttempt.timestamp.getTime() + retryConfig.resetWindow);
-      }
-    } else if (attempts > 0) {
-      const lastAttempt = this.getLastAttempt(key);
-      if (lastAttempt && !lastAttempt.success) {
-        const delay = this.calculateRetryDelay(attempts, retryConfig);
-        nextRetryAt = new Date(lastAttempt.timestamp.getTime() + delay);
-      }
-    }
-    
-    return {
-      canRetry,
-      attemptsRemaining,
-      nextRetryAt,
-      resetAt
-    };
-  }
-
-  /**
-   * Check rate limit status
-   */
-  static checkRateLimit(
-    key: string,
-    config: RateLimitConfig
-  ): RateLimitStatus {
-    const now = new Date();
-    const tracking = this.rateLimitTracking.get(key);
-    
-    if (!tracking) {
-      return {
-        limited: false,
-        remainingRequests: config.maxRequests,
-        resetTime: new Date(now.getTime() + config.windowSize)
-      };
-    }
-    
-    // Check if currently blocked
-    if (tracking.blockedUntil && now < tracking.blockedUntil) {
-      return {
-        limited: true,
-        remainingRequests: 0,
-        resetTime: tracking.blockedUntil,
-        blockUntil: tracking.blockedUntil
-      };
-    }
-    
-    // Clean old requests outside the window
-    const windowStart = new Date(now.getTime() - config.windowSize);
-    tracking.requests = tracking.requests.filter(req => req > windowStart);
-    
-    const requestCount = tracking.requests.length;
-    const remainingRequests = Math.max(0, config.maxRequests - requestCount);
-    
-    if (requestCount >= config.maxRequests) {
-      // Block the user
-      tracking.blockedUntil = new Date(now.getTime() + config.blockDuration);
-      this.rateLimitTracking.set(key, tracking);
-      
-      return {
-        limited: true,
-        remainingRequests: 0,
-        resetTime: tracking.blockedUntil,
-        blockUntil: tracking.blockedUntil
-      };
-    }
-    
-    return {
-      limited: false,
-      remainingRequests,
-      resetTime: new Date(now.getTime() + config.windowSize)
-    };
-  }
-
-  /**
-   * Reset retry attempts for a user/operation
-   */
-  static resetRetryAttempts(
-    userId: string,
-    deviceId: string | undefined,
-    operationType: string
-  ): void {
-    const key = this.getRetryKey(userId, deviceId, operationType);
-    this.retryAttempts.delete(key);
-    
-    logger.info('MFARetryService', 'Retry attempts reset', {
-      userId,
-      deviceId,
-      operationType
-    });
-  }
-
-  /**
-   * Reset rate limit for a user/operation
-   */
-  static resetRateLimit(
-    userId: string,
-    deviceId: string | undefined,
-    operationType: string
-  ): void {
-    const key = this.getRetryKey(userId, deviceId, operationType);
-    this.rateLimitTracking.delete(key);
-    
-    logger.info('MFARetryService', 'Rate limit reset', {
-      userId,
-      deviceId,
-      operationType
-    });
-  }
-
-  /**
-   * Get retry statistics
-   */
-  static getRetryStatistics(timeRange?: { start: Date; end: Date }): {
-    totalAttempts: number;
-    successfulAttempts: number;
-    failedAttempts: number;
-    averageRetryCount: number;
-    operationBreakdown: Record<string, number>;
-    errorBreakdown: Record<string, number>;
-  } {
-    const allAttempts = Array.from(this.retryAttempts.values()).flat();
-    
-    let filteredAttempts = allAttempts;
-    if (timeRange) {
-      filteredAttempts = allAttempts.filter(attempt => 
-        attempt.timestamp >= timeRange.start && attempt.timestamp <= timeRange.end
-      );
-    }
-
-    const totalAttempts = filteredAttempts.length;
-    const successfulAttempts = filteredAttempts.filter(a => a.success).length;
-    const failedAttempts = totalAttempts - successfulAttempts;
-    
-    const retryCountSum = filteredAttempts.reduce((sum, attempt) => sum + attempt.retryCount, 0);
-    const averageRetryCount = totalAttempts > 0 ? retryCountSum / totalAttempts : 0;
-
-    const operationBreakdown: Record<string, number> = {};
-    const errorBreakdown: Record<string, number> = {};
-
-    filteredAttempts.forEach(attempt => {
-      operationBreakdown[attempt.operation] = (operationBreakdown[attempt.operation] || 0) + 1;
-      
-      if (!attempt.success && attempt.error) {
-        errorBreakdown[attempt.error] = (errorBreakdown[attempt.error] || 0) + 1;
-      }
-    });
-
-    return {
-      totalAttempts,
-      successfulAttempts,
-      failedAttempts,
-      averageRetryCount,
-      operationBreakdown,
-      errorBreakdown
-    };
-  }
-
-  /**
-   * Clean up old retry attempts and rate limit data
-   */
-  static cleanup(): void {
-    const now = new Date();
-    const cleanupThreshold = 24 * 60 * 60 * 1000; // 24 hours
-    
-    // Clean up old retry attempts
-    for (const [key, attempts] of this.retryAttempts.entries()) {
-      const recentAttempts = attempts.filter(
-        attempt => now.getTime() - attempt.timestamp.getTime() < cleanupThreshold
-      );
-      
-      if (recentAttempts.length === 0) {
-        this.retryAttempts.delete(key);
-      } else if (recentAttempts.length < attempts.length) {
-        this.retryAttempts.set(key, recentAttempts);
-      }
-    }
-    
-    // Clean up old rate limit data
-    for (const [key, tracking] of this.rateLimitTracking.entries()) {
-      const recentRequests = tracking.requests.filter(
-        req => now.getTime() - req.getTime() < cleanupThreshold
-      );
-      
-      if (recentRequests.length === 0 && (!tracking.blockedUntil || now > tracking.blockedUntil)) {
-        this.rateLimitTracking.delete(key);
-      } else if (recentRequests.length < tracking.requests.length) {
-        tracking.requests = recentRequests;
-        this.rateLimitTracking.set(key, tracking);
-      }
-    }
-    
-    logger.info('MFARetryService', 'Cleanup completed', {
-      retryKeys: this.retryAttempts.size,
-      rateLimitKeys: this.rateLimitTracking.size
-    });
-  }
-
-  // Private helper methods
-
-  private static getRetryKey(
-    userId: string,
-    deviceId: string | undefined,
-    operationType: string
-  ): string {
-    return `${userId}:${deviceId || 'no-device'}:${operationType}`;
-  }
-
-  private static getRetryCount(key: string, resetWindow: number): number {
-    const attempts = this.retryAttempts.get(key) || [];
-    const now = new Date();
-    const windowStart = new Date(now.getTime() - resetWindow);
-    
-    return attempts.filter(attempt => attempt.timestamp > windowStart).length;
-  }
-
-  private static getLastAttempt(key: string): RetryAttempt | null {
-    const attempts = this.retryAttempts.get(key) || [];
-    return attempts.length > 0 ? attempts[attempts.length - 1] : null;
-  }
-
-  private static recordAttempt(
-    key: string,
-    context: { userId: string; deviceId?: string; operationType: string },
-    retryCount: number,
-    success: boolean,
-    error?: string
-  ): void {
-    const attempt: RetryAttempt = {
-      attemptId: `${key}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      userId: context.userId,
-      deviceId: context.deviceId,
-      operation: context.operationType,
-      timestamp: new Date(),
-      success,
-      error,
-      retryCount
-    };
-
-    const attempts = this.retryAttempts.get(key) || [];
-    attempts.push(attempt);
-    this.retryAttempts.set(key, attempts);
-  }
-
-  private static recordRateLimitRequest(key: string): void {
-    const now = new Date();
-    const tracking = this.rateLimitTracking.get(key) || { requests: [] };
-    
-    tracking.requests.push(now);
-    this.rateLimitTracking.set(key, tracking);
-  }
-
-  private static calculateRetryDelay(
-    attemptNumber: number,
-    config: RetryConfig
-  ): number {
-    let delay = config.baseDelay * config.backoffMultiplier ** (attemptNumber - 1);
-    delay = Math.min(delay, config.maxDelay);
-    
-    if (config.jitter) {
-      // Add random jitter (±25%)
-      const jitterRange = delay * 0.25;
-      const jitter = (Math.random() - 0.5) * 2 * jitterRange;
-      delay += jitter;
-    }
-    
-    return Math.max(0, Math.floor(delay));
-  }
-
-  private static sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-}
-
-export default MFARetryService;

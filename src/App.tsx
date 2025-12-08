@@ -17,14 +17,12 @@ import { PromptModalV8 } from './v8/components/PromptModalV8';
 const CompactAppPickerDemo = lazy(() => import('./pages/CompactAppPickerDemo'));
 
 import DeviceMockFlow from './components/DeviceMockFlow';
-import DynamicHeaderExample from './components/DynamicHeaderExample';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Navbar from './components/Navbar';
 import { RouteRestorer } from './components/RouteRestorer';
 import Sidebar from './components/Sidebar';
-import SidebarTest from './components/SidebarTest';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
@@ -128,7 +126,6 @@ import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
-import TestMock from './pages/flows/TestMock';
 import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
@@ -169,6 +166,7 @@ import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
 import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
+import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { FIDO2FlowV8 } from './v8/flows/types/FIDO2FlowV8';
 import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
@@ -177,16 +175,21 @@ import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
 import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
 import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
+import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
+import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
+import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
+import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import SpiffeSpireFlowV8U from './v8u/flows/SpiffeSpireFlowV8U';
 import SpiffeSpireTokenDisplayV8U from './v8u/pages/SpiffeSpireTokenDisplayV8U';
 import UnifiedOAuthFlowV8U from './v8u/flows/UnifiedOAuthFlowV8U';
+import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 
 // Import test pages
 const PingOneApiTest = lazy(() => import('./pages/test/PingOneApiTest'));
@@ -476,6 +479,7 @@ const AppRoutes: React.FC = () => {
 							{/* V8U Unified Callback Handler - handles all V8U flows */}
 							<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
+							<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
@@ -500,8 +504,6 @@ const AppRoutes: React.FC = () => {
 							<Route path="/callback/*" element={<AuthzCallback />} />
 							<Route path="/" element={<Navigate to="/dashboard" replace />} />
 							<Route path="/dashboard" element={<Dashboard />} />
-							<Route path="/sidebar-test" element={<SidebarTest />} />
-							<Route path="/dynamic-header-demo" element={<DynamicHeaderExample />} />
 							<Route path="/flows" element={<OAuthFlowsNew />}>
 								<Route path="compare" element={<FlowComparisonTool />} />
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
@@ -535,23 +537,27 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
-							<Route path="/v8/mfa/register/platform" element={<FIDO2ConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/platform/device" element={<FIDO2FlowV8 />} />
-							<Route path="/v8/mfa/register/security_key" element={<FIDO2ConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/security_key/device" element={<FIDO2FlowV8 />} />
-							<Route path="/v8/mfa/configure/fido2" element={<FIDO2ConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppOTPConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
+							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
+							<Route path="/v8/mfa/register/platform" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
+							<Route path="/v8/mfa/register/platform/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
+							<Route path="/v8/mfa/register/security_key" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
+							<Route path="/v8/mfa/register/security_key/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
+							<Route path="/v8/mfa/configure/fido2" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
 							<Route path="/v8/mfa/device-authentication-details" element={<DeviceAuthenticationDetailsV8 />} />
+							<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
+							<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
 							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
-							<Route path="/flows/oauth-authorization-code-v7-mock" element={<TestMock />} />
+							<Route path="/v8/protect" element={<PingOneProtectFlowV8 />} />
 							<Route
 								path="/flows/oauth-authorization-code-v7-condensed-mock"
 								element={<V7RMOAuthAuthorizationCodeFlow_Condensed />}
 							/>
 							<Route path="/flows/v7rm-condensed-mock" element={<V7RMCondensedMock />} />
-							<Route path="/flows/test-mock" element={<TestMock />} />
 							{/* V7RM Mock Flows (Flows not supported by PingOne) */}
 							<Route path="/flows/v7rm-oidc-ropc" element={<V7RMOIDCResourceOwnerPasswordFlow />} />
 							{/* Token Management Flows */}
@@ -661,6 +667,10 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
 							<Route path="/v8u/unified/:flowType?/:step?" element={<UnifiedOAuthFlowV8U />} />
+							
+							{/* V8 Utilities */}
+							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
+							
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"

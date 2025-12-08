@@ -20,6 +20,61 @@ export const CallbackHandlerV8U: React.FC = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
+		// Check if this is a user-login-callback - if so, redirect back to MFA flow
+		// IMPORTANT: This must be checked FIRST before any unified flow logic
+		const currentPath = window.location.pathname;
+		const isUserLoginCallback = currentPath === '/user-login-callback' || currentPath.includes('user-login-callback');
+		
+		console.log(`${MODULE_TAG} Checking callback path:`, {
+			currentPath,
+			isUserLoginCallback,
+			searchParams: window.location.search,
+		});
+		
+		if (isUserLoginCallback) {
+			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
+			// Check if we have a stored return path
+			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
+			
+			if (returnToMfaFlow) {
+				try {
+					// Redirect back to MFA flow page with callback params preserved
+					const mfaPath = JSON.parse(returnToMfaFlow);
+					console.log(`${MODULE_TAG} Found stored return path: ${mfaPath}`);
+					
+					// Preserve callback parameters in the URL when redirecting
+					const callbackParams = new URLSearchParams(window.location.search);
+					const redirectUrl = callbackParams.toString() 
+						? `${mfaPath}?${callbackParams.toString()}`
+						: mfaPath;
+					
+					// Clean up the return path marker
+					sessionStorage.removeItem('user_login_return_to_mfa');
+					
+					// Use window.location.replace for immediate redirect (more reliable than navigate)
+					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
+					window.location.replace(redirectUrl);
+					return; // CRITICAL: Exit early to prevent unified flow logic
+				} catch (error) {
+					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
+					// Fall through to MFA hub redirect
+				}
+			}
+			
+			// If no return path, redirect to MFA hub as fallback
+			console.log(`${MODULE_TAG} ⚠️ No return path found, redirecting to MFA hub`);
+			const callbackParams = new URLSearchParams(window.location.search);
+			const redirectUrl = callbackParams.toString() 
+				? `/v8/mfa-hub?${callbackParams.toString()}`
+				: '/v8/mfa-hub';
+			console.log(`${MODULE_TAG} 🚀 Redirecting to MFA hub: ${redirectUrl}`);
+			window.location.replace(redirectUrl);
+			return; // CRITICAL: Exit early to prevent unified flow logic
+		}
+		
+		// If we reach here, this is NOT a user-login-callback, continue with unified flow logic
+		console.log(`${MODULE_TAG} Not a user-login-callback, proceeding with unified flow logic`);
+
 		// Check for both query parameters (authorization code flow) and fragment (implicit/hybrid flow)
 		const fragment = window.location.hash.substring(1);
 		const hasFragment =

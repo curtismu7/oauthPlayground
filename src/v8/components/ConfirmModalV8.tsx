@@ -40,6 +40,20 @@ export const ConfirmModalV8: React.FC<ConfirmModalV8Props> = ({
 		}
 	}, [isOpen]);
 
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onCancel();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onCancel]);
+
 	if (!isOpen) return null;
 
 	const colors = {

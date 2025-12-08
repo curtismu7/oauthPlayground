@@ -123,7 +123,7 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 				.version-tag {
 					font-size: 11px;
 					font-weight: 700;
-					color: rgba(26, 26, 26, 0.7);
+					color: rgba(255, 255, 255, 0.9);
 					letter-spacing: 1.5px;
 					text-transform: uppercase;
 					padding-top: 2px;
@@ -133,12 +133,12 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 					font-size: 20px;
 					font-weight: 700;
 					margin: 0 0 2px 0;
-					color: #1a1a1a;
+					color: #ffffff;
 				}
 
 				.flow-header p {
 					font-size: 13px;
-					color: rgba(26, 26, 26, 0.75);
+					color: rgba(255, 255, 255, 0.95);
 					margin: 0;
 				}
 

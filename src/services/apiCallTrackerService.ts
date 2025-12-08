@@ -6,6 +6,8 @@ export interface ApiCall {
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 	url: string;
 	actualPingOneUrl?: string; // The actual PingOne API URL that will be called (for proxy endpoints)
+	isProxy?: boolean;
+	source?: 'frontend' | 'backend';
 	headers?: Record<string, string>;
 	body?: string | object | null;
 	queryParams?: Record<string, string>;

@@ -45,6 +45,7 @@ import {
 	FiShoppingCart,
 	FiSmartphone,
 	FiTool,
+	FiTrash2,
 	FiUser,
 	FiUsers,
 	FiX,
@@ -451,6 +452,17 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</ColoredIcon>
 						),
 						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
+					},
+					{
+						id: 'delete-all-devices-utility-v8',
+						path: '/v8/delete-all-devices',
+						label: '🗑️ Delete All Devices',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiTrash2 />
+							</ColoredIcon>
+						),
+						badge: <MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">UTILITY</MigrationBadge>,
 					},
 				],
 			},
