@@ -101,6 +101,9 @@ export abstract class MFAFlowController {
 			environmentId: credentials.environmentId,
 			username: credentials.username,
 			type: this.deviceType,
+			// Per rightTOTP.md: Pass token type and user token if available
+			tokenType: credentials.tokenType,
+			userToken: credentials.userToken,
 			...deviceParams,
 		} as RegisterDeviceParams;
 
@@ -110,9 +113,28 @@ export abstract class MFAFlowController {
 			this.callbacks.onDeviceRegistered(result.deviceId, result.status);
 		}
 
+		// Return all fields from result, including FIDO2-specific fields
+		// This ensures publicKeyCredentialCreationOptions and other fields are preserved
 		return {
 			deviceId: result.deviceId,
 			status: result.status,
+			type: result.type,
+			// Per rightOTP.md: Include deviceActivateUri for ACTIVATION_REQUIRED devices
+			...(result.deviceActivateUri ? { deviceActivateUri: result.deviceActivateUri } : {}),
+			// Include other fields that might be needed
+			...(result.userId ? { userId: result.userId } : {}),
+			...(result.environmentId ? { environmentId: result.environmentId } : {}),
+			...(result.createdAt ? { createdAt: result.createdAt } : {}),
+			...(result.updatedAt ? { updatedAt: result.updatedAt } : {}),
+			// FIDO2-specific: Include publicKeyCredentialCreationOptions if present
+			...(result.publicKeyCredentialCreationOptions ? { publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions } : {}),
+			// TOTP-specific: Include secret and keyUri if present
+			...(result.secret ? { secret: result.secret } : {}),
+			...(result.keyUri ? { keyUri: result.keyUri } : {}),
+			// Include phone/email if present
+			...(result.phone ? { phone: result.phone } : {}),
+			...(result.email ? { email: result.email } : {}),
+			...(result.nickname ? { nickname: result.nickname } : {}),
 		};
 	}
 
@@ -132,24 +154,32 @@ export abstract class MFAFlowController {
 		setState({ sendError: null });
 
 		try {
-			const workerToken = await MFAServiceV8.getWorkerToken();
-			const cleanToken = workerToken.trim().replace(/^Bearer\s+/i, '');
-			
 			const { deviceAuthId, otpCheckUrl } = await MFAServiceV8.sendOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
 			});
 
-			console.log(`${MODULE_TAG} OTP sent successfully`, { hasOtpCheckUrl: !!otpCheckUrl });
-			setState({ 
-				otpSent: true, 
-				sendRetryCount: 0,
-				deviceAuthId, // Store deviceAuthId for validation
-				otpCheckUrl // Store otpCheckUrl for validation
+			console.log(`${MODULE_TAG} OTP sent successfully`, { 
+				hasOtpCheckUrl: !!otpCheckUrl,
+				deviceAuthId,
+				deviceId,
 			});
-			nav.markStepComplete();
-			toastV8.success('OTP sent successfully!');
+			
+			// Even if otpCheckUrl is not returned, if we have a deviceAuthId, 
+			// the OTP was likely sent (PingOne sends OTP automatically when deviceId is provided)
+			if (deviceAuthId) {
+				setState({ 
+					otpSent: true, 
+					sendRetryCount: 0,
+					deviceAuthId, // Store deviceAuthId for validation
+					...(otpCheckUrl ? { otpCheckUrl } : {}), // Only include otpCheckUrl if it exists
+				});
+				nav.markStepComplete();
+				toastV8.success('OTP sent successfully!');
+			} else {
+				throw new Error('Failed to initialize device authentication - no authentication ID returned');
+			}
 
 			if (this.callbacks.onOTPSent) {
 				this.callbacks.onOTPSent();
@@ -211,7 +241,15 @@ export abstract class MFAFlowController {
 
 			if (result.valid) {
 				setValidationState({ validationAttempts: 0, lastValidationError: null });
+				// Update verification result to COMPLETED for success page
+				setMfaState({
+					verificationResult: {
+						status: 'COMPLETED',
+						message: result.message || 'OTP validated successfully'
+					},
+				});
 				nav.markStepComplete();
+				nav.goToStep(4); // Navigate to success page
 				toastV8.success('OTP validated successfully!');
 
 				if (this.callbacks.onOTPValidated) {
@@ -221,10 +259,10 @@ export abstract class MFAFlowController {
 			} else {
 				setValidationState({
 					validationAttempts: validationState.validationAttempts + 1,
-					lastValidationError: 'Invalid OTP code',
+					lastValidationError: result.message || 'Invalid OTP code',
 				});
-				nav.setValidationErrors(['Invalid OTP code. Please try again.']);
-				toastV8.error('Invalid OTP code');
+				nav.setValidationErrors([result.message || 'Invalid OTP code. Please try again.']);
+				toastV8.error(result.message || 'Invalid OTP code');
 				return false;
 			}
 		} catch (error) {

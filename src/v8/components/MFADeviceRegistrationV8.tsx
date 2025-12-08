@@ -12,6 +12,7 @@ import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { type MFACredentials, type MFAState, type DeviceType } from '@/v8/flows/shared/MFATypes';
 import { MFAServiceV8, type DeviceRegistrationResult } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 
 const MODULE_TAG = '[🔧 MFA-DEVICE-REGISTRATION-V8]';
 
@@ -102,17 +103,10 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 				if (!deviceConfig.phoneNumber?.trim()) {
 					errors.push('Phone number is required');
 				} else {
-					const cleanedPhone = deviceConfig.phoneNumber.replace(/[^\d]/g, '');
-					if (deviceConfig.countryCode === '+1') {
-						if (cleanedPhone.length !== 10) {
-							errors.push(
-								`US/Canada phone numbers must be exactly 10 digits (you have ${cleanedPhone.length})`
-							);
-						}
-					} else if (cleanedPhone.length < 6) {
-						errors.push('Phone number is too short (minimum 6 digits)');
-					} else if (cleanedPhone.length > 15) {
-						errors.push('Phone number is too long (maximum 15 digits)');
+					// Use phone validation utility to handle multiple formats
+					const phoneValidation = validateAndNormalizePhone(deviceConfig.phoneNumber, deviceConfig.countryCode || '+1');
+					if (!phoneValidation.isValid) {
+						errors.push(phoneValidation.error || 'Invalid phone number format');
 					}
 				}
 				break;
@@ -253,7 +247,9 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 					style={{
 						width: '100%',
 						padding: '10px',
-						border: '1px solid #d1d5db',
+						border: `1px solid ${
+							validationErrors.length > 0 && !deviceConfig.deviceName?.trim() ? '#ef4444' : '#d1d5db'
+						}`,
 						borderRadius: '6px',
 						fontSize: '14px',
 					}}
@@ -290,7 +286,13 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 							style={{
 								width: '100%',
 								padding: '10px',
-								border: '1px solid #d1d5db',
+								border: `1px solid ${
+									validationErrors.some((msg) =>
+										msg.toLowerCase().includes('phone number')
+									)
+										? '#ef4444'
+										: '#d1d5db'
+								}`,
 								borderRadius: '6px',
 								fontSize: '14px',
 							}}
@@ -315,7 +317,13 @@ export const MFADeviceRegistrationV8: React.FC<MFADeviceRegistrationV8Props> = (
 						style={{
 							width: '100%',
 							padding: '10px',
-							border: '1px solid #d1d5db',
+							border: `1px solid ${
+								validationErrors.some((msg) =>
+									msg.toLowerCase().includes('email address') || msg.toLowerCase().includes('email')
+								)
+									? '#ef4444'
+									: '#d1d5db'
+							}`,
 							borderRadius: '6px',
 							fontSize: '14px',
 						}}

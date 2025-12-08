@@ -7,8 +7,10 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { QRCodeSVG } from 'qrcode.react';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
@@ -19,10 +21,13 @@ import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { FiShield } from 'react-icons/fi';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
-// Step 0: Configure Credentials (TOTP-specific - no phone/email needed)
+// Step 0: Configure Credentials (TOTP-specific - uses shared component)
 const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof useLocation>, credentialsUpdatedRef: React.MutableRefObject<boolean>) => {
 	return (props: MFAFlowBaseRenderProps) => {
 		const { nav, credentials, setCredentials } = props;
@@ -52,252 +57,14 @@ const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof us
 			return null;
 		}
 		
-		const {
-			tokenStatus,
-		deviceAuthPolicies,
-		isLoadingPolicies,
-		policiesError,
-		refreshDeviceAuthPolicies,
-	} = props;
-
-	return (
-		<div className="step-content">
-			<h2>
-				Configure MFA Settings
-				<MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
-			</h2>
-			<p>Enter your PingOne environment details and user information</p>
-
-			{/* Worker Token Status */}
-			<div style={{ marginBottom: '20px' }}>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-					<button
-						type="button"
-						onClick={() => {
-							if (tokenStatus.isValid) {
-								import('@/v8/services/workerTokenServiceV8').then(({ workerTokenServiceV8 }) => {
-									workerTokenServiceV8.clearToken();
-									window.dispatchEvent(new Event('workerTokenUpdated'));
-									WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-									toastV8.success('Worker token removed');
-								});
-							} else {
-								props.setShowWorkerTokenModal(true);
-							}
-						}}
-						className="token-button"
-						style={{
-							padding: '10px 16px',
-							background: tokenStatus.isValid ? '#10b981' : '#ef4444',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<span>🔑</span>
-						<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
-					</button>
-
-					<button
-						type="button"
-						onClick={() => props.setShowSettingsModal(true)}
-						className="token-button"
-						style={{
-							padding: '10px 16px',
-							background:
-								!tokenStatus.isValid || !credentials.environmentId ? '#e5e7eb' : '#6366f1',
-							color: !tokenStatus.isValid || !credentials.environmentId ? '#9ca3af' : 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor:
-								!tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-						disabled={!credentials.environmentId || !tokenStatus.isValid}
-					>
-						<span>⚙️</span>
-						<span>MFA Settings</span>
-					</button>
-
-					<div
-						style={{
-							flex: 1,
-							padding: '10px 12px',
-							background: tokenStatus.isValid
-								? tokenStatus.status === 'expiring-soon'
-									? '#fef3c7'
-									: '#d1fae5'
-								: '#fee2e2',
-							border: `1px solid ${WorkerTokenStatusServiceV8.getStatusColor(tokenStatus.status)}`,
-							borderRadius: '4px',
-							fontSize: '12px',
-							fontWeight: '500',
-							color: tokenStatus.isValid
-								? tokenStatus.status === 'expiring-soon'
-									? '#92400e'
-									: '#065f46'
-								: '#991b1b',
-						}}
-					>
-						<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
-						<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
-					</div>
-				</div>
-
-				{!tokenStatus.isValid && (
-					<div className="info-box" style={{ marginBottom: '0' }}>
-						<p>
-							<strong>⚠️ Worker Token Required:</strong> This flow uses a worker token to look up
-							users and manage MFA devices. Please click "Add Token" to configure your worker token
-							credentials.
-						</p>
-					</div>
-				)}
-			</div>
-
-			<div className="credentials-grid">
-				<div className="form-group">
-					<label htmlFor="mfa-env-id">
-						Environment ID <span className="required">*</span>
-					</label>
-					<input
-						id="mfa-env-id"
-						type="text"
-						value={credentials.environmentId}
-						onChange={(e) => setCredentials({ ...credentials, environmentId: e.target.value })}
-						placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-					/>
-					<small>PingOne environment ID</small>
-				</div>
-
-				<div className="form-group">
-					<label htmlFor="mfa-device-auth-policy">
-						Device Authentication Policy <span className="required">*</span>
-					</label>
-
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '12px',
-							flexWrap: 'wrap',
-							marginBottom: '12px',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => void refreshDeviceAuthPolicies()}
-							className="token-button"
-							style={{
-								padding: '8px 18px',
-								background: '#0284c7',
-								color: 'white',
-								border: 'none',
-								borderRadius: '999px',
-								fontSize: '13px',
-								fontWeight: '700',
-								cursor: isLoadingPolicies ? 'not-allowed' : 'pointer',
-								opacity: isLoadingPolicies ? 0.6 : 1,
-								boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
-								transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-							}}
-							disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
-							onMouseEnter={(e) => {
-								if (!isLoadingPolicies) {
-									(e.currentTarget.style.transform = 'translateY(-1px)');
-								}
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.transform = 'translateY(0)';
-							}}
-						>
-							{isLoadingPolicies ? 'Refreshing…' : 'Refresh Policies'}
-						</button>
-						<span style={{ fontSize: '13px', color: '#475569' }}>
-							Policies load dynamically from PingOne.
-						</span>
-					</div>
-
-					{policiesError && (
-						<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}>
-							<strong>Failed to load policies:</strong> {policiesError}. Retry after verifying access.
-						</div>
-					)}
-
-					{deviceAuthPolicies.length > 0 ? (
-						<select
-							id="mfa-device-auth-policy"
-							value={credentials.deviceAuthenticationPolicyId || ''}
-							onChange={(e) =>
-								setCredentials({
-									...credentials,
-									deviceAuthenticationPolicyId: e.target.value,
-								})
-							}
-						>
-							{deviceAuthPolicies.map((policy) => (
-								<option key={policy.id} value={policy.id}>
-									{policy.name || policy.id} ({policy.id})
-								</option>
-							))}
-						</select>
-					) : (
-						<input
-							id="mfa-device-auth-policy"
-							type="text"
-							value={credentials.deviceAuthenticationPolicyId || ''}
-							onChange={(e) =>
-								setCredentials({
-									...credentials,
-									deviceAuthenticationPolicyId: e.target.value.trim(),
-								})
-							}
-							placeholder="Enter a Device Authentication Policy ID"
-						/>
-					)}
-
-					<div
-						style={{
-							marginTop: '12px',
-							padding: '12px 14px',
-							background: '#f1f5f9',
-							borderRadius: '10px',
-							fontSize: '12px',
-							color: '#475569',
-							lineHeight: 1.5,
-						}}
-					>
-						Determines which PingOne policy governs TOTP challenges.
-					</div>
-				</div>
-
-				<div className="form-group">
-					<label htmlFor="mfa-username">
-						Username <span className="required">*</span>
-					</label>
-					<input
-						id="mfa-username"
-						type="text"
-						value={credentials.username}
-						onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-						placeholder="john.doe"
-					/>
-					<small>PingOne username to register MFA device for</small>
-				</div>
-
-			</div>
-		</div>
-	);
+		return (
+			<MFAConfigurationStepV8
+				{...props}
+				deviceType="TOTP"
+				deviceTypeLabel="TOTP"
+				policyDescription="Determines which PingOne policy governs TOTP challenges."
+			/>
+		);
 	};
 };
 
@@ -331,6 +98,23 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		lastValidationError: null as string | null,
 	});
 
+	// Track API display visibility for dynamic padding
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
+
+	useEffect(() => {
+		const checkVisibility = () => {
+			setIsApiDisplayVisible(apiDisplayServiceV8.isVisible());
+		};
+
+		// Check initial state
+		checkVisibility();
+
+		// Subscribe to visibility changes
+		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
+
+		return () => unsubscribe();
+	}, []);
+
 	// State to trigger device loading - updated from render function
 	const [deviceLoadTrigger, setDeviceLoadTrigger] = useState<{
 		currentStep: number;
@@ -340,7 +124,19 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	} | null>(null);
 
 	// Load devices when entering step 1 - moved to parent component level
+	// Skip device loading during registration flow (when coming from config page)
 	useEffect(() => {
+		// During registration flow, skip device loading and go straight to registration
+		if (isConfigured) {
+			setDeviceSelection({
+				existingDevices: [],
+				loadingDevices: false,
+				selectedExistingDevice: 'new',
+				showRegisterForm: true,
+			});
+			return;
+		}
+
 		if (!deviceLoadTrigger) return;
 
 		const loadDevices = async () => {
@@ -384,11 +180,20 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		loadDevices();
-	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid]);
+	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid, isConfigured, controller, deviceSelection.existingDevices.length, deviceSelection.loadingDevices]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+
+		// During registration flow (from config page), skip device selection and go straight to registration
+		if (isConfigured && nav.currentStep === 1) {
+			// Skip to registration step immediately
+			setTimeout(() => {
+				nav.goToStep(2);
+			}, 0);
+			return null; // Don't render device selection during registration
+		}
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
 		if (nav.currentStep === 1) {
@@ -515,10 +320,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			try {
 				const result = await controller.registerDevice(credentials, controller.getDeviceRegistrationParams(credentials));
 				
-				// TOTP devices return secret and QR code in the response
+				// According to totp.md: TOTP devices return secret and keyUri in properties when status is ACTIVATION_REQUIRED
 				const deviceResponse = result as Record<string, unknown> & {
 					secret?: string;
-					qrCode?: { href?: string };
+					keyUri?: string;
 				};
 
 				setMfaState({
@@ -527,12 +332,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					deviceStatus: result.status,
 				});
 
-				// Store TOTP-specific data
+				// Store TOTP-specific data from properties
+				// According to totp.md section 1.1: properties.secret and properties.keyUri are in the response
 				if (deviceResponse.secret) {
 					setTotpSecret(deviceResponse.secret as string);
 				}
-				if (deviceResponse.qrCode?.href) {
-					setQrCodeUrl(deviceResponse.qrCode.href as string);
+				if (deviceResponse.keyUri) {
+					setQrCodeUrl(deviceResponse.keyUri as string);
 				}
 
 				// Refresh device list
@@ -542,8 +348,18 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					existingDevices: devices,
 				}));
 
-				nav.markStepComplete();
-				toastV8.success('TOTP device registered successfully!');
+				// According to totp.md: After device creation, we need to activate it with OTP
+				// Device status should be ACTIVATION_REQUIRED, and we have secret/keyUri
+				// Navigate to step 2 to show QR code and prompt for activation OTP
+				if (result.status === 'ACTIVATION_REQUIRED') {
+					nav.markStepComplete();
+					nav.goToStep(2); // Go to activation step (QR code + OTP input)
+					toastV8.info('Scan the QR code and enter the code from your authenticator app to activate the device');
+				} else {
+					nav.markStepComplete();
+					nav.goToStep(3); // Device already active, go to validation step
+					toastV8.success('TOTP device registered successfully!');
+				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				const isDeviceLimitError =
@@ -638,10 +454,45 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								<option value="OATH_TOKEN">🎫 OATH Token (PingID)</option>
 								<option value="VOICE">📞 Voice</option>
 								<option value="WHATSAPP">💬 WhatsApp</option>
-								<option value="PLATFORM">🔒 Platform (FIDO2 Biometrics - Deprecated)</option>
-								<option value="SECURITY_KEY">🔐 Security Key (FIDO2/U2F - Deprecated)</option>
 							</select>
 							<small>Select the type of MFA device you want to register</small>
+						</div>
+
+						<div className="form-group">
+							<label htmlFor="mfa-device-name-register">
+								Device Name (Nickname) <span className="required">*</span>
+								<MFAInfoButtonV8 contentKey="device.name" displayMode="tooltip" />
+							</label>
+							<input
+								id="mfa-device-name-register"
+								type="text"
+								value={credentials.deviceName || credentials.deviceType || 'TOTP'}
+								onChange={(e) => setCredentials({ ...credentials, deviceName: e.target.value })}
+								placeholder={credentials.deviceType || 'TOTP'}
+								style={{
+									padding: '10px 12px',
+									border: `1px solid ${credentials.deviceName ? '#10b981' : '#d1d5db'}`,
+									borderRadius: '6px',
+									fontSize: '14px',
+									color: '#1f2937',
+									background: 'white',
+									width: '100%',
+								}}
+							/>
+							<small>
+								Enter a friendly name to identify this device (e.g., "My Authenticator App", "Work Phone")
+								{credentials.deviceName && (
+									<span
+										style={{
+											marginLeft: '8px',
+											color: '#10b981',
+											fontWeight: '500',
+										}}
+									>
+										✓ Device will be registered as: "{credentials.deviceName}"
+									</span>
+								)}
+							</small>
 						</div>
 
 						<button
@@ -679,9 +530,26 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								<p style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600' }}>
 									📱 QR Code:
 								</p>
-								<img src={qrCodeUrl} alt="TOTP QR Code" style={{ maxWidth: '300px', border: '1px solid #d1d5db', borderRadius: '6px' }} />
+								<div style={{ 
+									display: 'inline-block', 
+									padding: '16px', 
+									background: 'white', 
+									border: '1px solid #d1d5db', 
+									borderRadius: '6px',
+									marginBottom: '12px',
+								}}>
+									<QRCodeSVG 
+										value={qrCodeUrl} 
+										size={256}
+										level="M"
+										includeMargin={true}
+									/>
+								</div>
 								<p style={{ marginTop: '12px', fontSize: '13px', color: '#6b7280' }}>
 									Scan this QR code with your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)
+								</p>
+								<p style={{ marginTop: '8px', fontSize: '12px', color: '#9ca3af' }}>
+									💡 <strong>Tip:</strong> The QR code and secret expire after ~30 minutes. If they expire, delete the device and create a new one.
 								</p>
 							</div>
 						)}
@@ -691,38 +559,188 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		);
 	};
 
-	// Step 2: TOTP Device Ready (skip OTP sending - codes come from app)
+	// Step 2: TOTP Device Activation (QR code + OTP input for activation)
+	// According to totp.md section 1.3-1.4: After creating device with ACTIVATION_REQUIRED status,
+	// show QR code and prompt user to enter OTP from authenticator app to activate device
 	const createRenderStep2 = () => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { mfaState } = props;
+			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
+			const [activationOtp, setActivationOtp] = useState('');
+			const [activationError, setActivationError] = useState<string | null>(null);
 
+			// Handle TOTP device activation
+			// According to totp.md section 1.4: POST /devices/{deviceID} with Content-Type: application/vnd.pingidentity.device.activate+json
+			const handleActivateDevice = async () => {
+				if (!activationOtp || activationOtp.length !== 6) {
+					setActivationError('Please enter a valid 6-digit code');
+					return;
+				}
+
+				if (!mfaState.deviceId) {
+					setActivationError('Device ID is missing');
+					return;
+				}
+
+				setIsLoading(true);
+				setActivationError(null);
+
+				try {
+					// Activate TOTP device using the new activation endpoint
+					const activationResult = await MFAServiceV8.activateTOTPDevice({
+						environmentId: credentials.environmentId,
+						username: credentials.username,
+						deviceId: mfaState.deviceId,
+						otp: activationOtp,
+					});
+
+					console.log(`${MODULE_TAG} TOTP device activated`, {
+						deviceId: mfaState.deviceId,
+						status: activationResult.status,
+					});
+
+					// Update device status
+					setMfaState((prev) => ({
+						...prev,
+						deviceStatus: (activationResult.status as string) || 'ACTIVE',
+					}));
+
+					nav.markStepComplete();
+					nav.goToStep(3); // Go to validation step
+					toastV8.success('TOTP device activated successfully!');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					console.error(`${MODULE_TAG} Failed to activate TOTP device:`, error);
+					setActivationError(errorMessage);
+					toastV8.error(`Activation failed: ${errorMessage}`);
+				} finally {
+					setIsLoading(false);
+				}
+			};
+
+			// If device is already active, skip activation step
+			if (mfaState.deviceStatus === 'ACTIVE') {
+				return (
+					<div className="step-content">
+						<h2>
+							TOTP Device Ready
+							<MFAInfoButtonV8 contentKey="factor.totp" displayMode="modal" />
+						</h2>
+						<p>Your authenticator app is set up and ready to use</p>
+
+						<div className="info-box">
+							<p>
+								<strong>Device ID:</strong> {mfaState.deviceId}
+							</p>
+							<p>
+								<strong>Status:</strong> {mfaState.deviceStatus || 'Ready'}
+							</p>
+						</div>
+
+						<div className="success-box" style={{ marginTop: '20px' }}>
+							<h3>✅ Setup Complete</h3>
+							<p>Your TOTP device has been registered and activated successfully.</p>
+						</div>
+					</div>
+				);
+			}
+
+			// Show activation UI (QR code + OTP input)
 			return (
 				<div className="step-content">
 					<h2>
-						TOTP Device Ready
+						Activate TOTP Device
 						<MFAInfoButtonV8 contentKey="factor.totp" displayMode="modal" />
 					</h2>
-					<p>Your authenticator app is set up and ready to use</p>
+					<p>Scan the QR code with your authenticator app, then enter the 6-digit code to activate</p>
 
-					<div className="info-box">
-						<p>
-							<strong>Device ID:</strong> {mfaState.deviceId}
-						</p>
-						<p>
-							<strong>Status:</strong> {mfaState.deviceStatus || 'Ready'}
-						</p>
+					{/* QR Code Display */}
+					{qrCodeUrl && (
+						<div style={{ marginTop: '20px', textAlign: 'center' }}>
+							<div style={{ 
+								display: 'inline-block', 
+								padding: '16px', 
+								background: 'white', 
+								border: '1px solid #d1d5db', 
+								borderRadius: '6px',
+								marginBottom: '12px',
+							}}>
+								<QRCodeSVG 
+									value={qrCodeUrl} 
+									size={256}
+									level="M"
+									includeMargin={true}
+								/>
+							</div>
+							<p style={{ marginTop: '12px', fontSize: '14px', fontWeight: '600' }}>
+								Scan this code with your authenticator app
+							</p>
+							<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
+								Then enter the 6-digit code to complete setup
+							</p>
+						</div>
+					)}
+
+					{/* Manual Setup Fallback */}
+					{totpSecret && (
+						<div style={{ marginTop: '20px', padding: '12px', background: '#f9fafb', borderRadius: '6px' }}>
+							<details>
+								<summary style={{ cursor: 'pointer', fontWeight: '600', marginBottom: '8px' }}>
+									Can't scan? Use manual setup
+								</summary>
+								<div style={{ marginTop: '12px' }}>
+									<p style={{ margin: '0 0 8px 0', fontSize: '13px', fontWeight: '600' }}>
+										🔑 Secret Key:
+									</p>
+									<p style={{ margin: '0', fontFamily: 'monospace', fontSize: '14px', wordBreak: 'break-all' }}>
+										{totpSecret}
+									</p>
+									<p style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
+										Enter this secret in your authenticator app manually. Choose "Time-based" and 6 digits.
+									</p>
+								</div>
+							</details>
+						</div>
+					)}
+
+					{/* OTP Input for Activation */}
+					<div style={{ marginTop: '24px' }}>
+						<label htmlFor="activation-otp" style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+							Enter 6-digit code from your authenticator app:
+						</label>
+						<MFAOTPInput
+							value={activationOtp}
+							onChange={setActivationOtp}
+							maxLength={6}
+							placeholder="000000"
+							disabled={isLoading}
+						/>
 					</div>
 
-					<div className="success-box" style={{ marginTop: '20px' }}>
-						<h3>✅ Setup Complete</h3>
-						<p>Your TOTP device has been registered successfully.</p>
-						<p style={{ marginTop: '12px', fontSize: '14px' }}>
-							Open your authenticator app and enter the 6-digit code to verify the setup.
-						</p>
-						<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-							💡 <strong>Tip:</strong> TOTP codes refresh every 30 seconds. Make sure you're entering the current code from your app.
-						</p>
-					</div>
+					{activationError && (
+						<div className="info-box" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', marginTop: '16px' }}>
+							<strong>Error:</strong> {activationError}
+						</div>
+					)}
+
+					<button
+						type="button"
+						className="btn btn-primary"
+						disabled={isLoading || activationOtp.length !== 6}
+						onClick={handleActivateDevice}
+						style={{
+							marginTop: '20px',
+							padding: '12px 24px',
+							background: activationOtp.length === 6 ? '#10b981' : '#9ca3af',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: activationOtp.length === 6 && !isLoading ? 'pointer' : 'not-allowed',
+						}}
+					>
+						{isLoading ? '🔄 Activating...' : 'Activate Device'}
+					</button>
 				</div>
 			);
 		};
@@ -739,43 +757,15 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
 
-			// If validation is complete, show success screen
+			// If validation is complete, show success screen using shared service
 			if (mfaState.verificationResult && mfaState.verificationResult.status === 'COMPLETED') {
+				const successData = buildSuccessPageData(credentials, mfaState);
 				return (
-					<div className="step-content">
-						<h2>MFA Verification Complete</h2>
-						<p>Your TOTP device has been successfully verified</p>
-
-						<div className="success-box">
-							<h3>✅ Verification Successful</h3>
-							<p>
-								<strong>Device ID:</strong> {mfaState.deviceId}
-							</p>
-							{mfaState.nickname && (
-								<p>
-									<strong>Nickname:</strong> {mfaState.nickname}
-								</p>
-							)}
-							<p>
-								<strong>Status:</strong>{' '}
-								{mfaState.verificationResult?.status || mfaState.deviceStatus || 'Verified'}
-							</p>
-							{mfaState.verificationResult?.message && (
-								<p>
-									<strong>Message:</strong> {mfaState.verificationResult.message}
-								</p>
-							)}
-						</div>
-
-						<div className="info-box">
-							<h4>What's Next?</h4>
-							<ul>
-								<li>This device can now be used for MFA challenges</li>
-								<li>Users will generate codes using their authenticator app</li>
-								<li>You can test MFA in your authentication flows</li>
-							</ul>
-						</div>
-					</div>
+					<MFASuccessPageV8
+						{...props}
+						successData={successData}
+						onStartAgain={() => navigate('/v8/mfa-hub')}
+					/>
 				);
 			}
 
@@ -972,7 +962,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	};
 
 	return (
-		<>
+		<div style={{ 
+			minHeight: '100vh',
+			paddingBottom: isApiDisplayVisible ? '450px' : '0',
+			transition: 'padding-bottom 0.3s ease',
+		}}>
 			<MFAFlowBaseV8
 				deviceType="TOTP"
 				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef)}
@@ -983,8 +977,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Validate']}
 			/>
-			<SuperSimpleApiDisplayV8 />
-		</>
+			
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+			
+		</div>
 	);
 };
 

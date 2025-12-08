@@ -650,8 +650,10 @@ show_final_status() {
     
     echo -e "${CYAN}║${NC}"
     echo -e "${CYAN}║${NC} Log Files:"
-    echo -e "${CYAN}║${NC}   Backend:  backend.log"
-    echo -e "${CYAN}║${NC}   Frontend: frontend.log"
+    echo -e "${CYAN}║${NC}   Backend:        backend.log"
+    echo -e "${CYAN}║${NC}   Frontend:       frontend.log"
+    echo -e "${CYAN}║${NC}   Server:         logs/server.log"
+    echo -e "${CYAN}║${NC}   PingOne API:    ${GREEN}logs/pingone-api.log${NC} ${YELLOW}(NEW - all PingOne API calls)${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
@@ -799,12 +801,49 @@ show_final_summary() {
     esac
     
     echo -e "${banner_color}║${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}📝 Log files: backend.log, frontend.log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}🔄 To restart again: ./restart-servers.sh${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📝 Log files: backend.log, frontend.log, logs/server.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}🌐 PingOne API logs: ${GREEN}logs/pingone-api.log${NC} ${YELLOW}(NEW)${NC}"
+    echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📋 Available Options:${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh              - Normal restart${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --tail-api-log - Restart + tail PingOne API log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --tail --clear - Restart + clear & tail API log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --help        - Show help message${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
+
+# Parse command line arguments
+TAIL_API_LOG=false
+CLEAR_API_LOG=false
+for arg in "$@"; do
+    case "$arg" in
+        --tail-api-log|--tail)
+            TAIL_API_LOG=true
+            ;;
+        --clear-api-log|--clear)
+            CLEAR_API_LOG=true
+            ;;
+        --help|-h)
+            echo "Usage: $0 [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  --tail-api-log, --tail    Tail the PingOne API log file after servers start"
+            echo "  --clear-api-log, --clear Clear the PingOne API log file before tailing (requires --tail)"
+            echo "  --help, -h                Show this help message"
+            echo ""
+            echo "Examples:"
+            echo "  $0                       # Restart servers normally"
+            echo "  $0 --tail-api-log        # Restart servers and tail PingOne API log"
+            echo "  $0 --tail --clear        # Restart servers, clear API log, then tail it"
+            exit 0
+            ;;
+        *)
+            print_warning "Unknown option: $arg (use --help for usage)"
+            ;;
+    esac
+done
 
 # Main execution
 main() {
@@ -837,6 +876,49 @@ main() {
     
     # Step 8: Final success message and server status summary
     show_final_summary
+    
+    # Step 9: Tail PingOne API log if requested
+    if [ "$TAIL_API_LOG" = true ]; then
+        if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
+            echo ""
+            print_info "📋 Tailing PingOne API log file (Ctrl+C to stop)..."
+            echo ""
+            
+            # Clear log if requested via command line option, otherwise ask user
+            if [ -f "logs/pingone-api.log" ]; then
+                if [ "$CLEAR_API_LOG" = true ]; then
+                    print_info "Clearing logs/pingone-api.log (--clear-api-log option specified)..."
+                    > logs/pingone-api.log
+                    print_success "Log file cleared"
+                    echo ""
+                else
+                    echo -e "${YELLOW}The PingOne API log file exists.${NC}"
+                    echo -n "Do you want to clear it before tailing? (y/N): "
+                    read -r clear_log
+                    if [ "$clear_log" = "y" ] || [ "$clear_log" = "Y" ]; then
+                        print_info "Clearing logs/pingone-api.log..."
+                        > logs/pingone-api.log
+                        print_success "Log file cleared"
+                        echo ""
+                    fi
+                fi
+            else
+                print_warning "PingOne API log file not found: logs/pingone-api.log"
+                print_info "The file will be created when the first PingOne API call is made"
+                print_info "Press Ctrl+C to exit"
+                # Wait for file to be created, then tail it
+                while [ ! -f "logs/pingone-api.log" ]; do
+                    sleep 1
+                done
+            fi
+            
+            # Tail the log file (always tail, whether cleared or not)
+            print_info "Starting to tail logs/pingone-api.log..."
+            tail -f logs/pingone-api.log
+        else
+            print_warning "Servers did not start successfully. Skipping log tail."
+        fi
+    fi
     
     # Exit with appropriate code
     case "$OVERALL_STATUS" in
