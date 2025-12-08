@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
@@ -21,14 +22,329 @@ import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import { FIDO2Service } from '@/services/fido2Service';
 import { FiShield } from 'react-icons/fi';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
+import { MfaAuthenticationServiceV8, type DeviceAuthenticationResponse } from '@/v8/services/mfaAuthenticationServiceV8';
+import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
+
+const PUBLIC_KEY_OPTION_KEYS = [
+	'publicKeyCredentialRequestOptions',
+	'publicKeyCredentialOptions',
+	'publicKeyOptions',
+	'webauthnGetOptions',
+	'assertionOptions',
+];
+
+const normalizeBase64 = (value: string): string => {
+	const sanitized = value.replace(/\s+/g, '').replace(/_/g, '/').replace(/-/g, '+');
+	const padding = sanitized.length % 4 === 0 ? 0 : 4 - (sanitized.length % 4);
+	return sanitized + '='.repeat(padding);
+};
+
+const decodeBase64ToUint8Array = (value: string): Uint8Array => {
+	const normalized = normalizeBase64(value);
+	if (typeof window !== 'undefined' && typeof window.atob === 'function') {
+		const binary = window.atob(normalized);
+		const bytes = new Uint8Array(binary.length);
+		for (let i = 0; i < binary.length; i += 1) {
+			bytes[i] = binary.charCodeAt(i);
+		}
+		return bytes;
+	}
+
+	const bufferCtor = (globalThis as { Buffer?: any }).Buffer;
+	if (bufferCtor) {
+		const buffer = bufferCtor.from(normalized, 'base64');
+		return new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+	}
+
+	throw new Error('Base64 decoding is not supported in this environment');
+};
+
+const toUint8Array = (value: unknown): Uint8Array | null => {
+	if (!value) {
+		return null;
+	}
+
+	if (value instanceof Uint8Array) {
+		return value;
+	}
+
+	if (value instanceof ArrayBuffer) {
+		return new Uint8Array(value);
+	}
+
+	if (ArrayBuffer.isView(value)) {
+		return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
+	}
+
+	if (Array.isArray(value)) {
+		return new Uint8Array(value as number[]);
+	}
+
+	if (typeof value === 'string') {
+		try {
+			return decodeBase64ToUint8Array(value);
+		} catch (error) {
+			console.warn(`${MODULE_TAG} Failed to decode base64 string`, error);
+			return null;
+		}
+	}
+
+	if (typeof value === 'object') {
+		const bufferLike = value as { data?: number[] };
+		if (Array.isArray(bufferLike.data)) {
+			return new Uint8Array(bufferLike.data);
+		}
+	}
+
+	return null;
+};
+
+const findNestedValue = (source: unknown, keys: string[]): unknown => {
+	if (!source || typeof source !== 'object') {
+		return undefined;
+	}
+
+	const visited = new Set<unknown>();
+	const queue: Array<{ value: unknown; depth: number }> = [{ value: source, depth: 0 }];
+	const MAX_DEPTH = 5;
+
+	while (queue.length > 0) {
+		const { value, depth } = queue.shift() as { value: unknown; depth: number };
+		if (!value || typeof value !== 'object' || visited.has(value)) {
+			continue;
+		}
+		visited.add(value);
+
+		for (const key of keys) {
+			if (Object.prototype.hasOwnProperty.call(value, key)) {
+				const result = (value as Record<string, unknown>)[key];
+				if (result !== undefined) {
+					return result;
+				}
+			}
+		}
+
+		if (depth >= MAX_DEPTH) {
+			continue;
+		}
+
+		if (Array.isArray(value)) {
+			value.forEach((child) => queue.push({ value: child, depth: depth + 1 }));
+		} else {
+			Object.values(value).forEach((child) => queue.push({ value: child, depth: depth + 1 }));
+		}
+	}
+
+	return undefined;
+};
+
+const parseRawPublicKeyOptions = (raw: unknown): Record<string, unknown> | null => {
+	if (typeof raw === 'string') {
+		const trimmed = raw.trim();
+		if (!trimmed) {
+			return null;
+		}
+
+		const attempts = [trimmed];
+		try {
+			attempts.push(decodeURIComponent(trimmed));
+		} catch {
+			// ignore decodeURIComponent failures
+		}
+
+		for (const attempt of attempts) {
+			try {
+				return JSON.parse(attempt);
+			} catch {
+				// ignore
+			}
+		}
+
+		try {
+			const decoded = decodeBase64ToUint8Array(trimmed);
+			const decodedString =
+				typeof TextDecoder !== 'undefined'
+					? new TextDecoder().decode(decoded)
+					: Array.from(decoded)
+							.map((code) => String.fromCharCode(code))
+							.join('');
+			return JSON.parse(decodedString);
+		} catch (error) {
+			console.warn(`${MODULE_TAG} Unable to parse publicKeyCredentialRequestOptions string`, error);
+			return null;
+		}
+	}
+
+	if (Array.isArray(raw)) {
+		const candidate = raw.find((entry) => entry && typeof entry === 'object');
+		return candidate && typeof candidate === 'object' ? (candidate as Record<string, unknown>) : null;
+	}
+
+	if (raw && typeof raw === 'object') {
+		return raw as Record<string, unknown>;
+	}
+
+	return null;
+};
+
+const normalizePublicKeyOptions = (
+	rawOptions: Record<string, unknown>
+): PublicKeyCredentialRequestOptions | null => {
+	const challengeCandidate =
+		rawOptions.challenge ?? rawOptions.rawChallenge ?? rawOptions.challengeData;
+	const challengeBytes = toUint8Array(challengeCandidate);
+
+	if (!challengeBytes || !challengeBytes.byteLength) {
+		return null;
+	}
+
+	const allowCredentials = Array.isArray(rawOptions.allowCredentials)
+		? (rawOptions.allowCredentials
+				.map((entry) => {
+					if (!entry || typeof entry !== 'object') {
+						return null;
+					}
+
+					const descriptor = entry as Record<string, unknown>;
+					const idBytes = toUint8Array(descriptor.id ?? descriptor.credentialId);
+					if (!idBytes) {
+						return null;
+					}
+
+					const transports = Array.isArray(descriptor.transports)
+						? (descriptor.transports.filter(
+								(transport): transport is AuthenticatorTransport => typeof transport === 'string'
+						  ) as AuthenticatorTransport[])
+						: undefined;
+
+					return {
+						type: (descriptor.type as PublicKeyCredentialType) || 'public-key',
+						id: idBytes,
+						transports,
+					};
+				})
+				.filter((entry): entry is PublicKeyCredentialDescriptor => Boolean(entry)) as PublicKeyCredentialDescriptor[])
+		: undefined;
+
+	const rpId =
+		(typeof rawOptions.rpId === 'string' && rawOptions.rpId.trim()) ||
+		(typeof (rawOptions.rp as { id?: string } | undefined)?.id === 'string' &&
+			(rawOptions.rp as { id?: string }).id?.trim()) ||
+		(typeof window !== 'undefined' ? window.location.hostname : undefined);
+
+	const timeout =
+		typeof rawOptions.timeout === 'number'
+			? rawOptions.timeout
+			: Number.isFinite(Number(rawOptions.timeout))
+				? Number(rawOptions.timeout)
+				: undefined;
+
+	const userVerification =
+		typeof rawOptions.userVerification === 'string'
+			? (rawOptions.userVerification as UserVerificationRequirement)
+			: undefined;
+
+	return {
+		challenge: challengeBytes,
+		timeout,
+		rpId,
+		allowCredentials,
+		userVerification,
+		extensions: rawOptions.extensions as AuthenticationExtensionsClientInputs | undefined,
+	};
+};
+
+const extractFido2AssertionOptions = (
+	response: DeviceAuthenticationResponse
+): PublicKeyCredentialRequestOptions | null => {
+	const rawOptions = findNestedValue(response, PUBLIC_KEY_OPTION_KEYS);
+	if (!rawOptions) {
+		return null;
+	}
+
+	const parsed = parseRawPublicKeyOptions(rawOptions);
+	if (!parsed) {
+		return null;
+	}
+
+	const normalized = normalizePublicKeyOptions(parsed);
+	return normalized;
+};
 
 // Device selection state management wrapper
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
-	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
-	const deviceType = (location.state as { deviceType?: string })?.deviceType || 'FIDO2';
+	
+	// Extended location state type to include policy IDs from configuration page
+	const locationState = location.state as {
+		deviceType?: string;
+		fido2PolicyId?: string;
+		deviceAuthPolicyId?: string;
+		configured?: boolean;
+	} | null;
+	
+	const isConfigured = locationState?.configured === true;
+	
+	// Get deviceType from location.state (passed from previous page) or from stored credentials
+	// Priority: location.state (what was selected) > stored credentials > 'FIDO2' as last resort only
+	const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+		flowKey: 'mfa-flow-v8',
+		flowType: 'oidc',
+		includeClientSecret: false,
+		includeRedirectUri: false,
+		includeLogoutUri: false,
+		includeScopes: false,
+	});
+	
+	// Use what was selected on previous page (location.state), fallback to stored, then default
+	const deviceType = (locationState?.deviceType || storedCredentials.deviceType || 'FIDO2') as DeviceType;
+	
+	// Merge policies from location.state into stored credentials
+	// This ensures the selected FIDO2 policy and Device Auth policy from the config page are used
+	// Use ref to track if we've already merged to avoid duplicate saves
+	const policiesMergedRef = useRef(false);
+	useEffect(() => {
+		if (!locationState || policiesMergedRef.current) return;
+		
+		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		
+		const updates: Partial<MFACredentials> = {};
+		let needsUpdate = false;
+		
+		// Merge deviceAuthPolicyId from location.state if provided and not already set
+		if (locationState.deviceAuthPolicyId && !stored.deviceAuthenticationPolicyId) {
+			updates.deviceAuthenticationPolicyId = locationState.deviceAuthPolicyId;
+			needsUpdate = true;
+		}
+		
+		// Merge fido2PolicyId from location.state if provided and not already set
+		if (locationState.fido2PolicyId && !(stored as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId) {
+			(updates as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId = locationState.fido2PolicyId;
+			needsUpdate = true;
+		}
+		
+		// Save updated credentials if any changes were made
+		if (needsUpdate) {
+			const updated = { ...stored, ...updates } as MFACredentials;
+			CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+			policiesMergedRef.current = true;
+			console.log(`${MODULE_TAG} Merged policies from location.state into credentials:`, {
+				deviceAuthPolicyId: updates.deviceAuthenticationPolicyId,
+				fido2PolicyId: (updates as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId,
+			});
+		} else {
+			policiesMergedRef.current = true; // Mark as processed even if no update needed
+		}
+	}, [locationState]);
 	
 	// Ref to track if we've already skipped step 0 and store nav callback
 	const hasSkippedStep0Ref = useRef(false);
@@ -38,6 +354,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const controller = useMemo(() => 
 		MFAFlowControllerFactory.create({ deviceType: deviceType as DeviceType }) as FIDO2FlowController, [deviceType]
 	);
+
 	
 	// Handle skip step 0 navigation in useEffect to avoid render-phase updates
 	useLayoutEffect(() => {
@@ -58,6 +375,61 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	// FIDO2-specific state
 	const [credentialId, setCredentialId] = useState<string>('');
 	const [isRegistering, setIsRegistering] = useState(false);
+	
+	// Ref to track if deviceType has been synced (to avoid infinite loops)
+	const deviceTypeSyncedRef = React.useRef(false);
+	
+	// Store setCredentials and credentials in refs for useEffect to use (to avoid setState during render)
+	const setCredentialsRef = React.useRef<((credentials: MFACredentials | ((prev: MFACredentials) => MFACredentials)) => void) | null>(null);
+	const credentialsRef = React.useRef<MFACredentials | null>(null);
+	
+	// Sync deviceType and set default device name in useEffect to avoid setState during render
+	// This runs after render and updates credentials if deviceType doesn't match
+	// We use refs to track the last checked values to avoid infinite loops
+	const lastCheckedDeviceTypeRef = React.useRef<string | null>(null);
+	const deviceNameSyncedRef = React.useRef(false);
+	useEffect(() => {
+		// Use setTimeout to ensure this runs after render is complete
+		const timeoutId = setTimeout(() => {
+			// Only sync if deviceType changed or if we haven't synced yet
+			if (setCredentialsRef.current && credentialsRef.current) {
+				const currentCredentials = credentialsRef.current;
+				const targetDeviceType = deviceType;
+				let needsUpdate = false;
+				const updates: Partial<MFACredentials> = {};
+				
+				// Check if deviceType needs to be synced
+				if (currentCredentials.deviceType !== targetDeviceType && 
+					(lastCheckedDeviceTypeRef.current !== targetDeviceType || !deviceTypeSyncedRef.current)) {
+					deviceTypeSyncedRef.current = true;
+					lastCheckedDeviceTypeRef.current = targetDeviceType;
+					updates.deviceType = targetDeviceType as DeviceType;
+					needsUpdate = true;
+				} else if (currentCredentials.deviceType === targetDeviceType) {
+					// If they match, mark as synced
+					deviceTypeSyncedRef.current = true;
+					lastCheckedDeviceTypeRef.current = targetDeviceType;
+				}
+				
+				// Set default device name if not already set (only once)
+				if (!deviceNameSyncedRef.current && !currentCredentials.deviceName?.trim()) {
+					deviceNameSyncedRef.current = true;
+					updates.deviceName = currentCredentials.deviceType || targetDeviceType;
+					needsUpdate = true;
+				}
+				
+				// Apply updates if any
+				if (needsUpdate) {
+					setCredentialsRef.current((prev) => ({
+						...prev,
+						...updates,
+					}));
+				}
+			}
+		}, 0);
+		
+		return () => clearTimeout(timeoutId);
+	}, [deviceType]);
 
 	// State to trigger device loading - updated from render function
 	const [deviceLoadTrigger, setDeviceLoadTrigger] = useState<{
@@ -123,6 +495,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				skipStep0NavRef.current = nav.goToStep;
 				return null;
 			}
+			
+			// Use config-selected Device Auth policy as default (from credentials or location.state)
+			// Priority: credentials.deviceAuthenticationPolicyId > location.state.deviceAuthPolicyId > empty
+			// This ensures the policy selected on the config page is shown as the default in Step 0
+			const effectivePolicyId = credentials.deviceAuthenticationPolicyId || locationState?.deviceAuthPolicyId || '';
 
 			return (
 				<div className="step-content">
@@ -267,8 +644,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						</div>
 
 						<div className="form-group">
-							<label htmlFor="mfa-device-auth-policy">
+							<label htmlFor="mfa-device-auth-policy" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 								Device Authentication Policy <span className="required">*</span>
+								<MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="modal" />
 							</label>
 
 							<div
@@ -323,7 +701,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 							{deviceAuthPolicies.length > 0 ? (
 								<select
 									id="mfa-device-auth-policy"
-									value={credentials.deviceAuthenticationPolicyId || ''}
+									value={effectivePolicyId}
 									onChange={(e) =>
 										setCredentials({
 											...credentials,
@@ -341,7 +719,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								<input
 									id="mfa-device-auth-policy"
 									type="text"
-									value={credentials.deviceAuthenticationPolicyId || ''}
+									value={effectivePolicyId}
 									onChange={(e) =>
 										setCredentials({
 											...credentials,
@@ -416,8 +794,20 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 
 	// Load devices when entering step 1 - moved to parent component level
+	// Skip loading devices if coming from config page (registration flow)
 	useEffect(() => {
 		if (!deviceLoadTrigger) return;
+
+		// If coming from config page, skip device loading and go straight to registration
+		if (isConfigured && deviceLoadTrigger.currentStep === 1) {
+			setDeviceSelection({
+				existingDevices: [],
+				loadingDevices: false,
+				selectedExistingDevice: 'new',
+				showRegisterForm: true,
+			});
+			return;
+		}
 
 		const loadDevices = async () => {
 			if (!deviceLoadTrigger.environmentId || !deviceLoadTrigger.username || !deviceLoadTrigger.tokenValid) {
@@ -459,11 +849,26 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		loadDevices();
-	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid]);
+	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid, isConfigured, deviceType, controller]);
+
+	// Effect to handle auto-showing registration form when configured (moved from render to avoid setState during render)
+	useEffect(() => {
+		if (isConfigured && !deviceSelection.showRegisterForm) {
+			setDeviceSelection((prev) => ({
+				...prev,
+				showRegisterForm: true,
+				selectedExistingDevice: 'new',
+			}));
+		}
+	}, [isConfigured, deviceSelection.showRegisterForm]);
 
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+
+		// Store credentials and setCredentials in refs for useEffect to use (to avoid setState during render)
+		credentialsRef.current = credentials;
+		setCredentialsRef.current = setCredentials;
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
 		// Store in ref to avoid setState during render - useEffect will pick it up
@@ -516,13 +921,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				deviceId: '',
 				deviceStatus: '',
 			});
-			// Set default device name based on device type if not already set
-			if (!credentials.deviceName?.trim()) {
-				setCredentials({
-					...credentials,
-					deviceName: credentials.deviceType || deviceType,
-				});
-			}
+			// Note: Setting default device name moved to useEffect to avoid setState during render
 		};
 
 		// Handle using selected existing device - trigger authentication flow
@@ -593,20 +992,91 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				return;
 			}
 
+			// Validate device name
+			const finalDeviceName = credentials.deviceName?.trim() || deviceType;
+			if (!finalDeviceName) {
+				nav.setValidationErrors(['Device name is required. Please enter a name for this device.']);
+				return;
+			}
+
+			// Note: Setting device name moved to useEffect to avoid setState during render
+			// Device name will be set when registration starts
+
+			// Ensure device name is set before registration
+			const registrationCredentials = {
+				...credentials,
+				deviceName: finalDeviceName,
+			};
+
 			setIsLoading(true);
 			setIsRegistering(true);
 			try {
-				// First, create the device in PingOne
-				const deviceParams = controller.getDeviceRegistrationParams(credentials);
-				const deviceResult = await controller.registerDevice(credentials, deviceParams);
+				// First, create the device in PingOne with ACTIVATION_REQUIRED status
+				// FIDO2 devices must be created with ACTIVATION_REQUIRED to get publicKeyCredentialCreationOptions
+				const deviceParams = controller.getDeviceRegistrationParams(registrationCredentials, 'ACTIVATION_REQUIRED');
+				const deviceResult = await controller.registerDevice(registrationCredentials, deviceParams);
 				
-				// Then, register the FIDO2 credential using WebAuthn
-				const fido2Result = await controller.registerFIDO2Device(credentials, deviceResult.deviceId);
+				// Extract publicKeyCredentialCreationOptions from device result
+				// Per fido2-2.md section 4: Get WebAuthn options (challenge, RP ID, etc.) from PingOne
+				console.log(`${MODULE_TAG} Device creation result:`, {
+					deviceId: deviceResult.deviceId,
+					status: deviceResult.status,
+					type: deviceResult.type,
+					hasPublicKeyCredentialCreationOptions: 'publicKeyCredentialCreationOptions' in deviceResult,
+					deviceResultKeys: Object.keys(deviceResult),
+					deviceResultType: typeof deviceResult,
+					// Try multiple ways to access the field
+					directAccess: (deviceResult as any).publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
+					typedAccess: (deviceResult as { publicKeyCredentialCreationOptions?: string }).publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
+				});
+				
+				// Try multiple ways to extract the field
+				const publicKeyCredentialCreationOptions = 
+					(deviceResult as any).publicKeyCredentialCreationOptions ||
+					(deviceResult as { publicKeyCredentialCreationOptions?: string }).publicKeyCredentialCreationOptions ||
+					undefined;
+				
+				if (!publicKeyCredentialCreationOptions) {
+					console.error(`${MODULE_TAG} Missing publicKeyCredentialCreationOptions in device result:`, {
+						deviceResult,
+						deviceResultKeys: Object.keys(deviceResult),
+						deviceId: deviceResult.deviceId,
+						status: deviceResult.status,
+						type: deviceResult.type,
+						// Log the full deviceResult as JSON to see what we actually have
+						deviceResultJSON: JSON.stringify(deviceResult, null, 2).substring(0, 1000),
+					});
+					throw new Error('PingOne did not return publicKeyCredentialCreationOptions. The device may not have been created correctly. Check the API logs to see the actual PingOne response.');
+				}
+				
+				console.log(`${MODULE_TAG} ✅ Successfully extracted publicKeyCredentialCreationOptions:`, {
+					length: publicKeyCredentialCreationOptions.length,
+					preview: publicKeyCredentialCreationOptions.substring(0, 100),
+				});
+				
+				// Per fido2-2.md section 4: Implementation flow for FIDO2
+				// 1. Create FIDO2 device for the user via the MFA API ✓
+				// 2. Get WebAuthn options (challenge, RP ID, etc.) from PingOne ✓
+				// 3. Run WebAuthn registration in browser with navigator.credentials.create()
+				// 4. Send WebAuthn result to backend
+				// 5. Backend calls FIDO2 activation endpoint with WebAuthn result
+				// 6. PingOne marks device ACTIVE and it becomes usable
+				// Note: FIDO2 activation is WebAuthn-based, NOT OTP-based (per fido2-2.md section 1)
+				// This is all handled by registerFIDO2Device method
+				const fido2Result = await controller.registerFIDO2Device(
+					registrationCredentials, 
+					deviceResult.deviceId,
+					publicKeyCredentialCreationOptions
+				);
 				
 				setMfaState({
 					...mfaState,
 					deviceId: deviceResult.deviceId,
-					deviceStatus: fido2Result.status,
+					deviceStatus: fido2Result.status || 'ACTIVE',
+					verificationResult: {
+						status: 'COMPLETED',
+						message: 'FIDO2 device registered and activated successfully',
+					},
 					...(fido2Result.credentialId && { fido2CredentialId: fido2Result.credentialId }),
 				});
 
@@ -615,14 +1085,15 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}
 
 				// Refresh device list
-				const devices = await controller.loadExistingDevices(credentials, tokenStatus);
+				const devices = await controller.loadExistingDevices(registrationCredentials, tokenStatus);
 				setDeviceSelection((prev) => ({
 					...prev,
 					existingDevices: devices,
 				}));
 
 				nav.markStepComplete();
-				toastV8.success('FIDO2 device registered successfully!');
+				nav.goToStep(3); // Navigate to success step
+				toastV8.success('FIDO2 device registered and activated successfully!');
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				const isDeviceLimitError =
@@ -644,28 +1115,43 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			}
 		};
 
+		// During registration flow (from config page), skip device selection and go straight to registration
+		// Note: Auto-showing registration form is now handled in useEffect above to avoid setState during render
+
 		return (
 			<div className="step-content">
-				<h2>Select or Register FIDO2 Device</h2>
-				<p>Choose an existing device or register a new security key</p>
+				{/* Only show device selector during authentication flow, not registration */}
+				{!isConfigured && (
+					<>
+						<h2>Select or Register FIDO2 Device</h2>
+						<p>Choose an existing device or register a new security key</p>
 
-				<MFADeviceSelector
-					devices={deviceSelection.existingDevices as Array<{ id: string; type: string; nickname?: string; name?: string; status?: string }>}
-					loading={deviceSelection.loadingDevices}
-					selectedDeviceId={deviceSelection.selectedExistingDevice}
-					deviceType={deviceType as DeviceType}
-					onSelectDevice={handleSelectExistingDevice}
-					onSelectNew={handleSelectNewDevice}
-					onUseSelected={handleUseSelectedDevice}
-					renderDeviceInfo={(device) => (
-						<>
-							{device.status && `Status: ${device.status}`}
-						</>
-					)}
-				/>
+						<MFADeviceSelector
+							devices={deviceSelection.existingDevices as Array<{ id: string; type: string; nickname?: string; name?: string; status?: string }>}
+							loading={deviceSelection.loadingDevices}
+							selectedDeviceId={deviceSelection.selectedExistingDevice}
+							deviceType={deviceType as DeviceType}
+							onSelectDevice={handleSelectExistingDevice}
+							onSelectNew={handleSelectNewDevice}
+							onUseSelected={handleUseSelectedDevice}
+							renderDeviceInfo={(device) => (
+								<>
+									{device.status && `Status: ${device.status}`}
+								</>
+							)}
+						/>
+					</>
+				)}
 
-				{deviceSelection.showRegisterForm && (
+				{/* Show registration form during registration flow OR when user selects "new device" */}
+				{(isConfigured || deviceSelection.showRegisterForm) && (
 					<div>
+						{isConfigured && (
+							<>
+								<h2>Register FIDO2 Device</h2>
+								<p>Register a new security key or passkey</p>
+							</>
+						)}
 						<div className="info-box">
 							<p>
 								<strong>Username:</strong> {credentials.username}
@@ -679,7 +1165,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 							</label>
 							<select
 								id="mfa-device-type-register"
-								value={credentials.deviceType}
+								value={credentials.deviceType || deviceType}
 								onChange={(e) => {
 									const newDeviceType = e.target.value as DeviceType;
 									// Set default device name based on device type if not already set
@@ -718,32 +1204,172 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								<option value="OATH_TOKEN">🎫 OATH Token (PingID)</option>
 								<option value="VOICE">📞 Voice</option>
 								<option value="WHATSAPP">💬 WhatsApp</option>
-								<option value="PLATFORM">🔒 Platform (FIDO2 Biometrics - Deprecated)</option>
-								<option value="SECURITY_KEY">🔐 Security Key (FIDO2/U2F - Deprecated)</option>
 							</select>
 							<small>Select the type of MFA device you want to register</small>
 						</div>
 
-						<div className="info-box" style={{ marginTop: '20px', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
-							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', color: '#1e40af' }}>🔐 WebAuthn Registration</h4>
-							<p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
-								When you click "Register FIDO2 Device", your browser will prompt you to:
-							</p>
-							<ul style={{ margin: '0', paddingLeft: '20px', fontSize: '14px' }}>
-								<li>Use your security key, Touch ID, Face ID, or Windows Hello</li>
-								<li>Follow the on-screen prompts to complete registration</li>
-								<li>Confirm the registration when prompted</li>
-							</ul>
+						<div className="form-group">
+							<label htmlFor="mfa-device-name-register">
+								Device Name (Nickname) <span className="required">*</span>
+								<MFAInfoButtonV8 contentKey="device.name" displayMode="tooltip" />
+							</label>
+							<input
+								id="mfa-device-name-register"
+								type="text"
+								value={credentials.deviceName || deviceType}
+								onChange={(e) => setCredentials({ ...credentials, deviceName: e.target.value })}
+								placeholder={deviceType}
+								style={{
+									padding: '10px 12px',
+									border: `1px solid ${credentials.deviceName ? '#10b981' : '#d1d5db'}`,
+									borderRadius: '6px',
+									fontSize: '14px',
+									color: '#1f2937',
+									background: 'white',
+									width: '100%',
+								}}
+							/>
+							<small>
+								Enter a friendly name to identify this device (e.g., "My Security Key", "Work Passkey")
+								{credentials.deviceName && (
+									<span
+										style={{
+											marginLeft: '8px',
+											color: '#10b981',
+											fontWeight: '500',
+										}}
+									>
+										✓ Device will be registered as: "{credentials.deviceName}"
+									</span>
+								)}
+							</small>
 						</div>
 
-						<button
-							type="button"
-							className="btn btn-primary"
-							disabled={isLoading || isRegistering}
-							onClick={handleRegisterDevice}
-						>
-							{isRegistering ? '🔐 Registering with WebAuthn...' : isLoading ? '🔄 Registering...' : 'Register FIDO2 Device'}
-						</button>
+						<div className="info-box" style={{ marginTop: '20px', background: '#eff6ff', border: '1px solid #bfdbfe' }}>
+							<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+								<h4 style={{ margin: '0', fontSize: '15px', color: '#1e40af' }}>🔐 FIDO2 Activation Flow</h4>
+								<MFAInfoButtonV8 contentKey="fido2.activation" displayMode="modal" />
+							</div>
+							<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#1e40af' }}>
+								<strong>FIDO2 uses WebAuthn-based activation, NOT OTP codes.</strong> This is different from SMS/Email devices.
+							</p>
+							<p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+								When you click the button below, your browser will prompt you to:
+							</p>
+							<ul style={{ margin: '0 0 8px 0', paddingLeft: '20px', fontSize: '14px' }}>
+								<li>Use your security key, Touch ID, Face ID, or Windows Hello</li>
+								<li>Follow the on-screen prompts to complete WebAuthn registration</li>
+								<li>Confirm the registration when prompted</li>
+							</ul>
+							<p style={{ margin: '0', fontSize: '13px', color: '#475569', fontStyle: 'italic' }}>
+								After WebAuthn registration, the device will be automatically activated via PingOne's FIDO2 activation endpoint.
+							</p>
+						</div>
+
+						{/* Validation feedback */}
+						{nav.validationErrors.length > 0 && (
+							<div className="error-box" style={{ marginTop: '16px', background: '#fee2e2', border: '1px solid #fca5a5', borderRadius: '6px', padding: '12px' }}>
+								{nav.validationErrors.map((error, idx) => (
+									<p key={idx} style={{ margin: '4px 0', color: '#991b1b', fontSize: '14px' }}>
+										❌ {error}
+									</p>
+								))}
+							</div>
+						)}
+						
+						{/* Button disabled reason */}
+						{(isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) && (
+							<div style={{ marginTop: '12px', padding: '10px', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '6px', fontSize: '13px', color: '#92400e' }}>
+								<strong>Button disabled because:</strong>
+								<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+									{isLoading && <li>⏳ Currently loading...</li>}
+									{isRegistering && <li>🔐 Currently registering...</li>}
+									{!credentials.deviceName?.trim() && <li>❌ Device name is required</li>}
+									{!credentials.username?.trim() && <li>❌ Username is required</li>}
+									{!credentials.environmentId?.trim() && <li>❌ Environment ID is required</li>}
+									{!tokenStatus.isValid && <li>❌ Worker token is invalid or missing</li>}
+								</ul>
+							</div>
+						)}
+
+						<div style={{ marginTop: '24px', textAlign: 'center' }}>
+							<button
+								type="button"
+								className="btn btn-primary"
+								disabled={isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid}
+								onClick={handleRegisterDevice}
+								style={{
+									background: (isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) ? '#9ca3af' : '#10b981',
+									borderColor: (isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) ? '#9ca3af' : '#10b981',
+									color: 'white',
+									padding: '14px 32px',
+									fontSize: '16px',
+									fontWeight: '600',
+									borderRadius: '8px',
+									border: 'none',
+									cursor: (isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) ? 'not-allowed' : 'pointer',
+									boxShadow: (isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+									transition: 'all 0.2s ease',
+									minWidth: '280px',
+									opacity: (isLoading || isRegistering || !credentials.deviceName?.trim() || !credentials.username?.trim() || !credentials.environmentId?.trim() || !tokenStatus.isValid) ? 0.6 : 1,
+								}}
+								onMouseEnter={(e) => {
+									if (!e.currentTarget.disabled) {
+										e.currentTarget.style.background = '#059669';
+										e.currentTarget.style.borderColor = '#059669';
+										e.currentTarget.style.transform = 'translateY(-2px)';
+										e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (!e.currentTarget.disabled) {
+										e.currentTarget.style.background = '#10b981';
+										e.currentTarget.style.borderColor = '#10b981';
+										e.currentTarget.style.transform = 'translateY(0)';
+										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+									}
+								}}
+							>
+								{isRegistering ? '🔐 Registering with WebAuthn...' : isLoading ? '🔄 Registering...' : 'Register FIDO2 Device'}
+							</button>
+							{isLoading && !isRegistering && (
+								<div className="info-box" style={{ marginTop: '16px', background: '#f0f9ff', border: '1px solid #bae6fd' }}>
+									<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#0c4a6e', fontWeight: '600' }}>
+										Step 1: Creating FIDO2 device in PingOne...
+									</p>
+									<p style={{ margin: '0', fontSize: '13px', color: '#475569' }}>
+										PingOne will return WebAuthn registration options (challenge, RP ID, etc.)
+									</p>
+								</div>
+							)}
+							{isRegistering && (
+								<div className="info-box" style={{ marginTop: '16px', background: '#f0fdf4', border: '1px solid #86efac' }}>
+									<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#166534', fontWeight: '600' }}>
+										Step 2: WebAuthn Registration in Progress
+									</p>
+									<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#166534' }}>
+										Your browser is performing the WebAuthn registration ceremony. You may be prompted to:
+									</p>
+									<ul style={{ margin: '0 0 8px 0', paddingLeft: '20px', fontSize: '13px', color: '#166534' }}>
+										<li>Use your security key, Touch ID, Face ID, or Windows Hello</li>
+										<li>Follow on-screen prompts to complete registration</li>
+									</ul>
+									<p style={{ margin: '0', fontSize: '13px', color: '#166534', fontStyle: 'italic' }}>
+										After WebAuthn completes, the device will be activated via PingOne's FIDO2 activation endpoint.
+									</p>
+								</div>
+							)}
+							{!isLoading && !isRegistering && (
+								<p style={{ 
+									marginTop: '12px', 
+									fontSize: '14px', 
+									color: '#6b7280',
+									fontStyle: 'italic'
+								}}>
+									Click this button to start the FIDO2 registration flow (WebAuthn-based, not OTP-based)
+								</p>
+							)}
+						</div>
 					</div>
 				)}
 
@@ -794,6 +1420,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				setIsLoading(true);
 
 				try {
+					// Check for session cookies and native app context to prefer FIDO2 platform devices
+					// Per PingOne MFA API:
+					// 1. If session cookie exists, use FIDO2 platform device even if not default
+					// 2. If native app with device authorization, use native device
+					const { shouldPreferFIDO2PlatformDevice } = await import('@/v8/services/fido2SessionCookieServiceV8');
+					const platformPreference = shouldPreferFIDO2PlatformDevice();
+					
 					// Detect if we're on macOS to prefer Passkeys (platform authenticators)
 					const isMac = typeof navigator !== 'undefined' && navigator.platform.toLowerCase().includes('mac');
 					
@@ -803,7 +1436,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						rpId: window.location.hostname,
 						userName: credentials.username || '',
 						userVerification: 'preferred' as const,
-						...(isMac && {
+						// Prefer platform authenticators if:
+						// 1. Session cookie exists (FIDO2 platform device should be used even if not default)
+						// 2. Native app with device authorization enabled
+						// 3. macOS (Passkeys)
+						...((platformPreference.prefer || isMac) && {
 							authenticatorSelection: {
 								authenticatorAttachment: 'platform' as const,
 								userVerification: 'preferred' as const,
@@ -811,23 +1448,68 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						}),
 					};
 
+					if (platformPreference.prefer) {
+						console.log(`[🔑 FIDO2-FLOW-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`);
+					}
+
 					const webAuthnResult = await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(webAuthnParams);
 
 					if (!webAuthnResult.success) {
 						throw new Error(webAuthnResult.error || 'WebAuthn authentication failed');
 					}
 
-					// Complete authentication with PingOne
-					// Note: This would typically involve sending the assertion result to PingOne
-					// For now, we'll mark as complete and navigate to success
+					// Check Assertion (FIDO Device) - Send WebAuthn assertion to PingOne
+					// According to fido2.md spec: POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
+					// Content-Type: application/vnd.pingidentity.assertion.check+json
+					if (!mfaState.authenticationId) {
+						throw new Error('Missing authentication ID for assertion check');
+					}
+
+					// Build assertion object from WebAuthn result
+					// According to fido2.md, the assertion body should match PingOne API spec
+					const assertion = {
+						id: webAuthnResult.credentialId || '',
+						rawId: webAuthnResult.rawId || webAuthnResult.credentialId || '', // Use rawId if available, fallback to credentialId
+						type: 'public-key',
+						response: {
+							clientDataJSON: webAuthnResult.clientDataJSON || '',
+							authenticatorData: webAuthnResult.authenticatorData || '',
+							signature: webAuthnResult.signature || '',
+							...(webAuthnResult.userHandle && { userHandle: webAuthnResult.userHandle }),
+						},
+					};
+
+					// Call Check Assertion endpoint
+					const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
+						mfaState.authenticationId,
+						assertion
+					);
+
+					console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
+						status: assertionResult.status,
+						nextStep: assertionResult.nextStep,
+					});
+
+					// Update state with result
 					setMfaState((prev) => ({
 						...prev,
-						nextStep: 'COMPLETED',
+						nextStep: assertionResult.nextStep || assertionResult.status || 'COMPLETED',
 					}));
 
-					nav.markStepComplete();
-					nav.goToStep(3); // Go to success step
-					toastV8.success('WebAuthn authentication successful!');
+					// Handle result based on status
+					if (assertionResult.status === 'COMPLETED' || assertionResult.nextStep === 'COMPLETED') {
+						nav.markStepComplete();
+						nav.goToStep(3); // Go to success step
+						toastV8.success('FIDO2 authentication successful!');
+					} else if (assertionResult.status === 'ASSERTION_REQUIRED') {
+						// Assertion failed, allow retry
+						throw new Error('Assertion validation failed. Please try again.');
+					} else {
+						// Other status, proceed to next step
+						nav.markStepComplete();
+						nav.goToStep(3);
+						toastV8.success('FIDO2 authentication completed!');
+					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
@@ -983,48 +1665,19 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	// Memoize renderStep3 to ensure stable function reference
 	const renderStep3 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { mfaState } = props;
+			const { mfaState, credentials } = props;
 
+			// Use shared success page service
+			const successData = buildSuccessPageData(credentials, mfaState);
 			return (
-				<div className="step-content">
-					<h2>MFA Registration Complete</h2>
-					<p>Your FIDO2 device has been successfully registered</p>
-
-					<div className="success-box">
-						<h3>✅ Registration Successful</h3>
-						<p>
-							<strong>Device ID:</strong> {mfaState.deviceId}
-						</p>
-						{mfaState.nickname && (
-							<p>
-								<strong>Nickname:</strong> {mfaState.nickname}
-							</p>
-						)}
-						<p>
-							<strong>Device Type:</strong> FIDO2 (Security Key / Passkey)
-						</p>
-						<p>
-							<strong>Status:</strong> {mfaState.deviceStatus || 'Active'}
-						</p>
-						{mfaState.fido2CredentialId && (
-							<p style={{ marginTop: '12px', fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-								<strong>Credential ID:</strong> {mfaState.fido2CredentialId.substring(0, 40)}...
-							</p>
-						)}
-					</div>
-
-					<div className="info-box">
-						<h4>What's Next?</h4>
-						<ul>
-							<li>This device can now be used for MFA challenges</li>
-							<li>Users will be prompted to use their security key, Touch ID, Face ID, or Windows Hello during authentication</li>
-							<li>You can test MFA in your authentication flows</li>
-						</ul>
-					</div>
-				</div>
+				<MFASuccessPageV8
+					{...props}
+					successData={successData}
+					onStartAgain={() => navigate('/v8/mfa-hub')}
+				/>
 			);
 		};
-	}, []);
+	}, [navigate]);
 
 	// Validation function for Step 0
 	const validateStep0 = (
@@ -1035,8 +1688,28 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		return controller.validateCredentials(credentials, tokenStatus, nav);
 	};
 
+	// Track API display visibility for dynamic padding
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
+
+	useEffect(() => {
+		const checkVisibility = () => {
+			setIsApiDisplayVisible(apiDisplayServiceV8.isVisible());
+		};
+
+		// Check initial state
+		checkVisibility();
+
+		// Subscribe to visibility changes
+		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
+
+		return () => unsubscribe();
+	}, []);
+
 	return (
-		<>
+		<div style={{ 
+			paddingBottom: isApiDisplayVisible ? '450px' : '0',
+			transition: 'padding-bottom 0.3s ease',
+		}}>
 			<MFAFlowBaseV8
 				deviceType={deviceType as DeviceType}
 				renderStep0={renderStep0}
@@ -1046,9 +1719,19 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				renderStep4={() => null}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select/Register Device', 'Device Ready', 'Complete']}
+				shouldHideNextButton={(props) => {
+					// Hide Next button on step 1 when registration form is shown
+					// The "Register FIDO2 Device" button is the primary action
+					if (props.nav.currentStep === 1) {
+						return deviceSelection.showRegisterForm;
+					}
+					return false;
+				}}
 			/>
-			<SuperSimpleApiDisplayV8 />
-		</>
+			
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+			
+		</div>
 	);
 };
 

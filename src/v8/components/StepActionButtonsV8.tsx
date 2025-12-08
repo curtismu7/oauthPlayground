@@ -44,6 +44,7 @@ export const StepActionButtonsV8: React.FC<
 	totalSteps,
 	isNextDisabled,
 	nextDisabledReason,
+	hideNextButton = false,
 	onPrevious,
 	onNext,
 	onFinal,
@@ -108,7 +109,7 @@ export const StepActionButtonsV8: React.FC<
 			{children}
 
 			{/* Next/Final Button */}
-			{isLastStep ? (
+			{hideNextButton ? null : isLastStep ? (
 				<button
 					className="btn btn-final"
 					onClick={handleFinalClick}
@@ -154,8 +155,8 @@ export const StepActionButtonsV8: React.FC<
 					gap: 12px;
 					justify-content: space-between;
 					align-items: center;
-					padding: 16px 0;
-					margin-top: 24px;
+					padding: 8px 0;
+					margin-top: 12px;
 				}
 
 				.btn {

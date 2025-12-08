@@ -23,16 +23,18 @@ interface ApiCall {
 	id: string;
 	method: string;
 	url: string;
-	body?: any;
+	body?: Record<string, unknown> | string | null;
 	response?: {
 		status: number;
-		data?: any;
+		data?: unknown;
 	};
 	timestamp: number;
+	isProxy?: boolean;
 }
 
 export const SimplePingOneApiDisplayV8: React.FC = () => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
+	const [showInfo, setShowInfo] = useState(false);
 
 	useEffect(() => {
 		const updateCalls = () => {
@@ -52,10 +54,12 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 				.map((call) => ({
 					id: call.id,
 					method: call.method,
-					url: call.url,
+					url: call.actualPingOneUrl || call.url,
 					body: call.body,
 					response: call.response,
 					timestamp: call.timestamp,
+					isProxy: typeof call.isProxy === 'boolean' ? call.isProxy : Boolean(call.actualPingOneUrl && call.url?.startsWith('/api/')),
+					source: call.source,
 				}));
 
 			setApiCalls(pingOneCalls);
@@ -74,9 +78,7 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 		return () => clearInterval(interval);
 	}, []);
 
-	if (apiCalls.length === 0) {
-		return null;
-	}
+	const hasCalls = apiCalls.length > 0;
 
 	return (
 		<div
@@ -107,37 +109,104 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 				<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: '14px' }}>
 					📡 PingOne API Calls ({apiCalls.length})
 				</div>
-				<button
-					onClick={() => {
-						apiCallTrackerService.clearApiCalls();
-						setApiCalls([]);
-					}}
-					style={{
-						padding: '4px 12px',
-						background: '#374151',
-						color: '#f9fafb',
-						border: 'none',
-						borderRadius: '4px',
-						cursor: 'pointer',
-						fontSize: '12px',
-					}}
-				>
-					Clear
-				</button>
-			</div>
-
-			<div style={{ padding: '16px' }}>
-				{apiCalls.map((call, index) => (
-					<div
-						key={call.id}
+				<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+					<button
+						type="button"
+						onClick={() => setShowInfo((prev) => !prev)}
 						style={{
-							marginBottom: '16px',
-							padding: '12px',
-							background: '#111827',
-							borderRadius: '6px',
-							border: '1px solid #374151',
+							padding: '4px 10px',
+							background: showInfo ? '#dbeafe' : '#eff6ff',
+							color: '#1d4ed8',
+							border: '1px solid #93c5fd',
+							borderRadius: '4px',
+							fontSize: '12px',
+							fontWeight: 600,
+							cursor: 'pointer',
 						}}
 					>
+						{showInfo ? 'Hide Info' : 'What is this?'}
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							apiCallTrackerService.clearApiCalls();
+							setApiCalls([]);
+						}}
+						style={{
+							padding: '4px 12px',
+							background: '#374151',
+							color: '#f9fafb',
+							border: 'none',
+							borderRadius: '4px',
+							cursor: 'pointer',
+							fontSize: '12px',
+						}}
+					>
+						Clear
+					</button>
+				</div>
+			</div>
+
+			{showInfo && (
+				<div
+					style={{
+						padding: '14px 18px',
+						background: '#fef3c7',
+						borderBottom: '1px solid #fcd34d',
+						color: '#7c2d12',
+						fontSize: '13px',
+						lineHeight: 1.6,
+					}}
+				>
+					<strong>How to read this list:</strong>
+					<ul style={{ margin: '8px 0 0 16px' }}>
+						<li>
+							<span style={{ fontWeight: 600 }}>PROXY</span> rows represent the browser calling our OAuth Playground API
+							(e.g., <code>/api/pingone/mfa/*</code>).
+						</li>
+						<li>
+							Rows with the blue <strong>SERVER</strong> badge mirror the real PingOne request that the backend just executed.
+						</li>
+						<li>
+							Proxy + Server entries usually come in pairs so you can follow the full flow from browser request to PingOne API call.
+						</li>
+						<li>
+							Timestamps, status colors, and method badges make it easy to compare timing and outcomes for each hop.
+						</li>
+					</ul>
+				</div>
+			)}
+
+			<div style={{ padding: '16px' }}>
+				{!hasCalls ? (
+					<div
+						style={{
+							padding: '24px',
+							textAlign: 'center',
+							color: '#9ca3af',
+							background: '#111827',
+							borderRadius: '8px',
+							border: '1px dashed #374151',
+						}}
+					>
+						No PingOne API calls captured yet. Start an MFA or OAuth flow and the requests will appear here in real time.
+					</div>
+				) : (
+					apiCalls.map((call, _index) => {
+					const isProxy = call.isProxy;
+					return (
+						<div
+							key={call.id}
+							style={{
+								marginBottom: '16px',
+								padding: '12px',
+								background: isProxy ? '#fefce8' : '#111827',
+								borderRadius: '6px',
+								border: isProxy ? '2px solid #fcd34d' : '1px solid #374151',
+								boxShadow: isProxy ? '0 0 12px rgba(250, 204, 21, 0.35)' : 'none',
+								color: isProxy ? '#0f172a' : undefined,
+							}}
+						>
 						{/* Request Line */}
 						<div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
 							<span
@@ -177,6 +246,20 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 							>
 								{call.response?.status || '...'}
 							</span>
+							{call.source === 'backend' && (
+								<span
+									style={{
+										padding: '2px 8px',
+										background: '#dbeafe',
+										color: '#1d4ed8',
+										borderRadius: '999px',
+										fontSize: '11px',
+										fontWeight: 700,
+									}}
+								>
+									SERVER
+								</span>
+							)}
 						</div>
 
 						{/* URL */}
@@ -188,15 +271,17 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 								fontSize: '12px',
 							}}
 						>
-							{call.url.startsWith('/api/') && (
+							{isProxy && (
 								<span
 									style={{
-										padding: '2px 6px',
-										background: '#374151',
-										color: '#9ca3af',
-										borderRadius: '3px',
-										fontSize: '10px',
-										marginRight: '8px',
+										padding: '2px 8px',
+										background: '#fef08a',
+										color: '#92400e',
+										borderRadius: '12px',
+										fontSize: '11px',
+										fontWeight: 700,
+										marginRight: '10px',
+										boxShadow: '0 0 0 2px rgba(250,204,21,0.4)',
 									}}
 								>
 									PROXY
@@ -251,7 +336,9 @@ export const SimplePingOneApiDisplayV8: React.FC = () => {
 							</div>
 						)}
 					</div>
-				))}
+					);
+					})
+				)}
 			</div>
 		</div>
 	);
