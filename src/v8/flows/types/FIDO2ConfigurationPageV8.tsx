@@ -13,7 +13,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
+import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -82,6 +82,19 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const authenticatorContent = MFAEducationServiceV8.getContent('fido2.authenticator');
 	const publicKeyContent = MFAEducationServiceV8.getContent('fido2.publicKey');
 	const phishingContent = MFAEducationServiceV8.getContent('security.phishingResistance');
+	const passkeysVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.webauthn');
+	const passkeysVsDeviceBindingContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.device.binding');
+	const biometricsVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.biometrics.vs.webauthn');
+	
+	// Collapsible sections state
+	const [collapsedSections, setCollapsedSections] = useState({
+		advancedConcepts: true,
+		comparisonTable: true,
+	});
+	
+	const toggleSection = (key: keyof typeof collapsedSections) => {
+		setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+	};
 
 	// Load environment ID
 	useEffect(() => {
