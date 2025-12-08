@@ -603,6 +603,7 @@ useEffect(() => {
 					totalSteps={totalSteps}
 					isNextDisabled={isNextDisabled()}
 					hideNextButton={shouldHideNext()}
+					hidePreviousButton={true}
 					onPrevious={() => {
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);

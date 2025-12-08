@@ -45,6 +45,7 @@ export const StepActionButtonsV8: React.FC<
 	isNextDisabled,
 	nextDisabledReason,
 	hideNextButton = false,
+	hidePreviousButton = false,
 	onPrevious,
 	onNext,
 	onFinal,
@@ -78,7 +79,7 @@ export const StepActionButtonsV8: React.FC<
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent) => {
-		if (e.key === 'ArrowLeft' && canGoPrevious) {
+		if (e.key === 'ArrowLeft' && canGoPrevious && !hidePreviousButton) {
 			e.preventDefault();
 			handlePreviousClick();
 		} else if (e.key === 'ArrowRight' && !isNextDisabled && !isLastStep) {
@@ -94,17 +95,19 @@ export const StepActionButtonsV8: React.FC<
 			role="group"
 			aria-label="Step navigation buttons"
 		>
-			{/* Previous Button */}
-			<button
-				className={`btn btn-previous ${!canGoPrevious ? 'disabled' : ''}`}
-				onClick={handlePreviousClick}
-				disabled={!canGoPrevious}
-				aria-label="Go to previous step"
-				title={canGoPrevious ? 'Go to previous step (Arrow Left)' : 'Cannot go to previous step'}
-			>
-				<span className="btn-icon">◀</span>
-				<span className="btn-text">Previous</span>
-			</button>
+			{/* Previous Button - Hidden for now as it's broken */}
+			{!hidePreviousButton && (
+				<button
+					className={`btn btn-previous ${!canGoPrevious ? 'disabled' : ''}`}
+					onClick={handlePreviousClick}
+					disabled={!canGoPrevious}
+					aria-label="Go to previous step"
+					title={canGoPrevious ? 'Go to previous step (Arrow Left)' : 'Cannot go to previous step'}
+				>
+					<span className="btn-icon">◀</span>
+					<span className="btn-text">Previous</span>
+				</button>
+			)}
 
 			{children}
 
