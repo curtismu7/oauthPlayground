@@ -17,6 +17,7 @@ import { SMSFlowController } from '../controllers/SMSFlowController';
 import { EmailFlowController } from '../controllers/EmailFlowController';
 import { TOTPFlowController } from '../controllers/TOTPFlowController';
 import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
+import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
 
 const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
 
@@ -67,6 +68,9 @@ export class MFAFlowControllerFactory {
 			case 'FIDO2':
 				return new FIDO2FlowController(callbacks);
 			
+			case 'WHATSAPP':
+				return new WhatsAppFlowController(callbacks);
+			
 			default:
 				console.warn(`${MODULE_TAG} Unknown device type: ${deviceType}, defaulting to SMS`);
 				return new SMSFlowController(callbacks);
@@ -77,7 +81,7 @@ export class MFAFlowControllerFactory {
 	 * Check if a device type is supported (has a dedicated controller)
 	 */
 	static isSupported(deviceType: DeviceType): boolean {
-		const supportedTypes: DeviceType[] = ['SMS', 'EMAIL', 'TOTP', 'FIDO2'];
+		const supportedTypes: DeviceType[] = ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
 		return supportedTypes.includes(deviceType);
 	}
 
@@ -85,14 +89,14 @@ export class MFAFlowControllerFactory {
 	 * Get all supported device types (with dedicated controllers)
 	 */
 	static getSupportedTypes(): DeviceType[] {
-		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2'];
+		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
 	}
 
 	/**
 	 * Get all available device types (including those that fall back to SMS)
 	 */
 	static getAllDeviceTypes(): DeviceType[] {
-		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'MOBILE', 'OATH_TOKEN', 'VOICE', 'WHATSAPP', 'PLATFORM', 'SECURITY_KEY'];
+		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'MOBILE', 'OATH_TOKEN', 'VOICE', 'WHATSAPP'];
 	}
 }
 

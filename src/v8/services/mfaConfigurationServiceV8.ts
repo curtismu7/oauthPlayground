@@ -15,6 +15,7 @@ export interface MFAConfiguration {
 		renewalThreshold: number; // seconds before expiry
 		retryAttempts: number;
 		retryDelay: number; // milliseconds
+		showTokenAtEnd: boolean; // show token after generation
 	};
 	autoSelectDefaultPolicies: boolean;
 	autoSelectFirstDevice: boolean;
@@ -59,6 +60,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		renewalThreshold: 300, // 5 minutes
 		retryAttempts: 3,
 		retryDelay: 1000, // 1 second
+		showTokenAtEnd: true, // show token after generation by default
 	},
 	autoSelectDefaultPolicies: true,
 	autoSelectFirstDevice: true,
