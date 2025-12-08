@@ -1370,7 +1370,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								type="button"
 								onClick={() => {
 									setShowValidationModal(false);
-									nav.goToPrevious();
+									// Previous button removed - just close modal
 								}}
 								style={{
 									position: 'absolute',
