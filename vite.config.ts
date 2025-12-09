@@ -30,6 +30,10 @@ export default defineConfig(({ mode }) => {
 			basicSsl(), // Re-enable HTTPS for development
 			VitePWA({
 				registerType: 'autoUpdate',
+				devOptions: {
+					enabled: false, // Disable service worker in development to prevent caching issues
+					type: 'module',
+				},
 				workbox: {
 					globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
 					runtimeCaching: [

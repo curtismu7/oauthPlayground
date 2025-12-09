@@ -2,7 +2,7 @@
  * @file mfaSuccessPageServiceV8.tsx
  * @module v8/flows/shared
  * @description Shared success page component and service for all MFA device types
- * @version 8.3.0
+ * @version 8.4.0
  * 
  * This service provides a unified success page component that works for all device types:
  * - SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP, etc.
@@ -11,12 +11,15 @@
  * - Device registration (for ACTIVE devices)
  * - Device activation/validation (for ACTIVATION_REQUIRED devices)
  * - Device authentication (for existing devices)
+ * 
+ * NOTE: This service now uses the UnifiedMFASuccessPageV8 component from unifiedMFASuccessPageServiceV8
  */
 
 import React from 'react';
 import type { DeviceType, MFACredentials } from './MFATypes';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
+import { UnifiedMFASuccessPageV8, type UnifiedMFASuccessPageData } from '@/v8/services/unifiedMFASuccessPageServiceV8';
 
 export interface MFASuccessPageData {
 	deviceId: string;
@@ -134,140 +137,61 @@ export const getWhatsNextContent = (deviceType: DeviceType): string[] => {
 };
 
 /**
+ * Convert MFASuccessPageData to UnifiedMFASuccessPageData
+ */
+const convertToUnifiedData = (
+	successData: MFASuccessPageData,
+	credentials: MFACredentials,
+	policyId?: string,
+	policyName?: string,
+	fidoPolicy?: { id?: string; name?: string; [key: string]: unknown }
+): UnifiedMFASuccessPageData => {
+	return {
+		flowType: 'registration',
+		username: successData.username || credentials.username,
+		userId: successData.userId,
+		environmentId: successData.environmentId || credentials.environmentId,
+		deviceId: successData.deviceId,
+		deviceType: successData.deviceType,
+		deviceStatus: successData.deviceStatus,
+		deviceNickname: successData.nickname,
+		deviceName: successData.nickname,
+		phone: successData.phone || (credentials.phoneNumber ? getFullPhoneNumber(credentials) : undefined),
+		email: successData.email || credentials.email,
+		policyId: policyId || credentials.deviceAuthenticationPolicyId,
+		policyName: policyName,
+		fidoPolicy: fidoPolicy,
+		verificationResult: successData.verificationResult,
+		responseData: {
+			deviceId: successData.deviceId,
+			deviceType: successData.deviceType,
+			deviceStatus: successData.deviceStatus,
+			nickname: successData.nickname,
+			createdAt: successData.createdAt,
+			updatedAt: successData.updatedAt,
+			verificationResult: successData.verificationResult,
+			fido2CredentialId: successData.fido2CredentialId,
+			secret: successData.secret,
+			keyUri: successData.keyUri,
+		},
+		timestamp: successData.createdAt || successData.updatedAt || new Date().toISOString(),
+	};
+};
+
+/**
  * Unified MFA Success Page Component
  * Works for all device types
+ * Now uses the UnifiedMFASuccessPageV8 component
  */
-export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({ successData, credentials, onStartAgain }) => {
-	const deviceTypeDisplay = getDeviceTypeDisplay(successData.deviceType);
-	const contactInfo = getContactInfoDisplay(successData.deviceType, credentials, successData);
-	const successMessage = getSuccessMessage(successData.deviceType, successData.deviceStatus);
-	const whatsNext = getWhatsNextContent(successData.deviceType);
-
-	return (
-		<div className="step-content">
-			<h2>MFA {successData.deviceStatus === 'ACTIVE' ? 'Registration' : 'Verification'} Complete</h2>
-			<p>{successMessage}</p>
-
-			<div className="success-box">
-				<h3>✅ {successData.deviceStatus === 'ACTIVE' ? 'Registration' : 'Verification'} Successful</h3>
-				
-				{credentials.username && (
-					<p>
-						<strong>Username:</strong> {credentials.username}
-					</p>
-				)}
-				
-				{successData.userId && (
-					<p>
-						<strong>User ID:</strong> {successData.userId}
-					</p>
-				)}
-				
-				<p>
-					<strong>Device ID:</strong> {successData.deviceId}
-				</p>
-				
-				{successData.nickname && (
-					<p>
-						<strong>Nickname:</strong> {successData.nickname}
-					</p>
-				)}
-				
-				{contactInfo && (
-					<p>
-						<strong>
-							{successData.deviceType === 'SMS' || successData.deviceType === 'VOICE' || successData.deviceType === 'WHATSAPP'
-								? 'Phone Number'
-								: successData.deviceType === 'EMAIL'
-									? 'Email Address'
-									: 'Contact Info'}
-							:
-						</strong>{' '}
-						{contactInfo}
-					</p>
-				)}
-				
-				<p>
-					<strong>Device Type:</strong> {deviceTypeDisplay}
-				</p>
-				
-				<p>
-					<strong>Status:</strong>{' '}
-					{successData.verificationResult?.status || successData.deviceStatus || 'Verified'}
-				</p>
-				
-				{successData.verificationResult?.message && (
-					<p>
-						<strong>Message:</strong> {successData.verificationResult.message}
-					</p>
-				)}
-				
-				{successData.environmentId && (
-					<p>
-						<strong>Environment ID:</strong> {successData.environmentId}
-					</p>
-				)}
-				
-				{successData.createdAt && (
-					<p>
-						<strong>Created At:</strong> {new Date(successData.createdAt).toLocaleString()}
-					</p>
-				)}
-				
-				{successData.updatedAt && (
-					<p>
-						<strong>Updated At:</strong> {new Date(successData.updatedAt).toLocaleString()}
-					</p>
-				)}
-				
-				{successData.fido2CredentialId && (
-					<p style={{ marginTop: '12px', fontSize: '13px', fontFamily: 'monospace', wordBreak: 'break-all' }}>
-						<strong>Credential ID:</strong> {successData.fido2CredentialId.substring(0, 40)}...
-					</p>
-				)}
-			</div>
-
-			<div className="info-box">
-				<h4>What's Next?</h4>
-				<ul>
-					{whatsNext.map((item, index) => (
-						<li key={index}>{item}</li>
-					))}
-				</ul>
-			</div>
-
-			{onStartAgain && (
-				<div style={{ marginTop: '24px', textAlign: 'center' }}>
-					<button
-						type="button"
-						onClick={onStartAgain}
-						style={{
-							padding: '12px 24px',
-							background: '#10b981',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '15px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#059669';
-							e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#10b981';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-						}}
-					>
-						Start Again
-					</button>
-				</div>
-			)}
-		</div>
-	);
+export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({ successData, credentials, onStartAgain, ...props }) => {
+	// Get policy information from credentials or props
+	const policyId = credentials.deviceAuthenticationPolicyId;
+	const policyName = (props as { policyName?: string }).policyName;
+	const fidoPolicy = (props as { fidoPolicy?: { id?: string; name?: string; [key: string]: unknown } }).fidoPolicy;
+	
+	const unifiedData = convertToUnifiedData(successData, credentials, policyId, policyName, fidoPolicy);
+	
+	return <UnifiedMFASuccessPageV8 data={unifiedData} onStartAgain={onStartAgain} />;
 };
 
 /**
