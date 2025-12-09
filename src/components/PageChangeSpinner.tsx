@@ -18,8 +18,8 @@ const SpinnerOverlay = styled.div<{ $isVisible: boolean }>`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,44 +32,44 @@ const SpinnerOverlay = styled.div<{ $isVisible: boolean }>`
 `;
 
 const SpinnerContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 2rem;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  text-align: center;
 `;
 
 const SpinnerIcon = styled(FiLoader)`
-  font-size: 2.5rem;
-  color: #0070cc;
+  font-size: 24px;
+  color: #3b82f6;
   animation: ${spin} 1s linear infinite;
+  margin: 0 auto 12px;
+  display: block;
 `;
 
 const SpinnerText = styled.p`
   margin: 0;
   color: #374151;
-  font-size: 1rem;
+  font-size: 13px;
   font-weight: 500;
   text-align: center;
 `;
 
 const ProgressBar = styled.div<{ $progress: number }>`
-  width: 200px;
-  height: 4px;
+  width: 160px;
+  height: 3px;
   background: #e5e7eb;
   border-radius: 2px;
   overflow: hidden;
+  margin: 8px auto 0;
   
   &::after {
     content: '';
     display: block;
     height: 100%;
     width: ${({ $progress }) => $progress}%;
-    background: linear-gradient(90deg, #0070cc, #0056b3);
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
     border-radius: 2px;
     transition: width 0.3s ease;
   }
@@ -105,6 +105,7 @@ const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({
 			setProgress(0);
 			setStartTime(null);
 		}
+		return undefined;
 	}, [isVisible]);
 
 	// Ensure minimum display time
@@ -121,6 +122,7 @@ const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({
 				return () => clearTimeout(timer);
 			}
 		}
+		return undefined;
 	}, [isVisible, startTime]);
 
 	return (
@@ -128,7 +130,7 @@ const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({
 			<SpinnerContainer>
 				<SpinnerIcon />
 				<SpinnerText>{message}</SpinnerText>
-				<ProgressBar $progress={progress} />
+				{progress > 0 && <ProgressBar $progress={progress} />}
 			</SpinnerContainer>
 		</SpinnerOverlay>
 	);
