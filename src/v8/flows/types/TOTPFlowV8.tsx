@@ -24,6 +24,7 @@ import { FiShield } from 'react-icons/fi';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
@@ -798,7 +799,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					<MFASuccessPageV8
 						{...props}
 						successData={successData}
-						onStartAgain={() => navigate('/v8/mfa-hub')}
+						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
 				);
 			}

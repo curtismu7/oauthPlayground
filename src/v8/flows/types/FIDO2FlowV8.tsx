@@ -24,6 +24,7 @@ import { FiShield } from 'react-icons/fi';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { MfaAuthenticationServiceV8, type DeviceAuthenticationResponse } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
@@ -569,7 +570,15 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 							<button
 								type="button"
-								onClick={() => props.setShowSettingsModal(true)}
+								onClick={() => {
+									// Navigate to MFA config page with return path in state
+									navigate('/v8/mfa-config', {
+										state: {
+											returnPath: location.pathname,
+											returnState: location.state,
+										},
+									});
+								}}
 								className="token-button"
 								style={{
 									padding: '10px 16px',
@@ -1676,7 +1685,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				<MFASuccessPageV8
 					{...props}
 					successData={successData}
-					onStartAgain={() => navigate('/v8/mfa-hub')}
+					onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 				/>
 			);
 		};
