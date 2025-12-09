@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Button, Card, Spinner, Alert } from 'react-bootstrap';
 import { FaGripVertical, FaSave, FaTimes, FaArrowUp, FaArrowDown } from 'react-icons/fa';
 import { useMFADevices } from '../../hooks/useMFADevices';

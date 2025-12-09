@@ -40,6 +40,9 @@ export interface DeviceAuthenticationPolicy {
 	name: string;
 	description?: string;
 	status?: string;
+	pairingDisabled?: boolean; // If true, device pairing is disabled for this policy
+	promptForNicknameOnPairing?: boolean; // If true, prompt user to set nickname after pairing
+	skipUserLockVerification?: boolean; // If true, skip lock verification; if false, check user lock status and block if locked
 	authentication?: {
 		deviceSelection?: string;
 		[key: string]: unknown;
