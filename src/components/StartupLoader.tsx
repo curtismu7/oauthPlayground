@@ -33,7 +33,7 @@ const LoaderContainer = styled.div<{ $isFadingOut: boolean }>`
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	background: rgba(0, 0, 0, 0.3);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -42,35 +42,41 @@ const LoaderContainer = styled.div<{ $isFadingOut: boolean }>`
 	animation: ${(props) => (props.$isFadingOut ? fadeOut : 'none')} 0.3s ease-out forwards;
 `;
 
+const SpinnerContainer = styled.div`
+	background: white;
+	border-radius: 8px;
+	padding: 16px 20px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	min-width: 160px;
+	text-align: center;
+`;
+
 const Spinner = styled.div`
-	width: 60px;
-	height: 60px;
-	border: 4px solid rgba(255, 255, 255, 0.3);
-	border-top-color: white;
+	width: 24px;
+	height: 24px;
+	border: 3px solid #e5e7eb;
+	border-top-color: #3b82f6;
 	border-radius: 50%;
 	animation: ${spin} 1s linear infinite;
-	margin-bottom: 24px;
+	margin: 0 auto 12px;
 `;
 
 const Logo = styled.div`
-	font-size: 48px;
-	margin-bottom: 16px;
-	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+	font-size: 32px;
+	margin-bottom: 12px;
 `;
 
 const Title = styled.h1`
-	color: white;
-	font-size: 28px;
+	color: #374151;
+	font-size: 16px;
 	font-weight: 600;
-	margin: 0 0 8px 0;
-	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	margin: 0 0 4px 0;
 `;
 
 const Subtitle = styled.p`
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 14px;
+	color: #6b7280;
+	font-size: 13px;
 	margin: 0;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 `;
 
 interface StartupLoaderProps {
@@ -118,10 +124,11 @@ export const StartupLoader: React.FC<StartupLoaderProps> = ({
 
 	return (
 		<LoaderContainer $isFadingOut={isFadingOut}>
-			<Logo>🔐</Logo>
-			<Title>OAuth Playground</Title>
-			<Subtitle>Initializing application...</Subtitle>
-			<Spinner />
+			<SpinnerContainer>
+				<Spinner />
+				<Title>Loading...</Title>
+				<Subtitle>Initializing application</Subtitle>
+			</SpinnerContainer>
 		</LoaderContainer>
 	);
 };
