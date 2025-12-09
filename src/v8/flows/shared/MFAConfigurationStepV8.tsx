@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -45,6 +46,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 }) => {
 	// Get auth context to check for user tokens from OAuth login
 	const authContext = useAuth();
+	const navigate = useNavigate();
+	const location = useLocation();
 	
 	// Initialize tokenType from credentials, defaulting to 'worker' if not set
 	// Use a function to ensure we only read credentials.tokenType once on mount
@@ -872,7 +875,15 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 					<button
 						type="button"
-						onClick={() => setShowSettingsModal(true)}
+						onClick={() => {
+							// Navigate to MFA config page with return path in state
+							navigate('/v8/mfa-config', {
+								state: {
+									returnPath: location.pathname,
+									returnState: location.state,
+								},
+							});
+						}}
 						className="token-button"
 						style={{
 							padding: '12px 20px',
