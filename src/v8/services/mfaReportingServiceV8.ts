@@ -195,7 +195,33 @@ export class MFAReportingServiceV8 {
 			);
 
 			if (!response.ok) {
-				throw new Error(`Failed to get reports: ${response.statusText}`);
+				const errorData = reportsData as { 
+					error?: string; 
+					message?: string; 
+					details?: unknown;
+					endpoint?: string;
+				};
+				
+				// Use the enhanced error message from backend if available
+				const errorMessage = errorData.message || errorData.error || response.statusText;
+				
+				// Provide more helpful error messages for common issues
+				if (response.status === 403) {
+					// Check if backend provided enhanced error message
+					if (errorData.message && errorData.message.includes('403 Forbidden')) {
+						throw new Error(errorData.message);
+					}
+					
+					// Otherwise, provide our own enhanced message
+					throw new Error(
+						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
+						`Required scope: p1:read:environment or p1:read:report. ` +
+						`Note: User authentication reports may require additional MFA reporting permissions. ` +
+						`Original error: ${errorMessage}`
+					);
+				}
+				
+				throw new Error(`Failed to get reports: ${errorMessage}`);
 			}
 
 			const reports = (reportsData as { _embedded?: { userMfaDeviceAuthentications?: UserAuthenticationReport[] } })._embedded?.userMfaDeviceAuthentications || [] as UserAuthenticationReport[];
@@ -380,12 +406,359 @@ export class MFAReportingServiceV8 {
 
 			const reports = (reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded?.fido2Devices || [] as FIDO2DeviceReport[];
 
-			console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
-			return reports;
+		console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
+		return reports;
+	} catch (error) {
+		console.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
+		throw error;
+	}
+	}
+
+	/**
+	 * Create report of SMS devices - entries in response
+	 * POST /v1/environments/{envID}/reports/smsDevices
+	 * @param params - Report parameters including filter and limit
+	 * @returns Report data with embedded entries
+	 */
+	static async createSMSDevicesReport(
+		params: ReportParams & { filter?: string }
+	): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Creating SMS devices report`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const proxyEndpoint = '/api/pingone/mfa/reports/create-sms-devices-report';
+			const requestBody = {
+				environmentId: params.environmentId,
+				workerToken: accessToken,
+				...(params.filter && { filter: params.filter }),
+				...(params.limit && { limit: params.limit }),
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Create SMS Devices Report',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let reportData: unknown;
+			try {
+				reportData = await responseClone.json();
+			} catch {
+				reportData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: reportData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = reportData as { error?: string; message?: string; details?: unknown };
+				const errorMessage = errorData.message || errorData.error || response.statusText;
+				
+				if (response.status === 403) {
+					throw new Error(
+						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
+						`Required scope: p1:read:report or p1:read:environment. ` +
+						`Original error: ${errorMessage}`
+					);
+				}
+				
+				throw new Error(`Failed to create SMS devices report: ${errorMessage}`);
+			}
+
+			console.log(`${MODULE_TAG} SMS devices report created successfully`);
+			return reportData as Record<string, unknown>;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
+			console.error(`${MODULE_TAG} Create SMS devices report error`, error);
 			throw error;
 		}
+	}
+
+	/**
+	 * Get report results - entries in response
+	 * GET /v1/environments/{envID}/reports/{reportID}
+	 * @param params - Report parameters including reportId
+	 * @returns Report data with embedded entries
+	 */
+	static async getReportResults(
+		params: ReportParams & { reportId: string }
+	): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Getting report results`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const proxyEndpoint = '/api/pingone/mfa/reports/get-report-results';
+			const requestBody = {
+				environmentId: params.environmentId,
+				reportId: params.reportId,
+				workerToken: accessToken,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Get Report Results',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let reportData: unknown;
+			try {
+				reportData = await responseClone.json();
+			} catch {
+				reportData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: reportData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = reportData as { error?: string; message?: string; details?: unknown };
+				const errorMessage = errorData.message || errorData.error || response.statusText;
+				
+				if (response.status === 403) {
+					throw new Error(
+						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
+						`Required scope: p1:read:report or p1:read:environment. ` +
+						`Original error: ${errorMessage}`
+					);
+				}
+				
+				throw new Error(`Failed to get report results: ${errorMessage}`);
+			}
+
+			console.log(`${MODULE_TAG} Report results retrieved successfully`);
+			return reportData as Record<string, unknown>;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Get report results error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Create report of MFA-enabled devices - results in file
+	 * POST /v1/environments/{envID}/reports/mfaEnabledDevices
+	 * @param params - Report parameters including filter and limit
+	 * @returns Report job ID and status (requires polling)
+	 */
+	static async createMFAEnabledDevicesReport(
+		params: ReportParams & { filter?: string }
+	): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Creating MFA-enabled devices report`, params);
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			const proxyEndpoint = '/api/pingone/mfa/reports/create-mfa-enabled-devices-report';
+			const requestBody = {
+				environmentId: params.environmentId,
+				workerToken: accessToken,
+				...(params.filter && { filter: params.filter }),
+				...(params.limit && { limit: params.limit }),
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: 'Create MFA-Enabled Devices Report',
+			});
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let reportData: unknown;
+			try {
+				reportData = await responseClone.json();
+			} catch {
+				reportData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: reportData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = reportData as { error?: string; message?: string; details?: unknown };
+				const errorMessage = errorData.message || errorData.error || response.statusText;
+				
+				if (response.status === 403) {
+					throw new Error(
+						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
+						`Required scope: p1:read:report or p1:read:environment. ` +
+						`Original error: ${errorMessage}`
+					);
+				}
+				
+				throw new Error(`Failed to create MFA-enabled devices report: ${errorMessage}`);
+			}
+
+			console.log(`${MODULE_TAG} MFA-enabled devices report created successfully`, {
+				reportId: (reportData as { id?: string })?.id,
+				status: (reportData as { status?: string })?.status,
+			});
+			return reportData as Record<string, unknown>;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Create MFA-enabled devices report error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Poll report results - results in file
+	 * GET /v1/environments/{envID}/reports/{reportID}
+	 * Polls for report results when stored in a file
+	 * @param params - Report parameters including reportId
+	 * @param maxAttempts - Maximum number of polling attempts (default: 10)
+	 * @param pollInterval - Polling interval in milliseconds (default: 2000)
+	 * @returns Report data with download link when ready
+	 */
+	static async pollReportResults(
+		params: ReportParams & { reportId: string },
+		maxAttempts: number = 10,
+		pollInterval: number = 2000
+	): Promise<Record<string, unknown>> {
+		console.log(`${MODULE_TAG} Polling report results`, { reportId: params.reportId, maxAttempts, pollInterval });
+
+		let attempts = 0;
+		while (attempts < maxAttempts) {
+			try {
+				const reportData = await MFAReportingServiceV8.getReportResults(params);
+				const status = (reportData as { status?: string })?.status;
+
+				if (status === 'COMPLETED') {
+					console.log(`${MODULE_TAG} Report completed successfully`);
+					return reportData;
+				}
+
+				if (status === 'FAILED') {
+					throw new Error('Report generation failed');
+				}
+
+				// Status is PENDING or IN_PROGRESS, continue polling
+				attempts++;
+				if (attempts < maxAttempts) {
+					console.log(`${MODULE_TAG} Report status: ${status}, polling again in ${pollInterval}ms (attempt ${attempts}/${maxAttempts})`);
+					await new Promise((resolve) => setTimeout(resolve, pollInterval));
+				}
+			} catch (error) {
+				// If it's a non-retryable error, throw immediately
+				if (error instanceof Error && error.message.includes('403 Forbidden')) {
+					throw error;
+				}
+				// Otherwise, retry
+				attempts++;
+				if (attempts >= maxAttempts) {
+					throw error;
+				}
+				await new Promise((resolve) => setTimeout(resolve, pollInterval));
+			}
+		}
+
+		throw new Error(`Report polling timed out after ${maxAttempts} attempts`);
 	}
 }
 

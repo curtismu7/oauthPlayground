@@ -336,17 +336,17 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// User Flow: Always use Worker Token, always set status to ACTIVATION_REQUIRED
-		// Admin Flow: Use Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
-		// Both flows use Worker Token - the difference is only in device status selection
-		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'worker') {
-			// User Flow selected - ensure Worker Token is used
-			console.log(`[📧 EMAIL-FLOW-V8] User Flow selected - ensuring Worker Token is used`);
+		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
+		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
+		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
+			// User Flow selected - ensure User Token is used
+			console.log(`[📧 EMAIL-FLOW-V8] User Flow selected - ensuring User Token is used`);
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
-				tokenType: 'worker',
-				userToken: '', // Clear any user token - User Flow uses Worker Token
+				tokenType: 'user',
+				// Preserve userToken if it exists (from OAuth login)
+				// Don't clear it - User Flow requires User Token
 			}));
 			setTimeout(() => {
 				isSyncingRef.current = false;
@@ -379,9 +379,20 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// Both Admin and User flows use Worker Token
-		// Only sync when switching to Admin flow (User flow doesn't change tokenType)
-		if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
+		// Admin Flow uses Worker Token, User Flow uses User Token
+		// Sync when switching between flows
+		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
+			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
+			// User Flow must use User Token, so we should switch to Admin Flow
+			console.log(`[📧 EMAIL-FLOW-V8] Token type is 'worker' but User Flow is selected - switching to Admin Flow`);
+			setRegistrationFlowType('admin');
+			return;
+		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
+			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
+			console.log(`[📧 EMAIL-FLOW-V8] Token type is 'user' but Admin Flow is selected - switching to User Flow`);
+			setRegistrationFlowType('user');
+			return;
+		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			console.log(`[📧 EMAIL-FLOW-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`);
 			isSyncingRef.current = true;
@@ -589,6 +600,24 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			}
 		};
 
+		// Reset deviceName to device type when entering registration step (Step 2)
+		React.useEffect(() => {
+			if (nav.currentStep === 2 && credentials) {
+				// Reset deviceName to device type if it's empty or matches old device type
+				const deviceTypeValue = credentials.deviceType || 'EMAIL';
+				const shouldReset = !credentials.deviceName || 
+					credentials.deviceName === credentials.deviceType ||
+					credentials.deviceName === 'EMAIL' ||
+					credentials.deviceName === 'SMS';
+				if (shouldReset) {
+					setCredentials({
+						...credentials,
+						deviceName: deviceTypeValue,
+					});
+				}
+			}
+		}, [nav.currentStep, credentials?.deviceType]);
+
 		// Handle device registration
 		const handleRegisterDevice = async () => {
 			if (!credentials.email?.trim()) {
@@ -669,7 +698,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				// C. If status is ACTIVATION_REQUIRED
 				// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
 				// → User must enter OTP to activate device (go directly to validation step)
-				// Note: Both Admin and User flows use Worker Token. Admin Flow can choose ACTIVE or ACTIVATION_REQUIRED. User Flow always uses ACTIVATION_REQUIRED.
+				// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 				const hasDeviceActivateUri = !!deviceActivateUri;
 				const deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 				
@@ -1708,7 +1737,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	return (
 		<div style={{ 
 			minHeight: '100vh',
-			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 20}px` : '0',
+			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
 			transition: 'padding-bottom 0.3s ease',
 			overflow: 'visible',
 		}}>
