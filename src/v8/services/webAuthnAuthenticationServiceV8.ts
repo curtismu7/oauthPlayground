@@ -16,7 +16,7 @@ import { workerTokenServiceV8 } from './workerTokenServiceV8';
 const MODULE_TAG = '[🔐 WEBAUTHN-AUTHN-SERVICE-V8]';
 
 export interface WebAuthnAuthenticationParams {
-	challengeId: string;
+	challengeId?: string; // Optional if publicKeyOptions is provided
 	rpId: string;
 	userName: string;
 	userVerification: 'required' | 'preferred' | 'discouraged';
@@ -24,7 +24,7 @@ export interface WebAuthnAuthenticationParams {
 		authenticatorAttachment?: 'platform' | 'cross-platform';
 		userVerification?: 'required' | 'preferred' | 'discouraged';
 	};
-	publicKeyOptions?: PublicKeyCredentialRequestOptions;
+	publicKeyOptions?: PublicKeyCredentialRequestOptions; // If provided, challengeId is not needed
 }
 
 export interface WebAuthnAuthenticationResult {
@@ -78,7 +78,7 @@ export class WebAuthnAuthenticationServiceV8 {
 			const currentHost = typeof window !== 'undefined' ? window.location.hostname : params.rpId;
 
 			// Get worker token
-			const workerToken = await workerTokenServiceV8.getWorkerToken();
+			const workerToken = await workerTokenServiceV8.getToken();
 			if (!workerToken) {
 				return {
 					success: false,
@@ -105,11 +105,71 @@ export class WebAuthnAuthenticationServiceV8 {
 					allowCredentialsCount: preparedOptions.allowCredentials?.length || 0,
 					authenticatorAttachment: preparedOptions.authenticatorAttachment,
 					preferPlatform,
+					challengeType: preparedOptions.challenge?.constructor?.name,
+					challengeLength: preparedOptions.challenge ? (preparedOptions.challenge instanceof ArrayBuffer ? preparedOptions.challenge.byteLength : 'not ArrayBuffer') : 'missing',
+					rpId: preparedOptions.rpId,
+					timeout: preparedOptions.timeout,
+					userVerification: preparedOptions.userVerification,
+					allowCredentialsKeys: preparedOptions.allowCredentials ? Object.keys(preparedOptions.allowCredentials) : [],
 				});
 
-				const credential = (await navigator.credentials.get({
-					publicKey: preparedOptions,
-				})) as PublicKeyCredential;
+				// CRITICAL: Validate allowCredentials IDs before WebAuthn call
+				// Only validate if allowCredentials exists (it may have been removed for platform authenticator)
+				if (preparedOptions.allowCredentials && Array.isArray(preparedOptions.allowCredentials) && preparedOptions.allowCredentials.length > 0) {
+					preparedOptions.allowCredentials.forEach((cred, index) => {
+						const id = cred.id;
+						const isValid = id instanceof ArrayBuffer || ArrayBuffer.isView(id);
+						if (!isValid) {
+							console.error(`${MODULE_TAG} ❌ CRITICAL: allowCredentials[${index}].id is NOT ArrayBuffer/ArrayBufferView!`, {
+								idType: typeof id,
+								idConstructor: id?.constructor?.name,
+								isArrayBuffer: id instanceof ArrayBuffer,
+								isArrayBufferView: ArrayBuffer.isView(id),
+								isUint8Array: id instanceof Uint8Array,
+								idValue: typeof id === 'string' ? id.substring(0, 50) : id,
+							});
+							throw new Error(`allowCredentials[${index}].id must be ArrayBuffer or ArrayBufferView, but got ${typeof id}`);
+						}
+					});
+					console.log(`${MODULE_TAG} ✅ All allowCredentials IDs validated - all are ArrayBuffer/ArrayBufferView`);
+				}
+
+				// CRITICAL: Log right before the WebAuthn call
+				console.log(`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() - Browser prompt should appear NOW!`, {
+					timestamp: new Date().toISOString(),
+					options: {
+						hasChallenge: !!preparedOptions.challenge,
+						challengeIsArrayBuffer: preparedOptions.challenge instanceof ArrayBuffer,
+						challengeIsUint8Array: preparedOptions.challenge instanceof Uint8Array,
+						rpId: preparedOptions.rpId,
+						timeout: preparedOptions.timeout,
+						hasAllowCredentials: !!preparedOptions.allowCredentials,
+						allowCredentialsCount: preparedOptions.allowCredentials?.length || 0,
+						allowCredentialsIdsValid: preparedOptions.allowCredentials?.every(cred => 
+							cred.id instanceof ArrayBuffer || ArrayBuffer.isView(cred.id)
+						) || false,
+					},
+				});
+
+				let credential: PublicKeyCredential | null = null;
+				try {
+					credential = (await navigator.credentials.get({
+						publicKey: preparedOptions,
+					})) as PublicKeyCredential;
+					
+					console.log(`${MODULE_TAG} ✅ navigator.credentials.get() completed`, {
+						hasCredential: !!credential,
+						credentialId: credential?.id?.substring(0, 20) + '...',
+					});
+				} catch (webauthnError) {
+					console.error(`${MODULE_TAG} ❌ navigator.credentials.get() threw an error:`, {
+						error: webauthnError,
+						errorName: webauthnError instanceof Error ? webauthnError.name : 'Unknown',
+						errorMessage: webauthnError instanceof Error ? webauthnError.message : String(webauthnError),
+						errorStack: webauthnError instanceof Error ? webauthnError.stack : undefined,
+					});
+					throw webauthnError;
+				}
 
 				if (!credential) {
 					return {
@@ -145,6 +205,14 @@ export class WebAuthnAuthenticationServiceV8 {
 			}
 
 			// Fallback: use challengeId directly if full options are not available
+			// At this point, publicKeyOptions was not provided, so challengeId must be present
+			if (!params.challengeId) {
+				return {
+					success: false,
+					error: 'Either challengeId or publicKeyOptions must be provided for WebAuthn authentication',
+				};
+			}
+			
 			let challenge: string = params.challengeId;
 
 			// Check for session cookies and prefer platform authenticators if present
@@ -199,10 +267,39 @@ export class WebAuthnAuthenticationServiceV8 {
 				rpId: getOptions.publicKey.rpId,
 			});
 
-			// Perform WebAuthn authentication
-			const credential = (await navigator.credentials.get(getOptions)) as PublicKeyCredential;
+			// CRITICAL: Log right before the WebAuthn call
+			console.log(`${MODULE_TAG} 🔐 ABOUT TO CALL navigator.credentials.get() (fallback path) - Browser prompt should appear NOW!`, {
+				timestamp: new Date().toISOString(),
+				options: {
+					hasChallenge: !!getOptions.publicKey?.challenge,
+					challengeIsArrayBuffer: getOptions.publicKey?.challenge instanceof ArrayBuffer,
+					rpId: getOptions.publicKey?.rpId,
+					timeout: getOptions.publicKey?.timeout,
+					hasAllowCredentials: !!getOptions.publicKey?.allowCredentials,
+					allowCredentialsCount: getOptions.publicKey?.allowCredentials?.length || 0,
+				},
+			});
+
+			let credential: PublicKeyCredential | null = null;
+			try {
+				credential = (await navigator.credentials.get(getOptions)) as PublicKeyCredential;
+				
+				console.log(`${MODULE_TAG} ✅ navigator.credentials.get() completed (fallback path)`, {
+					hasCredential: !!credential,
+					credentialId: credential?.id?.substring(0, 20) + '...',
+				});
+			} catch (webauthnError) {
+				console.error(`${MODULE_TAG} ❌ navigator.credentials.get() threw an error (fallback path):`, {
+					error: webauthnError,
+					errorName: webauthnError instanceof Error ? webauthnError.name : 'Unknown',
+					errorMessage: webauthnError instanceof Error ? webauthnError.message : String(webauthnError),
+					errorStack: webauthnError instanceof Error ? webauthnError.stack : undefined,
+				});
+				throw webauthnError;
+			}
 
 			if (!credential) {
+				console.warn(`${MODULE_TAG} ⚠️ navigator.credentials.get() returned null - user may have cancelled`);
 				return {
 					success: false,
 					error: 'Authentication was cancelled or failed',
@@ -316,14 +413,71 @@ export class WebAuthnAuthenticationServiceV8 {
 			// but we want to use platform authenticator if available
 			if (preferPlatform && platformAvailable && !hasPlatformTransport) {
 				console.log(`${MODULE_TAG} Platform authenticator preferred but allowCredentials restricts to cross-platform only. Removing allowCredentials restriction to allow platform authenticator.`);
-				// Don't set allowCredentials - this allows any authenticator including platform
+				// Explicitly remove allowCredentials - this allows any authenticator including platform
+				const hadAllowCredentials = !!clonedOptions.allowCredentials;
+				const allowCredentialsCount = clonedOptions.allowCredentials?.length || 0;
+				// Set to undefined explicitly (more reliable than delete for TypeScript)
+				clonedOptions.allowCredentials = undefined;
 				clonedOptions.authenticatorAttachment = 'platform';
+				console.log(`${MODULE_TAG} ✅ Removed allowCredentials restriction:`, {
+					hadAllowCredentials,
+					allowCredentialsCount,
+					hasAllowCredentialsAfter: !!clonedOptions.allowCredentials,
+					allowCredentialsValue: clonedOptions.allowCredentials,
+					authenticatorAttachment: clonedOptions.authenticatorAttachment,
+				});
 			} else {
 				// Process allowCredentials normally
-				clonedOptions.allowCredentials = options.allowCredentials.map((cred) => ({
-					...cred,
-					id: WebAuthnAuthenticationServiceV8.toUint8Array(cred.id),
-				}));
+				// Convert credential IDs from base64/base64url strings to ArrayBuffer
+				clonedOptions.allowCredentials = options.allowCredentials.map((cred, index) => {
+					const originalId = cred.id;
+					const idType = typeof originalId;
+					const isArrayBuffer = originalId instanceof ArrayBuffer;
+					const isArrayBufferView = ArrayBuffer.isView(originalId);
+					const isString = typeof originalId === 'string';
+					const isArray = Array.isArray(originalId);
+					
+					console.log(`${MODULE_TAG} Processing allowCredentials[${index}]:`, {
+						idType,
+						isArrayBuffer,
+						isArrayBufferView,
+						isString,
+						isArray,
+						idPreview: isString ? (originalId as string).substring(0, 20) + '...' : 'not a string',
+					});
+					
+					let convertedId: Uint8Array;
+					try {
+						convertedId = WebAuthnAuthenticationServiceV8.toUint8Array(originalId);
+						console.log(`${MODULE_TAG} ✅ Successfully converted credential ID[${index}] to Uint8Array:`, {
+							originalType: idType,
+							convertedLength: convertedId.byteLength,
+							convertedIsUint8Array: convertedId instanceof Uint8Array,
+						});
+					} catch (conversionError) {
+						console.error(`${MODULE_TAG} ❌ Failed to convert credential ID[${index}]:`, {
+							error: conversionError,
+							originalIdType: idType,
+							originalIdValue: isString ? (originalId as string).substring(0, 50) : originalId,
+						});
+						throw new Error(`Failed to convert credential ID at index ${index}: ${conversionError instanceof Error ? conversionError.message : String(conversionError)}`);
+					}
+					
+					// Create a new PublicKeyCredentialDescriptor with the converted ID
+					// This ensures TypeScript and runtime both see it as the correct type
+					const descriptor: PublicKeyCredentialDescriptor = {
+						type: cred.type || 'public-key',
+						id: convertedId, // This is now a Uint8Array (ArrayBufferView)
+						transports: cred.transports,
+					};
+					
+					// Validate the descriptor before returning
+					if (!(descriptor.id instanceof Uint8Array) && !ArrayBuffer.isView(descriptor.id)) {
+						throw new Error(`Converted ID is not a valid ArrayBufferView: ${typeof descriptor.id}`);
+					}
+					
+					return descriptor;
+				});
 				
 				// If platform is preferred and available, and allowCredentials includes platform transports,
 				// set authenticatorAttachment to platform
@@ -370,21 +524,126 @@ export class WebAuthnAuthenticationServiceV8 {
 		return providedRpId;
 	}
 
-	private static toUint8Array(bufferSource: BufferSource): Uint8Array {
-		if (bufferSource instanceof ArrayBuffer) {
-			return new Uint8Array(bufferSource);
+	private static toUint8Array(bufferSource: BufferSource | string | number[] | unknown): Uint8Array {
+		// Handle string (base64 or base64url) - convert to ArrayBuffer first
+		if (typeof bufferSource === 'string') {
+			try {
+				// Handle base64url (WebAuthn standard): replace - with +, _ with /, add padding
+				const base64Standard = bufferSource.replace(/-/g, '+').replace(/_/g, '/');
+				const padded = base64Standard + '='.repeat((4 - (base64Standard.length % 4)) % 4);
+				const binary = atob(padded);
+				const bytes = new Uint8Array(binary.length);
+				for (let i = 0; i < binary.length; i++) {
+					bytes[i] = binary.charCodeAt(i);
+				}
+				console.log(`${MODULE_TAG} Converted base64/base64url string to Uint8Array:`, {
+					originalLength: bufferSource.length,
+					convertedLength: bytes.byteLength,
+					isUint8Array: bytes instanceof Uint8Array,
+					isArrayBufferView: ArrayBuffer.isView(bytes),
+				});
+				return bytes;
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to convert base64 string to Uint8Array:`, error);
+				throw new Error(`Failed to convert base64 string to ArrayBuffer: ${error instanceof Error ? error.message : String(error)}`);
+			}
 		}
 
+		// Handle number array (from JSON)
+		if (Array.isArray(bufferSource)) {
+			const bytes = new Uint8Array(bufferSource);
+			console.log(`${MODULE_TAG} Converted number array to Uint8Array:`, {
+				arrayLength: bufferSource.length,
+				convertedLength: bytes.byteLength,
+				isUint8Array: bytes instanceof Uint8Array,
+			});
+			return bytes;
+		}
+
+		// Handle ArrayBuffer
+		if (bufferSource instanceof ArrayBuffer) {
+			const bytes = new Uint8Array(bufferSource);
+			console.log(`${MODULE_TAG} Converted ArrayBuffer to Uint8Array:`, {
+				bufferLength: bufferSource.byteLength,
+				convertedLength: bytes.byteLength,
+			});
+			return bytes;
+		}
+
+		// Handle ArrayBufferView (TypedArray, DataView, etc.)
 		if (ArrayBuffer.isView(bufferSource)) {
-			return new Uint8Array(
+			const bytes = new Uint8Array(
 				bufferSource.buffer,
 				bufferSource.byteOffset,
 				bufferSource.byteLength
 			);
+			console.log(`${MODULE_TAG} Converted ArrayBufferView to Uint8Array:`, {
+				viewType: bufferSource.constructor.name,
+				convertedLength: bytes.byteLength,
+			});
+			return bytes;
 		}
 
-		// Fallback - assume it's already Uint8Array-compatible
-		return new Uint8Array(bufferSource as ArrayBufferLike);
+		// Handle plain object - might be a TypedArray that was JSON-serialized
+		// When TypedArrays are JSON.stringify'd, they become objects with numeric keys
+		if (typeof bufferSource === 'object' && bufferSource !== null && !Array.isArray(bufferSource)) {
+			// Check if it looks like a serialized TypedArray (has numeric keys)
+			const keys = Object.keys(bufferSource);
+			const numericKeys = keys.filter(k => /^\d+$/.test(k));
+			
+			if (numericKeys.length > 0 && numericKeys.length === keys.length) {
+				// It's likely a serialized TypedArray - convert to number array first
+				const values: number[] = [];
+				for (let i = 0; i < numericKeys.length; i++) {
+					const value = (bufferSource as Record<string, unknown>)[String(i)];
+					if (typeof value === 'number') {
+						values.push(value);
+					} else {
+						throw new Error(`Object at index ${i} is not a number: ${typeof value}`);
+					}
+				}
+				const bytes = new Uint8Array(values);
+				console.log(`${MODULE_TAG} Converted serialized TypedArray object to Uint8Array:`, {
+					objectKeys: keys.length,
+					convertedLength: bytes.byteLength,
+					isUint8Array: bytes instanceof Uint8Array,
+				});
+				return bytes;
+			}
+			
+			// Check if it has a 'data' property that might contain the array
+			if ('data' in bufferSource && Array.isArray((bufferSource as { data: unknown }).data)) {
+				const data = (bufferSource as { data: number[] }).data;
+				const bytes = new Uint8Array(data);
+				console.log(`${MODULE_TAG} Converted object.data array to Uint8Array:`, {
+					dataLength: data.length,
+					convertedLength: bytes.byteLength,
+				});
+				return bytes;
+			}
+			
+			// Check if it has a 'buffer' property that might be an ArrayBuffer
+			if ('buffer' in bufferSource && bufferSource.buffer instanceof ArrayBuffer) {
+				const bytes = new Uint8Array(bufferSource.buffer);
+				console.log(`${MODULE_TAG} Converted object.buffer to Uint8Array:`, {
+					bufferLength: bufferSource.buffer.byteLength,
+					convertedLength: bytes.byteLength,
+				});
+				return bytes;
+			}
+		}
+
+		// If we get here, we don't know how to convert it
+		console.error(`${MODULE_TAG} Cannot convert to Uint8Array:`, {
+			type: typeof bufferSource,
+			constructor: bufferSource?.constructor?.name,
+			isNull: bufferSource === null,
+			isArray: Array.isArray(bufferSource),
+			isObject: typeof bufferSource === 'object',
+			keys: typeof bufferSource === 'object' && bufferSource !== null ? Object.keys(bufferSource) : [],
+			value: bufferSource,
+		});
+		throw new Error(`Cannot convert to Uint8Array: unsupported type ${typeof bufferSource}. Object keys: ${typeof bufferSource === 'object' && bufferSource !== null ? Object.keys(bufferSource).join(', ') : 'N/A'}`);
 	}
 }
 

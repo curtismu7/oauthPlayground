@@ -78,9 +78,26 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [selectedReport, setSelectedReport] = useState<ReportType>('user-auth');
 	const [reports, setReports] = useState<Array<Record<string, unknown>>>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	// Helper function to format date for datetime-local input
+	const formatDateForInput = (date: Date): string => {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	};
+
+	// Helper function to get today's date at end of day (23:59)
+	const getTodayEndOfDay = (): string => {
+		const today = new Date();
+		today.setHours(23, 59, 0, 0);
+		return formatDateForInput(today);
+	};
+
 	const [dateRange, setDateRange] = useState({
 		startDate: '',
-		endDate: '',
+		endDate: getTodayEndOfDay(), // Default to today
 	});
 	const [limit, setLimit] = useState(50);
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
@@ -163,6 +180,30 @@ export const MFAReportingFlowV8: React.FC = () => {
 		setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 		toastV8.success('Worker token generated and saved!');
 	};
+
+	const handleTimePeriodClick = (days: number) => {
+		const endDate = new Date();
+		endDate.setHours(23, 59, 0, 0); // End of today
+		
+		const startDate = new Date(endDate);
+		startDate.setDate(startDate.getDate() - days);
+		startDate.setHours(0, 0, 0, 0); // Start of that day
+
+		setDateRange({
+			startDate: formatDateForInput(startDate),
+			endDate: formatDateForInput(endDate),
+		});
+	};
+
+	// Update end date to today whenever it changes or component mounts
+	useEffect(() => {
+		if (!dateRange.endDate) {
+			setDateRange((prev) => ({
+				...prev,
+				endDate: getTodayEndOfDay(),
+			}));
+		}
+	}, []);
 
 	const loadReports = async () => {
 		if (!credentials.environmentId?.trim()) {
@@ -355,6 +396,96 @@ export const MFAReportingFlowV8: React.FC = () => {
 					{selectedReport !== 'fido2' && (
 						<div className="date-range-section">
 							<h3>Date Range (Optional)</h3>
+							
+							{/* Predefined Time Period Buttons */}
+							<div style={{ marginBottom: '16px' }}>
+								<div style={{ 
+									display: 'flex', 
+									gap: '8px', 
+									flexWrap: 'wrap',
+									marginBottom: '12px'
+								}}>
+									<button
+										type="button"
+										onClick={() => handleTimePeriodClick(1)}
+										style={{
+											padding: '8px 16px',
+											background: '#8b5cf6',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '13px',
+											fontWeight: '500',
+											cursor: 'pointer',
+											transition: 'background 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											if (e.currentTarget.style.background !== '#7c3aed') {
+												e.currentTarget.style.background = '#7c3aed';
+											}
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = '#8b5cf6';
+										}}
+									>
+										1 Day
+									</button>
+									<button
+										type="button"
+										onClick={() => handleTimePeriodClick(15)}
+										style={{
+											padding: '8px 16px',
+											background: '#8b5cf6',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '13px',
+											fontWeight: '500',
+											cursor: 'pointer',
+											transition: 'background 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											if (e.currentTarget.style.background !== '#7c3aed') {
+												e.currentTarget.style.background = '#7c3aed';
+											}
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = '#8b5cf6';
+										}}
+									>
+										15 Days
+									</button>
+									<button
+										type="button"
+										onClick={() => handleTimePeriodClick(30)}
+										style={{
+											padding: '8px 16px',
+											background: '#8b5cf6',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '13px',
+											fontWeight: '500',
+											cursor: 'pointer',
+											transition: 'background 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											if (e.currentTarget.style.background !== '#7c3aed') {
+												e.currentTarget.style.background = '#7c3aed';
+											}
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = '#8b5cf6';
+										}}
+									>
+										30 Days
+									</button>
+								</div>
+								<small style={{ color: '#6b7280', fontSize: '12px' }}>
+									Click a button to quickly set the date range. End date defaults to today.
+								</small>
+							</div>
+
 							<div className="credentials-grid">
 								<div className="form-group">
 									<label htmlFor="start-date">Start Date</label>
@@ -370,9 +501,21 @@ export const MFAReportingFlowV8: React.FC = () => {
 									<input
 										id="end-date"
 										type="datetime-local"
-										value={dateRange.endDate}
-										onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+										value={dateRange.endDate || getTodayEndOfDay()}
+										onChange={(e) => {
+											const newEndDate = e.target.value || getTodayEndOfDay();
+											setDateRange({ ...dateRange, endDate: newEndDate });
+										}}
+										onBlur={(e) => {
+											// If end date is cleared, reset to today
+											if (!e.target.value) {
+												setDateRange({ ...dateRange, endDate: getTodayEndOfDay() });
+											}
+										}}
 									/>
+									<small style={{ color: '#6b7280', fontSize: '11px', marginTop: '4px' }}>
+										Defaults to today (end of day)
+									</small>
 								</div>
 							</div>
 						</div>

@@ -60,20 +60,28 @@ const decodeJWT = (token: string): Record<string, unknown> | null => {
 };
 
 /**
- * Fetch user info from PingOne userinfo endpoint
+ * Fetch user info from PingOne userinfo endpoint via backend proxy
  */
 const fetchUserInfo = async (environmentId: string, accessToken: string): Promise<UserInfo | null> => {
 	try {
+		// Use backend proxy endpoint to avoid CORS and ensure all calls go through proxy
 		const userInfoEndpoint = `https://auth.pingone.com/${environmentId}/as/userinfo`;
-		const response = await fetch(userInfoEndpoint, {
-			method: 'GET',
+		const proxyEndpoint = '/api/pingone/userinfo';
+		
+		const response = await fetch(proxyEndpoint, {
+			method: 'POST',
 			headers: {
-				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
 			},
+			body: JSON.stringify({
+				userInfoEndpoint,
+				accessToken,
+			}),
 		});
 
 		if (!response.ok) {
-			console.warn('UserInfo request failed:', response.status);
+			const errorData = await response.json().catch(() => ({}));
+			console.warn('UserInfo request failed:', response.status, errorData.message || errorData.error);
 			return null;
 		}
 
