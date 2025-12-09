@@ -7,7 +7,8 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiRefreshCw, FiDownload, FiUpload, FiInfo } from 'react-icons/fi';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { FiCheck, FiRefreshCw, FiDownload, FiUpload, FiInfo, FiArrowLeft } from 'react-icons/fi';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
@@ -32,6 +33,8 @@ const REGION_DOMAINS: Record<'us' | 'eu' | 'ap' | 'ca', string> = {
 };
 
 export const MFAConfigurationPageV8: React.FC = () => {
+	const navigate = useNavigate();
+	const location = useLocation();
 	const [config, setConfig] = useState<MFAConfiguration>(() => MFAConfigurationServiceV8.loadConfiguration());
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -44,6 +47,21 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [isSavingPingOneSettings, setIsSavingPingOneSettings] = useState(false);
 	const [hasPingOneSettingsChanges, setHasPingOneSettingsChanges] = useState(false);
 	const [environmentId, setEnvironmentId] = useState<string>('');
+	
+	// Get return path from location state
+	const locationState = location.state as { returnPath?: string; returnState?: unknown } | null;
+	const returnPath = locationState?.returnPath;
+	
+	// Determine flow type from return path for better button text
+	const getFlowLabel = (path: string | undefined): string => {
+		if (!path) return 'Device Registration';
+		if (path.includes('/sms/')) return 'SMS Device Registration';
+		if (path.includes('/email/')) return 'Email Device Registration';
+		if (path.includes('/whatsapp/')) return 'WhatsApp Device Registration';
+		if (path.includes('/totp/')) return 'TOTP Device Registration';
+		if (path.includes('/fido2/')) return 'FIDO2 Device Registration';
+		return 'Device Registration';
+	};
 
 	// Listen for configuration updates
 	useEffect(() => {
@@ -312,6 +330,19 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		setHasChanges(true);
 	};
 
+	const handleBack = () => {
+		if (returnPath) {
+			// Navigate back to the page we came from with its original state
+			navigate(returnPath, {
+				state: locationState?.returnState,
+				replace: false,
+			});
+		} else {
+			// Fallback to browser back if no return path
+			navigate(-1);
+		}
+	};
+
 	return (
 		<div style={{ 
 			padding: '24px', 
@@ -321,6 +352,40 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			transition: 'padding-bottom 0.3s ease',
 		}}>
 			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
+			
+			{/* Back Button */}
+			{returnPath && (
+				<button
+					type="button"
+					onClick={handleBack}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '10px 16px',
+						marginBottom: '16px',
+						background: 'white',
+						color: '#374151',
+						border: '1px solid #d1d5db',
+						borderRadius: '8px',
+						fontSize: '14px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						transition: 'all 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = '#f9fafb';
+						e.currentTarget.style.borderColor = '#9ca3af';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = 'white';
+						e.currentTarget.style.borderColor = '#d1d5db';
+					}}
+				>
+					<FiArrowLeft size={16} />
+					<span>Back to {getFlowLabel(returnPath)}</span>
+				</button>
+			)}
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 

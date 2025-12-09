@@ -40410,3 +40410,2981 @@ END OF REQUEST/RESPONSE SUMMARY
 [2025-12-09T11:41:53.653Z] [12/09/2025, 05:41:53] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
 [2025-12-09T11:41:53.654Z] [12/09/2025, 05:41:53] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
 [2025-12-09T11:41:53.654Z] [12/09/2025, 05:41:53] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T11:45:17.756Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2025-12-09T11:45:17.773Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T11:45:17.773Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2025-12-09T11:45:17.804Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🚀 OAuth Playground Backend Server running on port 3001 (HTTP)
+[2025-12-09T11:45:17.773Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2025-12-09T11:45:17.804Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 📡 Health check: http://localhost:3001/api/health
+[2025-12-09T11:45:17.778Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2025-12-09T11:45:17.804Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔐 Token exchange: http://localhost:3001/api/token-exchange
+[2025-12-09T11:45:17.804Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 👤 UserInfo: http://localhost:3001/api/userinfo
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🌐 HTTP Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] ✅ Token validation: http://localhost:3001/api/validate-token
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔌 Device UserInfo: http://localhost:3001/api/device-userinfo
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3002 (HTTPS)
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 📡 Health check: https://localhost:3002/api/health
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3002/api/token-exchange
+[2025-12-09T11:45:17.806Z] [12/09/2025, 05:45:17] [ℹ️ LOG] ✅ Token validation: https://localhost:3002/api/validate-token
+[2025-12-09T11:45:17.806Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3002
+}
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 👤 UserInfo: https://localhost:3002/api/userinfo
+[2025-12-09T11:45:17.805Z] [12/09/2025, 05:45:17] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3002/api/device-userinfo
+[2025-12-09T11:45:29.723Z] [12/09/2025, 05:45:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765280729723-axiyse] Request received {
+  "timestamp": "2025-12-09T11:45:29.723Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T11:45:29.733Z] [12/09/2025, 05:45:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765280729723-axiyse] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T11:45:30.097Z] [12/09/2025, 05:45:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765280729723-axiyse] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T11:45:30.095Z] [12/09/2025, 05:45:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765280729723-axiyse] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T11:57:50.658Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2025-12-09T11:57:50.729Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2025-12-09T11:57:50.730Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2025-12-09T11:57:50.730Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T11:57:50.744Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2025-12-09T11:57:50.822Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🚀 OAuth Playground Backend Server running on port 3001 (HTTP)
+[2025-12-09T11:57:50.824Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 📡 Health check: http://localhost:3001/api/health
+[2025-12-09T11:57:50.825Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔐 Token exchange: http://localhost:3001/api/token-exchange
+[2025-12-09T11:57:50.825Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 👤 UserInfo: http://localhost:3001/api/userinfo
+[2025-12-09T11:57:50.826Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔌 Device UserInfo: http://localhost:3001/api/device-userinfo
+[2025-12-09T11:57:50.827Z] [12/09/2025, 05:57:50] [ℹ️ LOG] ✅ Token validation: http://localhost:3001/api/validate-token
+[2025-12-09T11:57:50.828Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🌐 HTTP Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2025-12-09T11:57:50.828Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3002 (HTTPS)
+[2025-12-09T11:57:50.828Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 📡 Health check: https://localhost:3002/api/health
+[2025-12-09T11:57:50.828Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3002/api/token-exchange
+[2025-12-09T11:57:50.828Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 👤 UserInfo: https://localhost:3002/api/userinfo
+[2025-12-09T11:57:50.829Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3002/api/device-userinfo
+[2025-12-09T11:57:50.831Z] [12/09/2025, 05:57:50] [ℹ️ LOG] ✅ Token validation: https://localhost:3002/api/validate-token
+[2025-12-09T11:57:50.831Z] [12/09/2025, 05:57:50] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3002
+}
+[2025-12-09T11:58:07.508Z] [12/09/2025, 05:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281487507-shl6as] Request received {
+  "timestamp": "2025-12-09T11:58:07.507Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T11:58:07.510Z] [12/09/2025, 05:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281487507-shl6as] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T11:58:07.825Z] [12/09/2025, 05:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281487507-shl6as] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T11:58:07.824Z] [12/09/2025, 05:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281487507-shl6as] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T11:58:31.227Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2025-12-09T11:58:31.240Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2025-12-09T11:58:31.241Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T11:58:31.241Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2025-12-09T11:58:31.246Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2025-12-09T11:58:31.277Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🚀 OAuth Playground Backend Server running on port 3001 (HTTP)
+[2025-12-09T11:58:31.277Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 📡 Health check: http://localhost:3001/api/health
+[2025-12-09T11:58:31.278Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔐 Token exchange: http://localhost:3001/api/token-exchange
+[2025-12-09T11:58:31.278Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 👤 UserInfo: http://localhost:3001/api/userinfo
+[2025-12-09T11:58:31.278Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔌 Device UserInfo: http://localhost:3001/api/device-userinfo
+[2025-12-09T11:58:31.278Z] [12/09/2025, 05:58:31] [ℹ️ LOG] ✅ Token validation: http://localhost:3001/api/validate-token
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🌐 HTTP Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3002 (HTTPS)
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 📡 Health check: https://localhost:3002/api/health
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3002/api/token-exchange
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3002
+}
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3002/api/device-userinfo
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] ✅ Token validation: https://localhost:3002/api/validate-token
+[2025-12-09T11:58:31.279Z] [12/09/2025, 05:58:31] [ℹ️ LOG] 👤 UserInfo: https://localhost:3002/api/userinfo
+[2025-12-09T11:58:46.920Z] [12/09/2025, 05:58:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281526920-uzx5zh] Request received {
+  "timestamp": "2025-12-09T11:58:46.920Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T11:58:46.921Z] [12/09/2025, 05:58:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281526920-uzx5zh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T11:58:47.421Z] [12/09/2025, 05:58:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281526920-uzx5zh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T11:58:47.419Z] [12/09/2025, 05:58:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281526920-uzx5zh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:04:07.131Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847130-985dxl] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:04:07.131Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847130-985dxl] Request received {
+  "timestamp": "2025-12-09T12:04:07.130Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:04:07.134Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847134-lb3jx] Request received {
+  "timestamp": "2025-12-09T12:04:07.134Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:04:07.134Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847134-lb3jx] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:04:07.144Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847144-cj3mer] Request received {
+  "timestamp": "2025-12-09T12:04:07.144Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:04:07.145Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847144-cj3mer] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:04:07.367Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847134-lb3jx] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:04:07.367Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847134-lb3jx] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:04:07.373Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847130-985dxl] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:04:07.373Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847130-985dxl] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:04:07.376Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847144-cj3mer] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:04:07.376Z] [12/09/2025, 06:04:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765281847144-cj3mer] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:08:34.534Z] [12/09/2025, 06:08:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282114534-4b1ev6] Request received {
+  "timestamp": "2025-12-09T12:08:34.534Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:08:34.535Z] [12/09/2025, 06:08:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282114534-4b1ev6] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:08:34.813Z] [12/09/2025, 06:08:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282114534-4b1ev6] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:08:34.814Z] [12/09/2025, 06:08:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282114534-4b1ev6] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:08:37.462Z] [12/09/2025, 06:08:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282117461-ba4ze] Request received {
+  "timestamp": "2025-12-09T12:08:37.461Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:08:37.462Z] [12/09/2025, 06:08:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282117461-ba4ze] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:08:37.637Z] [12/09/2025, 06:08:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282117461-ba4ze] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:08:37.638Z] [12/09/2025, 06:08:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282117461-ba4ze] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:08:41.965Z] [12/09/2025, 06:08:41] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282121965-j5tcwo] Request received {
+  "timestamp": "2025-12-09T12:08:41.965Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:08:41.966Z] [12/09/2025, 06:08:41] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282121965-j5tcwo] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:08:42.177Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282121965-j5tcwo] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:08:42.178Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282121965-j5tcwo] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:08:42.648Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:08:42.648Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9262
+[2025-12-09T12:08:42.655Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:08:42.656Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:08:42.680Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:08:42.682Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:08:42.925Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:08:42.925Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:08:42.926Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 10010
+[2025-12-09T12:08:42.926Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:08:42.926Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 2
+}
+[2025-12-09T12:08:42.929Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:08:42.929Z] [12/09/2025, 06:08:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:14:28.424Z] [12/09/2025, 06:14:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282468424-2b4q9j] Request received {
+  "timestamp": "2025-12-09T12:14:28.424Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:28.426Z] [12/09/2025, 06:14:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282468424-2b4q9j] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:28.618Z] [12/09/2025, 06:14:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282468424-2b4q9j] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:28.619Z] [12/09/2025, 06:14:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282468424-2b4q9j] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:14:29.016Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9262
+[2025-12-09T12:14:29.012Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:14:29.020Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:14:29.020Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:14:29.053Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:14:29.054Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:14:29.194Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:14:29.196Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:14:29.197Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 10010
+[2025-12-09T12:14:29.197Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:14:29.198Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 2
+}
+[2025-12-09T12:14:29.202Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:14:29.202Z] [12/09/2025, 06:14:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:14:30.658Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470658-b0j11d] Request received {
+  "timestamp": "2025-12-09T12:14:30.658Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:30.658Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470658-b0j11d] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:30.661Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470660-3xxyab] Request received {
+  "timestamp": "2025-12-09T12:14:30.660Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:30.661Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470660-3xxyab] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:30.667Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470667-u9r9] Request received {
+  "timestamp": "2025-12-09T12:14:30.667Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:30.668Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470667-u9r9] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:30.760Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470658-b0j11d] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:30.760Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470658-b0j11d] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:14:30.773Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470660-3xxyab] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:30.774Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470660-3xxyab] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:14:30.787Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470667-u9r9] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:30.788Z] [12/09/2025, 06:14:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282470667-u9r9] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:14:32.239Z] [12/09/2025, 06:14:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282472239-alozvj] Request received {
+  "timestamp": "2025-12-09T12:14:32.239Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:32.240Z] [12/09/2025, 06:14:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282472239-alozvj] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:32.382Z] [12/09/2025, 06:14:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282472239-alozvj] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:32.383Z] [12/09/2025, 06:14:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282472239-alozvj] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:14:34.611Z] [12/09/2025, 06:14:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282474611-8bi3n] Request received {
+  "timestamp": "2025-12-09T12:14:34.611Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:14:34.612Z] [12/09/2025, 06:14:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282474611-8bi3n] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:14:34.706Z] [12/09/2025, 06:14:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282474611-8bi3n] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:14:34.707Z] [12/09/2025, 06:14:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282474611-8bi3n] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:16:21.509Z] [12/09/2025, 06:16:21] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282581509-q6ltcq] Request received {
+  "timestamp": "2025-12-09T12:16:21.509Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:16:21.510Z] [12/09/2025, 06:16:21] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282581509-q6ltcq] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:16:21.817Z] [12/09/2025, 06:16:21] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282581509-q6ltcq] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:16:21.820Z] [12/09/2025, 06:16:21] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282581509-q6ltcq] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:17:39.255Z] [12/09/2025, 06:17:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282659255-kvmkjp] Request received {
+  "timestamp": "2025-12-09T12:17:39.255Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:17:39.255Z] [12/09/2025, 06:17:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282659255-kvmkjp] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:17:39.389Z] [12/09/2025, 06:17:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282659255-kvmkjp] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:17:39.389Z] [12/09/2025, 06:17:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282659255-kvmkjp] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:18:09.400Z] [12/09/2025, 06:18:09] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282689400-v0f1mq] Request received {
+  "timestamp": "2025-12-09T12:18:09.400Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:18:09.400Z] [12/09/2025, 06:18:09] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282689400-v0f1mq] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:18:09.497Z] [12/09/2025, 06:18:09] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282689400-v0f1mq] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:18:09.497Z] [12/09/2025, 06:18:09] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282689400-v0f1mq] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:18:33.308Z] [12/09/2025, 06:18:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282713308-rtcnqv] Request received {
+  "timestamp": "2025-12-09T12:18:33.308Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:18:33.308Z] [12/09/2025, 06:18:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282713308-rtcnqv] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:18:33.523Z] [12/09/2025, 06:18:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282713308-rtcnqv] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:18:33.524Z] [12/09/2025, 06:18:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282713308-rtcnqv] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:17.210Z] [12/09/2025, 06:19:17] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282757210-a38tuq] Request received {
+  "timestamp": "2025-12-09T12:19:17.210Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:17.211Z] [12/09/2025, 06:19:17] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282757210-a38tuq] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:17.354Z] [12/09/2025, 06:19:17] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282757210-a38tuq] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:17.355Z] [12/09/2025, 06:19:17] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282757210-a38tuq] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:23.711Z] [12/09/2025, 06:19:23] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282763711-2mlpb7] Request received {
+  "timestamp": "2025-12-09T12:19:23.711Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:23.711Z] [12/09/2025, 06:19:23] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282763711-2mlpb7] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:23.819Z] [12/09/2025, 06:19:23] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282763711-2mlpb7] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:23.820Z] [12/09/2025, 06:19:23] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282763711-2mlpb7] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:24.336Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:19:24.336Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9412
+[2025-12-09T12:19:24.357Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:19:24.357Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:19:24.408Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:19:24.408Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:19:24.542Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:19:24.542Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:19:24.542Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 10010
+[2025-12-09T12:19:24.542Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 2
+}
+[2025-12-09T12:19:24.542Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:19:24.543Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:19:24.543Z] [12/09/2025, 06:19:24] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:19:54.564Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794564-0wlt4c] Request received {
+  "timestamp": "2025-12-09T12:19:54.564Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:54.564Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794564-0wlt4c] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:54.567Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794567-l0cq1j] Request received {
+  "timestamp": "2025-12-09T12:19:54.567Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:54.567Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794567-l0cq1j] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:54.588Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794587-uhsys] Request received {
+  "timestamp": "2025-12-09T12:19:54.587Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:54.589Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794587-uhsys] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:54.725Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794567-l0cq1j] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:54.727Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794567-l0cq1j] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:54.778Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794564-0wlt4c] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:54.779Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794564-0wlt4c] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:54.826Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794587-uhsys] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:54.827Z] [12/09/2025, 06:19:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282794587-uhsys] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:19:56.631Z] [12/09/2025, 06:19:56] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282796631-bdinj] Request received {
+  "timestamp": "2025-12-09T12:19:56.631Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:19:56.631Z] [12/09/2025, 06:19:56] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282796631-bdinj] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:19:56.709Z] [12/09/2025, 06:19:56] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282796631-bdinj] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:19:56.709Z] [12/09/2025, 06:19:56] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282796631-bdinj] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:20:00.199Z] [12/09/2025, 06:20:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282800199-l36rbj] Request received {
+  "timestamp": "2025-12-09T12:20:00.199Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:20:00.200Z] [12/09/2025, 06:20:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282800199-l36rbj] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:20:00.274Z] [12/09/2025, 06:20:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282800199-l36rbj] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:20:00.273Z] [12/09/2025, 06:20:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765282800199-l36rbj] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:20:05.094Z] [12/09/2025, 06:20:05] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:20:05.096Z] [12/09/2025, 06:20:05] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:20:05.206Z] [12/09/2025, 06:20:05] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:20:05.214Z] [12/09/2025, 06:20:05] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:21:22.348Z] [12/09/2025, 06:21:22] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:21:22.349Z] [12/09/2025, 06:21:22] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:21:22.475Z] [12/09/2025, 06:21:22] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:21:22.486Z] [12/09/2025, 06:21:22] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:24:38.303Z] [12/09/2025, 06:24:38] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:24:38.526Z] [12/09/2025, 06:24:38] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:24:43.871Z] [12/09/2025, 06:24:43] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:24:43.875Z] [12/09/2025, 06:24:43] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:24:44.064Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:24:44.086Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:24:44.724Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283084724-k0ejvo] Request received {
+  "timestamp": "2025-12-09T12:24:44.724Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:24:44.724Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283084724-k0ejvo] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:24:44.845Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283084724-k0ejvo] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:24:44.845Z] [12/09/2025, 06:24:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283084724-k0ejvo] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:24:45.228Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:24:45.228Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:24:45.229Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:24:45.229Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:24:45.247Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:24:45.247Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:24:45.456Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:24:45.456Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 10010
+[2025-12-09T12:24:45.456Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:24:45.457Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:24:45.457Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 2
+}
+[2025-12-09T12:24:45.458Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:24:45.458Z] [12/09/2025, 06:24:45] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:27:39.251Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283259214-79c4q] Request received {
+  "timestamp": "2025-12-09T12:27:39.214Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:39.356Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283259214-79c4q] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:39.687Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283259214-79c4q] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:39.689Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283259214-79c4q] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:39.726Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:27:39.726Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:27:39.741Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:27:39.763Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:27:39.806Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:27:39.806Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:27:39.952Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:27:39.960Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 10010
+[2025-12-09T12:27:39.957Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:27:39.962Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:27:39.966Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 2
+}
+[2025-12-09T12:27:39.988Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:27:39.993Z] [12/09/2025, 06:27:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:27:44.217Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264217-qr1mzh] Request received {
+  "timestamp": "2025-12-09T12:27:44.217Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:44.217Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264217-qr1mzh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:44.245Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264244-wh0pb4] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:44.245Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264244-wh0pb4] Request received {
+  "timestamp": "2025-12-09T12:27:44.244Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:44.280Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264280-4f556j] Request received {
+  "timestamp": "2025-12-09T12:27:44.280Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:44.282Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264280-4f556j] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:44.372Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264217-qr1mzh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:44.373Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264217-qr1mzh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:44.403Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264244-wh0pb4] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:44.404Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264244-wh0pb4] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:44.425Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264280-4f556j] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:44.426Z] [12/09/2025, 06:27:44] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283264280-4f556j] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:47.649Z] [12/09/2025, 06:27:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283267649-n8hy3c] Request received {
+  "timestamp": "2025-12-09T12:27:47.649Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:47.650Z] [12/09/2025, 06:27:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283267649-n8hy3c] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:47.730Z] [12/09/2025, 06:27:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283267649-n8hy3c] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:47.731Z] [12/09/2025, 06:27:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283267649-n8hy3c] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:49.589Z] [12/09/2025, 06:27:49] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:27:49.591Z] [12/09/2025, 06:27:49] [ℹ️ LOG] [MFA Settings] Fetching settings: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9"
+}
+[2025-12-09T12:27:49.678Z] [12/09/2025, 06:27:49] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:27:49.698Z] [12/09/2025, 06:27:49] [ℹ️ LOG] [MFA Settings] Success
+[2025-12-09T12:27:52.846Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272846-y9i9z] Request received {
+  "timestamp": "2025-12-09T12:27:52.846Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:52.846Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272846-y9i9z] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:52.875Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272875-trgqm] Request received {
+  "timestamp": "2025-12-09T12:27:52.875Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:52.875Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272875-trgqm] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:52.917Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272917-plojzh] Request received {
+  "timestamp": "2025-12-09T12:27:52.917Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:52.923Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272917-plojzh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:52.954Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272875-trgqm] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:52.954Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272875-trgqm] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:52.958Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272846-y9i9z] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:52.959Z] [12/09/2025, 06:27:52] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272846-y9i9z] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:53.061Z] [12/09/2025, 06:27:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272917-plojzh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:53.062Z] [12/09/2025, 06:27:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283272917-plojzh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:55.270Z] [12/09/2025, 06:27:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283275264-q5z5zo] Request received {
+  "timestamp": "2025-12-09T12:27:55.264Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:55.274Z] [12/09/2025, 06:27:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283275264-q5z5zo] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:27:55.363Z] [12/09/2025, 06:27:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283275264-q5z5zo] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:27:55.363Z] [12/09/2025, 06:27:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283275264-q5z5zo] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:27:59.845Z] [12/09/2025, 06:27:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283279845-4dwrz] Request received {
+  "timestamp": "2025-12-09T12:27:59.845Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:27:59.862Z] [12/09/2025, 06:27:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283279845-4dwrz] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:28:00.008Z] [12/09/2025, 06:28:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283279845-4dwrz] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:28:00.005Z] [12/09/2025, 06:28:00] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283279845-4dwrz] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:28:59.247Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.248Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:28:59.263Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:28:59.266Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.308Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] Request received: {
+  "deviceType": "SMS",
+  "status": "ACTIVE",
+  "hasPolicy": true,
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+  "requestBodyKeys": [
+    "environmentId",
+    "userId",
+    "type",
+    "workerToken",
+    "tokenType",
+    "phone",
+    "nickname",
+    "name",
+    "status",
+    "policy"
+  ]
+}
+[2025-12-09T12:28:59.308Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 1: Token received from frontend: {
+  "hasWorkerToken": true,
+  "hasUserToken": false,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "userTokenLength": 0,
+  "tokenType": "worker"
+}
+[2025-12-09T12:28:59.308Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 2: Selected token: {
+  "hasAccessToken": true,
+  "accessTokenType": "string",
+  "accessTokenLength": 936,
+  "accessTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "selectedFrom": "workerToken"
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] ✅ Status from user selection included in device payload: {
+  "deviceType": "SMS",
+  "status": "ACTIVE",
+  "statusSource": "user-selection",
+  "tokenType": "worker",
+  "isWhatsApp": false,
+  "note": "Status comes from user's selection: Admin Flow (user chooses ACTIVE/ACTIVATION_REQUIRED) or User Flow (always ACTIVATION_REQUIRED)"
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] ✅ Policy included in device payload (from dropdown selection): {
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "deviceType": "SMS",
+  "isWhatsApp": false,
+  "note": "Policy ID comes from Device Authentication Policy dropdown selection"
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3a: Original token: {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "originalLength": 936,
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasBearerPrefix": false
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3: Cleaning token...
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 4: Request headers constructed: {
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "authorizationHeaderLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "startsWithBearer": true,
+  "expectedLength": 943,
+  "actualLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3b: Cleaned token: {
+  "cleanedLength": 936,
+  "cleanedPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "tokenParts": 3,
+  "allPartsValid": true
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] Device nickname for update: {
+  "hasNickname": true,
+  "hasName": true,
+  "deviceNickname": "FIDO",
+  "deviceNicknameTrimmed": "FIDO",
+  "willUpdateNickname": true
+}
+[2025-12-09T12:28:59.309Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] Making PingOne API call: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "hasType": true,
+  "typeValue": "SMS",
+  "status": "ACTIVE",
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "hasPhone": true,
+  "phoneValue": "+1.9725231586",
+  "hasEmail": false,
+  "requestBodyKeys": [
+    "type",
+    "phone",
+    "status",
+    "policy"
+  ],
+  "requestBodyFull": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVE\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "requestBodyPreview": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVE\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "isWhatsApp": false,
+  "whatsAppHasRequiredFields": null
+}
+[2025-12-09T12:28:59.420Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] PingOne API call completed: {
+  "status": 201,
+  "statusText": "Created",
+  "duration": "111ms",
+  "deviceType": "SMS"
+}
+[2025-12-09T12:28:59.421Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] Logging PingOne API call: {
+  "logFile": "/Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log",
+  "operation": "Register MFA Device",
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "status": 201
+}
+[2025-12-09T12:28:59.422Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.423Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Register Device] PingOne API call logged successfully
+[2025-12-09T12:28:59.424Z] [12/09/2025, 06:28:59] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Register MFA Device: {
+  "deviceId": "1358ac16-f0c9-40af-84a5-2e2b239881c5",
+  "type": "SMS",
+  "requestedStatus": "ACTIVE",
+  "returnedStatus": "ACTIVE",
+  "statusMatch": true,
+  "hasProperties": false,
+  "hasSecret": false,
+  "hasKeyUri": false,
+  "hasDeviceActivateUri": false,
+  "tokenType": "worker",
+  "isFIDO2": false,
+  "hasPublicKeyCredentialCreationOptions": false,
+  "publicKeyCredentialCreationOptionsLength": 0,
+  "publicKeyCredentialCreationOptionsPreview": "N/A",
+  "fullResponse": {
+    "_links": {
+      "self": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/1358ac16-f0c9-40af-84a5-2e2b239881c5"
+      },
+      "environment": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+      },
+      "user": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+      }
+    },
+    "id": "1358ac16-f0c9-40af-84a5-2e2b239881c5",
+    "environment": {
+      "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d"
+    },
+    "type": "SMS",
+    "status": "ACTIVE",
+    "createdAt": "2025-12-09T12:28:59.465Z",
+    "updatedAt": "2025-12-09T12:28:59.465Z",
+    "phone": "+1.9725231586"
+  }
+}
+[2025-12-09T12:28:59.422Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 6599
+[2025-12-09T12:28:59.441Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:28:59.443Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.545Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.545Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 4822
+[2025-12-09T12:28:59.546Z] [12/09/2025, 06:28:59] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Device nickname updated: {
+  "deviceId": "1358ac16-f0c9-40af-84a5-2e2b239881c5",
+  "nickname": "FIDO"
+}
+[2025-12-09T12:28:59.546Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:28:59.546Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.663Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.663Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T12:28:59.665Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:28:59.665Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.693Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:28:59.693Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:28:59.811Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:28:59.812Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 12294
+[2025-12-09T12:28:59.812Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.812Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:28:59.812Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 3
+}
+[2025-12-09T12:28:59.813Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:28:59.813Z] [12/09/2025, 06:28:59] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:30:02.016Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283402016-y86io] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:02.016Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283402016-y86io] Request received {
+  "timestamp": "2025-12-09T12:30:02.016Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:02.148Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283402016-y86io] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:02.148Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283402016-y86io] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:30:02.534Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:30:02.534Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T12:30:02.535Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:30:02.535Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:30:02.554Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:30:02.555Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:30:02.700Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:30:02.702Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:30:02.703Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 12294
+[2025-12-09T12:30:02.704Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 3
+}
+[2025-12-09T12:30:02.704Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:30:02.712Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:30:02.713Z] [12/09/2025, 06:30:02] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:30:40.169Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440168-ncxj7r] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:40.168Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440168-ncxj7r] Request received {
+  "timestamp": "2025-12-09T12:30:40.168Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:40.171Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440171-dljdy] Request received {
+  "timestamp": "2025-12-09T12:30:40.171Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:40.172Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440171-dljdy] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:40.173Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440173-zjvwh] Request received {
+  "timestamp": "2025-12-09T12:30:40.173Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:40.173Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440173-zjvwh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:40.312Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440171-dljdy] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:40.312Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440171-dljdy] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:30:40.315Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440168-ncxj7r] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:40.315Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440168-ncxj7r] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:30:40.319Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440173-zjvwh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:30:40.318Z] [12/09/2025, 06:30:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283440173-zjvwh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:42.715Z] [12/09/2025, 06:30:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283442714-eumyn] Request received {
+  "timestamp": "2025-12-09T12:30:42.715Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:42.716Z] [12/09/2025, 06:30:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283442714-eumyn] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:42.797Z] [12/09/2025, 06:30:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283442714-eumyn] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:42.799Z] [12/09/2025, 06:30:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283442714-eumyn] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:30:53.182Z] [12/09/2025, 06:30:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283453182-gel6y8] Request received {
+  "timestamp": "2025-12-09T12:30:53.182Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:30:53.182Z] [12/09/2025, 06:30:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283453182-gel6y8] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:30:53.283Z] [12/09/2025, 06:30:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283453182-gel6y8] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:30:53.283Z] [12/09/2025, 06:30:53] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283453182-gel6y8] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:05.969Z] [12/09/2025, 06:31:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283465968-4cnyu] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:05.969Z] [12/09/2025, 06:31:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283465968-4cnyu] Request received {
+  "timestamp": "2025-12-09T12:31:05.969Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:06.078Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283465968-4cnyu] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:06.077Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283465968-4cnyu] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:06.574Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:06.575Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:06.577Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:06.577Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:06.599Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:31:06.600Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:31:06.734Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:31:06.735Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:06.735Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 12294
+[2025-12-09T12:31:06.735Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:31:06.736Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 3
+}
+[2025-12-09T12:31:06.737Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:06.737Z] [12/09/2025, 06:31:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:08.736Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468736-1x96q] Request received {
+  "timestamp": "2025-12-09T12:31:08.736Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:08.736Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468736-1x96q] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:08.751Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468750-ff59sa] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:08.750Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468750-ff59sa] Request received {
+  "timestamp": "2025-12-09T12:31:08.750Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:08.756Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468756-3llgsx] Request received {
+  "timestamp": "2025-12-09T12:31:08.756Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:08.756Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468756-3llgsx] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:08.821Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468736-1x96q] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:08.822Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468736-1x96q] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:08.865Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468750-ff59sa] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:08.865Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468750-ff59sa] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:08.868Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468756-3llgsx] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:08.868Z] [12/09/2025, 06:31:08] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283468756-3llgsx] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:13.492Z] [12/09/2025, 06:31:13] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283473492-6ueou] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:13.492Z] [12/09/2025, 06:31:13] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283473492-6ueou] Request received {
+  "timestamp": "2025-12-09T12:31:13.492Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:13.594Z] [12/09/2025, 06:31:13] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283473492-6ueou] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:13.595Z] [12/09/2025, 06:31:13] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283473492-6ueou] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:20.450Z] [12/09/2025, 06:31:20] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283480450-2o4o9] Request received {
+  "timestamp": "2025-12-09T12:31:20.450Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:20.450Z] [12/09/2025, 06:31:20] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283480450-2o4o9] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:20.564Z] [12/09/2025, 06:31:20] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283480450-2o4o9] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:20.564Z] [12/09/2025, 06:31:20] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283480450-2o4o9] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:41.644Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.644Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:41.645Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.645Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 2: Selected token: {
+  "hasAccessToken": true,
+  "accessTokenType": "string",
+  "accessTokenLength": 936,
+  "accessTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "selectedFrom": "workerToken"
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 1: Token received from frontend: {
+  "hasWorkerToken": true,
+  "hasUserToken": false,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "userTokenLength": 0,
+  "tokenType": "worker"
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] Device nickname for update: {
+  "hasNickname": true,
+  "hasName": true,
+  "deviceNickname": "SMSv2",
+  "deviceNicknameTrimmed": "SMSv2",
+  "willUpdateNickname": true
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] Request received: {
+  "deviceType": "SMS",
+  "status": "ACTIVE",
+  "hasPolicy": true,
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+  "requestBodyKeys": [
+    "environmentId",
+    "userId",
+    "type",
+    "workerToken",
+    "tokenType",
+    "phone",
+    "nickname",
+    "name",
+    "status",
+    "policy"
+  ]
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] ✅ Status from user selection included in device payload: {
+  "deviceType": "SMS",
+  "status": "ACTIVE",
+  "statusSource": "user-selection",
+  "tokenType": "worker",
+  "isWhatsApp": false,
+  "note": "Status comes from user's selection: Admin Flow (user chooses ACTIVE/ACTIVATION_REQUIRED) or User Flow (always ACTIVATION_REQUIRED)"
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] ✅ Policy included in device payload (from dropdown selection): {
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "deviceType": "SMS",
+  "isWhatsApp": false,
+  "note": "Policy ID comes from Device Authentication Policy dropdown selection"
+}
+[2025-12-09T12:31:41.664Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3: Cleaning token...
+[2025-12-09T12:31:41.665Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3b: Cleaned token: {
+  "cleanedLength": 936,
+  "cleanedPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "tokenParts": 3,
+  "allPartsValid": true
+}
+[2025-12-09T12:31:41.665Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3a: Original token: {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "originalLength": 936,
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasBearerPrefix": false
+}
+[2025-12-09T12:31:41.665Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 4: Request headers constructed: {
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "authorizationHeaderLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "startsWithBearer": true,
+  "expectedLength": 943,
+  "actualLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T12:31:41.665Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] Making PingOne API call: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "hasType": true,
+  "typeValue": "SMS",
+  "status": "ACTIVE",
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "hasPhone": true,
+  "phoneValue": "+1.9725231586",
+  "hasEmail": false,
+  "requestBodyKeys": [
+    "type",
+    "phone",
+    "status",
+    "policy"
+  ],
+  "requestBodyFull": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVE\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "requestBodyPreview": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVE\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "isWhatsApp": false,
+  "whatsAppHasRequiredFields": null
+}
+[2025-12-09T12:31:41.779Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] PingOne API call completed: {
+  "status": 201,
+  "statusText": "Created",
+  "duration": "114ms",
+  "deviceType": "SMS"
+}
+[2025-12-09T12:31:41.779Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] Logging PingOne API call: {
+  "logFile": "/Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log",
+  "operation": "Register MFA Device",
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "status": 201
+}
+[2025-12-09T12:31:41.779Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.779Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 6599
+[2025-12-09T12:31:41.779Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [MFA Register Device] PingOne API call logged successfully
+[2025-12-09T12:31:41.780Z] [12/09/2025, 06:31:41] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Register MFA Device: {
+  "deviceId": "ab085cbf-eb60-453e-8b9e-150afdcad2e7",
+  "type": "SMS",
+  "requestedStatus": "ACTIVE",
+  "returnedStatus": "ACTIVE",
+  "statusMatch": true,
+  "hasProperties": false,
+  "hasSecret": false,
+  "hasKeyUri": false,
+  "hasDeviceActivateUri": false,
+  "tokenType": "worker",
+  "isFIDO2": false,
+  "hasPublicKeyCredentialCreationOptions": false,
+  "publicKeyCredentialCreationOptionsLength": 0,
+  "publicKeyCredentialCreationOptionsPreview": "N/A",
+  "fullResponse": {
+    "_links": {
+      "self": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/ab085cbf-eb60-453e-8b9e-150afdcad2e7"
+      },
+      "environment": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+      },
+      "user": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+      }
+    },
+    "id": "ab085cbf-eb60-453e-8b9e-150afdcad2e7",
+    "environment": {
+      "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d"
+    },
+    "type": "SMS",
+    "status": "ACTIVE",
+    "createdAt": "2025-12-09T12:31:41.776Z",
+    "updatedAt": "2025-12-09T12:31:41.776Z",
+    "phone": "+1.9725231586"
+  }
+}
+[2025-12-09T12:31:41.782Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:41.782Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.937Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.937Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 4828
+[2025-12-09T12:31:41.937Z] [12/09/2025, 06:31:41] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Device nickname updated: {
+  "deviceId": "ab085cbf-eb60-453e-8b9e-150afdcad2e7",
+  "nickname": "SMSv2"
+}
+[2025-12-09T12:31:41.938Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:41.938Z] [12/09/2025, 06:31:41] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:42.140Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:42.140Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:42.149Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:42.149Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:42.173Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:31:42.172Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:31:42.329Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:31:42.329Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:42.330Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 14580
+[2025-12-09T12:31:42.331Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:31:42.331Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 4
+}
+[2025-12-09T12:31:42.335Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:42.337Z] [12/09/2025, 06:31:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:45.968Z] [12/09/2025, 06:31:45] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283505968-4bytyf] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:45.968Z] [12/09/2025, 06:31:45] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283505968-4bytyf] Request received {
+  "timestamp": "2025-12-09T12:31:45.968Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:46.065Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283505968-4bytyf] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:46.066Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283505968-4bytyf] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:46.572Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:46.572Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:46.573Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:46.573Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:46.598Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:31:46.598Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:31:46.779Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:31:46.780Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:46.781Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 14580
+[2025-12-09T12:31:46.787Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 4
+}
+[2025-12-09T12:31:46.787Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:31:46.790Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:46.790Z] [12/09/2025, 06:31:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:47.691Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507691-mbxsts] Request received {
+  "timestamp": "2025-12-09T12:31:47.691Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:47.691Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507691-mbxsts] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:47.692Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507692-cwr5q] Request received {
+  "timestamp": "2025-12-09T12:31:47.692Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:47.692Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507692-cwr5q] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:47.694Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507693-1xhchh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:47.693Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507693-1xhchh] Request received {
+  "timestamp": "2025-12-09T12:31:47.693Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:47.784Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507691-mbxsts] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:47.784Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507691-mbxsts] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:47.889Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507692-cwr5q] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:47.888Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507692-cwr5q] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:47.894Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507693-1xhchh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:47.894Z] [12/09/2025, 06:31:47] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283507693-1xhchh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:48.559Z] [12/09/2025, 06:31:48] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283508559-5m4gg] Request received {
+  "timestamp": "2025-12-09T12:31:48.559Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:48.559Z] [12/09/2025, 06:31:48] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283508559-5m4gg] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:48.656Z] [12/09/2025, 06:31:48] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283508559-5m4gg] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:48.656Z] [12/09/2025, 06:31:48] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283508559-5m4gg] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:51.529Z] [12/09/2025, 06:31:51] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283511529-lydfx] Request received {
+  "timestamp": "2025-12-09T12:31:51.529Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:31:51.530Z] [12/09/2025, 06:31:51] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283511529-lydfx] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:31:51.625Z] [12/09/2025, 06:31:51] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283511529-lydfx] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:31:51.625Z] [12/09/2025, 06:31:51] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765283511529-lydfx] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:31:57.490Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.490Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:57.495Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:57.495Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.511Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] Request received: {
+  "deviceType": "SMS",
+  "status": "ACTIVATION_REQUIRED",
+  "hasPolicy": true,
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+  "requestBodyKeys": [
+    "environmentId",
+    "userId",
+    "type",
+    "workerToken",
+    "tokenType",
+    "phone",
+    "nickname",
+    "name",
+    "status",
+    "policy"
+  ]
+}
+[2025-12-09T12:31:57.520Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 1: Token received from frontend: {
+  "hasWorkerToken": true,
+  "hasUserToken": false,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "userTokenLength": 0,
+  "tokenType": "worker"
+}
+[2025-12-09T12:31:57.524Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] Device nickname for update: {
+  "hasNickname": true,
+  "hasName": true,
+  "deviceNickname": "SMSv3",
+  "deviceNicknameTrimmed": "SMSv3",
+  "willUpdateNickname": true
+}
+[2025-12-09T12:31:57.523Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 2: Selected token: {
+  "hasAccessToken": true,
+  "accessTokenType": "string",
+  "accessTokenLength": 936,
+  "accessTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "selectedFrom": "workerToken"
+}
+[2025-12-09T12:31:57.524Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] ✅ Status from user selection included in device payload: {
+  "deviceType": "SMS",
+  "status": "ACTIVATION_REQUIRED",
+  "statusSource": "user-selection",
+  "tokenType": "worker",
+  "isWhatsApp": false,
+  "note": "Status comes from user's selection: Admin Flow (user chooses ACTIVE/ACTIVATION_REQUIRED) or User Flow (always ACTIVATION_REQUIRED)"
+}
+[2025-12-09T12:31:57.524Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] ✅ Policy included in device payload (from dropdown selection): {
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "deviceType": "SMS",
+  "isWhatsApp": false,
+  "note": "Policy ID comes from Device Authentication Policy dropdown selection"
+}
+[2025-12-09T12:31:57.525Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3a: Original token: {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "originalLength": 936,
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasBearerPrefix": false
+}
+[2025-12-09T12:31:57.525Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3b: Cleaned token: {
+  "cleanedLength": 936,
+  "cleanedPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "tokenParts": 3,
+  "allPartsValid": true
+}
+[2025-12-09T12:31:57.525Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 4: Request headers constructed: {
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMGM0Yzc5NTQtNzY2OC00Y2IyLWFlNGYtMWM2YzM1ZWVmYzBhIiwiaWF0IjoxNzY1MjgwNDcyLCJleHAiOjE3NjUyODQwNzIsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIwYzRjNzk1NC03NjY4LTRjYjItYWU0Zi0xYzZjMzVlZWZjMGEifQ.VKlxsJZBu5ky09JHjEb46MPU4Ua-rV81OX883uRtozJRo9mhcRsVTAaRHySHOD_QupFF5fP62ebRfCXJsN1IywX06bhMYoJYLqOteE86wzfhetovM5BBUV5FSybcKWQdHF_xSBFGAVzddO6itolKmSHo-Fpv7Inc5g4x4WJ6MW-usH-3WishfUdPCjj9FjJ4N9R4cwL3dhqI0TC2Oaw-m0Fv2GwGUbEzvn7exyWMLNGY2zOaGP3WjfeQ8bAMFWlMbiVOJSx6uC4HB4O_5Cq4cV0xLUC7SDBJKhAw53H2ZuE3qgHX3yj6qNrx2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "authorizationHeaderLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...2r3nKczS2FD0XudNuATNKnc7_siqUg",
+  "startsWithBearer": true,
+  "expectedLength": 943,
+  "actualLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T12:31:57.524Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3: Cleaning token...
+[2025-12-09T12:31:57.525Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] Making PingOne API call: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "hasType": true,
+  "typeValue": "SMS",
+  "status": "ACTIVATION_REQUIRED",
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "hasPhone": true,
+  "phoneValue": "+1.9725231586",
+  "hasEmail": false,
+  "requestBodyKeys": [
+    "type",
+    "phone",
+    "status",
+    "policy"
+  ],
+  "requestBodyFull": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVATION_REQUIRED\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "requestBodyPreview": "{\n  \"type\": \"SMS\",\n  \"phone\": \"+1.9725231586\",\n  \"status\": \"ACTIVATION_REQUIRED\",\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "isWhatsApp": false,
+  "whatsAppHasRequiredFields": null
+}
+[2025-12-09T12:31:57.690Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] PingOne API call completed: {
+  "status": 201,
+  "statusText": "Created",
+  "duration": "164ms",
+  "deviceType": "SMS"
+}
+[2025-12-09T12:31:57.691Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.691Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 7284
+[2025-12-09T12:31:57.690Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] Logging PingOne API call: {
+  "logFile": "/Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log",
+  "operation": "Register MFA Device",
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "SMS",
+  "status": 201
+}
+[2025-12-09T12:31:57.691Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [MFA Register Device] PingOne API call logged successfully
+[2025-12-09T12:31:57.691Z] [12/09/2025, 06:31:57] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Register MFA Device: {
+  "deviceId": "aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b",
+  "type": "SMS",
+  "requestedStatus": "ACTIVATION_REQUIRED",
+  "returnedStatus": "ACTIVATION_REQUIRED",
+  "statusMatch": true,
+  "hasProperties": false,
+  "hasSecret": false,
+  "hasKeyUri": false,
+  "hasDeviceActivateUri": false,
+  "tokenType": "worker",
+  "isFIDO2": false,
+  "hasPublicKeyCredentialCreationOptions": false,
+  "publicKeyCredentialCreationOptionsLength": 0,
+  "publicKeyCredentialCreationOptionsPreview": "N/A",
+  "fullResponse": {
+    "_links": {
+      "self": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b"
+      },
+      "environment": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+      },
+      "user": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+      },
+      "device.activate": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b"
+      }
+    },
+    "id": "aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b",
+    "environment": {
+      "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d"
+    },
+    "type": "SMS",
+    "status": "ACTIVATION_REQUIRED",
+    "createdAt": "2025-12-09T12:31:57.687Z",
+    "updatedAt": "2025-12-09T12:31:57.687Z",
+    "notification": {
+      "coolDownExpiresAt": 1765283547647
+    },
+    "phone": "+1.9725231586"
+  }
+}
+[2025-12-09T12:31:57.695Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.695Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:57.858Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.859Z] [12/09/2025, 06:31:57] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Device nickname updated: {
+  "deviceId": "aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b",
+  "nickname": "SMSv3"
+}
+[2025-12-09T12:31:57.859Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 4828
+[2025-12-09T12:31:57.860Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:57.860Z] [12/09/2025, 06:31:57] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:58.055Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:58.055Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:31:58.056Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:58.057Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:58.075Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:31:58.075Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:31:58.213Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:31:58.216Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 17354
+[2025-12-09T12:31:58.216Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:31:58.216Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T12:31:58.215Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:31:58.218Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:31:58.218Z] [12/09/2025, 06:31:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:32:08.718Z] [12/09/2025, 06:32:08] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:32:08.719Z] [12/09/2025, 06:32:08] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:32:08.723Z] [12/09/2025, 06:32:08] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:32:08.723Z] [12/09/2025, 06:32:08] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:32:08.756Z] [12/09/2025, 06:32:08] [ℹ️ LOG] [MFA Activate Device] Received request: {
+  "hasEnvironmentId": true,
+  "hasUserId": true,
+  "hasDeviceId": true,
+  "hasWorkerToken": true,
+  "hasOtp": true,
+  "otpLength": 6
+}
+[2025-12-09T12:32:09.018Z] [12/09/2025, 06:32:09] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 5976
+[2025-12-09T12:32:09.018Z] [12/09/2025, 06:32:09] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:32:09.019Z] [12/09/2025, 06:32:09] [ℹ️ LOG] [MFA Activate Device] Success: {
+  "deviceId": "aa5e94c1-2403-4ed9-9da7-d45c39dcfe8b",
+  "status": "ACTIVE"
+}
+[2025-12-09T12:32:09.021Z] [12/09/2025, 06:32:09] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:32:09.022Z] [12/09/2025, 06:32:09] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:41:06.004Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📝 Real API logs (no proxy): /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:41:06.004Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📝 PingOne API logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:41:06.004Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📝 Client logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/client.log
+[2025-12-09T12:41:06.003Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📝 Server logs: /Users/cmuir/P1Import-apps/oauth-playground/logs/server.log
+[2025-12-09T12:41:06.008Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔐 Using existing self-signed certificates
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🚀 OAuth Playground Backend Server running on port 3001 (HTTP)
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔐 Token exchange: http://localhost:3001/api/token-exchange
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📡 Health check: http://localhost:3001/api/health
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 👤 UserInfo: http://localhost:3001/api/userinfo
+[2025-12-09T12:41:05.991Z] [12/09/2025, 06:41:05] [ℹ️ LOG] 🚀 Starting OAuth Playground Backend Server...
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] ✅ Token validation: http://localhost:3001/api/validate-token
+[2025-12-09T12:41:06.033Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔌 Device UserInfo: http://localhost:3001/api/device-userinfo
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🌐 HTTP Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3001
+}
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔐 OAuth Playground Backend Server running on port 3002 (HTTPS)
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔐 Token exchange: https://localhost:3002/api/token-exchange
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 📡 Health check: https://localhost:3002/api/health
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🔌 Device UserInfo: https://localhost:3002/api/device-userinfo
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 🌐 HTTPS Server listening on: {
+  "address": "0.0.0.0",
+  "family": "IPv4",
+  "port": 3002
+}
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] ✅ Token validation: https://localhost:3002/api/validate-token
+[2025-12-09T12:41:06.034Z] [12/09/2025, 06:41:06] [ℹ️ LOG] 👤 UserInfo: https://localhost:3002/api/userinfo
+[2025-12-09T12:42:14.007Z] [12/09/2025, 06:42:14] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284134007-x9djrr] Request received {
+  "timestamp": "2025-12-09T12:42:14.007Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:42:14.007Z] [12/09/2025, 06:42:14] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284134007-x9djrr] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:42:14.233Z] [12/09/2025, 06:42:14] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284134007-x9djrr] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:42:14.235Z] [12/09/2025, 06:42:14] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284134007-x9djrr] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:42:29.799Z] [12/09/2025, 06:42:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284149798-0x1eir] Request received {
+  "timestamp": "2025-12-09T12:42:29.798Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:42:29.800Z] [12/09/2025, 06:42:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284149798-0x1eir] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:42:29.919Z] [12/09/2025, 06:42:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284149798-0x1eir] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:42:29.919Z] [12/09/2025, 06:42:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284149798-0x1eir] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:42:30.196Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:42:30.196Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T12:42:30.196Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:42:30.199Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:42:30.200Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:42:30.206Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:42:30.233Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:42:30.233Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:42:30.379Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:42:30.380Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T12:42:30.380Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:42:30.380Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:42:30.380Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:42:30.380Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T12:42:30.387Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:42:30.387Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:42:30.388Z] [12/09/2025, 06:42:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:32.217Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284992217-i70978] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:56:32.217Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284992217-i70978] Request received {
+  "timestamp": "2025-12-09T12:56:32.217Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:56:32.378Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284992217-i70978] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:56:32.380Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284992217-i70978] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:56:32.559Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T12:56:32.558Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:32.559Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:56:32.561Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:56:32.561Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:56:32.561Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:32.583Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:56:32.584Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:56:32.728Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:56:32.733Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:32.733Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:56:32.733Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T12:56:32.733Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:56:32.733Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T12:56:32.748Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:32.747Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:56:32.751Z] [12/09/2025, 06:56:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:56:37.818Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997817-urz1yn] Request received {
+  "timestamp": "2025-12-09T12:56:37.817Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:56:37.820Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997817-urz1yn] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:56:37.830Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997829-shxm9q] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:56:37.829Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997829-shxm9q] Request received {
+  "timestamp": "2025-12-09T12:56:37.829Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:56:37.966Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997817-urz1yn] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:56:37.967Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997817-urz1yn] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:56:37.981Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997829-shxm9q] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:56:37.983Z] [12/09/2025, 06:56:37] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765284997829-shxm9q] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:56:49.433Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765285009433-5sjx4] Request received {
+  "timestamp": "2025-12-09T12:56:49.433Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T12:56:49.448Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765285009433-5sjx4] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T12:56:49.617Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765285009433-5sjx4] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T12:56:49.617Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765285009433-5sjx4] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T12:56:49.738Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:49.739Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T12:56:49.740Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:56:49.778Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:56:49.779Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:49.779Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T12:56:49.784Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T12:56:49.784Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T12:56:49.922Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T12:56:49.924Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:49.924Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T12:56:49.928Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T12:56:49.931Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T12:56:49.924Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T12:56:49.981Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T12:56:49.986Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T12:56:49.989Z] [12/09/2025, 06:56:49] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:28:22.432Z] [12/09/2025, 07:28:22] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286902431-x5y95w] Request received {
+  "timestamp": "2025-12-09T13:28:22.432Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:28:22.433Z] [12/09/2025, 07:28:22] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286902431-x5y95w] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:28:22.691Z] [12/09/2025, 07:28:22] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286902431-x5y95w] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:28:22.692Z] [12/09/2025, 07:28:22] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286902431-x5y95w] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:28:23.108Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:23.109Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:28:23.109Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:28:23.110Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:23.111Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:28:23.112Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:28:23.129Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:28:23.129Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:28:23.308Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:28:23.310Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:23.311Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:28:23.311Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:28:23.311Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:28:23.311Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:28:23.313Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:28:23.313Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:28:23.314Z] [12/09/2025, 07:28:23] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:26.543Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906543-lu1j5j] Request received {
+  "timestamp": "2025-12-09T13:28:26.543Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:28:26.543Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906543-lu1j5j] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:28:26.544Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906544-181ic7] Request received {
+  "timestamp": "2025-12-09T13:28:26.544Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:28:26.544Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906544-181ic7] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:28:26.645Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906543-lu1j5j] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:28:26.645Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906543-lu1j5j] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:28:26.703Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906544-181ic7] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:28:26.703Z] [12/09/2025, 07:28:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286906544-181ic7] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:28:33.034Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286913034-u45p28] Request received {
+  "timestamp": "2025-12-09T13:28:33.034Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:28:33.035Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286913034-u45p28] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:28:33.189Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286913034-u45p28] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:28:33.190Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765286913034-u45p28] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:28:33.682Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:33.682Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:28:33.682Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:28:33.683Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:28:33.683Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:28:33.683Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:33.691Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:28:33.691Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:28:33.905Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:28:33.905Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:28:33.905Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:28:33.905Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:28:33.906Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:28:33.906Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:28:33.906Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:28:33.907Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:28:33.907Z] [12/09/2025, 07:28:33] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:21.097Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:21.097Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:55:21.097Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:55:21.124Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:21.124Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:55:21.124Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:55:21.171Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:55:21.172Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:55:21.335Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:55:21.336Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:55:21.336Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:21.336Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:55:21.343Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:55:21.342Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:55:21.346Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:55:21.347Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:21.347Z] [12/09/2025, 07:55:21] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:55:25.919Z] [12/09/2025, 07:55:25] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525919-tfbbx4] Request received {
+  "timestamp": "2025-12-09T13:55:25.919Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:55:25.919Z] [12/09/2025, 07:55:25] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525919-tfbbx4] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:55:25.922Z] [12/09/2025, 07:55:25] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525922-7csqp6] Request received {
+  "timestamp": "2025-12-09T13:55:25.922Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:55:25.922Z] [12/09/2025, 07:55:25] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525922-7csqp6] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:55:26.051Z] [12/09/2025, 07:55:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525922-7csqp6] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:55:26.051Z] [12/09/2025, 07:55:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525922-7csqp6] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:55:26.054Z] [12/09/2025, 07:55:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525919-tfbbx4] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:55:26.056Z] [12/09/2025, 07:55:26] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288525919-tfbbx4] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:55:34.509Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288534508-h80vlw] Request received {
+  "timestamp": "2025-12-09T13:55:34.508Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:55:34.509Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288534508-h80vlw] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:55:34.628Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288534508-h80vlw] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:55:34.628Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288534508-h80vlw] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:55:34.861Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:34.861Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:55:34.861Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:55:34.862Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:55:34.863Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:55:34.863Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:34.871Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:55:34.871Z] [12/09/2025, 07:55:34] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:55:35.015Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:55:35.015Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:55:35.015Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:35.016Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:55:35.015Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:55:35.016Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:55:35.018Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:55:35.018Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:55:35.019Z] [12/09/2025, 07:55:35] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:57:54.904Z] [12/09/2025, 07:57:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288674904-gebr9f] Request received {
+  "timestamp": "2025-12-09T13:57:54.904Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:57:54.906Z] [12/09/2025, 07:57:54] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288674904-gebr9f] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:57:55.102Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288674904-gebr9f] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:57:55.101Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288674904-gebr9f] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:57:55.551Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:57:55.551Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:57:55.551Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:57:55.554Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:57:55.555Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:57:55.555Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:57:55.582Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:57:55.582Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:57:55.830Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:57:55.832Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:57:55.831Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:57:55.834Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:57:55.835Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:57:55.836Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:57:55.844Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:57:55.845Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:57:55.845Z] [12/09/2025, 07:57:55] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:57:59.624Z] [12/09/2025, 07:57:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288679624-copkp8] Request received {
+  "timestamp": "2025-12-09T13:57:59.624Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:57:59.625Z] [12/09/2025, 07:57:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288679624-copkp8] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:57:59.760Z] [12/09/2025, 07:57:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288679624-copkp8] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:57:59.760Z] [12/09/2025, 07:57:59] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288679624-copkp8] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:58:00.080Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:58:00.080Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T13:58:00.080Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:58:00.081Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:58:00.082Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:58:00.082Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:58:00.095Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T13:58:00.095Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T13:58:00.285Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T13:58:00.288Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T13:58:00.288Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T13:58:00.288Z] [12/09/2025, 07:58:00] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T13:58:06.980Z] [12/09/2025, 07:58:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686980-dtsks] Request received {
+  "timestamp": "2025-12-09T13:58:06.980Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:58:06.981Z] [12/09/2025, 07:58:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686980-dtsks] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:58:06.984Z] [12/09/2025, 07:58:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686984-19gy78] Request received {
+  "timestamp": "2025-12-09T13:58:06.984Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T13:58:06.985Z] [12/09/2025, 07:58:06] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686984-19gy78] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T13:58:07.198Z] [12/09/2025, 07:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686980-dtsks] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T13:58:07.198Z] [12/09/2025, 07:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686980-dtsks] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:58:07.217Z] [12/09/2025, 07:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686984-19gy78] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T13:58:07.227Z] [12/09/2025, 07:58:07] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288686984-19gy78] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T14:01:10.125Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288870125-x3k3y7] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T14:01:10.125Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288870125-x3k3y7] Request received {
+  "timestamp": "2025-12-09T14:01:10.125Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T14:01:10.275Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288870125-x3k3y7] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T14:01:10.276Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288870125-x3k3y7] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T14:01:10.634Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:10.635Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T14:01:10.635Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T14:01:10.646Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T14:01:10.643Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:10.646Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T14:01:10.658Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T14:01:10.659Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T14:01:10.802Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T14:01:10.803Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:10.803Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T14:01:10.803Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T14:01:10.803Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T14:01:10.807Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T14:01:10.811Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T14:01:10.812Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:10.812Z] [12/09/2025, 08:01:10] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T14:01:42.532Z] [12/09/2025, 08:01:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288902515-51rr1p] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T14:01:42.523Z] [12/09/2025, 08:01:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288902515-51rr1p] Request received {
+  "timestamp": "2025-12-09T14:01:42.515Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T14:01:42.690Z] [12/09/2025, 08:01:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288902515-51rr1p] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T14:01:42.690Z] [12/09/2025, 08:01:42] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765288902515-51rr1p] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T14:01:44.217Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:44.218Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T14:01:44.218Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9390
+[2025-12-09T14:01:44.219Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:44.219Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T14:01:44.220Z] [12/09/2025, 08:01:44] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T14:01:45.952Z] [12/09/2025, 08:01:45] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T14:01:45.951Z] [12/09/2025, 08:01:45] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T14:01:46.076Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T14:01:46.077Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T14:01:46.076Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:46.077Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T14:01:46.077Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T14:01:46.077Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T14:01:46.078Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T14:01:46.078Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T14:01:46.078Z] [12/09/2025, 08:01:46] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:34:46.430Z] [12/09/2025, 15:34:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316086412-snozd] Request received {
+  "timestamp": "2025-12-09T21:34:46.412Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:34:46.431Z] [12/09/2025, 15:34:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316086412-snozd] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:34:46.649Z] [12/09/2025, 15:34:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316086412-snozd] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:34:46.649Z] [12/09/2025, 15:34:46] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316086412-snozd] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:34:47.018Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:34:47.018Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:34:47.018Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:34:47.019Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:34:47.019Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:34:47.019Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:34:47.034Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:34:47.034Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:34:47.177Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:34:47.178Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T21:34:47.178Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:34:47.179Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:34:47.183Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:34:47.183Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T21:34:47.185Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:34:47.185Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:34:47.185Z] [12/09/2025, 15:34:47] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:37:28.797Z] [12/09/2025, 15:37:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316248763-tqkdgo] Request received {
+  "timestamp": "2025-12-09T21:37:28.763Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:37:28.888Z] [12/09/2025, 15:37:28] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316248763-tqkdgo] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:37:29.162Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:29.162Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:37:29.162Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:37:29.169Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:37:29.170Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:37:29.170Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:29.187Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316248763-tqkdgo] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:37:29.188Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316248763-tqkdgo] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:37:29.240Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:37:29.241Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:37:29.469Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:37:29.470Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:29.470Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T21:37:29.470Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:37:29.470Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T21:37:29.470Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:37:29.471Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:37:29.471Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:37:29.472Z] [12/09/2025, 15:37:29] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:40.150Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260149-yjrn4i] Request received {
+  "timestamp": "2025-12-09T21:37:40.149Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:37:40.152Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260149-yjrn4i] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:37:40.179Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260178-9xh44xu] Request received {
+  "timestamp": "2025-12-09T21:37:40.178Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:37:40.179Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260178-9xh44xu] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:37:40.534Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260149-yjrn4i] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:37:40.534Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260149-yjrn4i] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:37:40.570Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260178-9xh44xu] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:37:40.570Z] [12/09/2025, 15:37:40] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316260178-9xh44xu] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:37:57.363Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316277360-yll3s] Request received {
+  "timestamp": "2025-12-09T21:37:57.360Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:37:57.364Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316277360-yll3s] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:37:57.521Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316277360-yll3s] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:37:57.521Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316277360-yll3s] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:37:57.974Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:37:57.974Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:57.976Z] [12/09/2025, 15:37:57] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:37:58.008Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:37:58.009Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:37:58.009Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:58.077Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:37:58.077Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:37:58.254Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:37:58.255Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T21:37:58.255Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:37:58.255Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:37:58.255Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T21:37:58.255Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:58.258Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:37:58.259Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:37:58.259Z] [12/09/2025, 15:37:58] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:43:05.330Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316585313-05zerm] Request received {
+  "timestamp": "2025-12-09T21:43:05.313Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:43:05.374Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316585313-05zerm] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:43:05.600Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316585313-05zerm] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:43:05.600Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316585313-05zerm] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:43:05.954Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:43:05.954Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:43:05.954Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:43:05.955Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:43:05.955Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:43:05.955Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:43:05.968Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:43:05.968Z] [12/09/2025, 15:43:05] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:43:06.125Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:43:06.127Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:43:06.128Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:43:06.128Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:43:06.128Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 16866
+[2025-12-09T21:43:06.129Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 5
+}
+[2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
