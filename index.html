@@ -22,6 +22,21 @@
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
   
   <style>
+    /* Immediate spinner background - prevents white screen flash */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+    }
+    
     /* Prevent autofill styling and extension noise */
     input:-webkit-autofill,
     input:-webkit-autofill:hover,
@@ -49,8 +64,36 @@
   </style>
 </head>
 <body>
+  <!-- Immediate spinner - shows before React loads to prevent white screen -->
+  <div id="initial-spinner" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <div style="font-size: 48px; margin-bottom: 16px; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));">🔐</div>
+    <h1 style="color: white; font-size: 28px; font-weight: 600; margin: 0 0 8px 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">OAuth Playground</h1>
+    <p style="color: rgba(255, 255, 255, 0.9); font-size: 14px; margin: 0 0 24px 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);">Initializing application...</p>
+    <div style="width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+  </div>
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Remove initial spinner once React has loaded
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        const spinner = document.getElementById('initial-spinner');
+        if (spinner) {
+          spinner.style.opacity = '0';
+          spinner.style.transition = 'opacity 0.3s ease-out';
+          setTimeout(function() {
+            spinner.remove();
+          }, 300);
+        }
+      }, 100);
+    });
+  </script>
   
   <script>
     // Disable autofill and extension noise

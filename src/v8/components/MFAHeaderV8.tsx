@@ -23,7 +23,7 @@ export interface MFAHeaderV8Props {
 	/** Version tag (e.g., "V8", "MFA Flow V8") */
 	versionTag?: string;
 	/** Current page identifier for navigation highlighting */
-	currentPage?: 'hub' | 'registration' | 'management' | 'reporting' | 'settings';
+	currentPage?: 'hub' | 'registration' | 'management' | 'ordering' | 'reporting' | 'settings';
 	/** Show restart flow button */
 	showRestartFlow?: boolean;
 	/** Handler for restart flow action */

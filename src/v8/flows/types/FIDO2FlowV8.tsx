@@ -862,6 +862,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		}
 	}, [isConfigured, deviceSelection.showRegisterForm]);
 
+
 	// Step 1: Device Selection/Registration (using controller)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
@@ -1480,9 +1481,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					};
 
 					// Call Check Assertion endpoint
+					// Pass environmentId from credentials to avoid loading from storage
 					const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
 						mfaState.authenticationId,
-						assertion
+						assertion,
+						credentials.environmentId
 					);
 
 					console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
@@ -1688,8 +1691,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		return controller.validateCredentials(credentials, tokenStatus, nav);
 	};
 
-	// Track API display visibility for dynamic padding
+	// Track API display visibility and height for dynamic padding
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
+	const [apiDisplayHeight, setApiDisplayHeight] = useState(0);
 
 	useEffect(() => {
 		const checkVisibility = () => {
@@ -1705,10 +1709,45 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		return () => unsubscribe();
 	}, []);
 
+	// Observe API Display height changes for dynamic padding
+	useEffect(() => {
+		if (!isApiDisplayVisible) {
+			setApiDisplayHeight(0);
+			return;
+		}
+
+		const updateHeight = () => {
+			const apiDisplayElement = document.querySelector('.super-simple-api-display') as HTMLElement;
+			if (apiDisplayElement) {
+				const rect = apiDisplayElement.getBoundingClientRect();
+				const height = rect.height;
+				setApiDisplayHeight(height > 0 ? height : apiDisplayElement.offsetHeight);
+			}
+		};
+
+		const initialTimeout = setTimeout(updateHeight, 100);
+
+		const resizeObserver = new ResizeObserver(() => {
+			updateHeight();
+		});
+
+		const apiDisplayElement = document.querySelector('.super-simple-api-display');
+		if (apiDisplayElement) {
+			resizeObserver.observe(apiDisplayElement);
+		}
+
+		return () => {
+			clearTimeout(initialTimeout);
+			resizeObserver.disconnect();
+		};
+	}, [isApiDisplayVisible]);
+
 	return (
 		<div style={{ 
-			paddingBottom: isApiDisplayVisible ? '450px' : '0',
+			minHeight: '100vh',
+			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
 			transition: 'padding-bottom 0.3s ease',
+			overflow: 'visible',
 		}}>
 			<MFAFlowBaseV8
 				deviceType={deviceType as DeviceType}

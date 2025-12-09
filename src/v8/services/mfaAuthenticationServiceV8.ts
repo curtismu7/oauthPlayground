@@ -119,16 +119,67 @@ export class MfaAuthenticationServiceV8 {
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
+			// Read policy to check skipUserLockVerification setting
+			let policy: import('@/v8/flows/shared/MFATypes').DeviceAuthenticationPolicy | null = null;
+			if (params.deviceAuthenticationPolicyId) {
+				try {
+					const { MFAServiceV8 } = await import('./mfaServiceV8');
+					policy = await MFAServiceV8.readDeviceAuthenticationPolicy(
+						params.environmentId,
+						params.deviceAuthenticationPolicyId
+					);
+					console.log(`${MODULE_TAG} Policy loaded for lock verification check:`, {
+						policyId: params.deviceAuthenticationPolicyId,
+						skipUserLockVerification: policy.skipUserLockVerification,
+					});
+				} catch (error) {
+					console.warn(`${MODULE_TAG} Failed to read policy for lock verification, continuing:`, error);
+					// Continue without policy - don't fail initialization
+				}
+			}
+
 			// Get userId - use provided userId or look up by username
 			let userId: string;
+			let user: import('./mfaServiceV8').UserLookupResult | null = null;
 			if (params.userId) {
 				userId = params.userId;
 			} else if (params.username) {
 				const { MFAServiceV8 } = await import('./mfaServiceV8');
-				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+				user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
 			} else {
 				throw new Error('Either username or userId must be provided');
+			}
+
+			// Check user lock status if policy requires it (skipUserLockVerification is false or undefined)
+			// If skipUserLockVerification is true, skip the check
+			if (policy?.skipUserLockVerification !== true) {
+				// If we don't have user data yet, fetch it
+				if (!user && params.username) {
+					const { MFAServiceV8 } = await import('./mfaServiceV8');
+					user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+				}
+
+				// Check if user is locked (check multiple possible fields)
+				const isLocked = user?.locked === true || 
+					user?.account?.locked === true || 
+					user?.status === 'LOCKED' ||
+					user?.account?.status === 'LOCKED';
+
+				if (isLocked) {
+					const errorMessage = 'User account is locked. Please contact your administrator to unlock your account.';
+					console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
+						userId,
+						username: params.username,
+						userStatus: user?.status,
+						accountStatus: user?.account?.status,
+						userLocked: user?.locked,
+						accountLocked: user?.account?.locked,
+					});
+					throw new Error(errorMessage);
+				}
+			} else {
+				console.log(`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`);
 			}
 
 			// Track API call for display
@@ -182,6 +233,82 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
+				// Check for NO_USABLE_DEVICES error
+				if (typeof responseData === 'object' && responseData !== null) {
+					const errorObj = responseData as { error?: string | { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> }; message?: string; unavailableDevices?: Array<{ id: string }> };
+					
+					if (errorObj.error === 'NO_USABLE_DEVICES' || (typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')) {
+						const unavailableDevices = errorObj.unavailableDevices || (typeof errorObj.error === 'object' ? errorObj.error.unavailableDevices : undefined) || [];
+						const errorMessage = (typeof errorObj.error === 'object' ? errorObj.error.message : undefined) || errorObj.message || 'No usable devices found for authentication';
+						
+						const error = new Error(errorMessage) as Error & { errorCode?: string; unavailableDevices?: Array<{ id: string }> };
+						error.errorCode = 'NO_USABLE_DEVICES';
+						error.unavailableDevices = unavailableDevices;
+						throw error;
+					}
+
+					// Check for WhatsApp-specific PingOne errors returned via backend wrapper
+					const wrappedError = responseData as {
+						error?: string;
+						message?: string;
+						details?: {
+							code?: string;
+							message?: string;
+							details?: Array<{
+								code?: string;
+								message?: string;
+								innerError?: { deliveryMethod?: string; coolDownExpiresAt?: number };
+							}>;
+						};
+					};
+
+					const pingError = wrappedError.details;
+					const pingErrorDetails = pingError?.details;
+
+					if (pingError && Array.isArray(pingErrorDetails)) {
+						// WhatsApp temporarily locked (LIMIT_EXCEEDED)
+						const limitExceededDetail = pingErrorDetails.find((d) =>
+							(d.code === 'LIMIT_EXCEEDED') &&
+							d.innerError &&
+							typeof d.innerError.deliveryMethod === 'string' &&
+							d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
+						);
+
+						if (limitExceededDetail) {
+							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
+							let friendlyMessage = 'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
+							if (expiresAt && typeof expiresAt === 'number') {
+								try {
+									const lockUntil = new Date(expiresAt);
+									friendlyMessage =
+										`WhatsApp MFA is temporarily locked due to too many recent attempts. It should be available again around ${lockUntil.toLocaleTimeString()} (${lockUntil.toLocaleDateString()}). ` +
+										'You can also select another device such as SMS or FIDO2 in the meantime.';
+								} catch {
+									// If date conversion fails, fall back to generic message
+								}
+							}
+							const error = new Error(friendlyMessage) as Error & { errorCode?: string };
+							error.errorCode = 'WHATSAPP_LIMIT_EXCEEDED';
+							throw error;
+						}
+
+						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
+						const invalidValueDetail = pingErrorDetails.find((d) =>
+							(d.code === 'INVALID_VALUE') &&
+							typeof d.message === 'string' &&
+							d.message.toLowerCase().includes('could not find suitable content')
+						);
+
+						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
+							const error = new Error(
+								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
+							) as Error & { errorCode?: string };
+							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
+							throw error;
+						}
+					}
+				}
+				
 				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
 					? String(responseData.message)
 					: response.statusText;
@@ -574,6 +701,82 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
+				// Check for NO_USABLE_DEVICES error
+				if (typeof responseData === 'object' && responseData !== null) {
+					const errorObj = responseData as { error?: string | { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> }; message?: string; unavailableDevices?: Array<{ id: string }> };
+					
+					if (errorObj.error === 'NO_USABLE_DEVICES' || (typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')) {
+						const unavailableDevices = errorObj.unavailableDevices || (typeof errorObj.error === 'object' ? errorObj.error.unavailableDevices : undefined) || [];
+						const errorMessage = (typeof errorObj.error === 'object' ? errorObj.error.message : undefined) || errorObj.message || 'No usable devices found for authentication';
+						
+						const error = new Error(errorMessage) as Error & { errorCode?: string; unavailableDevices?: Array<{ id: string }> };
+						error.errorCode = 'NO_USABLE_DEVICES';
+						error.unavailableDevices = unavailableDevices;
+						throw error;
+					}
+
+					// Check for WhatsApp-specific PingOne errors returned via backend wrapper
+					const wrappedError = responseData as {
+						error?: string;
+						message?: string;
+						details?: {
+							code?: string;
+							message?: string;
+							details?: Array<{
+								code?: string;
+								message?: string;
+								innerError?: { deliveryMethod?: string; coolDownExpiresAt?: number };
+							}>;
+						};
+					};
+
+					const pingError = wrappedError.details;
+					const pingErrorDetails = pingError?.details;
+
+					if (pingError && Array.isArray(pingErrorDetails)) {
+						// WhatsApp temporarily locked (LIMIT_EXCEEDED)
+						const limitExceededDetail = pingErrorDetails.find((d) =>
+							(d.code === 'LIMIT_EXCEEDED') &&
+							d.innerError &&
+							typeof d.innerError.deliveryMethod === 'string' &&
+							d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
+						);
+
+						if (limitExceededDetail) {
+							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
+							let friendlyMessage = 'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
+							if (expiresAt && typeof expiresAt === 'number') {
+								try {
+									const lockUntil = new Date(expiresAt);
+									friendlyMessage =
+										`WhatsApp MFA is temporarily locked due to too many recent attempts. It should be available again around ${lockUntil.toLocaleTimeString()} (${lockUntil.toLocaleDateString()}). ` +
+										'You can also select another device such as SMS or FIDO2 in the meantime.';
+								} catch {
+									// If date conversion fails, fall back to generic message
+								}
+							}
+							const error = new Error(friendlyMessage) as Error & { errorCode?: string };
+							error.errorCode = 'WHATSAPP_LIMIT_EXCEEDED';
+							throw error;
+						}
+
+						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
+						const invalidValueDetail = pingErrorDetails.find((d) =>
+							(d.code === 'INVALID_VALUE') &&
+							typeof d.message === 'string' &&
+							d.message.toLowerCase().includes('could not find suitable content')
+						);
+
+						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
+							const error = new Error(
+								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
+							) as Error & { errorCode?: string };
+							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
+							throw error;
+						}
+					}
+				}
+
 				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
 					? String(responseData.message)
 					: response.statusText;
@@ -735,14 +938,15 @@ export class MfaAuthenticationServiceV8 {
 					}
 					
 					// Track API call
+					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 					const startTime = Date.now();
 					const callId = apiCallTrackerService.trackApiCall({
 						method: 'POST',
 						url: actualPingOneUrl,
 						actualPingOneUrl,
 						headers: {
-							...headers,
-							Authorization: headers.Authorization ? 'Basic ***REDACTED***' : undefined,
+							'Content-Type': headers['Content-Type'],
+							...(headers.Authorization && { Authorization: 'Basic ***REDACTED***' }),
 						},
 						body: {
 							grant_type: 'client_credentials',
@@ -1123,6 +1327,7 @@ export class MfaAuthenticationServiceV8 {
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
 			const actualPingOneUrl = `https://api.pingone.com/mfa/v1/environments/${environmentId}/users/${encodeURIComponent(
 				username
@@ -1205,6 +1410,7 @@ export class MfaAuthenticationServiceV8 {
 	 * 
 	 * @param deviceAuthId - The device authentication ID
 	 * @param assertion - WebAuthn assertion result from navigator.credentials.get()
+	 * @param environmentId - Optional environment ID (if not provided, will be loaded from credentials)
 	 */
 	static async checkFIDO2Assertion(
 		deviceAuthId: string,
@@ -1218,7 +1424,8 @@ export class MfaAuthenticationServiceV8 {
 				signature: string;
 				userHandle?: string;
 			};
-		}
+		},
+		environmentId?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
 			deviceAuthId,
@@ -1246,8 +1453,31 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
+			
+			// Get environment ID - use provided parameter or load from credentials service
+			let finalEnvironmentId = environmentId;
+			if (!finalEnvironmentId) {
+				// Use 'mfa-flow-v8' to match the flow key used in MFAAuthenticationMainPageV8
+				const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+				const FLOW_KEY = 'mfa-flow-v8';
+				const credentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+					flowKey: FLOW_KEY,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				finalEnvironmentId = credentials?.environmentId;
+			}
+			
+			if (!finalEnvironmentId) {
+				throw new Error('Environment ID is required for FIDO2 assertion check. Please configure your credentials in the MFA Authentication page.');
+			}
+			
 			const requestBody = {
 				deviceAuthId,
+				environmentId: finalEnvironmentId, // Include environment ID in request body
 				assertion: assertionBody.assertion,
 			};
 			const callId = apiCallTrackerService.trackApiCall({
@@ -1255,6 +1485,7 @@ export class MfaAuthenticationServiceV8 {
 				url: '/api/pingone/mfa/check-fido2-assertion',
 				body: {
 					deviceAuthId,
+					environmentId: finalEnvironmentId, // Include environment ID for display
 					assertion: assertionBody.assertion, // Include assertion data for display
 				},
 				step: 'mfa-Check FIDO2 Assertion',

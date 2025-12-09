@@ -30,6 +30,8 @@ import { validateAndNormalizePhone, isValidPhoneFormat } from '@/v8/utils/phoneV
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
+import { WhatsAppNotEnabledModalV8 } from '@/v8/components/WhatsAppNotEnabledModalV8';
+import { NicknamePromptModalV8 } from '@/v8/components/NicknamePromptModalV8';
 
 const MODULE_TAG = '[📲 WHATSAPP-MFA]';
 
@@ -560,15 +562,42 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		getContactLabel,
 		getDeviceTypeDisplay,
 		MODULE_TAG,
-		credentials: flowCredentials,
-		tokenStatus: flowTokenStatus,
-		nav: flowNav,
 	} = flow;
+	
+	// Load credentials from storage for use in modals/components outside of MFAFlowBaseV8
+	const [credentialsForModal, setCredentialsForModal] = useState<MFACredentials>(() => {
+		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		return {
+			environmentId: stored.environmentId || '',
+			clientId: stored.clientId || '',
+			username: stored.username || '',
+			deviceType: 'WHATSAPP' as DeviceType,
+			countryCode: stored.countryCode || '+1',
+			phoneNumber: stored.phoneNumber || '',
+			email: stored.email || '',
+			deviceName: stored.deviceName || '',
+			deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
+			registrationPolicyId: stored.registrationPolicyId || '',
+		};
+	});
 
 	const credentialsUpdatedRef = React.useRef(false);
 	
 	// Ref to store step 0 props for hooks to access
 	const step0PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	
+	// State for nickname prompt modal (shared across steps)
+	const [showNicknameModal, setShowNicknameModal] = useState(false);
+	const [pendingDeviceId, setPendingDeviceId] = useState<string | null>(null);
+	const [isUpdatingNickname, setIsUpdatingNickname] = useState(false);
+	const [showWhatsAppNotEnabledModal, setShowWhatsAppNotEnabledModal] = useState(false);
 	
 	// State to track tokenType changes (for triggering effects)
 	const [lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
@@ -594,17 +623,17 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// User Flow: Always use Worker Token, always set status to ACTIVATION_REQUIRED
-		// Admin Flow: Use Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
-		// Both flows use Worker Token - the difference is only in device status selection
-		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'worker') {
-			// User Flow selected - ensure Worker Token is used
-			console.log(`${MODULE_TAG} User Flow selected - ensuring Worker Token is used`);
+		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
+		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
+		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
+			// User Flow selected - ensure User Token is used
+			console.log(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
-				tokenType: 'worker',
-				userToken: '', // Clear any user token - User Flow uses Worker Token
+				tokenType: 'user',
+				// Preserve userToken if it exists (from OAuth login)
+				// Don't clear it - User Flow requires User Token
 			}));
 			setTimeout(() => {
 				isSyncingRef.current = false;
@@ -616,7 +645,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			props.setCredentials((prev) => ({
 				...prev,
 				tokenType: 'worker',
-				userToken: '', // Clear user token when switching to admin
+				userToken: '', // Clear user token when switching to admin (Admin Flow uses Worker Token)
 			}));
 			// Reset flag after state update
 			setTimeout(() => {
@@ -637,9 +666,20 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// Both Admin and User flows use Worker Token
-		// Only sync when switching to Admin flow (User flow doesn't change tokenType)
-		if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
+		// Admin Flow uses Worker Token, User Flow uses User Token
+		// Sync when switching between flows
+		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
+			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
+			// User Flow must use User Token, so we should switch to Admin Flow
+			console.log(`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`);
+			setRegistrationFlowType('admin');
+			return;
+		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
+			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
+			console.log(`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`);
+			setRegistrationFlowType('user');
+			return;
+		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			console.log(`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`);
 			isSyncingRef.current = true;
@@ -656,8 +696,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Clear success state when navigating to step 1 (moved to useEffect to avoid render warning)
 	React.useEffect(() => {
-		if (!flowNav || typeof flowNav.currentStep !== 'number') return;
-		const currentStep = flowNav.currentStep;
+		const nav = step0PropsRef.current?.nav;
+		if (!nav || typeof nav.currentStep !== 'number') return;
+		const currentStep = nav.currentStep;
 		if (currentStep === 1 && previousStepRef.current !== 1 && deviceRegisteredActive) {
 			// Clear the state when we first enter step 1
 			previousStepRef.current = 1;
@@ -666,7 +707,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// Reset the ref when we leave step 1
 			previousStepRef.current = currentStep;
 		}
-	}, [flowNav?.currentStep, deviceRegisteredActive, setDeviceRegisteredActive]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [deviceRegisteredActive, setDeviceRegisteredActive]);
 
 	// Step 1: Device Selection (using separate component like SMS)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
@@ -685,7 +727,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	// Step 2: Register Device (using controller) - Similar to SMS renderStep2Register
 	// Use useCallback to capture adminDeviceStatus and registrationFlowType in closure
 	const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus, deviceAuthPolicies } = props;
 
 		// Handle device registration
 		const handleRegisterDevice = async () => {
@@ -712,6 +754,16 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				return;
 			}
 
+			// Check if pairing is disabled in the policy
+			const selectedPolicy = deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId);
+			if (selectedPolicy?.pairingDisabled === true) {
+				nav.setValidationErrors([
+					'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.'
+				]);
+				toastV8.error('Device pairing is disabled for this policy');
+				return;
+			}
+
 			if (!credentials.phoneNumber?.trim()) {
 				nav.setValidationErrors(['Phone number is required. Please enter a valid phone number.']);
 				return;
@@ -735,20 +787,64 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					deviceName: userEnteredDeviceName,
 				};
 				
-				// Determine device status based on selected flow type
+				// Determine device status based on selected flow type (same logic as SMS)
+				// Per PingOne API docs:
+				// - Admin Flow (Worker App on behalf of user): Can use ACTIVE or ACTIVATION_REQUIRED (user's choice)
+				// - User Flow (user making request): Can only use ACTIVATION_REQUIRED
+				// 
+				// Status selection:
+				// - Admin Flow: Use adminDeviceStatus (user selects ACTIVE or ACTIVATION_REQUIRED via dropdown)
+				// - User Flow: Always ACTIVATION_REQUIRED (enforced by PingOne API)
 				const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' = registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
 				
-				console.log(`${MODULE_TAG} 🔍 DEVICE STATUS SELECTION DEBUG:`, {
+				console.log(`${MODULE_TAG} 🔍 DEVICE STATUS SELECTION DEBUG (same as SMS):`, {
 					'Registration Flow Type': registrationFlowType,
 					'Admin Device Status State': adminDeviceStatus,
 					'Calculated Device Status': deviceStatus,
 					'Will send to API': deviceStatus,
+					'Status Source': registrationFlowType === 'admin' 
+						? `Admin Flow - User selected: ${adminDeviceStatus}` 
+						: 'User Flow - Always ACTIVATION_REQUIRED (enforced)',
+					note: 'Status respects user selection: Admin Flow (user chooses) or User Flow (always ACTIVATION_REQUIRED)',
 				});
 				
 				const result = await controller.registerDevice(
 					registrationCredentials, 
 					controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
 				);
+				
+				// Check if policy requires nickname prompt (selectedPolicy already defined above)
+				const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
+				
+				if (shouldPromptForNickname) {
+					// Store device ID for nickname update and show modal
+					setPendingDeviceId(result.deviceId);
+					setShowNicknameModal(true);
+					// Don't update nickname automatically - wait for user input in modal
+				} else {
+					// Update device nickname with the user-provided device name (if not prompting)
+					// This ensures the nickname appears in the API display and matches what the user entered
+					if (result.deviceId && userEnteredDeviceName) {
+						try {
+							console.log(`${MODULE_TAG} Updating device nickname after registration:`, {
+								deviceId: result.deviceId,
+								nickname: userEnteredDeviceName,
+							});
+							await MFAServiceV8.updateDeviceNickname(
+								{
+									environmentId: registrationCredentials.environmentId,
+									username: registrationCredentials.username,
+									deviceId: result.deviceId,
+								},
+								userEnteredDeviceName
+							);
+							console.log(`${MODULE_TAG} ✅ Device nickname updated successfully`);
+						} catch (nicknameError) {
+							console.warn(`${MODULE_TAG} ⚠️ Failed to update device nickname (non-fatal):`, nicknameError);
+							// Don't fail registration if nickname update fails - device was created successfully
+						}
+					}
+				}
 				
 				// Use the actual status returned from the API, not the requested status
 				const actualDeviceStatus = result.status || deviceStatus;
@@ -790,7 +886,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				// C. If status is ACTIVATION_REQUIRED
 				// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
 				// → User must enter OTP to activate device (go directly to validation step)
-				// Note: Both Admin and User flows use Worker Token. Admin Flow can choose ACTIVE or ACTIVATION_REQUIRED. User Flow always uses ACTIVATION_REQUIRED.
+				// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 				const hasDeviceActivateUri = !!deviceActivateUri;
 				const deviceIsActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
 				
@@ -831,12 +927,26 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				const isDeviceLimitError =
-					errorMessage.toLowerCase().includes('exceed') ||
-					errorMessage.toLowerCase().includes('limit') ||
-					errorMessage.toLowerCase().includes('maximum');
+				const normalizedMessage = errorMessage.toLowerCase();
+				const isWhatsAppNotAllowedError =
+					normalizedMessage.includes('whatsapp mfa is not enabled') ||
+					normalizedMessage.includes('pairing device type whatsapp is not allowed') ||
+					(error && typeof error === 'object' && (error as { code?: string }).code === 'WHATSAPP_DEVICE_TYPE_NOT_ALLOWED');
 
-				if (isDeviceLimitError) {
+				const isDeviceLimitError =
+					normalizedMessage.includes('exceed') ||
+					normalizedMessage.includes('limit') ||
+					normalizedMessage.includes('maximum');
+
+				if (isWhatsAppNotAllowedError) {
+					nav.setValidationErrors([
+						'WhatsApp MFA is not enabled or not allowed for this environment or Device Authentication Policy. Please enable WhatsApp MFA in the PingOne Admin Console or select a different policy that allows WhatsApp.',
+					]);
+					setShowWhatsAppNotEnabledModal(true);
+					toastV8.error(
+						'WhatsApp MFA is not enabled or not allowed for this environment or Device Authentication Policy.'
+					);
+				} else if (isDeviceLimitError) {
 					setShowDeviceLimitModal(true);
 					nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
 					toastV8.error('Device limit exceeded. Please delete an existing device first.');
@@ -924,7 +1034,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					<input
 						id="mfa-device-name-register"
 						type="text"
-						value={credentials.deviceName || credentials.deviceType || 'WHATSAPP'}
+						value={credentials.deviceName || (credentials.deviceType || 'WHATSAPP')}
 						onChange={(e) => setCredentials({ ...credentials, deviceName: e.target.value })}
 						placeholder={credentials.deviceType || 'WHATSAPP'}
 						style={{
@@ -977,14 +1087,40 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					</p>
 				</div>
 
-				<button
-					type="button"
-					className="btn btn-primary"
-					disabled={isLoading || !isValidForm}
-					onClick={handleRegisterDevice}
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'flex-end',
+						marginTop: '8px',
+					}}
 				>
-					{isLoading ? '🔄 Registering...' : 'Register WhatsApp Device'}
-				</button>
+					<button
+						type="button"
+						disabled={isLoading || !isValidForm}
+						onClick={handleRegisterDevice}
+						style={{
+							minWidth: '200px',
+							padding: '10px 20px',
+							borderRadius: '6px',
+							fontSize: '14px',
+							fontWeight: 500,
+							border: 'none',
+							display: 'inline-flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							cursor: isLoading || !isValidForm ? 'not-allowed' : 'pointer',
+							background: isLoading || !isValidForm ? '#d1d5db' : '#10b981',
+							color: isLoading || !isValidForm ? '#6b7280' : '#ffffff',
+							transition: 'all 0.2s ease',
+							boxShadow:
+								isLoading || !isValidForm
+									? 'none'
+									: '0 2px 8px rgba(16, 185, 129, 0.3)',
+						}}
+					>
+						{isLoading ? '🔄 Registering...' : 'Register WhatsApp Device'}
+					</button>
+				</div>
 
 				{mfaState.deviceId && mfaState.deviceStatus === 'ACTIVE' && (
 					<div className="success-box" style={{ marginTop: '20px' }}>
@@ -1000,9 +1136,44 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						</p>
 					</div>
 				)}
+
+				{/* Nickname Prompt Modal */}
+				<NicknamePromptModalV8
+					isOpen={showNicknameModal}
+					onClose={() => {
+						setShowNicknameModal(false);
+						setPendingDeviceId(null);
+					}}
+					onSave={async (nickname: string) => {
+						if (!pendingDeviceId) {
+							throw new Error('Device ID is missing');
+						}
+						setIsUpdatingNickname(true);
+						try {
+							await MFAServiceV8.updateDeviceNickname(
+								{
+									environmentId: credentials.environmentId,
+									username: credentials.username,
+									deviceId: pendingDeviceId,
+								},
+								nickname
+							);
+							toastV8.success('Device nickname updated successfully');
+							setShowNicknameModal(false);
+							setPendingDeviceId(null);
+						} catch (error) {
+							throw error;
+						} finally {
+							setIsUpdatingNickname(false);
+						}
+					}}
+					currentNickname={credentials.deviceName}
+					deviceType="WHATSAPP"
+					isLoading={isUpdatingNickname}
+				/>
 			</div>
 		);
-	}, [registrationFlowType, adminDeviceStatus, controller, getContactDisplay]);
+	}, [registrationFlowType, adminDeviceStatus, controller, getContactDisplay, showNicknameModal, pendingDeviceId, isUpdatingNickname, setShowNicknameModal, setPendingDeviceId, setIsUpdatingNickname]);
 
 	// Step 3: Send OTP (using controller) - Renumbered from Step 2
 	const createRenderStep3 = (
@@ -1019,7 +1190,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 			// Skip step 3 (Send OTP) for ACTIVATION_REQUIRED devices - OTP is sent automatically by PingOne
 			// Redirect to step 4 (Validate) instead
-			if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && nav.currentStep === 3) {
+			if ((mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || mfaState.authenticationId) && nav.currentStep === 3) {
 				console.log(`${MODULE_TAG} Device is ACTIVATION_REQUIRED - skipping Send OTP step, going to Validate step`);
 				setTimeout(() => {
 					setShowValidationModal(true);
@@ -1231,23 +1402,64 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
 
-			// If validation is complete, navigate to step 5 to show success screen
-			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
-				// Navigate to step 5 to show success page
-				if (nav.currentStep !== 5) {
-					nav.goToStep(5);
+			// Close modal when verification is complete (use useEffect to avoid render warning)
+			React.useEffect(() => {
+				if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
+					setShowValidationModal(false);
 				}
-				// Return null here - step 5 will render the success page
-				return null;
-			}
+			}, [mfaState.verificationResult?.status, showValidationModal]);
 
-			// Show validation UI as modal - always show when on step 4 (unless validation is complete)
-			// If modal is closed but we're on step 4, automatically reopen it
-			if (!showValidationModal && nav.currentStep === 4) {
-				// Use setTimeout to avoid state updates during render
-				setTimeout(() => {
+			// Auto-open validation modal when on step 4 (use useEffect to avoid render warning)
+			React.useEffect(() => {
+				if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult) {
 					setShowValidationModal(true);
-				}, 0);
+				}
+			}, [nav.currentStep, showValidationModal, mfaState.verificationResult?.status]);
+
+			// If validation is complete, show success screen using shared service
+			// Close modal and show success page directly in step 4 (like SMS flow)
+			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
+				const successData = buildSuccessPageData(credentials, mfaState);
+				return (
+					<MFASuccessPageV8
+						{...props}
+						successData={successData}
+						onStartAgain={() => navigate('/v8/mfa-hub')}
+					/>
+				);
+			}
+			
+			// If device is ACTIVE and we're on step 4, show success page instead of redirecting
+			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 4) {
+				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
+				if (deviceRegisteredActive || mfaState.verificationResult) {
+					const successData = buildSuccessPageData(credentials, mfaState);
+					return (
+						<MFASuccessPageV8
+							{...props}
+							successData={successData}
+							onStartAgain={() => navigate('/v8/mfa-hub')}
+						/>
+					);
+				}
+				// If no success state, device was already active - navigate back to device selection
+				React.useEffect(() => {
+					nav.goToStep(1);
+				}, [nav]);
+				return (
+					<div className="step-content">
+						<div className="success-box">
+							<h3>✅ Device Ready</h3>
+							<p>Your device is already active and ready to use. No OTP validation is required.</p>
+							<p>
+								<strong>Device ID:</strong> {mfaState.deviceId}
+							</p>
+							<p>
+								<strong>Status:</strong> {mfaState.deviceStatus}
+							</p>
+						</div>
+					</div>
+				);
 			}
 
 			// If modal is closed but we're on step 4, show a message
@@ -1680,73 +1892,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		};
 	};
 
-	// Step 5: Success Page (using shared component) - Renumbered from Step 4
-	const createRenderStep5 = () => {
-		return (props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, nav } = props;
-			
-			// Close modal when verification is complete
-			React.useEffect(() => {
-				if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
-					setShowValidationModal(false);
-				}
-			}, [mfaState.verificationResult, showValidationModal]);
-
-			// If validation is complete, show success screen using shared service
-			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
-				const successData = buildSuccessPageData(credentials, mfaState);
-				return (
-					<MFASuccessPageV8
-						{...props}
-						successData={successData}
-						onStartAgain={() => navigate('/v8/mfa-hub')}
-					/>
-				);
-			}
-
-			// If device is ACTIVE and we're on step 5, show success page instead of redirecting
-			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 5) {
-				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
-				if (deviceRegisteredActive || mfaState.verificationResult) {
-					const successData = buildSuccessPageData(credentials, mfaState);
-					return (
-						<MFASuccessPageV8
-							{...props}
-							successData={successData}
-							onStartAgain={() => navigate('/v8/mfa-hub')}
-						/>
-					);
-				}
-				// If no success state, device was already active - navigate back to device selection
-				setTimeout(() => {
-					nav.goToStep(1);
-				}, 0);
-				return (
-					<div className="step-content">
-						<div className="success-box">
-							<h3>✅ Device Ready</h3>
-							<p>Your device is already active and ready to use. No OTP validation is required.</p>
-							<p>
-								<strong>Device ID:</strong> {mfaState.deviceId}
-							</p>
-							<p>
-								<strong>Status:</strong> {mfaState.deviceStatus}
-							</p>
-						</div>
-					</div>
-				);
-			}
-
-			// Default: show empty state (should not reach here if flow is correct)
-			return (
-				<div className="step-content" style={{ padding: '40px 20px', textAlign: 'center' }}>
-					<p style={{ color: '#6b7280', fontSize: '16px' }}>
-						Validation complete. Please check the previous step for results.
-					</p>
-				</div>
-			);
-		};
-	};
 
 	// Validation function for Step 0
 	const validateStep0 = (
@@ -1756,11 +1901,10 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	): boolean => {
 		return controller.validateCredentials(credentials, tokenStatus, nav);
 	};
-
 	return (
 		<div style={{ 
 			minHeight: '100vh',
-			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 20}px` : '0',
+			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
 			transition: 'padding-bottom 0.3s ease',
 			overflow: 'visible',
 		}}>
@@ -1783,7 +1927,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						});
 					}
 				)}
-				renderStep5={createRenderStep5()}
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
 				shouldHideNextButton={(props) => {
@@ -1794,9 +1937,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					return false;
 				}}
 			/>
-			
+			<WhatsAppNotEnabledModalV8
+				isOpen={showWhatsAppNotEnabledModal}
+				onClose={() => setShowWhatsAppNotEnabledModal(false)}
+				environmentId={credentialsForModal.environmentId}
+			/>
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
 		</div>
 	);
 };
