@@ -27,6 +27,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
@@ -857,7 +858,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
 					<button
 						type="button"
-						onClick={() => navigate('/v8/mfa-hub')}
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
 						style={{
 							padding: '12px 24px',
 							border: '1px solid #d1d5db',

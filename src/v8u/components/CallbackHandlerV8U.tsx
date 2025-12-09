@@ -33,14 +33,23 @@ export const CallbackHandlerV8U: React.FC = () => {
 		
 		if (isUserLoginCallback) {
 			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
+			
+			// DEBUG: Log all sessionStorage keys to help diagnose cache issues
+			console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys:`, Object.keys(sessionStorage));
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Checking for user_login_return_to_mfa...`);
+			
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
+			
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
 			
 			if (returnToMfaFlow) {
 				try {
 					// Redirect back to MFA flow page with callback params preserved
 					const mfaPath = JSON.parse(returnToMfaFlow);
-					console.log(`${MODULE_TAG} Found stored return path: ${mfaPath}`);
+					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
 					
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
@@ -48,21 +57,26 @@ export const CallbackHandlerV8U: React.FC = () => {
 						? `${mfaPath}?${callbackParams.toString()}`
 						: mfaPath;
 					
-					// Clean up the return path marker
+					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
+					
+					// Clean up the return path marker AFTER logging but BEFORE redirect
+					// This ensures we have the path even if there's a race condition
 					sessionStorage.removeItem('user_login_return_to_mfa');
 					
 					// Use window.location.replace for immediate redirect (more reliable than navigate)
-					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
 					window.location.replace(redirectUrl);
 					return; // CRITICAL: Exit early to prevent unified flow logic
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
+					console.error(`${MODULE_TAG} ❌ Failed to parse return path:`, error);
+					console.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
 					// Fall through to MFA hub redirect
 				}
 			}
 			
 			// If no return path, redirect to MFA hub as fallback
-			console.log(`${MODULE_TAG} ⚠️ No return path found, redirecting to MFA hub`);
+			console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
+			console.warn(`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`);
+			console.warn(`${MODULE_TAG} ⚠️ Redirecting to MFA hub as fallback`);
 			const callbackParams = new URLSearchParams(window.location.search);
 			const redirectUrl = callbackParams.toString() 
 				? `/v8/mfa-hub?${callbackParams.toString()}`

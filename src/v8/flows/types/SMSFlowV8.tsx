@@ -27,6 +27,7 @@ import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { validateAndNormalizePhone, isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { MFASuccessPageV8, buildSuccessPageData, getSuccessPageStep, type MFASuccessPageData } from '../shared/mfaSuccessPageServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -632,6 +633,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	// Track if we've updated credentials from location.state
 	const credentialsUpdatedRef = React.useRef(false);
 	
+	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
+	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
+	
 	// Step 0: Configure Credentials - skip if coming from config page with all prerequisites
 	const renderStep0 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
@@ -808,31 +812,56 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus, setShowWorkerTokenModal } = props;
 
+		// Reset deviceName to device type when entering registration step (Step 2)
+		// Use ref to track if we've already done this for this step/deviceType combination
+		// This avoids Rules of Hooks violation by not using useEffect inside render function
+		if (nav.currentStep === 2 && credentials) {
+			// Force deviceType to be SMS or EMAIL for SMS flow (ignore any stale values like FIDO2)
+			const validDeviceType = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL') 
+				? credentials.deviceType 
+				: 'SMS';
+			
+			const resetKey = `${nav.currentStep}-${validDeviceType}`;
+			const lastReset = step2DeviceNameResetRef.current;
+			
+			if (!lastReset || lastReset.step !== nav.currentStep || lastReset.deviceType !== validDeviceType) {
+				// Check if deviceName needs to be reset - reset if empty, matches wrong device type, or is a generic name
+				const shouldReset = !credentials.deviceName || 
+					credentials.deviceName === credentials.deviceType ||
+					credentials.deviceName === 'SMS' ||
+					credentials.deviceName === 'EMAIL' ||
+					credentials.deviceName === 'FIDO2' ||
+					credentials.deviceName === 'FIDO' ||
+					credentials.deviceName === 'TOTP' ||
+					credentials.deviceName === 'WHATSAPP';
+				
+				if (shouldReset || credentials.deviceType !== validDeviceType) {
+					// Use setTimeout to avoid state update during render
+					setTimeout(() => {
+						setCredentials({
+							...credentials,
+							deviceType: validDeviceType, // Force correct device type
+							deviceName: validDeviceType, // Set device name to match device type
+						});
+					}, 0);
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: validDeviceType,
+					};
+				} else {
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: validDeviceType,
+					};
+				}
+			}
+		}
+
 		// Ensure deviceType is set correctly - default to SMS for SMS flow, but allow EMAIL if selected
 		// This ensures the button text and validation match what the user selected
 		const currentDeviceType = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL') 
 			? credentials.deviceType 
 			: 'SMS';
-
-		// Reset deviceName to device type when entering registration step (Step 2)
-		React.useEffect(() => {
-			if (nav.currentStep === 2 && credentials) {
-				// Reset deviceName to device type if it's empty or matches old device type
-				const deviceTypeValue = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL')
-					? credentials.deviceType
-					: currentDeviceType || 'SMS';
-				const shouldReset = !credentials.deviceName || 
-					credentials.deviceName === credentials.deviceType ||
-					credentials.deviceName === 'SMS' ||
-					credentials.deviceName === 'EMAIL';
-				if (shouldReset) {
-					setCredentials({
-						...credentials,
-						deviceName: deviceTypeValue,
-					});
-				}
-			}
-		}, [nav.currentStep, credentials.deviceType, credentials.deviceName, currentDeviceType, setCredentials]);
 
 		// Handle device registration
 		const handleRegisterDevice = async () => {
@@ -1053,10 +1082,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					});
 					setShowModal(false);
 					toastV8.success(`${actualDeviceType === 'EMAIL' ? 'Email' : 'SMS'} device registered successfully! Device is ready to use (ACTIVE status).`);
-				} else if (requestedActivationRequired && hasDeviceActivateUri) {
-					// Device requires activation and we have the URI
+				} else if (requestedActivationRequired) {
 					// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
+					// This applies to both Admin Flow (with ACTIVATION_REQUIRED selected) and User Flow (always ACTIVATION_REQUIRED)
 					// No need to manually call sendOTP - PingOne handles it automatically
+					// Follow the same pattern for both flows: close modal, open validation modal, go to Step 4
 					console.log(`${MODULE_TAG} Device registered with ACTIVATION_REQUIRED status - PingOne will automatically send OTP`);
 					
 					// Ensure device status is explicitly set to ACTIVATION_REQUIRED in mfaState before navigation
@@ -1065,6 +1095,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						deviceId: result.deviceId,
 						deviceActivateUri: deviceActivateUri || 'NOT PROVIDED',
 						hasDeviceActivateUri: !!deviceActivateUri,
+						registrationFlowType,
 					});
 					setMfaState((prev) => ({
 						...prev,
@@ -1073,13 +1104,31 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						...(deviceActivateUri ? { deviceActivateUri } : {}),
 					}));
 					
-					setShowModal(false);
-					setShowValidationModal(true); // Ensure validation modal is open when navigating to Step 4
+					// Clean up any OAuth callback parameters from URL to prevent redirect issues
+					if (window.location.search.includes('code=') || window.location.search.includes('state=')) {
+						const cleanUrl = window.location.pathname;
+						window.history.replaceState({}, document.title, cleanUrl);
+						console.log(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+					}
+					
+					// Set validation modal to open and mark step complete
+					setShowValidationModal(true);
 					nav.markStepComplete();
 					
-					// Use setTimeout to ensure state updates complete before navigation
+					// Close registration modal first, then navigate to Step 4
+					// This ensures Step 2 returns null immediately and allows Step 4 to render
+					setShowModal(false);
+					
+					// Navigate to Step 4 after a short delay to ensure state updates complete
+					// This matches the pattern that works for admin flow
 					setTimeout(() => {
 						nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
+						console.log(`${MODULE_TAG} ✅ Navigated to Step 4 for OTP validation`, {
+							deviceId: result.deviceId,
+							deviceStatus: 'ACTIVATION_REQUIRED',
+							showValidationModal: true,
+							registrationFlowType,
+						});
 					}, 100);
 					
 					toastV8.success(`${actualDeviceType === 'EMAIL' ? 'Email' : 'SMS'} device registered! OTP has been sent automatically.`);
@@ -1131,13 +1180,23 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					});
 					
 					// If we requested ACTIVATION_REQUIRED but got something else, treat as activation required
+					// Follow the same pattern as the main ACTIVATION_REQUIRED branch
 					// Type assertion needed because TypeScript can't narrow the type here
 					if ((deviceStatus as string) === 'ACTIVATION_REQUIRED') {
 						console.warn(`${MODULE_TAG} Requested ACTIVATION_REQUIRED but API returned ${actualDeviceStatus}, treating as ACTIVATION_REQUIRED`);
+						// Set mfaState correctly
+						setMfaState((prev) => ({
+							...prev,
+							deviceId: result.deviceId,
+							deviceStatus: 'ACTIVATION_REQUIRED',
+							...(deviceActivateUri ? { deviceActivateUri } : {}),
+						}));
 						setShowModal(false);
 						setShowValidationModal(true);
 						nav.markStepComplete();
-						nav.goToStep(4);
+						setTimeout(() => {
+							nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
+						}, 100);
 						toastV8.success(`${actualDeviceType === 'EMAIL' ? 'Email' : 'SMS'} device registered! OTP has been sent automatically.`);
 					} else {
 						// Unknown status - default to OTP flow to be safe
@@ -1245,14 +1304,27 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			);
 		}
 
-		// If modal is closed and no success state, check if we're transitioning to Step 4 (OTP validation)
-		// If we're on Step 4 or transitioning to it, don't show "Start again" - Step 4 will handle rendering
+		// If we're on Step 4, don't render Step 2 content - let Step 4 handle rendering
+		if (nav.currentStep === 4) {
+			return null;
+		}
+
+		// Check if we're transitioning to Step 4 (OTP validation) - check this BEFORE checking if modal is closed
+		// This ensures we return null immediately when transitioning, even if modal is still open
+		// User flow always goes to Step 4 after registration (always ACTIVATION_REQUIRED)
+		// Admin flow with ACTIVATION_REQUIRED also goes to Step 4
+		const isTransitioningToStep4 = mfaState.deviceId && 
+			(mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || 
+			 showValidationModal ||
+			 (registrationFlowType === 'user' && mfaState.deviceId)); // User flow always goes to validation after registration
+		if (isTransitioningToStep4) {
+			// We're transitioning to Step 4 - don't render Step 2 content, let Step 4 render
+			// Return null to allow Step 4 to render
+			return null;
+		}
+
+		// If modal is closed and no success state, show "Start again" message
 		if (!showModal && nav.currentStep !== 4) {
-			// Check if we have a device ID and status indicating we should be on Step 4
-			if (mfaState.deviceId && (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || showValidationModal)) {
-				// We're transitioning to Step 4 - don't show "Start again", let Step 4 render
-				return null;
-			}
 			
 			return (
 				<div style={{
@@ -1292,11 +1364,6 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					</button>
 				</div>
 			);
-		}
-		
-		// If we're on Step 4, don't render Step 2 content
-		if (nav.currentStep === 4) {
-			return null;
 		}
 
 		return (
@@ -2049,7 +2116,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					<MFASuccessPageV8
 						{...props}
 						successData={successData}
-						onStartAgain={() => navigate('/v8/mfa-hub')}
+						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
 				);
 			}
@@ -2065,7 +2132,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						<MFASuccessPageV8
 							{...props}
 							successData={successData}
-							onStartAgain={() => navigate('/v8/mfa-hub')}
+							onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 						/>
 					);
 				}
@@ -2497,25 +2564,59 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 	// apiDisplayHeight is already provided by useUnifiedOTPFlow hook
 
-	// Show loading state while checking credentials
+	// Show loading state while checking credentials - use a small modal instead of full screen
 	if (isCheckingCredentials) {
 		return (
-			<div style={{ 
-				minHeight: '100vh',
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'center',
-				background: '#f9fafb',
-			}}>
-				<div style={{ textAlign: 'center' }}>
-					<div style={{ fontSize: '18px', color: '#374151', marginBottom: '12px' }}>
-						Loading {getDeviceTypeDisplay()} Device Registration...
-					</div>
-					<div style={{ fontSize: '14px', color: '#6b7280' }}>
-						Checking credentials...
+			<>
+				<div style={{ 
+					minHeight: '100vh',
+					background: '#f9fafb',
+				}}>
+					{/* Empty background - flow will render below */}
+				</div>
+				{/* Small loading modal */}
+				<div style={{
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center',
+					background: 'rgba(0, 0, 0, 0.3)',
+					zIndex: 9999,
+				}}>
+					<div style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '16px 20px',
+						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+						minWidth: '160px',
+						textAlign: 'center',
+					}}>
+						{/* Spinner */}
+						<div style={{
+							width: '24px',
+							height: '24px',
+							border: '3px solid #e5e7eb',
+							borderTop: '3px solid #3b82f6',
+							borderRadius: '50%',
+							animation: 'spin 1s linear infinite',
+							margin: '0 auto 12px',
+						}} />
+						<div style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>
+							Loading...
+						</div>
 					</div>
 				</div>
-			</div>
+				<style>{`
+					@keyframes spin {
+						0% { transform: rotate(0deg); }
+						100% { transform: rotate(360deg); }
+					}
+				`}</style>
+			</>
 		);
 	}
 
@@ -2536,6 +2637,10 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				validateStep0={validateStep0}
 				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
 				shouldHideNextButton={(props) => {
+					// Hide Next button on step 2 when showing success page for ACTIVE devices
+					if (props.nav.currentStep === 2 && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
+						return true;
+					}
 					// Hide final button on success step (step 4) - we have our own "Start Again" button
 					if (props.nav.currentStep === 4) {
 						return true;
