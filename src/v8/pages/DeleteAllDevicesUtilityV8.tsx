@@ -13,11 +13,13 @@
  * - Shows device count before deletion
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
 import { FiTrash2, FiLoader, FiAlertCircle, FiCheckCircle, FiX } from 'react-icons/fi';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
@@ -47,11 +49,63 @@ const DEVICE_STATUSES: Array<{ value: DeviceStatus; label: string }> = [
 	{ value: 'EXPIRED', label: 'Expired' },
 ];
 
+const PAGE_STORAGE_KEY = 'v8:delete-all-devices';
+const PAGE_STORAGE_VERSION = 1;
+
+interface DeleteAllDevicesPageState {
+	environmentId: string;
+	username: string;
+	selectedDeviceType: DeviceType;
+	selectedDeviceStatus: DeviceStatus;
+}
+
 export const DeleteAllDevicesUtilityV8: React.FC = () => {
-	const [environmentId, setEnvironmentId] = useState('');
-	const [username, setUsername] = useState('');
-	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceType>('ALL');
-	const [selectedDeviceStatus, setSelectedDeviceStatus] = useState<DeviceStatus>('ALL');
+	const [environmentId, setEnvironmentId] = useState(() => {
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.environmentId) {
+				return stored.environmentId;
+			}
+			const globalEnvId = EnvironmentIdServiceV8.getEnvironmentId();
+			if (globalEnvId) {
+				return globalEnvId;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved environment ID`, error);
+		}
+		return '';
+	});
+	const [username, setUsername] = useState(() => {
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			return stored?.username || '';
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved username`, error);
+			return '';
+		}
+	});
+	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceType>(() => {
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.selectedDeviceType) {
+				return stored.selectedDeviceType;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved device type filter`, error);
+		}
+		return 'ALL';
+	});
+	const [selectedDeviceStatus, setSelectedDeviceStatus] = useState<DeviceStatus>(() => {
+		try {
+			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
+			if (stored?.selectedDeviceStatus) {
+				return stored.selectedDeviceStatus;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load saved device status filter`, error);
+		}
+		return 'ALL';
+	});
 	const [isLoading, setIsLoading] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [devices, setDevices] = useState<Array<Record<string, unknown>>>([]);
@@ -61,9 +115,34 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		failed: number;
 		errors: Array<{ deviceId: string; error: string }>;
 	} | null>(null);
+	const [selectedDeviceIds, setSelectedDeviceIds] = useState<Set<string>>(new Set());
+
+	const selectedCount = devices.filter((device) =>
+		selectedDeviceIds.has(device.id as string)
+	).length;
 
 	// Get worker token status
 	const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+	// Persist form state when it changes
+	useEffect(() => {
+		try {
+			const state: DeleteAllDevicesPageState = {
+				environmentId: environmentId.trim(),
+				username: username.trim(),
+				selectedDeviceType,
+				selectedDeviceStatus,
+			};
+
+			StorageServiceV8.save(PAGE_STORAGE_KEY, state, PAGE_STORAGE_VERSION);
+
+			if (state.environmentId) {
+				EnvironmentIdServiceV8.saveEnvironmentId(state.environmentId);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save delete-all-devices state`, error);
+		}
+	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus]);
 
 	// Load devices for the user
 	const handleLoadDevices = useCallback(async () => {
@@ -98,6 +177,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			}
 
 			setDevices(filteredDevices);
+			setSelectedDeviceIds(new Set(filteredDevices.map((d) => d.id as string)));
 
 			if (filteredDevices.length === 0) {
 				if (allDevices.length === 0) {
@@ -121,10 +201,39 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 	}, [environmentId, username, selectedDeviceType, selectedDeviceStatus, tokenStatus.isValid]);
 
+	const handleToggleDeviceSelection = useCallback((deviceId: string) => {
+		setSelectedDeviceIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(deviceId)) {
+				next.delete(deviceId);
+			} else {
+				next.add(deviceId);
+			}
+			return next;
+		});
+	}, []);
+
+	const handleSelectAll = useCallback(() => {
+		setSelectedDeviceIds(new Set(devices.map((d) => d.id as string)));
+	}, [devices]);
+
+	const handleClearSelection = useCallback(() => {
+		setSelectedDeviceIds(new Set());
+	}, []);
+
 	// Delete all devices
 	const handleDeleteAll = useCallback(async () => {
 		if (devices.length === 0) {
 			toastV8.warning('No devices to delete');
+			return;
+		}
+
+		const devicesToDelete = devices.filter((device) =>
+			selectedDeviceIds.has(device.id as string)
+		);
+
+		if (devicesToDelete.length === 0) {
+			toastV8.warning('No devices selected for deletion');
 			return;
 		}
 
@@ -135,7 +244,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 		// Confirm deletion using custom modal
 		const confirmed = await uiNotificationServiceV8.confirm({
-			message: `Are you sure you want to delete ${devices.length} device(s)? This action cannot be undone.`,
+			message: `Are you sure you want to delete ${devicesToDelete.length} selected device(s)? This action cannot be undone.`,
 			title: 'Confirm Device Deletion',
 			severity: 'danger',
 			confirmText: 'Delete',
@@ -157,7 +266,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 		try {
 			// Delete devices one by one
-			for (const device of devices) {
+			for (const device of devicesToDelete) {
 				const deviceId = device.id as string;
 				const deviceType = device.type as string;
 				const deviceNickname = (device.nickname || device.name || deviceType) as string;
@@ -199,7 +308,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		} finally {
 			setIsDeleting(false);
 		}
-	}, [devices, environmentId, username, tokenStatus.isValid, handleLoadDevices]);
+	}, [devices, selectedDeviceIds, environmentId, username, tokenStatus.isValid, handleLoadDevices]);
 
 	return (
 		<div style={{ padding: '40px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -232,6 +341,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{/* Environment ID */}
 					<div>
 						<label
+							htmlFor="delete-devices-env-id"
 							style={{
 								display: 'block',
 								marginBottom: '8px',
@@ -243,6 +353,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							Environment ID *
 						</label>
 						<input
+							id="delete-devices-env-id"
 							type="text"
 							value={environmentId}
 							onChange={(e) => setEnvironmentId(e.target.value)}
@@ -261,6 +372,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{/* Username */}
 					<div>
 						<label
+							htmlFor="delete-devices-username"
 							style={{
 								display: 'block',
 								marginBottom: '8px',
@@ -272,6 +384,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							Username *
 						</label>
 						<input
+							id="delete-devices-username"
 							type="text"
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
@@ -289,6 +402,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{/* Device Type Filter */}
 					<div>
 						<label
+							htmlFor="delete-devices-type-filter"
 							style={{
 								display: 'block',
 								marginBottom: '8px',
@@ -300,6 +414,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							Device Type Filter
 						</label>
 						<select
+							id="delete-devices-type-filter"
 							value={selectedDeviceType}
 							onChange={(e) => setSelectedDeviceType(e.target.value as DeviceType)}
 							style={{
@@ -322,6 +437,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					{/* Device Status Filter */}
 					<div>
 						<label
+							htmlFor="delete-devices-status-filter"
 							style={{
 								display: 'block',
 								marginBottom: '8px',
@@ -333,6 +449,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 							Device Status Filter
 						</label>
 						<select
+							id="delete-devices-status-filter"
 							value={selectedDeviceStatus}
 							onChange={(e) => setSelectedDeviceStatus(e.target.value as DeviceStatus)}
 							style={{
@@ -463,71 +580,130 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					}}
 				>
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '20px',
+							gap: '12px',
+							flexWrap: 'wrap',
+						}}
+					>
 						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
-							Devices to Delete ({devices.length})
+							Devices to Delete ({devices.length} total, {selectedCount} selected)
 						</h2>
-						<button
-							type="button"
-							onClick={handleDeleteAll}
-							disabled={isDeleting || devices.length === 0}
-							style={{
-								padding: '10px 20px',
-								border: 'none',
-								borderRadius: '6px',
-								background: isDeleting || devices.length === 0 ? '#9ca3af' : '#ef4444',
-								color: 'white',
-								fontSize: '16px',
-								fontWeight: '600',
-								cursor: isDeleting || devices.length === 0 ? 'not-allowed' : 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-							}}
-						>
-							{isDeleting ? (
-								<>
-									<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-									Deleting...
-								</>
-							) : (
-								<>
-									<FiTrash2 />
-									Delete All ({devices.length})
-								</>
-							)}
-						</button>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+							<button
+								type="button"
+								onClick={handleSelectAll}
+								style={{
+									padding: '6px 10px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: '#f9fafb',
+									fontSize: '12px',
+									cursor: 'pointer',
+								}}
+							>
+								Select All
+							</button>
+							<button
+								type="button"
+								onClick={handleClearSelection}
+								style={{
+									padding: '6px 10px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									background: '#f9fafb',
+									fontSize: '12px',
+									cursor: 'pointer',
+								}}
+							>
+								Clear Selection
+							</button>
+							<button
+								type="button"
+								onClick={handleDeleteAll}
+								disabled={isDeleting || devices.length === 0 || selectedCount === 0}
+								style={{
+									padding: '10px 20px',
+									border: 'none',
+									borderRadius: '6px',
+									background:
+										isDeleting || devices.length === 0 || selectedCount === 0
+											? '#9ca3af'
+											: '#ef4444',
+									color: 'white',
+									fontSize: '16px',
+									fontWeight: '600',
+									cursor:
+										isDeleting || devices.length === 0 || selectedCount === 0
+											? 'not-allowed'
+											: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								{isDeleting ? (
+									<>
+										<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+										Deleting...
+									</>
+								) : (
+									<>
+										<FiTrash2 />
+										Delete Selected ({selectedCount})
+									</>
+								)}
+							</button>
+						</div>
 					</div>
 
 					<div style={{ display: 'grid', gap: '12px' }}>
-						{devices.map((device) => (
-							<div
-								key={device.id as string}
-								style={{
-									padding: '16px',
-									background: '#f9fafb',
-									border: '1px solid #e5e7eb',
-									borderRadius: '8px',
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-								}}
-							>
-								<div>
-									<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>
-										{device.type as string} - {device.nickname || device.name || 'Unnamed Device'}
-									</div>
-									<div style={{ fontSize: '12px', color: '#6b7280' }}>
-										ID: <code style={{ fontSize: '11px' }}>{device.id as string}</code>
-										{device.status && (
-											<span style={{ marginLeft: '12px' }}>
-												Status: <strong>{device.status as string}</strong>
-											</span>
-										)}
+						{devices.map((device) => {
+							const deviceId = device.id as string;
+							const isSelected = selectedDeviceIds.has(deviceId);
+							const label = (device.nickname || device.name || deviceId) as string;
+							return (
+								<div
+									key={deviceId}
+									style={{
+										padding: '16px',
+										background: '#f9fafb',
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+										<input
+											type="checkbox"
+											checked={isSelected}
+											onChange={() => handleToggleDeviceSelection(deviceId)}
+											aria-label={`Select device ${label}`}
+											style={{ marginTop: '2px' }}
+										/>
+										<div>
+											<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>
+												{device.type as string} - {label}
+											</div>
+											<div style={{ fontSize: '12px', color: '#6b7280' }}>
+												ID: <code style={{ fontSize: '11px' }}>{deviceId}</code>
+												{typeof device.status !== 'undefined' && (
+													<span style={{ marginLeft: '12px' }}>
+														Status: <strong>{device.status as string}</strong>
+													</span>
+												)}
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				</div>
 			)}

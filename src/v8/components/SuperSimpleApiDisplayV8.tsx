@@ -871,6 +871,21 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		console.log(`${MODULE_TAG} Visibility: ${isVisible}, API Calls: ${apiCalls.length}`);
 	}, [isVisible, apiCalls.length]);
 
+	// Shared base style for header buttons (Pop Out, Expand/Collapse, Clear, Close)
+	const headerButtonBaseStyle: React.CSSProperties = {
+		padding: '3px 8px',
+		border: 'none',
+		borderRadius: '4px',
+		cursor: 'pointer',
+		fontSize: `${Math.max(8, fontSize - 2)}px`,
+		fontWeight: 600,
+		display: 'inline-flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+		gap: 4,
+		height: `${Math.max(8, fontSize - 2) * 2.6}px`,
+	};
+
 	return (
 		<>
 			{/* Global cursor style when resizing */}
@@ -1047,14 +1062,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 										}
 									}}
 									style={{
-										padding: '3px 8px',
+										...headerButtonBaseStyle,
 										background: '#8b5cf6',
 										color: 'white',
-										border: 'none',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontSize: `${Math.max(8, fontSize - 2)}px`,
-										fontWeight: '600',
 									}}
 									title="Open API display in new window"
 								>
@@ -1066,14 +1076,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											type="button"
 											onClick={expandAll}
 											style={{
-												padding: '3px 8px',
+												...headerButtonBaseStyle,
 												background: expandedIds.size === apiCalls.length ? '#10b981' : '#3b82f6',
 												color: 'white',
-												border: 'none',
-												borderRadius: '4px',
-												cursor: 'pointer',
-												fontSize: '10px',
-												fontWeight: '600',
 											}}
 											title="Expand all API calls"
 										>
@@ -1083,14 +1088,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											type="button"
 											onClick={collapseAll}
 											style={{
-												padding: '3px 8px',
+												...headerButtonBaseStyle,
 												background: expandedIds.size === 0 ? '#6b7280' : '#3b82f6',
 												color: 'white',
-												border: 'none',
-												borderRadius: '4px',
-												cursor: 'pointer',
-												fontSize: '10px',
-												fontWeight: '600',
 											}}
 											title="Collapse all API calls"
 										>
@@ -1102,14 +1102,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									type="button"
 									onClick={() => setShowClearConfirm(true)}
 									style={{
-										padding: '3px 8px',
+										...headerButtonBaseStyle,
 										background: '#ef4444',
-										color: 'white', // White text on red background
-										border: 'none',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontSize: '10px',
-										fontWeight: '600',
+										color: 'white',
 									}}
 									title="Clear all API calls"
 								>
@@ -1119,17 +1114,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									type="button"
 									onClick={() => apiDisplayServiceV8.hide()}
 									style={{
-										padding: '3px 8px',
+										...headerButtonBaseStyle,
 										background: '#6b7280',
-										color: 'white', // White text on grey background
-										border: 'none',
-										borderRadius: '4px',
-										cursor: 'pointer',
-										fontSize: '10px',
-										fontWeight: '600',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '4px',
+										color: 'white',
 									}}
 									title="Close API calls panel"
 								>
