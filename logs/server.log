@@ -43388,3 +43388,1087 @@ END OF REQUEST/RESPONSE SUMMARY
 [2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
 [2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
 [2025-12-09T21:43:06.131Z] [12/09/2025, 15:43:06] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:02.120Z] [12/09/2025, 15:44:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316642120-yqegac] Request received {
+  "timestamp": "2025-12-09T21:44:02.120Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:44:02.121Z] [12/09/2025, 15:44:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316642120-yqegac] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:44:02.136Z] [12/09/2025, 15:44:02] [ℹ️ LOG] [FIDO2 Policies] Listing policies: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/fido2Policies"
+}
+[2025-12-09T21:44:02.296Z] [12/09/2025, 15:44:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316642120-yqegac] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:44:02.296Z] [12/09/2025, 15:44:02] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316642120-yqegac] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:44:04.394Z] [12/09/2025, 15:44:04] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316644376-uv26e] Request received {
+  "timestamp": "2025-12-09T21:44:04.376Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:44:04.413Z] [12/09/2025, 15:44:04] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316644376-uv26e] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:44:04.516Z] [12/09/2025, 15:44:04] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316644376-uv26e] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:44:04.518Z] [12/09/2025, 15:44:04] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316644376-uv26e] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:44:05.690Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:44:05.690Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:05.690Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:05.692Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:05.692Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:05.692Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:05.750Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] Request received: {
+  "deviceType": "FIDO2",
+  "hasPolicy": true,
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "7e46d27f-562f-40e2-b1a6-74204f617b1d",
+  "requestBodyKeys": [
+    "environmentId",
+    "userId",
+    "type",
+    "workerToken",
+    "tokenType",
+    "rp",
+    "policy"
+  ]
+}
+[2025-12-09T21:44:05.750Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 2: Selected token: {
+  "hasAccessToken": true,
+  "accessTokenType": "string",
+  "accessTokenLength": 936,
+  "accessTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "selectedFrom": "workerToken"
+}
+[2025-12-09T21:44:05.750Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 1: Token received from frontend: {
+  "hasWorkerToken": true,
+  "hasUserToken": false,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "userTokenLength": 0,
+  "tokenType": "worker"
+}
+[2025-12-09T21:44:05.765Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3b: Cleaned token: {
+  "cleanedLength": 936,
+  "cleanedPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "tokenParts": 3,
+  "allPartsValid": true
+}
+[2025-12-09T21:44:05.765Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] ✅ Policy included in device payload (from dropdown selection): {
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "deviceType": "FIDO2",
+  "isWhatsApp": false,
+  "note": "Policy ID comes from Device Authentication Policy dropdown selection"
+}
+[2025-12-09T21:44:05.765Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] Device nickname for update: {
+  "hasNickname": false,
+  "hasName": false,
+  "deviceNickname": "NOT PROVIDED",
+  "deviceNicknameTrimmed": "NOT PROVIDED",
+  "willUpdateNickname": false
+}
+[2025-12-09T21:44:05.765Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3: Cleaning token...
+[2025-12-09T21:44:05.766Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] Making PingOne API call: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "FIDO2",
+  "hasType": true,
+  "typeValue": "FIDO2",
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "hasPhone": false,
+  "hasEmail": false,
+  "requestBodyKeys": [
+    "type",
+    "rp",
+    "policy"
+  ],
+  "requestBodyFull": "{\n  \"type\": \"FIDO2\",\n  \"rp\": {\n    \"id\": \"localhost\",\n    \"name\": \"localhost\"\n  },\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "requestBodyPreview": "{\n  \"type\": \"FIDO2\",\n  \"rp\": {\n    \"id\": \"localhost\",\n    \"name\": \"localhost\"\n  },\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "isWhatsApp": false,
+  "whatsAppHasRequiredFields": null
+}
+[2025-12-09T21:44:05.765Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3a: Original token: {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "originalLength": 936,
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasBearerPrefix": false
+}
+[2025-12-09T21:44:05.766Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 4: Request headers constructed: {
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationHeaderLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "startsWithBearer": true,
+  "expectedLength": 943,
+  "actualLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T21:44:05.904Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] PingOne API call completed: {
+  "status": 201,
+  "statusText": "Created",
+  "duration": "138ms",
+  "deviceType": "FIDO2"
+}
+[2025-12-09T21:44:05.904Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] Logging PingOne API call: {
+  "logFile": "/Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log",
+  "operation": "Register MFA Device",
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices",
+  "method": "POST",
+  "deviceType": "FIDO2",
+  "status": 201
+}
+[2025-12-09T21:44:05.904Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:05.905Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9194
+[2025-12-09T21:44:05.905Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:05.907Z] [12/09/2025, 15:44:05] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Register MFA Device: {
+  "deviceId": "e7ec0685-9880-43e1-b98a-f15a5ba5258e",
+  "type": "FIDO2",
+  "returnedStatus": "ACTIVATION_REQUIRED",
+  "statusMatch": false,
+  "hasProperties": false,
+  "hasSecret": false,
+  "hasKeyUri": false,
+  "hasDeviceActivateUri": false,
+  "tokenType": "worker",
+  "isFIDO2": true,
+  "hasPublicKeyCredentialCreationOptions": true,
+  "publicKeyCredentialCreationOptionsLength": 943,
+  "publicKeyCredentialCreationOptionsPreview": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[10,45,-118,-3,13,-36,-62,57,6,-127,25,88,7",
+  "rpId": "localhost",
+  "rpName": "localhost",
+  "fullResponse": {
+    "_links": {
+      "self": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/e7ec0685-9880-43e1-b98a-f15a5ba5258e"
+      },
+      "environment": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+      },
+      "user": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d"
+      },
+      "device.activate": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/7e46d27f-562f-40e2-b1a6-74204f617b1d/devices/e7ec0685-9880-43e1-b98a-f15a5ba5258e"
+      }
+    },
+    "id": "e7ec0685-9880-43e1-b98a-f15a5ba5258e",
+    "environment": {
+      "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "id": "7e46d27f-562f-40e2-b1a6-74204f617b1d"
+    },
+    "type": "FIDO2",
+    "status": "ACTIVATION_REQUIRED",
+    "createdAt": "2025-12-09T21:44:05.907Z",
+    "updatedAt": "2025-12-09T21:44:05.907Z",
+    "rp": {
+      "id": "localhost",
+      "name": "localhost"
+    },
+    "publicKeyCredentialCreationOptions": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[10,45,-118,-3,13,-36,-62,57,6,-127,25,88,70,-65,-16,-118,125,-98,-66,-15,-25,49,-89,91,-120,36,7,116,-76,-117,38,-40],\"displayName\":\"cmuir+linsey@pingone.com - trial_ping_identity_1274825138 Arvest\",\"name\":\"cmuir+linsey@pingone.com - trial_ping_identity_1274825138 Arvest\"},\"challenge\":[94,97,-41,90,19,-70,-92,-57,-4,98,10,58,-14,76,5,-21,10,71,44,-35,-23,110,-60,-44,-61,-7,16,-19,-23,5,-15,-56],\"pubKeyCredParams\":[{\"type\":\"public-key\",\"alg\":\"-7\"},{\"type\":\"public-key\",\"alg\":\"-37\"},{\"type\":\"public-key\",\"alg\":\"-257\"}],\"timeout\":120000,\"excludeCredentials\":[{\"type\":\"public-key\",\"id\":[-24,112,-46,-110,-84,22,-9,55,98,34,-10,84,96,123,25,113,-59,25,-83,-124,20,67,8,27,47,-62,-55,-24,48,51,2,83]}],\"authenticatorSelection\":{\"residentKey\":\"required\",\"requireResidentKey\":true,\"userVerification\":\"required\"},\"attestation\":\"none\",\"extensions\":{\"credProps\":true,\"hmacCreateSecret\":true}}"
+  }
+}
+[2025-12-09T21:44:05.906Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [MFA Register Device] PingOne API call logged successfully
+[2025-12-09T21:44:05.908Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [FIDO2 Register Device] Response includes publicKeyCredentialCreationOptions: {
+  "hasPublicKeyOptions": true,
+  "deviceId": "e7ec0685-9880-43e1-b98a-f15a5ba5258e",
+  "status": "ACTIVATION_REQUIRED",
+  "deviceDataKeys": [
+    "_links",
+    "id",
+    "environment",
+    "user",
+    "type",
+    "status",
+    "createdAt",
+    "updatedAt",
+    "rp",
+    "publicKeyCredentialCreationOptions"
+  ],
+  "publicKeyOptionsLength": 943
+}
+[2025-12-09T21:44:05.911Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:05.912Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:05.912Z] [12/09/2025, 15:44:05] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:29.891Z] [12/09/2025, 15:44:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316669890-21b7ir] Request received {
+  "timestamp": "2025-12-09T21:44:29.890Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:44:29.891Z] [12/09/2025, 15:44:29] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316669890-21b7ir] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:44:30.051Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316669890-21b7ir] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:44:30.051Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316669890-21b7ir] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:44:30.494Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:30.494Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9392
+[2025-12-09T21:44:30.494Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:30.496Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:30.496Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:30.496Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:30.529Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:44:30.526Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:44:30.652Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:44:30.652Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:30.652Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:30.652Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 19804
+[2025-12-09T21:44:30.653Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:44:30.653Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "7e46d27f...",
+  "username": "lindsayhernandez129",
+  "deviceCount": 6
+}
+[2025-12-09T21:44:30.653Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:30.653Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:30.654Z] [12/09/2025, 15:44:30] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:32.766Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 8894
+[2025-12-09T21:44:32.766Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:32.766Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:32.767Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:32.767Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:32.767Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:32.784Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "c5896dcc...",
+  "username": "yleon126",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:44:32.784Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:44:32.897Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:44:32.897Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:32.898Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 4683
+[2025-12-09T21:44:32.898Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:32.898Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:44:32.898Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "c5896dcc...",
+  "username": "yleon126",
+  "deviceCount": 0
+}
+[2025-12-09T21:44:32.898Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:32.899Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:32.899Z] [12/09/2025, 15:44:32] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:34.817Z] [12/09/2025, 15:44:34] [ℹ️ LOG] [FIDO2 Policies] Listing policies: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/fido2Policies"
+}
+[2025-12-09T21:44:34.818Z] [12/09/2025, 15:44:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316674818-862bh] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:44:34.818Z] [12/09/2025, 15:44:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316674818-862bh] Request received {
+  "timestamp": "2025-12-09T21:44:34.818Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:44:34.934Z] [12/09/2025, 15:44:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316674818-862bh] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:44:34.934Z] [12/09/2025, 15:44:34] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316674818-862bh] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:44:38.037Z] [12/09/2025, 15:44:38] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316678037-injbhs] Calling PingOne API: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/deviceAuthenticationPolicies",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "region": "na",
+  "tokenLength": 936
+}
+[2025-12-09T21:44:38.037Z] [12/09/2025, 15:44:38] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316678037-injbhs] Request received {
+  "timestamp": "2025-12-09T21:44:38.037Z",
+  "hasEnvironmentId": true,
+  "hasWorkerToken": true,
+  "region": "na"
+}
+[2025-12-09T21:44:38.134Z] [12/09/2025, 15:44:38] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316678037-injbhs] PingOne API response: {
+  "status": 200,
+  "statusText": "OK",
+  "ok": true
+}
+[2025-12-09T21:44:38.134Z] [12/09/2025, 15:44:38] [ℹ️ LOG] [MFA Device Auth Policies] [req-1765316678037-injbhs] Success: {
+  "policiesCount": 2
+}
+[2025-12-09T21:44:39.317Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:39.317Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 8894
+[2025-12-09T21:44:39.317Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:39.319Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:39.320Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:39.320Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:39.354Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] Request received: {
+  "deviceType": "FIDO2",
+  "hasPolicy": true,
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "c5896dcc-5978-4338-ba4d-c8808a256a85",
+  "requestBodyKeys": [
+    "environmentId",
+    "userId",
+    "type",
+    "workerToken",
+    "tokenType",
+    "rp",
+    "policy"
+  ]
+}
+[2025-12-09T21:44:39.359Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] Device nickname for update: {
+  "hasNickname": false,
+  "hasName": false,
+  "deviceNickname": "NOT PROVIDED",
+  "deviceNicknameTrimmed": "NOT PROVIDED",
+  "willUpdateNickname": false
+}
+[2025-12-09T21:44:39.354Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 1: Token received from frontend: {
+  "hasWorkerToken": true,
+  "hasUserToken": false,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "userTokenLength": 0,
+  "tokenType": "worker"
+}
+[2025-12-09T21:44:39.359Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3: Cleaning token...
+[2025-12-09T21:44:39.359Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3a: Original token: {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "originalLength": 936,
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasBearerPrefix": false
+}
+[2025-12-09T21:44:39.358Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 2: Selected token: {
+  "hasAccessToken": true,
+  "accessTokenType": "string",
+  "accessTokenLength": 936,
+  "accessTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "selectedFrom": "workerToken"
+}
+[2025-12-09T21:44:39.360Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 4: Request headers constructed: {
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationHeaderLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "startsWithBearer": true,
+  "expectedLength": 943,
+  "actualLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T21:44:39.359Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] ✅ Policy included in device payload (from dropdown selection): {
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "deviceType": "FIDO2",
+  "isWhatsApp": false,
+  "note": "Policy ID comes from Device Authentication Policy dropdown selection"
+}
+[2025-12-09T21:44:39.360Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] 🔍 REGISTER BACKEND STEP 3b: Cleaned token: {
+  "cleanedLength": 936,
+  "cleanedPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "tokenParts": 3,
+  "allPartsValid": true
+}
+[2025-12-09T21:44:39.360Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] Making PingOne API call: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices",
+  "method": "POST",
+  "deviceType": "FIDO2",
+  "hasType": true,
+  "typeValue": "FIDO2",
+  "hasPolicy": true,
+  "policyId": "26cd04da-6af3-01b2-283c-9d1f4c023a6d",
+  "policyObject": {
+    "id": "26cd04da-6af3-01b2-283c-9d1f4c023a6d"
+  },
+  "hasPhone": false,
+  "hasEmail": false,
+  "requestBodyKeys": [
+    "type",
+    "rp",
+    "policy"
+  ],
+  "requestBodyFull": "{\n  \"type\": \"FIDO2\",\n  \"rp\": {\n    \"id\": \"localhost\",\n    \"name\": \"localhost\"\n  },\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "requestBodyPreview": "{\n  \"type\": \"FIDO2\",\n  \"rp\": {\n    \"id\": \"localhost\",\n    \"name\": \"localhost\"\n  },\n  \"policy\": {\n    \"id\": \"26cd04da-6af3-01b2-283c-9d1f4c023a6d\"\n  }\n}",
+  "isWhatsApp": false,
+  "whatsAppHasRequiredFields": null
+}
+[2025-12-09T21:44:39.460Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] PingOne API call completed: {
+  "status": 201,
+  "statusText": "Created",
+  "duration": "100ms",
+  "deviceType": "FIDO2"
+}
+[2025-12-09T21:44:39.460Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 8920
+[2025-12-09T21:44:39.460Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] Logging PingOne API call: {
+  "logFile": "/Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log",
+  "operation": "Register MFA Device",
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices",
+  "method": "POST",
+  "deviceType": "FIDO2",
+  "status": 201
+}
+[2025-12-09T21:44:39.460Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:39.460Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:39.461Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [MFA Register Device] PingOne API call logged successfully
+[2025-12-09T21:44:39.461Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [FIDO2 Register Device] Response includes publicKeyCredentialCreationOptions: {
+  "hasPublicKeyOptions": true,
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "status": "ACTIVATION_REQUIRED",
+  "deviceDataKeys": [
+    "_links",
+    "id",
+    "environment",
+    "user",
+    "type",
+    "status",
+    "createdAt",
+    "updatedAt",
+    "rp",
+    "publicKeyCredentialCreationOptions"
+  ],
+  "publicKeyOptionsLength": 812
+}
+[2025-12-09T21:44:39.461Z] [12/09/2025, 15:44:39] [ℹ️ LOG] ✅ [PINGONE API SUCCESS] Register MFA Device: {
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "type": "FIDO2",
+  "returnedStatus": "ACTIVATION_REQUIRED",
+  "statusMatch": false,
+  "hasProperties": false,
+  "hasSecret": false,
+  "hasKeyUri": false,
+  "hasDeviceActivateUri": false,
+  "tokenType": "worker",
+  "isFIDO2": true,
+  "hasPublicKeyCredentialCreationOptions": true,
+  "publicKeyCredentialCreationOptionsLength": 812,
+  "publicKeyCredentialCreationOptionsPreview": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[73,-39,-54,47,62,-113,-109,26,-39,7,-72,-1",
+  "rpId": "localhost",
+  "rpName": "localhost",
+  "fullResponse": {
+    "_links": {
+      "self": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870"
+      },
+      "environment": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9"
+      },
+      "user": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85"
+      },
+      "device.activate": {
+        "href": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870"
+      }
+    },
+    "id": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+    "environment": {
+      "id": "b9817c16-9910-4415-b67e-4ac687da74d9"
+    },
+    "user": {
+      "id": "c5896dcc-5978-4338-ba4d-c8808a256a85"
+    },
+    "type": "FIDO2",
+    "status": "ACTIVATION_REQUIRED",
+    "createdAt": "2025-12-09T21:44:39.470Z",
+    "updatedAt": "2025-12-09T21:44:39.470Z",
+    "rp": {
+      "id": "localhost",
+      "name": "localhost"
+    },
+    "publicKeyCredentialCreationOptions": "{\"rp\":{\"id\":\"localhost\",\"name\":\"localhost\"},\"user\":{\"id\":[73,-39,-54,47,62,-113,-109,26,-39,7,-72,-115,-6,23,119,100,24,124,-76,-93,-79,92,-38,-46,93,82,116,-99,67,14,-62,-100],\"displayName\":\"yleon126@mailinator.com - trial_ping_identity_1274825138 Arvest\",\"name\":\"yleon126@mailinator.com - trial_ping_identity_1274825138 Arvest\"},\"challenge\":[111,-20,-65,96,61,-64,29,26,-102,-53,67,24,54,39,-61,-11,-83,-52,-63,-100,28,95,-36,22,125,11,-81,-26,-7,-112,43,-118],\"pubKeyCredParams\":[{\"type\":\"public-key\",\"alg\":\"-7\"},{\"type\":\"public-key\",\"alg\":\"-37\"},{\"type\":\"public-key\",\"alg\":\"-257\"}],\"timeout\":120000,\"excludeCredentials\":[],\"authenticatorSelection\":{\"residentKey\":\"required\",\"requireResidentKey\":true,\"userVerification\":\"required\"},\"attestation\":\"none\",\"extensions\":{\"credProps\":true,\"hmacCreateSecret\":true}}"
+  }
+}
+[2025-12-09T21:44:39.462Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:39.462Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:39.462Z] [12/09/2025, 15:44:39] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:42.868Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:42.870Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 8894
+[2025-12-09T21:44:42.871Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:42.876Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:42.876Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:42.878Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:42.920Z] [12/09/2025, 15:44:42] [ℹ️ LOG] 
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+🚀 START: Activate FIDO2 Device
+📅 Date/Time: 12/09/2025, 15:44:42 (2025-12-09T21:44:42.918Z)
+📊 Context: {
+  "endpoint": "/api/pingone/mfa/activate-fido2-device",
+  "method": "POST",
+  "hasBody": true
+}
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+[2025-12-09T21:44:42.920Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 1: Request received from frontend: {
+  "hasEnvironmentId": true,
+  "hasUserId": true,
+  "hasDeviceId": true,
+  "hasWorkerToken": true,
+  "workerTokenType": "string",
+  "workerTokenLength": 936,
+  "workerTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasFido2Data": true,
+  "rawRequestBody": "{\"environmentId\":\"b9817c16-9910-4415-b67e-4ac687da74d9\",\"userId\":\"c5896dcc-5978-4338-ba4d-c8808a256a85\",\"deviceId\":\"85f385a1-d325-4b45-92d3-ccee8f7a1870\",\"workerToken\":\"eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23",
+  "workerTokenInBody": true
+}
+[2025-12-09T21:44:42.920Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 1a: Raw request body analysis: {
+  "bodyKeys": [
+    "environmentId",
+    "userId",
+    "deviceId",
+    "workerToken",
+    "fido2Data"
+  ],
+  "workerTokenValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllb",
+  "workerTokenLength": 936,
+  "workerTokenType": "string",
+  "workerTokenHasWhitespace": false,
+  "workerTokenHasNewlines": false
+}
+[2025-12-09T21:44:42.921Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 2: Starting token cleaning process...
+[2025-12-09T21:44:42.924Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 2b: After trim: {
+  "length": 936,
+  "preview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasWhitespace": false
+}
+[2025-12-09T21:44:42.925Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 2f: Final cleaned token: {
+  "originalLength": 936,
+  "cleanedLength": 936,
+  "lengthDifference": 0,
+  "preview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "hasNewlines": false,
+  "hasTabs": false,
+  "hasSpaces": false,
+  "tokenParts": 3,
+  "allPartsValid": true,
+  "startsWithEyJ": true,
+  "isJWTFormat": true,
+  "isHashFormat": false,
+  "firstPartLength": 90,
+  "secondPartLength": 502,
+  "thirdPartLength": 342
+}
+[2025-12-09T21:44:42.925Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] Request: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "c5896dcc-5978-4338-ba4d-c8808a256a85",
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "hasFido2Data": true
+}
+[2025-12-09T21:44:42.926Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] Request body details: {
+  "hasAttestation": true,
+  "attestationLength": 701,
+  "attestationPreview": "{\"id\":\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I...",
+  "attestationType": "string",
+  "attestationHasPlus": false,
+  "attestationHasSlash": false,
+  "attestationHasEquals": false,
+  "attestationHasDash": true,
+  "attestationHasUnderscore": true,
+  "origin": "https://localhost:3000",
+  "hasClientDataJSON": false,
+  "clientDataJSONLength": 0,
+  "clientDataJSONPreview": "MISSING",
+  "originIsLocalhost": true
+}
+[2025-12-09T21:44:42.924Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 2a: Original token (before cleaning): {
+  "originalValue": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "originalLength": 936,
+  "originalType": "string",
+  "originalPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "originalBytes": "65794a68624763694f694a53557a49314e694973496d74705a434936496d526c5a6d4631624851694c434a344e5851694f69",
+  "originalBase64": "ZXlKaGJHY2lPaUpTVXpJMU5pSXNJbXRwWkNJNkltUmxabUYxYk",
+  "hasWhitespace": false,
+  "hasNewlines": false,
+  "hasTabs": false,
+  "hasBearerPrefix": false,
+  "containsErrorHash": false,
+  "startsWithEyJ": true
+}
+[2025-12-09T21:44:42.926Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] Request body: {
+  "hasAttestation": true,
+  "hasOrigin": true,
+  "hasClientDataJSON": false,
+  "attestationLength": 701,
+  "origin": "https://localhost:3000",
+  "clientDataJSONLength": 0
+}
+[2025-12-09T21:44:42.926Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] JSON Body being sent: {
+  "bodyLength": 783,
+  "bodyPreview": "{\"origin\":\"https://localhost:3000\",\"attestation\":\"{\\\"id\\\":\\\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I\\\",\\\"type\\\":\\\"public-key\\\",\\\"rawId\\\":\\\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I\\\",\\\"response\\\":{\\\"clientDataJSON\\\":\\\"eyJ0eXBlIjoid2ViYXV0aG4uY3JlYXRlIiwiY2hhbGxlbmdlIjoiYi15X1lEM0FIUnFheTBNWU5pZ",
+  "hasAttestation": true,
+  "hasOrigin": true,
+  "hasClientDataJSON": false,
+  "attestationValuePreview": "{\"id\":\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I..."
+}
+[2025-12-09T21:44:42.928Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 3: Building request headers...
+[2025-12-09T21:44:42.928Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 3a: Authorization header constructed: {
+  "headerValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headerLength": 943,
+  "headerPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "startsWithBearer": true,
+  "bearerPrefixLength": 7,
+  "tokenPartLength": 936,
+  "expectedHeaderLength": 943,
+  "actualHeaderLength": 943,
+  "lengthMatch": true
+}
+[2025-12-09T21:44:42.929Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 3b: Request headers validated: {
+  "hasContentType": true,
+  "contentType": "application/vnd.pingidentity.device.activate+json",
+  "hasAuthorization": true,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImt...",
+  "authorizationStartsWithBearer": true,
+  "authorizationLength": 943,
+  "tokenLength": 936,
+  "tokenPreview": "eyJhbGciOiJSUzI1NiIs...hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartsCount": 3,
+  "tokenPartsValid": true,
+  "fullAuthHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw"
+}
+[2025-12-09T21:44:42.931Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4: Sending request to PingOne API...
+[2025-12-09T21:44:42.935Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4a: EXACT Authorization header before fetch: {
+  "headerValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headerLength": 943,
+  "headerBytes": "4265617265722065794a68624763694f694a53557a49314e694973496d74705a434936496d526c5a6d4631624851694c434a344e5851694f694977563031535a6d78725a546c4751314e4b6257746d4e304a465357566d62456c6c5331556966512e65794a6a62476c6c626e5266615751694f6949324e6d45304e6a6732596930354d6a49794c5452685a4449744f5446694e6930774d7a45784d7a63784d574d35595745694c434a7063334d694f694a6f64485277637a6f764c3246316447677563476c755a3239755a53356a62323076596a6b344d54646a4d5459744f546b784d4330304e4445314c5749324e3255744e47466a4e6a67335a4745334e4751354c32467a49697769616e5270496a6f694d6d466d4e7a497a597a6b744e7a4e6b4d433030597a55774c546730595455744d4441344f5445354d324a6d4f4751304969776961574630496a6f784e7a59314d7a45324d4467324c434a6c654841694f6a45334e6a557a4d546b324f445973496d46315a43493657794a6f64485277637a6f764c324677615335776157356e6232356c4c6d4e7662534a644c434a6c626e59694f694a694f5467784e324d784e6930354f5445774c5451304d545574596a59335a53303059574d324f44646b595463305a446b694c434a76636d63694f6949354e324a684e44526d4d69316d4e32566c4c5451784e445174595745354e5330355a54597a4e6d49314e324d774f5459694c434a774d533579615751694f694979595759334d6a4e6a4f5330334d3251774c54526a4e5441744f4452684e5330774d4467354d546b7a596d59345a44516966512e557378462d6a71642d6b6e68756d48433652697463456141464c39646c703470595538686631554d63687231394351324243675735706949343269626f5f6a7047544b2d374a7a5f547547526b73454430385468666b74615533567473633437384c31504f7172545a2d4f7449736c7457416b64664478344a624138434a4c6872565a6e43436435427879377a575049765973745347554733344e394a334851533976323471584475315666746c5a364337315630774b717259576d685a7564484b677a2d54563170414c716769673967784c396248424951313950465f6c6559714972566c46314b675f3233565a5f69495975316d754b67715832535a734d4b534d594f6e786e6342494d394a4168315469556e436573653573707069473352396e37784b77444f346d56416a5f48684d353870626d32307052702d4c4333705f68517a58746c5a3274453562374e526935304a77",
+  "headerBase64": "QmVhcmVyIGV5SmhiR2NpT2lKU1V6STFOaUlzSW10cFpDSTZJbVJsWm1GMWJIUWlMQ0o0TlhRaU9pSXdWMDFTWm14clpUbEdRMU5LYld0bU4wSkZTV1ZtYkVsbFMxVWlmUS5leUpqYkdsbGJuUmZhV1FpT2lJMk5tRTBOamcyWWkwNU1qSXlMVFJoWkRJdE9URmlOaTB3TXpFeE16Y3hNV001WVdFaUxDSnBjM01pT2lKb2RIUndjem92TDJGMWRHZ3VjR2x1WjI5dVpTNWpiMjB2WWprNE1UZGpNVFl0T1RreE1DMDBOREUxTFdJMk4yVXROR0ZqTmpnM1pHRTNOR1E1TDJGeklpd2lhblJwSWpvaU1tRm1Oekl6WXprdE56TmtNQzAwWXpVd0xUZzBZVFV0TURBNE9URTVNMkptT0dRMElpd2lhV0YwSWpveE56WTFNekUyTURnMkxDSmxlSEFpT2pFM05qVXpNVGsyT0RZc0ltRjFaQ0k2V3lKb2RIUndjem92TDJGd2FTNXdhVzVuYjI1bExtTnZiU0pkTENKbGJuWWlPaUppT1RneE4yTXhOaTA1T1RFd0xUUTBNVFV0WWpZM1pTMDBZV00yT0Rka1lUYzBaRGtpTENKdmNtY2lPaUk1TjJKaE5EUm1NaTFtTjJWbExUUXhORFF0WVdFNU5TMDVaVFl6Tm1JMU4yTXdPVFlpTENKd01TNXlhV1FpT2lJeVlXWTNNak5qT1MwM00yUXdMVFJqTlRBdE9EUmhOUzB3TURnNU1Ua3pZbVk0WkRRaWZRLlVzeEYtanFkLWtuaHVtSEM2Uml0Y0VhQUZMOWRscDRwWVU4aGYxVU1jaHIxOUNRMkJDZ1c1cGlJNDJpYm9fanBHVEstN0p6X1R1R1Jrc0VEMDhUaGZrdGFVM1Z0c2M0NzhMMVBPcXJUWi1PdElzbHRXQWtkZkR4NEpiQThDSkxoclZabkNDZDVCeHk3eldQSXZZc3RTR1VHMzROOUozSFFTOXYyNHFYRHUxVmZ0bFo2QzcxVjB3S3FyWVdtaFp1ZEhLZ3otVFYxcEFMcWdpZzlneEw5YkhCSVExOVBGX2xlWXFJclZsRjFLZ18yM1ZaX2lJWXUxbXVLZ3FYMlNac01LU01ZT254bmNCSU05SkFoMVRpVW5DZXNlNXNwcGlHM1I5bjd4S3dETzRtVkFqX0hoTTU4cGJtMjBwUnAtTEMzcF9oUXpYdGxaMnRFNWI3TlJpNTBKdw==",
+  "headerCharCodes": [
+    66,
+    101,
+    97,
+    114,
+    101,
+    114,
+    32,
+    101,
+    121,
+    74,
+    104,
+    98,
+    71,
+    99,
+    105,
+    79,
+    105,
+    74,
+    83,
+    85,
+    122,
+    73,
+    49,
+    78,
+    105,
+    73,
+    115,
+    73,
+    109,
+    116,
+    112,
+    90,
+    67,
+    73,
+    54,
+    73,
+    109,
+    82,
+    108,
+    90,
+    109,
+    70,
+    49,
+    98,
+    72,
+    81,
+    105,
+    76,
+    67,
+    74
+  ],
+  "startsWithBearer": true,
+  "bearerPart": "Bearer ",
+  "tokenPart": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartLength": 936,
+  "tokenPartPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartStartsWithEyJ": true,
+  "containsErrorHash": false
+}
+[2025-12-09T21:44:42.939Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4b: Final request details: {
+  "endpoint": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/vnd.pingidentity.device.activate+json",
+    "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsImt...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+    "Accept": "application/json"
+  },
+  "authorizationHeaderFull": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationHeaderLength": 943,
+  "bodyLength": 783,
+  "bodyPreview": "{\"origin\":\"https://localhost:3000\",\"attestation\":\"{\\\"id\\\":\\\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I\\\",\\\"type\\\":\\\"public-key\\\",\\\"rawId\\\":\\\"vDaStQ-Wk3g6U5zZc2pFexDqoSWoHwdJlD9OUrrhC8I\\\",\\\"response\\\""
+}
+[2025-12-09T21:44:42.941Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4e: Full fetch options: {
+  "method": "POST",
+  "headersKeys": [
+    "Content-Type",
+    "Authorization",
+    "Accept"
+  ],
+  "headersAuth": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headersAuthLength": 943,
+  "headersAuthType": "string",
+  "bodyLength": 783,
+  "allHeaders": "{\"Content-Type\":\"application/vnd.pingidentity.device.activate+json\",\"Authorization\":\"Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdL"
+}
+[2025-12-09T21:44:42.941Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4d: Authorization header EXACT bytes before fetch: {
+  "headerValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headerLength": 943,
+  "headerBytesHex": "4265617265722065794a68624763694f694a53557a49314e694973496d74705a434936496d526c5a6d4631624851694c434a344e5851694f694977563031535a6d78725a546c4751314e4b6257746d4e304a465357566d62456c6c5331556966512e6579",
+  "headerBytesBase64": "QmVhcmVyIGV5SmhiR2NpT2lKU1V6STFOaUlzSW10cFpDSTZJbVJsWm1GMWJIUWlMQ0o0TlhRaU9pSXdWMDFTWm14clpUbEdRMU5L",
+  "headerCharCodes": [
+    66,
+    101,
+    97,
+    114,
+    101,
+    114,
+    32,
+    101,
+    121,
+    74,
+    104,
+    98,
+    71,
+    99,
+    105,
+    79,
+    105,
+    74,
+    83,
+    85,
+    122,
+    73,
+    49,
+    78,
+    105,
+    73,
+    115,
+    73,
+    109,
+    116,
+    112,
+    90,
+    67,
+    73,
+    54,
+    73,
+    109,
+    82,
+    108,
+    90,
+    109,
+    70,
+    49,
+    98,
+    72,
+    81,
+    105,
+    76,
+    67,
+    74
+  ],
+  "startsWithBearer": true,
+  "bearerPart": "Bearer ",
+  "tokenPart": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartLength": 936,
+  "tokenPartStartsWithEyJ": true,
+  "tokenPartIsHash": false
+}
+[2025-12-09T21:44:42.941Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4c: Headers object verification: {
+  "headersType": "object",
+  "headersKeys": [
+    "Content-Type",
+    "Authorization",
+    "Accept"
+  ],
+  "authorizationKey": true,
+  "authorizationValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationValueType": "string",
+  "authorizationValueLength": 943,
+  "headersStringified": "{\"Content-Type\":\"application/vnd.pingidentity.device.activate+json\",\"Authorization\":\"Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdL"
+}
+[2025-12-09T21:44:42.942Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4f: Headers copy verification: {
+  "originalAuth": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "copyAuth": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "areEqual": true,
+  "copyAuthLength": 943
+}
+[2025-12-09T21:44:42.943Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4g: About to call fetch with: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "method": "POST",
+  "headersAuthValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headersAuthLength": 943,
+  "headersAuthBytes": "4265617265722065794a68624763694f694a53557a49314e694973496d74705a434936496d526c5a6d4631624851694c434a",
+  "bodyLength": 783
+}
+[2025-12-09T21:44:42.944Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4h: Final headers for node-fetch: {
+  "headersType": "object",
+  "headersKeys": [
+    "Content-Type",
+    "Authorization",
+    "Accept"
+  ],
+  "authorizationValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationLength": 943,
+  "authorizationStartsWithBearer": true,
+  "authorizationTokenPart": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartLength": 936,
+  "tokenPartStartsWithEyJ": true,
+  "tokenPartIsHash": false,
+  "headersJSON": "{\"Content-Type\":\"application/vnd.pingidentity.device.activate+json\",\"Authorization\":\"Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdL"
+}
+[2025-12-09T21:44:42.944Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4i: Using direct node-fetch import: {
+  "url": "https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "method": "POST",
+  "headersAuth": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "headersAuthLength": 943,
+  "headersAuthPreview": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ"
+}
+[2025-12-09T21:44:42.944Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4j: Headers object before fetch: {
+  "authValue": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authLength": 943,
+  "authStartsWithBearer": true,
+  "tokenPart": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartLength": 936,
+  "tokenPartStartsWithEyJ": true,
+  "tokenPartIsHash": false
+}
+[2025-12-09T21:44:42.944Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4k: Using https module directly: {
+  "hostname": "api.pingone.com",
+  "path": "/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationLength": 943,
+  "authorizationPreview": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ"
+}
+[2025-12-09T21:44:42.944Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4m: Direct Authorization header construction: {
+  "cleanTokenLength": 936,
+  "cleanTokenPreview": "eyJhbGciOiJSUzI1NiIsImtpZCI6Im...0pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationHeaderLength": 943,
+  "authorizationHeaderStartsWithBearer": true,
+  "tokenPartMatches": true
+}
+[2025-12-09T21:44:42.947Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4l: EXACT bytes being sent to PingOne: {
+  "authHeaderString": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authHeaderBytesHex": "4265617265722065794a68624763694f694a53557a49314e694973496d74705a434936496d526c5a6d4631624851694c434a344e5851694f694977563031535a6d78725a546c4751314e4b6257746d4e304a465357566d62456c6c5331556966512e6579",
+  "authHeaderBytesLength": 943,
+  "authHeaderFirstBytes": [
+    66,
+    101,
+    97,
+    114,
+    101,
+    114,
+    32,
+    101,
+    121,
+    74,
+    104,
+    98,
+    71,
+    99,
+    105,
+    79,
+    105,
+    74,
+    83,
+    85
+  ],
+  "authHeaderLastBytes": [
+    104,
+    81,
+    122,
+    88,
+    116,
+    108,
+    90,
+    50,
+    116,
+    69,
+    53,
+    98,
+    55,
+    78,
+    82,
+    105,
+    53,
+    48,
+    74,
+    119
+  ],
+  "authHeaderStartsWithBearer": true,
+  "tokenPart": "eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "tokenPartStartsWithEyJ": true,
+  "tokenPartLength": 936
+}
+[2025-12-09T21:44:42.951Z] [12/09/2025, 15:44:42] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4m: About to send HTTPS request: {
+  "hostname": "api.pingone.com",
+  "path": "/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "method": "POST",
+  "headersKeys": [
+    "Content-Type",
+    "Authorization",
+    "Accept",
+    "Content-Length"
+  ],
+  "authorizationHeader": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImRlZmF1bHQiLCJ4NXQiOiIwV01SZmxrZTlGQ1NKbWtmN0JFSWVmbEllS1UifQ.eyJjbGllbnRfaWQiOiI2NmE0Njg2Yi05MjIyLTRhZDItOTFiNi0wMzExMzcxMWM5YWEiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20vYjk4MTdjMTYtOTkxMC00NDE1LWI2N2UtNGFjNjg3ZGE3NGQ5L2FzIiwianRpIjoiMmFmNzIzYzktNzNkMC00YzUwLTg0YTUtMDA4OTE5M2JmOGQ0IiwiaWF0IjoxNzY1MzE2MDg2LCJleHAiOjE3NjUzMTk2ODYsImF1ZCI6WyJodHRwczovL2FwaS5waW5nb25lLmNvbSJdLCJlbnYiOiJiOTgxN2MxNi05OTEwLTQ0MTUtYjY3ZS00YWM2ODdkYTc0ZDkiLCJvcmciOiI5N2JhNDRmMi1mN2VlLTQxNDQtYWE5NS05ZTYzNmI1N2MwOTYiLCJwMS5yaWQiOiIyYWY3MjNjOS03M2QwLTRjNTAtODRhNS0wMDg5MTkzYmY4ZDQifQ.UsxF-jqd-knhumHC6RitcEaAFL9dlp4pYU8hf1UMchr19CQ2BCgW5piI42ibo_jpGTK-7Jz_TuGRksED08ThfktaU3Vtsc478L1POqrTZ-OtIsltWAkdfDx4JbA8CJLhrVZnCCd5Bxy7zWPIvYstSGUG34N9J3HQS9v24qXDu1VftlZ6C71V0wKqrYWmhZudHKgz-TV1pALqgig9gxL9bHBIQ19PF_leYqIrVlF1Kg_23VZ_iIYu1muKgqX2SZsMKSMYOnxncBIM9JAh1TiUnCese5sppiG3R9n7xKwDO4mVAj_HhM58pbm20pRp-LC3p_hQzXtlZ2tE5b7NRi50Jw",
+  "authorizationLength": 943,
+  "bodyLength": 783
+}
+[2025-12-09T21:44:43.091Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 4h: After fetch call: {
+  "status": 200,
+  "statusText": "OK",
+  "responseHeaders": {
+    "content-type": "application/json;charset=UTF-8",
+    "content-length": "1209",
+    "connection": "keep-alive",
+    "date": "Tue, 09 Dec 2025 21:44:43 GMT",
+    "access-control-allow-credentials": "true",
+    "x-amzn-requestid": "613e7524-7301-4a86-a1fd-37b6ee875faf",
+    "access-control-allow-origin": "*",
+    "correlation-id": "613e7524-7301-4a86-a1fd-37b6ee875faf",
+    "x-amz-apigw-id": "VVy7yFmPCYcFejw=",
+    "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+    "expires": "0",
+    "x-content-type-options": "nosniff",
+    "x-amzn-trace-id": "Root=1-6938984b-3c3b1af5276b9daa79e7406c;Parent=0fe18dad94c24809;Sampled=0;Lineage=1:a3dff340:0",
+    "pragma": "no-cache",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 2fddf4e7d7b6a3d90b76e694b00c4b52.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "DFW59-P5",
+    "x-amz-cf-id": "vFESj9akuhAdXU9LOGn5cXDfT5zBEt9d_of-o1iFPuPco5U-R6S_VA==",
+    "strict-transport-security": "max-age=31536000; includeSubDomains"
+  }
+}
+[2025-12-09T21:44:43.094Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.095Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 9171
+[2025-12-09T21:44:43.093Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [logPingOneApiCall] 🔍 FIDO2 Activation detected - showing full token in log
+[2025-12-09T21:44:43.092Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Activate FIDO2 Device] 🔍 BACKEND STEP 5: PingOne API response received: {
+  "status": 200,
+  "statusText": "OK",
+  "duration": "143ms",
+  "hasBody": false
+}
+[2025-12-09T21:44:43.095Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:43.097Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Activate FIDO2 Device] Success: {
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "status": "ACTIVE"
+}
+[2025-12-09T21:44:43.096Z] [12/09/2025, 15:44:43] [ℹ️ LOG] 
+======================================================================================================================================================
+📋 BACKEND REQUEST/RESPONSE SUMMARY
+======================================================================================================================================================
+📍 Endpoint: https://api.pingone.com/v1/environments/b9817c16-9910-4415-b67e-4ac687da74d9/users/c5896dcc-5978-4338-ba4d-c8808a256a85/devices/85f385a1-d325-4b45-92d3-ccee8f7a1870
+🔧 Method: POST
+✅ Status: 200 OK (SUCCESS)
+⏱️  Duration: 143ms
+📝 Operation: Activate FIDO2 Device - SUCCESS
+📊 Metadata: {
+  "environmentId": "b9817c16-9910-4415-b67e-4ac687da74d9",
+  "userId": "c5896dcc-5978-4338-ba4d-c8808a256a85",
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "hasAttestation": true,
+  "origin": "https://localhost:3000"
+}
+📅 Date/Time: 12/09/2025, 15:44:43 (2025-12-09T21:44:43.096Z)
+======================================================================================================================================================
+END OF REQUEST/RESPONSE SUMMARY
+======================================================================================================================================================
+
+[2025-12-09T21:44:43.097Z] [12/09/2025, 15:44:43] [ℹ️ LOG] 
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+🏁 END: Activate FIDO2 Device
+📅 Date/Time: 12/09/2025, 15:44:43 (2025-12-09T21:44:43.097Z)
+📊 Context: {
+  "status": "SUCCESS",
+  "deviceId": "85f385a1-d325-4b45-92d3-ccee8f7a1870",
+  "totalDuration": "181ms"
+}
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+[2025-12-09T21:44:43.103Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.103Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:43.103Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:43.229Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.229Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 8894
+[2025-12-09T21:44:43.230Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:43.233Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:43.233Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
+[2025-12-09T21:44:43.233Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.277Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Devices] Get all devices: {
+  "environmentId": "b9817c16...",
+  "userId": "c5896dcc...",
+  "username": "yleon126",
+  "hasFilter": false,
+  "filter": "none"
+}
+[2025-12-09T21:44:43.278Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Devices] 📋 Will log to pingone-api.log and api-log.log
+[2025-12-09T21:44:43.362Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log
+[2025-12-09T21:44:43.363Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Writing to files: /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.363Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Log message length: 7692
+[2025-12-09T21:44:43.363Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] logPingOneApiCall: Is proxy call? false
+[2025-12-09T21:44:43.363Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Devices] ✅ API call logged successfully
+[2025-12-09T21:44:43.364Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [MFA Devices] Retrieved successfully {
+  "userId": "c5896dcc...",
+  "username": "yleon126",
+  "deviceCount": 1
+}
+[2025-12-09T21:44:43.373Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/pingone-api.log
+[2025-12-09T21:44:43.375Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/real-api.log
+[2025-12-09T21:44:43.375Z] [12/09/2025, 15:44:43] [ℹ️ LOG] [DEBUG] Successfully wrote to /Users/cmuir/P1Import-apps/oauth-playground/logs/api-log.log
