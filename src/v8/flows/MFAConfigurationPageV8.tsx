@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { FiCheck, FiRefreshCw, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiCheck, FiRefreshCw, FiDownload, FiUpload, FiInfo } from 'react-icons/fi';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
@@ -19,6 +19,8 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
+import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
@@ -35,6 +37,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [isSaving, setIsSaving] = useState(false);
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
+	
+	// PingOne MFA Settings state
+	const [pingOneSettings, setPingOneSettings] = useState<MFASettings | null>(null);
+	const [isLoadingPingOneSettings, setIsLoadingPingOneSettings] = useState(false);
+	const [isSavingPingOneSettings, setIsSavingPingOneSettings] = useState(false);
+	const [hasPingOneSettingsChanges, setHasPingOneSettingsChanges] = useState(false);
+	const [environmentId, setEnvironmentId] = useState<string>('');
 
 	// Listen for configuration updates
 	useEffect(() => {
@@ -57,6 +66,75 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		return () => unsubscribe();
 	}, []);
 
+	// Load environment ID and PingOne MFA Settings
+	useEffect(() => {
+		const loadEnvironmentAndSettings = async () => {
+			try {
+				const credentials = await workerTokenServiceV8.loadCredentials();
+				if (credentials?.environmentId) {
+					setEnvironmentId(credentials.environmentId);
+					await loadPingOneSettings(credentials.environmentId);
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to load environment ID:`, error);
+			}
+		};
+		loadEnvironmentAndSettings();
+	}, []);
+
+	const loadPingOneSettings = async (envId: string) => {
+		setIsLoadingPingOneSettings(true);
+		try {
+			const settings = await MFAServiceV8.getMFASettings(envId);
+			setPingOneSettings(settings);
+			setHasPingOneSettingsChanges(false);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load PingOne MFA settings:`, error);
+			toastV8.error('Failed to load PingOne MFA settings. Please ensure you have a valid worker token.');
+		} finally {
+			setIsLoadingPingOneSettings(false);
+		}
+	};
+
+	const handleSavePingOneSettings = async () => {
+		if (!environmentId || !pingOneSettings) return;
+		
+		setIsSavingPingOneSettings(true);
+		try {
+			await MFAServiceV8.updateMFASettings(environmentId, pingOneSettings);
+			setHasPingOneSettingsChanges(false);
+			toastV8.success('PingOne MFA settings updated successfully');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save PingOne MFA settings:`, error);
+			toastV8.error(error instanceof Error ? error.message : 'Failed to update PingOne MFA settings');
+		} finally {
+			setIsSavingPingOneSettings(false);
+		}
+	};
+
+	const handleResetPingOneSettings = async () => {
+		if (!environmentId) return;
+		
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const confirmed = await uiNotificationServiceV8.confirm({
+			title: 'Reset PingOne MFA Settings',
+			message: 'Are you sure you want to reset PingOne MFA settings to defaults? This cannot be undone.',
+		});
+		
+		if (!confirmed) {
+			return;
+		}
+
+		try {
+			await MFAServiceV8.resetMFASettings(environmentId);
+			toastV8.success('PingOne MFA settings reset to defaults');
+			await loadPingOneSettings(environmentId);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to reset PingOne MFA settings:`, error);
+			toastV8.error(error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings');
+		}
+	};
+
 	const handleSave = () => {
 		setIsSaving(true);
 		try {
@@ -71,8 +149,14 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	};
 
-	const handleReset = () => {
-		if (window.confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+	const handleReset = async () => {
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const confirmed = await uiNotificationServiceV8.confirm({
+			title: 'Reset Configuration',
+			message: 'Are you sure you want to reset all settings to defaults? This cannot be undone.',
+		});
+		
+		if (confirmed) {
 			MFAConfigurationServiceV8.resetToDefaults();
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
 			setHasChanges(false);
@@ -218,10 +302,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		nestedKey: NK,
 		value: MFAConfiguration[K][NK]
 	) => {
-		setConfig((prev) => ({
-			...prev,
-			[key]: { ...(prev[key] as any), [nestedKey]: value },
-		}));
+		setConfig((prev) => {
+			const currentValue = prev[key] as Record<string, unknown>;
+			return {
+				...prev,
+				[key]: { ...currentValue, [nestedKey]: value },
+			};
+		});
 		setHasChanges(true);
 	};
 
@@ -375,6 +462,257 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 			{/* Configuration Sections */}
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+				{/* PingOne MFA Settings */}
+				{environmentId && (
+					<ConfigSection
+						title="PingOne MFA Settings"
+						description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment."
+					>
+						{isLoadingPingOneSettings ? (
+							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+								Loading PingOne MFA settings...
+							</div>
+						) : pingOneSettings ? (
+							<>
+								<div style={{ marginBottom: '20px', padding: '12px', background: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+										<FiInfo size={16} color="#3b82f6" />
+										<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
+											About PingOne MFA Settings
+										</span>
+									</div>
+									<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
+										These are environment-level settings that control MFA behavior across all policies. 
+										For policy-specific settings (like pairing and lockout), configure them in Device Authentication Policies.
+										<MFAInfoButtonV8 contentKey="mfa.settings" displayMode="tooltip" />
+									</p>
+								</div>
+
+								{/* Pairing Settings */}
+								{pingOneSettings.pairing && (
+									<div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e5e7eb' }}>
+										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+											Pairing Settings
+										</h4>
+										{pingOneSettings.pairing.maxAllowedDevices !== undefined && (
+											<NumberSetting
+												label="Max Allowed Devices"
+												value={pingOneSettings.pairing.maxAllowedDevices}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														pairing: { ...pingOneSettings.pairing, maxAllowedDevices: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={1}
+												max={100}
+												description="Maximum number of MFA devices a user can register"
+											/>
+										)}
+										{pingOneSettings.pairing.pairingKeyFormat && (
+											<SelectSetting
+												label="Pairing Key Format"
+												value={pingOneSettings.pairing.pairingKeyFormat}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														pairing: { ...pingOneSettings.pairing, pairingKeyFormat: value as string },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												options={[
+													{ value: 'NUMERIC', label: 'Numeric (User Code)' },
+													{ value: 'QR_CODE', label: 'QR Code' },
+													{ value: 'ALPHANUMERIC', label: 'Alphanumeric' },
+												]}
+												description="Format for device pairing keys"
+											/>
+										)}
+										{pingOneSettings.pairing.pairingKeyLength !== undefined && (
+											<NumberSetting
+												label="Pairing Key Length"
+												value={pingOneSettings.pairing.pairingKeyLength}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														pairing: { ...pingOneSettings.pairing, pairingKeyLength: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={4}
+												max={32}
+												description="Length of pairing keys"
+											/>
+										)}
+										{pingOneSettings.pairing.pairingTimeoutMinutes !== undefined && (
+											<NumberSetting
+												label="Pairing Timeout (Minutes)"
+												value={pingOneSettings.pairing.pairingTimeoutMinutes}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														pairing: { ...pingOneSettings.pairing, pairingTimeoutMinutes: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={1}
+												max={60}
+												description="Timeout for device pairing process"
+											/>
+										)}
+									</div>
+								)}
+
+								{/* Lockout Settings */}
+								{pingOneSettings.lockout && (
+									<div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e5e7eb' }}>
+										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+											Lockout Settings
+										</h4>
+										{pingOneSettings.lockout.failureCount !== undefined && (
+											<NumberSetting
+												label="Failure Count"
+												value={pingOneSettings.lockout.failureCount}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														lockout: { ...pingOneSettings.lockout, failureCount: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={1}
+												max={20}
+												description="Number of failed attempts before lockout"
+											/>
+										)}
+										{pingOneSettings.lockout.durationSeconds !== undefined && (
+											<NumberSetting
+												label="Lockout Duration (Seconds)"
+												value={pingOneSettings.lockout.durationSeconds}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														lockout: { ...pingOneSettings.lockout, durationSeconds: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={60}
+												max={86400}
+												description="Duration of lockout after failed attempts"
+											/>
+										)}
+										{pingOneSettings.lockout.progressiveLockoutEnabled !== undefined && (
+											<ToggleSetting
+												label="Progressive Lockout"
+												value={pingOneSettings.lockout.progressiveLockoutEnabled}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														lockout: { ...pingOneSettings.lockout, progressiveLockoutEnabled: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												description="Enable progressive lockout (increasing duration with each failure)"
+											/>
+										)}
+									</div>
+								)}
+
+								{/* OTP Settings */}
+								{pingOneSettings.otp && (
+									<div style={{ marginBottom: '20px' }}>
+										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+											OTP Settings
+										</h4>
+										{pingOneSettings.otp.otpLength !== undefined && (
+											<NumberSetting
+												label="OTP Length"
+												value={pingOneSettings.otp.otpLength}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														otp: { ...pingOneSettings.otp, otpLength: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={4}
+												max={8}
+												description="Length of OTP codes"
+											/>
+										)}
+										{pingOneSettings.otp.otpValiditySeconds !== undefined && (
+											<NumberSetting
+												label="OTP Validity (Seconds)"
+												value={pingOneSettings.otp.otpValiditySeconds}
+												onChange={(value) => {
+													setPingOneSettings({
+														...pingOneSettings,
+														otp: { ...pingOneSettings.otp, otpValiditySeconds: value },
+													});
+													setHasPingOneSettingsChanges(true);
+												}}
+												min={60}
+												max={600}
+												description="How long OTP codes remain valid"
+											/>
+										)}
+									</div>
+								)}
+
+								{/* Action Buttons */}
+								<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+									<button
+										type="button"
+										onClick={handleSavePingOneSettings}
+										disabled={!hasPingOneSettingsChanges || isSavingPingOneSettings}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '10px 20px',
+											background: hasPingOneSettingsChanges ? '#10b981' : '#9ca3af',
+											color: 'white',
+											border: 'none',
+											borderRadius: '8px',
+											fontSize: '14px',
+											fontWeight: '600',
+											cursor: hasPingOneSettingsChanges ? 'pointer' : 'not-allowed',
+										}}
+									>
+										<FiCheck size={16} />
+										{isSavingPingOneSettings ? 'Saving...' : 'Save PingOne Settings'}
+									</button>
+									<button
+										type="button"
+										onClick={handleResetPingOneSettings}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '10px 20px',
+											background: 'white',
+											color: '#dc2626',
+											border: '1px solid #dc2626',
+											borderRadius: '8px',
+											fontSize: '14px',
+											fontWeight: '600',
+											cursor: 'pointer',
+										}}
+									>
+										<FiRefreshCw size={16} />
+										Reset to Defaults
+									</button>
+								</div>
+							</>
+						) : (
+							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+								No PingOne MFA settings available. Please ensure you have a valid worker token and environment ID.
+							</div>
+						)}
+					</ConfigSection>
+				)}
+
 				{/* Worker Token Settings */}
 				<ConfigSection
 					title="Worker Token Settings"
@@ -509,7 +847,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Preferred Authenticator Type"
 						value={config.fido2.preferredAuthenticatorType}
-						onChange={(value) => updateNestedConfig('fido2', 'preferredAuthenticatorType', value)}
+						onChange={(value) => updateNestedConfig('fido2', 'preferredAuthenticatorType', value as 'platform' | 'cross-platform' | 'both')}
 						options={[
 							{ value: 'platform', label: 'Platform (Touch ID, Face ID, Windows Hello)' },
 							{ value: 'cross-platform', label: 'Cross-Platform (Security Keys)' },
@@ -526,7 +864,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Discoverable Credentials"
 						value={config.fido2.discoverableCredentials}
-						onChange={(value) => updateNestedConfig('fido2', 'discoverableCredentials', value)}
+						onChange={(value) => updateNestedConfig('fido2', 'discoverableCredentials', value as 'discouraged' | 'preferred' | 'required')}
 						options={[
 							{ value: 'discouraged', label: 'Discouraged (Server-side storage)' },
 							{ value: 'preferred', label: 'Preferred (Client-side storage)' },
@@ -574,41 +912,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						value={config.showPushNotificationInstructions}
 						onChange={(value) => updateConfig('showPushNotificationInstructions', value)}
 						description="Display instructions for approving push notifications"
-					/>
-				</ConfigSection>
-
-				{/* Performance Settings */}
-				<ConfigSection
-					title="Performance Settings"
-					description="Optimize performance with caching and debouncing"
-				>
-					<ToggleSetting
-						label="Debounce Device Loading"
-						value={config.debounceDeviceLoading}
-						onChange={(value) => updateConfig('debounceDeviceLoading', value)}
-						description="Debounce device list loading to prevent excessive API calls"
-					/>
-					<NumberSetting
-						label="Device Loading Debounce Delay (milliseconds)"
-						value={config.deviceLoadingDebounceDelay}
-						onChange={(value) => updateConfig('deviceLoadingDebounceDelay', value)}
-						min={100}
-						max={2000}
-						description="Delay before loading devices after user input changes"
-					/>
-					<ToggleSetting
-						label="Cache Device List"
-						value={config.cacheDeviceList}
-						onChange={(value) => updateConfig('cacheDeviceList', value)}
-						description="Cache device list to reduce API calls"
-					/>
-					<NumberSetting
-						label="Cache Duration (seconds)"
-						value={config.cacheDuration}
-						onChange={(value) => updateConfig('cacheDuration', value)}
-						min={10}
-						max={600}
-						description="How long to cache device list"
 					/>
 				</ConfigSection>
 

@@ -207,6 +207,13 @@ export interface UserLookupResult {
 		given?: string;
 		family?: string;
 	};
+	account?: {
+		locked?: boolean;
+		status?: string;
+	};
+	locked?: boolean;
+	status?: string;
+	[key: string]: unknown;
 }
 
 /**
@@ -722,11 +729,14 @@ export class MFAServiceV8 {
 					}
 				}
 			} else {
-				// For non-FIDO2 devices, include standard fields
-				// Only include nickname if it exists and is not empty
-				if (devicePayload.nickname) {
-					requestBody.nickname = devicePayload.nickname;
-				}
+			// For non-FIDO2 devices, include standard fields
+			// Include both name and nickname in request body so server can use either for nickname update
+			// The server will use nickname || name to get the device name
+			const deviceNickname = devicePayload.nickname || devicePayload.name;
+			if (deviceNickname) {
+				requestBody.nickname = deviceNickname;
+				requestBody.name = deviceNickname; // Also send as name for compatibility
+			}
 
 				// Always include status explicitly (ACTIVE or ACTIVATION_REQUIRED)
 				// This ensures PingOne receives the status we want, not its default
@@ -1501,10 +1511,77 @@ export class MFAServiceV8 {
 				);
 			}
 
-			console.log(`${MODULE_TAG} MFA settings updated`);
-			return settingsData as MFASettings;
+		console.log(`${MODULE_TAG} MFA settings updated`);
+		return settingsData as MFASettings;
+	} catch (error) {
+		console.error(`${MODULE_TAG} Update MFA settings error`, error);
+		throw error;
+	}
+}
+
+	/**
+	 * Reset MFA settings to defaults (Environment-level)
+	 * DELETE /v1/environments/{envID}/mfaSettings
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#reset-mfa-settings
+	 * @param environmentId - PingOne environment ID
+	 */
+	static async resetMFASettings(environmentId: string): Promise<void> {
+		console.log(`${MODULE_TAG} Resetting MFA settings to defaults`);
+
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/reset-mfa-settings',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: { environmentId, workerToken: accessToken },
+				step: 'mfa-Reset MFA Settings',
+				flowType: 'mfa',
+			});
+
+			const response = await pingOneFetch('/api/pingone/mfa/reset-mfa-settings', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environmentId,
+					workerToken: accessToken,
+				}),
+				retry: { maxAttempts: 3 },
+			});
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
+					data: response.status === 204 ? null : await response.json().catch(() => null),
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok && response.status !== 204) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(
+					`Failed to reset MFA settings: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} MFA settings reset to defaults`);
 		} catch (error) {
-			console.error(`${MODULE_TAG} Update MFA settings error`, error);
+			console.error(`${MODULE_TAG} Reset MFA settings error`, error);
 			throw error;
 		}
 	}
@@ -1824,10 +1901,12 @@ export class MFAServiceV8 {
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'PUT',
-				url: deviceEndpoint,
-				actualPingOneUrl: deviceEndpoint,
+				url: proxyEndpoint, // Show proxy endpoint in display
+				actualPingOneUrl: deviceEndpoint, // Show actual PingOne URL
+				isProxy: true,
+				source: 'frontend',
 				headers: {
-					Authorization: `Bearer ${accessToken}`,
+					Authorization: `Bearer ${accessToken.substring(0, 20)}...`,
 					'Content-Type': 'application/json',
 				},
 				body: { nickname },
@@ -2219,6 +2298,105 @@ export class MFAServiceV8 {
 			console.log(`${MODULE_TAG} Device unblocked successfully`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Unblock device error`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Unlock device
+	 * Per PingOne API: POST /environments/{envID}/users/{userID}/devices/{deviceID}
+	 * Content-Type: application/vnd.pingidentity.device.unlock+json
+	 * @param params - Device parameters
+	 */
+	static async unlockDevice(
+		environmentId: string,
+		userId: string,
+		deviceId: string,
+		credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }
+	): Promise<void> {
+		console.log(`${MODULE_TAG} Unlocking device`, {
+			userId,
+			deviceId,
+		});
+
+		try {
+			// Get appropriate token (worker or user) based on credentials
+			const accessToken = await MFAServiceV8.getToken(credentials);
+
+			// Unlock device via proxy endpoint to avoid CORS
+			const proxyEndpoint = '/api/pingone/mfa/unlock-device';
+			const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: deviceEndpoint,
+				actualPingOneUrl: deviceEndpoint,
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					'Content-Type': 'application/vnd.pingidentity.device.unlock+json',
+				},
+				step: 'mfa-Unlock Device',
+				flowType: 'mfa',
+			});
+
+			const response = await fetch(proxyEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environmentId,
+					userId,
+					deviceId,
+					workerToken: accessToken.trim(),
+				}),
+			});
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				const responseText = await responseClone.text();
+				if (responseText) {
+					try {
+						responseData = JSON.parse(responseText);
+					} catch {
+						responseData = { raw: responseText };
+					}
+				} else {
+					responseData = null;
+				}
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok && response.status !== 204) {
+				const errorData = responseData as PingOneResponse;
+				throw new Error(
+					`Failed to unlock device: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			console.log(`${MODULE_TAG} Device unlocked successfully`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Unlock device error`, error);
 			throw error;
 		}
 	}
@@ -2850,12 +3028,34 @@ export class MFAServiceV8 {
 	): Promise<Record<string, unknown>> {
 		const token = await MFAServiceV8.getWorkerToken();
 		const requestId = `mfa-set-device-order-${Date.now()}`;
+		const startTime = Date.now();
+		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/order`;
 
 		try {
 			console.log(`${MODULE_TAG} Setting device order for user ${userId}`, {
 				environmentId,
 				deviceCount: orderedDeviceIds.length,
 				requestId,
+			});
+
+			// Track API call
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/set-device-order',
+				actualPingOneUrl,
+				isProxy: true,
+				source: 'frontend',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Request-ID': requestId,
+				},
+				body: {
+					environmentId,
+					userId,
+					deviceIds: orderedDeviceIds,
+				},
+				step: 'Set Device Order',
+				flowType: 'mfa',
 			});
 
 			// Use backend proxy to avoid CORS issues
@@ -2873,7 +3073,20 @@ export class MFAServiceV8 {
 				}),
 			});
 
+			const duration = Date.now() - startTime;
 			const data = await response.json();
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: response.ok ? data : { error: data.message || data.error },
+				},
+				duration
+			);
 
 			if (!response.ok) {
 				const errorMsg = data.message || data.error || 'Failed to update device order';
@@ -2912,11 +3125,35 @@ export class MFAServiceV8 {
 	): Promise<Record<string, unknown>> {
 		const token = await MFAServiceV8.getWorkerToken();
 		const requestId = `mfa-remove-device-order-${Date.now()}`;
+		const startTime = Date.now();
+		// According to PingOne API docs: POST /environments/{envID}/users/{userID}/devices
+		// with Content-Type: application/vnd.pingidentity.devices.order.remove+json
+		// No body is sent - the Content-Type header indicates the operation
+		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
 
 		try {
 			console.log(`${MODULE_TAG} Removing MFA device order for user ${userId}`, {
 				environmentId,
 				requestId,
+			});
+
+			// Track API call
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/remove-device-order',
+				actualPingOneUrl,
+				isProxy: true,
+				source: 'frontend',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-Request-ID': requestId,
+				},
+				body: {
+					environmentId,
+					userId,
+				},
+				step: 'Remove Device Order',
+				flowType: 'mfa',
 			});
 
 			const response = await pingOneFetch('/api/pingone/mfa/remove-device-order', {
@@ -2932,7 +3169,20 @@ export class MFAServiceV8 {
 				}),
 			});
 
+			const duration = Date.now() - startTime;
 			const data = await response.json();
+
+			// Update API call with response
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: response.ok ? data : { error: data.message || data.error },
+				},
+				duration
+			);
 
 			if (!response.ok) {
 				const errorMsg = data.message || data.error || 'Failed to remove MFA device order';
@@ -3733,6 +3983,31 @@ export class MFAServiceV8 {
 
 			// Lookup user by username to obtain the PingOne user ID required by the MFA API
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Check user lock status if policy requires it (skipUserLockVerification is false or undefined)
+			// If skipUserLockVerification is true, skip the check
+			if (policy?.skipUserLockVerification !== true) {
+				// Check if user is locked (check multiple possible fields)
+				const isLocked = user?.locked === true || 
+					user?.account?.locked === true || 
+					user?.status === 'LOCKED' ||
+					user?.account?.status === 'LOCKED';
+
+				if (isLocked) {
+					const errorMessage = 'User account is locked. Please contact your administrator to unlock your account.';
+					console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
+						userId: user.id,
+						username: params.username,
+						userStatus: user?.status,
+						accountStatus: user?.account?.status,
+						userLocked: user?.locked,
+						accountLocked: user?.account?.locked,
+					});
+					throw new Error(errorMessage);
+				}
+			} else {
+				console.log(`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`);
+			}
 
 			// Retrieve and trim the worker token
 			const accessToken = await MFAServiceV8.getWorkerToken();

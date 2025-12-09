@@ -38,7 +38,7 @@ export const usePAROperations = () => {
 		async (
 			credentials: FlowCredentials,
 			pkceCodes: PKCECodes,
-			additionalParams?: Record<string, any>
+			additionalParams?: Record<string, unknown>
 		): Promise<PARResponse> => {
 			setIsLoading(true);
 			setError(null);
@@ -136,23 +136,23 @@ export const usePAROperations = () => {
 			setError(null);
 
 			try {
-				const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-
-				const body = new URLSearchParams({
-					grant_type: 'authorization_code',
-					code: authCode,
-					redirect_uri: credentials.redirectUri,
-					client_id: credentials.clientId,
-					client_secret: credentials.clientSecret,
-					code_verifier: pkceCodes.codeVerifier,
-				});
+				// Use backend proxy endpoint to avoid CORS and ensure all calls go through proxy
+				const tokenEndpoint = '/api/token-exchange';
 
 				const response = await fetch(tokenEndpoint, {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/x-www-form-urlencoded',
+						'Content-Type': 'application/json',
 					},
-					body: body.toString(),
+					body: JSON.stringify({
+						grant_type: 'authorization_code',
+						code: authCode,
+						redirect_uri: credentials.redirectUri,
+						client_id: credentials.clientId,
+						client_secret: credentials.clientSecret,
+						code_verifier: pkceCodes.codeVerifier,
+						environment_id: credentials.environmentId,
+					}),
 				});
 
 				if (!response.ok) {
@@ -160,6 +160,7 @@ export const usePAROperations = () => {
 					throw new Error(
 						errorData.error_description ||
 							errorData.error ||
+							errorData.message ||
 							`Token exchange failed: ${response.status}`
 					);
 				}
@@ -179,22 +180,34 @@ export const usePAROperations = () => {
 
 	// Fetch user info (for OIDC flows)
 	const fetchUserInfo = useCallback(
-		async (credentials: FlowCredentials, accessToken: string): Promise<any> => {
+		async (credentials: FlowCredentials, accessToken: string): Promise<Record<string, unknown>> => {
 			setIsLoading(true);
 			setError(null);
 
 			try {
+				// Use backend proxy endpoint to avoid CORS and ensure all calls go through proxy
 				const userInfoEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
+				const proxyEndpoint = '/api/pingone/userinfo';
 
-				const response = await fetch(userInfoEndpoint, {
-					method: 'GET',
+				const response = await fetch(proxyEndpoint, {
+					method: 'POST',
 					headers: {
-						Authorization: `Bearer ${accessToken}`,
+						'Content-Type': 'application/json',
 					},
+					body: JSON.stringify({
+						userInfoEndpoint,
+						accessToken,
+					}),
 				});
 
 				if (!response.ok) {
-					throw new Error(`UserInfo request failed: ${response.status}`);
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(
+						errorData.message ||
+							errorData.error_description ||
+							errorData.error ||
+							`UserInfo request failed: ${response.status}`
+					);
 				}
 
 				const userInfo = await response.json();
