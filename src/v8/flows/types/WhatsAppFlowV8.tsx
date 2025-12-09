@@ -32,6 +32,7 @@ import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 import { WhatsAppNotEnabledModalV8 } from '@/v8/components/WhatsAppNotEnabledModalV8';
 import { NicknamePromptModalV8 } from '@/v8/components/NicknamePromptModalV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[📲 WHATSAPP-MFA]';
 
@@ -69,7 +70,7 @@ const WhatsAppDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfi
 				existingDevices: [],
 				loadingDevices: false,
 				selectedExistingDevice: 'new',
-				showRegisterForm: false,
+				showRegisterForm: true,
 			});
 			// Skip to registration step immediately
 			if (nav.currentStep === 1) {
@@ -611,6 +612,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	// Ref to track previous step for clearing deviceRegisteredActive state
 	const previousStepRef = React.useRef<number>(-1);
 	
+	// Ref to store step 4 props for modal management (moved to avoid Rules of Hooks violation)
+	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	
 	// Bidirectional sync between Registration Flow Type and tokenType dropdown
 	// When Registration Flow Type changes, update tokenType dropdown
 	// Moved from createRenderStep0 to component level to fix hooks order issue
@@ -906,10 +910,18 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					setShowValidationModal(true); // Ensure validation modal is open when navigating to Step 4
 					nav.markStepComplete();
 					
+					// Clean up any OAuth callback parameters from URL to prevent redirect issues
+					if (window.location.search.includes('code=') || window.location.search.includes('state=')) {
+						const cleanUrl = window.location.pathname;
+						window.history.replaceState({}, document.title, cleanUrl);
+						console.log(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+					}
+					
+					// Navigate immediately to avoid any delay - same pattern as SMS flow
 					// Use setTimeout to ensure state updates complete before navigation
 					setTimeout(() => {
 						nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
-					}, 100);
+					}, 0);
 					
 					toastV8.success('WhatsApp device registered! OTP has been sent automatically.');
 				} else if (actualDeviceStatus === 'ACTIVE') {
@@ -1402,19 +1414,24 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
 
-			// Close modal when verification is complete (use useEffect to avoid render warning)
-			React.useEffect(() => {
-				if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
+			// Store props in ref for potential use at component level
+			step4PropsRef.current = props;
+			
+			// Close modal when verification is complete (handled in render, not useEffect to avoid Rules of Hooks violation)
+			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
+				// Use setTimeout to avoid state updates during render
+				setTimeout(() => {
 					setShowValidationModal(false);
-				}
-			}, [mfaState.verificationResult?.status, showValidationModal]);
-
-			// Auto-open validation modal when on step 4 (use useEffect to avoid render warning)
-			React.useEffect(() => {
-				if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult) {
+				}, 0);
+			}
+			
+			// Auto-open validation modal when on step 4 (handled in render, not useEffect to avoid Rules of Hooks violation)
+			if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult) {
+				// Use setTimeout to avoid state updates during render
+				setTimeout(() => {
 					setShowValidationModal(true);
-				}
-			}, [nav.currentStep, showValidationModal, mfaState.verificationResult?.status]);
+				}, 0);
+			}
 
 			// If validation is complete, show success screen using shared service
 			// Close modal and show success page directly in step 4 (like SMS flow)
@@ -1424,7 +1441,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					<MFASuccessPageV8
 						{...props}
 						successData={successData}
-						onStartAgain={() => navigate('/v8/mfa-hub')}
+						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
 				);
 			}
@@ -1438,14 +1455,15 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						<MFASuccessPageV8
 							{...props}
 							successData={successData}
-							onStartAgain={() => navigate('/v8/mfa-hub')}
+							onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 						/>
 					);
 				}
 				// If no success state, device was already active - navigate back to device selection
-				React.useEffect(() => {
+				// Use setTimeout to avoid state updates during render (moved from useEffect to avoid Rules of Hooks violation)
+				setTimeout(() => {
 					nav.goToStep(1);
-				}, [nav]);
+				}, 0);
 				return (
 					<div className="step-content">
 						<div className="success-box">
