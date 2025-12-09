@@ -18,7 +18,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiCheck, FiCopy, FiHome, FiInfo, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiHome, FiInfo, FiChevronDown, FiChevronUp, FiShield } from 'react-icons/fi';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
@@ -151,6 +151,10 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 		} else {
 			navigate('/v8/mfa-hub');
 		}
+	};
+	
+	const handleGoToAuthentication = () => {
+		navigate('/v8/mfa-hub');
 	};
 	
 	// Build JSON response for display
@@ -912,9 +916,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						fontSize: '16px',
 						fontWeight: '600',
 						borderRadius: '8px',
-						border: '1px solid #3b82f6',
-						background: '#3b82f6',
-						color: 'white',
+						border: '1px solid #d1d5db',
+						background: 'white',
+						color: '#374151',
 						cursor: 'pointer',
 						display: 'flex',
 						alignItems: 'center',
@@ -924,6 +928,29 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					<FiHome />
 					Back to MFA Hub
 				</button>
+				{/* Show Authentication button only for registration flows */}
+				{flowType === 'registration' && (
+					<button
+						type="button"
+						onClick={handleGoToAuthentication}
+						style={{
+							padding: '12px 24px',
+							fontSize: '16px',
+							fontWeight: '600',
+							borderRadius: '8px',
+							border: '1px solid #3b82f6',
+							background: '#3b82f6',
+							color: 'white',
+							cursor: 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						<FiShield />
+						Authentication
+					</button>
+				)}
 			</div>
 			
 			{/* API Display Toggle - Bottom */}
