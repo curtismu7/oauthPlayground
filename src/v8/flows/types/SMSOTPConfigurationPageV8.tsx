@@ -30,6 +30,7 @@ import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[📱 SMS-OTP-CONFIG-V8]';
 
@@ -472,8 +473,8 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			'Will pass to flow': { registrationFlowType, adminDeviceStatus },
 		});
 		
-		// Navigate to actual SMS registration flow (same route, flow will skip Step 0 if configured)
-		navigate('/v8/mfa/register/sms', {
+		// Navigate to actual SMS registration flow device route
+		navigate('/v8/mfa/register/sms/device', {
 			replace: false,
 			state: {
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -771,7 +772,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
 					<button
 						type="button"
-						onClick={() => navigate('/v8/mfa-hub')}
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
 						style={{
 							padding: '12px 24px',
 							border: '1px solid #d1d5db',
