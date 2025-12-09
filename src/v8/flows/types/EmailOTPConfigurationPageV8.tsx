@@ -108,37 +108,24 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		// 1. User is authenticated and has an access token
 		// 2. We haven't already auto-populated (prevent re-running)
 		// 3. We don't already have a user token in credentials
-		// 4. Registration flow type is 'user' OR tokenType is 'user' or not set
-		// This ensures we populate even if the sync hasn't happened yet
+		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			const shouldPopulate = registrationFlowType === 'user' || 
-				credentials.tokenType === 'user' || 
-				!credentials.tokenType;
+			console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
+				hasToken: !!authToken,
+				tokenLength: authToken.length,
+				tokenPreview: authToken.substring(0, 20) + '...',
+				currentTokenType: credentials.tokenType,
+				registrationFlowType: registrationFlowType,
+			});
 			
-			if (shouldPopulate) {
-				console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
-					hasToken: !!authToken,
-					tokenLength: authToken.length,
-					tokenPreview: authToken.substring(0, 20) + '...',
-					currentTokenType: credentials.tokenType,
-					registrationFlowType: registrationFlowType,
-				});
-				
-				hasAutoPopulatedRef.current = true;
-				setCredentials((prev) => ({
-					...prev,
-					userToken: authToken,
-					tokenType: 'user' as const,
-				}));
-				
-				toastV8.success('User token automatically loaded from your recent login!');
-			} else {
-				console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ⚠️ Skipping auto-population - conditions not met`, {
-					registrationFlowType,
-					tokenType: credentials.tokenType,
-					shouldPopulate,
-				});
-			}
+			hasAutoPopulatedRef.current = true;
+			setCredentials((prev) => ({
+				...prev,
+				userToken: authToken,
+				tokenType: 'user' as const,
+			}));
+			
+			toastV8.success('User token automatically loaded from your recent login!');
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
 			console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
 				hasAutoPopulated: hasAutoPopulatedRef.current,
@@ -492,8 +479,8 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			'Will pass to flow': { registrationFlowType, adminDeviceStatus },
 		});
 		
-		// Navigate to actual Email registration flow
-		navigate('/v8/mfa/register/email/device', {
+		// Navigate to actual Email registration flow (same route, flow will skip Step 0 if configured)
+		navigate('/v8/mfa/register/email', {
 			replace: false,
 			state: {
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
