@@ -801,42 +801,36 @@ show_final_summary() {
     esac
     
     echo -e "${banner_color}║${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}📝 Log files: backend.log, frontend.log, logs/server.log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}🌐 PingOne API logs: ${GREEN}logs/pingone-api.log${NC} ${YELLOW}(NEW)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📝 Log files:${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/server.log (server logs)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/pingone-api.log (all PingOne API calls)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/api-log.log (all API calls)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/real-api.log (real API calls, no proxy)${NC}"
     echo -e "${banner_color}║${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}📋 Available Options:${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh              - Normal restart${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --tail-api-log - Restart + tail PingOne API log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --tail --clear - Restart + clear & tail API log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --help        - Show help message${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh - Restart servers (will prompt to tail logs)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --help - Show help message${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}╚══════════════════════════════════════════════════════════════════════════════╝${NC}"
     echo ""
 }
 
 # Parse command line arguments
-TAIL_API_LOG=false
-CLEAR_API_LOG=false
 for arg in "$@"; do
     case "$arg" in
-        --tail-api-log|--tail)
-            TAIL_API_LOG=true
-            ;;
-        --clear-api-log|--clear)
-            CLEAR_API_LOG=true
-            ;;
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --tail-api-log, --tail    Tail the PingOne API log file after servers start"
-            echo "  --clear-api-log, --clear Clear the PingOne API log file before tailing (requires --tail)"
             echo "  --help, -h                Show this help message"
             echo ""
-            echo "Examples:"
-            echo "  $0                       # Restart servers normally"
-            echo "  $0 --tail-api-log        # Restart servers and tail PingOne API log"
-            echo "  $0 --tail --clear        # Restart servers, clear API log, then tail it"
+            echo "Usage:"
+            echo "  $0                       # Restart servers (will prompt to tail logs interactively)"
+            echo ""
+            echo "Note: After servers start, you'll be prompted to:"
+            echo "  - Choose whether to tail a log file"
+            echo "  - Select which log file to tail (pingone-api.log, api-log.log, real-api.log, or server.log)"
+            echo "  - Optionally clear the log file before tailing"
             exit 0
             ;;
         *)
@@ -877,47 +871,84 @@ main() {
     # Step 8: Final success message and server status summary
     show_final_summary
     
-    # Step 9: Tail PingOne API log if requested
-    if [ "$TAIL_API_LOG" = true ]; then
-        if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
+    # Step 9: Ask user if they want to tail a log file (always interactive, no command line args needed)
+    if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
+        echo ""
+        echo -n "Would you like to tail a log file? (y/N): "
+        read -r tail_log
+        
+        if [ "$tail_log" = "y" ] || [ "$tail_log" = "Y" ]; then
             echo ""
-            print_info "📋 Tailing PingOne API log file (Ctrl+C to stop)..."
+            print_info "📋 Which log file would you like to tail?"
+            echo ""
+            echo -e "${CYAN}Available log files:${NC}"
+            echo "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls"
+            echo "  2) ${GREEN}api-log.log${NC} - All API calls"
+            echo "  3) ${GREEN}real-api.log${NC} - Real API calls (no proxy)"
+            echo "  4) ${GREEN}server.log${NC} - Server logs"
+            echo ""
+            echo -n "Enter your choice (1-4): "
+            read -r log_choice
+            
+            # Determine which log file to tail based on user choice
+            case "$log_choice" in
+                1)
+                    LOG_FILE="logs/pingone-api.log"
+                    LOG_DESCRIPTION="PingOne API log"
+                    ;;
+                2)
+                    LOG_FILE="logs/api-log.log"
+                    LOG_DESCRIPTION="API log"
+                    ;;
+                3)
+                    LOG_FILE="logs/real-api.log"
+                    LOG_DESCRIPTION="Real API log (no proxy)"
+                    ;;
+                4)
+                    LOG_FILE="logs/server.log"
+                    LOG_DESCRIPTION="Server log"
+                    ;;
+                *)
+                    print_warning "Invalid choice. Skipping log tail."
+                    return 0
+                    ;;
+            esac
+            
             echo ""
             
-            # Clear log if requested via command line option, otherwise ask user
-            if [ -f "logs/pingone-api.log" ]; then
-                if [ "$CLEAR_API_LOG" = true ]; then
-                    print_info "Clearing logs/pingone-api.log (--clear-api-log option specified)..."
-                    > logs/pingone-api.log
+            # Ask if user wants to clear the log file
+            if [ -f "$LOG_FILE" ]; then
+                echo -e "${YELLOW}The log file exists: ${LOG_FILE}${NC}"
+                echo -n "Do you want to clear it before tailing? (y/N): "
+                read -r clear_log
+                if [ "$clear_log" = "y" ] || [ "$clear_log" = "Y" ]; then
+                    print_info "Clearing ${LOG_FILE}..."
+                    > "$LOG_FILE"
                     print_success "Log file cleared"
                     echo ""
-                else
-                    echo -e "${YELLOW}The PingOne API log file exists.${NC}"
-                    echo -n "Do you want to clear it before tailing? (y/N): "
-                    read -r clear_log
-                    if [ "$clear_log" = "y" ] || [ "$clear_log" = "Y" ]; then
-                        print_info "Clearing logs/pingone-api.log..."
-                        > logs/pingone-api.log
-                        print_success "Log file cleared"
-                        echo ""
-                    fi
                 fi
             else
-                print_warning "PingOne API log file not found: logs/pingone-api.log"
-                print_info "The file will be created when the first PingOne API call is made"
+                print_warning "Log file not found: ${LOG_FILE}"
+                if [ "$LOG_FILE" = "logs/real-api.log" ] || [ "$LOG_FILE" = "logs/pingone-api.log" ] || [ "$LOG_FILE" = "logs/api-log.log" ]; then
+                    print_info "The file will be created when the first API call is made"
+                fi
                 print_info "Press Ctrl+C to exit"
                 # Wait for file to be created, then tail it
-                while [ ! -f "logs/pingone-api.log" ]; do
+                while [ ! -f "$LOG_FILE" ]; do
                     sleep 1
                 done
             fi
             
-            # Tail the log file (always tail, whether cleared or not)
-            print_info "Starting to tail logs/pingone-api.log..."
-            tail -f logs/pingone-api.log
+            # Tail the log file
+            echo ""
+            print_info "📋 Tailing ${LOG_DESCRIPTION} file (Ctrl+C to stop)..."
+            echo ""
+            tail -f "$LOG_FILE"
         else
-            print_warning "Servers did not start successfully. Skipping log tail."
+            print_info "Skipping log tail."
         fi
+    else
+        print_warning "Servers did not start successfully. Skipping log tail."
     fi
     
     # Exit with appropriate code

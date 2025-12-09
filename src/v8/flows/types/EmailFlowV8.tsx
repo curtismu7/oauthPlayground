@@ -24,6 +24,7 @@ import { FiShield, FiX } from 'react-icons/fi';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -313,6 +314,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	// Ref to track previous tokenType to avoid unnecessary updates
 	const prevTokenTypeRef = React.useRef<string | undefined>(undefined);
 	
+	// Ref to store step 4 props for potential use at component level
+	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	
+	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
+	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
+	
 	// Ref to prevent infinite loops in bidirectional sync (moved from createRenderStep0)
 	const isSyncingRef = React.useRef(false);
 
@@ -601,8 +608,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		// Reset deviceName to device type when entering registration step (Step 2)
-		React.useEffect(() => {
-			if (nav.currentStep === 2 && credentials) {
+		// Use ref to track if we've already done this for this step/deviceType combination
+		// This avoids Rules of Hooks violation by not using useEffect inside render function
+		if (nav.currentStep === 2 && credentials) {
+			const resetKey = `${nav.currentStep}-${credentials.deviceType}`;
+			const lastReset = step2DeviceNameResetRef.current;
+			
+			if (!lastReset || lastReset.step !== nav.currentStep || lastReset.deviceType !== credentials.deviceType) {
 				// Reset deviceName to device type if it's empty or matches old device type
 				const deviceTypeValue = credentials.deviceType || 'EMAIL';
 				const shouldReset = !credentials.deviceName || 
@@ -610,13 +622,25 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					credentials.deviceName === 'EMAIL' ||
 					credentials.deviceName === 'SMS';
 				if (shouldReset) {
-					setCredentials({
-						...credentials,
-						deviceName: deviceTypeValue,
-					});
+					// Use setTimeout to avoid state update during render
+					setTimeout(() => {
+						setCredentials({
+							...credentials,
+							deviceName: deviceTypeValue,
+						});
+					}, 0);
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: credentials.deviceType,
+					};
+				} else {
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: credentials.deviceType,
+					};
 				}
 			}
-		}, [nav.currentStep, credentials?.deviceType]);
+		}
 
 		// Handle device registration
 		const handleRegisterDevice = async () => {
@@ -718,10 +742,18 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					setShowValidationModal(true); // Ensure validation modal is open when navigating to Step 3
 					nav.markStepComplete();
 					
+					// Clean up any OAuth callback parameters from URL to prevent redirect issues
+					if (window.location.search.includes('code=') || window.location.search.includes('state=')) {
+						const cleanUrl = window.location.pathname;
+						window.history.replaceState({}, document.title, cleanUrl);
+						console.log(`${MODULE_TAG} Cleaned up OAuth callback parameters from URL`);
+					}
+					
+					// Navigate immediately to avoid any delay - same pattern as SMS flow
 					// Use setTimeout to ensure state updates complete before navigation
 					setTimeout(() => {
 						nav.goToStep(3); // Go directly to validation step (Step 3) - skip Send OTP step (Step 2)
-					}, 100);
+					}, 0);
 					
 					toastV8.success('Email device registered! OTP has been sent automatically.');
 				} else if (actualDeviceStatus === 'ACTIVE') {
@@ -1662,12 +1694,16 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, nav } = props;
 			
-			// Close modal when verification is complete
-			React.useEffect(() => {
-				if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
+			// Store props in ref for potential use at component level
+			step4PropsRef.current = props;
+			
+			// Close modal when verification is complete (handled in render, not useEffect to avoid Rules of Hooks violation)
+			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS') && showValidationModal) {
+				// Use setTimeout to avoid state updates during render
+				setTimeout(() => {
 					setShowValidationModal(false);
-				}
-			}, [mfaState.verificationResult, showValidationModal]);
+				}, 0);
+			}
 
 			// If validation is complete, show success screen using shared service
 			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
@@ -1676,7 +1712,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					<MFASuccessPageV8
 						{...props}
 						successData={successData}
-						onStartAgain={() => navigate('/v8/mfa-hub')}
+						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
 				);
 			}
@@ -1690,7 +1726,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						<MFASuccessPageV8
 							{...props}
 							successData={successData}
-							onStartAgain={() => navigate('/v8/mfa-hub')}
+							onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 						/>
 					);
 				}

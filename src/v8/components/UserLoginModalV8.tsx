@@ -581,11 +581,18 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			
 			if (currentPath.startsWith('/v8/mfa')) {
 				sessionStorage.setItem('user_login_return_to_mfa', JSON.stringify(fullPath));
-				console.log(`${MODULE_TAG} Stored return path: ${fullPath}`, {
+				console.log(`${MODULE_TAG} ✅ Stored return path: ${fullPath}`, {
 					pathname: currentPath,
 					search: currentSearch,
 					fullPath,
+					timestamp: new Date().toISOString(),
 				});
+				
+				// DEBUG: Verify it was stored correctly
+				const verifyStored = sessionStorage.getItem('user_login_return_to_mfa');
+				console.log(`${MODULE_TAG} 🔍 DEBUG: Verified stored return path:`, verifyStored);
+			} else {
+				console.warn(`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`, currentPath);
 			}
 
 			console.log(`${MODULE_TAG} Redirecting to authorization URL`);

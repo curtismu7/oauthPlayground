@@ -135,20 +135,43 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 			return;
 		}
 		
+		// Check if we're on a device route (ends with /device)
+		// For OTP flows (SMS, Email, WhatsApp), we have separate config and device routes, so we should redirect to config page
+		const isDeviceRoute = location.pathname.endsWith('/device');
+		const isOTPFlow = deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP';
+		
+		// Check if we have credentials in storage (always check, even if we have location state)
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		
+		// If we have stored credentials, we're already in the flow - don't redirect
+		// This prevents redirects when navigating between steps or after OAuth callbacks
+		if (storedCredentials?.environmentId?.trim() && 
+			storedCredentials?.username?.trim() && 
+			storedCredentials?.deviceAuthenticationPolicyId?.trim()) {
+			console.log(`${MODULE_TAG} Found stored credentials, staying in flow`);
+			setIsCheckingCredentials(false);
+			return;
+		}
+		
 		// If no state passed and no configured flag, check stored credentials
 		if (!locationState && !isConfigured) {
-			// Check if we have credentials in storage
-			const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
-				flowKey: 'mfa-flow-v8',
-				flowType: 'oidc',
-				includeClientSecret: false,
-				includeRedirectUri: false,
-				includeLogoutUri: false,
-				includeScopes: false,
-			});
+			// For OTP flow device routes: redirect to config page if no proper state
+			if (isDeviceRoute && isOTPFlow && (!storedCredentials?.environmentId?.trim() || 
+				!storedCredentials?.username?.trim() || 
+				!storedCredentials?.deviceAuthenticationPolicyId?.trim())) {
+				console.log(`${MODULE_TAG} Device route accessed directly without proper state, redirecting to config page`);
+				navigate(configPageRoute, { replace: true });
+				return;
+			}
 			
-			// If no stored credentials, just show Step 0 (configuration) instead of redirecting
-			// This prevents redirect loops since configPageRoute now points to the same flow component
+			// If no stored credentials and not a device route, just show Step 0 (configuration)
 			if (!storedCredentials?.environmentId?.trim() || 
 				!storedCredentials?.username?.trim() || 
 				!storedCredentials?.deviceAuthenticationPolicyId?.trim()) {
@@ -160,7 +183,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 		
 		// Credentials check complete
 		setIsCheckingCredentials(false);
-	}, [location.state, isConfigured, MODULE_TAG]);
+	}, [location.state, location.pathname, isConfigured, deviceType, configPageRoute, navigate, MODULE_TAG]);
 	
 	// Initialize controller using factory
 	const controller = useMemo(() => 

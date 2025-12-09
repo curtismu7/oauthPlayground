@@ -23,6 +23,7 @@ import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import type { MFACredentials } from '../shared/MFATypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 const MODULE_TAG = '[⏱️ TOTP-CONFIG-V8]';
 
@@ -199,7 +200,7 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
 					<button
 						type="button"
-						onClick={() => navigate('/v8/mfa-hub')}
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
 						style={{
 							padding: '12px 24px',
 							border: '1px solid #d1d5db',
