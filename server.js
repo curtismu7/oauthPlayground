@@ -31,6 +31,7 @@ if (!fs.existsSync(logsDir)) {
 // Separate log file for PingOne API calls
 const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log');
 const apiLogFile = path.join(logsDir, 'api-log.log');
+const realApiLogFile = path.join(logsDir, 'real-api.log');
 
 // Log width constant - wider for better readability, no truncation
 const LOG_WIDTH = 150;
@@ -104,6 +105,7 @@ console.warn = (...args) => {
 console.log('🚀 Starting OAuth Playground Backend Server...'); // OAuth Playground Backend Server
 console.log(`📝 Server logs: ${logFile}`);
 console.log(`📝 PingOne API logs: ${pingOneApiLogFile}`);
+console.log(`📝 Real API logs (no proxy): ${realApiLogFile}`);
 console.log(`📝 Client logs: ${clientLogFile}`);
 
 // Ensure fetch is available globally for server handlers that reference global.fetch
@@ -612,12 +614,19 @@ function logPingOneApiCall(operationName, url, method, headers, body, response, 
 	logMessage += `* END OF API CALL: ${operationName}\n`;
 	logMessage += `${'*'.repeat(LOG_WIDTH)}\n`;
 
+	// Check if this is a proxy call (case-insensitive check on operation name and URL)
+	const isProxyCall = operationName.toLowerCase().includes('proxy') || 
+	                    url.toLowerCase().includes('/proxy/') ||
+	                    url.toLowerCase().includes('/api/pingone/proxy') ||
+	                    (metadata && typeof metadata.endpoint === 'string' && metadata.endpoint.toLowerCase().includes('proxy'));
+	
 	// Write to both PingOne API log file and api-log.log (async, non-blocking)
 	// Note: fs.appendFile will create the file if it doesn't exist
-	console.log('[DEBUG] logPingOneApiCall: Writing to files:', pingOneApiLogFile, apiLogFile);
+	console.log('[DEBUG] logPingOneApiCall: Writing to files:', pingOneApiLogFile, apiLogFile, isProxyCall ? '(skipping real-api.log - proxy call)' : realApiLogFile);
 	console.log('[DEBUG] logPingOneApiCall: Log message length:', logMessage.length);
+	console.log('[DEBUG] logPingOneApiCall: Is proxy call?', isProxyCall);
 	
-	// Write to pingone-api.log
+	// Write to pingone-api.log (all calls)
 	fs.appendFile(pingOneApiLogFile, logMessage, 'utf8', (err) => {
 		if (err) {
 			originalError('[PingOne API Logging Error] Failed to write to pingone-api.log:', {
@@ -632,7 +641,7 @@ function logPingOneApiCall(operationName, url, method, headers, body, response, 
 		}
 	});
 	
-	// Write to api-log.log
+	// Write to api-log.log (all calls)
 	fs.appendFile(apiLogFile, logMessage, 'utf8', (err) => {
 		if (err) {
 			originalError('[PingOne API Logging Error] Failed to write to api-log.log:', {
@@ -646,6 +655,23 @@ function logPingOneApiCall(operationName, url, method, headers, body, response, 
 			console.log(`[DEBUG] Successfully wrote to ${apiLogFile}`);
 		}
 	});
+	
+	// Write to real-api.log (only non-proxy calls)
+	if (!isProxyCall) {
+		fs.appendFile(realApiLogFile, logMessage, 'utf8', (err) => {
+			if (err) {
+				originalError('[PingOne API Logging Error] Failed to write to real-api.log:', {
+					error: err,
+					file: realApiLogFile,
+					message: err.message,
+					code: err.code,
+					stack: err.stack,
+				});
+			} else {
+				console.log(`[DEBUG] Successfully wrote to ${realApiLogFile}`);
+			}
+		});
+	}
 }
 const requestStats = {
 	totalRequests: 0,
