@@ -162,6 +162,7 @@ import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
+import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
 import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
 import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
@@ -170,13 +171,10 @@ import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
 import { FIDO2FlowV8 } from './v8/flows/types/FIDO2FlowV8';
 import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
-import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
 import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
-import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
 import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
 import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
 import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
-import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
 import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
@@ -529,16 +527,13 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
 							<Route path="/v8/mfa/authentication/success" element={<MFAAuthenticationSuccessPage />} />
-							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
-							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/email/device" element={<EmailFlowV8 />} />
+							<Route path="/v8/mfa/register/sms" element={<SMSFlowV8 />} />
+							<Route path="/v8/mfa/register/email" element={<EmailFlowV8 />} />
 							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
-							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
+							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppFlowV8 />} />
 							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
 							<Route path="/v8/mfa/register/platform" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa/register/platform/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
@@ -547,6 +542,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa/configure/fido2" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
+							<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
 							<Route path="/v8/mfa/device-authentication-details" element={<DeviceAuthenticationDetailsV8 />} />
 							<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
