@@ -147,19 +147,20 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 				includeScopes: false,
 			});
 			
-			// If no stored credentials either, redirect to config page
+			// If no stored credentials, just show Step 0 (configuration) instead of redirecting
+			// This prevents redirect loops since configPageRoute now points to the same flow component
 			if (!storedCredentials?.environmentId?.trim() || 
 				!storedCredentials?.username?.trim() || 
 				!storedCredentials?.deviceAuthenticationPolicyId?.trim()) {
-				console.log(`${MODULE_TAG} No credentials found, redirecting to config page`);
-				navigate(configPageRoute, { replace: true });
+				console.log(`${MODULE_TAG} No credentials found, will show Step 0 (configuration)`);
+				setIsCheckingCredentials(false);
 				return;
 			}
 		}
 		
 		// Credentials check complete
 		setIsCheckingCredentials(false);
-	}, [location.state, isConfigured, navigate, configPageRoute, MODULE_TAG]);
+	}, [location.state, isConfigured, MODULE_TAG]);
 	
 	// Initialize controller using factory
 	const controller = useMemo(() => 
@@ -213,7 +214,7 @@ export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnified
 		adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
 	} | null;
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>(
-		initialLocationState?.registrationFlowType || 'user'
+		initialLocationState?.registrationFlowType || 'admin'
 	);
 	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
 		initialLocationState?.adminDeviceStatus || 'ACTIVE'

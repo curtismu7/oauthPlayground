@@ -212,6 +212,26 @@ The policy must be configured in PingOne before you can register devices.`,
 			learnMoreUrl: 'https://docs.pingidentity.com/r/en-us/pingone/p1_c_mfa_policies',
 		},
 		
+		'policy.skipUserLockVerification': {
+			title: 'Skip User Lock Verification',
+			description: 'When enabled (true), the system will skip checking if the user account is locked before allowing authentication. When disabled (false), the system will check the user\'s lock status and prevent authentication if the account is locked.',
+			securityLevel: 'high',
+			securityNote: 'Skipping lock verification can allow locked accounts to authenticate. Use with caution.',
+		},
+		
+		'policy.pairingDisabled': {
+			title: 'Pairing Disabled',
+			description: 'When enabled (true), device pairing/registration is disabled for this policy. Users cannot register new MFA devices when this setting is active.',
+			securityLevel: 'medium',
+			securityNote: 'Disabling pairing prevents new device registration. Users must use existing devices.',
+		},
+		
+		'policy.promptForNicknameOnPairing': {
+			title: 'Prompt for Nickname on Pairing',
+			description: 'When enabled (true), users will be prompted to enter a custom nickname for their device after successful pairing. When disabled (false), the device name is set automatically without user input.',
+			securityLevel: 'low',
+		},
+		
 		'device.order': {
 			title: 'Device Order',
 			description: `Device order determines the priority sequence in which MFA devices are used during authentication. When a user has multiple devices, PingOne will try devices in the specified order.
@@ -529,6 +549,14 @@ All passkeys use WebAuthn, but not all WebAuthn credentials are passkeys. Tradit
 			description: 'The push notification was sent to your mobile device, but it was not approved within the allowed timeframe. Push notifications typically expire after a few minutes for security reasons.',
 			securityNote: 'If you didn\'t receive the push notification, check your device\'s internet connection and notification settings. You can start a new authentication attempt.',
 			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#mfa-device-authentications',
+		},
+
+		'mfa.settings': {
+			title: 'PingOne MFA Settings',
+			description: 'Environment-level MFA settings control behavior across all MFA policies in your PingOne environment. These settings include pairing configuration (max devices, pairing key format), lockout policies (failure count, duration), and OTP settings (length, validity). Policy-specific settings like device selection and authentication methods are configured in Device Authentication Policies.',
+			securityLevel: 'high',
+			securityNote: 'MFA settings affect security across your entire environment. Changes should be carefully reviewed and tested.',
+			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#mfa-settings',
 		},
 	};
 

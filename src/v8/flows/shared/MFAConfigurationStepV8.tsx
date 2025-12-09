@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -42,6 +43,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	policyDescription,
 	registrationFlowType,
 }) => {
+	// Get auth context to check for user tokens from OAuth login
+	const authContext = useAuth();
+	
 	// Initialize tokenType from credentials, defaulting to 'worker' if not set
 	// Use a function to ensure we only read credentials.tokenType once on mount
 	const [tokenType, setTokenType] = useState<TokenType>(() => {
@@ -53,8 +57,11 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		return initialType;
 	});
 	
-	// Validate initial userToken if present (using same logic as validateUserToken)
-	const initialUserToken = credentials.userToken || '';
+	// Check auth context for user token if credentials.userToken is missing
+	// This handles the case where user logged in via OAuth but token hasn't been synced to credentials yet
+	// CRITICAL: Always check authContext first, as it's the source of truth after OAuth login
+	const authContextToken = authContext.tokens?.access_token;
+	const initialUserToken = authContextToken || credentials.userToken || '';
 	const initialUserTokenStatus = initialUserToken 
 		? (() => {
 			if (!initialUserToken.trim()) {
@@ -210,6 +217,35 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, [credentials.tokenType, tokenType, registrationFlowType, setCredentials]);
 
+	// Sync userToken from auth context if available and credentials.userToken is missing
+	// This is critical for OAuth callback scenarios where user just logged in
+	React.useEffect(() => {
+		const authToken = authContext.tokens?.access_token;
+		const isAuthenticated = authContext.isAuthenticated;
+		
+		// If we have a token in auth context but not in credentials, sync it
+		// Remove the tokenType/registrationFlowType restriction - always sync if token exists and credentials don't have it
+		if (isAuthenticated && authToken && !credentials.userToken) {
+			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, { 
+				hasToken: !!authToken,
+				tokenLength: authToken.length,
+				tokenPreview: authToken.substring(0, 20) + '...',
+				tokenType,
+				registrationFlowType,
+				hasCredentialsToken: !!credentials.userToken,
+			});
+			setCredentials((prev) => ({
+				...prev,
+				userToken: authToken,
+				tokenType: 'user' as const,
+			}));
+			setUserToken(authToken);
+			const status = validateUserToken(authToken);
+			setUserTokenStatus(status);
+			setTokenType('user');
+		}
+	}, [authContext.tokens?.access_token, authContext.isAuthenticated, credentials.userToken, tokenType, registrationFlowType, setCredentials, validateUserToken]);
+
 	// Sync userToken state when credentials.userToken changes (e.g., from UserLoginModal)
 	React.useEffect(() => {
 		// CRITICAL: If credentials has a userToken and tokenType is 'user', ensure local tokenType is also 'user'
@@ -275,8 +311,16 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			const status = validateUserToken(credentials.userToken);
 			setUserTokenStatus(status);
 			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Re-validation result`, { status, tokenLength: credentials.userToken.length });
+		} else if (!credentials.userToken && authContext.tokens?.access_token && (tokenType === 'user' || registrationFlowType === 'user')) {
+			// No token in credentials but we have one in auth context - validate it
+			const authToken = authContext.tokens.access_token;
+			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Validating user token from auth context`);
+			const status = validateUserToken(authToken);
+			setUserTokenStatus(status);
+			setUserToken(authToken);
+			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Auth context token validated`, { status, tokenLength: authToken.length });
 		}
-	}, [credentials.userToken, credentials.tokenType, userToken, userTokenStatus, tokenType, validateUserToken]);
+	}, [credentials.userToken, credentials.tokenType, userToken, userTokenStatus, tokenType, authContext.tokens?.access_token, registrationFlowType, validateUserToken]);
 
 	// Update credentials when token type or user token changes
 	// Only depend on local state (tokenType, userToken) to prevent loops

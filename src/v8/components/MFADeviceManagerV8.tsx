@@ -20,6 +20,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import { FiInfo } from 'react-icons/fi';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
@@ -43,6 +44,15 @@ interface Device {
 	enabled?: boolean;
 	createdAt?: string;
 	updatedAt?: string;
+	lock?: {
+		status?: string;
+		expiresAt?: string;
+		reason?: string;
+	};
+	block?: {
+		status?: string;
+		blockedAt?: string;
+	};
 	[key: string]: unknown;
 }
 
@@ -58,6 +68,21 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 	const [bypassStatus, setBypassStatus] = useState<Record<string, unknown> | null>(null);
 	const [processingDeviceId, setProcessingDeviceId] = useState<string | null>(null);
 	const [recentlyChangedDevices, setRecentlyChangedDevices] = useState<Set<string>>(new Set());
+	const [expandedSecurityDevices, setExpandedSecurityDevices] = useState<Set<string>>(new Set());
+	const [expandedRawDevices, setExpandedRawDevices] = useState<Set<string>>(new Set());
+
+	useEffect(() => {
+		if (devices.length > 0) {
+			const autoExpanded = devices
+				.filter((d) => d.lock?.status === 'LOCKED' || d.block?.status === 'BLOCKED')
+				.map((d) => d.id);
+			setExpandedSecurityDevices(new Set(autoExpanded));
+			setExpandedRawDevices(new Set());
+		} else {
+			setExpandedSecurityDevices(new Set());
+			setExpandedRawDevices(new Set());
+		}
+	}, [devices]);
 
 	const loadDevices = useCallback(async () => {
 		console.log(`${MODULE_TAG} Loading devices for user`, { username });
@@ -431,116 +456,128 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 						User: <strong>{username}</strong>
 					</p>
 				</div>
-				<div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-					<button
-						type="button"
-						onClick={() => setShowInfo((prev) => !prev)}
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'stretch',
+						gap: '12px',
+						flexWrap: 'wrap',
+						justifyContent: 'flex-end',
+					}}
+				>
+					<div
 						style={{
-							padding: '8px 12px',
-							borderRadius: '8px',
-							border: '1px solid #bae6fd',
-							background: showInfo ? '#dbeafe' : '#eff6ff',
-							color: '#1d4ed8',
-							fontWeight: 600,
-							cursor: 'pointer',
-							fontSize: '13px',
+							display: 'flex',
+							flexDirection: 'column',
+							gap: '8px',
+							minWidth: '260px',
 						}}
 					>
-						{showInfo ? 'Hide guide' : 'What is this?'}
-					</button>
-					<button
-						type="button"
-						onClick={handleAllowBypass}
-						style={{
-							padding: '8px 16px',
-							background: '#3b82f6',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '13px',
-							fontWeight: '500',
-							cursor: 'pointer',
+						{/* Bypass controls group */}
+						<div
+							style={{
+								border: '1px solid #bfdbfe',
+								background: '#eff6ff',
+								borderRadius: '10px',
+								padding: '8px',
+								display: 'flex',
+								flexWrap: 'wrap',
+								gap: '8px',
+								alignItems: 'center',
 						}}
-						title="Allow MFA bypass for this user"
-					>
-						✅ Allow Bypass
-					</button>
-					<button
-						type="button"
-						onClick={handleCheckBypass}
-						style={{
-							padding: '8px 16px',
-							background: '#6366f1',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '13px',
-							fontWeight: '500',
-							cursor: 'pointer',
-						}}
-						title="Check MFA bypass status for this user"
-					>
-						🔍 Check Bypass
-					</button>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+						>
+							<div
+								style={{
+									width: '100%',
+									fontSize: '11px',
+									fontWeight: 600,
+									textTransform: 'uppercase',
+									letterSpacing: '0.06em',
+									color: '#1d4ed8',
+									marginBottom: '2px',
+								}}
+							>
+								Bypass controls
+							</div>
+							<button
+								type="button"
+								onClick={handleAllowBypass}
+								style={{
+									padding: '8px 16px',
+									background: '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '13px',
+									fontWeight: '500',
+									cursor: 'pointer',
+								}}
+								title="Allow MFA bypass for this user"
+							>
+								✅ Allow Bypass
+							</button>
+							<button
+								type="button"
+								onClick={handleCheckBypass}
+								style={{
+									padding: '8px 16px',
+									background: '#6366f1',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '13px',
+									fontWeight: '500',
+									cursor: 'pointer',
+								}}
+								title="Check MFA bypass status for this user"
+							>
+								🔍 Check Bypass
+							</button>
+							<button
+								type="button"
+								onClick={() => setShowInfo((prev) => !prev)}
+								style={{
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '4px',
+									padding: '4px 8px',
+									borderRadius: '4px',
+									background: showInfo ? '#dbeafe' : '#eff6ff',
+									color: '#1e40af',
+									fontWeight: 500,
+									cursor: 'pointer',
+									fontSize: '12px',
+									transition: 'all 0.2s ease',
+									verticalAlign: 'middle',
+									marginLeft: '6px',
+								}}
+							>
+								<FiInfo size={14} />
+								<span>{showInfo ? 'Hide guide' : 'What is this?'}</span>
+							</button>
+						</div>
+					</div>
+					<div>
 						<button
 							type="button"
-							onClick={handleSetDeviceOrder}
+							onClick={async () => {
+								// Refresh device list instead of navigating
+								await loadDevices();
+							}}
 							style={{
-								padding: '8px 16px',
-								background: '#8b5cf6',
+								padding: '10px 20px',
+								background: '#10b981',
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
-								fontSize: '13px',
-								fontWeight: '500',
+								fontSize: '14px',
+								fontWeight: '600',
 								cursor: 'pointer',
 							}}
-							title="Set device order based on current list"
 						>
-							📋 Set Order
+							🔄 Refresh
 						</button>
-						<MFAInfoButtonV8 contentKey="device.order" displayMode="modal" />
 					</div>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-						<button
-							type="button"
-							onClick={handleRemoveDeviceOrder}
-							style={{
-								padding: '8px 16px',
-								background: '#ec4899',
-								color: 'white',
-								border: 'none',
-								borderRadius: '6px',
-								fontSize: '13px',
-								fontWeight: '500',
-								cursor: 'pointer',
-							}}
-							title="Remove device order"
-						>
-							🗑️ Remove Order
-						</button>
-						<MFAInfoButtonV8 contentKey="device.order" displayMode="modal" />
-					</div>
-					<button
-						type="button"
-						onClick={async () => {
-							// Refresh device list instead of navigating
-							await loadDevices();
-						}}
-						style={{
-							padding: '10px 20px',
-							background: '#10b981',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '14px',
-							fontWeight: '600',
-							cursor: 'pointer',
-						}}
-					>
-						🔄 Refresh
-					</button>
 				</div>
 			</div>
 
@@ -626,6 +663,43 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 						const wasRecentlyChanged = recentlyChangedDevices.has(device.id);
 						const isBlocked = device.status === 'BLOCKED';
 						const isActive = device.status === 'ACTIVE';
+						const lock = device.lock;
+						const block = device.block;
+						const isSecurityExpanded = expandedSecurityDevices.has(device.id);
+						const isRawExpanded = expandedRawDevices.has(device.id);
+						const securityStateLabel = lock?.status === 'LOCKED'
+							? 'Locked'
+							: block?.status === 'BLOCKED'
+								? 'Blocked'
+								: device.status || 'Unknown';
+						const effectiveStatus = lock?.status === 'LOCKED'
+							? 'LOCKED'
+							: block?.status === 'BLOCKED'
+								? 'BLOCKED'
+								: device.status || 'UNKNOWN';
+						const securityColor = getStatusColor(effectiveStatus);
+						let securityBackground = '#e5e7eb';
+						switch (effectiveStatus) {
+							case 'LOCKED':
+							case 'BLOCKED':
+								securityBackground = '#fee2e2';
+								break;
+							case 'ACTIVE':
+								securityBackground = '#dcfce7';
+								break;
+							case 'PENDING':
+								securityBackground = '#fef3c7';
+								break;
+							default:
+								securityBackground = '#e5e7eb';
+						}
+						const deviceIcon = getDeviceIcon(device.type);
+						const targetSummary =
+							device.type === 'SMS' || device.type === 'VOICE'
+								? device.phone || ''
+								: device.type === 'EMAIL'
+									? device.email || ''
+									: device.nickname || device.name || '';
 
 						return (
 							<div
@@ -647,17 +721,33 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 								>
 									{/* Device Info */}
 									<div style={{ flex: 1 }}>
-										<div style={{ marginBottom: '8px' }}>
-											<strong>Type:</strong> {device.type}
-											{device.status && (
-												<span style={{ marginLeft: '12px' }}>
-													<strong>Status:</strong> {device.status}
-												</span>
-											)}
+										<div
+											style={{
+												marginBottom: '8px',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												flexWrap: 'wrap',
+											}}
+										>
+											<span style={{ fontSize: '20px' }}>{deviceIcon}</span>
+											<span>
+												<strong>{device.type}</strong>
+												{targetSummary && (
+													<span style={{ marginLeft: '8px', color: '#4b5563' }}>
+														to {targetSummary}
+													</span>
+												)}
+											</span>
 										</div>
 										{device.email && (
 											<p style={{ margin: '4px 0' }}>
 												<strong>Email:</strong> {device.email}
+											</p>
+										)}
+										{device.phone && (
+											<p style={{ margin: '4px 0' }}>
+												<strong>Phone:</strong> {device.phone}
 											</p>
 										)}
 										{device.name && (
@@ -668,16 +758,6 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 										{device.nickname && (
 											<p style={{ margin: '4px 0' }}>
 												<strong>Nickname:</strong> {device.nickname}
-											</p>
-										)}
-										{typeof device.enabled !== 'undefined' && (
-											<p style={{ margin: '4px 0' }}>
-												<strong>Enabled:</strong> {String(device.enabled)}
-											</p>
-										)}
-										{typeof device.active !== 'undefined' && (
-											<p style={{ margin: '4px 0' }}>
-												<strong>Active:</strong> {device.active ? 'Active' : 'Inactive'}
 											</p>
 										)}
 										<p
@@ -709,16 +789,171 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 												Copy
 											</button>
 										</p>
-										{device.createdAt && (
-											<p style={{ margin: '4px 0' }}>
-												<strong>Created:</strong> {new Date(device.createdAt).toLocaleString()}
-											</p>
-										)}
-										{device.updatedAt && (
-											<p style={{ margin: '4px 0' }}>
-												<strong>Updated:</strong> {new Date(device.updatedAt).toLocaleString()}
-											</p>
-										)}
+										<p style={{ margin: '4px 0' }}>
+											<strong>Created:</strong>{' '}
+											{device.createdAt
+												? new Date(device.createdAt).toLocaleString()
+												: 'N/A'}
+										</p>
+										<p style={{ margin: '4px 0' }}>
+											<strong>Updated:</strong>{' '}
+											{device.updatedAt
+												? new Date(device.updatedAt).toLocaleString()
+												: 'N/A'}
+										</p>
+										<div
+											style={{
+												marginTop: '8px',
+												paddingTop: '8px',
+												borderTop: '1px dashed #e5e7eb',
+											}}
+										>
+											<button
+												type="button"
+												onClick={() => {
+													setExpandedSecurityDevices((prev) => {
+														const next = new Set(prev);
+														if (next.has(device.id)) {
+															next.delete(device.id);
+														} else {
+															next.add(device.id);
+														}
+														return next;
+													});
+												}}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													justifyContent: 'space-between',
+													width: '100%',
+													padding: '6px 8px',
+													borderRadius: '6px',
+													border: '1px solid #e5e7eb',
+													background: '#f9fafb',
+													cursor: 'pointer',
+												}}
+											>
+												<span style={{ fontWeight: 600, fontSize: '13px', color: '#111827' }}>
+													Security state
+												</span>
+												<span
+													style={{
+														marginLeft: '8px',
+														fontSize: '12px',
+														fontWeight: 700,
+														padding: '2px 8px',
+														borderRadius: '999px',
+														color: securityColor,
+														backgroundColor: securityBackground,
+													}}
+												>
+													{securityStateLabel}
+												</span>
+												<span style={{ marginLeft: '8px', fontSize: '11px', color: '#4b5563' }}>
+													{isSecurityExpanded ? '▲' : '▼'}
+												</span>
+											</button>
+											{isSecurityExpanded && (
+												<div style={{ marginTop: '6px', fontSize: '12px' }}>
+													{device.status && (
+														<p style={{ margin: '2px 0' }}>
+															<strong>Status:</strong> {device.status}
+														</p>
+													)}
+													{typeof device.enabled !== 'undefined' && (
+														<p style={{ margin: '2px 0' }}>
+															<strong>Enabled:</strong> {String(device.enabled)}
+														</p>
+													)}
+													{typeof device.active !== 'undefined' && (
+														<p style={{ margin: '2px 0' }}>
+															<strong>Active:</strong> {device.active ? 'Active' : 'Inactive'}
+														</p>
+													)}
+													{lock?.status === 'LOCKED' && (
+														<div style={{ margin: '4px 0', color: '#b91c1c' }}>
+															<p style={{ margin: '2px 0' }}>
+																<strong>Lock status:</strong> {lock.status}
+															</p>
+															{lock.expiresAt && (
+																<p style={{ margin: '2px 0' }}>
+																	<strong>Lock expires at:</strong>{' '}
+																	{new Date(lock.expiresAt).toLocaleString()}
+																</p>
+															)}
+															{lock.reason && (
+																<p style={{ margin: '2px 0' }}>
+																	<strong>Lock reason:</strong> {lock.reason}
+																</p>
+															)}
+														</div>
+													)}
+													{block?.status === 'BLOCKED' && (
+														<div style={{ margin: '4px 0', color: '#92400e' }}>
+															<p style={{ margin: '2px 0' }}>
+																<strong>Block status:</strong> {block.status}
+															</p>
+															{block.blockedAt && (
+																<p style={{ margin: '2px 0' }}>
+																	<strong>Blocked at:</strong>{' '}
+																	{new Date(block.blockedAt).toLocaleString()}
+																</p>
+															)}
+														</div>
+													)}
+												</div>
+											)}
+										</div>
+										<div style={{ marginTop: '8px' }}>
+											<button
+												type="button"
+												onClick={() => {
+													setExpandedRawDevices((prev) => {
+														const next = new Set(prev);
+														if (next.has(device.id)) {
+															next.delete(device.id);
+														} else {
+															next.add(device.id);
+														}
+														return next;
+													});
+												}}
+												style={{
+													marginTop: '4px',
+													padding: '4px 8px',
+													borderRadius: '6px',
+													border: '1px solid #e5e7eb',
+													background: '#f3f4f6',
+													fontSize: '11px',
+													cursor: 'pointer',
+												}}
+											>
+												{isRawExpanded ? 'Hide advanced details' : 'Show advanced details (raw JSON)'}
+											</button>
+											{isRawExpanded && (
+												<div
+													style={{
+														marginTop: '6px',
+														padding: '8px',
+														borderRadius: '6px',
+														background: '#111827',
+														color: '#e5e7eb',
+														fontSize: '11px',
+														overflowX: 'auto',
+													}}
+												>
+													<pre
+														style={{
+															margin: 0,
+															whiteSpace: 'pre-wrap',
+															wordBreak: 'break-word',
+														}}
+													>
+														{JSON.stringify(device, null, 2)}
+													</pre>
+												</div>
+											)}
+										</div>
 									</div>
 								</div>
 

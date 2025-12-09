@@ -98,8 +98,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		lastValidationError: null as string | null,
 	});
 
-	// Track API display visibility for dynamic padding
+	// Track API display visibility and height for dynamic padding
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
+	const [apiDisplayHeight, setApiDisplayHeight] = useState(0);
 
 	useEffect(() => {
 		const checkVisibility = () => {
@@ -114,6 +115,39 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 		return () => unsubscribe();
 	}, []);
+
+	// Observe API Display height changes for dynamic padding
+	useEffect(() => {
+		if (!isApiDisplayVisible) {
+			setApiDisplayHeight(0);
+			return;
+		}
+
+		const updateHeight = () => {
+			const apiDisplayElement = document.querySelector('.super-simple-api-display') as HTMLElement;
+			if (apiDisplayElement) {
+				const rect = apiDisplayElement.getBoundingClientRect();
+				const height = rect.height;
+				setApiDisplayHeight(height > 0 ? height : apiDisplayElement.offsetHeight);
+			}
+		};
+
+		const initialTimeout = setTimeout(updateHeight, 100);
+
+		const resizeObserver = new ResizeObserver(() => {
+			updateHeight();
+		});
+
+		const apiDisplayElement = document.querySelector('.super-simple-api-display');
+		if (apiDisplayElement) {
+			resizeObserver.observe(apiDisplayElement);
+		}
+
+		return () => {
+			clearTimeout(initialTimeout);
+			resizeObserver.disconnect();
+		};
+	}, [isApiDisplayVisible]);
 
 	// State to trigger device loading - updated from render function
 	const [deviceLoadTrigger, setDeviceLoadTrigger] = useState<{
@@ -964,8 +998,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	return (
 		<div style={{ 
 			minHeight: '100vh',
-			paddingBottom: isApiDisplayVisible ? '450px' : '0',
+			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
 			transition: 'padding-bottom 0.3s ease',
+			overflow: 'visible',
 		}}>
 			<MFAFlowBaseV8
 				deviceType="TOTP"

@@ -98,6 +98,7 @@ export const StepActionButtonsV8: React.FC<
 			{/* Previous Button - Hidden for now as it's broken */}
 			{!hidePreviousButton && (
 				<button
+					type="button"
 					className={`btn btn-previous ${!canGoPrevious ? 'disabled' : ''}`}
 					onClick={handlePreviousClick}
 					disabled={!canGoPrevious}
@@ -114,6 +115,7 @@ export const StepActionButtonsV8: React.FC<
 			{/* Next/Final Button */}
 			{hideNextButton ? null : isLastStep ? (
 				<button
+					type="button"
 					className="btn btn-final"
 					onClick={handleFinalClick}
 					aria-label={finalLabel}
@@ -124,6 +126,7 @@ export const StepActionButtonsV8: React.FC<
 			) : (
 				<div className="next-button-wrapper">
 					<button
+						type="button"
 						className={`btn btn-next ${isNextDisabled ? 'disabled' : ''}`}
 						onClick={handleNextClick}
 						disabled={isNextDisabled}
@@ -156,7 +159,7 @@ export const StepActionButtonsV8: React.FC<
 				.step-action-buttons-v8 {
 					display: flex;
 					gap: 12px;
-					justify-content: space-between;
+					justify-content: flex-end;
 					align-items: center;
 					padding: 8px 0;
 					margin-top: 12px;
@@ -186,6 +189,7 @@ export const StepActionButtonsV8: React.FC<
 					background: #f5f5f5;
 					color: #333;
 					border: 1px solid #ddd;
+					margin-right: auto;
 				}
 
 				.btn-previous:hover:not(.disabled) {
@@ -207,8 +211,10 @@ export const StepActionButtonsV8: React.FC<
 				/* Next Button */
 				.next-button-wrapper {
 					position: relative;
-					flex: 1;
-					max-width: 200px;
+					display: flex;
+					justify-content: flex-end;
+					flex: 0 0 auto;
+					min-width: 200px;
 				}
 
 				.btn-next {

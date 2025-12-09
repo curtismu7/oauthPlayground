@@ -105,9 +105,38 @@ export class WhatsAppFlowController extends MFAFlowController {
 		// According to API docs: policy should be an object with id property
 		// Format: { "policy": { "id": "policy-id-string" } }
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-whatsapp
+		// NOTE: For educational purposes, policy.id should always be included when available
+		// The policy.id comes from the Device Authentication Policy dropdown selection
 		if (credentials.deviceAuthenticationPolicyId?.trim()) {
-			params.policy = { id: credentials.deviceAuthenticationPolicyId.trim() };
+			const policyId = credentials.deviceAuthenticationPolicyId.trim();
+			params.policy = { id: policyId };
+			console.log('[📲 WHATSAPP-CONTROLLER] ✅ Policy included in registration params (from dropdown selection):', {
+				policyId: policyId,
+				policyObject: params.policy,
+				hasStatus: !!params.status,
+				status: params.status,
+				note: 'Policy ID comes from Device Authentication Policy dropdown selection',
+			});
+		} else {
+			console.warn('[📲 WHATSAPP-CONTROLLER] ⚠️ Policy not included - deviceAuthenticationPolicyId is missing:', {
+				hasDeviceAuthenticationPolicyId: !!credentials.deviceAuthenticationPolicyId,
+				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId || 'MISSING',
+				note: 'Policy ID should be selected from Device Authentication Policy dropdown',
+			});
 		}
+
+		// Log final params for debugging
+		console.log('[📲 WHATSAPP-CONTROLLER] Final registration params:', {
+			hasType: false, // Type is added by base controller
+			hasPhone: !!params.phone,
+			phone: params.phone,
+			hasStatus: !!params.status,
+			status: params.status,
+			hasPolicy: !!params.policy,
+			policyId: params.policy?.id || 'MISSING',
+			hasName: !!params.name,
+			hasNickname: !!params.nickname,
+		});
 
 		return params;
 	}
