@@ -14,12 +14,13 @@
  */
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
-	currentPage?: 'hub' | 'registration' | 'management' | 'reporting' | 'settings';
+	currentPage?: 'hub' | 'registration' | 'management' | 'ordering' | 'reporting' | 'settings' | undefined;
 	/** Show restart flow button (only for flows that can be restarted) */
 	showRestartFlow?: boolean;
 	/** Handler for restart flow action */
@@ -34,6 +35,8 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 	onRestartFlow,
 	showBackToMain = true,
 }) => {
+	const navigate = useNavigate();
+
 	const handleRestartFlow = async () => {
 		if (!onRestartFlow) return;
 		
@@ -67,35 +70,26 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 			>
 				<div className="mfa-nav-links" style={{ marginBottom: 0, display: 'flex', gap: '0', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
 					<button
-						onClick={() => (window.location.href = '/v8/mfa-hub')}
-						className="nav-link-btn"
+						type="button"
+						onClick={() => navigate('/v8/mfa-hub')}
+						className={`nav-link-btn ${currentPage === 'hub' ? 'active' : ''}`}
 						title="Go to MFA Hub"
 						style={{
-							opacity: currentPage === 'hub' ? 1 : 0.8,
 							fontWeight: currentPage === 'hub' ? '600' : '500',
 							flex: 1,
+							background: '#3b82f6',
+							color: 'white',
+							border: '2px solid #3b82f6',
 						}}
 					>
 						🏠 MFA Hub
 					</button>
 					<button
-						onClick={() => (window.location.href = '/v8/mfa')}
-						className="nav-link-btn"
-						title="Register MFA Devices"
-						style={{
-							opacity: currentPage === 'registration' ? 1 : 0.8,
-							fontWeight: currentPage === 'registration' ? '600' : '500',
-							flex: 1,
-						}}
-					>
-						📱 Device Registration
-					</button>
-					<button
-						onClick={() => (window.location.href = '/v8/mfa-device-management')}
-						className="nav-link-btn"
+						type="button"
+						onClick={() => navigate('/v8/mfa-device-management')}
+						className={`nav-link-btn ${currentPage === 'management' ? 'active' : ''}`}
 						title="Manage MFA Devices"
 						style={{
-							opacity: currentPage === 'management' ? 1 : 0.8,
 							fontWeight: currentPage === 'management' ? '600' : '500',
 							flex: 1,
 						}}
@@ -103,11 +97,23 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						🔧 Device Management
 					</button>
 					<button
-						onClick={() => (window.location.href = '/v8/mfa-reporting')}
-						className="nav-link-btn"
+						type="button"
+						onClick={() => navigate('/v8/mfa-device-ordering')}
+						className={`nav-link-btn ${currentPage === 'ordering' ? 'active' : ''}`}
+						title="Configure MFA device ordering"
+						style={{
+							fontWeight: currentPage === 'ordering' ? '600' : '500',
+							flex: 1,
+						}}
+					>
+						📋 Device Ordering
+					</button>
+					<button
+						type="button"
+						onClick={() => navigate('/v8/mfa-reporting')}
+						className={`nav-link-btn ${currentPage === 'reporting' ? 'active' : ''}`}
 						title="View MFA Reports"
 						style={{
-							opacity: currentPage === 'reporting' ? 1 : 0.8,
 							fontWeight: currentPage === 'reporting' ? '600' : '500',
 							flex: 1,
 						}}
@@ -115,11 +121,11 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						📊 Reporting
 					</button>
 					<button
-						onClick={() => (window.location.href = '/v8/mfa-config')}
-						className="nav-link-btn"
+						type="button"
+						onClick={() => navigate('/v8/mfa-config')}
+						className={`nav-link-btn ${currentPage === 'settings' ? 'active' : ''}`}
 						title="MFA Configuration"
 						style={{
-							opacity: currentPage === 'settings' ? 1 : 0.8,
 							fontWeight: currentPage === 'settings' ? '600' : '500',
 							flex: 1,
 						}}
@@ -128,6 +134,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					</button>
 					{showRestartFlow && (
 						<button
+							type="button"
 							onClick={handleRestartFlow}
 							className="nav-link-btn restart-btn"
 							title="Restart the flow from the beginning"
@@ -141,7 +148,8 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					)}
 					{showBackToMain && (
 						<button
-							onClick={() => (window.location.href = '/v8/mfa-hub')}
+							type="button"
+							onClick={() => navigate('/v8/mfa-hub')}
 							style={{
 								padding: '10px 20px',
 								background: '#3b82f6',
@@ -177,7 +185,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					padding: 10px 16px;
 					background: #f3f4f6;
 					color: #1f2937;
-					border: none;
+					border: 2px solid transparent;
 					border-right: 1px solid #e5e7eb;
 					border-radius: 0;
 					font-size: 14px;
@@ -202,9 +210,34 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					border-right: none;
 				}
 
+				.nav-link-btn.active {
+					border: 2px solid #3b82f6;
+					background: #f3f4f6;
+					color: #3b82f6;
+					z-index: 1;
+					position: relative;
+				}
+
 				.nav-link-btn:hover {
 					background: #e5e7eb;
 					color: #3b82f6;
+				}
+
+				.nav-link-btn:first-child:hover {
+					background: #2563eb;
+					color: white;
+					border-color: #2563eb;
+				}
+
+				.nav-link-btn.active:hover {
+					background: #f3f4f6;
+					border-color: #3b82f6;
+				}
+
+				.nav-link-btn:first-child.active:hover {
+					background: #2563eb;
+					color: white;
+					border-color: #2563eb;
 				}
 
 				.nav-link-btn.restart-btn:hover {

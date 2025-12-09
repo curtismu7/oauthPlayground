@@ -26,7 +26,7 @@ import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { validateAndNormalizePhone, isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
-import { MFASuccessPageV8, buildSuccessPageData, getSuccessPageStep } from '../shared/mfaSuccessPageServiceV8';
+import { MFASuccessPageV8, buildSuccessPageData, getSuccessPageStep, type MFASuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -317,17 +317,17 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// User Flow: Always use Worker Token, always set status to ACTIVATION_REQUIRED
-		// Admin Flow: Use Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
-		// Both flows use Worker Token - the difference is only in device status selection
-		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'worker') {
-			// User Flow selected - ensure Worker Token is used
-			console.log(`${MODULE_TAG} User Flow selected - ensuring Worker Token is used`);
+		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
+		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
+		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
+			// User Flow selected - ensure User Token is used
+			console.log(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
 			isSyncingRef.current = true;
 			props.setCredentials((prev) => ({
 				...prev,
-				tokenType: 'worker',
-				userToken: '', // Clear any user token - User Flow uses Worker Token
+				tokenType: 'user',
+				// Preserve userToken if it exists (from OAuth login)
+				// Don't clear it - User Flow requires User Token
 			}));
 			setTimeout(() => {
 				isSyncingRef.current = false;
@@ -346,7 +346,7 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 			props.setCredentials((prev) => ({
 				...prev,
 				tokenType: 'worker',
-				userToken: '', // Clear user token when switching to admin
+				userToken: '', // Clear user token when switching to admin (Admin Flow uses Worker Token)
 			}));
 			// Reset flag after state update
 			setTimeout(() => {
@@ -360,9 +360,20 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
 		
-		// Both Admin and User flows use Worker Token
-		// Only sync when switching to Admin flow (User flow doesn't change tokenType)
-		if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
+		// Admin Flow uses Worker Token, User Flow uses User Token
+		// Sync when switching between flows
+		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
+			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
+			// User Flow must use User Token, so we should switch to Admin Flow
+			console.log(`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`);
+			setRegistrationFlowType('admin');
+			return;
+		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
+			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
+			console.log(`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`);
+			setRegistrationFlowType('user');
+			return;
+		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
 			console.log(`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`);
 			isSyncingRef.current = true;
@@ -803,6 +814,26 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			? credentials.deviceType 
 			: 'SMS';
 
+		// Reset deviceName to device type when entering registration step (Step 2)
+		React.useEffect(() => {
+			if (nav.currentStep === 2 && credentials) {
+				// Reset deviceName to device type if it's empty or matches old device type
+				const deviceTypeValue = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL')
+					? credentials.deviceType
+					: currentDeviceType || 'SMS';
+				const shouldReset = !credentials.deviceName || 
+					credentials.deviceName === credentials.deviceType ||
+					credentials.deviceName === 'SMS' ||
+					credentials.deviceName === 'EMAIL';
+				if (shouldReset) {
+					setCredentials({
+						...credentials,
+						deviceName: deviceTypeValue,
+					});
+				}
+			}
+		}, [nav.currentStep, credentials.deviceType, credentials.deviceName, currentDeviceType, setCredentials]);
+
 		// Handle device registration
 		const handleRegisterDevice = async () => {
 			// Guardrail: Ensure all required credentials are present before registration
@@ -967,7 +998,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				// C. If status is ACTIVATION_REQUIRED
 				// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
 				// → User must enter OTP to activate device (go directly to validation step)
-				// Note: Both Admin and User flows use Worker Token. Admin Flow can choose ACTIVE or ACTIVATION_REQUIRED. User Flow always uses ACTIVATION_REQUIRED.
+				// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
 				const hasDeviceActivateUri = !!deviceActivateUri;
 				
 				// CRITICAL: Use the REQUESTED status (deviceStatus) as the primary source of truth
@@ -1156,238 +1187,61 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		const isValidEmail = credentials.email?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email);
 		const isValidForm = credentials.deviceName?.trim() && ((isSMS && isValidPhone) || (isEMAIL && isValidEmail));
 
-		// If device was just registered with ACTIVE status, show success message even if modal is closed
+		// If device was just registered with ACTIVE status, show success page using unified service
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE' && !showModal) {
+			// Build success data from deviceRegisteredActive
+			const successData: MFASuccessPageData = {
+				deviceId: deviceRegisteredActive.deviceId,
+				deviceType: deviceRegisteredActive.deviceType || credentials.deviceType || 'SMS',
+				deviceStatus: deviceRegisteredActive.status,
+				nickname: deviceRegisteredActive.deviceName,
+				username: deviceRegisteredActive.username || credentials.username,
+				...(deviceRegisteredActive.userId && { userId: deviceRegisteredActive.userId }),
+				environmentId: deviceRegisteredActive.environmentId || credentials.environmentId,
+				...(deviceRegisteredActive.createdAt && { createdAt: deviceRegisteredActive.createdAt }),
+				...(deviceRegisteredActive.updatedAt && { updatedAt: deviceRegisteredActive.updatedAt }),
+				...(credentials.phoneNumber && { phone: getFullPhoneNumber(credentials) }),
+				...(credentials.email && { email: credentials.email }),
+			};
 			return (
-				<div className="step-content" style={{ padding: '40px 20px', textAlign: 'center' }}>
-					<div
-						style={{
-							background: '#f0fdf4',
-							border: '2px solid #10b981',
-							borderRadius: '12px',
-							padding: '32px',
-							maxWidth: '600px',
-							margin: '0 auto',
-						}}
-					>
-						<div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
-						<h2 style={{ color: '#059669', marginBottom: '12px' }}>Device Registered Successfully!</h2>
-						<p style={{ color: '#047857', fontSize: '16px', marginBottom: '24px' }}>
-							Your {deviceRegisteredActive.deviceType === 'SMS' ? 'SMS' : 'Email'} device has been registered with <strong>{deviceRegisteredActive.status}</strong> status.
-						</p>
-						<div
-							style={{
-								background: '#ffffff',
-								border: '1px solid #d1fae5',
-								borderRadius: '8px',
-								padding: '16px',
-								marginBottom: '24px',
-								textAlign: 'left',
-							}}
-						>
-							<p style={{ margin: '8px 0', fontSize: '14px' }}>
-								<strong>Device ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.deviceId}</code>
-							</p>
-							{deviceRegisteredActive.deviceName && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>Device Name:</strong> {deviceRegisteredActive.deviceName}
-								</p>
-							)}
-							<p style={{ margin: '8px 0', fontSize: '14px' }}>
-								<strong>Status:</strong> <span style={{ 
-									color: deviceRegisteredActive.status === 'ACTIVE' ? '#10b981' : '#f59e0b', 
-									fontWeight: '600' 
-								}}>{deviceRegisteredActive.status}</span>
-							</p>
-							{deviceRegisteredActive.username && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>Username:</strong> {deviceRegisteredActive.username}
-								</p>
-							)}
-							{deviceRegisteredActive.userId && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>User ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.userId}</code>
-								</p>
-							)}
-							{deviceRegisteredActive.environmentId && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>Environment ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.environmentId}</code>
-								</p>
-							)}
-							{deviceRegisteredActive.createdAt && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>Created:</strong> {new Date(deviceRegisteredActive.createdAt).toLocaleString()}
-								</p>
-							)}
-							{deviceRegisteredActive.updatedAt && (
-								<p style={{ margin: '8px 0', fontSize: '14px' }}>
-									<strong>Updated:</strong> {new Date(deviceRegisteredActive.updatedAt).toLocaleString()}
-								</p>
-							)}
-						</div>
-						<div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-							<button
-								type="button"
-								onClick={() => {
-									setDeviceRegisteredActive(null);
-									nav.goToStep(0);
-								}}
-								style={{
-									padding: '12px 24px',
-									background: '#10b981',
-									color: 'white',
-									border: 'none',
-									borderRadius: '8px',
-									fontSize: '15px',
-									fontWeight: '600',
-									cursor: 'pointer',
-								}}
-							>
-								Start Again
-							</button>
-						</div>
-					</div>
-				</div>
+				<MFASuccessPageV8
+					{...props}
+					successData={successData}
+					onStartAgain={() => {
+						setDeviceRegisteredActive(null);
+						nav.goToStep(0);
+					}}
+				/>
 			);
 		}
 
-		// If modal is closed but we have a successfully registered ACTIVE device, show success message
+		// If modal is closed but we have a successfully registered ACTIVE device, show success page using unified service
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (!showModal && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
+			// Build success data from deviceRegisteredActive
+			const successData: MFASuccessPageData = {
+				deviceId: deviceRegisteredActive.deviceId,
+				deviceType: deviceRegisteredActive.deviceType || credentials.deviceType || 'SMS',
+				deviceStatus: deviceRegisteredActive.status,
+				nickname: deviceRegisteredActive.deviceName,
+				username: deviceRegisteredActive.username || credentials.username,
+				...(deviceRegisteredActive.userId && { userId: deviceRegisteredActive.userId }),
+				environmentId: deviceRegisteredActive.environmentId || credentials.environmentId,
+				...(deviceRegisteredActive.createdAt && { createdAt: deviceRegisteredActive.createdAt }),
+				...(deviceRegisteredActive.updatedAt && { updatedAt: deviceRegisteredActive.updatedAt }),
+				...(credentials.phoneNumber && { phone: getFullPhoneNumber(credentials) }),
+				...(credentials.email && { email: credentials.email }),
+			};
 			return (
-				<div style={{
-					padding: '24px',
-					background: 'white',
-					borderRadius: '8px',
-					boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-					maxWidth: '600px',
-					margin: '0 auto',
-				}}>
-					<div style={{
-						textAlign: 'center',
-						marginBottom: '20px',
-					}}>
-						<div style={{
-							fontSize: '48px',
-							marginBottom: '16px',
-						}}>✅</div>
-						<h2 style={{
-							fontSize: '24px',
-							fontWeight: '600',
-							color: '#065f46',
-							margin: '0 0 8px 0',
-						}}>
-							Device Registered Successfully!
-						</h2>
-						<p style={{
-							fontSize: '16px',
-							color: '#047857',
-							margin: '0',
-						}}>
-							{deviceRegisteredActive.deviceType === 'SMS' ? 'SMS' : 'Email'} device "{deviceRegisteredActive.deviceName}" has been registered with <strong>{deviceRegisteredActive.status}</strong> status.
-						</p>
-					</div>
-					<div style={{
-						background: '#d1fae5',
-						border: '1px solid #6ee7b7',
-						borderRadius: '6px',
-						padding: '16px',
-						marginBottom: '20px',
-					}}>
-						<p style={{
-							margin: '8px 0',
-							fontSize: '14px',
-							color: '#065f46',
-						}}>
-							<strong>Device ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.deviceId}</code>
-						</p>
-						{deviceRegisteredActive.deviceName && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>Device Name:</strong> {deviceRegisteredActive.deviceName}
-							</p>
-						)}
-						{deviceRegisteredActive.username && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>Username:</strong> {deviceRegisteredActive.username}
-							</p>
-						)}
-						{deviceRegisteredActive.userId && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>User ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.userId}</code>
-							</p>
-						)}
-						{deviceRegisteredActive.environmentId && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>Environment ID:</strong> <code style={{ background: '#f3f4f6', padding: '2px 6px', borderRadius: '4px', fontFamily: 'monospace' }}>{deviceRegisteredActive.environmentId}</code>
-							</p>
-						)}
-						{deviceRegisteredActive.createdAt && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>Created:</strong> {new Date(deviceRegisteredActive.createdAt).toLocaleString()}
-							</p>
-						)}
-						{deviceRegisteredActive.updatedAt && (
-							<p style={{
-								margin: '8px 0',
-								fontSize: '14px',
-								color: '#065f46',
-							}}>
-								<strong>Updated:</strong> {new Date(deviceRegisteredActive.updatedAt).toLocaleString()}
-							</p>
-						)}
-					</div>
-					<button
-						type="button"
-						onClick={() => {
-							setDeviceRegisteredActive(null);
-							navigate('/v8/mfa-hub');
-						}}
-						style={{
-							width: '100%',
-							padding: '12px 20px',
-							background: '#10b981',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '15px',
-							fontWeight: '600',
-							cursor: 'pointer',
-							boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = '#059669';
-							e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = '#10b981';
-							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-						}}
-					>
-						🔄 Start Again
-					</button>
-				</div>
+				<MFASuccessPageV8
+					{...props}
+					successData={successData}
+					onStartAgain={() => {
+						setDeviceRegisteredActive(null);
+						navigate('/v8/mfa-hub');
+					}}
+				/>
 			);
 		}
 
@@ -1780,7 +1634,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							<input
 								id="mfa-device-name-register"
 								type="text"
-								value={credentials.deviceName || ''}
+								value={credentials.deviceName || (currentDeviceType || 'SMS')}
 								onChange={(e) => {
 									setCredentials({ ...credentials, deviceName: e.target.value });
 								}}
