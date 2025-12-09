@@ -7,8 +7,6 @@
 import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-const MODULE_TAG = '[🚀 STARTUP-LOADER]';
-
 const spin = keyframes`
   0% {
     transform: rotate(0deg);
@@ -61,11 +59,6 @@ const Spinner = styled.div`
 	margin: 0 auto 12px;
 `;
 
-const Logo = styled.div`
-	font-size: 32px;
-	margin-bottom: 12px;
-`;
-
 const Title = styled.h1`
 	color: #374151;
 	font-size: 16px;
@@ -116,6 +109,7 @@ export const StartupLoader: React.FC<StartupLoaderProps> = ({
 
 			return () => clearTimeout(timer);
 		}
+		return undefined;
 	}, [isLoading, minDisplayTime, startTime]);
 
 	if (!shouldShow) {
