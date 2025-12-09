@@ -5,6 +5,22 @@ import { ThemeProvider } from 'styled-components';
 import App from './App';
 import { GlobalStyle, theme } from './styles/global';
 
+// Suppress defaultProps warnings from drag-and-drop libraries (library issue, not our code)
+// These warnings are harmless but noisy - some libraries haven't been updated for React 18
+const originalWarn = console.warn;
+console.warn = (...args) => {
+	if (
+		typeof args[0] === 'string' &&
+		(args[0].includes('Support for defaultProps will be removed from memo components') ||
+			args[0].includes('Connect(Droppable)') ||
+			args[0].includes('Connect(Draggable)'))
+	) {
+		// Suppress react-beautiful-dnd defaultProps warnings
+		return;
+	}
+	originalWarn.apply(console, args);
+};
+
 ReactDOM.createRoot(document.getElementById('root')).render(
 	<React.StrictMode>
 		<BrowserRouter

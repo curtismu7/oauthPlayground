@@ -712,6 +712,36 @@ useEffect(() => {
 							});
 							return updated;
 						});
+						
+						// Check if we need to restore flow state after OAuth callback
+						// This handles the case where user was registering a device with ACTIVATION_REQUIRED status
+						const storedFlowState = sessionStorage.getItem('mfa_flow_state_after_oauth');
+						if (storedFlowState) {
+							try {
+								const flowState = JSON.parse(storedFlowState);
+								console.log(`${MODULE_TAG} Restoring flow state after OAuth callback`, flowState);
+								
+								// Restore step if device was registered with ACTIVATION_REQUIRED
+								if (flowState.deviceStatus === 'ACTIVATION_REQUIRED' && flowState.deviceId) {
+									setMfaState((prev) => ({
+										...prev,
+										deviceId: flowState.deviceId,
+										deviceStatus: 'ACTIVATION_REQUIRED',
+										...(flowState.deviceActivateUri ? { deviceActivateUri: flowState.deviceActivateUri } : {}),
+									}));
+									
+									// Navigate to validation step (Step 3 for Email, Step 4 for SMS/WhatsApp)
+									// The actual step number depends on the flow, but we'll let the flow component handle it
+									console.log(`${MODULE_TAG} Device requires activation - user should proceed to OTP validation`);
+								}
+								
+								// Clean up stored state
+								sessionStorage.removeItem('mfa_flow_state_after_oauth');
+							} catch (error) {
+								console.error(`${MODULE_TAG} Failed to restore flow state:`, error);
+							}
+						}
+						
 						setShowUserLoginModal(false);
 						toastV8.success('User token received and saved!');
 						
@@ -1071,10 +1101,14 @@ useEffect(() => {
 				}
 
 				.btn {
-					padding: 6px 12px;
+					display: inline-flex;
+					align-items: center;
+					justify-content: center;
+					gap: 8px;
+					padding: 10px 20px;
 					border: none;
-					border-radius: 4px;
-					font-size: 12px;
+					border-radius: 6px;
+					font-size: 14px;
 					font-weight: 500;
 					cursor: pointer;
 					transition: all 0.2s ease;
