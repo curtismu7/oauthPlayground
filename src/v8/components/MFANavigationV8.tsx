@@ -17,6 +17,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
@@ -71,7 +72,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 				<div className="mfa-nav-links" style={{ marginBottom: 0, display: 'flex', gap: '0', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
 					<button
 						type="button"
-						onClick={() => navigate('/v8/mfa-hub')}
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
 						className={`nav-link-btn ${currentPage === 'hub' ? 'active' : ''}`}
 						title="Go to MFA Hub"
 						style={{
@@ -149,7 +150,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					{showBackToMain && (
 						<button
 							type="button"
-							onClick={() => navigate('/v8/mfa-hub')}
+							onClick={() => navigateToMfaHubWithCleanup(navigate)}
 							style={{
 								padding: '10px 20px',
 								background: '#3b82f6',
