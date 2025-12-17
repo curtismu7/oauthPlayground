@@ -11464,18 +11464,30 @@ app.post('/api/pingone/mfa/check-fido2-assertion', async (req, res) => {
 			hasAssertion: !!assertion,
 		});
 
+		const toStandardBase64 = (value) => {
+			if (typeof value !== 'string') {
+				return value;
+			}
+
+			const sanitized = value.replace(/\s+/g, '').replace(/_/g, '/').replace(/-/g, '+');
+			const padding = sanitized.length % 4 === 0 ? 0 : 4 - (sanitized.length % 4);
+			return `${sanitized}${'='.repeat(padding)}`;
+		};
+
 		// Build request body according to PingOne API spec
 		// The body should contain the assertion object with id, rawId, type, and response
 		const requestBody = {
 			assertion: {
 				id: assertion.id,
-				rawId: assertion.rawId,
+				rawId: toStandardBase64(assertion.rawId),
 				type: assertion.type || 'public-key',
 				response: {
-					clientDataJSON: assertion.response.clientDataJSON,
-					authenticatorData: assertion.response.authenticatorData,
-					signature: assertion.response.signature,
-					...(assertion.response.userHandle && { userHandle: assertion.response.userHandle }),
+					clientDataJSON: toStandardBase64(assertion.response.clientDataJSON),
+					authenticatorData: toStandardBase64(assertion.response.authenticatorData),
+					signature: toStandardBase64(assertion.response.signature),
+					...(assertion.response.userHandle && {
+						userHandle: toStandardBase64(assertion.response.userHandle),
+					}),
 				},
 			},
 		};
@@ -13831,11 +13843,9 @@ app.post('/api/pingone/email-mfa-signon/create-resource-grant', async (req, res)
 		const { environmentId, applicationId, resourceId, scopes, workerToken } = req.body;
 
 		if (!environmentId || !applicationId || !resourceId || !workerToken) {
-			return res
-				.status(400)
-				.json({
-					error: 'Missing required fields: environmentId, applicationId, resourceId, workerToken',
-				});
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, applicationId, resourceId, workerToken',
+			});
 		}
 
 		let cleanToken = String(workerToken)
@@ -13964,12 +13974,9 @@ app.post('/api/pingone/email-mfa-signon/assign-signon-policy', async (req, res) 
 		const { environmentId, applicationId, signOnPolicyId, workerToken } = req.body;
 
 		if (!environmentId || !applicationId || !signOnPolicyId || !workerToken) {
-			return res
-				.status(400)
-				.json({
-					error:
-						'Missing required fields: environmentId, applicationId, signOnPolicyId, workerToken',
-				});
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, applicationId, signOnPolicyId, workerToken',
+			});
 		}
 
 		let cleanToken = String(workerToken)
@@ -14051,11 +14058,9 @@ app.post('/api/pingone/email-mfa-signon/create-user', async (req, res) => {
 			req.body;
 
 		if (!environmentId || !populationId || !workerToken || !username) {
-			return res
-				.status(400)
-				.json({
-					error: 'Missing required fields: environmentId, populationId, workerToken, username',
-				});
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, populationId, workerToken, username',
+			});
 		}
 
 		let cleanToken = String(workerToken)
@@ -14486,12 +14491,9 @@ app.post('/api/pingone/email-mfa-signon/exchange-code-for-token', async (req, re
 		const { environmentId, code, clientId, clientSecret, redirectUri, codeVerifier } = req.body;
 
 		if (!environmentId || !code || !clientId || !clientSecret || !redirectUri) {
-			return res
-				.status(400)
-				.json({
-					error:
-						'Missing required fields: environmentId, code, clientId, clientSecret, redirectUri',
-				});
+			return res.status(400).json({
+				error: 'Missing required fields: environmentId, code, clientId, clientSecret, redirectUri',
+			});
 		}
 
 		const tokenUrl = `https://auth.pingone.com/${environmentId}/as/token`;
