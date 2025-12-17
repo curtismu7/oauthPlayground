@@ -1,6 +1,8 @@
 {
 	"name": "pingone-oauth-playground",
 	"version": "7.7.0",
+	"mfaV8Version": "8.4.0",
+	"unifiedV8uVersion": "8.0.0",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
@@ -47,7 +49,15 @@
 		"test:e2e:report": "playwright show-report",
 		"service-discovery": "node src/services/serviceDiscoveryCLI.js",
 		"config": "node src/services/configurationManagerDemo.js",
-		"audit:async": "node scripts/audit-async-patterns.js"
+		"audit:async": "node scripts/audit-async-patterns.js",
+		"verify:sms-lockdown": "node scripts/lockdown/lockdown.mjs verify sms",
+		"sms:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve sms",
+		"verify:fido2-lockdown": "node scripts/lockdown/lockdown.mjs verify fido2",
+		"fido2:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve fido2",
+		"verify:email-lockdown": "node scripts/lockdown/lockdown.mjs verify email",
+		"email:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve email",
+		"verify:whatsapp-lockdown": "node scripts/lockdown/lockdown.mjs verify whatsapp",
+		"whatsapp:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve whatsapp"
 	},
 	"keywords": [
 		"oauth",
