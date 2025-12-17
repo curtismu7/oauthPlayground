@@ -1,5 +1,6 @@
 // About component that displays comprehensive OAuth Playground documentation
 import { usePageScroll } from '../hooks/usePageScroll';
+import { APP_VERSION, MFA_V8_VERSION, UNIFIED_V8U_VERSION } from '../version';
 
 export default function About() {
 	// Ensure page starts at top
@@ -15,6 +16,20 @@ export default function About() {
 						<p className="text-gray-600 mt-2">
 							Complete guide to what the OAuth Playground does and how to use it
 						</p>
+					</div>
+				</div>
+				<div className="mt-4 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3">
+					<div className="text-sm font-semibold text-indigo-900">Versions</div>
+					<div className="mt-1 text-sm text-indigo-800">
+						<div>
+							<strong>App:</strong> {APP_VERSION}
+						</div>
+						<div>
+							<strong>MFA (v8):</strong> {MFA_V8_VERSION}
+						</div>
+						<div>
+							<strong>Unified (v8u):</strong> {UNIFIED_V8U_VERSION}
+						</div>
 					</div>
 				</div>
 			</div>

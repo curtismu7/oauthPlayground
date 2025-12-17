@@ -1,0 +1,83 @@
+name: Version Domain Bump Check
+
+"on":
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  version-bump-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce module version bumps
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          echo "Base SHA: ${BASE_SHA}"
+          echo "Head SHA: ${HEAD_SHA}"
+
+          CHANGED_FILES="$(git diff --name-only "${BASE_SHA}" "${HEAD_SHA}")"
+          echo "Changed files:"
+          echo "${CHANGED_FILES}"
+
+          NEED_MFA=0
+          NEED_UNIFIED=0
+
+          if echo "${CHANGED_FILES}" | grep -q '^src/v8/'; then
+            NEED_MFA=1
+          fi
+
+          if echo "${CHANGED_FILES}" | grep -q '^src/v8u/'; then
+            NEED_UNIFIED=1
+          fi
+
+          if [ "${NEED_MFA}" -eq 0 ] && [ "${NEED_UNIFIED}" -eq 0 ]; then
+            echo "No src/v8 or src/v8u changes detected. Nothing to enforce."
+            exit 0
+          fi
+
+          get_pkg_value() {
+            local sha="$1"
+            local key="$2"
+
+            if ! git cat-file -e "${sha}:package.json" 2>/dev/null; then
+              echo ""
+              return 0
+            fi
+
+            git show "${sha}:package.json" | node -e "const fs=require('fs'); const key=process.argv[1]; const pkg=JSON.parse(fs.readFileSync(0,'utf8')); process.stdout.write(String(pkg[key] ?? ''));" "${key}"
+          }
+
+          if [ "${NEED_MFA}" -eq 1 ]; then
+            BASE_MFA="$(get_pkg_value "${BASE_SHA}" 'mfaV8Version')"
+            HEAD_MFA="$(get_pkg_value "${HEAD_SHA}" 'mfaV8Version')"
+
+            echo "mfaV8Version: ${BASE_MFA} -> ${HEAD_MFA}"
+
+            if [ "${BASE_MFA}" = "${HEAD_MFA}" ]; then
+              echo "ERROR: src/v8 changed but package.json:mfaV8Version was not bumped."
+              exit 1
+            fi
+          fi
+
+          if [ "${NEED_UNIFIED}" -eq 1 ]; then
+            BASE_UNIFIED="$(get_pkg_value "${BASE_SHA}" 'unifiedV8uVersion')"
+            HEAD_UNIFIED="$(get_pkg_value "${HEAD_SHA}" 'unifiedV8uVersion')"
+
+            echo "unifiedV8uVersion: ${BASE_UNIFIED} -> ${HEAD_UNIFIED}"
+
+            if [ "${BASE_UNIFIED}" = "${HEAD_UNIFIED}" ]; then
+              echo "ERROR: src/v8u changed but package.json:unifiedV8uVersion was not bumped."
+              exit 1
+            fi
+          fi
+
+          echo "Version bump checks passed."
