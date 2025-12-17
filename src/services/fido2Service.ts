@@ -168,7 +168,7 @@ export class FIDO2Service {
 			// PingOne requires base64url encoding for attestationObject and clientDataJSON (RFC 4648 §5)
 			const attestationObject = FIDO2Service.arrayBufferToBase64url(response.attestationObject);
 			const clientDataJSON = FIDO2Service.arrayBufferToBase64url(response.clientDataJSON);
-			
+
 			// PingOne expects the attestation field to be a JSON string containing the full PublicKeyCredential object
 			// Structure: { id, type, rawId, response: { clientDataJSON, attestationObject }, clientExtensionResults: {} }
 			const rawIdBase64url = FIDO2Service.arrayBufferToBase64url(credential.rawId);
@@ -189,10 +189,16 @@ export class FIDO2Service {
 				hasAttestation: !!attestationObject,
 				attestationLength: attestationObject.length,
 				attestationPreview: `${attestationObject.substring(0, 50)}...`,
-				attestationIsBase64url: !attestationObject.includes('+') && !attestationObject.includes('/') && !attestationObject.includes('='),
+				attestationIsBase64url:
+					!attestationObject.includes('+') &&
+					!attestationObject.includes('/') &&
+					!attestationObject.includes('='),
 				clientDataJSONLength: clientDataJSON.length,
 				clientDataJSONPreview: `${clientDataJSON.substring(0, 50)}...`,
-				clientDataJSONIsBase64url: !clientDataJSON.includes('+') && !clientDataJSON.includes('/') && !clientDataJSON.includes('='),
+				clientDataJSONIsBase64url:
+					!clientDataJSON.includes('+') &&
+					!clientDataJSON.includes('/') &&
+					!clientDataJSON.includes('='),
 				attestationJsonLength: attestationJson.length,
 				attestationJsonPreview: `${attestationJson.substring(0, 100)}...`,
 			});
@@ -362,7 +368,7 @@ export class FIDO2Service {
 			if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== 'function') {
 				return false;
 			}
-			
+
 			// For now, return true if the method exists
 			// In a real implementation, you might want to call the async method
 			// but for synchronous capability checking, this is sufficient
@@ -381,7 +387,7 @@ export class FIDO2Service {
 			if (typeof PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable !== 'function') {
 				return false;
 			}
-			
+
 			const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
 			return available;
 		} catch {
@@ -400,7 +406,7 @@ export class FIDO2Service {
 	/**
 	 * Convert ArrayBuffer to base64 string
 	 */
-	private static arrayBufferToBase64(buffer: ArrayBuffer): string {
+	static arrayBufferToBase64(buffer: ArrayBuffer): string {
 		const bytes = new Uint8Array(buffer);
 		let binary = '';
 		for (let i = 0; i < bytes.byteLength; i++) {
@@ -414,13 +420,13 @@ export class FIDO2Service {
 	 * Base64url is required by PingOne FIDO2 API
 	 * Converts base64 to base64url by replacing + with -, / with _, and removing padding =
 	 */
-	private static arrayBufferToBase64url(buffer: ArrayBuffer): string {
+	static arrayBufferToBase64url(buffer: ArrayBuffer): string {
 		const base64 = FIDO2Service.arrayBufferToBase64(buffer);
 		// Convert base64 to base64url: replace + with -, / with _, remove padding =
 		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 	}
 
-	private static base64ToArrayBuffer(base64: string): ArrayBuffer {
+	static base64ToArrayBuffer(base64: string): ArrayBuffer {
 		const binary = atob(base64);
 		const bytes = new Uint8Array(binary.length);
 		for (let i = 0; i < binary.length; i++) {
