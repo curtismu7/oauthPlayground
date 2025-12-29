@@ -11,7 +11,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { FiEye, FiEyeOff, FiInfo, FiX } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { getCallbackUrlForFlow } from '@/utils/callbackUrls';
