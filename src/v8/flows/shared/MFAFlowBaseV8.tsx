@@ -318,13 +318,35 @@ useEffect(() => {
 	useEffect(() => {
 		const code = searchParams.get('code');
 		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+		const isOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return') === 'true';
 		
 		// If we have a code and user login state, this is a callback from user login
 		if (code && hasUserLoginState && !showUserLoginModal) {
 			console.log(`${MODULE_TAG} Detected OAuth callback code in URL, opening UserLoginModal to process it`);
 			setShowUserLoginModal(true);
 		}
-	}, [searchParams, showUserLoginModal]);
+		
+		// CRITICAL: After OAuth callback returns, check if we need to auto-advance
+		// This handles the case where user was on Step 0 (or Step 2 for registration) before OAuth
+		// and now needs to proceed after receiving the user token
+		if (isOAuthCallbackReturn && credentials.userToken?.trim() && nav.currentStep === 0) {
+			console.log(`${MODULE_TAG} ✅ OAuth callback return detected with user token - auto-advancing from step 0`);
+			toastV8.info('🔄 Returning to your previous step after authentication...');
+			
+			// Clean up the marker
+			sessionStorage.removeItem('mfa_oauth_callback_return');
+			
+			// Validate step 0 and advance if valid
+			setTimeout(() => {
+				if (validateStep0(credentials, tokenStatus, nav)) {
+					nav.goToNext();
+					console.log(`${MODULE_TAG} ✅ Auto-advanced to step 1 after OAuth callback`);
+				} else {
+					console.log(`${MODULE_TAG} ⚠️ Step 0 validation failed, staying on step 0`);
+				}
+			}, 500); // Small delay to ensure credentials are fully updated
+		}
+	}, [searchParams, showUserLoginModal, credentials.userToken, nav, validateStep0, credentials, tokenStatus]);
 
 	// Watch for worker token errors and show prompt modal
 	useEffect(() => {
