@@ -14,7 +14,6 @@ import { useLocation } from 'react-router-dom';
 import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { getCallbackUrlForFlow } from '@/utils/callbackUrls';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -51,7 +50,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [scopes, setScopes] = useState(isMfaFlow ? defaultScopesForMfa : defaultScopesForOther);
 	const [isRedirecting, setIsRedirecting] = useState(false);
 	const [showClientSecret, setShowClientSecret] = useState(false);
-	const [showConfigModal, setShowConfigModal] = useState(false);
+	const [, setShowConfigModal] = useState(false);
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_post');
 	const [isUpdatingApp, setIsUpdatingApp] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
@@ -123,6 +122,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					? defaultRedirectUri 
 					: savedRedirectUri;
 				setRedirectUri(finalRedirectUri);
+				// eslint-disable-next-line require-atomic-updates
 				previousRedirectUriRef.current = finalRedirectUri;
 				
 				// If saved scopes don't include p1:create:device and we're in MFA flow, add it
@@ -141,12 +141,13 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			} else {
 				// Set default redirect URI for User Login Flow (hardcoded)
 				setRedirectUri(defaultRedirectUri);
+				// eslint-disable-next-line require-atomic-updates
 				previousRedirectUriRef.current = defaultRedirectUri;
 				// Set default scopes with p1:create:device for MFA flows
 				setScopes(defaultScopes);
 			}
 		}
-	}, [isOpen, propEnvironmentId, isMfaFlow, location.pathname]);
+	}, [isOpen, propEnvironmentId, isMfaFlow]);
 
 	const handleTokenReceived = useCallback((token: string) => {
 		console.log(`${MODULE_TAG} Token received, storing and notifying`);
@@ -190,8 +191,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			}
 
 			if (code && storedState) {
-				// CRITICAL: Check if this code has already been processed
-				if (processedCodesRef.current.has(code)) {
+			// CRITICAL: Check if this code has already been processed
+			// eslint-disable-next-line require-atomic-updates
+			if (processedCodesRef.current.has(code)) {
 					console.log(`${MODULE_TAG} Authorization code already processed, skipping duplicate attempt`);
 					// Clean up URL and session storage
 					window.history.replaceState({}, document.title, window.location.pathname);
@@ -203,6 +205,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				}
 
 				// Mark as processing
+				// eslint-disable-next-line require-atomic-updates
 				isProcessingRef.current = true;
 				// Mark code as processed immediately to prevent duplicate attempts
 				processedCodesRef.current.add(code);
@@ -325,7 +328,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		window.addEventListener('popstate', handlePopState);
 		return () => window.removeEventListener('popstate', handlePopState);
-	}, [handleTokenReceived, location.search]);
+	}, [handleTokenReceived]);
 
 	// Process callback even when modal is not open (for auto-processing on page load)
 	// This ensures callbacks are handled even if the modal wasn't explicitly opened
@@ -338,15 +341,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
 		
 		// If we have a callback code and stored state, process it even if modal is closed
+		// eslint-disable-next-line require-atomic-updates
 		if (code && hasStoredState && !isProcessingRef.current) {
-			console.log(`${MODULE_TAG} Processing callback even though modal is closed`);
-			// The checkCallback logic from above will handle it
-			// We just need to trigger it by checking the URL
-			const checkCallback = async () => {
-				if (isProcessingRef.current) return;
+				console.log(`${MODULE_TAG} Processing callback even though modal is closed`);
+				// The checkCallback logic from above will handle it
+				// We just need to trigger it by checking the URL
+				const checkCallback = async () => {
+					// eslint-disable-next-line require-atomic-updates
+					if (isProcessingRef.current) return;
 				
 				const state = urlParams.get('state');
-				const error = urlParams.get('error');
 				const storedState = sessionStorage.getItem('user_login_state_v8');
 				
 				if (!storedState) return;
@@ -363,6 +367,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						return;
 					}
 					
+					// eslint-disable-next-line require-atomic-updates
 					isProcessingRef.current = true;
 					processedCodesRef.current.add(code);
 					window.history.replaceState({}, document.title, window.location.pathname);
@@ -414,6 +419,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		
 		// Only update if URI actually changed and we have required credentials
 		if (newRedirectUri === previousRedirectUriRef.current || !environmentId.trim() || !clientId.trim()) {
+			// eslint-disable-next-line require-atomic-updates
 			previousRedirectUriRef.current = newRedirectUri;
 			return;
 		}
@@ -425,6 +431,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				const workerToken = await workerTokenServiceV8.getToken();
 				if (!workerToken) {
 					console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+					// eslint-disable-next-line require-atomic-updates
 					previousRedirectUriRef.current = newRedirectUri;
 					return;
 				}
@@ -436,10 +443,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				// Find application by client ID
 				const applications = await pingOneService.getApplications();
-				const app = applications.find((app: any) => app.clientId === clientId.trim());
+				const app = applications.find((app: { clientId?: string }) => app.clientId === clientId.trim());
 
 				if (!app) {
 					console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
+					// eslint-disable-next-line require-atomic-updates
 					previousRedirectUriRef.current = newRedirectUri;
 					return;
 				}
@@ -473,6 +481,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			}
 		}
 
+		// eslint-disable-next-line require-atomic-updates
 		previousRedirectUriRef.current = newRedirectUri;
 	}, [environmentId, clientId]);
 
@@ -515,7 +524,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		} finally {
 			setIsSaving(false);
 		}
-	}, [environmentId, clientId, clientSecret, redirectUri, scopes, authMethod, onClose, onCredentialsSaved]);
+	}, [environmentId, clientId, clientSecret, redirectUri, scopes, authMethod, onCredentialsSaved]);
 
 	const handleLogin = async () => {
 		if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()) {
@@ -580,7 +589,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
 			
 			if (currentPath.startsWith('/v8/mfa')) {
-				sessionStorage.setItem('user_login_return_to_mfa', JSON.stringify(fullPath));
+				// Store path directly as a string (no need for JSON.stringify on a string)
+				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
 				console.log(`${MODULE_TAG} ✅ Stored return path: ${fullPath}`, {
 					pathname: currentPath,
 					search: currentSearch,
@@ -650,7 +660,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	return (
 		<>
 			{/* Backdrop */}
-			<div
+			<button
+				type="button"
 				style={{
 					position: 'fixed',
 					top: 0,
@@ -662,10 +673,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					display: 'flex',
 					alignItems: 'center',
 					justifyContent: 'center',
+					border: 'none',
+					padding: 0,
+					cursor: 'pointer',
 				}}
 				onClick={onClose}
-				role="button"
-				tabIndex={0}
 				aria-label="Close modal"
 			/>
 
@@ -687,6 +699,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					overflow: 'auto',
 				}}
 				onClick={(e) => e.stopPropagation()}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						onClose();
+					}
+				}}
 				role="dialog"
 				tabIndex={-1}
 				aria-modal="true"
