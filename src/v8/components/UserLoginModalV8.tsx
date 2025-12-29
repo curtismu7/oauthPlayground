@@ -361,13 +361,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
 
 		// If we have a callback code and stored state, process it even if modal is closed
-		 
+
 		if (code && hasStoredState && !isProcessingRef.current) {
 			console.log(`${MODULE_TAG} Processing callback even though modal is closed`);
 			// The checkCallback logic from above will handle it
 			// We just need to trigger it by checking the URL
 			const checkCallback = async () => {
-				 
 				if (isProcessingRef.current) return;
 
 				const state = urlParams.get('state');
@@ -395,7 +394,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
 
 					if (!storedCodeVerifier || !storedCredentials) {
-						 
 						isProcessingRef.current = false;
 						return;
 					}
