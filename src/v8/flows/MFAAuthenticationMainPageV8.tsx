@@ -138,8 +138,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			
 			if (returnToMfaFlow) {
 				try {
-					const mfaPath = JSON.parse(returnToMfaFlow);
-					console.log(`${MODULE_TAG} Found stored return path, redirecting to: ${mfaPath}`);
+					// Path is stored as a plain string (no JSON parsing needed)
+					const mfaPath = returnToMfaFlow.trim();
+					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
+					
+					// Validate that the path looks correct
+					if (!mfaPath.startsWith('/v8/mfa')) {
+						console.error(`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`);
+						throw new Error(`Invalid return path: ${mfaPath}`);
+					}
 					
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
