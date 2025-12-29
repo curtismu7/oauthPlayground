@@ -18,6 +18,12 @@ Before device registration, users must select the **Registration Flow Type** on 
 - **Status Options:** Always `ACTIVATION_REQUIRED` (security requirement)
 - **Use Case:** User self-service device registration
 - **Token Source:** Obtained from Authorization Code Flow (user logs in to PingOne)
+- **State Preservation After PingOne Authentication:**
+  - Before redirecting to PingOne for user authentication, the current page path (including query parameters) is stored in `sessionStorage` under the key `user_login_return_to_mfa`.
+  - After successful PingOne authentication, the OAuth callback handler retrieves the stored return path and redirects the user back to the exact page they were on.
+  - The callback handler sets a marker `mfa_oauth_callback_return` in `sessionStorage` to signal state restoration.
+  - The flow base component detects this marker and automatically advances the flow from Step 0 to the appropriate step (typically Step 1 for device registration) if a user token is present and validation passes.
+  - This ensures users return to the exact step they were on (not the MFA Hub) and can seamlessly continue their device registration flow.
 
 **Key Rule:** User tokens can ONLY set device status to `ACTIVATION_REQUIRED`. Worker tokens can set either `ACTIVE` or `ACTIVATION_REQUIRED`.
 
