@@ -4,20 +4,23 @@
  * @description User login modal for obtaining access token via Authorization Code Flow
  * @version 8.4.0
  * @since 2025-02-05
- * 
+ *
  * This modal allows users to authenticate with PingOne using Authorization Code Flow
  * to obtain an access token that can be used as a "User Token" in MFA flows.
  */
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
-import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { useLocation } from 'react-router-dom';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { UserAuthenticationSuccessPageV8, type SessionInfo } from './UserAuthenticationSuccessPageV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import {
+	type SessionInfo,
+	UserAuthenticationSuccessPageV8,
+} from './UserAuthenticationSuccessPageV8';
 
 const MODULE_TAG = '[👤 USER-LOGIN-MODAL-V8]';
 
@@ -43,7 +46,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [redirectUri, setRedirectUri] = useState('');
 	// Check if we're in an MFA flow context (for adding p1:create:device scope)
 	const isMfaFlow = location.pathname.startsWith('/v8/mfa');
-	
+
 	// Default scopes: include p1:create:device for MFA flows
 	const defaultScopesForMfa = 'openid profile email p1:create:device';
 	const defaultScopesForOther = 'openid profile email';
@@ -104,12 +107,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				includeRedirectUri: true,
 				includeScopes: true,
 			});
-			
+
 			// Default scopes: include p1:create:device for MFA flows
-			const defaultScopes = isMfaFlow 
+			const defaultScopes = isMfaFlow
 				? 'openid profile email p1:create:device'
 				: 'openid profile email';
-			
+
 			if (saved.environmentId || saved.clientId || saved.redirectUri) {
 				setEnvironmentId(saved.environmentId || propEnvironmentId);
 				setClientId(saved.clientId || '');
@@ -118,21 +121,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				// Use saved redirect URI or default to hardcoded value
 				const savedRedirectUri = saved.redirectUri || defaultRedirectUri;
 				// If saved URI is implicit-callback or authz-callback, migrate to default
-				const finalRedirectUri = savedRedirectUri.includes('implicit-callback') || savedRedirectUri.includes('authz-callback')
-					? defaultRedirectUri 
-					: savedRedirectUri;
+				const finalRedirectUri =
+					savedRedirectUri.includes('implicit-callback') ||
+					savedRedirectUri.includes('authz-callback')
+						? defaultRedirectUri
+						: savedRedirectUri;
 				setRedirectUri(finalRedirectUri);
-				// eslint-disable-next-line require-atomic-updates
+
 				previousRedirectUriRef.current = finalRedirectUri;
-				
+
 				// If saved scopes don't include p1:create:device and we're in MFA flow, add it
 				const savedScopes = saved.scopes || defaultScopes;
-				const finalScopes = isMfaFlow && !savedScopes.includes('p1:create:device')
-					? `${savedScopes} p1:create:device`.trim()
-					: savedScopes || defaultScopes;
+				const finalScopes =
+					isMfaFlow && !savedScopes.includes('p1:create:device')
+						? `${savedScopes} p1:create:device`.trim()
+						: savedScopes || defaultScopes;
 				setScopes(finalScopes);
-				
-				console.log(`${MODULE_TAG} Loaded saved credentials`, { 
+
+				console.log(`${MODULE_TAG} Loaded saved credentials`, {
 					originalRedirectUri: savedRedirectUri,
 					finalRedirectUri,
 					isMfaFlow,
@@ -141,7 +147,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			} else {
 				// Set default redirect URI for User Login Flow (hardcoded)
 				setRedirectUri(defaultRedirectUri);
-				// eslint-disable-next-line require-atomic-updates
+
 				previousRedirectUriRef.current = defaultRedirectUri;
 				// Set default scopes with p1:create:device for MFA flows
 				setScopes(defaultScopes);
@@ -149,12 +155,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		}
 	}, [isOpen, propEnvironmentId, isMfaFlow]);
 
-	const handleTokenReceived = useCallback((token: string) => {
-		console.log(`${MODULE_TAG} Token received, storing and notifying`);
-		onTokenReceived?.(token);
-		toastV8.success('Access token received successfully!');
-		onClose();
-	}, [onTokenReceived, onClose]);
+	const handleTokenReceived = useCallback(
+		(token: string) => {
+			console.log(`${MODULE_TAG} Token received, storing and notifying`);
+			onTokenReceived?.(token);
+			toastV8.success('Access token received successfully!');
+			onClose();
+		},
+		[onTokenReceived, onClose]
+	);
 
 	// Track processed codes to prevent duplicate processing (authorization codes are single-use)
 	const processedCodesRef = useRef<Set<string>>(new Set());
@@ -191,10 +200,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			}
 
 			if (code && storedState) {
-			// CRITICAL: Check if this code has already been processed
-			// eslint-disable-next-line require-atomic-updates
-			if (processedCodesRef.current.has(code)) {
-					console.log(`${MODULE_TAG} Authorization code already processed, skipping duplicate attempt`);
+				// CRITICAL: Check if this code has already been processed
+
+				if (processedCodesRef.current.has(code)) {
+					console.log(
+						`${MODULE_TAG} Authorization code already processed, skipping duplicate attempt`
+					);
 					// Clean up URL and session storage
 					window.history.replaceState({}, document.title, window.location.pathname);
 					sessionStorage.removeItem('user_login_state_v8');
@@ -205,20 +216,20 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				}
 
 				// Mark as processing
-				// eslint-disable-next-line require-atomic-updates
+
 				isProcessingRef.current = true;
 				// Mark code as processed immediately to prevent duplicate attempts
 				processedCodesRef.current.add(code);
-				
+
 				// CRITICAL: Clean up URL immediately to prevent re-processing on re-renders
 				window.history.replaceState({}, document.title, window.location.pathname);
-				
+
 				console.log(`${MODULE_TAG} Authorization code received from callback`);
-				
+
 				// Get stored credentials and PKCE verifier
 				const storedCodeVerifier = sessionStorage.getItem('user_login_code_verifier_v8');
 				const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
-				
+
 				if (!storedCodeVerifier || !storedCredentials) {
 					toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
 					sessionStorage.removeItem('user_login_state_v8');
@@ -231,7 +242,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 				try {
 					const credentials = JSON.parse(storedCredentials);
-					
+
 					// Exchange authorization code for tokens
 					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 						{
@@ -240,7 +251,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							clientSecret: credentials.clientSecret,
 							redirectUri: credentials.redirectUri,
 							scopes: credentials.scopes,
-							clientAuthMethod: credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post',
+							clientAuthMethod:
+								credentials.clientAuthMethod ||
+								credentials.tokenEndpointAuthMethod ||
+								'client_secret_post',
 						},
 						code,
 						storedCodeVerifier
@@ -251,7 +265,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
-					
+
 					// Store session info for success page
 					setSessionInfo({
 						accessToken: tokenResponse.access_token,
@@ -262,32 +276,38 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						requestedScopes: credentials.scopes || undefined, // Scopes that were requested in authorization URL
 						environmentId: credentials.environmentId,
 					});
-					
+
 					// Show success page
 					setShowSuccessPage(true);
-					
+
 					// Use access token (callback for parent components)
 					handleTokenReceived(tokenResponse.access_token);
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
-					
+
 					// Remove from processed set so user can retry with a new code
 					processedCodesRef.current.delete(code);
-					
+
 					// Provide more helpful error message for expired/invalid codes
-					const errorMessage = error instanceof Error ? error.message : 'Failed to exchange authorization code for tokens';
+					const errorMessage =
+						error instanceof Error
+							? error.message
+							: 'Failed to exchange authorization code for tokens';
 					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-						toastV8.error('Authorization code expired or already used. Please try logging in again.');
+						toastV8.error(
+							'Authorization code expired or already used. Please try logging in again.'
+						);
 					} else {
 						toastV8.error(errorMessage);
 					}
-					
+
 					// Clean up session storage
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
 				} finally {
+					// eslint-disable-next-line require-atomic-updates
 					isProcessingRef.current = false;
 				}
 			} else if (error && storedState) {
@@ -308,7 +328,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const hasCode = urlParams.get('code');
 		const hasError = urlParams.get('error');
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
-		
+
 		// Only process if we have a code/error AND stored state (to avoid processing other OAuth flows)
 		if ((hasCode || hasError) && hasStoredState) {
 			checkCallback();
@@ -320,7 +340,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const hasCode = urlParams.get('code');
 			const hasError = urlParams.get('error');
 			const hasStoredState = sessionStorage.getItem('user_login_state_v8');
-			
+
 			if ((hasCode || hasError) && hasStoredState) {
 				checkCallback();
 			}
@@ -335,51 +355,51 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	useEffect(() => {
 		// Only process if modal is not open (when open, the above useEffect handles it)
 		if (isOpen) return;
-		
+
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get('code');
 		const hasStoredState = sessionStorage.getItem('user_login_state_v8');
-		
+
 		// If we have a callback code and stored state, process it even if modal is closed
-		// eslint-disable-next-line require-atomic-updates
+		 
 		if (code && hasStoredState && !isProcessingRef.current) {
-				console.log(`${MODULE_TAG} Processing callback even though modal is closed`);
-				// The checkCallback logic from above will handle it
-				// We just need to trigger it by checking the URL
-				const checkCallback = async () => {
-					// eslint-disable-next-line require-atomic-updates
-					if (isProcessingRef.current) return;
-				
+			console.log(`${MODULE_TAG} Processing callback even though modal is closed`);
+			// The checkCallback logic from above will handle it
+			// We just need to trigger it by checking the URL
+			const checkCallback = async () => {
+				 
+				if (isProcessingRef.current) return;
+
 				const state = urlParams.get('state');
 				const storedState = sessionStorage.getItem('user_login_state_v8');
-				
+
 				if (!storedState) return;
-				
+
 				if (storedState && state && storedState !== state) {
 					console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
-				
+
 				if (code && storedState) {
 					if (processedCodesRef.current.has(code)) {
 						window.history.replaceState({}, document.title, window.location.pathname);
 						return;
 					}
-					
-					// eslint-disable-next-line require-atomic-updates
+
 					isProcessingRef.current = true;
 					processedCodesRef.current.add(code);
 					window.history.replaceState({}, document.title, window.location.pathname);
-					
+
 					const storedCodeVerifier = sessionStorage.getItem('user_login_code_verifier_v8');
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
-					
+
 					if (!storedCodeVerifier || !storedCredentials) {
+						 
 						isProcessingRef.current = false;
 						return;
 					}
-					
+
 					try {
 						const credentials = JSON.parse(storedCredentials);
 						const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
@@ -389,101 +409,122 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								clientSecret: credentials.clientSecret,
 								redirectUri: credentials.redirectUri,
 								scopes: credentials.scopes,
-								clientAuthMethod: credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post',
+								clientAuthMethod:
+									credentials.clientAuthMethod ||
+									credentials.tokenEndpointAuthMethod ||
+									'client_secret_post',
 							},
 							code,
 							storedCodeVerifier
 						);
-						
+
 						sessionStorage.removeItem('user_login_state_v8');
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
 						sessionStorage.removeItem('user_login_redirect_uri_v8');
-						
+
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
 						console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 						processedCodesRef.current.delete(code);
+						// eslint-disable-next-line require-atomic-updates
 						isProcessingRef.current = false;
 					}
 				}
 			};
-			
+
 			checkCallback();
 		}
 	}, [isOpen, handleTokenReceived]);
 
 	// Handle redirect URI changes - update PingOne app if needed
-	const handleRedirectUriChange = useCallback(async (newRedirectUri: string) => {
-		setRedirectUri(newRedirectUri);
-		
-		// Only update if URI actually changed and we have required credentials
-		if (newRedirectUri === previousRedirectUriRef.current || !environmentId.trim() || !clientId.trim()) {
-			// eslint-disable-next-line require-atomic-updates
-			previousRedirectUriRef.current = newRedirectUri;
-			return;
-		}
+	const handleRedirectUriChange = useCallback(
+		async (newRedirectUri: string) => {
+			setRedirectUri(newRedirectUri);
 
-		// Check if we should update PingOne app
-		if (newRedirectUri.trim() && newRedirectUri !== defaultRedirectUri) {
-			try {
-				// Get worker token
-				const workerToken = await workerTokenServiceV8.getToken();
-				if (!workerToken) {
-					console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
-					// eslint-disable-next-line require-atomic-updates
-					previousRedirectUriRef.current = newRedirectUri;
-					return;
-				}
+			// Only update if URI actually changed and we have required credentials
+			if (
+				newRedirectUri === previousRedirectUriRef.current ||
+				!environmentId.trim() ||
+				!clientId.trim()
+			) {
+				previousRedirectUriRef.current = newRedirectUri;
+				return;
+			}
 
-				// Import and initialize PingOneAppCreationService
-				const { PingOneAppCreationService } = await import('@/services/pingOneAppCreationService');
-				const pingOneService = new PingOneAppCreationService();
-				await pingOneService.initialize(workerToken, environmentId.trim(), 'us'); // Default to 'us' region
-
-				// Find application by client ID
-				const applications = await pingOneService.getApplications();
-				const app = applications.find((app: { clientId?: string }) => app.clientId === clientId.trim());
-
-				if (!app) {
-					console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
-					// eslint-disable-next-line require-atomic-updates
-					previousRedirectUriRef.current = newRedirectUri;
-					return;
-				}
-
-				// Get current redirect URIs and add new one if not present
-				const currentRedirectUris = app.redirectUris || [];
-				const newUri = newRedirectUri.trim();
-				
-				if (!currentRedirectUris.includes(newUri)) {
-					setIsUpdatingApp(true);
-					const updatedRedirectUris = [...currentRedirectUris, newUri];
-					
-					// Update application
-					const result = await pingOneService.updateApplication(app.id, {
-						redirectUris: updatedRedirectUris,
-					});
-
-					if (result.success) {
-						toastV8.success(`Redirect URI updated in PingOne application: ${newUri}`);
-						console.log(`${MODULE_TAG} PingOne app updated with new redirect URI`, { appId: app.id, newUri });
-					} else {
-						toastV8.warning(`Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`);
-						console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
+			// Check if we should update PingOne app
+			if (newRedirectUri.trim() && newRedirectUri !== defaultRedirectUri) {
+				try {
+					// Get worker token
+					const workerToken = await workerTokenServiceV8.getToken();
+					if (!workerToken) {
+						console.warn(`${MODULE_TAG} No worker token available to update PingOne app`);
+						// eslint-disable-next-line require-atomic-updates
+						previousRedirectUriRef.current = newRedirectUri;
+						return;
 					}
+
+					// Import and initialize PingOneAppCreationService
+					const { PingOneAppCreationService } = await import(
+						'@/services/pingOneAppCreationService'
+					);
+					const pingOneService = new PingOneAppCreationService();
+					await pingOneService.initialize(workerToken, environmentId.trim(), 'us'); // Default to 'us' region
+
+					// Find application by client ID
+					const applications = await pingOneService.getApplications();
+					const app = applications.find(
+						(app: { clientId?: string }) => app.clientId === clientId.trim()
+					);
+
+					if (!app) {
+						console.warn(`${MODULE_TAG} Application not found with client ID: ${clientId.trim()}`);
+						// eslint-disable-next-line require-atomic-updates
+						previousRedirectUriRef.current = newRedirectUri;
+						return;
+					}
+
+					// Get current redirect URIs and add new one if not present
+					const currentRedirectUris = app.redirectUris || [];
+					const newUri = newRedirectUri.trim();
+
+					if (!currentRedirectUris.includes(newUri)) {
+						setIsUpdatingApp(true);
+						const updatedRedirectUris = [...currentRedirectUris, newUri];
+
+						// Update application
+						const result = await pingOneService.updateApplication(app.id, {
+							redirectUris: updatedRedirectUris,
+						});
+
+						if (result.success) {
+							toastV8.success(`Redirect URI updated in PingOne application: ${newUri}`);
+							console.log(`${MODULE_TAG} PingOne app updated with new redirect URI`, {
+								appId: app.id,
+								newUri,
+							});
+						} else {
+							toastV8.warning(
+								`Failed to update PingOne app: ${result.error || 'Unknown error'}. Please add ${newUri} manually.`
+							);
+							console.error(`${MODULE_TAG} Failed to update PingOne app`, result.error);
+						}
+						setIsUpdatingApp(false);
+					}
+				} catch (error) {
+					console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
+					toastV8.warning(
+						`Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`
+					);
 					setIsUpdatingApp(false);
 				}
-			} catch (error) {
-				console.error(`${MODULE_TAG} Error updating PingOne app redirect URI`, error);
-				toastV8.warning(`Could not automatically update PingOne app. Please add ${newRedirectUri.trim()} manually to your application's redirect URIs.`);
-				setIsUpdatingApp(false);
 			}
-		}
 
-		// eslint-disable-next-line require-atomic-updates
-		previousRedirectUriRef.current = newRedirectUri;
-	}, [environmentId, clientId]);
+			// eslint-disable-next-line require-atomic-updates
+			previousRedirectUriRef.current = newRedirectUri;
+		},
+		[environmentId, clientId]
+	);
 
 	// Handle saving credentials without logging in
 	const handleSaveCredentials = useCallback(() => {
@@ -495,9 +536,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		setIsSaving(true);
 		try {
 			// Ensure redirect URI is valid (use default if empty or old URIs)
-			const finalRedirectUri = redirectUri.trim() && !redirectUri.trim().includes('implicit-callback') && !redirectUri.trim().includes('authz-callback')
-				? redirectUri.trim() 
-				: defaultRedirectUri;
+			const finalRedirectUri =
+				redirectUri.trim() &&
+				!redirectUri.trim().includes('implicit-callback') &&
+				!redirectUri.trim().includes('authz-callback')
+					? redirectUri.trim()
+					: defaultRedirectUri;
 
 			// Save credentials using CredentialsServiceV8
 			const FLOW_KEY = 'user-login-v8';
@@ -511,12 +555,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				tokenEndpointAuthMethod: authMethod,
 			};
 			CredentialsServiceV8.saveCredentials(FLOW_KEY, credsToSave);
-			console.log(`${MODULE_TAG} Credentials saved`, { flowKey: FLOW_KEY, redirectUri: finalRedirectUri, authMethod });
+			console.log(`${MODULE_TAG} Credentials saved`, {
+				flowKey: FLOW_KEY,
+				redirectUri: finalRedirectUri,
+				authMethod,
+			});
 			toastV8.success('Credentials saved successfully!');
-			
+
 			// Notify parent that credentials were saved (so it can refresh/update state)
 			onCredentialsSaved?.();
-			
+
 			// Modal stays open so user can continue editing or login
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save credentials:`, error);
@@ -534,14 +582,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 		// Validate that p1:create:device scope is included for MFA flows
 		if (isMfaFlow && !scopes.includes('p1:create:device')) {
-			toastV8.error('For MFA user flow, the access token must include the p1:create:device scope. Please add it to the scopes field.');
+			toastV8.error(
+				'For MFA user flow, the access token must include the p1:create:device scope. Please add it to the scopes field.'
+			);
 			return;
 		}
 
 		// Ensure redirect URI is valid (use default if empty or old URIs)
-		const finalRedirectUri = redirectUri.trim() && !redirectUri.trim().includes('implicit-callback') && !redirectUri.trim().includes('authz-callback')
-			? redirectUri.trim() 
-			: defaultRedirectUri;
+		const finalRedirectUri =
+			redirectUri.trim() &&
+			!redirectUri.trim().includes('implicit-callback') &&
+			!redirectUri.trim().includes('authz-callback')
+				? redirectUri.trim()
+				: defaultRedirectUri;
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
 		const FLOW_KEY = 'user-login-v8';
@@ -555,39 +608,47 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			tokenEndpointAuthMethod: authMethod,
 		};
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credsToSave);
-		console.log(`${MODULE_TAG} Credentials saved using CredentialsServiceV8`, { flowKey: FLOW_KEY, redirectUri: finalRedirectUri, authMethod });
+		console.log(`${MODULE_TAG} Credentials saved using CredentialsServiceV8`, {
+			flowKey: FLOW_KEY,
+			redirectUri: finalRedirectUri,
+			authMethod,
+		});
 
 		try {
 			// Generate authorization URL with PKCE
-			const { authorizationUrl, state, codeVerifier } = await OAuthIntegrationServiceV8.generateAuthorizationUrl({
-				environmentId: environmentId.trim(),
-				clientId: clientId.trim(),
-				clientSecret: clientSecret.trim(),
-				redirectUri: finalRedirectUri,
-				scopes: scopes.trim(),
-				clientAuthMethod: authMethod,
-			});
+			const { authorizationUrl, state, codeVerifier } =
+				await OAuthIntegrationServiceV8.generateAuthorizationUrl({
+					environmentId: environmentId.trim(),
+					clientId: clientId.trim(),
+					clientSecret: clientSecret.trim(),
+					redirectUri: finalRedirectUri,
+					scopes: scopes.trim(),
+					clientAuthMethod: authMethod,
+				});
 
 			// Store state, code verifier, and credentials for validation and token exchange
 			sessionStorage.setItem('user_login_state_v8', state);
 			sessionStorage.setItem('user_login_code_verifier_v8', codeVerifier);
-			sessionStorage.setItem('user_login_credentials_temp_v8', JSON.stringify({
-				environmentId: environmentId.trim(),
-				clientId: clientId.trim(),
-				clientSecret: clientSecret.trim(),
-				redirectUri: finalRedirectUri,
-				scopes: scopes.trim(),
-				clientAuthMethod: authMethod,
-				tokenEndpointAuthMethod: authMethod,
-			}));
+			sessionStorage.setItem(
+				'user_login_credentials_temp_v8',
+				JSON.stringify({
+					environmentId: environmentId.trim(),
+					clientId: clientId.trim(),
+					clientSecret: clientSecret.trim(),
+					redirectUri: finalRedirectUri,
+					scopes: scopes.trim(),
+					clientAuthMethod: authMethod,
+					tokenEndpointAuthMethod: authMethod,
+				})
+			);
 			sessionStorage.setItem('user_login_redirect_uri_v8', finalRedirectUri);
-			
+
 			// Store current path to return to after authentication (if we're in an MFA flow)
 			// Include query params if present (e.g., for device registration flows)
 			const currentPath = location.pathname;
 			const currentSearch = location.search;
 			const fullPath = currentSearch ? `${currentPath}${currentSearch}` : currentPath;
-			
+
 			if (currentPath.startsWith('/v8/mfa')) {
 				// Store path directly as a string (no need for JSON.stringify on a string)
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
@@ -597,12 +658,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					fullPath,
 					timestamp: new Date().toISOString(),
 				});
-				
+
 				// DEBUG: Verify it was stored correctly
 				const verifyStored = sessionStorage.getItem('user_login_return_to_mfa');
 				console.log(`${MODULE_TAG} 🔍 DEBUG: Verified stored return path:`, verifyStored);
 			} else {
-				console.warn(`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`, currentPath);
+				console.warn(
+					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,
+					currentPath
+				);
 			}
 
 			console.log(`${MODULE_TAG} Redirecting to authorization URL`);
@@ -753,8 +817,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									xmlns="http://www.w3.org/2000/svg"
 									aria-hidden="true"
 								>
-									<path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill="#E31837" />
-									<path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="#ffffff" />
+									<path
+										d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z"
+										fill="#E31837"
+									/>
+									<path
+										d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z"
+										fill="#ffffff"
+									/>
 								</svg>
 							</div>
 							<div>
@@ -807,7 +877,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						<div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						<div
+							style={{
+								marginBottom: '8px',
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+							}}
+						>
 							<strong>ℹ️ What is User Login?</strong>
 							<button
 								type="button"
@@ -838,8 +915,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							</button>
 						</div>
 						<p style={{ margin: 0 }}>
-							This flow uses OAuth 2.0 Authorization Code Flow with PKCE to authenticate you with PingOne and obtain an access token.
-							The access token can be used as a "User Token" in MFA flows for client-side operations.
+							This flow uses OAuth 2.0 Authorization Code Flow with PKCE to authenticate you with
+							PingOne and obtain an access token. The access token can be used as a "User Token" in
+							MFA flows for client-side operations.
 						</p>
 					</div>
 
@@ -873,7 +951,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									fontSize: '14px',
 								}}
 							/>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								Your PingOne environment ID
 							</small>
 						</div>
@@ -906,7 +986,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									fontSize: '14px',
 								}}
 							/>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								OAuth client ID configured for Authorization Code Flow
 							</small>
 						</div>
@@ -962,7 +1044,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
 								</button>
 							</div>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								Required for token exchange in Authorization Code Flow
 							</small>
 						</div>
@@ -1001,7 +1085,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									)
 								)}
 							</select>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
 								{AuthMethodServiceV8.getMethodConfig(authMethod).description}
 							</small>
 						</div>
@@ -1020,7 +1106,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							>
 								Redirect URI <span style={{ color: '#ef4444' }}>*</span>
 								{isUpdatingApp && (
-									<span style={{ marginLeft: '8px', fontSize: '12px', fontWeight: '400', color: '#3b82f6' }}>
+									<span
+										style={{
+											marginLeft: '8px',
+											fontSize: '12px',
+											fontWeight: '400',
+											color: '#3b82f6',
+										}}
+									>
 										⏳ Updating PingOne app...
 									</span>
 								)}
@@ -1042,11 +1135,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									cursor: isUpdatingApp ? 'not-allowed' : 'text',
 								}}
 							/>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
-								{redirectUri === defaultRedirectUri 
+							<small
+								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+							>
+								{redirectUri === defaultRedirectUri
 									? 'Default redirect URI. If you change it, we will automatically update your PingOne application.'
-									: 'If changed, we will automatically add this URI to your PingOne application\'s redirect URIs list.'
-								}
+									: "If changed, we will automatically add this URI to your PingOne application's redirect URIs list."}
 							</small>
 						</div>
 
@@ -1069,37 +1163,47 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								type="text"
 								value={scopes}
 								onChange={(e) => setScopes(e.target.value)}
-								placeholder={isMfaFlow ? "openid profile email p1:create:device" : "openid profile email"}
+								placeholder={
+									isMfaFlow ? 'openid profile email p1:create:device' : 'openid profile email'
+								}
 								style={{
 									width: '100%',
 									padding: '10px 12px',
-									border: isMfaFlow && !scopes.includes('p1:create:device') 
-										? '2px solid #f59e0b' 
-										: '1px solid #d1d5db',
+									border:
+										isMfaFlow && !scopes.includes('p1:create:device')
+											? '2px solid #f59e0b'
+											: '1px solid #d1d5db',
 									borderRadius: '6px',
 									fontSize: '14px',
-									background: isMfaFlow && !scopes.includes('p1:create:device') 
-										? '#fffbeb' 
-										: 'white',
+									background:
+										isMfaFlow && !scopes.includes('p1:create:device') ? '#fffbeb' : 'white',
 								}}
 							/>
 							{isMfaFlow && !scopes.includes('p1:create:device') ? (
-								<div style={{ 
-									marginTop: '8px', 
-									padding: '10px 12px',
-									background: '#fef3c7',
-									border: '1px solid #f59e0b',
-									borderRadius: '6px',
-									fontSize: '12px',
-									color: '#92400e',
-								}}>
-									<strong>⚠️ Required Scope Missing:</strong> For MFA user flow (self-service device registration), 
-									the access token must include the <code style={{ 
-										background: '#fbbf24', 
-										padding: '2px 6px', 
-										borderRadius: '3px',
-										fontWeight: '600',
-									}}>p1:create:device</code> scope.
+								<div
+									style={{
+										marginTop: '8px',
+										padding: '10px 12px',
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '6px',
+										fontSize: '12px',
+										color: '#92400e',
+									}}
+								>
+									<strong>⚠️ Required Scope Missing:</strong> For MFA user flow (self-service device
+									registration), the access token must include the{' '}
+									<code
+										style={{
+											background: '#fbbf24',
+											padding: '2px 6px',
+											borderRadius: '3px',
+											fontWeight: '600',
+										}}
+									>
+										p1:create:device
+									</code>{' '}
+									scope.
 									<br />
 									<button
 										type="button"
@@ -1126,11 +1230,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 									</button>
 								</div>
 							) : (
-								<small style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}>
-									{isMfaFlow 
+								<small
+									style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+								>
+									{isMfaFlow
 										? 'Space-separated list of OAuth scopes. Must include p1:create:device for MFA user flow.'
-										: 'Space-separated list of OAuth scopes (openid is required for OIDC)'
-									}
+										: 'Space-separated list of OAuth scopes (openid is required for OIDC)'}
 								</small>
 							)}
 						</div>
@@ -1166,11 +1271,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						<button
 							type="button"
 							onClick={handleSaveCredentials}
-							disabled={isSaving || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()}
+							disabled={
+								isSaving ||
+								!environmentId.trim() ||
+								!clientId.trim() ||
+								!clientSecret.trim() ||
+								!redirectUri.trim()
+							}
 							style={{
 								padding: '12px 20px',
 								background:
-									isSaving || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()
+									isSaving ||
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
 										? '#d1d5db'
 										: '#10b981',
 								color: 'white',
@@ -1179,7 +1294,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								fontSize: '14px',
 								fontWeight: '600',
 								cursor:
-									isSaving || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()
+									isSaving ||
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
 										? 'not-allowed'
 										: 'pointer',
 								display: 'flex',
@@ -1204,12 +1323,22 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						<button
 							type="button"
 							onClick={handleLogin}
-							disabled={isRedirecting || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()}
+							disabled={
+								isRedirecting ||
+								!environmentId.trim() ||
+								!clientId.trim() ||
+								!clientSecret.trim() ||
+								!redirectUri.trim()
+							}
 							style={{
 								flex: 1,
 								padding: '12px 20px',
 								background:
-									isRedirecting || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()
+									isRedirecting ||
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
 										? '#d1d5db'
 										: '#3b82f6',
 								color: 'white',
@@ -1218,7 +1347,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								fontSize: '14px',
 								fontWeight: '600',
 								cursor:
-									isRedirecting || !environmentId.trim() || !clientId.trim() || !clientSecret.trim() || !redirectUri.trim()
+									isRedirecting ||
+									!environmentId.trim() ||
+									!clientId.trim() ||
+									!clientSecret.trim() ||
+									!redirectUri.trim()
 										? 'not-allowed'
 										: 'pointer',
 								display: 'flex',
@@ -1245,4 +1378,3 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		</>
 	);
 };
-
