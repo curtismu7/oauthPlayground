@@ -605,6 +605,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			!redirectUri.trim().includes('authz-callback')
 				? redirectUri.trim()
 				: defaultRedirectUriForMfa;
+		
+		// CRITICAL DEBUG: Log redirect URI decision
+		console.log(`${MODULE_TAG} 🔍 DEBUG: Redirect URI decision:`, {
+			isMfaFlow,
+			redirectUriInput: redirectUri.trim(),
+			defaultRedirectUriForMfa,
+			finalRedirectUri,
+			currentPath: location.pathname,
+		});
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
 		const FLOW_KEY = 'user-login-v8';
@@ -661,17 +670,23 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			if (currentPath.startsWith('/v8/mfa')) {
 				// Store path directly as a string (no need for JSON.stringify on a string)
+				// CRITICAL: Store BEFORE redirect to ensure it's available when callback returns
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
 				console.log(`${MODULE_TAG} ✅ Stored return path: ${fullPath}`, {
 					pathname: currentPath,
 					search: currentSearch,
 					fullPath,
 					timestamp: new Date().toISOString(),
+					redirectUri: finalRedirectUri,
+					isMfaFlow,
 				});
 
 				// DEBUG: Verify it was stored correctly
 				const verifyStored = sessionStorage.getItem('user_login_return_to_mfa');
 				console.log(`${MODULE_TAG} 🔍 DEBUG: Verified stored return path:`, verifyStored);
+				
+				// CRITICAL DEBUG: Log all sessionStorage keys to help diagnose
+				console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys before redirect:`, Object.keys(sessionStorage));
 			} else {
 				console.warn(
 					`${MODULE_TAG} ⚠️ Not storing return path - current path does not start with /v8/mfa:`,

@@ -24,60 +24,73 @@ export const CallbackHandlerV8U: React.FC = () => {
 		// IMPORTANT: This must be checked FIRST before any unified flow logic
 		// CRITICAL: Both routes are required - /user-login-callback (generic) and /user-mfa-login-callback (MFA-specific)
 		const currentPath = window.location.pathname;
-		const isUserLoginCallback = currentPath === '/user-login-callback' || 
+		const isUserLoginCallback =
+			currentPath === '/user-login-callback' ||
 			currentPath.includes('user-login-callback') ||
 			currentPath === '/user-mfa-login-callback' ||
 			currentPath.includes('user-mfa-login-callback');
-		
+
 		console.log(`${MODULE_TAG} Checking callback path:`, {
 			currentPath,
 			isUserLoginCallback,
 			searchParams: window.location.search,
 		});
-		
+
 		if (isUserLoginCallback) {
 			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
-			
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Current pathname:`, window.location.pathname);
+			console.log(`${MODULE_TAG} 🔍 DEBUG: Current search:`, window.location.search);
+
 			// DEBUG: Log all sessionStorage keys to help diagnose cache issues
-			console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys:`, Object.keys(sessionStorage));
+			const allKeys = Object.keys(sessionStorage);
+			console.log(`${MODULE_TAG} 🔍 DEBUG: All sessionStorage keys (${allKeys.length}):`, allKeys);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Checking for user_login_return_to_mfa...`);
-			
+
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
-			
+
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path exists:`, !!returnToMfaFlow);
 			
+			// DEBUG: Check for other related keys
+			console.log(`${MODULE_TAG} 🔍 DEBUG: user_login_state_v8:`, sessionStorage.getItem('user_login_state_v8') ? 'EXISTS' : 'MISSING');
+			console.log(`${MODULE_TAG} 🔍 DEBUG: user_login_redirect_uri_v8:`, sessionStorage.getItem('user_login_redirect_uri_v8'));
+
 			if (returnToMfaFlow) {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
 					const mfaPath = returnToMfaFlow.trim();
 					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
-					
+
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						console.error(`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`);
+						console.error(
+							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
+						);
 						throw new Error(`Invalid return path: ${mfaPath}`);
 					}
-					
+
 					// CRITICAL: Store a marker that we're returning from OAuth callback
 					// This tells the MFA flow to restore state and auto-advance
 					sessionStorage.setItem('mfa_oauth_callback_return', 'true');
-					
+
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
-					const redirectUrl = callbackParams.toString() 
+					const redirectUrl = callbackParams.toString()
 						? `${mfaPath}?${callbackParams.toString()}`
 						: mfaPath;
-					
+
 					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
-					console.log(`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`);
-					
+					console.log(
+						`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`
+					);
+
 					// Clean up the return path marker AFTER logging but BEFORE redirect
 					// This ensures we have the path even if there's a race condition
 					sessionStorage.removeItem('user_login_return_to_mfa');
-					
+
 					// Use window.location.replace for immediate redirect (more reliable than navigate)
 					window.location.replace(redirectUrl);
 					return; // CRITICAL: Exit early to prevent unified flow logic
@@ -87,20 +100,22 @@ export const CallbackHandlerV8U: React.FC = () => {
 					// Fall through to MFA hub redirect
 				}
 			}
-			
+
 			// If no return path, redirect to MFA hub as fallback
 			console.warn(`${MODULE_TAG} ⚠️ No return path found in sessionStorage!`);
-			console.warn(`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`);
+			console.warn(
+				`${MODULE_TAG} ⚠️ This might indicate a cache issue or the return path was cleared prematurely.`
+			);
 			console.warn(`${MODULE_TAG} ⚠️ Redirecting to MFA hub as fallback`);
 			const callbackParams = new URLSearchParams(window.location.search);
-			const redirectUrl = callbackParams.toString() 
+			const redirectUrl = callbackParams.toString()
 				? `/v8/mfa-hub?${callbackParams.toString()}`
 				: '/v8/mfa-hub';
 			console.log(`${MODULE_TAG} 🚀 Redirecting to MFA hub: ${redirectUrl}`);
 			window.location.replace(redirectUrl);
 			return; // CRITICAL: Exit early to prevent unified flow logic
 		}
-		
+
 		// If we reach here, this is NOT a user-login-callback, continue with unified flow logic
 		console.log(`${MODULE_TAG} Not a user-login-callback, proceeding with unified flow logic`);
 
