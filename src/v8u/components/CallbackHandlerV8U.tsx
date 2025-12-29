@@ -51,9 +51,15 @@ export const CallbackHandlerV8U: React.FC = () => {
 			
 			if (returnToMfaFlow) {
 				try {
-					// Redirect back to MFA flow page with callback params preserved
-					const mfaPath = JSON.parse(returnToMfaFlow);
+					// Path is stored as a plain string (no JSON parsing needed)
+					const mfaPath = returnToMfaFlow.trim();
 					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
+					
+					// Validate that the path looks correct
+					if (!mfaPath.startsWith('/v8/mfa')) {
+						console.error(`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`);
+						throw new Error(`Invalid return path: ${mfaPath}`);
+					}
 					
 					// CRITICAL: Store a marker that we're returning from OAuth callback
 					// This tells the MFA flow to restore state and auto-advance
@@ -76,7 +82,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 					window.location.replace(redirectUrl);
 					return; // CRITICAL: Exit early to prevent unified flow logic
 				} catch (error) {
-					console.error(`${MODULE_TAG} ❌ Failed to parse return path:`, error);
+					console.error(`${MODULE_TAG} ❌ Failed to process return path:`, error);
 					console.error(`${MODULE_TAG} ❌ Return path value that failed:`, returnToMfaFlow);
 					// Fall through to MFA hub redirect
 				}
@@ -155,7 +161,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 			fullState: state,
 		});
 
-		if (state && state.startsWith('v8u-')) {
+		if (state?.startsWith('v8u-')) {
 			const parts = state.split('-');
 			console.log(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
 			console.log(`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}"`);
