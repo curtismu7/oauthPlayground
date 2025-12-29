@@ -55,6 +55,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 					const mfaPath = JSON.parse(returnToMfaFlow);
 					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
 					
+					// CRITICAL: Store a marker that we're returning from OAuth callback
+					// This tells the MFA flow to restore state and auto-advance
+					sessionStorage.setItem('mfa_oauth_callback_return', 'true');
+					
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
 					const redirectUrl = callbackParams.toString() 
@@ -62,6 +66,7 @@ export const CallbackHandlerV8U: React.FC = () => {
 						: mfaPath;
 					
 					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
+					console.log(`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`);
 					
 					// Clean up the return path marker AFTER logging but BEFORE redirect
 					// This ensures we have the path even if there's a race condition
