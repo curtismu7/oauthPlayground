@@ -4856,17 +4856,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												e.currentTarget.style.background = '#3b82f6';
 												e.currentTarget.style.borderColor = '#3b82f6';
 											}}
-											style={{
-												width: '100%',
-												padding: '12px 24px',
-												border: '1px solid #d1d5db',
-												borderRadius: '8px',
-												background: 'white',
-												color: '#6b7280',
-												fontSize: '16px',
-												fontWeight: '500',
-												cursor: 'pointer',
-											}}
 										>
 											Cancel
 										</button>

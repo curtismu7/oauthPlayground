@@ -480,7 +480,10 @@ const AppRoutes: React.FC = () => {
 							{/* V8U Unified Callback Handler - handles all V8U flows */}
 							<Route path="/unified-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/authz-callback" element={<CallbackHandlerV8U />} />
+							{/* CRITICAL: MFA user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
 							<Route path="/user-login-callback" element={<CallbackHandlerV8U />} />
+							{/* CRITICAL: MFA-specific user login callback route - DO NOT REMOVE - Used by MFA flows for user authentication */}
+							<Route path="/user-mfa-login-callback" element={<CallbackHandlerV8U />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
