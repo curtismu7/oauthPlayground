@@ -59,7 +59,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [isSaving, setIsSaving] = useState(false);
 	const [showSuccessPage, setShowSuccessPage] = useState(false);
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
-	const defaultRedirectUri = 'https://localhost:3000/user-login-callback';
+	// Use different default redirect URI for MFA flows
+	const defaultRedirectUri = isMfaFlow
+		? 'https://localhost:3000/user-mfa-login-callback'
+		: 'https://localhost:3000/user-login-callback';
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
 	// Reset success page state when modal closes
@@ -113,18 +116,23 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				? 'openid profile email p1:create:device'
 				: 'openid profile email';
 
+			// Use different default redirect URI for MFA flows
+			const defaultRedirectUriForMfa = isMfaFlow
+				? 'https://localhost:3000/user-mfa-login-callback'
+				: 'https://localhost:3000/user-login-callback';
+
 			if (saved.environmentId || saved.clientId || saved.redirectUri) {
 				setEnvironmentId(saved.environmentId || propEnvironmentId);
 				setClientId(saved.clientId || '');
 				setClientSecret(saved.clientSecret || '');
 				setAuthMethod(saved.authMethod || saved.tokenEndpointAuthMethod || 'client_secret_post');
-				// Use saved redirect URI or default to hardcoded value
-				const savedRedirectUri = saved.redirectUri || defaultRedirectUri;
+				// Use saved redirect URI or default to appropriate value based on flow type
+				const savedRedirectUri = saved.redirectUri || defaultRedirectUriForMfa;
 				// If saved URI is implicit-callback or authz-callback, migrate to default
 				const finalRedirectUri =
 					savedRedirectUri.includes('implicit-callback') ||
 					savedRedirectUri.includes('authz-callback')
-						? defaultRedirectUri
+						? defaultRedirectUriForMfa
 						: savedRedirectUri;
 				setRedirectUri(finalRedirectUri);
 
@@ -145,10 +153,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					finalScopes,
 				});
 			} else {
-				// Set default redirect URI for User Login Flow (hardcoded)
-				setRedirectUri(defaultRedirectUri);
+				// Set default redirect URI based on flow type (MFA vs regular)
+				setRedirectUri(defaultRedirectUriForMfa);
 
-				previousRedirectUriRef.current = defaultRedirectUri;
+				previousRedirectUriRef.current = defaultRedirectUriForMfa;
 				// Set default scopes with p1:create:device for MFA flows
 				setScopes(defaultScopes);
 			}
@@ -587,12 +595,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		}
 
 		// Ensure redirect URI is valid (use default if empty or old URIs)
+		// For MFA flows, use user-mfa-login-callback; for others, use user-login-callback
+		const defaultRedirectUriForMfa = isMfaFlow
+			? 'https://localhost:3000/user-mfa-login-callback'
+			: 'https://localhost:3000/user-login-callback';
 		const finalRedirectUri =
 			redirectUri.trim() &&
 			!redirectUri.trim().includes('implicit-callback') &&
 			!redirectUri.trim().includes('authz-callback')
 				? redirectUri.trim()
-				: defaultRedirectUri;
+				: defaultRedirectUriForMfa;
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
 		const FLOW_KEY = 'user-login-v8';
