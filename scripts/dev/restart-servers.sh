@@ -334,6 +334,155 @@ check_requirements() {
     print_success "System requirements check passed"
 }
 
+verify_sms_lockdown() {
+    verify_lockdown_generic \
+        "SMS" \
+        "src/v8/lockdown/sms/manifest.json" \
+        "verify:sms-lockdown" \
+        "sms:lockdown:approve" \
+        "src/v8/lockdown/sms/snapshot"
+}
+
+verify_lockdown_generic() {
+    # Generic soft-lock verifier used for SMS/FIDO2/EMAIL/WHATSAPP.
+    # Params:
+    #  1) NAME (display)
+    #  2) manifest path
+    #  3) npm verify script name (e.g. verify:sms-lockdown)
+    #  4) npm approve script name (e.g. sms:lockdown:approve)
+    #  5) snapshot dir
+    local name="$1"
+    local manifest_path="$2"
+    local verify_script="$3"
+    local approve_script="$4"
+    local snapshot_dir="$5"
+
+    if [ ! -f "$manifest_path" ]; then
+        print_warning "${name} lockdown manifest not found. Skipping ${name} lockdown check."
+        return 0
+    fi
+
+    print_status "🔒 Verifying ${name} lockdown integrity (${verify_script})..."
+    set +e
+    npm run -s "$verify_script"
+    local verify_exit=$?
+    set -e
+
+    if [ "$verify_exit" -eq 0 ]; then
+        print_success "${name} lockdown verification passed"
+        return 0
+    fi
+
+    print_error "${name} lockdown verification FAILED. ${name}-critical files drifted."
+    echo ""
+    echo -e "${RED}To prevent ${name} regressions, server restart is blocked.${NC}"
+    echo ""
+    echo -e "${CYAN}Choose an action:${NC}"
+    echo -e "${CYAN}  1) Restore ${name} locked files from snapshot (recommended)${NC}"
+    echo -e "${CYAN}  2) Approve current ${name} changes (updates snapshot + manifest)${NC}"
+    echo -e "${CYAN}  3) Abort restart (default)${NC}"
+    echo -e "${CYAN}  4) Continue anyway (unsafe)${NC}"
+    echo ""
+    echo -n "Enter choice [1/2/3/4]: "
+    read -r choice
+
+    if [ "$choice" = "1" ]; then
+        print_status "🛠️ Restoring ${name} locked files from snapshot..."
+
+        # Read manifest paths via Node (no jq dependency).
+        local paths
+        paths=$(node --input-type=module - <<NODE
+import { readFileSync } from 'node:fs';
+const manifest = JSON.parse(readFileSync('${manifest_path}', 'utf8'));
+for (const f of manifest.files || []) console.log(f.path);
+NODE
+)
+
+        while IFS= read -r p; do
+            [ -z "$p" ] && continue
+            local base
+            base="$(basename "$p")"
+            local snap="${snapshot_dir}/${base}"
+            if [ ! -f "$snap" ]; then
+                print_error "Snapshot file missing: $snap"
+                exit 1
+            fi
+            mkdir -p "$(dirname "$p")"
+            cp "$snap" "$p"
+        done <<< "$paths"
+
+        print_status "🔁 Re-running ${name} lockdown verification..."
+        set +e
+        npm run -s "$verify_script"
+        verify_exit=$?
+        set -e
+
+        if [ "$verify_exit" -ne 0 ]; then
+            print_error "${name} lockdown still failing after restore. Aborting restart."
+            exit 1
+        fi
+
+        print_success "${name} lockdown restored successfully. Continuing restart."
+        return 0
+    fi
+
+    if [ "$choice" = "2" ]; then
+        if npm run -s "$approve_script"; then
+            print_status "🔁 Re-running ${name} lockdown verification..."
+            set +e
+            npm run -s "$verify_script"
+            verify_exit=$?
+            set -e
+
+            if [ "$verify_exit" -ne 0 ]; then
+                print_error "${name} lockdown still failing after approve. Aborting restart."
+                exit 1
+            fi
+
+            print_success "${name} lockdown approved successfully. Continuing restart."
+            return 0
+        fi
+
+        print_error "Approve failed. Aborting restart."
+        exit 1
+    fi
+
+    if [ "$choice" = "4" ]; then
+        print_warning "Continuing restart despite ${name} lockdown drift (unsafe)."
+        return 0
+    fi
+
+    print_error "Aborting restart due to ${name} lockdown drift."
+    exit 1
+}
+
+verify_fido2_lockdown() {
+    verify_lockdown_generic \
+        "FIDO2" \
+        "src/v8/lockdown/fido2/manifest.json" \
+        "verify:fido2-lockdown" \
+        "fido2:lockdown:approve" \
+        "src/v8/lockdown/fido2/snapshot"
+}
+
+verify_email_lockdown() {
+    verify_lockdown_generic \
+        "EMAIL" \
+        "src/v8/lockdown/email/manifest.json" \
+        "verify:email-lockdown" \
+        "email:lockdown:approve" \
+        "src/v8/lockdown/email/snapshot"
+}
+
+verify_whatsapp_lockdown() {
+    verify_lockdown_generic \
+        "WHATSAPP" \
+        "src/v8/lockdown/whatsapp/manifest.json" \
+        "verify:whatsapp-lockdown" \
+        "whatsapp:lockdown:approve" \
+        "src/v8/lockdown/whatsapp/snapshot"
+}
+
 # Function to start backend server
 start_backend() {
     print_status "🚀 Starting backend server..."
@@ -807,6 +956,10 @@ show_final_summary() {
     echo -e "${banner_color}║${NC} ${CYAN}   - logs/api-log.log (all API calls)${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   - logs/real-api.log (real API calls, no proxy)${NC}"
     echo -e "${banner_color}║${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}📌 Quick tail commands (copy/paste):${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/api-log.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/api-log.log${NC}"
+    echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh - Restart servers (will prompt to tail logs)${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./restart-servers.sh --help - Show help message${NC}"
@@ -816,25 +969,59 @@ show_final_summary() {
 }
 
 # Parse command line arguments
-for arg in "$@"; do
-    case "$arg" in
+while [ $# -gt 0 ]; do
+    case "$1" in
         --help|-h)
             echo "Usage: $0 [OPTIONS]"
             echo ""
+            echo "Purpose:"
+            echo "  Restart the OAuth Playground dev servers (frontend + backend HTTP/HTTPS),"
+            echo "  run health checks, print a status report, and optionally tail logs."
+            echo ""
+            echo "Servers and ports:"
+            echo "  Frontend: https://localhost:${FRONTEND_PORT}    (Vite dev server)"
+            echo "  Backend:  http://localhost:${BACKEND_HTTP_PORT}   (Express API - HTTP)"
+            echo "  Backend:  https://localhost:${BACKEND_HTTPS_PORT}  (Express API - HTTPS)"
+            echo ""
             echo "Options:"
-            echo "  --help, -h                Show this help message"
+            echo "  --help, -h"
+            echo "      Show this help message and exit."
             echo ""
-            echo "Usage:"
-            echo "  $0                       # Restart servers (will prompt to tail logs interactively)"
+            echo "Default behavior (no flags):"
+            echo "  1) Locate the OAuth Playground directory:"
+            echo "     - If you're not already in it, the script searches common paths."
+            echo "     - If still not found, it prompts you for the directory path."
+            echo "  2) Verify requirements (node, npm, curl, package.json, server.js)."
+            echo "  3) Verify SMS lockdown integrity (verify:sms-lockdown)."
+            echo "  4) Verify FIDO2 lockdown integrity (verify:fido2-lockdown)."
+            echo "  5) Verify Email lockdown integrity (verify:email-lockdown)."
+            echo "  6) Verify WhatsApp lockdown integrity (verify:whatsapp-lockdown)."
+            echo "     - If drift is detected, you'll be prompted to restore/approve/abort."
+            echo "  4) Kill existing dev servers and free ports ${FRONTEND_PORT}, ${BACKEND_HTTP_PORT}, ${BACKEND_HTTPS_PORT}."
+            echo "  5) Start backend (both HTTP+HTTPS) and start frontend."
+            echo "  6) Run health checks."
+            echo "  7) Print a final status report and log file locations."
+            echo "  8) Prompt to tail a log file (interactive):"
+            echo "     - Choose from PingOne/API logs, server logs, flow logs, or frontend/backend logs."
+            echo "     - Optionally clear the chosen log before tailing."
             echo ""
-            echo "Note: After servers start, you'll be prompted to:"
-            echo "  - Choose whether to tail a log file"
-            echo "  - Select which log file to tail (pingone-api.log, api-log.log, real-api.log, or server.log)"
-            echo "  - Optionally clear the log file before tailing"
+            echo "Exit codes:"
+            echo "  0   Success (all servers running and healthy)"
+            echo "  1   Failure (servers failed to start)"
+            echo "  2   Partial success (some servers running but health issues)"
+            echo "  3   Unknown/unexpected status"
+            echo "  130 Interrupted (Ctrl+C)"
+            echo ""
+            echo "Examples:"
+            echo "  $0"
+            echo "  $0 --help"
+            echo "  $0 -h"
             exit 0
             ;;
+
         *)
-            print_warning "Unknown option: $arg (use --help for usage)"
+            print_warning "Unknown option: $1 (use --help for usage)"
+            shift
             ;;
     esac
 done
@@ -848,6 +1035,12 @@ main() {
     
     # Step 1: Check requirements
     check_requirements
+
+    # Step 1b: Verify lock-down integrity (blocks restart on drift)
+    verify_sms_lockdown
+    verify_fido2_lockdown
+    verify_email_lockdown
+    verify_whatsapp_lockdown
     
     # Step 2: Kill all existing servers
     kill_all_servers
@@ -871,7 +1064,7 @@ main() {
     # Step 8: Final success message and server status summary
     show_final_summary
     
-    # Step 9: Ask user if they want to tail a log file (always interactive, no command line args needed)
+    # Step 9: Ask user if they want to tail a log file (interactive)
     if [ "$OVERALL_STATUS" = "success" ] || [ "$OVERALL_STATUS" = "partial" ]; then
         echo ""
         echo -n "Would you like to tail a log file? (y/N): "
@@ -887,8 +1080,26 @@ main() {
             echo "  3) ${GREEN}real-api.log${NC} - Real API calls (no proxy)"
             echo "  4) ${GREEN}server.log${NC} - Server logs"
             echo ""
-            echo -n "Enter your choice (1-4): "
+            echo -e "${CYAN}Flow logs:${NC}"
+            echo "  5) ${GREEN}sms.log${NC} - SMS flow"
+            echo "  6) ${GREEN}email.log${NC} - Email flow"
+            echo "  7) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
+            echo "  8) ${GREEN}voice.log${NC} - Voice flow"
+            echo "  9) ${GREEN}fido.log${NC} - FIDO2 flow"
+            echo ""
+            echo -e "${CYAN}App logs:${NC}"
+            echo "  10) ${GREEN}backend.log${NC} - Backend log"
+            echo "  11) ${GREEN}frontend.log${NC} - Frontend log"
+            echo "  12) ${GREEN}startup.log${NC} - Startup log"
+            echo ""
+            echo -n "Enter your choice (1-12, or press Enter for default): "
             read -r log_choice
+            
+            # Default to option 1 if no choice is made or invalid choice
+            if [ -z "$log_choice" ]; then
+                log_choice="1"
+                print_info "No choice entered, defaulting to option 1 (PingOne API log)"
+            fi
             
             # Determine which log file to tail based on user choice
             case "$log_choice" in
@@ -908,9 +1119,42 @@ main() {
                     LOG_FILE="logs/server.log"
                     LOG_DESCRIPTION="Server log"
                     ;;
+                5)
+                    LOG_FILE="logs/sms.log"
+                    LOG_DESCRIPTION="SMS flow log"
+                    ;;
+                6)
+                    LOG_FILE="logs/email.log"
+                    LOG_DESCRIPTION="Email flow log"
+                    ;;
+                7)
+                    LOG_FILE="logs/whatsapp.log"
+                    LOG_DESCRIPTION="WhatsApp flow log"
+                    ;;
+                8)
+                    LOG_FILE="logs/voice.log"
+                    LOG_DESCRIPTION="Voice flow log"
+                    ;;
+                9)
+                    LOG_FILE="logs/fido.log"
+                    LOG_DESCRIPTION="FIDO2 flow log"
+                    ;;
+                10)
+                    LOG_FILE="logs/backend.log"
+                    LOG_DESCRIPTION="Backend log"
+                    ;;
+                11)
+                    LOG_FILE="logs/frontend.log"
+                    LOG_DESCRIPTION="Frontend log"
+                    ;;
+                12)
+                    LOG_FILE="logs/startup.log"
+                    LOG_DESCRIPTION="Startup log"
+                    ;;
                 *)
-                    print_warning "Invalid choice. Skipping log tail."
-                    return 0
+                    print_warning "Invalid choice '$log_choice'. Defaulting to option 1 (PingOne API log)"
+                    LOG_FILE="logs/pingone-api.log"
+                    LOG_DESCRIPTION="PingOne API log"
                     ;;
             esac
             
