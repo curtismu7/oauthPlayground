@@ -20,10 +20,14 @@ export const CallbackHandlerV8U: React.FC = () => {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-		// Check if this is a user-login-callback - if so, redirect back to MFA flow
+		// Check if this is a user-login-callback or user-mfa-login-callback - if so, redirect back to MFA flow
 		// IMPORTANT: This must be checked FIRST before any unified flow logic
+		// CRITICAL: Both routes are required - /user-login-callback (generic) and /user-mfa-login-callback (MFA-specific)
 		const currentPath = window.location.pathname;
-		const isUserLoginCallback = currentPath === '/user-login-callback' || currentPath.includes('user-login-callback');
+		const isUserLoginCallback = currentPath === '/user-login-callback' || 
+			currentPath.includes('user-login-callback') ||
+			currentPath === '/user-mfa-login-callback' ||
+			currentPath.includes('user-mfa-login-callback');
 		
 		console.log(`${MODULE_TAG} Checking callback path:`, {
 			currentPath,
