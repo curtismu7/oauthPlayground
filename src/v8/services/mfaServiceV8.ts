@@ -240,12 +240,8 @@ export class MFAServiceV8 {
 				// fall back to worker token for device registration operations
 				// The 'oauth_completed' placeholder indicates successful user authentication, but device
 				// registration requires a worker token with proper API permissions
-				console.log(
-					`${MODULE_TAG} User flow detected but no real user token available, using worker token for device registration`
-				);
 				return await MFAServiceV8.getWorkerToken();
 			}
-			console.log(`${MODULE_TAG} Using user token (access token from Authorization Code Flow)`);
 			return userToken;
 		}
 
@@ -294,11 +290,6 @@ export class MFAServiceV8 {
 		const requestId = `mfa-allow-bypass-${Date.now()}`;
 
 		try {
-			console.log(`${MODULE_TAG} Allowing MFA bypass for user ${userId}`, {
-				environmentId,
-				requestId,
-			});
-
 			const body = {
 				environmentId,
 				userId,
@@ -356,10 +347,6 @@ export class MFAServiceV8 {
 		const requestId = `mfa-check-bypass-${Date.now()}`;
 
 		try {
-			console.log(`${MODULE_TAG} Checking MFA bypass status for user ${userId}`, {
-				environmentId,
-				requestId,
-			});
 
 			const body = {
 				environmentId,
@@ -411,7 +398,6 @@ export class MFAServiceV8 {
 	 * @returns Access token
 	 */
 	static async getWorkerToken(): Promise<string> {
-		console.log(`${MODULE_TAG} Getting worker token from WorkerTokenServiceV8`);
 
 		try {
 			const token = await workerTokenServiceV8.getToken();
@@ -491,7 +477,6 @@ export class MFAServiceV8 {
 		environmentId: string,
 		username: string
 	): Promise<UserLookupResult> {
-		console.log(`${MODULE_TAG} Looking up user by username`, { username });
 
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
@@ -596,27 +581,9 @@ export class MFAServiceV8 {
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
 
-			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 1: Getting token:`, {
-				tokenType,
-				hasUserToken: !!userToken,
-				tokenParams,
-			});
-
 			const accessToken = await MFAServiceV8.getToken(
 				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
 			);
-
-			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 2: Token retrieved:`, {
-				hasToken: !!accessToken,
-				tokenType: typeof accessToken,
-				tokenLength: accessToken ? String(accessToken).length : 0,
-				tokenPreview: accessToken
-					? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}`
-					: 'MISSING',
-				hasWhitespace: accessToken ? /\s/.test(String(accessToken)) : false,
-				hasNewlines: accessToken ? /[\r\n]/.test(String(accessToken)) : false,
-				hasBearerPrefix: accessToken ? /^Bearer\s+/i.test(String(accessToken)) : false,
-			});
 
 			// Validate user token has required scope for device registration
 			// Skip validation if userToken is 'oauth_completed' placeholder (we'll use worker token instead)
@@ -641,7 +608,6 @@ export class MFAServiceV8 {
 					console.error(`${MODULE_TAG} ${errorMessage}`);
 					throw new Error(errorMessage);
 				}
-				console.log(`${MODULE_TAG} ✅ User token validated - has required p1:create:device scope`);
 			}
 
 			// Registration uses Platform APIs only - NO MFA v1 APIs
@@ -704,11 +670,6 @@ export class MFAServiceV8 {
 			});
 
 			const trimmedToken = accessToken.trim();
-			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 3: Token trimmed:`, {
-				originalLength: accessToken.length,
-				trimmedLength: trimmedToken.length,
-				tokenPreview: `${trimmedToken.substring(0, 30)}...${trimmedToken.substring(Math.max(0, trimmedToken.length - 30))}`,
-			});
 
 			const requestBody: Record<string, unknown> = {
 				environmentId: params.environmentId,
@@ -720,15 +681,6 @@ export class MFAServiceV8 {
 						? (params as { tokenType?: 'worker' | 'user' }).tokenType
 						: undefined) || 'worker', // Explicitly send token type for server logging
 			};
-
-			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 4: Request body with token:`, {
-				hasWorkerToken: !!requestBody.workerToken,
-				workerTokenType: typeof requestBody.workerToken,
-				workerTokenLength: requestBody.workerToken ? String(requestBody.workerToken).length : 0,
-				workerTokenPreview: requestBody.workerToken
-					? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}`
-					: 'MISSING',
-			});
 
 			// Include phone for SMS, VOICE, and WHATSAPP devices
 			if (
@@ -796,30 +748,6 @@ export class MFAServiceV8 {
 				}
 			}
 
-			console.log(`${MODULE_TAG} 📊 REGISTRATION PAYLOAD DEBUG:`, {
-				type: requestBody.type,
-				status: requestBody.status || 'NOT SET',
-				'Status Type': typeof requestBody.status,
-				'Status Value': requestBody.status,
-				hasPhone: !!requestBody.phone,
-				hasEmail: !!requestBody.email,
-				nickname: requestBody.nickname,
-				userId: requestBody.userId,
-				environmentId: requestBody.environmentId,
-				hasPolicy: !!requestBody.policy,
-				policyId:
-					requestBody.policy && typeof requestBody.policy === 'object' && 'id' in requestBody.policy
-						? requestBody.policy.id
-						: requestBody.policy || 'NOT SET',
-				'Full Payload': JSON.stringify(requestBody, null, 2),
-			});
-			// Detailed status logging for debugging
-			console.log(`${MODULE_TAG} 📊 REGISTRATION PAYLOAD DEBUG:`, {
-				'Status in Payload': requestBody.status || 'MISSING',
-				'Status from params': params.status || 'NOT PROVIDED',
-				'Device Payload Status': devicePayload.status || 'NOT SET',
-				'Full Request Body': requestBody,
-			});
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -1029,32 +957,6 @@ export class MFAServiceV8 {
 			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
 			const publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
 
-			console.log(`${MODULE_TAG} Device registered successfully`, {
-				deviceId: dd.id,
-				userId: user.id,
-				status: dd.status,
-				nickname: dd.nickname,
-				environmentId: dd.environment?.id,
-				deviceType: dd.type,
-				isFIDO2: params.type === 'FIDO2',
-				isTOTP: params.type === 'TOTP',
-				isSMS: params.type === 'SMS',
-				isEMAIL: params.type === 'EMAIL',
-				expectedStatus: params.status || 'ACTIVE',
-				statusMatch: dd.status === (params.status || 'ACTIVE'),
-				hasSecret: !!dd.properties?.secret,
-				hasKeyUri: !!dd.properties?.keyUri,
-				hasDeviceActivateUri: !!deviceActivateUri,
-				// Per rightOTP.md: If device.activate URI is missing, device is ACTIVE
-				deviceIsActive: !deviceActivateUri || dd.status === 'ACTIVE',
-				// FIDO2-specific debugging
-				hasPublicKeyCredentialCreationOptions: !!dd.publicKeyCredentialCreationOptions,
-				publicKeyCredentialCreationOptionsLength: publicKeyOptionsLength,
-				publicKeyCredentialCreationOptionsPreview:
-					dd.publicKeyCredentialCreationOptions?.substring(0, 100) || 'N/A',
-				rpId: dd.rp?.id,
-				rpName: dd.rp?.name,
-			});
 
 			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
 			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
@@ -1065,13 +967,6 @@ export class MFAServiceV8 {
 				publicKeyOptions !== undefined && publicKeyOptions !== null && publicKeyOptions !== '';
 
 			if (hasPublicKeyOptionsValue && publicKeyOptions) {
-				console.log(`${MODULE_TAG} ✅ Found publicKeyCredentialCreationOptions in response:`, {
-					length: publicKeyOptions.length,
-					preview: publicKeyOptions.substring(0, 150),
-					deviceType: dd.type,
-					deviceId: dd.id,
-					type: typeof publicKeyOptions,
-				});
 			} else {
 				console.warn(`${MODULE_TAG} ⚠️ publicKeyCredentialCreationOptions NOT found in response:`, {
 					deviceType: dd.type,
@@ -1166,8 +1061,6 @@ export class MFAServiceV8 {
 		workerToken: string;
 		otpCheckUrl?: string; // Optional: URL from _links.otp.check.href
 	}): Promise<{ valid: boolean; status: string; message?: string }> {
-		console.log(`${MODULE_TAG} Validating OTP for device authentication`);
-
 		try {
 			// Validate worker token format
 			if (typeof params.workerToken !== 'string') {
@@ -1206,7 +1099,6 @@ export class MFAServiceV8 {
 				endpoint = params.otpCheckUrl;
 				requestBody = { otp: params.otp };
 				contentType = 'application/vnd.pingidentity.otp.check+json';
-				console.log(`${MODULE_TAG} Using otp.check URL from _links:`, endpoint);
 			} else {
 				// Fallback to our proxy endpoint
 				endpoint = '/api/pingone/mfa/validate-otp-for-device';
@@ -1217,15 +1109,7 @@ export class MFAServiceV8 {
 					workerToken: cleanToken,
 				};
 				contentType = 'application/json';
-				console.log(`${MODULE_TAG} Using fallback validate-otp-for-device endpoint`);
 			}
-
-			console.log(`${MODULE_TAG} Validating OTP`, {
-				deviceAuthId: params.deviceAuthId,
-				otpLength: params.otp.length,
-				tokenLength: cleanToken.length,
-				usingLinks: !!params.otpCheckUrl,
-			});
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -1301,10 +1185,6 @@ export class MFAServiceV8 {
 			}
 
 			const result = responseData as { status: string; message?: string };
-			console.log(`${MODULE_TAG} OTP validation result`, {
-				status: result.status,
-				valid: result.status === 'COMPLETED',
-			});
 
 			return {
 				valid: result.status === 'COMPLETED',
@@ -3330,11 +3210,6 @@ export class MFAServiceV8 {
 
 			// Check token status before attempting activation
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-			console.log(`${MODULE_TAG} 🔍 STEP 1: Token status check:`, {
-				isValid: tokenStatus.isValid,
-				status: tokenStatus.status,
-				message: tokenStatus.message,
-			});
 
 			if (!tokenStatus.isValid || tokenStatus.status === 'expired') {
 				const errorMessage =
@@ -3354,20 +3229,7 @@ export class MFAServiceV8 {
 				throw new Error(errorMessage + helpMessage);
 			}
 
-			console.log(`${MODULE_TAG} 🔍 STEP 2: Getting worker token from storage...`);
 			const accessToken = await MFAServiceV8.getWorkerToken();
-
-			console.log(`${MODULE_TAG} 🔍 STEP 3: Token retrieved from storage:`, {
-				hasToken: !!accessToken,
-				tokenType: typeof accessToken,
-				tokenLength: accessToken ? String(accessToken).length : 0,
-				tokenPreview: accessToken
-					? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}`
-					: 'MISSING',
-				hasWhitespace: accessToken ? /\s/.test(String(accessToken)) : false,
-				hasNewlines: accessToken ? /[\r\n]/.test(String(accessToken)) : false,
-				hasBearerPrefix: accessToken ? /^Bearer\s+/i.test(String(accessToken)) : false,
-			});
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
@@ -3377,13 +3239,6 @@ export class MFAServiceV8 {
 
 			// Validate token format (should be a JWT with 3 parts separated by dots)
 			const tokenParts = accessToken.trim().split('.');
-			console.log(`${MODULE_TAG} 🔍 STEP 4: Token format validation:`, {
-				tokenLength: accessToken.length,
-				tokenPreview: `${accessToken.substring(0, 30)}...${accessToken.substring(Math.max(0, accessToken.length - 30))}`,
-				partsCount: tokenParts.length,
-				partsLengths: tokenParts.map((p, i) => ({ part: i, length: p.length })),
-				allPartsValid: tokenParts.length === 3 && tokenParts.every((part) => part.length > 0),
-			});
 
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
 				console.error(`${MODULE_TAG} ❌ Invalid token format`, {
@@ -3396,13 +3251,6 @@ export class MFAServiceV8 {
 			}
 
 			const cleanToken = accessToken.trim();
-			console.log(`${MODULE_TAG} 🔍 STEP 5: Token after trim:`, {
-				originalLength: accessToken.length,
-				cleanedLength: cleanToken.length,
-				tokenPreview: `${cleanToken.substring(0, 30)}...${cleanToken.substring(Math.max(0, cleanToken.length - 30))}`,
-				hasWhitespace: /\s/.test(cleanToken),
-				hasNewlines: /[\r\n]/.test(cleanToken),
-			});
 
 			// Build fido2Data according to rightFIDO2.md
 			// Frontend should send: { origin: string, attestation: JSON.stringify(attestationObj) }
@@ -3433,23 +3281,6 @@ export class MFAServiceV8 {
 				},
 			};
 
-			console.log(`${MODULE_TAG} 🔍 STEP 6: Request body constructed:`, {
-				hasWorkerToken: !!requestBody.workerToken,
-				workerTokenType: typeof requestBody.workerToken,
-				workerTokenLength: requestBody.workerToken ? String(requestBody.workerToken).length : 0,
-				workerTokenPreview: requestBody.workerToken
-					? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}`
-					: 'MISSING',
-				workerTokenInBody: JSON.stringify(requestBody).includes('workerToken'),
-				requestBodyKeys: Object.keys(requestBody),
-				requestBodyStringified: JSON.stringify(requestBody).substring(0, 500),
-			});
-
-			console.log(`${MODULE_TAG} ✅ Token validation passed - ready to send to backend`, {
-				tokenLength: cleanToken.length,
-				tokenPreview: `${cleanToken.substring(0, 20)}...${cleanToken.substring(cleanToken.length - 20)}`,
-				partsCount: tokenParts.length,
-			});
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -3463,18 +3294,7 @@ export class MFAServiceV8 {
 				flowType: 'mfa',
 			});
 
-			console.log(`${MODULE_TAG} 🔍 STEP 7: Sending request to backend proxy...`);
 			const requestBodyString = JSON.stringify(requestBody);
-			console.log(`${MODULE_TAG} 🔍 STEP 7a: Request body stringified:`, {
-				bodyLength: requestBodyString.length,
-				bodyPreview: requestBodyString.substring(0, 500),
-				hasWorkerToken: requestBodyString.includes('workerToken'),
-				workerTokenPosition: requestBodyString.indexOf('workerToken'),
-				workerTokenValuePreview: requestBodyString.substring(
-					requestBodyString.indexOf('"workerToken":"') + 15,
-					requestBodyString.indexOf('"workerToken":"') + 65
-				),
-			});
 
 			let response: Response;
 			try {
@@ -3485,11 +3305,6 @@ export class MFAServiceV8 {
 					},
 					body: requestBodyString,
 					retry: { maxAttempts: 3 },
-				});
-				console.log(`${MODULE_TAG} 🔍 STEP 8: Backend response received:`, {
-					status: response.status,
-					statusText: response.statusText,
-					hasBody: !!response.body,
 				});
 			} catch (error) {
 				apiCallTrackerService.updateApiCallResponse(
