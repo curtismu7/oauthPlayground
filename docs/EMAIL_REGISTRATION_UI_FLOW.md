@@ -55,6 +55,10 @@ flowchart TD
   - **User Flow:** "Start Authentication" button → Opens PingOne Authentication Modal
   - **User Token Management:** User token display with "Clear" button (when token exists) or "Login with PingOne" button (when token is missing)
 - **Fallback:** "Next Step" button is always available in the footer as a backup for manual progression to Step 1 (enabled when all prerequisites are met: environment ID, username, device policy, and valid token (worker or user))
+- **'oauth_completed' Placeholder:**
+  - After successful OAuth authentication, `userToken` is set to `'oauth_completed'` (placeholder, not actual token)
+  - This placeholder indicates successful authentication and is accepted by validation logic
+  - Device registration operations automatically use worker token even in user flows (see "User Token Handling" section below)
 
 ### Step: PingOne Authentication (User Flow Only)
 - **Modal:** User Login Modal (`UserLoginModalV8`)
