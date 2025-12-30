@@ -8,7 +8,7 @@
 
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
+const _MODULE_TAG = '[🔑 WORKER-TOKEN-STATUS-V8]';
 
 export type TokenStatus = 'valid' | 'expiring-soon' | 'expired' | 'missing';
 
@@ -91,7 +91,6 @@ export const checkWorkerTokenStatus = (
 
 	// No token
 	if (!resolvedToken) {
-		console.log(`${MODULE_TAG} No token found`);
 		return {
 			status: 'missing',
 			message: 'No worker token. Click "Add Token" to generate one.',
@@ -101,7 +100,6 @@ export const checkWorkerTokenStatus = (
 
 	// Token exists but no expiry
 	if (!resolvedExpiry) {
-		console.log(`${MODULE_TAG} Token exists but expiry unknown`);
 		return {
 			status: 'valid',
 			message: 'Worker token present (expiry unknown)',
@@ -112,7 +110,6 @@ export const checkWorkerTokenStatus = (
 	// Check if expired
 	const now = Date.now();
 	if (resolvedExpiry <= now) {
-		console.log(`${MODULE_TAG} Token expired`);
 		return {
 			status: 'expired',
 			message:
@@ -128,7 +125,6 @@ export const checkWorkerTokenStatus = (
 
 	// Expiring soon (within 15 minutes)
 	if (minutesRemaining <= 15) {
-		console.log(`${MODULE_TAG} Token expiring soon`, { minutesRemaining });
 		return {
 			status: 'expiring-soon',
 			message: `Worker token expires in ${timeLabel}`,
@@ -139,7 +135,6 @@ export const checkWorkerTokenStatus = (
 	}
 
 	// Valid
-	console.log(`${MODULE_TAG} Token valid`, { minutesRemaining });
 	return {
 		status: 'valid',
 		message: `Worker token valid (${timeLabel} remaining)`,

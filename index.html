@@ -80,6 +80,43 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
+    // Capture OAuth callback code immediately on page load (before React mounts)
+    (function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      const error = urlParams.get('error');
+      const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+      const mfaOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return');
+      
+      if (code || error) {
+        // Log immediately to debug.log via fetch
+        fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'index.html:inline-script',
+            message: 'OAuth callback detected on page load (before React)',
+            data: {
+              hasCode: !!code,
+              hasError: !!error,
+              hasState: !!state,
+              hasUserLoginState: !!hasUserLoginState,
+              mfaOAuthCallbackReturn,
+              pathname: window.location.pathname,
+              fullUrl: window.location.href,
+              search: window.location.search
+            },
+            timestamp: Date.now(),
+            sessionId: 'debug-session',
+            runId: 'run3',
+            hypothesisId: 'F'
+          })
+        }).catch(function() {});
+      }
+    })();
+  </script>
+  <script>
     // Remove initial spinner once React has loaded
     window.addEventListener('load', function() {
       setTimeout(function() {
