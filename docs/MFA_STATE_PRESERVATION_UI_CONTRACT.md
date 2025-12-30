@@ -1,7 +1,7 @@
 # MFA Flow State Preservation UI Contract
 
-**Last Updated:** 2025-02-05  
-**Version:** 7.7.2  
+**Last Updated:** 2025-12-30  
+**Version:** 7.8.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -178,6 +178,97 @@ if (isOAuthCallbackReturn && credentials.userToken?.trim() && nav.currentStep ==
 
 ---
 
+## User Token Handling and 'oauth_completed' Placeholder
+
+### Overview
+
+When OAuth authentication succeeds in user flows, the application stores a placeholder value `'oauth_completed'` in `credentials.userToken` to indicate successful authentication. This placeholder is used instead of the actual user access token because:
+
+1. **The actual user token is not needed** - The application only needs to confirm that OAuth authentication was successful
+2. **Device registration requires worker token** - All device registration API calls use worker tokens regardless of flow type (user or admin)
+3. **Simplified token management** - Avoids storing and managing user access tokens that aren't used
+
+### Implementation Details
+
+**Location:** `src/v8/services/mfaServiceV8.ts`
+
+#### Token Retrieval Logic
+
+The `MFAServiceV8.getToken()` method handles token selection:
+
+```typescript
+static async getToken(credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }): Promise<string> {
+  const tokenType = credentials?.tokenType || 'worker';
+  
+  if (tokenType === 'user') {
+    const userToken = credentials?.userToken?.trim();
+    if (!userToken || userToken === 'oauth_completed') {
+      // For user flows with 'oauth_completed' placeholder, use worker token
+      // The placeholder indicates successful user authentication, but device
+      // registration requires a worker token with proper API permissions
+      return await MFAServiceV8.getWorkerToken();
+    }
+    // If a real user token is provided, use it
+    return userToken;
+  }
+  
+  // Default to worker token
+  return await MFAServiceV8.getWorkerToken();
+}
+```
+
+#### Scope Validation
+
+Scope validation is skipped when `userToken === 'oauth_completed'`:
+
+```typescript
+// Validate user token has required scope for device registration
+// Skip validation if userToken is 'oauth_completed' placeholder (we'll use worker token instead)
+if (paramsWithToken.tokenType === 'user' && paramsWithToken.userToken && paramsWithToken.userToken !== 'oauth_completed') {
+  const tokenScopes = MFAServiceV8.getTokenScopes(paramsWithToken.userToken);
+  if (!tokenScopes.includes('p1:create:device')) {
+    throw new Error('User token is missing required scope...');
+  }
+}
+```
+
+### Token Flow Behavior
+
+| Flow Type | tokenType | userToken Value | Token Used for Device Registration | Scope Validation |
+|-----------|-----------|-----------------|------------------------------------|------------------|
+| Admin Flow | `'worker'` | (not used) | Worker Token | N/A |
+| User Flow (OAuth Completed) | `'user'` | `'oauth_completed'` | **Worker Token** | Skipped |
+| User Flow (Real Token) | `'user'` | `<actual JWT token>` | User Token | Validated |
+
+### Key Points
+
+1. **All device registration operations use worker tokens** - Even in user flows, device registration requires a worker token with proper API permissions (`p1:create:device` scope)
+
+2. **The 'oauth_completed' placeholder**:
+   - Stored in `credentials.userToken` after successful OAuth authentication
+   - Indicates successful user authentication without storing the actual token
+   - Accepted by validation logic (`!!credentials.userToken?.trim()` returns `true`)
+   - Triggers fallback to worker token in `MFAServiceV8.getToken()`
+
+3. **Benefits**:
+   - Avoids misleading "missing scope" errors
+   - Simplifies token management
+   - Ensures proper API permissions for device registration
+   - Maintains user flow semantics (tokenType remains 'user')
+
+### Applies To All OTP Flows
+
+This behavior applies to all MFA OTP flows that use user authentication:
+- ✅ SMS User Registration Flow
+- ✅ Email User Registration Flow
+- ✅ WhatsApp User Registration Flow
+- ✅ TOTP User Registration Flow (if OAuth is implemented)
+- ✅ FIDO2 User Registration Flow (if OAuth is implemented)
+
+All flows use the shared `MFAServiceV8.getToken()` method, so they automatically benefit from this behavior.
+
+---
+
 ## Route Requirements
 
 ### OAuth Callback Route
@@ -272,6 +363,7 @@ The return path stored in `user_login_return_to_mfa` must:
 
 ## Version History
 
+- **v7.8.0** (2025-12-30): Added documentation for 'oauth_completed' placeholder behavior and worker token fallback for device registration
 - **v7.7.2** (2025-02-05): Documented state preservation mechanism after implementation
 - **v7.7.1**: Initial implementation of state preservation for user flows
 
@@ -282,4 +374,5 @@ The return path stored in `user_login_return_to_mfa` must:
 - State preservation uses `sessionStorage` (not `localStorage`) because it should only persist for the current browser session
 - Return paths are stored as plain strings (not JSON) for simplicity and reliability
 - The marker-based approach (`mfa_oauth_callback_return`) is used to signal state restoration without relying on URL parameters that might conflict with OAuth callback parameters
+- **Important:** The `'oauth_completed'` placeholder in `userToken` is intentional and triggers worker token usage for device registration operations. This prevents misleading "missing scope" errors while ensuring proper API permissions.
 
