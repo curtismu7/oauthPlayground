@@ -119,6 +119,12 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 		const trimmedToken = token.trim();
 		
+		// Special case: 'oauth_completed' is a placeholder indicating successful OAuth exchange
+		// We don't need the actual token, just confirmation that OAuth succeeded
+		if (trimmedToken === 'oauth_completed') {
+			return 'active';
+		}
+		
 		// Remove any whitespace or newlines that might have been introduced
 		const cleanToken = trimmedToken.replace(/\s+/g, '');
 
@@ -433,16 +439,21 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 
 	// Get user token status display
 	const getUserTokenStatusDisplay = () => {
+		// Special message for oauth_completed placeholder
+		const isOAuthCompleted = userToken === 'oauth_completed';
+		const statusMessage = isOAuthCompleted
+			? 'Authentication successful - ready to proceed'
+			: userTokenStatus === 'active'
+				? 'User token is valid and active'
+				: userTokenStatus === 'activation_required'
+					? 'User token is expired or requires activation'
+					: userTokenStatus === 'invalid'
+						? 'User token is invalid or missing'
+						: 'User token status unknown';
+		
 		return {
 			icon: userTokenStatus === 'active' ? '✅' : userTokenStatus === 'activation_required' ? '⚠️' : '❌',
-			message:
-				userTokenStatus === 'active'
-					? 'User token is valid and active'
-					: userTokenStatus === 'activation_required'
-						? 'User token is expired or requires activation'
-						: userTokenStatus === 'invalid'
-							? 'User token is invalid or missing'
-							: 'User token status unknown',
+			message: statusMessage,
 			color: userTokenStatus === 'active' ? '#10b981' : userTokenStatus === 'activation_required' ? '#f59e0b' : '#ef4444',
 			background: userTokenStatus === 'active' ? '#d1fae5' : userTokenStatus === 'activation_required' ? '#fef3c7' : '#fee2e2',
 			textColor: userTokenStatus === 'active' ? '#065f46' : userTokenStatus === 'activation_required' ? '#92400e' : '#991b1b',
@@ -621,7 +632,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										border: '1px solid #10b981',
 										borderRadius: '6px',
 										fontSize: '12px',
-										fontFamily: 'monospace',
+										fontFamily: userToken === 'oauth_completed' ? 'inherit' : 'monospace',
 										marginBottom: '10px',
 										background: '#f0fdf4',
 										color: '#065f46',
@@ -630,7 +641,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										gap: '8px',
 									}}>
 										<span style={{ fontSize: '16px' }}>✓</span>
-										<span style={{ flex: 1, wordBreak: 'break-all' }}>{userToken.substring(0, 50)}...</span>
+										<span style={{ flex: 1, wordBreak: 'break-all' }}>
+											{userToken === 'oauth_completed' ? 'Authentication completed successfully' : `${userToken.substring(0, 50)}...`}
+										</span>
 										<button
 											type="button"
 											onClick={() => {
