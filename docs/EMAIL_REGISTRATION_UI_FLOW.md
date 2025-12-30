@@ -85,15 +85,16 @@ flowchart TD
 - **Navigation:** Auto-navigates to Step 1 (Device Registration Modal) after 2 seconds
 - **Fallback:** "Continue to Device Registration" button is always available for manual navigation if auto-advance fails or user wants to proceed immediately
 
-### Step 1: Email Device Registration Modal
+### Step 1: Email Device Registration/Selection Modal
 - **Route:** `/v8/mfa/register/email/device` (Step 1)
 - **Display:** Modal overlay (fixed position, centered)
-- **Purpose:** Register email device for user
+- **Purpose:** Register new email device or select existing device for user
 - **Fields:**
   - Email address (auto-filled from PingOne if available)
   - Device nickname (optional)
 - **Actions:**
-  - "Register Device" button
+  - "Register Device" button (for new devices)
+  - Device selection (for existing devices)
 - **Modal Behavior:**
   - Modal is displayed as a fixed overlay (`position: fixed`) on top of the page
   - Centered on screen with semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
@@ -101,17 +102,36 @@ flowchart TD
   - Has a close button (X) in the header to return to previous step
   - Backdrop click does NOT close modal (requires explicit close action)
 - **Process:**
-  1. User enters email address (if not auto-filled)
-  2. User enters device nickname (optional)
+  1. User enters email address (if not auto-filled) or selects existing device
+  2. User enters device nickname (optional, for new devices)
   3. Clicks "Register Device" button
   4. API call: `POST /v1/environments/{envId}/users/{userId}/devices`
   5. PingOne responds with device status:
-     - **ACTIVE:** Device is immediately ready → Auto-advance to Step 2 (shows Success Page immediately)
-     - **ACTIVATION_REQUIRED:** OTP automatically sent → Auto-advance to Step 2 (shows OTP Validation form)
+     - **ACTIVE:** Device is immediately ready → Navigate to Step 1 (back to device selection)
+     - **ACTIVATION_REQUIRED:** OTP automatically sent by PingOne → Auto-advance to Step 3 (Validate OTP), skipping Step 2
 - **Fallback:** "Next Step" button is always available in the footer as a backup for manual progression if auto-advance fails or user wants to proceed immediately
 
-### Step 2: OTP Validation OR Success Page (Conditional)
+### Step 2: Send OTP Code
 - **Route:** `/v8/mfa/register/email/device` (Step 2)
+- **Purpose:** Send OTP code to registered email address
+- **Behavior:**
+  - **For ACTIVATION_REQUIRED devices:** This step is automatically skipped - PingOne sends OTP during device registration
+  - **For existing ACTIVE devices:** User can manually send OTP for device authentication
+- **Features:**
+  - "Send OTP Code" button
+  - "Resend OTP Code" button (after initial send)
+  - Device ID and email address display
+  - Success message after OTP is sent
+  - Error handling for send failures
+- **Process:**
+  1. User clicks "Send OTP Code" button
+  2. API call: `POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}/otp/send`
+  3. OTP is sent to email address
+  4. Navigate to Step 3 (Validate OTP)
+- **Note:** For newly registered devices with `ACTIVATION_REQUIRED` status, this step is skipped because PingOne automatically sends the OTP during device registration.
+
+### Step 3: Validate OTP OR Success Page (Conditional)
+- **Route:** `/v8/mfa/register/email/device` (Step 3)
 - **Display:** 
   - OTP Validation: Inline content (not a modal)
   - Success: Full page component
@@ -125,10 +145,10 @@ flowchart TD
   - "Resend OTP" button (if needed)
   - Error display for invalid OTP attempts
 - **OTP Validation Process:**
-  1. User receives OTP code via email (automatically sent by PingOne during registration)
+  1. User receives OTP code via email (automatically sent by PingOne during registration, or manually sent from Step 2)
   2. User enters OTP code
   3. API call: `POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}/otp/check`
-  4. If valid → Device status changes to ACTIVE → Success Page is shown (same Step 2, re-renders automatically)
+  4. If valid → Device status changes to ACTIVE → Success Page is shown (same Step 3, re-renders automatically)
   5. If invalid → Show error, allow retry on same step
 - **Fallback:** "Next Step" button is always available in the footer as a backup for manual progression if needed (though typically not needed since OTP validation triggers automatic re-render to Success Page)
 - **Success Page Features:**
@@ -139,8 +159,7 @@ flowchart TD
   - Documentation button (opens documentation modal)
 - **Navigation:**
   - After successful OTP validation, device status becomes ACTIVE
-  - Step 2 re-renders and shows Success Page (no navigation to Step 3)
-  - Step 3 is not used in this flow (`renderStep3={() => null}`)
+  - Step 3 re-renders and shows Success Page (no navigation to Step 4)
 
 ## Flow Paths Summary
 
@@ -149,10 +168,11 @@ flowchart TD
 MFA Hub 
   → Email Configuration (Step 0)
   → Email Device Registration Modal (Step 1)
-  → [ACTIVE] Success Page (Step 2 - shown immediately)
+  → [ACTIVE] Return to Step 1 (device selection)
   OR
-  → [ACTIVATION_REQUIRED] OTP Validation (Step 2)
-    → After successful OTP validation: Success Page (Step 2 - re-renders)
+  → [ACTIVATION_REQUIRED] Skip Step 2 (Send OTP - automatic)
+    → OTP Validation (Step 3)
+      → After successful OTP validation: Success Page (Step 3 - re-renders)
 ```
 
 ### User Flow Path (User Token via PingOne Auth)
@@ -163,13 +183,14 @@ MFA Hub
   → OAuth Callback
   → Authentication Success Modal
   → Email Device Registration Modal (Step 1)
-  → [ACTIVE] Success Page (Step 2 - shown immediately)
+  → [ACTIVE] Return to Step 1 (device selection)
   OR
-  → [ACTIVATION_REQUIRED] OTP Validation (Step 2)
-    → After successful OTP validation: Success Page (Step 2 - re-renders)
+  → [ACTIVATION_REQUIRED] Skip Step 2 (Send OTP - automatic)
+    → OTP Validation (Step 3)
+      → After successful OTP validation: Success Page (Step 3 - re-renders)
 ```
 
-**Note:** Step 2 is a conditional step that shows either OTP Validation OR Success Page depending on device status. After successful OTP validation, the device status becomes ACTIVE and Step 2 re-renders to show the Success Page (no navigation to Step 3).
+**Note:** Step 2 (Send OTP) is automatically skipped for devices registered with `ACTIVATION_REQUIRED` status because PingOne sends the OTP automatically during device registration. Step 3 is a conditional step that shows either OTP Validation OR Success Page depending on device status. After successful OTP validation, the device status becomes ACTIVE and Step 3 re-renders to show the Success Page (no navigation to Step 4).
 
 ## Key Differences: Admin vs User Flow
 
@@ -178,22 +199,23 @@ MFA Hub
 | **Token Type** | Worker Token | User Token (from PingOne Auth) |
 | **Authentication** | Not required | Required (PingOne OAuth) |
 | **Device Status** | Can be ACTIVE or ACTIVATION_REQUIRED | Always ACTIVATION_REQUIRED |
-| **OTP Step** | Optional (only if ACTIVATION_REQUIRED) | Always required |
+| **OTP Step (Step 2)** | Optional (only if ACTIVATION_REQUIRED) - automatically skipped, OTP sent by PingOne | Always required - automatically skipped, OTP sent by PingOne |
+| **Validation Step (Step 3)** | Required (if ACTIVATION_REQUIRED) | Always required |
 | **Auto-advance** | From Config → Device Registration Modal | From Auth Success Modal → Device Registration Modal |
 | **Fallback Buttons** | "Next Step" button always available in footer | "Next Step" button always available in footer |
 
 ## Step Structure
 
-The Email Registration flow uses **3 steps** (Step 0, Step 1, Step 2):
-- **Step Labels:** `['Configure', 'Register Device', 'Validate']`
+The Email Registration flow uses **4 steps** (Step 0, Step 1, Step 2, Step 3):
+- **Step Labels:** `['Configure', 'Select/Register Device', 'Send OTP', 'Validate']`
 - **Step 0:** Configuration Page
-- **Step 1:** Device Registration Modal
-- **Step 2:** Conditional step - shows either:
-  - OTP Validation form (if `ACTIVATION_REQUIRED`)
-  - Success Page (if `ACTIVE`)
-- **Step 3:** Not used (`renderStep3={() => null}`)
+- **Step 1:** Device Registration/Selection Modal
+- **Step 2:** Send OTP Code (can be skipped for ACTIVATION_REQUIRED devices - OTP is sent automatically)
+- **Step 3:** Validate OTP (conditional - shows Success Page if device is ACTIVE)
 
-After successful OTP validation in Step 2, the device status becomes `ACTIVE` and Step 2 re-renders to show the Success Page without navigating to a new step.
+**Important:** When a device is registered with `ACTIVATION_REQUIRED` status, Step 2 (Send OTP) is automatically skipped and the flow navigates directly to Step 3 (Validate) because PingOne automatically sends the OTP during device registration.
+
+After successful OTP validation in Step 3, the device status becomes `ACTIVE` and Step 3 re-renders to show the Success Page.
 
 ## Notes
 
