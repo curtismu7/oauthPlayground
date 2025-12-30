@@ -150,7 +150,6 @@ class WorkerTokenServiceV8 {
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
 		// Try memory cache first
 		if (this.memoryCache) {
-			console.log(`${MODULE_TAG} Loaded from memory cache`);
 			return this.extractCredentials(this.memoryCache);
 		}
 
@@ -160,7 +159,6 @@ class WorkerTokenServiceV8 {
 			if (stored) {
 				const data: WorkerTokenData = JSON.parse(stored);
 				this.memoryCache = data;
-				console.log(`${MODULE_TAG} Loaded from browser storage`);
 				return this.extractCredentials(data);
 			}
 		} catch (error) {
@@ -187,14 +185,12 @@ class WorkerTokenServiceV8 {
 				} catch (error) {
 					console.warn(`${MODULE_TAG} Failed to restore to browser storage`, error);
 				}
-				console.log(`${MODULE_TAG} Loaded from IndexedDB backup`);
 				return this.extractCredentials(data);
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
 		}
 
-		console.log(`${MODULE_TAG} No credentials found in any storage`);
 		return null;
 	}
 
