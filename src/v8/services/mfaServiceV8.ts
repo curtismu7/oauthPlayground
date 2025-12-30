@@ -76,15 +76,7 @@ interface OTPValidationError extends Error {
 }
 
 export interface RegisterDeviceParams extends MFACredentials {
-	type:
-		| 'SMS'
-		| 'EMAIL'
-		| 'TOTP'
-		| 'FIDO2'
-		| 'MOBILE'
-		| 'OATH_TOKEN'
-		| 'VOICE'
-		| 'WHATSAPP';
+	type: 'SMS' | 'EMAIL' | 'TOTP' | 'FIDO2' | 'MOBILE' | 'OATH_TOKEN' | 'VOICE' | 'WHATSAPP';
 	phone?: string; // Required for SMS, VOICE, WHATSAPP
 	email?: string; // Required for EMAIL
 	name?: string;
@@ -234,19 +226,29 @@ export class MFAServiceV8 {
 	 * @param credentials - MFA credentials that may contain tokenType and userToken
 	 * @returns Access token (either worker token or user token)
 	 */
-	static async getToken(credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }): Promise<string> {
+	static async getToken(credentials?: {
+		tokenType?: 'worker' | 'user';
+		userToken?: string;
+	}): Promise<string> {
 		const tokenType = credentials?.tokenType || 'worker';
-		
+
 		if (tokenType === 'user') {
 			// Use user token (access token from Authorization Code Flow)
 			const userToken = credentials?.userToken?.trim();
-			if (!userToken) {
-				throw new Error('User token is not available. Please enter an access token from the Authorization Code Flow.');
+			if (!userToken || userToken === 'oauth_completed') {
+				// For user flows, if we don't have a real user token (or it's just the placeholder),
+				// fall back to worker token for device registration operations
+				// The 'oauth_completed' placeholder indicates successful user authentication, but device
+				// registration requires a worker token with proper API permissions
+				console.log(
+					`${MODULE_TAG} User flow detected but no real user token available, using worker token for device registration`
+				);
+				return await MFAServiceV8.getWorkerToken();
 			}
 			console.log(`${MODULE_TAG} Using user token (access token from Authorization Code Flow)`);
 			return userToken;
 		}
-		
+
 		// Default to worker token
 		return await MFAServiceV8.getWorkerToken();
 	}
@@ -265,7 +267,7 @@ export class MFAServiceV8 {
 			const normalized = rawPayload.replace(/-/g, '+').replace(/_/g, '/');
 			const padded = normalized + '='.repeat((4 - (normalized.length % 4 || 4)) % 4);
 			const payload = JSON.parse(atob(padded));
-			
+
 			const rawScopes: string[] | string | undefined = payload.scp ?? payload.scope;
 			const scopes: string[] = [];
 			if (Array.isArray(rawScopes)) {
@@ -284,7 +286,10 @@ export class MFAServiceV8 {
 	 * Allow MFA bypass for a user
 	 * Uses backend proxy: POST /api/pingone/mfa/allow-bypass
 	 */
-	static async allowMfaBypass(environmentId: string, userId: string): Promise<Record<string, unknown>> {
+	static async allowMfaBypass(
+		environmentId: string,
+		userId: string
+	): Promise<Record<string, unknown>> {
 		const token = await MFAServiceV8.getWorkerToken();
 		const requestId = `mfa-allow-bypass-${Date.now()}`;
 
@@ -312,7 +317,10 @@ export class MFAServiceV8 {
 			const data = (await response.json()) as Record<string, unknown>;
 
 			if (!response.ok) {
-				const errorMsg = (data as PingOneResponse).message || (data as PingOneResponse).error || 'Failed to allow MFA bypass';
+				const errorMsg =
+					(data as PingOneResponse).message ||
+					(data as PingOneResponse).error ||
+					'Failed to allow MFA bypass';
 				console.error(`${MODULE_TAG} Error allowing MFA bypass:`, {
 					status: response.status,
 					error: errorMsg,
@@ -340,7 +348,10 @@ export class MFAServiceV8 {
 	 * Check MFA bypass status for a user
 	 * Uses backend proxy: POST /api/pingone/mfa/check-bypass
 	 */
-	static async checkMfaBypassStatus(environmentId: string, userId: string): Promise<Record<string, unknown>> {
+	static async checkMfaBypassStatus(
+		environmentId: string,
+		userId: string
+	): Promise<Record<string, unknown>> {
 		const token = await MFAServiceV8.getWorkerToken();
 		const requestId = `mfa-check-bypass-${Date.now()}`;
 
@@ -368,7 +379,10 @@ export class MFAServiceV8 {
 			const data = (await response.json()) as Record<string, unknown>;
 
 			if (!response.ok) {
-				const errorMsg = (data as PingOneResponse).message || (data as PingOneResponse).error || 'Failed to check MFA bypass status';
+				const errorMsg =
+					(data as PingOneResponse).message ||
+					(data as PingOneResponse).error ||
+					'Failed to check MFA bypass status';
 				console.error(`${MODULE_TAG} Error checking MFA bypass:`, {
 					status: response.status,
 					error: errorMsg,
@@ -571,54 +585,67 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-		// Get appropriate token (worker or user) based on credentials
-		const paramsWithToken = params as RegisterDeviceParams & { tokenType?: 'worker' | 'user'; userToken?: string };
-		const tokenType = paramsWithToken.tokenType;
-		const userToken = paramsWithToken.userToken;
-		const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-		if (tokenType) tokenParams.tokenType = tokenType;
-		if (userToken) tokenParams.userToken = userToken;
-		
-		console.log(`${MODULE_TAG} 🔍 REGISTER STEP 1: Getting token:`, {
-			tokenType,
-			hasUserToken: !!userToken,
-			tokenParams,
-		});
-		
-		const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
-		
-		console.log(`${MODULE_TAG} 🔍 REGISTER STEP 2: Token retrieved:`, {
-			hasToken: !!accessToken,
-			tokenType: typeof accessToken,
-			tokenLength: accessToken ? String(accessToken).length : 0,
-			tokenPreview: accessToken ? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}` : 'MISSING',
-			hasWhitespace: accessToken ? /\s/.test(String(accessToken)) : false,
-			hasNewlines: accessToken ? /[\r\n]/.test(String(accessToken)) : false,
-			hasBearerPrefix: accessToken ? /^Bearer\s+/i.test(String(accessToken)) : false,
-		});
+			// Get appropriate token (worker or user) based on credentials
+			const paramsWithToken = params as RegisterDeviceParams & {
+				tokenType?: 'worker' | 'user';
+				userToken?: string;
+			};
+			const tokenType = paramsWithToken.tokenType;
+			const userToken = paramsWithToken.userToken;
+			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
+			if (tokenType) tokenParams.tokenType = tokenType;
+			if (userToken) tokenParams.userToken = userToken;
 
-		// Validate user token has required scope for device registration
-		if (paramsWithToken.tokenType === 'user' && paramsWithToken.userToken) {
-			const tokenScopes = MFAServiceV8.getTokenScopes(paramsWithToken.userToken);
-			if (!tokenScopes.includes('p1:create:device')) {
-				const errorMessage = `User token is missing required scope "p1:create:device". ` +
-					`Token scopes: ${tokenScopes.join(', ') || 'none'}. ` +
-					`\n\nTo fix this:\n` +
-					`1. Go to PingOne Admin Console → Applications → Your OAuth Application\n` +
-					`2. Navigate to the "Scopes" or "Resource Access" section\n` +
-					`3. Ensure "p1:create:device" scope is enabled/added to the application\n` +
-					`4. Verify the user has permission to use this scope\n` +
-					`5. Log in again using the User Login modal (the scope is already requested: "openid profile email p1:create:device")\n\n` +
-					`Note: The scope is being requested in the authorization URL, but PingOne is only granting "openid". ` +
-					`This indicates the OAuth application configuration needs to be updated.`;
-				console.error(`${MODULE_TAG} ${errorMessage}`);
-				throw new Error(errorMessage);
+			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 1: Getting token:`, {
+				tokenType,
+				hasUserToken: !!userToken,
+				tokenParams,
+			});
+
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
+
+			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 2: Token retrieved:`, {
+				hasToken: !!accessToken,
+				tokenType: typeof accessToken,
+				tokenLength: accessToken ? String(accessToken).length : 0,
+				tokenPreview: accessToken
+					? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}`
+					: 'MISSING',
+				hasWhitespace: accessToken ? /\s/.test(String(accessToken)) : false,
+				hasNewlines: accessToken ? /[\r\n]/.test(String(accessToken)) : false,
+				hasBearerPrefix: accessToken ? /^Bearer\s+/i.test(String(accessToken)) : false,
+			});
+
+			// Validate user token has required scope for device registration
+			// Skip validation if userToken is 'oauth_completed' placeholder (we'll use worker token instead)
+			if (
+				paramsWithToken.tokenType === 'user' &&
+				paramsWithToken.userToken &&
+				paramsWithToken.userToken !== 'oauth_completed'
+			) {
+				const tokenScopes = MFAServiceV8.getTokenScopes(paramsWithToken.userToken);
+				if (!tokenScopes.includes('p1:create:device')) {
+					const errorMessage =
+						`User token is missing required scope "p1:create:device". ` +
+						`Token scopes: ${tokenScopes.join(', ') || 'none'}. ` +
+						`\n\nTo fix this:\n` +
+						`1. Go to PingOne Admin Console → Applications → Your OAuth Application\n` +
+						`2. Navigate to the "Scopes" or "Resource Access" section\n` +
+						`3. Ensure "p1:create:device" scope is enabled/added to the application\n` +
+						`4. Verify the user has permission to use this scope\n` +
+						`5. Log in again using the User Login modal (the scope is already requested: "openid profile email p1:create:device")\n\n` +
+						`Note: The scope is being requested in the authorization URL, but PingOne is only granting "openid". ` +
+						`This indicates the OAuth application configuration needs to be updated.`;
+					console.error(`${MODULE_TAG} ${errorMessage}`);
+					throw new Error(errorMessage);
+				}
+				console.log(`${MODULE_TAG} ✅ User token validated - has required p1:create:device scope`);
 			}
-			console.log(`${MODULE_TAG} ✅ User token validated - has required p1:create:device scope`);
-		}
 
-		// Registration uses Platform APIs only - NO MFA v1 APIs
-		// Build device registration payload
+			// Registration uses Platform APIs only - NO MFA v1 APIs
+			// Build device registration payload
 			const devicePayload: Record<string, unknown> = {
 				type: params.type,
 			};
@@ -650,7 +677,10 @@ export class MFAServiceV8 {
 			if (params.status) {
 				devicePayload.status = params.status;
 			} else {
-				const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+				const tokenType =
+					'tokenType' in params
+						? (params as { tokenType?: 'worker' | 'user' }).tokenType
+						: undefined;
 				if (tokenType === 'worker') {
 					// Admin Flow: default to ACTIVE (PingOne's default, but we send it explicitly for education)
 					devicePayload.status = 'ACTIVE';
@@ -679,20 +709,25 @@ export class MFAServiceV8 {
 				trimmedLength: trimmedToken.length,
 				tokenPreview: `${trimmedToken.substring(0, 30)}...${trimmedToken.substring(Math.max(0, trimmedToken.length - 30))}`,
 			});
-			
+
 			const requestBody: Record<string, unknown> = {
 				environmentId: params.environmentId,
 				userId: user.id,
 				type: params.type,
 				workerToken: trimmedToken, // Note: This field name is misleading - it can be either worker or user token
-				tokenType: ('tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined) || 'worker', // Explicitly send token type for server logging
+				tokenType:
+					('tokenType' in params
+						? (params as { tokenType?: 'worker' | 'user' }).tokenType
+						: undefined) || 'worker', // Explicitly send token type for server logging
 			};
-			
+
 			console.log(`${MODULE_TAG} 🔍 REGISTER STEP 4: Request body with token:`, {
 				hasWorkerToken: !!requestBody.workerToken,
 				workerTokenType: typeof requestBody.workerToken,
 				workerTokenLength: requestBody.workerToken ? String(requestBody.workerToken).length : 0,
-				workerTokenPreview: requestBody.workerToken ? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}` : 'MISSING',
+				workerTokenPreview: requestBody.workerToken
+					? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}`
+					: 'MISSING',
 			});
 
 			// Include phone for SMS, VOICE, and WHATSAPP devices
@@ -717,7 +752,7 @@ export class MFAServiceV8 {
 				if (params.rp) {
 					requestBody.rp = params.rp;
 				}
-				
+
 				// Include policy if provided
 				if (params.policy) {
 					// If policy is already an object, use it; otherwise wrap string in object
@@ -729,14 +764,14 @@ export class MFAServiceV8 {
 					}
 				}
 			} else {
-			// For non-FIDO2 devices, include standard fields
-			// Include both name and nickname in request body so server can use either for nickname update
-			// The server will use nickname || name to get the device name
-			const deviceNickname = devicePayload.nickname || devicePayload.name;
-			if (deviceNickname) {
-				requestBody.nickname = deviceNickname;
-				requestBody.name = deviceNickname; // Also send as name for compatibility
-			}
+				// For non-FIDO2 devices, include standard fields
+				// Include both name and nickname in request body so server can use either for nickname update
+				// The server will use nickname || name to get the device name
+				const deviceNickname = devicePayload.nickname || devicePayload.name;
+				if (deviceNickname) {
+					requestBody.nickname = deviceNickname;
+					requestBody.name = deviceNickname; // Also send as name for compatibility
+				}
 
 				// Always include status explicitly (ACTIVE or ACTIVATION_REQUIRED)
 				// This ensures PingOne receives the status we want, not its default
@@ -772,9 +807,10 @@ export class MFAServiceV8 {
 				userId: requestBody.userId,
 				environmentId: requestBody.environmentId,
 				hasPolicy: !!requestBody.policy,
-				policyId: requestBody.policy && typeof requestBody.policy === 'object' && 'id' in requestBody.policy 
-					? requestBody.policy.id 
-					: (requestBody.policy || 'NOT SET'),
+				policyId:
+					requestBody.policy && typeof requestBody.policy === 'object' && 'id' in requestBody.policy
+						? requestBody.policy.id
+						: requestBody.policy || 'NOT SET',
 				'Full Payload': JSON.stringify(requestBody, null, 2),
 			});
 			// Detailed status logging for debugging
@@ -846,7 +882,12 @@ export class MFAServiceV8 {
 			// Track the actual PingOne API call if metadata is available
 			if (deviceDataWithMetadata._metadata?.actualPingOneUrl) {
 				const actualCallId = apiCallTrackerService.trackApiCall({
-					method: (deviceDataWithMetadata._metadata.actualPingOneMethod || 'POST') as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+					method: (deviceDataWithMetadata._metadata.actualPingOneMethod || 'POST') as
+						| 'GET'
+						| 'POST'
+						| 'PUT'
+						| 'DELETE'
+						| 'PATCH',
 					url: deviceDataWithMetadata._metadata.actualPingOneUrl,
 					actualPingOneUrl: deviceDataWithMetadata._metadata.actualPingOneUrl,
 					headers: deviceDataWithMetadata._metadata.actualPingOneHeaders || {},
@@ -884,19 +925,25 @@ export class MFAServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorData = deviceData as PingOneResponse & { debug?: { tokenType?: string; tokenExpired?: boolean } };
+				const errorData = deviceData as PingOneResponse & {
+					debug?: { tokenType?: string; tokenExpired?: boolean };
+				};
 				const errorMessage = errorData.message || errorData.error || response.statusText;
 				const debugInfo = errorData.debug;
-				
+
 				// Enhanced error message with token details for 403 errors
 				if (response.status === 403) {
-					const paramsWithToken = params as RegisterDeviceParams & { tokenType?: 'worker' | 'user'; userToken?: string };
+					const paramsWithToken = params as RegisterDeviceParams & {
+						tokenType?: 'worker' | 'user';
+						userToken?: string;
+					};
 					const tokenType = paramsWithToken.tokenType || debugInfo?.tokenType || 'unknown';
 					const tokenExpired = debugInfo?.tokenExpired;
-					const tokenInfo = tokenType === 'user' 
-						? `User token (access token from Authorization Code Flow)`
-						: `Worker token`;
-					
+					const tokenInfo =
+						tokenType === 'user'
+							? `User token (access token from Authorization Code Flow)`
+							: `Worker token`;
+
 					console.error(`${MODULE_TAG} Device registration failed with 403 Forbidden:`, {
 						error: errorMessage,
 						tokenType,
@@ -909,7 +956,7 @@ export class MFAServiceV8 {
 						deviceType: params.type,
 						debugInfo,
 					});
-					
+
 					let enhancedMessage = `Device registration failed: ${errorMessage}`;
 					if (tokenExpired) {
 						enhancedMessage += ` (Token has expired)`;
@@ -922,27 +969,27 @@ export class MFAServiceV8 {
 					} else {
 						enhancedMessage += ` (Using ${tokenInfo} - check worker token permissions and environment licensing)`;
 					}
-					
+
 					throw new Error(enhancedMessage);
 				}
-				
-				throw new Error(
-					`Device registration failed: ${errorMessage}`
-				);
+
+				throw new Error(`Device registration failed: ${errorMessage}`);
 			}
 
 			// Remove metadata from device data before processing
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { _metadata, ...deviceDataWithoutMetadata } = deviceDataWithMetadata;
-			
+
 			// Debug: Log raw response to see what we received
 			// Check for publicKeyCredentialCreationOptions in multiple ways
-			const rawPublicKeyOptions = (deviceDataWithoutMetadata as Record<string, unknown>).publicKeyCredentialCreationOptions as string | undefined;
+			const rawPublicKeyOptions = (deviceDataWithoutMetadata as Record<string, unknown>)
+				.publicKeyCredentialCreationOptions as string | undefined;
 			const hasPublicKeyInRaw = 'publicKeyCredentialCreationOptions' in deviceDataWithoutMetadata;
-			
+
 			console.log(`${MODULE_TAG} Raw device data (before type assertion):`, {
 				hasPublicKeyCredentialCreationOptions: hasPublicKeyInRaw,
-				publicKeyCredentialCreationOptionsValue: rawPublicKeyOptions?.substring(0, 100) || 'NOT FOUND',
+				publicKeyCredentialCreationOptionsValue:
+					rawPublicKeyOptions?.substring(0, 100) || 'NOT FOUND',
 				publicKeyCredentialCreationOptionsType: typeof rawPublicKeyOptions,
 				publicKeyCredentialCreationOptionsLength: rawPublicKeyOptions?.length || 0,
 				allKeys: Object.keys(deviceDataWithoutMetadata),
@@ -950,7 +997,7 @@ export class MFAServiceV8 {
 				// Log full response structure for debugging
 				fullResponsePreview: JSON.stringify(deviceDataWithoutMetadata, null, 2).substring(0, 500),
 			});
-			
+
 			const dd = deviceDataWithoutMetadata as PingOneResponse & {
 				environment?: { id?: string };
 				user?: { id?: string };
@@ -981,7 +1028,7 @@ export class MFAServiceV8 {
 
 			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
 			const publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
-			
+
 			console.log(`${MODULE_TAG} Device registered successfully`, {
 				deviceId: dd.id,
 				userId: user.id,
@@ -1003,7 +1050,8 @@ export class MFAServiceV8 {
 				// FIDO2-specific debugging
 				hasPublicKeyCredentialCreationOptions: !!dd.publicKeyCredentialCreationOptions,
 				publicKeyCredentialCreationOptionsLength: publicKeyOptionsLength,
-				publicKeyCredentialCreationOptionsPreview: dd.publicKeyCredentialCreationOptions?.substring(0, 100) || 'N/A',
+				publicKeyCredentialCreationOptionsPreview:
+					dd.publicKeyCredentialCreationOptions?.substring(0, 100) || 'N/A',
 				rpId: dd.rp?.id,
 				rpName: dd.rp?.name,
 			});
@@ -1013,8 +1061,9 @@ export class MFAServiceV8 {
 			// This is required for WebAuthn registration ceremony
 			// Always include it if present (not just for FIDO2 type check, in case type is wrong)
 			const publicKeyOptions = dd.publicKeyCredentialCreationOptions;
-			const hasPublicKeyOptionsValue = publicKeyOptions !== undefined && publicKeyOptions !== null && publicKeyOptions !== '';
-			
+			const hasPublicKeyOptionsValue =
+				publicKeyOptions !== undefined && publicKeyOptions !== null && publicKeyOptions !== '';
+
 			if (hasPublicKeyOptionsValue && publicKeyOptions) {
 				console.log(`${MODULE_TAG} ✅ Found publicKeyCredentialCreationOptions in response:`, {
 					length: publicKeyOptions.length,
@@ -1058,26 +1107,32 @@ export class MFAServiceV8 {
 				...(dd.properties?.keyUri ? { keyUri: dd.properties.keyUri } : {}),
 				// FIDO2-specific: Include publicKeyCredentialCreationOptions if present
 				// Include it in the initial object construction to ensure it's not lost
-				...(hasPublicKeyOptionsValue && publicKeyOptions ? { publicKeyCredentialCreationOptions: publicKeyOptions } : {}),
+				...(hasPublicKeyOptionsValue && publicKeyOptions
+					? { publicKeyCredentialCreationOptions: publicKeyOptions }
+					: {}),
 			};
 
 			// Log confirmation that it's included
 			if (hasPublicKeyOptionsValue && publicKeyOptions) {
-				console.log(`${MODULE_TAG} ✅ Including publicKeyCredentialCreationOptions in return object:`, {
-					length: publicKeyOptions.length,
-					hasInResult: 'publicKeyCredentialCreationOptions' in result,
-					resultKeys: Object.keys(result),
-					resultValue: result.publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
-					// Log the actual value to verify it's there
-					actualValue: result.publicKeyCredentialCreationOptions,
-					actualValueType: typeof result.publicKeyCredentialCreationOptions,
-				});
+				console.log(
+					`${MODULE_TAG} ✅ Including publicKeyCredentialCreationOptions in return object:`,
+					{
+						length: publicKeyOptions.length,
+						hasInResult: 'publicKeyCredentialCreationOptions' in result,
+						resultKeys: Object.keys(result),
+						resultValue: result.publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
+						// Log the actual value to verify it's there
+						actualValue: result.publicKeyCredentialCreationOptions,
+						actualValueType: typeof result.publicKeyCredentialCreationOptions,
+					}
+				);
 			}
 
 			// Final verification before returning - EXPAND THIS TO SEE FULL OBJECT
 			const finalCheck = {
 				hasPublicKeyCredentialCreationOptions: 'publicKeyCredentialCreationOptions' in result,
-				publicKeyCredentialCreationOptionsValue: result.publicKeyCredentialCreationOptions || 'UNDEFINED',
+				publicKeyCredentialCreationOptionsValue:
+					result.publicKeyCredentialCreationOptions || 'UNDEFINED',
 				publicKeyCredentialCreationOptionsType: typeof result.publicKeyCredentialCreationOptions,
 				allKeys: Object.keys(result),
 				// Stringify the entire result to see if field is actually there
@@ -1087,7 +1142,10 @@ export class MFAServiceV8 {
 			};
 			console.log(`${MODULE_TAG} 🔍 FINAL RESULT CHECK before return:`, finalCheck);
 			console.log(`${MODULE_TAG} 🔍 FULL RESULT OBJECT:`, result);
-			console.log(`${MODULE_TAG} 🔍 RESULT.publicKeyCredentialCreationOptions:`, result.publicKeyCredentialCreationOptions);
+			console.log(
+				`${MODULE_TAG} 🔍 RESULT.publicKeyCredentialCreationOptions:`,
+				result.publicKeyCredentialCreationOptions
+			);
 
 			return result;
 		} catch (error) {
@@ -1277,12 +1335,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Get device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/get-device';
@@ -1511,13 +1573,13 @@ export class MFAServiceV8 {
 				);
 			}
 
-		console.log(`${MODULE_TAG} MFA settings updated`);
-		return settingsData as MFASettings;
-	} catch (error) {
-		console.error(`${MODULE_TAG} Update MFA settings error`, error);
-		throw error;
+			console.log(`${MODULE_TAG} MFA settings updated`);
+			return settingsData as MFASettings;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Update MFA settings error`, error);
+			throw error;
+		}
 	}
-}
 
 	/**
 	 * Reset MFA settings to defaults (Environment-level)
@@ -1601,12 +1663,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Delete device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/delete-device';
@@ -1696,12 +1762,16 @@ export class MFAServiceV8 {
 			console.log(`${MODULE_TAG} User lookup successful, userId:`, user.id);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Use backend proxy to avoid CORS issues
 			const proxyEndpoint = '/api/pingone/mfa/get-all-devices';
@@ -1887,12 +1957,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Update device nickname via backend proxy to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/update-device-nickname';
@@ -1990,7 +2064,7 @@ export class MFAServiceV8 {
 		if (updates.name) {
 			return MFAServiceV8.updateDeviceNickname(params, updates.name);
 		}
-		
+
 		console.log(`${MODULE_TAG} Updating device`, {
 			username: params.username,
 			deviceId: params.deviceId,
@@ -2002,12 +2076,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Update device via backend proxy to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/update-device';
@@ -2115,12 +2193,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Block device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/block-device';
@@ -2217,12 +2299,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Unblock device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/unblock-device';
@@ -2409,7 +2495,9 @@ export class MFAServiceV8 {
 	 * Body: { "otp": "123456" }
 	 * @param params - Device activation parameters (must include otp)
 	 */
-	static async activateTOTPDevice(params: SendOTPParams & { otp: string }): Promise<Record<string, unknown>> {
+	static async activateTOTPDevice(
+		params: SendOTPParams & { otp: string }
+	): Promise<Record<string, unknown>> {
 		console.log(`${MODULE_TAG} Activating TOTP device`, {
 			username: params.username,
 			deviceId: params.deviceId,
@@ -2421,12 +2509,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// According to totp.md: Use POST /devices/{deviceID} with Content-Type: application/vnd.pingidentity.device.activate+json
 			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
@@ -2538,7 +2630,9 @@ export class MFAServiceV8 {
 		_links?: Record<string, { href: string }>;
 		[key: string]: unknown;
 	}> {
-		console.warn(`${MODULE_TAG} DEPRECATION WARNING: initializeOneTimeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
+		console.warn(
+			`${MODULE_TAG} DEPRECATION WARNING: initializeOneTimeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
+		);
 		console.log(`${MODULE_TAG} Initializing one-time device authentication`, {
 			type: params.type,
 			environmentId: params.environmentId,
@@ -2675,7 +2769,9 @@ export class MFAServiceV8 {
 	static async sendOTP(
 		params: SendOTPParams
 	): Promise<{ deviceAuthId: string; otpCheckUrl?: string }> {
-		console.warn(`${MODULE_TAG} DEPRECATION WARNING: sendOTP() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
+		console.warn(
+			`${MODULE_TAG} DEPRECATION WARNING: sendOTP() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
+		);
 		console.log(
 			`${MODULE_TAG} Initializing device authentication (OTP will be sent automatically if deviceId provided)`
 		);
@@ -2685,12 +2781,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
@@ -2824,12 +2924,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
@@ -3223,7 +3327,7 @@ export class MFAServiceV8 {
 
 		try {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
-			
+
 			// Check token status before attempting activation
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			console.log(`${MODULE_TAG} 🔍 STEP 1: Token status check:`, {
@@ -3231,31 +3335,35 @@ export class MFAServiceV8 {
 				status: tokenStatus.status,
 				message: tokenStatus.message,
 			});
-			
+
 			if (!tokenStatus.isValid || tokenStatus.status === 'expired') {
-				const errorMessage = tokenStatus.status === 'expired' 
-					? 'Worker token has expired. Please generate a new worker token to continue.'
-					: 'Worker token is missing or invalid. Please generate a new worker token to continue.';
-				
-				const helpMessage = '\n\n🔑 To fix this:\n1. Go to the MFA Hub page\n2. Click "Manage Token" or "Add Token"\n3. Generate a new worker token\n4. Try registering your FIDO2 device again';
-				
+				const errorMessage =
+					tokenStatus.status === 'expired'
+						? 'Worker token has expired. Please generate a new worker token to continue.'
+						: 'Worker token is missing or invalid. Please generate a new worker token to continue.';
+
+				const helpMessage =
+					'\n\n🔑 To fix this:\n1. Go to the MFA Hub page\n2. Click "Manage Token" or "Add Token"\n3. Generate a new worker token\n4. Try registering your FIDO2 device again';
+
 				console.error(`${MODULE_TAG} ❌ Token validation failed before FIDO2 activation:`, {
 					tokenStatus: tokenStatus.status,
 					message: tokenStatus.message,
 					isValid: tokenStatus.isValid,
 				});
-				
+
 				throw new Error(errorMessage + helpMessage);
 			}
-			
+
 			console.log(`${MODULE_TAG} 🔍 STEP 2: Getting worker token from storage...`);
 			const accessToken = await MFAServiceV8.getWorkerToken();
-			
+
 			console.log(`${MODULE_TAG} 🔍 STEP 3: Token retrieved from storage:`, {
 				hasToken: !!accessToken,
 				tokenType: typeof accessToken,
 				tokenLength: accessToken ? String(accessToken).length : 0,
-				tokenPreview: accessToken ? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}` : 'MISSING',
+				tokenPreview: accessToken
+					? `${String(accessToken).substring(0, 30)}...${String(accessToken).substring(Math.max(0, String(accessToken).length - 30))}`
+					: 'MISSING',
 				hasWhitespace: accessToken ? /\s/.test(String(accessToken)) : false,
 				hasNewlines: accessToken ? /[\r\n]/.test(String(accessToken)) : false,
 				hasBearerPrefix: accessToken ? /^Bearer\s+/i.test(String(accessToken)) : false,
@@ -3276,7 +3384,7 @@ export class MFAServiceV8 {
 				partsLengths: tokenParts.map((p, i) => ({ part: i, length: p.length })),
 				allPartsValid: tokenParts.length === 3 && tokenParts.every((part) => part.length > 0),
 			});
-			
+
 			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
 				console.error(`${MODULE_TAG} ❌ Invalid token format`, {
 					tokenLength: accessToken.length,
@@ -3299,7 +3407,7 @@ export class MFAServiceV8 {
 			// Build fido2Data according to rightFIDO2.md
 			// Frontend should send: { origin: string, attestation: JSON.stringify(attestationObj) }
 			const fido2Data = params.fido2Data || {};
-			
+
 			const requestBody = {
 				environmentId: params.environmentId,
 				userId: user.id,
@@ -3308,16 +3416,20 @@ export class MFAServiceV8 {
 				fido2Data: {
 					origin: fido2Data.origin,
 					// attestation should be a JSON string per rightFIDO2.md
-					attestation: fido2Data.attestation || (fido2Data.attestationObject ? JSON.stringify({
-						id: fido2Data.credentialId || '',
-						type: 'public-key',
-						rawId: fido2Data.rawId || fido2Data.credentialId || '',
-						response: {
-							clientDataJSON: fido2Data.clientDataJSON || '',
-							attestationObject: fido2Data.attestationObject || '',
-						},
-						clientExtensionResults: {},
-					}) : undefined),
+					attestation:
+						fido2Data.attestation ||
+						(fido2Data.attestationObject
+							? JSON.stringify({
+									id: fido2Data.credentialId || '',
+									type: 'public-key',
+									rawId: fido2Data.rawId || fido2Data.credentialId || '',
+									response: {
+										clientDataJSON: fido2Data.clientDataJSON || '',
+										attestationObject: fido2Data.attestationObject || '',
+									},
+									clientExtensionResults: {},
+								})
+							: undefined),
 				},
 			};
 
@@ -3325,7 +3437,9 @@ export class MFAServiceV8 {
 				hasWorkerToken: !!requestBody.workerToken,
 				workerTokenType: typeof requestBody.workerToken,
 				workerTokenLength: requestBody.workerToken ? String(requestBody.workerToken).length : 0,
-				workerTokenPreview: requestBody.workerToken ? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}` : 'MISSING',
+				workerTokenPreview: requestBody.workerToken
+					? `${String(requestBody.workerToken).substring(0, 30)}...${String(requestBody.workerToken).substring(Math.max(0, String(requestBody.workerToken).length - 30))}`
+					: 'MISSING',
 				workerTokenInBody: JSON.stringify(requestBody).includes('workerToken'),
 				requestBodyKeys: Object.keys(requestBody),
 				requestBodyStringified: JSON.stringify(requestBody).substring(0, 500),
@@ -3361,7 +3475,7 @@ export class MFAServiceV8 {
 					requestBodyString.indexOf('"workerToken":"') + 65
 				),
 			});
-			
+
 			let response: Response;
 			try {
 				response = await pingOneFetch('/api/pingone/mfa/activate-fido2-device', {
@@ -3416,25 +3530,33 @@ export class MFAServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorData = deviceData as PingOneResponse & { 
+				const errorData = deviceData as PingOneResponse & {
 					debugInfo?: { origin?: string; originIsLocalhost?: boolean; hint?: string };
 					debug?: { tokenType?: string; tokenExpired?: boolean };
 				};
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				const tokenDebugInfo = errorData.debug as { tokenType?: string; tokenExpired?: boolean } | undefined;
-				const originDebugInfo = errorData.debugInfo as { origin?: string; originIsLocalhost?: boolean; hint?: string } | undefined;
-				
+				const tokenDebugInfo = errorData.debug as
+					| { tokenType?: string; tokenExpired?: boolean }
+					| undefined;
+				const originDebugInfo = errorData.debugInfo as
+					| { origin?: string; originIsLocalhost?: boolean; hint?: string }
+					| undefined;
+
 				// Check if this is a token expiration issue (403 Forbidden)
 				if (response.status === 403) {
 					const tokenExpired = tokenDebugInfo?.tokenExpired;
 					const errorLower = errorMessage.toLowerCase();
-					
+
 					// Check if error suggests token issue (expired, invalid, or malformed)
-					const mightBeTokenIssue = tokenExpired || 
-						errorLower.includes('invalid') && (errorLower.includes('token') || errorLower.includes('authorization') || errorLower.includes('header')) ||
+					const mightBeTokenIssue =
+						tokenExpired ||
+						(errorLower.includes('invalid') &&
+							(errorLower.includes('token') ||
+								errorLower.includes('authorization') ||
+								errorLower.includes('header'))) ||
 						errorLower.includes('expired') ||
 						errorLower.includes('unauthorized');
-					
+
 					if (mightBeTokenIssue) {
 						// Check token status before providing error
 						let tokenStatusMessage = '';
@@ -3451,7 +3573,7 @@ export class MFAServiceV8 {
 						} catch (tokenCheckError) {
 							console.warn(`${MODULE_TAG} Could not check token status:`, tokenCheckError);
 						}
-						
+
 						console.error(`${MODULE_TAG} FIDO2 activation failed with 403 (likely token issue):`, {
 							status: response.status,
 							error: errorMessage,
@@ -3459,25 +3581,27 @@ export class MFAServiceV8 {
 							mightBeTokenIssue,
 							tokenStatusMessage: tokenStatusMessage || 'none',
 						});
-						
+
 						throw new Error(
 							`Failed to activate FIDO2 device: ${errorMessage}${tokenStatusMessage}`
 						);
 					}
 				}
-				
+
 				// Log detailed error info for debugging origin/RPID issues
 				console.error(`${MODULE_TAG} FIDO2 activation failed:`, {
 					status: response.status,
 					error: errorMessage,
 					debugInfo: originDebugInfo,
 					// Check if error mentions origin/RPID
-					mightBeOriginIssue: errorMessage.toLowerCase().includes('origin') || 
-						errorMessage.toLowerCase().includes('rpid') || 
+					mightBeOriginIssue:
+						errorMessage.toLowerCase().includes('origin') ||
+						errorMessage.toLowerCase().includes('rpid') ||
 						errorMessage.toLowerCase().includes('relying party') ||
-						errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('header'),
+						(errorMessage.toLowerCase().includes('invalid') &&
+							errorMessage.toLowerCase().includes('header')),
 				});
-				
+
 				throw new Error(
 					`Failed to activate FIDO2 device: ${errorMessage}${originDebugInfo?.hint ? ` (${originDebugInfo.hint})` : ''}`
 				);
@@ -3613,12 +3737,16 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// Get appropriate token (worker or user) based on credentials
-			const tokenType = 'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken = 'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
+			const tokenType =
+				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
+			const userToken =
+				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
 			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
 			if (tokenType) tokenParams.tokenType = tokenType;
 			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(Object.keys(tokenParams).length > 0 ? tokenParams : undefined);
+			const accessToken = await MFAServiceV8.getToken(
+				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
+			);
 
 			// Activate device via backend proxy
 			// Per rightOTP.md: POST /v1/environments/{ENV_ID}/users/{USER_ID}/devices/{DEVICE_ID}
@@ -3939,7 +4067,9 @@ export class MFAServiceV8 {
 		otpCheckUrl?: string; // URL from _links['otp.check'].href when OTP_REQUIRED
 		[key: string]: unknown;
 	}> {
-		console.warn(`${MODULE_TAG} DEPRECATION WARNING: initializeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`);
+		console.warn(
+			`${MODULE_TAG} DEPRECATION WARNING: initializeDeviceAuthentication() is deprecated. Use MfaAuthenticationServiceV8.initializeDeviceAuthentication() instead.`
+		);
 		console.log(`${MODULE_TAG} Initializing device authentication via PingOne MFA API`, {
 			username: params.username,
 			deviceId: params.deviceId,
@@ -3959,7 +4089,10 @@ export class MFAServiceV8 {
 						policyId: params.deviceAuthenticationPolicyId,
 						policyName: policy.name,
 						authentication: policy.authentication,
-						deviceSelection: policy.authentication && 'deviceSelection' in policy.authentication ? policy.authentication.deviceSelection : undefined,
+						deviceSelection:
+							policy.authentication && 'deviceSelection' in policy.authentication
+								? policy.authentication.deviceSelection
+								: undefined,
 						fullPolicy: JSON.stringify(policy, null, 2),
 					});
 				} catch (error) {
@@ -3988,13 +4121,15 @@ export class MFAServiceV8 {
 			// If skipUserLockVerification is true, skip the check
 			if (policy?.skipUserLockVerification !== true) {
 				// Check if user is locked (check multiple possible fields)
-				const isLocked = user?.locked === true || 
-					user?.account?.locked === true || 
+				const isLocked =
+					user?.locked === true ||
+					user?.account?.locked === true ||
 					user?.status === 'LOCKED' ||
 					user?.account?.status === 'LOCKED';
 
 				if (isLocked) {
-					const errorMessage = 'User account is locked. Please contact your administrator to unlock your account.';
+					const errorMessage =
+						'User account is locked. Please contact your administrator to unlock your account.';
 					console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
 						userId: user.id,
 						username: params.username,
@@ -4006,7 +4141,9 @@ export class MFAServiceV8 {
 					throw new Error(errorMessage);
 				}
 			} else {
-				console.log(`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`);
+				console.log(
+					`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`
+				);
 			}
 
 			// Retrieve and trim the worker token
@@ -4158,7 +4295,10 @@ export class MFAServiceV8 {
 			// 1. DEFAULT_TO_FIRST / DEFAULT_TO_FIRST_DEVICE: Always auto-select first device
 			// 2. PROMPT_TO_SELECT_DEVICE: If 1 device, auto-select; if >1, show selection list
 			// 3. ALWAYS_DISPLAY_DEVICES: Always show selection list (no auto-selection)
-			const deviceSelection = policy?.authentication && 'deviceSelection' in policy.authentication ? policy.authentication.deviceSelection : undefined;
+			const deviceSelection =
+				policy?.authentication && 'deviceSelection' in policy.authentication
+					? policy.authentication.deviceSelection
+					: undefined;
 			const needsDeviceSelection =
 				authData.status === 'DEVICE_SELECTION_REQUIRED' ||
 				authData.nextStep === 'SELECTION_REQUIRED' ||
@@ -4887,7 +5027,7 @@ export class MFAServiceV8 {
 					environmentId,
 					endpoint: '/api/pingone/mfa/device-authentication-policies',
 				});
-				
+
 				apiCallTrackerService.updateApiCallResponse(
 					callId,
 					{
@@ -4897,7 +5037,7 @@ export class MFAServiceV8 {
 					},
 					Date.now() - startTime
 				);
-				
+
 				throw new Error(
 					`Failed to connect to backend server. Please ensure the server is running and accessible. ${errorMessage}`
 				);
@@ -5129,7 +5269,10 @@ export class MFAServiceV8 {
 						id: foundPolicy.id,
 						name: foundPolicy.name,
 						authentication: foundPolicy.authentication,
-						deviceSelection: foundPolicy.authentication && 'deviceSelection' in foundPolicy.authentication ? foundPolicy.authentication.deviceSelection : undefined,
+						deviceSelection:
+							foundPolicy.authentication && 'deviceSelection' in foundPolicy.authentication
+								? foundPolicy.authentication.deviceSelection
+								: undefined,
 						fullPolicy: JSON.stringify(foundPolicy, null, 2),
 					});
 					return foundPolicy;
@@ -5155,7 +5298,10 @@ export class MFAServiceV8 {
 				id: policy.id,
 				name: policy.name,
 				authentication: policy.authentication,
-				deviceSelection: policy.authentication && 'deviceSelection' in policy.authentication ? policy.authentication.deviceSelection : undefined,
+				deviceSelection:
+					policy.authentication && 'deviceSelection' in policy.authentication
+						? policy.authentication.deviceSelection
+						: undefined,
 				fullPolicy: JSON.stringify(policy, null, 2),
 			});
 			return policy;
