@@ -14,18 +14,27 @@ Before device registration, users must select the **Registration Flow Type** on 
 - **Token Source:** Obtained via `POST /api/pingone/worker-token` (Client Credentials)
 
 ### User Flow
-- **Token Type:** User Token (Access Token from Authorization Code Flow)
+- **Token Type:** User Token (Access Token from Authorization Code Flow) - stored as `'oauth_completed'` placeholder
 - **Status Options:** Always `ACTIVATION_REQUIRED` (security requirement)
 - **Use Case:** User self-service device registration
 - **Token Source:** Obtained from Authorization Code Flow (user logs in to PingOne)
+- **Actual Token Used for Device Registration:** Worker Token (fallback behavior)
 - **State Preservation After PingOne Authentication:**
   - Before redirecting to PingOne for user authentication, the current page path (including query parameters) is stored in `sessionStorage` under the key `user_login_return_to_mfa`.
   - After successful PingOne authentication, the OAuth callback handler retrieves the stored return path and redirects the user back to the exact page they were on.
   - The callback handler sets a marker `mfa_oauth_callback_return` in `sessionStorage` to signal state restoration.
   - The flow base component detects this marker and automatically advances the flow from Step 0 to the appropriate step (typically Step 1 for device registration) if a user token is present and validation passes.
   - This ensures users return to the exact step they were on (not the MFA Hub) and can seamlessly continue their device registration flow.
+- **'oauth_completed' Placeholder Behavior:**
+  - After successful OAuth authentication, `credentials.userToken` is set to the literal string `'oauth_completed'` (not the actual access token)
+  - This placeholder indicates successful authentication without storing the actual token
+  - When `tokenType === 'user'` and `userToken === 'oauth_completed'`, `MFAServiceV8.getToken()` automatically falls back to using the worker token for device registration API calls
+  - This ensures proper API permissions (`p1:create:device` scope) while maintaining user flow semantics
+  - Scope validation is skipped when the placeholder is detected (since worker token is used instead)
 
 **Key Rule:** User tokens can ONLY set device status to `ACTIVATION_REQUIRED`. Worker tokens can set either `ACTIVE` or `ACTIVATION_REQUIRED`.
+
+**Important:** Even in user flows, device registration uses worker tokens. The `'oauth_completed'` placeholder simply confirms successful user authentication; it does not provide the API permissions needed for device registration operations.
 
 ## Flow Logic Diagram
 
