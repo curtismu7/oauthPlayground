@@ -37,6 +37,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 		});
 
 		if (isUserLoginCallback) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CallbackHandlerV8U.tsx:39',message:'User login callback detected',data:{currentPath:window.location.pathname,currentSearch:window.location.search,currentHref:window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+			// #endregion
+			
 			console.log(`${MODULE_TAG} ✅ User login callback detected - redirecting back to MFA flow`);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Current URL:`, window.location.href);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Current pathname:`, window.location.pathname);
@@ -49,6 +53,10 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
+			
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CallbackHandlerV8U.tsx:51',message:'Checking for return path in sessionStorage',data:{returnToMfaFlow,hasReturnPath:!!returnToMfaFlow,allSessionKeys:allKeys},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+			// #endregion
 
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path value:`, returnToMfaFlow);
 			console.log(`${MODULE_TAG} 🔍 DEBUG: Return path type:`, typeof returnToMfaFlow);
@@ -78,21 +86,44 @@ export const CallbackHandlerV8U: React.FC = () => {
 
 					// Preserve callback parameters in the URL when redirecting
 					const callbackParams = new URLSearchParams(window.location.search);
-					const redirectUrl = callbackParams.toString()
+					const redirectPath = callbackParams.toString()
 						? `${mfaPath}?${callbackParams.toString()}`
 						: mfaPath;
+					
+					// Use absolute URL to ensure redirect works reliably
+					const redirectUrl = `${window.location.origin}${redirectPath}`;
 
 					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
 					console.log(
 						`${MODULE_TAG} ✅ Set mfa_oauth_callback_return marker for state restoration`
 					);
 
-					// Clean up the return path marker AFTER logging but BEFORE redirect
-					// This ensures we have the path even if there's a race condition
-					sessionStorage.removeItem('user_login_return_to_mfa');
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CallbackHandlerV8U.tsx:93',message:'About to execute redirect to MFA flow',data:{mfaPath,redirectUrl,redirectPath,callbackParams:window.location.search},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'B'})}).catch(()=>{});
+					// #endregion
+
+					// CRITICAL: Do NOT remove user_login_return_to_mfa here - let the target page clean it up
+					// This ensures if the redirect fails or there's a race condition, the path is still available
+					// The target page (MFAFlowBaseV8 or MFAAuthenticationMainPageV8) will clean it up after successful navigation
 
 					// Use window.location.replace for immediate redirect (more reliable than navigate)
+					// Store redirect intent in sessionStorage as a backup in case redirect fails
+					sessionStorage.setItem('mfa_redirect_intent', redirectUrl);
+					
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CallbackHandlerV8U.tsx:110',message:'Executing window.location.replace',data:{redirectUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'B'})}).catch(()=>{});
+					// #endregion
+					
 					window.location.replace(redirectUrl);
+					
+					// This code should never execute due to navigation, but adding as safety check
+					setTimeout(() => {
+						// #region agent log
+						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'CallbackHandlerV8U.tsx:120',message:'WARNING: window.location.replace did not navigate away',data:{currentUrl:window.location.href,expectedRedirect:redirectUrl},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'B'})}).catch(()=>{});
+						// #endregion
+						console.error(`${MODULE_TAG} ❌ CRITICAL: window.location.replace did not navigate - still on page after redirect attempt`);
+					}, 100);
+					
 					return; // CRITICAL: Exit early to prevent unified flow logic
 				} catch (error) {
 					console.error(`${MODULE_TAG} ❌ Failed to process return path:`, error);
