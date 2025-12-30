@@ -15,7 +15,7 @@
  * <SuperSimpleApiDisplayV8 />
  */
 
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
@@ -53,7 +53,7 @@ const createPopOutWindow = (
 		'apiDisplay',
 		`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
 	);
-	
+
 	if (!newWindow) return null;
 
 	// Create a fully functional HTML page with JavaScript
@@ -470,12 +470,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	const excludePatternsRef = useRef<string[]>(excludePatterns);
 	const includePatternsRef = useRef<string[]>(includePatterns);
 	const updateCallsRef = useRef<(() => void) | null>(null);
-	
+
 	// Update refs only when array contents actually change, and trigger immediate update
 	useEffect(() => {
-		const excludeChanged = JSON.stringify(excludePatternsRef.current) !== JSON.stringify(excludePatterns);
-		const includeChanged = JSON.stringify(includePatternsRef.current) !== JSON.stringify(includePatterns);
-		
+		const excludeChanged =
+			JSON.stringify(excludePatternsRef.current) !== JSON.stringify(excludePatterns);
+		const includeChanged =
+			JSON.stringify(includePatternsRef.current) !== JSON.stringify(includePatterns);
+
 		if (excludeChanged || includeChanged) {
 			excludePatternsRef.current = excludePatterns;
 			includePatternsRef.current = includePatterns;
@@ -513,10 +515,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				} else {
 					// Send API calls update to pop-out window
 					try {
-						popOutWindow.postMessage({
-							type: 'apiCallsUpdate',
-							apiCalls: apiCalls,
-						}, '*');
+						popOutWindow.postMessage(
+							{
+								type: 'apiCallsUpdate',
+								apiCalls: apiCalls,
+							},
+							'*'
+						);
 					} catch (error) {
 						console.warn(`${MODULE_TAG} Failed to sync to pop-out window:`, error);
 					}
@@ -638,7 +643,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const url = call.url || '';
 					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || '';
 					const step = (call as { step?: string }).step;
-					
+
 					// Check both url and actualPingOneUrl for PingOne API calls
 					const isPingOne =
 						url.includes('pingone.com') ||
@@ -653,7 +658,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						actualPingOneUrl.includes('pingone.com') || // Check actualPingOneUrl too
 						actualPingOneUrl.includes('auth.pingone');
 					const isSpiffeSpire = !!step && step.startsWith('spiffe-spire-');
-					
+
 					if (!isPingOne && !isSpiffeSpire) {
 						return false;
 					}
@@ -688,9 +693,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					} else if (flowFilter === 'mfa') {
 						// MFA flow: only MFA calls (device management, challenges, etc.)
 						// Check both url, actualPingOneUrl, and step
-						return url.includes('/api/pingone/mfa/') || 
-						       actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices') || // PingOne devices endpoint
-						       step?.startsWith('mfa-');
+						return (
+							url.includes('/api/pingone/mfa/') ||
+							(actualPingOneUrl.includes('/users/') && actualPingOneUrl.includes('/devices')) || // PingOne devices endpoint
+							step?.startsWith('mfa-')
+						);
 					} else if (flowFilter === 'spiffe-spire') {
 						// SPIFFE/SPIRE: only SPIFFE/SPIRE calls (identified by step prefix)
 						return isSpiffeSpire;
@@ -699,7 +706,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					// Apply exclude patterns
 					if (excludePatternsRef.current.length > 0) {
-						const shouldExclude = excludePatternsRef.current.some((pattern) => url.includes(pattern));
+						const shouldExclude = excludePatternsRef.current.some((pattern) =>
+							url.includes(pattern)
+						);
 						if (shouldExclude) {
 							return false;
 						}
@@ -707,7 +716,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					// Apply include patterns (if specified, only show matching calls)
 					if (includePatternsRef.current.length > 0) {
-						const shouldInclude = includePatternsRef.current.some((pattern) => url.includes(pattern));
+						const shouldInclude = includePatternsRef.current.some((pattern) =>
+							url.includes(pattern)
+						);
 						if (!shouldInclude) {
 							return false;
 						}
@@ -717,7 +728,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				})
 				.map((call) => {
 					// Use actualPingOneUrl if available, otherwise use url
-					const displayUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '';
+					const displayUrl =
+						(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '';
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
 						method: String(call.method || 'GET'),
@@ -737,11 +749,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					return apiCall;
 				});
 
-			// Only log when call count changes to reduce console noise
+			// Update call count when it changes
 			if (relevantCalls.length !== previousCallCount) {
-				if (relevantCalls.length > 0) {
-					console.log(`${MODULE_TAG} Found ${relevantCalls.length} API calls`);
-				}
 				setPreviousCallCount(relevantCalls.length);
 			}
 
@@ -800,7 +809,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		return { icon: '👤', label: 'User API', color: '#3b82f6' };
 	};
 
-	const getShortUrl = (url: string) => {
+	const _getShortUrl = (url: string) => {
 		// Remove protocol and domain for cleaner display
 		let shortUrl = url
 			.replace('https://api.pingone.com/v1/', '')
@@ -845,7 +854,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			await navigator.clipboard.writeText(text);
 			setCopiedField(field);
 			setTimeout(() => setCopiedField(null), 2000);
-			console.log(`${MODULE_TAG} Copied ${field} to clipboard`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to copy to clipboard:`, error);
 			// Fallback for older browsers
@@ -867,9 +875,6 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	};
 
 	// Debug log
-	useEffect(() => {
-		console.log(`${MODULE_TAG} Visibility: ${isVisible}, API Calls: ${apiCalls.length}`);
-	}, [isVisible, apiCalls.length]);
 
 	// Shared base style for header buttons (Pop Out, Expand/Collapse, Clear, Close)
 	const headerButtonBaseStyle: React.CSSProperties = {
@@ -1002,7 +1007,17 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							</div>
 							<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 								{/* Font Size Controls */}
-								<div style={{ display: 'flex', gap: '4px', alignItems: 'center', marginRight: '8px', padding: '2px 6px', background: '#e5e7eb', borderRadius: '4px' }}>
+								<div
+									style={{
+										display: 'flex',
+										gap: '4px',
+										alignItems: 'center',
+										marginRight: '8px',
+										padding: '2px 6px',
+										background: '#e5e7eb',
+										borderRadius: '4px',
+									}}
+								>
 									<button
 										type="button"
 										onClick={() => setFontSize((prev) => Math.max(8, prev - 1))}
@@ -1020,7 +1035,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									>
 										−
 									</button>
-									<span style={{ fontSize: `${Math.max(8, fontSize - 2)}px`, color: '#6b7280', minWidth: '24px', textAlign: 'center' }}>
+									<span
+										style={{
+											fontSize: `${Math.max(8, fontSize - 2)}px`,
+											color: '#6b7280',
+											minWidth: '24px',
+											textAlign: 'center',
+										}}
+									>
 										{fontSize}px
 									</span>
 									<button
@@ -1225,8 +1247,17 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									<tr>
 										<td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center' }}>
 											<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
-												<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>⚡</div>
-												<div style={{ fontWeight: '600', marginBottom: '4px', color: '#6b7280', fontSize: `${fontSize + 2}px` }}>
+												<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
+													⚡
+												</div>
+												<div
+													style={{
+														fontWeight: '600',
+														marginBottom: '4px',
+														color: '#6b7280',
+														fontSize: `${fontSize + 2}px`,
+													}}
+												>
 													No API Calls Yet
 												</div>
 												<div style={{ fontSize: `${fontSize}px` }}>
@@ -1261,7 +1292,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													}}
 												>
 													<td
-														style={{ padding: '12px 16px', textAlign: 'center', fontSize: `${fontSize + 4}px` }}
+														style={{
+															padding: '12px 16px',
+															textAlign: 'center',
+															fontSize: `${fontSize + 4}px`,
+														}}
 														title={apiType.label}
 													>
 														{apiType.icon}
@@ -1309,7 +1344,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 															{call.response?.status || '...'}
 														</span>
 													</td>
-													<td style={{ padding: '12px 16px', color: '#1f2937', fontSize: `${fontSize}px` }}>
+													<td
+														style={{
+															padding: '12px 16px',
+															color: '#1f2937',
+															fontSize: `${fontSize}px`,
+														}}
+													>
 														{call.url.startsWith('/api/') && (
 															<span
 																style={{
@@ -1326,7 +1367,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 														)}
 														{call.url}
 													</td>
-													<td style={{ padding: '12px 16px', color: '#6b7280', fontSize: `${fontSize}px` }}>
+													<td
+														style={{
+															padding: '12px 16px',
+															color: '#6b7280',
+															fontSize: `${fontSize}px`,
+														}}
+													>
 														{new Date(call.timestamp).toLocaleTimeString()}
 													</td>
 												</tr>
@@ -1367,13 +1414,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			style={{
 																				padding: '2px 6px',
 																				background:
-																					copiedField === `url-${call.id}`
-																						? '#10b981'
-																						: '#e5e7eb',
+																					copiedField === `url-${call.id}` ? '#10b981' : '#e5e7eb',
 																				color:
-																					copiedField === `url-${call.id}`
-																						? 'white'
-																						: '#374151',
+																					copiedField === `url-${call.id}` ? 'white' : '#374151',
 																				border: 'none',
 																				borderRadius: '3px',
 																				fontSize: '9px',
@@ -1382,9 +1425,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			}}
 																			title="Copy full URL"
 																		>
-																			{copiedField === `url-${call.id}`
-																				? '✓ Copied'
-																				: '📋 Copy'}
+																			{copiedField === `url-${call.id}` ? '✓ Copied' : '📋 Copy'}
 																		</button>
 																	</div>
 																	<div
@@ -1475,7 +1516,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					overflowY: 'auto',
 																				}}
 																			>
-																				<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+																				<pre
+																					style={{
+																						margin: 0,
+																						whiteSpace: 'pre-wrap',
+																						wordWrap: 'break-word',
+																					}}
+																				>
 																					{bodyText}
 																				</pre>
 																			</div>
@@ -1556,7 +1603,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					overflowY: 'auto',
 																				}}
 																			>
-																				<pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+																				<pre
+																					style={{
+																						margin: 0,
+																						whiteSpace: 'pre-wrap',
+																						wordWrap: 'break-word',
+																					}}
+																				>
 																					{responseText}
 																				</pre>
 																			</div>
@@ -1570,90 +1623,90 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											</React.Fragment>
 										);
 									})}
-								</tbody>
-							</table>
-						</div>
+							</tbody>
+						</table>
 					</div>
-				)}
-				
-				{/* Clear Confirmation Modal */}
-				{showClearConfirm && (
+				</div>
+			)}
+
+			{/* Clear Confirmation Modal */}
+			{showClearConfirm && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => setShowClearConfirm(false)}
+				>
 					<div
 						style={{
-							position: 'fixed',
-							top: 0,
-							left: 0,
-							right: 0,
-							bottom: 0,
-							background: 'rgba(0, 0, 0, 0.5)',
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							zIndex: 1000,
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							maxWidth: '400px',
+							width: '90%',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
 						}}
-						onClick={() => setShowClearConfirm(false)}
+						onClick={(e) => e.stopPropagation()}
 					>
-						<div
-							style={{
-								background: 'white',
-								borderRadius: '8px',
-								padding: '24px',
-								maxWidth: '400px',
-								width: '90%',
-								boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-							}}
-							onClick={(e) => e.stopPropagation()}
-						>
-							<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
-								Clear All API Calls?
-							</h3>
-							<p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '14px' }}>
-								This will remove all API calls from the display. This action cannot be undone.
-							</p>
-							<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-								<button
-									type="button"
-									onClick={() => setShowClearConfirm(false)}
-									style={{
-										padding: '8px 16px',
-										background: '#f3f4f6',
-										color: '#374151',
-										border: 'none',
-										borderRadius: '6px',
-										cursor: 'pointer',
-										fontSize: '14px',
-										fontWeight: '500',
-									}}
-								>
-									Cancel
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										apiCallTrackerService.clearApiCalls();
-										setExpandedIds(new Set());
-										setShowClearConfirm(false);
-										if (popOutWindow && !popOutWindow.closed) {
-											popOutWindow.postMessage({ type: 'clearCalls' }, '*');
-										}
-									}}
-									style={{
-										padding: '8px 16px',
-										background: '#ef4444',
-										color: 'white',
-										border: 'none',
-										borderRadius: '6px',
-										cursor: 'pointer',
-										fontSize: '14px',
-										fontWeight: '500',
-									}}
-								>
-									Clear All
-								</button>
-							</div>
+						<h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600' }}>
+							Clear All API Calls?
+						</h3>
+						<p style={{ margin: '0 0 20px 0', color: '#6b7280', fontSize: '14px' }}>
+							This will remove all API calls from the display. This action cannot be undone.
+						</p>
+						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+							<button
+								type="button"
+								onClick={() => setShowClearConfirm(false)}
+								style={{
+									padding: '8px 16px',
+									background: '#f3f4f6',
+									color: '#374151',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									apiCallTrackerService.clearApiCalls();
+									setExpandedIds(new Set());
+									setShowClearConfirm(false);
+									if (popOutWindow && !popOutWindow.closed) {
+										popOutWindow.postMessage({ type: 'clearCalls' }, '*');
+									}
+								}}
+								style={{
+									padding: '8px 16px',
+									background: '#ef4444',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '14px',
+									fontWeight: '500',
+								}}
+							>
+								Clear All
+							</button>
 						</div>
 					</div>
-				)}
+				</div>
+			)}
 		</>
 	);
 };

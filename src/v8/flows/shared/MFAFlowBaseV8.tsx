@@ -811,7 +811,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 						) {
 							const cleanUrl = window.location.pathname;
 							window.history.replaceState({}, document.title, cleanUrl);
-							console.log(`${MODULE_TAG} Cleaned up callback URL parameters`);
 						}
 
 						setCredentials((prev) => {

@@ -131,7 +131,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		
 		// If we have a code and user login state, this is a callback from user login
 		if (code && hasUserLoginState) {
-			console.log(`${MODULE_TAG} Detected OAuth callback on hub page, checking for return path`);
+			// Check if CallbackHandlerV8U attempted to redirect but failed
+			const redirectIntent = sessionStorage.getItem('mfa_redirect_intent');
+			if (redirectIntent) {
+				sessionStorage.removeItem('mfa_redirect_intent');
+				// Attempt the redirect that CallbackHandlerV8U tried to do
+				window.location.replace(redirectIntent);
+				return;
+			}
 			
 			// Check if we have a stored return path
 			const returnToMfaFlow = sessionStorage.getItem('user_login_return_to_mfa');
@@ -140,7 +147,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				try {
 					// Path is stored as a plain string (no JSON parsing needed)
 					const mfaPath = returnToMfaFlow.trim();
-					console.log(`${MODULE_TAG} ✅ Found stored return path: ${mfaPath}`);
 					
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
@@ -154,11 +160,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						? `${mfaPath}?${callbackParams.toString()}`
 						: mfaPath;
 					
-					// Clean up the return path marker
+					// Redirect to the flow page with callback params
+					// Clean up the return path marker AFTER setting up redirect
+					// This ensures the path is available even if there's a race condition
 					sessionStorage.removeItem('user_login_return_to_mfa');
 					
-					// Redirect to the flow page with callback params
-					console.log(`${MODULE_TAG} 🚀 Redirecting to MFA flow: ${redirectUrl}`);
 					window.location.replace(redirectUrl);
 					return;
 				} catch (error) {
@@ -359,10 +365,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
 								updatedLinks['complete']?.href || authState._links!['complete']!.href
 							);
-							console.log(`${MODULE_TAG} Push authentication completed with tokens:`, {
-								hasAccessToken: !!completionResult.accessToken,
-								tokenType: completionResult.tokenType,
-							});
 						} catch (completeError) {
 							console.warn(`${MODULE_TAG} Failed to complete push authentication:`, completeError);
 							// Continue even if completion fails - authentication was successful
@@ -424,10 +426,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			}
 
 			const currentUsername = usernameInput.trim();
-			console.log(`${MODULE_TAG} Loading devices for user: "${currentUsername}"`, {
-				environmentId: credentials.environmentId,
-				username: currentUsername,
-			});
 
 			setIsLoadingDevices(true);
 			setDevicesError(null);
@@ -437,24 +435,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					environmentId: credentials.environmentId,
 					username: currentUsername,
 				});
-				console.log(`${MODULE_TAG} ✅ Loaded devices for user "${currentUsername}":`, {
-					count: devices.length,
-					devices: devices.map((d: Record<string, unknown>) => ({
-						id: d.id,
-						type: d.type,
-						nickname: d.nickname || d.name,
-						userId: d.user?.id || 'N/A',
-					})),
-					username: currentUsername,
-				});
 				// Only set devices if username hasn't changed (prevent race condition)
 				if (usernameInput.trim() === currentUsername) {
 					setUserDevices(devices);
-				} else {
-					console.log(`${MODULE_TAG} Username changed during device load, discarding results`, {
-						loadedFor: currentUsername,
-						currentUsername: usernameInput.trim(),
-					});
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
@@ -492,10 +475,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (showDeviceSelectionModal && credentials.environmentId && usernameInput.trim() && tokenStatus.isValid) {
 			const loadUserDevices = async () => {
 				const currentUsername = usernameInput.trim();
-				console.log(`${MODULE_TAG} Loading devices for device selection modal - user: "${currentUsername}"`, {
-					environmentId: credentials.environmentId,
-					username: currentUsername,
-				});
 				try {
 					// Clear devices first to ensure we're loading for the correct user
 					setUserDevices([]);
@@ -503,24 +482,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						environmentId: credentials.environmentId,
 						username: currentUsername,
 					});
-					console.log(`${MODULE_TAG} ✅ Loaded devices for device selection modal - user "${currentUsername}":`, {
-						count: devices.length,
-						devices: devices.map((d: Record<string, unknown>) => ({
-							id: d.id,
-							type: d.type,
-							nickname: d.nickname || d.name,
-							userId: d.user?.id || 'N/A',
-						})),
-						username: currentUsername,
-					});
 					// Only set devices if username hasn't changed (prevent race condition)
 					if (usernameInput.trim() === currentUsername) {
 						setUserDevices(devices);
-					} else {
-						console.log(`${MODULE_TAG} Username changed during device load, discarding results`, {
-							loadedFor: currentUsername,
-							currentUsername: usernameInput.trim(),
-						});
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Failed to load devices';
@@ -559,11 +523,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		// Prevent duplicate calls - if we're already fetching or already fetched for this env, skip
 		if (isFetchingPoliciesRef.current || lastFetchedPolicyEnvIdRef.current === envId) {
-			console.log(`${MODULE_TAG} Skipping duplicate policy fetch`, {
-				isFetching: isFetchingPoliciesRef.current,
-				lastFetchedEnv: lastFetchedPolicyEnvIdRef.current,
-				currentEnv: envId,
-			});
 			return deviceAuthPolicies;
 		}
 
@@ -637,13 +596,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const extractAllowedDeviceTypes = useCallback((policy: DeviceAuthenticationPolicy): DeviceType[] => {
 		const allowed: DeviceType[] = [];
 		
-		console.log(`${MODULE_TAG} Extracting allowed device types from policy:`, {
-			policyId: policy.id,
-			policyName: policy.name,
-			authentication: policy.authentication,
-			deviceSelection: policy.authentication?.deviceSelection,
-			deviceAuthentication: policy.authentication?.deviceAuthentication,
-		});
 		
 		// Check for allowedDeviceTypes in deviceSelection
 		if (policy.authentication?.deviceSelection) {
@@ -651,7 +603,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (typeof deviceSelection === 'object' && deviceSelection !== null) {
 				const allowedTypes = (deviceSelection as { allowedDeviceTypes?: string[] }).allowedDeviceTypes;
 				if (Array.isArray(allowedTypes) && allowedTypes.length > 0) {
-					console.log(`${MODULE_TAG} Found allowedDeviceTypes in deviceSelection:`, allowedTypes);
 					allowed.push(...(allowedTypes as DeviceType[]));
 				}
 			}
@@ -663,13 +614,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (typeof deviceAuth === 'object' && deviceAuth !== null) {
 				const required = (deviceAuth as { required?: string[] }).required;
 				if (Array.isArray(required) && required.length > 0) {
-					console.log(`${MODULE_TAG} Found required device types:`, required);
 					allowed.push(...(required as DeviceType[]));
 				}
 				// Also check optional device types
 				const optional = (deviceAuth as { optional?: string[] }).optional;
 				if (Array.isArray(optional) && optional.length > 0) {
-					console.log(`${MODULE_TAG} Found optional device types:`, optional);
 					allowed.push(...(optional as DeviceType[]));
 				}
 			}
@@ -681,11 +630,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		// If no explicit restrictions found, default to all common device types
 		// This means the policy allows all devices (no restrictions)
 		if (uniqueAllowed.length === 0) {
-			console.log(`${MODULE_TAG} No explicit device type restrictions found in policy, defaulting to all common device types`);
 			return ['FIDO2', 'TOTP', 'SMS', 'EMAIL', 'VOICE', 'MOBILE', 'WHATSAPP'] as DeviceType[];
 		}
 		
-		console.log(`${MODULE_TAG} Extracted allowed device types:`, uniqueAllowed);
 		return uniqueAllowed;
 	}, []);
 
@@ -719,11 +666,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (updatedPolicy) {
 				// Extract and log allowed device types for both authentication and registration
 				const allowedTypes = extractAllowedDeviceTypes(updatedPolicy);
-				console.log(`${MODULE_TAG} Policy selected: ${updatedPolicy.name}`, {
-					policyId,
-					allowedDeviceTypes: allowedTypes,
-					message: 'This policy will be used for both authentication and registration',
-				});
 				
 				toastV8.success(`Selected policy: ${updatedPolicy.name} (${allowedTypes.length} device type${allowedTypes.length !== 1 ? 's' : ''} allowed)`);
 			}
@@ -755,7 +697,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			const { PasskeyServiceV8 } = await import('@/v8/services/passkeyServiceV8');
 
 			// Step 1: Try authentication first (discoverable credentials)
-			console.log(`${MODULE_TAG} Attempting username-less passkey authentication...`);
 			const authResult = await PasskeyServiceV8.authenticateUsernameless({
 				environmentId: credentials.environmentId,
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -763,12 +704,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			if (authResult.success) {
 				// Authentication successful!
-				console.log(`${MODULE_TAG} ✅ Username-less authentication successful`, {
-					userId: authResult.userId,
-					username: authResult.username,
-					authenticationId: authResult.authenticationId,
-				});
-				
 				toastV8.success(`Authenticated successfully as ${authResult.username || authResult.userId}`);
 				
 				// Update auth state with successful authentication
@@ -794,8 +729,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// Step 3: If authentication failed and requires registration, show registration modal
 			if (authResult.requiresRegistration) {
-				console.log(`${MODULE_TAG} No passkey found, user needs to register`);
-				
 				// Show username input modal for registration
 				// Registration requires username because PingOne needs to identify/create the user
 				setIsPasskeyRegistrationMode(true);
@@ -876,12 +809,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
 			});
 
-			console.log(`${MODULE_TAG} Authentication initialized:`, {
-				responseId: response.id,
-				status: response.status,
-				nextStep: response.nextStep,
-				deviceCount: response.devices?.length || 0,
-			});
 
 			// Extract _links for flow coordination
 			const links = (response._links as Record<string, { href: string }>) || {};
@@ -893,21 +820,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Use devices from authentication response - these are the devices available for this session
 			// Fallback to empty array if no devices in response
 			const rawDevices = response.devices || [];
-			console.log(`${MODULE_TAG} 📋 Raw devices from initializeDeviceAuthentication:`, {
-				username: usernameInput.trim(),
-				userId: user.id,
-				deviceCount: rawDevices.length,
-				devices: rawDevices.map((d: Record<string, unknown>) => ({
-					id: d.id,
-					type: d.type,
-					nickname: d.nickname || d.name,
-					status: d.status,
-					userId: d.user?.id || 'N/A',
-					userUsername: d.user?.username || 'N/A',
-					userName: d.user?.name || 'N/A',
-					allKeys: Object.keys(d),
-				})),
-			});
 
 			// Filter devices to ensure they belong to the correct user
 			// PingOne should already filter by user, but we'll double-check
@@ -926,8 +838,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return matches;
 			});
 
-			console.log(`${MODULE_TAG} ✅ Filtered devices for user "${usernameInput.trim()}":`, {
-				originalCount: rawDevices.length,
 				filteredCount: userDevices.length,
 				removedCount: rawDevices.length - userDevices.length,
 				devices: userDevices.map((d: Record<string, unknown>) => ({
@@ -963,15 +873,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				
 				if (fido2Devices.length > 0) {
 					authDevices = [...fido2Devices, ...otherDevices];
-					console.log(`${MODULE_TAG} Session cookie detected - prioritizing FIDO2 devices:`, {
-						reason: platformPreference.reason,
-						fido2Count: fido2Devices.length,
-						totalDevices: authDevices.length,
-					});
 				}
 			}
-			
-			console.log(`${MODULE_TAG} Devices from authentication response:`, authDevices);
 
 			// Get the selected policy to check device selection behavior
 			const selectedPolicy = deviceAuthPolicies.find((p) => p.id === credentials.deviceAuthenticationPolicyId);
@@ -1077,7 +980,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					});
 					
 					if (logoutResult.success) {
-						console.log('[MFA-AUTHN-MAIN-V8] PingOne session logout initiated:', logoutResult.message);
 						toastV8.info('PingOne session logout initiated in a new tab');
 					} else {
 						console.warn('[MFA-AUTHN-MAIN-V8] PingOne logout failed:', logoutResult.error);
@@ -1085,30 +987,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				} catch (error) {
 					console.warn('[MFA-AUTHN-MAIN-V8] Could not end PingOne session:', error);
 				}
-			} else {
-				console.log('[MFA-AUTHN-MAIN-V8] No ID token or environment ID available for PingOne logout', {
-					hasIdToken: !!idToken,
-					hasEnvironmentId: !!environmentId,
-				});
+			}
 			}
 
 			// Call auth context logout to clear local session state
 			try {
 				authContext.logout();
-				console.log('[MFA-AUTHN-MAIN-V8] Auth context logout called');
 			} catch (error) {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
 			}
 
 			// Clear worker token
 			await workerTokenServiceV8.clearCredentials();
-			console.log('[MFA-AUTHN-MAIN-V8] Worker token cleared');
 
 			// Clear OAuth tokens from auth context
 			try {
 				oauthStorage.clearTokens();
 				oauthStorage.clearUserInfo();
-				console.log('[MFA-AUTHN-MAIN-V8] OAuth tokens cleared from auth context');
 			} catch (error) {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear OAuth tokens:', error);
 			}
@@ -1121,7 +1016,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						userToken: undefined,
 						tokenType: undefined,
 					}));
-					console.log('[MFA-AUTHN-MAIN-V8] User token cleared from credentials');
 				}
 			} catch (error) {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not clear user token from credentials:', error);
@@ -2988,14 +2882,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 							{(() => {
 								// Merge devices from authState and userDevices, deduplicating by ID
-								console.log(`${MODULE_TAG} Device Selection Modal - Merging devices for user "${usernameInput.trim()}":`, {
-									authStateDevices: authState.devices.length,
-									userDevices: userDevices.length,
-									authStateDeviceIds: authState.devices.map(d => d.id),
-									userDeviceIds: userDevices.map((d: Record<string, unknown>) => d.id),
-									currentUsername: usernameInput.trim(),
-									authStateUserId: authState.userId,
-								});
 								
 								const authDevicesMap = new Map(authState.devices.map(d => [d.id, d]));
 								const userDevicesMap = new Map(
@@ -3032,13 +2918,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										);
 									});
 								}
-								
-								console.log(`${MODULE_TAG} Device Selection Modal - All devices after merge and filter:`, {
-									totalDevices: allDevices.length,
-									searchQuery: deviceSearchQuery,
-									deviceIds: allDevices.map(d => d.id),
-									deviceTypes: allDevices.map(d => d.type),
-								});
 								
 								if (allDevices.length === 0) {
 									if (deviceSearchQuery.trim()) {
@@ -3162,14 +3041,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													selectedDeviceId={authState.selectedDeviceId}
 													deviceType={'SMS' as DeviceType}
 													onSelectDevice={async (deviceId) => {
-								console.log(`${MODULE_TAG} Device selection triggered:`, {
-									deviceId,
-									deviceIdType: typeof deviceId,
-									deviceIdLength: deviceId?.length,
-									devicesAvailable: authState.devices.length,
-									devices: authState.devices.map((d) => ({ id: d.id, type: d.type, nickname: d.nickname })),
-								});
-
 								// Validate deviceId
 								if (!deviceId || deviceId.trim() === '') {
 									console.error(`${MODULE_TAG} Invalid deviceId:`, deviceId);
@@ -3190,14 +3061,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								}
 
 								const deviceType = (selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
-								console.log(`${MODULE_TAG} Device selected:`, {
-									deviceId,
-									deviceType,
-									selectedDevice,
-									authenticationId: authState.authenticationId,
-									userId: authState.userId,
-									username: usernameInput.trim(),
-								});
 
 								// Validate required fields
 								if (!authState.authenticationId) {
@@ -3219,13 +3082,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									// Lookup userId if not already set
 									let userId = authState.userId;
 									if (!userId && usernameInput.trim()) {
-										console.log(`${MODULE_TAG} Looking up userId for username:`, usernameInput.trim());
 										const user = await MFAServiceV8.lookupUserByUsername(
 											credentials.environmentId,
 											usernameInput.trim()
 										);
 										const newUserId = String(user.id || '');
-										console.log(`${MODULE_TAG} User lookup result:`, { userId: newUserId, user });
 										setAuthState((prev) => ({ ...prev, userId: newUserId }));
 										userId = newUserId;
 									}
@@ -3234,9 +3095,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										throw new Error('Unable to determine userId. Please check your username and try again.');
 									}
 
-									console.log(`${MODULE_TAG} Calling selectDeviceForAuthentication with:`, {
-										environmentId: credentials.environmentId,
-										username: usernameInput.trim(),
 										userId,
 										authenticationId: authState.authenticationId,
 										deviceId,
@@ -3248,20 +3106,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										userId,
 										authenticationId: authState.authenticationId,
 										deviceId: deviceId.trim(),
-									});
-
-									console.log(`${MODULE_TAG} Device selected successfully:`, {
-										data,
-										challengeId: data.challengeId,
-										status: data.status,
-										nextStep: data.nextStep,
-										_links: data._links,
-										allKeys: Object.keys(data),
-										// Log all possible challengeId locations
-										challengeIdInData: data.challengeId,
-										challengePollLink: (data._links as Record<string, { href: string }>)?.['challenge.poll']?.href,
-										challengeCheckLink: (data._links as Record<string, { href: string }>)?.['challenge.check']?.href,
-										assertionCheckLink: (data._links as Record<string, { href: string }>)?.['assertion.check']?.href,
 									});
 
 									// Extract challengeId from response - it might be in data.challengeId or in _links
@@ -3276,9 +3120,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									// For FIDO2, check if publicKeyCredentialRequestOptions is provided
 									// This contains the WebAuthn challenge, but we still need challengeId to identify it
 									const hasPublicKeyOptions = !!(data as { publicKeyCredentialRequestOptions?: unknown }).publicKeyCredentialRequestOptions;
-									if (hasPublicKeyOptions) {
-										console.log(`${MODULE_TAG} Found publicKeyCredentialRequestOptions in response for FIDO2`);
-									}
 									
 									// Check if challengeId is in _links (e.g., challenge.poll or challenge.check)
 									if (!challengeId && data._links) {
@@ -3290,7 +3131,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											const challengeMatch = challengePollUrl.match(/\/challenges\/([^\/]+)/);
 											if (challengeMatch && challengeMatch[1]) {
 												challengeId = challengeMatch[1];
-												console.log(`${MODULE_TAG} ✅ Extracted challengeId from _links URL:`, challengeId);
 											} else {
 												console.warn(`${MODULE_TAG} ⚠️ challenge.poll/challenge.check URL found but couldn't extract challengeId:`, challengePollUrl);
 											}
@@ -3299,7 +3139,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										// For FIDO2 ASSERTION_REQUIRED, if we have assertion.check link but no challengeId,
 										// we might need to use the authenticationId as a fallback or extract from the link
 										if (!challengeId && links['assertion.check']?.href) {
-											console.log(`${MODULE_TAG} Found assertion.check link for FIDO2, checking if we can extract challengeId from authDetails`);
 											// The assertion.check link format is: /.../deviceAuthentications/{authId}
 											// We'll need to read the auth details to get challengeId
 										}
@@ -3318,11 +3157,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											authState.authenticationId,
 											{ isUserId: !!authState.userId }
 										);
-										console.log(`${MODULE_TAG} Read device authentication after selection:`, {
-											status: authDetails.status,
-											nextStep: authDetails.nextStep,
-											challengeId: authDetails.challengeId,
-										});
 										// Use challengeId from authDetails if available, otherwise keep existing
 										if (authDetails.challengeId) {
 											challengeId = authDetails.challengeId as string;
@@ -3330,8 +3164,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									} catch (readError) {
 										console.warn(`${MODULE_TAG} Failed to read device authentication after selection (will use challengeId from selection response):`, readError);
 										// Even if read fails, we should have challengeId from the selectDeviceForAuthentication response
-										// Log the current challengeId to help debug
-										console.log(`${MODULE_TAG} Using challengeId from selectDeviceForAuthentication response:`, challengeId);
 									}
 
 									// Ensure challengeId is set - it's critical for FIDO2 authentication
@@ -3358,7 +3190,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													const challengeMatch = challengePollUrl.match(/\/challenges\/([^\/]+)/);
 													if (challengeMatch && challengeMatch[1]) {
 														challengeId = challengeMatch[1];
-														console.log(`${MODULE_TAG} ✅ Extracted challengeId from _links URL as fallback:`, challengeId);
 													}
 												}
 											}
@@ -3367,11 +3198,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											// we can still proceed - the FIDO2 modal will need to handle this case
 											// by using the challenge from publicKeyCredentialRequestOptions directly
 											if (!challengeId && (data as { publicKeyCredentialRequestOptions?: unknown }).publicKeyCredentialRequestOptions) {
-												console.log(`${MODULE_TAG} ⚠️ No challengeId but publicKeyCredentialRequestOptions is available - FIDO2 modal should handle this`);
 											}
 										}
 									}
-									console.log(`${MODULE_TAG} Final challengeId for FIDO2 authentication:`, challengeId);
 									
 									// Update auth state with response
 									const status = (authDetails?.status as string) || data.status || '';
@@ -3437,7 +3266,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														...prev,
 														publicKeyCredentialRequestOptions: publicKeyOptions,
 													}));
-													console.log(`${MODULE_TAG} Stored publicKeyCredentialRequestOptions for FIDO2 authentication`);
 												}
 												setShowFIDO2Modal(true);
 												toastV8.success('Please complete WebAuthn authentication.');
@@ -3460,7 +3288,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								}
 							}}
 							onSelectNew={() => {
-								console.log(`${MODULE_TAG} Register New Device clicked`);
 								setShowDeviceSelectionModal(false);
 								// Open registration modal to allow user to choose device type
 								setShowRegistrationModal(true);
@@ -3503,13 +3330,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													deviceType={'SMS' as DeviceType}
 													onSelectDevice={async (deviceId) => {
 														// Same handler as active devices
-														console.log(`${MODULE_TAG} Device selection triggered (activation required):`, {
-															deviceId,
-															deviceIdType: typeof deviceId,
-															deviceIdLength: deviceId?.length,
-															devicesAvailable: authState.devices.length,
-															devices: authState.devices.map((d) => ({ id: d.id, type: d.type, nickname: d.nickname })),
-														});
 
 														// Validate deviceId
 														if (!deviceId || deviceId.trim() === '') {
@@ -3531,12 +3351,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}
 
 														const deviceType = (selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
-														console.log(`${MODULE_TAG} Device selected (activation required):`, {
-															deviceId,
-															deviceType,
-															selectedDevice,
-															authenticationId: authState.authenticationId,
-															userId: authState.userId,
 															username: usernameInput.trim(),
 														});
 
@@ -3558,7 +3372,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														setShowDeviceSelectionModal(false);
 													}}
 													onSelectNew={() => {
-														console.log(`${MODULE_TAG} Register New Device clicked`);
 														setShowDeviceSelectionModal(false);
 														setShowRegistrationModal(true);
 													}}
@@ -3757,10 +3570,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 													completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
 														updatedLinks['complete'].href
 													);
-													console.log(`${MODULE_TAG} Authentication completed with tokens:`, {
-														hasAccessToken: !!completionResult.accessToken,
-														tokenType: completionResult.tokenType,
-													});
 												} catch (completeError) {
 													console.warn(`${MODULE_TAG} Failed to complete authentication:`, completeError);
 													// Continue even if completion fails - OTP was validated successfully
@@ -4092,9 +3901,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-									console.log(`${MODULE_TAG} 🔘 BUTTON CLICKED: "Authenticate with Passkey" button was clicked!`, {
-										timestamp: new Date().toISOString(),
-										authenticationId: authState.authenticationId,
 										hasChallengeId: !!authState.challengeId,
 										hasPublicKeyOptions: !!authState.publicKeyCredentialRequestOptions,
 										isWebAuthnSupported: WebAuthnAuthenticationServiceV8.isWebAuthnSupported(),
@@ -4112,13 +3918,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									const hasChallengeId = !!authState.challengeId;
 									const hasPublicKeyOptions = !!authState.publicKeyCredentialRequestOptions;
 									
-									console.log(`${MODULE_TAG} 📋 Validation check:`, {
-										hasChallengeId,
-										hasPublicKeyOptions,
-										challengeIdValue: authState.challengeId,
-										publicKeyOptionsType: typeof authState.publicKeyCredentialRequestOptions,
-									});
-									
 									if (!hasChallengeId && !hasPublicKeyOptions) {
 										console.error(`${MODULE_TAG} ❌ Missing both challengeId and publicKeyCredentialRequestOptions`);
 										setFido2Error('WebAuthn challenge not found. Please try selecting the device again.');
@@ -4131,7 +3930,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										return;
 									}
 
-									console.log(`${MODULE_TAG} ✅ All validations passed, starting WebAuthn authentication...`);
 									setIsAuthenticatingFIDO2(true);
 									setFido2Error(null);
 
@@ -4158,8 +3956,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										
 										// Use publicKeyCredentialRequestOptions if available (from PingOne response)
 										if (hasPublicKeyOptions) {
-											console.log(`${MODULE_TAG} Using publicKeyCredentialRequestOptions from PingOne response`);
-											
 											// Parse if it's a string, otherwise use as-is
 											let publicKeyOptions: PublicKeyCredentialRequestOptions;
 											if (typeof authState.publicKeyCredentialRequestOptions === 'string') {
@@ -4173,30 +3969,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												publicKeyOptions = authState.publicKeyCredentialRequestOptions as PublicKeyCredentialRequestOptions;
 											}
 											
-											// Log the structure to help debug
-											console.log(`${MODULE_TAG} 📋 publicKeyCredentialRequestOptions structure:`, {
-												hasChallenge: !!publicKeyOptions.challenge,
-												challengeType: typeof publicKeyOptions.challenge,
-												challengeIsArray: Array.isArray(publicKeyOptions.challenge),
-												hasAllowCredentials: !!publicKeyOptions.allowCredentials,
-												allowCredentialsCount: publicKeyOptions.allowCredentials?.length || 0,
-												allowCredentialsPreview: publicKeyOptions.allowCredentials?.map((cred, idx) => ({
-													index: idx,
-													type: cred.type,
-													idType: typeof cred.id,
-													idIsArray: Array.isArray(cred.id),
-													idIsString: typeof cred.id === 'string',
-													idIsArrayBuffer: cred.id instanceof ArrayBuffer,
-													idIsArrayBufferView: ArrayBuffer.isView(cred.id),
-													idPreview: typeof cred.id === 'string' ? (cred.id as string).substring(0, 30) + '...' : 'not a string',
-													transports: cred.transports,
-												})) || [],
-											});
-											
 											webAuthnParams.publicKeyOptions = publicKeyOptions;
 										} else if (hasChallengeId) {
 											// Fallback to challengeId
-											console.log(`${MODULE_TAG} Using challengeId for WebAuthn authentication`);
 											webAuthnParams.challengeId = authState.challengeId!;
 										}
 										
@@ -4209,30 +3984,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												authenticatorAttachment: 'platform',
 												userVerification: 'preferred',
 											};
-											if (platformPreference.prefer) {
-												console.log(`[🔐 MFA-AUTHN-MAIN-V8] Using FIDO2 platform device preference: ${platformPreference.reason}`);
-											}
 										}
 										
-										console.log(`${MODULE_TAG} 🚀 CALLING WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn()`, {
-											hasPublicKeyOptions: !!webAuthnParams.publicKeyOptions,
-											hasChallengeId: !!webAuthnParams.challengeId,
-											authenticationId: authState.authenticationId,
-											publicKeyOptionsPreview: webAuthnParams.publicKeyOptions ? {
-												hasChallenge: !!(webAuthnParams.publicKeyOptions as PublicKeyCredentialRequestOptions).challenge,
-												rpId: (webAuthnParams.publicKeyOptions as PublicKeyCredentialRequestOptions).rpId,
-												timeout: (webAuthnParams.publicKeyOptions as PublicKeyCredentialRequestOptions).timeout,
-											} : null,
-											timestamp: new Date().toISOString(),
-										});
-										
 										const webAuthnResult = await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(webAuthnParams);
-										
-										console.log(`${MODULE_TAG} 📥 WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn() returned:`, {
-											success: webAuthnResult.success,
-											error: webAuthnResult.error,
-											hasCredentialId: !!webAuthnResult.credentialId,
-										});
 
 										if (!webAuthnResult.success) {
 											throw new Error(webAuthnResult.error || 'WebAuthn authentication failed');
@@ -4256,12 +4010,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											},
 										};
 
-										console.log(`${MODULE_TAG} Sending FIDO2 assertion to PingOne:`, {
-											authenticationId: authState.authenticationId,
-											hasAssertion: !!assertion,
-											hasSignature: !!assertion.response.signature,
-										});
-
 										// Call check-assertion endpoint
 										// Pass environmentId from credentials to avoid loading from storage
 										const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
@@ -4269,12 +4017,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											assertion,
 											credentials.environmentId
 										);
-
-										console.log(`${MODULE_TAG} FIDO2 assertion checked:`, {
-											status: assertionResult.status,
-											nextStep: assertionResult.nextStep,
-											hasLinks: !!assertionResult._links,
-										});
 
 										// After sending assertion, check status and complete authentication
 										// The assertion result may have a poll link or complete link
@@ -4287,10 +4029,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
 													assertionLinks['complete']?.href || authState._links!['complete']!.href
 												);
-												console.log(`${MODULE_TAG} FIDO2 authentication completed with tokens:`, {
-													hasAccessToken: !!completionResult.accessToken,
-													tokenType: completionResult.tokenType,
-												});
 											} catch (completeError) {
 												console.warn(`${MODULE_TAG} Failed to complete FIDO2 authentication:`, completeError);
 												// Continue even if completion fails - authentication was successful
@@ -4352,10 +4090,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															pollCompletionResult = await MfaAuthenticationServiceV8.completeAuthentication(
 																pollLinks['complete']?.href || authState._links!['complete']!.href
 															);
-															console.log(`${MODULE_TAG} FIDO2 authentication completed with tokens (via poll):`, {
-																hasAccessToken: !!pollCompletionResult.accessToken,
-																tokenType: pollCompletionResult.tokenType,
-															});
 														} catch (completeError) {
 															console.warn(`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`, completeError);
 														}
@@ -4791,11 +4525,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															setShowRegistrationModal(false);
 															// Navigate to registration with the selected policy
 															// The registration flow will use credentials.deviceAuthenticationPolicyId
-															console.log(`${MODULE_TAG} Navigating to registration for ${deviceType} with policy:`, {
-																deviceType,
-																policyId: credentials.deviceAuthenticationPolicyId,
-																policyName: selectedPolicy.name,
-															});
 															navigate(`/v8/mfa/register/${deviceType.toLowerCase()}`, {
 																state: {
 																	deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
