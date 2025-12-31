@@ -74,7 +74,11 @@ const fetchBackendCallsById = async (callId: string) => {
 		}
 		return resp.json() as Promise<{ calls: unknown }>;
 	} catch (error) {
-		console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
+		// Suppress connection refused errors when server is down
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		if (!errorMessage.includes('ERR_CONNECTION_REFUSED') && !errorMessage.includes('Failed to fetch')) {
+			console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
+		}
 		return null;
 	}
 };

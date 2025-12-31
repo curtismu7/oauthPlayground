@@ -185,6 +185,10 @@ import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
 import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
 import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
+import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
+import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
+import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
+import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import SpiffeSpireFlowV8U from './v8u/flows/SpiffeSpireFlowV8U';
@@ -381,7 +385,6 @@ const AppRoutes: React.FC = () => {
 
 	// Scroll to top on route change - scroll main content only, not entire window
 	useEffect(() => {
-		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
 
 		// Skip auto-scroll for certain flows to prevent menu jumping
 		const skipAutoScroll: string[] = [
@@ -535,19 +538,26 @@ const AppRoutes: React.FC = () => {
 							<Route path="/v8/mfa/authentication/success" element={<MFAAuthenticationSuccessPage />} />
 							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
+							<Route path="/v8/mfa/register/sms/docs" element={<SMSRegistrationDocsPageV8 />} />
 							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/email/device" element={<EmailFlowV8 />} />
+							<Route path="/v8/mfa/register/email/docs" element={<EmailRegistrationDocsPageV8 />} />
+							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppOTPConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
+							<Route path="/v8/mfa/register/whatsapp/docs" element={<WhatsAppRegistrationDocsPageV8 />} />
 							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
-							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppOTPConfigurationPageV8 />} />
-							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
+							<Route path="/v8/mfa/register/fido2/docs" element={<FIDO2RegistrationDocsPageV8 />} />
 							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
 							<Route path="/v8/mfa/register/platform" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa/register/platform/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
 							<Route path="/v8/mfa/register/security_key" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa/register/security_key/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
+							{/* Voice routes redirect to SMS (Voice uses the same phone-based flow as SMS) */}
+							<Route path="/v8/mfa/register/voice" element={<Navigate to="/v8/mfa/register/sms" replace />} />
+							<Route path="/v8/mfa/register/voice/device" element={<Navigate to="/v8/mfa/register/sms/device" replace />} />
 							<Route path="/v8/mfa/configure/fido2" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
@@ -1112,13 +1122,6 @@ function AppContent() {
 				// Make it available globally
 				(window as Window & { CredentialDebugger?: typeof CredentialDebugger }).CredentialDebugger =
 					CredentialDebugger;
-				console.log('🔧 CredentialDebugger initialized and available globally');
-				console.log('🔧 Available commands:');
-				console.log('  - CredentialDebugger.auditAllFlows()');
-				console.log('  - CredentialDebugger.auditFlowCredentials("flow-key")');
-				console.log('  - CredentialDebugger.dumpAllStorage()');
-				console.log('  - CredentialDebugger.clearAllCredentials()');
-				console.log('  - CredentialDebugger.testCredentialIsolation("flow1", "flow2")');
 			});
 
 			// Import and initialize field editing diagnostic
@@ -1127,12 +1130,6 @@ function AppContent() {
 				(
 					window as Window & { FieldEditingDiagnostic?: typeof FieldEditingDiagnostic }
 				).FieldEditingDiagnostic = FieldEditingDiagnostic;
-				console.log('🔧 FieldEditingDiagnostic initialized and available globally');
-				console.log('🔧 Available commands:');
-				console.log('  - diagnoseFields() - Analyze all fields for editing issues');
-				console.log('  - fixFields() - Apply common fixes to all fields');
-				console.log('  - monitorFields() - Start real-time monitoring');
-				console.log('  - stopMonitorFields() - Stop monitoring');
 			});
 
 			// Import and initialize token exchange tests
@@ -1143,8 +1140,6 @@ function AppContent() {
 					test.runAllTests();
 					return test.getResults();
 				};
-				console.log('🧪 Token Exchange Flow Test loaded');
-				console.log('🧪 Run: runTokenExchangeTests()');
 			});
 
 			// Import and initialize integration tests
@@ -1156,10 +1151,6 @@ function AppContent() {
 						await test.runAllTests();
 						return test.getResults();
 					};
-					console.log('🧪 Token Exchange Integration Test loaded');
-					console.log('🧪 Commands:');
-					console.log('   - runIntegrationTests() - Run all tests');
-					console.log('   - checkTokenExchangeState() - Quick diagnostic');
 				}
 			);
 		}
@@ -1173,7 +1164,6 @@ function AppContent() {
 			monitorChanges: true,
 			autoFix: true,
 		});
-		console.log('🛡️ Field Editing Protection initialized');
 
 		// Listen for URL validation modal updates
 		const handleModalUpdate = (event: CustomEvent) => {

@@ -62,7 +62,6 @@ export class RoutePersistenceService {
 		try {
 			localStorage.setItem(LAST_ROUTE_KEY, path);
 			localStorage.setItem(LAST_ROUTE_TIMESTAMP_KEY, Date.now().toString());
-			console.log(`💾 [RoutePersistence] Saved route: ${path}`);
 		} catch (error) {
 			console.warn('[RoutePersistence] Failed to save route:', error);
 		}
@@ -147,13 +146,6 @@ export class RoutePersistenceService {
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
 	(window as any).RoutePersistenceService = RoutePersistenceService;
-	console.log('🔧 RoutePersistenceService available globally as window.RoutePersistenceService');
-	console.log('🔧 Available commands:');
-	console.log('  - RoutePersistenceService.getLastRoute()');
-	console.log('  - RoutePersistenceService.saveCurrentRoute(path)');
-	console.log('  - RoutePersistenceService.clearSavedRoute()');
-	console.log('  - RoutePersistenceService.hasSavedRoute()');
-	console.log('  - RoutePersistenceService.getRouteAge()');
 }
 
 export default RoutePersistenceService;

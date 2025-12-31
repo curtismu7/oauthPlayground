@@ -417,11 +417,18 @@ export class MFAReportingServiceV8 {
 	/**
 	 * Create report of SMS devices - entries in response
 	 * POST /v1/environments/{envID}/reports/smsDevices
-	 * @param params - Report parameters including filter and limit
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-report-of-sms-devices---entries-in-response
+	 * @param params - Report parameters
 	 * @returns Report data with embedded entries
 	 */
 	static async createSMSDevicesReport(
-		params: ReportParams & { filter?: string }
+		params: ReportParams & { 
+			filter?: string;
+			dataExplorationTemplateId?: string;
+			fields?: Array<{ name: string }>;
+			sync?: string;
+			deliverAs?: string;
+		}
 	): Promise<Record<string, unknown>> {
 		console.log(`${MODULE_TAG} Creating SMS devices report`, params);
 
@@ -432,8 +439,11 @@ export class MFAReportingServiceV8 {
 			const requestBody = {
 				environmentId: params.environmentId,
 				workerToken: accessToken,
+				...(params.dataExplorationTemplateId && { dataExplorationTemplateId: params.dataExplorationTemplateId }),
+				...(params.fields && { fields: params.fields }),
 				...(params.filter && { filter: params.filter }),
-				...(params.limit && { limit: params.limit }),
+				...(params.sync !== undefined && { sync: params.sync }),
+				...(params.deliverAs && { deliverAs: params.deliverAs }),
 			};
 
 			const startTime = Date.now();
@@ -514,6 +524,7 @@ export class MFAReportingServiceV8 {
 	/**
 	 * Get report results - entries in response
 	 * GET /v1/environments/{envID}/reports/{reportID}
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-get-report-results---entries-in-response
 	 * @param params - Report parameters including reportId
 	 * @returns Report data with embedded entries
 	 */
@@ -610,11 +621,18 @@ export class MFAReportingServiceV8 {
 	/**
 	 * Create report of MFA-enabled devices - results in file
 	 * POST /v1/environments/{envID}/reports/mfaEnabledDevices
-	 * @param params - Report parameters including filter and limit
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-report-of-mfa-enabled-devices---results-in-file
+	 * @param params - Report parameters
 	 * @returns Report job ID and status (requires polling)
 	 */
 	static async createMFAEnabledDevicesReport(
-		params: ReportParams & { filter?: string }
+		params: ReportParams & { 
+			filter?: string;
+			dataExplorationTemplateId?: string;
+			fields?: Array<{ name: string }>;
+			sync?: string;
+			deliverAs?: string;
+		}
 	): Promise<Record<string, unknown>> {
 		console.log(`${MODULE_TAG} Creating MFA-enabled devices report`, params);
 
@@ -625,8 +643,11 @@ export class MFAReportingServiceV8 {
 			const requestBody = {
 				environmentId: params.environmentId,
 				workerToken: accessToken,
+				...(params.dataExplorationTemplateId && { dataExplorationTemplateId: params.dataExplorationTemplateId }),
+				...(params.fields && { fields: params.fields }),
 				...(params.filter && { filter: params.filter }),
-				...(params.limit && { limit: params.limit }),
+				...(params.sync !== undefined && { sync: params.sync }),
+				...(params.deliverAs && { deliverAs: params.deliverAs }),
 			};
 
 			const startTime = Date.now();
@@ -759,6 +780,105 @@ export class MFAReportingServiceV8 {
 		}
 
 		throw new Error(`Report polling timed out after ${maxAttempts} attempts`);
+	}
+
+	/**
+	 * Get devices filtered by type (for FIDO2, Email, TOTP reports)
+	 * Uses GET /v1/environments/{envID}/users/{userID}/devices with SCIM filter
+	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-read-all-mfa-user-devices
+	 * @param params - Report parameters including username
+	 * @param deviceType - Device type to filter (FIDO2, EMAIL, TOTP)
+	 * @returns List of devices filtered by type
+	 */
+	static async getDevicesByType(
+		params: ReportParams & { username: string },
+		deviceType: 'FIDO2' | 'EMAIL' | 'TOTP'
+	): Promise<Array<Record<string, unknown>>> {
+		console.log(`${MODULE_TAG} Getting devices by type`, { deviceType, username: params.username });
+
+		try {
+			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+
+			// First, lookup user by username to get userId
+			const { MFAServiceV8 } = await import('./mfaServiceV8');
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
+			// Use the get-all-devices endpoint with SCIM filter
+			const proxyEndpoint = '/api/pingone/mfa/get-all-devices';
+			const requestBody = {
+				environmentId: params.environmentId,
+				userId: user.id,
+				workerToken: accessToken,
+				filter: `type eq "${deviceType}"`,
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: proxyEndpoint,
+				body: {
+					...requestBody,
+					workerToken: '***REDACTED***',
+				},
+				step: `Get ${deviceType} Devices Report`,
+			});
+
+			let response: Response;
+			try {
+				response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let devicesData: unknown;
+			try {
+				devicesData = await responseClone.json();
+			} catch {
+				devicesData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: Object.fromEntries(response.headers.entries()),
+					data: devicesData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = devicesData as { error?: string; message?: string; details?: unknown };
+				const errorMessage = errorData.message || errorData.error || response.statusText;
+				throw new Error(`Failed to get ${deviceType} devices: ${errorMessage}`);
+			}
+
+			const devicesResponse = devicesData as { _embedded?: { devices?: Array<Record<string, unknown>> } };
+			const devices = devicesResponse._embedded?.devices || [];
+
+			console.log(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);
+			return devices;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Get ${deviceType} devices error`, error);
+			throw error;
+		}
 	}
 }
 

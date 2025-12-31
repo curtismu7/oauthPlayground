@@ -31,38 +31,14 @@ export class ConfigComparisonService {
 
 			// Add timestamp to ensure fresh data is fetched every time
 			const timestamp = Date.now();
-			console.log(
-				`[CONFIG-COMPARISON] Fetching fresh PingOne data at ${new Date(timestamp).toISOString()}`
-			);
 			// Use proxy endpoint instead of direct API call
 			const applicationsUrl = `http://localhost:3001/api/pingone/applications?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}&t=${timestamp}&_=${Math.random()}`;
 			const response = await fetch(applicationsUrl);
 			const responseData = await response.json();
 			const applications = responseData._embedded?.applications || [];
-			console.log(`[CONFIG-COMPARISON] Fetched ${applications.length} applications from PingOne`);
 
 			// Find the application with matching clientId
 			const app = applications.find((app: any) => app.clientId === clientId);
-
-			console.log('[CONFIG-COMPARISON] Looking for clientId:', clientId);
-			console.log(
-				'[CONFIG-COMPARISON] Available applications:',
-				applications.map((app: any) => ({
-					name: app.name,
-					clientId: app.clientId,
-					grantTypes: app.grantTypes,
-				}))
-			);
-			console.log(
-				'[CONFIG-COMPARISON] Found app:',
-				app
-					? {
-							name: app.name,
-							clientId: app.clientId,
-							grantTypes: app.grantTypes,
-						}
-					: 'NOT FOUND'
-			);
 
 			if (!app) {
 				return {
@@ -84,12 +60,10 @@ export class ConfigComparisonService {
 			const appWithScopes = { ...app };
 			if (!app.scopes && !app.allowedScopes && !app.resources) {
 				try {
-					console.log('[CONFIG-COMPARISON] No scopes found in app, trying resources endpoint...');
 					// Use proxy endpoint instead of direct API call
 					const resourcesUrl = `http://localhost:3001/api/pingone/applications/${app.id}/resources?environmentId=${this.environmentId}&clientId=${this.clientId}&clientSecret=${this.clientSecret}&workerToken=${encodeURIComponent(this.token)}&region=${this.region}`;
 					const resourcesResponse = await fetch(resourcesUrl);
 					const resourcesData = await resourcesResponse.json();
-					console.log('[CONFIG-COMPARISON] Resources response:', resourcesData);
 
 					if (resourcesData._embedded?.resources) {
 						const allScopes: string[] = [];
@@ -100,25 +74,19 @@ export class ConfigComparisonService {
 						});
 						if (allScopes.length > 0) {
 							appWithScopes.scopes = [...new Set(allScopes)];
-							console.log(
-								'[CONFIG-COMPARISON] Extracted scopes from resources endpoint:',
-								appWithScopes.scopes
-							);
 						}
 					}
 				} catch (resourcesError) {
-					console.log('[CONFIG-COMPARISON] Resources endpoint failed:', resourcesError);
+					// Silently fail and try next method
 				}
 
 				// If still no scopes, try OIDC discovery endpoint
 				if (!appWithScopes.scopes || appWithScopes.scopes.length === 0) {
 					try {
-						console.log('[CONFIG-COMPARISON] No scopes from resources, trying OIDC discovery...');
 						// Use proxy endpoint instead of direct API call
 						const discoveryUrl = `http://localhost:3001/api/pingone/oidc-config?environmentId=${this.environmentId}&region=${this.region}`;
 						const discoveryResponse = await fetch(discoveryUrl);
 						const discoveryData = await discoveryResponse.json();
-						console.log('[CONFIG-COMPARISON] OIDC discovery response:', discoveryData);
 
 						if (discoveryData.scopes_supported && Array.isArray(discoveryData.scopes_supported)) {
 							// Filter for PingOne-specific scopes
@@ -131,54 +99,21 @@ export class ConfigComparisonService {
 							);
 							if (pingOneScopes.length > 0) {
 								appWithScopes.scopes = pingOneScopes;
-								console.log(
-									'[CONFIG-COMPARISON] Extracted scopes from OIDC discovery:',
-									appWithScopes.scopes
-								);
 							}
 						}
 					} catch (discoveryError) {
-						console.log('[CONFIG-COMPARISON] OIDC discovery failed:', discoveryError);
+						// Silently fail and use default
 					}
 				}
 
 				// Final fallback: use default PingOne scopes if still none found
 				if (!appWithScopes.scopes || appWithScopes.scopes.length === 0) {
-					console.log('[CONFIG-COMPARISON] No scopes found anywhere, using default PingOne scopes');
 					appWithScopes.scopes = ['openid', 'p1:read:user', 'p1:update:user'];
 				}
 			}
 
-			// Debug logging to see what PingOne API returns
-			console.log('[CONFIG-COMPARISON] PingOne app data:', {
-				clientId: appWithScopes.clientId,
-				grantTypes: appWithScopes.grantTypes,
-				tokenEndpointAuthMethod: appWithScopes.tokenEndpointAuthMethod,
-				clientAuthMethod: appWithScopes.clientAuthMethod,
-				clientAuthenticationMethod: appWithScopes.clientAuthenticationMethod,
-				scopes: appWithScopes.scopes,
-				resources: appWithScopes.resources,
-				allowedScopes: appWithScopes.allowedScopes,
-				allKeys: Object.keys(appWithScopes),
-				fullApp: appWithScopes,
-			});
-
 			const normalizedRemote = this.normalize(appWithScopes);
 			const normalizedDesired = this.normalize(formData);
-
-			console.log('[CONFIG-COMPARISON] Raw grantTypes from PingOne:', appWithScopes.grantTypes);
-			console.log(
-				'[CONFIG-COMPARISON] Normalized grantTypes from PingOne:',
-				normalizedRemote.grantTypes
-			);
-			console.log(
-				'[CONFIG-COMPARISON] Normalized grantTypes from Our App:',
-				normalizedDesired.grantTypes
-			);
-			console.log('[CONFIG-COMPARISON] Normalized comparison:', {
-				remote: normalizedRemote,
-				desired: normalizedDesired,
-			});
 
 			return {
 				hasDiffs: JSON.stringify(normalizedRemote) !== JSON.stringify(normalizedDesired),
@@ -258,19 +193,11 @@ export class ConfigComparisonService {
 	 * Normalize token endpoint authentication method to handle case variations
 	 */
 	private normalizeTokenEndpointAuthMethod(method: unknown): string | undefined {
-		console.log('[CONFIG-COMPARISON] Normalizing tokenEndpointAuthMethod:', {
-			original: method,
-			type: typeof method,
-			isString: typeof method === 'string',
-		});
-
 		if (!method || typeof method !== 'string') {
-			console.log('[CONFIG-COMPARISON] Method is not a string or is falsy, returning undefined');
 			return undefined;
 		}
 
 		const normalized = method.toLowerCase().trim();
-		console.log('[CONFIG-COMPARISON] Normalized method:', normalized);
 
 		// Map PingOne API values to our expected values
 		const mapping: Record<string, string> = {
@@ -287,7 +214,6 @@ export class ConfigComparisonService {
 		};
 
 		const result = mapping[normalized] || normalized;
-		console.log('[CONFIG-COMPARISON] Final normalized result:', result);
 		return result;
 	}
 
@@ -295,16 +221,6 @@ export class ConfigComparisonService {
 	 * Extract scopes from PingOne application data structure
 	 */
 	private extractScopesFromPingOneApp(app: Record<string, unknown>): string[] | undefined {
-		console.log('[CONFIG-COMPARISON] Extracting scopes from PingOne app:', {
-			appKeys: Object.keys(app),
-			hasScopes: 'scopes' in app,
-			hasScope: 'scope' in app,
-			hasAllowedScopes: 'allowedScopes' in app,
-			hasResources: 'resources' in app,
-			hasResourceScopes: 'resourceScopes' in app,
-			fullApp: app,
-		});
-
 		// Try different possible locations for scopes in PingOne API response
 		const possibleScopeFields = [
 			'scopes',
@@ -320,15 +236,12 @@ export class ConfigComparisonService {
 
 		for (const field of possibleScopeFields) {
 			const value = app[field];
-			console.log(`[CONFIG-COMPARISON] Checking field '${field}':`, value);
 
 			if (value) {
 				if (Array.isArray(value)) {
-					console.log(`[CONFIG-COMPARISON] Found array in '${field}':`, value);
 					return value;
 				} else if (typeof value === 'string') {
 					const scopes = value.split(/[\s,]+/).filter((s) => s.trim());
-					console.log(`[CONFIG-COMPARISON] Found string in '${field}', parsed to:`, scopes);
 					return scopes;
 				} else if (typeof value === 'object' && value !== null) {
 					// Handle nested structure like resources with scopes
@@ -337,7 +250,6 @@ export class ConfigComparisonService {
 						(value as any).allowedScopes ||
 						(value as any).scopes_supported;
 					if (Array.isArray(nestedScopes)) {
-						console.log(`[CONFIG-COMPARISON] Found nested scopes in '${field}':`, nestedScopes);
 						return nestedScopes;
 					}
 				}
@@ -348,7 +260,6 @@ export class ConfigComparisonService {
 		if (app._embedded && typeof app._embedded === 'object') {
 			const embedded = app._embedded as any;
 			if (embedded.resources && Array.isArray(embedded.resources)) {
-				console.log('[CONFIG-COMPARISON] Found _embedded.resources:', embedded.resources);
 				// Extract scopes from resources
 				const allScopes: string[] = [];
 				embedded.resources.forEach((resource: any) => {
@@ -357,13 +268,11 @@ export class ConfigComparisonService {
 					}
 				});
 				if (allScopes.length > 0) {
-					console.log('[CONFIG-COMPARISON] Extracted scopes from _embedded.resources:', allScopes);
 					return [...new Set(allScopes)]; // Remove duplicates
 				}
 			}
 		}
 
-		console.log('[CONFIG-COMPARISON] No scopes found in any field');
 		return undefined;
 	}
 
@@ -480,18 +389,9 @@ export class ConfigComparisonService {
 		const expectedUris = Array.isArray(expected) ? expected : [];
 		const actualUris = Array.isArray(actual) ? actual : [];
 
-		console.log('[CONFIG-COMPARISON] Redirect URI comparison:', {
-			expectedUris,
-			actualUris,
-			expectedCount: expectedUris.length,
-			actualCount: actualUris.length,
-		});
-
 		// If either is empty, they're not equal
 		if (expectedUris.length === 0 || actualUris.length === 0) {
-			const result = expectedUris.length === actualUris.length;
-			console.log('[CONFIG-COMPARISON] Empty array comparison result:', result);
-			return result;
+			return expectedUris.length === actualUris.length;
 		}
 
 		// Check if any expected URI matches any actual URI
@@ -501,17 +401,10 @@ export class ConfigComparisonService {
 			actualUris.some((actualUri) => {
 				const expectedTrimmed = String(expectedUri).trim();
 				const actualTrimmed = String(actualUri).trim();
-				const isMatch = expectedTrimmed === actualTrimmed;
-				console.log('[CONFIG-COMPARISON] URI comparison:', {
-					expected: expectedTrimmed,
-					actual: actualTrimmed,
-					isMatch,
-				});
-				return isMatch;
+				return expectedTrimmed === actualTrimmed;
 			})
 		);
 
-		console.log('[CONFIG-COMPARISON] Redirect URI match result:', match);
 		return match;
 	}
 }

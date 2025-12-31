@@ -318,7 +318,6 @@ class FieldEditingDiagnostic {
 		if (observer) {
 			observer.disconnect();
 			delete (window as any).fieldEditingObserver;
-			console.log('🛑 [FIELD EDITING MONITOR] Stopped monitoring');
 		}
 	}
 }
@@ -333,11 +332,6 @@ if (typeof window !== 'undefined') {
 	(window as any).monitorFields = () => FieldEditingDiagnostic.getInstance().startMonitoring();
 	(window as any).stopMonitorFields = () => FieldEditingDiagnostic.getInstance().stopMonitoring();
 
-	console.log('🔧 Field Editing Diagnostic loaded. Available commands:');
-	console.log('  - diagnoseFields() - Analyze all fields for editing issues');
-	console.log('  - fixFields() - Apply common fixes to all fields');
-	console.log('  - monitorFields() - Start real-time monitoring');
-	console.log('  - stopMonitorFields() - Stop monitoring');
 }
 
 export default FieldEditingDiagnostic;

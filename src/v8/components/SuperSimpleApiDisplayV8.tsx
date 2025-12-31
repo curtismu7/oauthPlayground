@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { useServerHealth } from '@/hooks/useServerHealth';
 
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
@@ -33,6 +34,8 @@ interface ApiCall {
 		  }
 		| undefined;
 	timestamp: number;
+	actualPingOneUrl?: string;
+	isProxy?: boolean;
 }
 
 // Helper function to create fully functional pop-out window
@@ -42,7 +45,8 @@ const createPopOutWindow = (
 	_onFontSizeChange: (newSize: number) => void, // Unused - font size changes are handled via postMessage
 	flowFilter: 'unified' | 'mfa' | 'spiffe-spire' | 'all',
 	excludePatterns: string[],
-	includePatterns: string[]
+	includePatterns: string[],
+	showP1Only: boolean
 ): Window | null => {
 	const width = 1400;
 	const height = 900;
@@ -102,6 +106,7 @@ const createPopOutWindow = (
 			let currentFontSize = ${fontSize};
 			let expandedIds = new Set();
 			let copiedField = null;
+			let showP1OnlyFilter = ${JSON.stringify(showP1Only)};
 			const flowFilter = ${JSON.stringify(flowFilter)};
 			const excludePatterns = ${JSON.stringify(excludePatterns)};
 			const includePatterns = ${JSON.stringify(includePatterns)};
@@ -112,7 +117,72 @@ const createPopOutWindow = (
 				return '🔴';
 			}
 
-			function getApiTypeIcon(url) {
+			function getStatusLabel(status) {
+				if (!status) return '';
+				
+				const statusMap = {
+					200: 'success',
+					201: 'created',
+					202: 'accepted',
+					204: 'no-content',
+					301: 'moved',
+					302: 'found',
+					304: 'not-modified',
+					400: 'bad-request',
+					401: 'unauthorized',
+					403: 'forbidden',
+					404: 'not-found',
+					405: 'method-not-allowed',
+					409: 'conflict',
+					422: 'unprocessable',
+					429: 'too-many-requests',
+					500: 'server-error',
+					502: 'bad-gateway',
+					503: 'unavailable',
+					504: 'gateway-timeout',
+				};
+
+				// Check exact match first
+				if (statusMap[status]) {
+					return statusMap[status];
+				}
+
+				// Fallback to ranges
+				if (status >= 200 && status < 300) return 'success';
+				if (status >= 300 && status < 400) return 'redirect';
+				if (status >= 400 && status < 500) return 'client-error';
+				if (status >= 500) return 'server-error';
+
+				return 'unknown';
+			}
+
+			function isProxyCall(call) {
+				const url = call.url || '';
+				
+				// If isProxy is explicitly set, use that (backend calls set this correctly)
+				if (typeof call.isProxy === 'boolean') {
+					return call.isProxy;
+				}
+				
+				// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
+				// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
+				const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+				
+				// If it's a direct PingOne URL, it's not a proxy
+				if (isDirectPingOneUrl) {
+					return false;
+				}
+				
+				// Otherwise, check if it starts with /api/pingone/ or /api/
+				const isProxyUrl = url.startsWith('/api/pingone/') || url.startsWith('/api/');
+				return isProxyUrl;
+			}
+
+			function getApiTypeIcon(call) {
+				const url = call.url || '';
+				const isProxy = isProxyCall(call);
+				
+				// Check if it's an admin/worker token API call
 				const isAdminApi = url.includes('/as/token') || 
 					url.includes('/users?filter=') || 
 					(url.includes('/users/') && (url.includes('/devices') || url.includes('/mfa'))) ||
@@ -120,10 +190,30 @@ const createPopOutWindow = (
 					url.includes('register-device') || 
 					url.includes('mfa/') || 
 					(url.includes('/environments/') && !url.includes('/authorize'));
-				return isAdminApi ? { icon: '🔑', label: 'Admin API (Worker Token)' } : { icon: '👤', label: 'User API' };
+				
+				// Different icons for proxy vs direct calls
+				if (isProxy) {
+					return isAdminApi 
+						? { icon: '🔀', label: 'Proxy Admin API (Worker Token)' } 
+						: { icon: '🔄', label: 'Proxy User API' };
+				}
+				
+				return isAdminApi 
+					? { icon: '🔑', label: 'Admin API (Worker Token)' } 
+					: { icon: '👤', label: 'User API' };
 			}
 
-			function getShortUrl(url) {
+			function getShortUrl(call) {
+				// Handle both call object and string URL (for backwards compatibility)
+				const url = typeof call === 'string' 
+					? call 
+					: (call.actualPingOneUrl || call.url || '');
+				
+				// Ensure url is a string
+				if (typeof url !== 'string') {
+					return String(url || '');
+				}
+				
 				let shortUrl = url
 					.replace('https://api.pingone.com/v1/', '')
 					.replace('https://auth.pingone.com/', 'auth/')
@@ -207,15 +297,25 @@ const createPopOutWindow = (
 				}
 			}
 
+			function toggleP1OnlyFilter() {
+				showP1OnlyFilter = !showP1OnlyFilter;
+				if (window.opener) {
+					window.opener.postMessage({ type: 'showP1OnlyChange', showP1Only: showP1OnlyFilter }, '*');
+				}
+				render();
+			}
+
 			function render() {
 				const root = document.getElementById('api-display-root');
 				if (!root) return;
 
-				// IMPORTANT: The main window already applies all flow and Hide PROXY
-				// logic when building apiCalls. To guarantee the pop-out shows the
-				// exact same set of calls (including backend PingOne calls), we do
-				// not re-filter here.
-				const filteredCalls = currentApiCalls;
+				// Apply P1-only filter if enabled (filter out proxy calls)
+				let filteredCalls = currentApiCalls;
+				if (showP1OnlyFilter) {
+					filteredCalls = currentApiCalls.filter(call => {
+						return !isProxyCall(call);
+					});
+				}
 
 				const html = \`
 					<div style="width: 100%; height: 100vh; display: flex; flex-direction: column; font-family: monospace; font-size: \${currentFontSize}px; background: white;">
@@ -230,6 +330,7 @@ const createPopOutWindow = (
 									<button onclick="window.increaseFont()" style="padding: 4px 8px; background: white; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">+</button>
 								</div>
 								\${filteredCalls.length > 0 ? \`
+									<button onclick="window.toggleP1OnlyFilter()" style="padding: 6px 12px; background: \${showP1OnlyFilter ? '#10b981' : '#6b7280'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">\${showP1OnlyFilter ? '🔍 P1 Only' : '📋 All Calls'}</button>
 									<button onclick="window.expandAll()" style="padding: 6px 12px; background: \${expandedIds.size === filteredCalls.length ? '#10b981' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▼ Expand All</button>
 									<button onclick="window.collapseAll()" style="padding: 6px 12px; background: \${expandedIds.size === 0 ? '#6b7280' : '#3b82f6'}; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">▲ Collapse All</button>
 									<button onclick="window.clearCalls()" style="padding: 6px 12px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: \${currentFontSize - 2}px; font-weight: 600;">Clear</button>
@@ -261,7 +362,7 @@ const createPopOutWindow = (
 											const status = call.response?.status || 0;
 											const statusColor = status >= 200 && status < 300 ? '#10b981' : status >= 400 ? '#ef4444' : '#f59e0b';
 											const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
-											const apiType = getApiTypeIcon(call.url);
+											const apiType = getApiTypeIcon(call);
 											const isExpanded = expandedIds.has(call.id);
 											const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
 											const hasResponse = call.response?.data !== undefined && call.response.data !== null;
@@ -276,9 +377,9 @@ const createPopOutWindow = (
 													<td style="padding: 12px; text-align: center; font-size: \${currentFontSize + 4}px;" title="\${apiType.label}">\${apiType.icon}</td>
 													<td style="padding: 12px; font-size: \${currentFontSize + 4}px;">\${getStatusDot(status)}</td>
 													<td style="padding: 12px;"><span style="padding: 4px 8px; background: \${methodColor}; color: white; border-radius: 3px; font-size: \${currentFontSize}px; font-weight: bold;">\${call.method}</span></td>
-													<td style="padding: 12px; color: \${statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${status || '...'}</td>
+													<td style="padding: 12px; color: \${statusColor}; font-weight: bold; font-size: \${currentFontSize}px;">\${status ? status + ' ' + getStatusLabel(status) : '...'}</td>
 													<td style="padding: 12px; color: #1f2937; font-size: \${currentFontSize}px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">
-														\${call.url.startsWith('/api/') ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call.url)}</td>
+														\${isProxyCall(call) ? '<span style="padding: 2px 6px; background: #374151; color: #9ca3af; border-radius: 2px; font-size: ' + (currentFontSize - 2) + 'px; margin-right: 6px;">PROXY</span>' : ''}\${getShortUrl(call)}</td>
 													<td style="padding: 12px; color: #6b7280; font-size: \${currentFontSize}px;">\${new Date(call.timestamp).toLocaleTimeString()}</td>
 												</tr>
 												\${isExpanded ? \`
@@ -290,7 +391,7 @@ const createPopOutWindow = (
 																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">FULL URL:</div>
 																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${call.url}</div>
+																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${call.actualPingOneUrl || call.url}</div>
 																</div>
 																\${hasBody ? \`
 																	<div>
@@ -333,6 +434,7 @@ const createPopOutWindow = (
 			window.collapseAll = collapseAll;
 			window.handleCopy = handleCopy;
 			window.clearCalls = clearCalls;
+			window.toggleP1OnlyFilter = toggleP1OnlyFilter;
 
 			// Listen for updates from main window
 			window.addEventListener('message', (event) => {
@@ -346,6 +448,9 @@ const createPopOutWindow = (
 				} else if (event.data.type === 'clearCalls') {
 					currentApiCalls = [];
 					expandedIds.clear();
+					render();
+				} else if (event.data.type === 'showP1OnlyChange') {
+					showP1OnlyFilter = event.data.showP1Only;
 					render();
 				}
 			});
@@ -446,6 +551,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	excludePatterns = [],
 	includePatterns = [],
 }) => {
+	// Check server health to avoid polling when server is down
+	const serverHealth = useServerHealth(30000); // Check every 30 seconds
+	
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
@@ -465,6 +573,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		}
 	});
 	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
+	const [showP1Only, setShowP1Only] = useState(false); // Filter toggle state
 
 	// Use refs to track array props and prevent infinite loops from reference changes
 	const excludePatternsRef = useRef<string[]>(excludePatterns);
@@ -530,15 +639,17 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			return () => clearInterval(checkClosed);
 		}
 		return undefined;
-	}, [popOutWindow, apiCalls]);
+	}, [popOutWindow, apiCalls, showP1Only]);
 
-	// Listen for font size changes from pop-out window
+	// Listen for font size changes and filter changes from pop-out window
 	useEffect(() => {
 		const handleMessage = (event: MessageEvent) => {
 			if (event.data.type === 'fontSizeChange') {
 				setFontSize(event.data.fontSize);
 			} else if (event.data.type === 'clearCalls') {
 				apiCallTrackerService.clearApiCalls();
+			} else if (event.data.type === 'showP1OnlyChange') {
+				setShowP1Only(event.data.showP1Only);
 			}
 		};
 		window.addEventListener('message', handleMessage);
@@ -633,12 +744,64 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		};
 	}, [isResizing]);
 
-	const updateCalls = useCallback(() => {
+	const updateCalls = useCallback(async () => {
 		try {
 			const allCalls = apiCallTrackerService.getApiCalls();
 
+			// Fetch backend API calls from server (only if server is online)
+			let backendCalls: ApiCall[] = [];
+			if (serverHealth.isOnline) {
+				try {
+					const response = await fetch('/api/pingone/api-calls');
+					if (response.ok) {
+						const data = (await response.json()) as { calls: Array<{
+							id: string;
+							method: string;
+							url: string;
+							body?: unknown;
+							response?: { status: number; statusText?: string; headers?: Record<string, string>; data?: unknown };
+							timestamp: string;
+							duration?: number;
+							source?: string;
+							isProxy?: boolean;
+						}> };
+						if (data.calls && Array.isArray(data.calls)) {
+						backendCalls = data.calls.map((call) => ({
+							id: call.id,
+							method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+							url: call.url,
+							body: call.body || null,
+							response: call.response
+								? {
+										status: call.response.status,
+										statusText: call.response.statusText || '',
+										headers: call.response.headers,
+										data: call.response.data,
+									}
+								: undefined,
+							timestamp: new Date(call.timestamp),
+							duration: call.duration,
+							source: (call.source as 'frontend' | 'backend') || 'backend',
+							isProxy: call.isProxy || false,
+							// Backend calls are never proxy calls (already filtered in logPingOneApiCall)
+						}));
+						}
+					}
+				} catch (error) {
+					// Silently fail - backend calls are optional
+					// Only log if it's not a connection refused error (server down)
+					const errorMessage = error instanceof Error ? error.message : String(error);
+					if (!errorMessage.includes('ERR_CONNECTION_REFUSED') && !errorMessage.includes('Failed to fetch')) {
+						console.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
+					}
+				}
+			}
+
+			// Merge frontend and backend calls
+			const mergedCalls = [...allCalls, ...backendCalls];
+
 			// Filter to PingOne API calls (direct or via proxy) and SPIFFE/SPIRE lab calls
-			const relevantCalls = allCalls
+			const relevantCalls = mergedCalls
 				.filter((call) => {
 					const url = call.url || '';
 					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl || '';
@@ -726,19 +889,36 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					return true;
 				})
+				.filter((call) => {
+					// Apply P1-only filter if enabled (filter out proxy calls)
+					if (showP1Only) {
+						const url = call.url || '';
+						// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
+						// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
+						const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+						const isProxyUrl = url.startsWith('/api/pingone/') || (url.startsWith('/api/') && !isDirectPingOneUrl);
+						// Also check the isProxy flag from backend calls
+						const isBackendProxyCall = (call as { isProxy?: boolean }).isProxy === true;
+						return !isProxyUrl && !isBackendProxyCall;
+					}
+					return true; // Show all calls if filter is off
+				})
 				.map((call) => {
-					// Use actualPingOneUrl if available, otherwise use url
-					const displayUrl =
-						(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '';
+					// Keep original URL (needed for proxy detection)
+					// Store actualPingOneUrl separately for display purposes
+					const originalUrl = call.url || '';
+					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl;
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
 						method: String(call.method || 'GET'),
-						url: String(displayUrl), // Use actual PingOne URL for display
+						url: String(originalUrl), // Keep original URL for proxy detection
 						body: call.body,
 						timestamp:
 							call.timestamp instanceof Date
 								? call.timestamp.getTime()
 								: new Date(call.timestamp).getTime(),
+						actualPingOneUrl: actualPingOneUrl,
+						isProxy: (call as { isProxy?: boolean }).isProxy,
 					};
 					if (call.response) {
 						apiCall.response = {
@@ -758,7 +938,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error updating API calls:`, error);
 		}
-	}, [flowFilter, previousCallCount]);
+	}, [flowFilter, previousCallCount, showP1Only, serverHealth.isOnline, excludePatterns, includePatterns]);
 
 	// Store updateCalls in ref so it can be called from other effects
 	updateCallsRef.current = updateCalls;
@@ -773,13 +953,19 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		updateCalls();
 
 		// Poll for updates (in case subscription doesn't catch all updates)
-		const interval = setInterval(updateCalls, 1000);
+		// Only poll if server is online to avoid connection refused errors
+		let interval: NodeJS.Timeout | null = null;
+		if (serverHealth.isOnline) {
+			interval = setInterval(updateCalls, 1000);
+		}
 
 		return () => {
 			unsubscribe();
-			clearInterval(interval);
+			if (interval) {
+				clearInterval(interval);
+			}
 		};
-	}, [updateCalls]);
+	}, [updateCalls, serverHealth.isOnline]);
 
 	const getStatusDot = (status?: number) => {
 		if (!status) {
@@ -791,7 +977,73 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		return '🔴'; // Error
 	};
 
-	const getApiTypeIcon = (url: string) => {
+	const getStatusLabel = (status?: number): string => {
+		if (!status) return '';
+		
+		const statusMap: Record<number, string> = {
+			200: 'success',
+			201: 'created',
+			202: 'accepted',
+			204: 'no-content',
+			301: 'moved',
+			302: 'found',
+			304: 'not-modified',
+			400: 'bad-request',
+			401: 'unauthorized',
+			403: 'forbidden',
+			404: 'not-found',
+			405: 'method-not-allowed',
+			409: 'conflict',
+			422: 'unprocessable',
+			429: 'too-many-requests',
+			500: 'server-error',
+			502: 'bad-gateway',
+			503: 'unavailable',
+			504: 'gateway-timeout',
+		};
+
+		// Check exact match first
+		if (statusMap[status]) {
+			return statusMap[status];
+		}
+
+		// Fallback to ranges
+		if (status >= 200 && status < 300) return 'success';
+		if (status >= 300 && status < 400) return 'redirect';
+		if (status >= 400 && status < 500) return 'client-error';
+		if (status >= 500) return 'server-error';
+
+		return 'unknown';
+	};
+
+	const isProxyCall = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }): boolean => {
+		const url = call.url || '';
+		
+		// If isProxy is explicitly set, use that (backend calls set this correctly)
+		if (typeof call.isProxy === 'boolean') {
+			return call.isProxy;
+		}
+		
+		// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
+		// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
+		const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+		
+		// If it's a direct PingOne URL, it's not a proxy
+		if (isDirectPingOneUrl) {
+			return false;
+		}
+		
+		// Otherwise, check if it starts with /api/pingone/ or /api/
+		const isProxyUrl = url.startsWith('/api/pingone/') || url.startsWith('/api/');
+		return isProxyUrl;
+	};
+
+	const getApiTypeIcon = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string) => {
+		// Handle both string URL (legacy) and call object
+		const url = typeof call === 'string' ? call : call.url || '';
+		const callObj = typeof call === 'string' ? { url } : call;
+		const isProxy = isProxyCall(callObj);
+		
 		// Check if it's an admin/worker token API call
 		const isAdminApi =
 			url.includes('/as/token') || // Token endpoint
@@ -802,11 +1054,16 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			url.includes('mfa/') || // MFA proxy endpoints
 			(url.includes('/environments/') && !url.includes('/authorize')); // Management API
 
-		if (isAdminApi) {
-			return { icon: '🔑', label: 'Admin API (Worker Token)', color: '#f59e0b' };
+		// Different icons for proxy vs direct calls
+		if (isProxy) {
+			return isAdminApi 
+				? { icon: '🔀', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
+				: { icon: '🔄', label: 'Proxy User API', color: '#3b82f6' };
 		}
 
-		return { icon: '👤', label: 'User API', color: '#3b82f6' };
+		return isAdminApi
+			? { icon: '🔑', label: 'Admin API (Worker Token)', color: '#f59e0b' }
+			: { icon: '👤', label: 'User API', color: '#3b82f6' };
 	};
 
 	const _getShortUrl = (url: string) => {
@@ -1077,7 +1334,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 											(newSize) => setFontSize(newSize),
 											flowFilter,
 											excludePatterns,
-											includePatterns
+											includePatterns,
+											showP1Only
 										);
 										if (newWindow) {
 											setPopOutWindow(newWindow);
@@ -1094,6 +1352,18 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								</button>
 								{apiCalls.length > 0 && (
 									<>
+										<button
+											type="button"
+											onClick={() => setShowP1Only(!showP1Only)}
+											style={{
+												...headerButtonBaseStyle,
+												background: showP1Only ? '#10b981' : '#6b7280',
+												color: 'white',
+											}}
+											title={showP1Only ? 'Show all calls (including proxy)' : 'Show only P1 calls (filter proxy)'}
+										>
+											{showP1Only ? '🔍 P1 Only' : '📋 All Calls'}
+										</button>
 										<button
 											type="button"
 											onClick={expandAll}
@@ -1269,7 +1539,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								)}
 								{apiCalls.length > 0 &&
 									apiCalls.map((call) => {
-										const apiType = getApiTypeIcon(call.url);
+										const apiType = getApiTypeIcon(call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean });
 										return (
 											<React.Fragment key={call.id}>
 												{/* Main Row */}
@@ -1341,7 +1611,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																fontSize: `${fontSize}px`,
 															}}
 														>
-															{call.response?.status || '...'}
+															{call.response?.status
+																? `${call.response.status} ${getStatusLabel(call.response.status)}`
+																: '...'}
 														</span>
 													</td>
 													<td
@@ -1351,7 +1623,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 															fontSize: `${fontSize}px`,
 														}}
 													>
-														{call.url.startsWith('/api/') && (
+														{isProxyCall(call) && (
 															<span
 																style={{
 																	padding: '1px 4px',
@@ -1365,7 +1637,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																PROXY
 															</span>
 														)}
-														{call.url}
+														{_getShortUrl(call.actualPingOneUrl || call.url)}
 													</td>
 													<td
 														style={{
@@ -1409,7 +1681,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			type="button"
 																			onClick={(e) => {
 																				e.stopPropagation();
-																				handleCopy(String(call.url || ''), `url-${call.id}`);
+																				handleCopy(String((call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''), `url-${call.id}`);
 																			}}
 																			style={{
 																				padding: '2px 6px',
@@ -1435,7 +1707,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			wordBreak: 'break-all',
 																		}}
 																	>
-																		{String(call.url || '')}
+																		{String((call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '')}
 																	</div>
 																</div>
 

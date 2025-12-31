@@ -66,13 +66,6 @@ export class DeviceCodeIntegrationServiceV8 {
 	static async requestDeviceAuthorization(
 		credentials: DeviceCodeCredentials
 	): Promise<DeviceAuthorizationResponse> {
-		console.log(`${MODULE_TAG} Requesting device authorization`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			authMethod:
-				credentials.clientAuthMethod || (credentials.clientSecret ? 'client_secret_basic' : 'none'),
-		});
-
 		try {
 			// Use backend proxy to avoid CORS issues
 			// Use relative URL in development to go through Vite proxy (avoids SSL errors)
@@ -116,8 +109,6 @@ export class DeviceCodeIntegrationServiceV8 {
 					);
 				}
 
-				// Log scopes being requested
-				console.log(`${MODULE_TAG} Requesting device authorization with scopes: ${finalScopes}`);
 			} else {
 				// Suggest default scopes if none provided
 				console.warn(
@@ -138,15 +129,9 @@ export class DeviceCodeIntegrationServiceV8 {
 			if (credentials.clientSecret) {
 				requestBody.client_secret = credentials.clientSecret;
 				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
-				console.log(`${MODULE_TAG} Including client authentication`, {
-					authMethod: requestBody.client_auth_method,
-					hasSecret: !!requestBody.client_secret,
-					secretLength: requestBody.client_secret?.length || 0,
-				});
 			} else if (credentials.clientAuthMethod === 'none') {
 				// Explicitly set to 'none' for public clients
 				requestBody.client_auth_method = 'none';
-				console.log(`${MODULE_TAG} Public client (no authentication)`);
 			} else {
 				// No client secret and no explicit 'none' - this might cause 403 if app requires auth
 				console.warn(`${MODULE_TAG} No client secret provided and auth method not set to 'none'`, {
@@ -159,26 +144,6 @@ export class DeviceCodeIntegrationServiceV8 {
 			if (finalScopes) {
 				requestBody.scope = finalScopes;
 			}
-
-			// Log the complete request being sent (without exposing full secret)
-			console.log(`${MODULE_TAG} 📤 Request being sent to backend:`, {
-				endpoint: deviceAuthEndpoint,
-				environment_id: requestBody.environment_id,
-				client_id: requestBody.client_id?.substring(0, 8) + '...',
-				client_auth_method: requestBody.client_auth_method,
-				has_client_secret: !!requestBody.client_secret,
-				client_secret_length: requestBody.client_secret?.length || 0,
-				client_secret_preview: requestBody.client_secret
-					? `${requestBody.client_secret.substring(0, 4)}...${requestBody.client_secret.substring(requestBody.client_secret.length - 4)}`
-					: 'none',
-				scope: requestBody.scope || 'none',
-				fullRequestBody: {
-					...requestBody,
-					client_secret: requestBody.client_secret
-						? `${requestBody.client_secret.substring(0, 4)}...${requestBody.client_secret.substring(requestBody.client_secret.length - 4)}`
-						: undefined,
-				},
-			});
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -320,14 +285,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			const deviceAuth: DeviceAuthorizationResponse = await response.json();
 
-			console.log(`${MODULE_TAG} Device authorization received successfully`, {
-				hasDeviceCode: !!deviceAuth.device_code,
-				hasUserCode: !!deviceAuth.user_code,
-				verificationUri: deviceAuth.verification_uri,
-				expiresIn: deviceAuth.expires_in,
-				interval: deviceAuth.interval,
-			});
-
 			return deviceAuth;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
@@ -349,12 +306,6 @@ export class DeviceCodeIntegrationServiceV8 {
 		interval: number = 5,
 		maxAttempts: number = 60
 	): Promise<TokenResponse> {
-		console.log(`${MODULE_TAG} Polling for tokens`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			interval,
-			maxAttempts,
-		});
 
 		// Use backend proxy to avoid CORS issues
 			// Use relative URL for development (same origin), absolute for production
@@ -423,14 +374,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				if (response.ok) {
 					const tokens: TokenResponse = await response.json();
-
-					console.log(`${MODULE_TAG} Tokens received successfully`, {
-						hasAccessToken: !!tokens.access_token,
-						hasIdToken: !!tokens.id_token,
-						hasRefreshToken: !!tokens.refresh_token,
-						expiresIn: tokens.expires_in,
-					});
-
 					return tokens;
 				}
 
@@ -438,10 +381,6 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Check for authorization_pending (user hasn't approved yet)
 				if (errorData.error === 'authorization_pending') {
-					console.log(`${MODULE_TAG} Authorization pending, waiting ${interval}s before retry`, {
-						attempt: attempt + 1,
-						maxAttempts,
-					});
 					await DeviceCodeIntegrationServiceV8.sleep(interval * 1000); // Convert to milliseconds
 					continue;
 				}
@@ -449,10 +388,6 @@ export class DeviceCodeIntegrationServiceV8 {
 				// Check for slow_down (rate limiting)
 				if (errorData.error === 'slow_down' && errorData.interval) {
 					const newInterval = errorData.interval;
-					console.log(`${MODULE_TAG} Rate limited, adjusting interval to ${newInterval}s`, {
-						attempt: attempt + 1,
-						maxAttempts,
-					});
 					await DeviceCodeIntegrationServiceV8.sleep(newInterval * 1000);
 					continue;
 				}
@@ -490,7 +425,6 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-		console.log(`${MODULE_TAG} Decoding JWT token`);
 
 		try {
 			const parts = token.split('.');
@@ -503,7 +437,6 @@ export class DeviceCodeIntegrationServiceV8 {
 			const payload = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
 
-			console.log(`${MODULE_TAG} Token decoded successfully`);
 
 			return { header, payload, signature };
 		} catch (error) {

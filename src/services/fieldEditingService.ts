@@ -70,8 +70,6 @@ class FieldEditingService {
 		// Merge provided config with defaults
 		this.config = { ...this.config, ...config };
 
-		console.log('🛡️ [FIELD EDITING SERVICE] Initializing field editing protection...');
-
 		// Start monitoring DOM changes if enabled
 		if (this.config.monitorChanges) {
 			this.startMonitoring();
@@ -88,7 +86,6 @@ class FieldEditingService {
 	 * Scans for input, textarea, and select elements and removes disabled/readonly states
 	 */
 	applyProtection(): void {
-		console.log('🔒 [FIELD EDITING SERVICE] Applying protection to all fields...');
 
 		// Get all form input elements from the document
 		const allInputs = this.getAllInputElements();
@@ -101,7 +98,6 @@ class FieldEditingService {
 			}
 		});
 
-		console.log(`✅ Protected ${protectedCount} fields out of ${allInputs.length} total fields`);
 	}
 
 	/**
@@ -161,11 +157,8 @@ class FieldEditingService {
 	startMonitoring(): void {
 		// Prevent duplicate monitoring
 		if (this.state.isMonitoring) {
-			console.log('⚠️ [FIELD EDITING SERVICE] Already monitoring');
 			return;
 		}
-
-		console.log('👀 [FIELD EDITING SERVICE] Starting field monitoring...');
 
 		// Create MutationObserver to watch for attribute and DOM changes
 		const observer = new MutationObserver((mutations) => {
@@ -214,7 +207,6 @@ class FieldEditingService {
 	 * Stop monitoring DOM changes and disconnect all MutationObservers
 	 */
 	stopMonitoring(): void {
-		console.log('🛑 [FIELD EDITING SERVICE] Stopping field monitoring...');
 
 		// Disconnect all active observers
 		this.observers.forEach((observer) => observer.disconnect());
@@ -238,25 +230,12 @@ class FieldEditingService {
 			// When we remove the attribute, newValue will be null, which is expected
 			// This prevents logging when our own service removes the attribute
 			if (newValue !== null) {
-				// Only log in development mode to reduce console noise in production
-				if (process.env.NODE_ENV === 'development') {
-					console.log('🔍 [FIELD EDITING SERVICE] Field editing state changed:', {
-						element: element.tagName,
-						attribute: attributeName,
-						newValue: newValue,
-					});
-				}
-
 				// Increment issue counter
 				this.state.issuesFound++;
 
 				// Auto-fix if enabled
 				if (this.config.autoFix) {
 					this.protectField(element);
-					// Only log auto-fix in development mode
-					if (process.env.NODE_ENV === 'development') {
-						console.log('🔧 [FIELD EDITING SERVICE] Auto-fixed field editing issue');
-					}
 				}
 			}
 		}
@@ -313,7 +292,6 @@ class FieldEditingService {
 	 */
 	updateConfig(config: Partial<FieldEditingConfig>): void {
 		this.config = { ...this.config, ...config };
-		console.log('⚙️ [FIELD EDITING SERVICE] Configuration updated:', this.config);
 	}
 
 	/**
@@ -321,7 +299,6 @@ class FieldEditingService {
 	 */
 	cleanup(): void {
 		this.stopMonitoring();
-		console.log('🧹 [FIELD EDITING SERVICE] Cleaned up');
 	}
 }
 
@@ -411,11 +388,6 @@ if (typeof window !== 'undefined') {
 		service.stopMonitoring();
 	(window as unknown as WindowWithFieldEditingService).getFieldState = () => service.getState();
 
-	console.log('🛡️ Field Editing Service loaded. Available commands:');
-	console.log('  - protectFields() - Apply protection to all fields');
-	console.log('  - startFieldMonitoring() - Start monitoring');
-	console.log('  - stopFieldMonitoring() - Stop monitoring');
-	console.log('  - getFieldState() - Get current state');
 }
 
 export default FieldEditingService;

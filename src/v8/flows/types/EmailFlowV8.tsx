@@ -25,6 +25,7 @@ import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -284,7 +285,7 @@ const createRenderStep0 = (
 	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED',
 	setAdminDeviceStatus: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void,
 	step0PropsRef: React.MutableRefObject<MFAFlowBaseRenderProps | null>,
-	setLastTokenType: (tokenType: string | undefined) => void,
+	pendingTokenTypeRef: React.MutableRefObject<string | undefined>,
 	prevTokenTypeRef: React.MutableRefObject<string | undefined>
 ) => {
 	return (props: MFAFlowBaseRenderProps) => {
@@ -298,11 +299,12 @@ const createRenderStep0 = (
 		// Update ref with current props so hooks at component level can access them
 		step0PropsRef.current = props;
 		
-		// Update tokenType state to trigger effects when it changes (called during render, React will batch)
-		// Only update if it actually changed to avoid unnecessary re-renders
+		// Update tokenType ref to trigger effects when it changes (use ref to avoid setState during render)
+		// Store in ref - useEffect will pick it up
 		if (credentials.tokenType !== prevTokenTypeRef.current) {
 			prevTokenTypeRef.current = credentials.tokenType;
-			setLastTokenType(credentials.tokenType);
+			// Store in ref to avoid setState during render - useEffect will process it
+			pendingTokenTypeRef.current = credentials.tokenType;
 		}
 		
 		// Update credentials with policy ID from location.state if available (only once)
@@ -553,11 +555,11 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	// Ref to store step 0 props for hooks to access
 	const step0PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 	
-	// State to track tokenType changes (for triggering effects)
-	const [lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
-	
 	// Ref to track previous tokenType to avoid unnecessary updates
 	const prevTokenTypeRef = React.useRef<string | undefined>(undefined);
+	
+	// Ref to store pending tokenType changes (to avoid setState during render)
+	const pendingTokenTypeRef = React.useRef<string | undefined>(undefined);
 	
 	// Ref to store step 4 props for potential use at component level
 	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
@@ -581,7 +583,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 	
 	// Auto-populate email from PingOne user when entering step 2
 	const emailFetchAttemptedRef = React.useRef<{ step: number; username: string } | null>(null);
-	const [emailFetchTrigger, setEmailFetchTrigger] = useState<{ step: number; username: string; environmentId: string } | null>(null);
+	const pendingEmailFetchTriggerRef = React.useRef<{ step: number; username: string; environmentId: string } | null>(null);
 	
 	// Bidirectional sync between Registration Flow Type and tokenType dropdown
 	// When Registration Flow Type changes, update tokenType dropdown
@@ -657,7 +659,34 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			}, 0);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [lastTokenType, registrationFlowType, setRegistrationFlowType]);
+	}, [registrationFlowType, setRegistrationFlowType]);
+
+	// Update deviceLoadTrigger when on step 1 (triggered via step0PropsRef, avoids setState during render)
+	React.useEffect(() => {
+		// Only update when on step 1
+		const props = step0PropsRef.current;
+		if (!props || props.nav.currentStep !== 1) return;
+		
+		const newTrigger = {
+			currentStep: props.nav.currentStep,
+			environmentId: props.credentials.environmentId || '',
+			username: props.credentials.username || '',
+			tokenValid: props.tokenStatus.isValid,
+		};
+		// Only update if values actually changed to avoid infinite loops
+		if (
+			!deviceLoadTrigger ||
+			deviceLoadTrigger.currentStep !== newTrigger.currentStep ||
+			deviceLoadTrigger.environmentId !== newTrigger.environmentId ||
+			deviceLoadTrigger.username !== newTrigger.username ||
+			deviceLoadTrigger.tokenValid !== newTrigger.tokenValid
+		) {
+			setDeviceLoadTrigger(newTrigger);
+		}
+		// Note: We can't use step0PropsRef.current in dependencies, so we use a combination of other dependencies
+		// and check step0PropsRef.current inside the effect
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [deviceLoadTrigger, showModal]); // showModal changes when modal opens/closes, which helps trigger updates
 
 	// Load devices when entering step 1 - moved to parent component level
 	// Skip device loading during registration flow (when coming from config page)
@@ -720,9 +749,13 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Auto-populate email from PingOne user when entering step 2
 	React.useEffect(() => {
-		if (!emailFetchTrigger) return;
+		const trigger = pendingEmailFetchTriggerRef.current;
+		if (!trigger) return;
 		
-		const { step, username, environmentId } = emailFetchTrigger;
+		// Clear the ref immediately to avoid re-triggering
+		pendingEmailFetchTriggerRef.current = null;
+		
+		const { step, username, environmentId } = trigger;
 		if (!step2PropsRef.current) return;
 		
 		const props = step2PropsRef.current;
@@ -730,14 +763,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		
 		// Only fetch if we don't already have an email
 		if (currentEmail) {
-			setEmailFetchTrigger(null);
 			return;
 		}
 		
 		// Check if we've already attempted to fetch email for this step/username combination
 		const lastAttempt = emailFetchAttemptedRef.current;
 		if (lastAttempt && lastAttempt.step === step && lastAttempt.username === username) {
-			setEmailFetchTrigger(null);
 			return; // Already attempted for this step/username
 		}
 		
@@ -760,22 +791,27 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						email: userEmail,
 					}));
 				}
-				setEmailFetchTrigger(null);
 			} catch (error) {
 				// Silently fail - user can manually enter email
 				console.error(`${MODULE_TAG} Failed to fetch user email from PingOne:`, error);
-				setEmailFetchTrigger(null);
 			}
 		};
 		
 		fetchUserEmail();
-	}, [emailFetchTrigger]);
+	});
+
+	// Draggable modal hooks
+	const step2ModalDrag = useDraggableModal(showModal);
+	const step4ModalDrag = useDraggableModal(showValidationModal);
 
 	// Track previous step to detect when we navigate to step 1
 	const previousStepRef = React.useRef<number | null>(null);
 
-	// Step 1: Device Selection (using controller) - matches SMS structure
+	// Step 1: Device Selection (using controller) - matches SMS structure  
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
+		// Store step 0 props for hooks to access (used by device loading effect)
+		step0PropsRef.current = props;
+
 		// Clear success state when navigating to step 1
 		// Use the nav.currentStep from props to detect step changes
 		const currentStep = props.nav.currentStep;
@@ -789,26 +825,6 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		} else if (currentStep !== 1) {
 			// Reset the ref when we leave step 1
 			previousStepRef.current = currentStep;
-		}
-
-		// Update trigger state for device loading effect (only when on step 1 and values changed)
-		if (props.nav.currentStep === 1) {
-			const newTrigger = {
-				currentStep: props.nav.currentStep,
-				environmentId: props.credentials.environmentId || '',
-				username: props.credentials.username || '',
-				tokenValid: props.tokenStatus.isValid,
-			};
-			// Only update if values actually changed to avoid infinite loops
-			if (
-				!deviceLoadTrigger ||
-				deviceLoadTrigger.currentStep !== newTrigger.currentStep ||
-				deviceLoadTrigger.environmentId !== newTrigger.environmentId ||
-				deviceLoadTrigger.username !== newTrigger.username ||
-				deviceLoadTrigger.tokenValid !== newTrigger.tokenValid
-			) {
-				setDeviceLoadTrigger(newTrigger);
-			}
 		}
 
 		return (
@@ -869,14 +885,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 
 		// Auto-populate email from PingOne when entering step 2
 		if (nav.currentStep === 2 && credentials.username?.trim() && !credentials.email?.trim() && credentials.environmentId?.trim()) {
-			// Trigger email fetch via state (use setTimeout to avoid state update during render)
-			setTimeout(() => {
-				setEmailFetchTrigger({
-					step: nav.currentStep,
-					username: credentials.username.trim(),
-					environmentId: credentials.environmentId.trim(),
-				});
-			}, 0);
+			// Store trigger in ref to avoid setState during render - useEffect will pick it up
+			pendingEmailFetchTriggerRef.current = {
+				step: nav.currentStep,
+				username: credentials.username.trim(),
+				environmentId: credentials.environmentId.trim(),
+			};
 		}
 		
 		// Reset deviceName to device type when entering registration step (Step 2)
@@ -1168,6 +1182,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			);
 		}
 
+		const hasPosition = step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0;
+
 		return (
 			<div
 				style={{
@@ -1177,9 +1193,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					right: 0,
 					bottom: 0,
 					background: 'rgba(0, 0, 0, 0.5)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
+					display: hasPosition ? 'block' : 'flex',
+					alignItems: hasPosition ? 'normal' : 'center',
+					justifyContent: hasPosition ? 'normal' : 'center',
 					zIndex: 1000,
 				}}
 				onClick={() => {
@@ -1187,6 +1203,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}}
 			>
 				<div
+					ref={step2ModalDrag.modalRef}
 					style={{
 						background: 'white',
 						borderRadius: '16px',
@@ -1195,20 +1212,25 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						width: '90%',
 						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 						overflow: 'hidden',
+						...step2ModalDrag.modalStyle,
 					}}
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header with Logo */}
 					<div
+						onMouseDown={step2ModalDrag.handleMouseDown}
 						style={{
 							background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 							padding: '16px 20px 12px 20px',
 							textAlign: 'center',
 							position: 'relative',
+							cursor: 'grab',
+							userSelect: 'none',
 						}}
 					>
 						<button
 							type="button"
+							onMouseDown={(e) => e.stopPropagation()}
 							onClick={() => {
 								setShowModal(false);
 								nav.goToPrevious();
@@ -1918,6 +1940,8 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 			);
 
 			// Show validation UI as modal
+			const hasPosition = step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0;
+
 			return (
 				<div
 					style={{
@@ -1927,9 +1951,9 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						right: 0,
 						bottom: 0,
 						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
+						display: hasPosition ? 'block' : 'flex',
+						alignItems: hasPosition ? 'normal' : 'center',
+						justifyContent: hasPosition ? 'normal' : 'center',
 						zIndex: 1000,
 					}}
 					onClick={() => {
@@ -1937,6 +1961,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					}}
 				>
 					<div
+						ref={step4ModalDrag.modalRef}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -1945,20 +1970,25 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 							width: '90%',
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 							overflow: 'hidden',
+							...step4ModalDrag.modalStyle,
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
 						{/* Header with Logo */}
 						<div
+							onMouseDown={step4ModalDrag.handleMouseDown}
 							style={{
 								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 								padding: '16px 20px 12px 20px',
 								textAlign: 'center',
 								position: 'relative',
+								cursor: 'grab',
+								userSelect: 'none',
 							}}
 						>
 							<button
 								type="button"
+								onMouseDown={(e) => e.stopPropagation()}
 								onClick={() => {
 									setShowValidationModal(false);
 									nav.goToPrevious();
@@ -2199,7 +2229,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 													credentials,
 													mfaState.deviceId,
 													otpState,
-													setOtpState,
+													updateOtpState,
 													nav,
 													setIsLoading
 												);
@@ -2274,7 +2304,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		}}>
 			<MFAFlowBaseV8
 				deviceType="EMAIL"
-				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef, registrationFlowType, setRegistrationFlowType, adminDeviceStatus, setAdminDeviceStatus, step0PropsRef, setLastTokenType, prevTokenTypeRef)}
+				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef, registrationFlowType, setRegistrationFlowType, adminDeviceStatus, setAdminDeviceStatus, step0PropsRef, pendingTokenTypeRef, prevTokenTypeRef)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2Register}
 				renderStep3={createRenderStep3(otpState.otpSent, (v) => setOtpState({ ...otpState, otpSent: v }), otpState.sendError, (v) => setOtpState({ ...otpState, sendError: v }), otpState.sendRetryCount, (v) => setOtpState({ ...otpState, sendRetryCount: typeof v === 'function' ? v(otpState.sendRetryCount) : v }))}

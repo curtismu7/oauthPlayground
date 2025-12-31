@@ -1770,9 +1770,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 
 		// If version changed, clear old menu layout and use new structure
 		if (savedVersion !== MENU_VERSION) {
-			console.log(
-				`🔄 Menu structure updated (v${savedVersion} → v${MENU_VERSION}), resetting to default layout`
-			);
 			localStorage.removeItem('simpleDragDropSidebar.menuOrder');
 			localStorage.setItem('simpleDragDropSidebar.menuVersion', MENU_VERSION);
 			return defaultGroups;

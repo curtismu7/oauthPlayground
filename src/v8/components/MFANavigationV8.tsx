@@ -133,6 +133,29 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					>
 						⚙️ MFA Config
 					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// Determine documentation route based on current page
+							const currentPath = window.location.pathname;
+							if (currentPath.includes('/register/email')) {
+								navigate('/v8/mfa/register/email/docs');
+							} else {
+								// Default to Email docs for now
+								navigate('/v8/mfa/register/email/docs');
+							}
+						}}
+						className="nav-link-btn"
+						title="View API Documentation"
+						style={{
+							fontWeight: '500',
+							flex: 1,
+							background: '#fbbf24',
+							color: 'white',
+						}}
+					>
+						📚 Docs
+					</button>
 					{showRestartFlow && (
 						<button
 							type="button"

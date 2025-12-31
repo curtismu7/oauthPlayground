@@ -78,7 +78,6 @@ class UINotificationServiceV8 {
 	 * This should be called by the ConfirmationModal component on mount
 	 */
 	registerConfirmHandler(handler: (options: ConfirmOptions) => Promise<boolean>): void {
-		console.log(`${MODULE_TAG} Confirmation handler registered`);
 		this.confirmCallback = handler;
 	}
 
@@ -87,7 +86,6 @@ class UINotificationServiceV8 {
 	 * This should be called by the PromptModal component on mount
 	 */
 	registerPromptHandler(handler: (options: PromptOptions) => Promise<string | null>): void {
-		console.log(`${MODULE_TAG} Prompt handler registered`);
 		this.promptCallback = handler;
 	}
 

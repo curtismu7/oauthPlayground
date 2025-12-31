@@ -158,7 +158,6 @@ const getAllStoredTokens = (): OAuthTokens | null => {
 			return tokens;
 		}
 
-		logger.info('NewAuthContext', 'No valid tokens found in any storage location');
 		return null;
 	} catch (error) {
 		logger.error('NewAuthContext', 'Error checking all token storage locations', error);
@@ -183,7 +182,6 @@ let isLoadingConfiguration = false;
 async function loadConfiguration(): Promise<AppConfig> {
 	// Prevent multiple simultaneous loads
 	if (isLoadingConfiguration) {
-		console.log(' [NewAuthContext] Configuration load already in progress, skipping...');
 		return new Promise((resolve) => {
 			// Wait for current load to complete
 			const checkInterval = setInterval(() => {
@@ -197,8 +195,6 @@ async function loadConfiguration(): Promise<AppConfig> {
 
 	isLoadingConfiguration = true;
 	try {
-		console.log(' [NewAuthContext] Loading configuration...');
-
 		// Try to get from environment variables first
 		const envConfig = {
 			disableLogin: false,
@@ -215,10 +211,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			environmentId: (window as WindowWithPingOne).__PINGONE_ENVIRONMENT_ID__ || '',
 		};
 
-		console.log(' [NewAuthContext] Environment config:', envConfig);
-
 		// V7 Standardized Credential Loading
-		console.log(' [NewAuthContext] Loading credentials using V7 standardized system...');
 
 		// Try to load from V7 FlowCredentialService first (most recent)
 		try {
@@ -245,64 +238,33 @@ async function loadConfiguration(): Promise<AppConfig> {
 				useSharedFallback: false,
 			});
 
-			console.log(' [NewAuthContext] V7 FlowCredentialService result:', v7Credentials);
-
 			if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
-				console.log(' [NewAuthContext] Using V7 FlowCredentialService credentials');
-				console.log('🔍 [NewAuthContext] V7 CREDENTIALS REDIRECT URI:', {
-					redirectUri: v7Credentials.credentials.redirectUri,
-					hasRedirectUri: !!v7Credentials.credentials.redirectUri,
-					redirectUriType: typeof v7Credentials.credentials.redirectUri,
-					allFields: Object.keys(v7Credentials.credentials),
-					fullObject: v7Credentials.credentials,
-				});
 				return v7Credentials.credentials;
 			}
 		} catch (v7Error) {
-			console.log(' [NewAuthContext] V7 FlowCredentialService not available:', v7Error);
+			// V7 FlowCredentialService not available, continue to fallback
 		}
 
 		// Fallback to legacy credential manager
-		console.log(' [NewAuthContext] Loading from legacy credential manager...');
 		const permanentCredentials = credentialManager.getAllCredentials();
-		console.log(' [NewAuthContext] Legacy credentials result:', permanentCredentials);
 
 		if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
-			console.log(' [NewAuthContext] Using legacy credential manager credentials');
-			console.log('🔍 [NewAuthContext] LEGACY CREDENTIALS REDIRECT URI:', {
-				redirectUri: permanentCredentials.redirectUri,
-				hasRedirectUri: !!permanentCredentials.redirectUri,
-				redirectUriType: typeof permanentCredentials.redirectUri,
-				allFields: Object.keys(permanentCredentials),
-				fullObject: permanentCredentials,
-			});
 			return permanentCredentials;
 		}
 
 		// Final fallback to V5 Config Service (used by Login page)
-		console.log(' [NewAuthContext] Loading from V5 Config Service...');
 		try {
 			const v5Config = pingOneConfigService.getConfig();
-			console.log(' [NewAuthContext] V5 Config Service result:', v5Config);
 
 			if (v5Config?.clientId && v5Config?.environmentId) {
-				console.log(' [NewAuthContext] Using V5 Config Service credentials');
-				console.log('🔍 [NewAuthContext] V5 CONFIG REDIRECT URI:', {
-					redirectUri: v5Config.redirectUri,
-					hasRedirectUri: !!v5Config.redirectUri,
-					redirectUriType: typeof v5Config.redirectUri,
-					allFields: Object.keys(v5Config),
-					fullObject: v5Config,
-				});
 				return v5Config;
 			}
 		} catch (v5Error) {
-			console.log(' [NewAuthContext] V5 Config Service not available:', v5Error);
+			// V5 Config Service not available, continue to fallback
 		}
 
 		// Otherwise, fall back to environment variables
 		if (envConfig.clientId && envConfig.environmentId) {
-			console.log(' [NewAuthContext] Using environment variables as fallback');
 			return envConfig;
 		}
 
@@ -310,7 +272,6 @@ async function loadConfiguration(): Promise<AppConfig> {
 		let allCredentials = configCredentials;
 		if (!allCredentials.environmentId && !allCredentials.clientId) {
 			allCredentials = authzCredentials;
-			console.log(' [NewAuthContext] Using authz credentials as fallback');
 		} else {
 			console.log(' [NewAuthContext] Using config credentials');
 		}
@@ -436,7 +397,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			try {
 				const loadedConfig = await loadConfiguration();
 				setConfig(loadedConfig);
-				logger.config('NewAuthContext', 'Configuration loaded successfully', loadedConfig);
 			} catch (error) {
 				logger.error('NewAuthContext', 'Error loading configuration', error);
 				setConfig((prev) => ({ ...prev, hasConfigError: true }));
@@ -484,7 +444,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						error: 'Access token expired. Please refresh.',
 					});
 				} else {
-					logger.auth('NewAuthContext', 'No valid tokens found in storage');
 					updateState({
 						isAuthenticated: false,
 						tokens: null,
