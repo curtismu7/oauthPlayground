@@ -202,10 +202,4 @@ export const FlowSettingsServiceV8U = {
 if (typeof window !== 'undefined') {
 	(window as { FlowSettingsServiceV8U?: typeof FlowSettingsServiceV8U }).FlowSettingsServiceV8U =
 		FlowSettingsServiceV8U;
-	console.log(`${MODULE_TAG} 🔧 Service available globally as window.FlowSettingsServiceV8U`);
-	console.log(`${MODULE_TAG} 🔧 Available commands:`);
-	console.log(`${MODULE_TAG}   - FlowSettingsServiceV8U.getAllSettings()`);
-	console.log(`${MODULE_TAG}   - FlowSettingsServiceV8U.getSpecVersion('implicit')`);
-	console.log(`${MODULE_TAG}   - FlowSettingsServiceV8U.saveSpecVersion('implicit', 'oauth2.1')`);
-	console.log(`${MODULE_TAG}   - FlowSettingsServiceV8U.clearAllSettings()`);
 }

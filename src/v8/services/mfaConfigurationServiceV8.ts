@@ -107,7 +107,6 @@ export class MFAConfigurationServiceV8 {
 		try {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (!stored) {
-				console.log(`${MODULE_TAG} No stored configuration found, using defaults`);
 				return { ...DEFAULT_CONFIG };
 			}
 

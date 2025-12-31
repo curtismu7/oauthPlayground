@@ -8,8 +8,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/NewAuthContext';
 import { StartupLoader } from './StartupLoader';
 
-const MODULE_TAG = '[🚀 STARTUP-WRAPPER]';
-
 interface StartupWrapperProps {
 	children: React.ReactNode;
 }
@@ -35,7 +33,6 @@ export const StartupWrapper: React.FC<StartupWrapperProps> = ({ children }) => {
 		// - Event listeners setup
 		// - Development tools (if in dev mode)
 		const initTimer = setTimeout(() => {
-			console.log(`${MODULE_TAG} App initialization complete`);
 			setAppInitialized(true);
 		}, 100); // Small delay to ensure useEffect hooks have run
 
@@ -45,9 +42,6 @@ export const StartupWrapper: React.FC<StartupWrapperProps> = ({ children }) => {
 	// Update loading state when both auth and app are ready
 	useEffect(() => {
 		const allReady = !authLoading && appInitialized;
-		if (allReady) {
-			console.log(`${MODULE_TAG} All initialization complete, hiding loader`);
-		}
 		setIsLoading(!allReady);
 	}, [authLoading, appInitialized]);
 

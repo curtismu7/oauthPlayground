@@ -6,13 +6,12 @@
  * @since 2024-11-18
  */
 
-const MODULE_TAG = '[🧪 TOKEN-EXCHANGE-TEST-V8U]';
 
 interface TestResult {
 	testName: string;
 	passed: boolean;
 	message: string;
-	details?: any;
+	details?: Record<string, unknown>;
 }
 
 interface MockFlowState {
@@ -71,7 +70,6 @@ class TokenExchangeFlowTest {
 	 * Test 1: Initial state - no tokens, no authorization code
 	 */
 	private testInitialState(): TestResult {
-		console.log(`${MODULE_TAG} Test 1: Initial state validation`);
 
 		const shouldShowButton =
 			!this.mockFlowState.tokens?.accessToken && !!this.mockFlowState.authorizationCode;
@@ -99,7 +97,6 @@ class TokenExchangeFlowTest {
 	 * Test 2: After callback - authorization code received
 	 */
 	private testAfterCallback(): TestResult {
-		console.log(`${MODULE_TAG} Test 2: After callback state validation`);
 
 		// Simulate callback with authorization code
 		this.mockFlowState.authorizationCode = '00b1a38e-6d40-4bb1-98ee-4177c0471ec4';
@@ -135,7 +132,6 @@ class TokenExchangeFlowTest {
 	 * Test 3: During token exchange - loading state
 	 */
 	private testDuringExchange(): TestResult {
-		console.log(`${MODULE_TAG} Test 3: During exchange state validation`);
 
 		const isLoading = true;
 		const shouldShowButton =
@@ -164,7 +160,6 @@ class TokenExchangeFlowTest {
 	 * Test 4: After successful exchange - tokens received
 	 */
 	private testAfterSuccessfulExchange(): TestResult {
-		console.log(`${MODULE_TAG} Test 4: After successful exchange state validation`);
 
 		// Simulate successful token exchange
 		this.mockFlowState.tokens = {
@@ -202,7 +197,6 @@ class TokenExchangeFlowTest {
 	 * Test 5: Attempt to reuse authorization code (should be prevented by UI)
 	 */
 	private testReuseAttempt(): TestResult {
-		console.log(`${MODULE_TAG} Test 5: Reuse attempt validation`);
 
 		// User tries to click button again (but it should be hidden)
 		const shouldShowButton =
@@ -232,7 +226,6 @@ class TokenExchangeFlowTest {
 	 * Test 6: Error handling - expired/invalid authorization code
 	 */
 	private testErrorHandling(): TestResult {
-		console.log(`${MODULE_TAG} Test 6: Error handling validation`);
 
 		// Reset to state before exchange
 		this.mockFlowState.tokens = null;
@@ -269,7 +262,6 @@ class TokenExchangeFlowTest {
 	 * Test 7: PKCE validation
 	 */
 	private testPKCEValidation(): TestResult {
-		console.log(`${MODULE_TAG} Test 7: PKCE validation`);
 
 		// Reset state
 		this.mockFlowState.tokens = null;
@@ -306,7 +298,6 @@ class TokenExchangeFlowTest {
 	 * Test 8: Credentials validation
 	 */
 	private testCredentialsValidation(): TestResult {
-		console.log(`${MODULE_TAG} Test 8: Credentials validation`);
 
 		const validations = [
 			{
@@ -349,7 +340,6 @@ class TokenExchangeFlowTest {
 	 * Test 9: UI state transitions
 	 */
 	private testUIStateTransitions(): TestResult {
-		console.log(`${MODULE_TAG} Test 9: UI state transitions validation`);
 
 		const states = [
 			{
@@ -418,7 +408,6 @@ class TokenExchangeFlowTest {
 	 * Test 10: Storage persistence
 	 */
 	private testStoragePersistence(): TestResult {
-		console.log(`${MODULE_TAG} Test 10: Storage persistence validation`);
 
 		// Simulate storage operations
 		const storageKey = 'v8u_flow_oauth-authz-v8u_pkce';
@@ -460,9 +449,6 @@ class TokenExchangeFlowTest {
 	 * Run all tests
 	 */
 	public runAllTests(): void {
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} Starting Token Exchange Flow Test Suite`);
-		console.log(`${MODULE_TAG} ========================================`);
 		console.log('');
 
 		this.results = [];
@@ -485,52 +471,23 @@ class TokenExchangeFlowTest {
 
 	/**
 	 * Print test results
-	 */
-	private printResults(): void {
-		console.log('');
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} Test Results Summary`);
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log('');
 
-		const passed = this.results.filter((r) => r.passed).length;
-		const failed = this.results.filter((r) => !r.passed).length;
-		const total = this.results.length;
-
-		this.results.forEach((result, index) => {
-			const icon = result.passed ? '✅' : '❌';
-			console.log(`${MODULE_TAG} Test ${index + 1}: ${icon} ${result.testName}`);
-			console.log(`${MODULE_TAG}   ${result.message}`);
-			if (!result.passed && result.details) {
-				console.log(`${MODULE_TAG}   Details:`, result.details);
-			}
-			console.log('');
-		});
-
-		console.log(`${MODULE_TAG} ========================================`);
-		console.log(`${MODULE_TAG} Total: ${total} | Passed: ${passed} | Failed: ${failed}`);
-		console.log(`${MODULE_TAG} Success Rate: ${((passed / total) * 100).toFixed(1)}%`);
-		console.log(`${MODULE_TAG} ========================================`);
-
-		if (failed === 0) {
-			console.log(`${MODULE_TAG} 🎉 All tests passed! Token exchange flow is working correctly.`);
-		} else {
-			console.log(`${MODULE_TAG} ⚠️ ${failed} test(s) failed. Please review the details above.`);
-		}
-	}
-
-	/**
-	 * Get test results
-	 */
-	public getResults(): TestResult[] {
-		return this.results;
-	}
+/**
+ * Get test results
+ */
+public getResults(): TestResult[] {
+  return this.results;
+}
 }
 
 // Export for use in browser console
 if (typeof window !== 'undefined') {
-	(window as any).TokenExchangeFlowTest = TokenExchangeFlowTest;
-	console.log(`${MODULE_TAG} Test suite loaded. Run: new TokenExchangeFlowTest().runAllTests()`);
+  (window as { runTokenExchangeTests?: () => TestResult[] }).runTokenExchangeTests = () => {
+    const test = new TokenExchangeFlowTest();
+    test.runAllTests();
+    return test.getResults();
+  };
 }
 
 export default TokenExchangeFlowTest;
+export type { TestResult };

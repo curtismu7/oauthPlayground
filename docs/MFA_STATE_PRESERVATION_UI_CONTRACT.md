@@ -341,9 +341,156 @@ The return path stored in `user_login_return_to_mfa` must:
 
 ---
 
+## UI Modal Structure (All OTP Flows)
+
+This section documents the standardized modal structure used across all OTP flows (SMS, Email, WhatsApp) for device registration and OTP validation.
+
+### Device Registration Modal (Step 2 for all OTP flows: SMS, Email, WhatsApp)
+
+All OTP flows use a consistent modal structure for device registration:
+
+#### Modal Overlay
+- **Position:** `position: fixed`
+- **Dimensions:** Full viewport (`top: 0, left: 0, right: 0, bottom: 0`)
+- **Background:** Semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
+- **Display:** Centered using flexbox when modal is first opened (`display: flex, alignItems: center, justifyContent: center`)
+- **Z-index:** `1000`
+- **Backdrop Behavior:** Clicking backdrop does NOT close modal (requires explicit close action)
+
+#### Modal Container
+- **Background:** White (`#ffffff`)
+- **Border Radius:** `16px` (rounded corners)
+- **Padding:** `0` (content uses internal padding)
+- **Max Width:** `550px`
+- **Width:** `90%` (responsive)
+- **Box Shadow:** `0 20px 60px rgba(0, 0, 0, 0.3)` (elevated appearance)
+- **Overflow:** `hidden`
+- **Draggable:** Yes, using `useDraggableModal` hook (allows user to drag modal by header)
+
+#### Modal Header
+- **Background:** Linear gradient (green theme: `135deg, #10b981 0%, #059669 100%`)
+- **Padding:** `16px 20px 12px 20px`
+- **Text Alignment:** Center
+- **Position:** Relative (for close button positioning)
+- **Cursor:** `grab` (indicates draggable)
+- **User Select:** `none` (prevents text selection during drag)
+- **Components:**
+  - PingIdentity Logo (36px size)
+  - Title: "Register MFA Device" (18px, white, font-weight 600)
+  - Subtitle: "Add a new device for multi-factor authentication" (12px, rgba(255, 255, 255, 0.9))
+  - Close Button (X): Absolute positioned top-right, circular button with transparent white background
+
+#### Modal Body
+- **Padding:** `16px 20px`
+- **Components (varies by flow type):**
+  - **SMS/WhatsApp:**
+    - Username Display (gray background box)
+    - Phone Number Field (with country code picker)
+    - Device Name Field
+    - Phone Number Preview (yellow background box)
+  - **Email:**
+    - Username Display (gray background box)
+    - Email Address Field (with email icon)
+    - Device Name Field
+    - Email Preview (yellow background box, if email is auto-filled from PingOne)
+  - **All Flows:**
+    - Worker Token Status indicator
+    - API Display Toggle checkbox
+    - Action Buttons: Cancel (left) and Register Device (right, primary green button)
+
+#### Modal Footer (Action Buttons)
+- **Layout:** Flexbox with gap (`12px`)
+- **Cancel Button:**
+  - Background: Light gray (`#f3f4f6`)
+  - Border: Gray (`#d1d5db`)
+  - Color: Dark gray (`#374151`)
+  - Flex: `1`
+  - Action: Closes modal and returns to previous step
+- **Register Button:**
+  - Background: Green (`#10b981`) when enabled, gray (`#d1d5db`) when disabled
+  - Color: White
+  - Flex: `2`
+  - Box Shadow: Green glow when enabled (`0 4px 12px rgba(16, 185, 129, 0.3)`)
+  - Hover Effect: Darker green (`#059669`)
+  - Action: Validates and registers device
+
+### OTP Validation Modal (Step 4 for SMS/WhatsApp, Step 3 for Email)
+
+All OTP flows use a consistent modal structure for OTP validation:
+
+#### Modal Overlay
+- Same structure as Device Registration Modal
+
+#### Modal Container
+- Same structure as Device Registration Modal
+
+#### Modal Header
+- **Background:** Linear gradient (same green theme)
+- **Title:** "Validate OTP Code"
+- **Subtitle:** 
+  - SMS: "Enter the code sent to your phone"
+  - Email: "Enter the code sent to your email"
+  - WhatsApp: "Enter the code sent to your WhatsApp"
+
+#### Modal Body
+- OTP Input Field (6 digits)
+- Validate OTP Button
+- Resend OTP Button (if needed)
+- Error Display (if validation fails)
+
+### Implementation Details
+
+#### Draggable Modal Hook
+
+All modals use the `useDraggableModal` hook:
+
+**Location:** `src/v8/hooks/useDraggableModal.ts`
+
+**Usage:**
+```typescript
+const step2ModalDrag = useDraggableModal(showModal);
+```
+
+**Features:**
+- Modal can be dragged by clicking and dragging the header
+- Modal position is maintained during drag
+- Modal is centered initially when first opened
+- Position resets when modal closes
+
+#### Modal State Management
+
+- **Show/Hide:** Controlled by `showModal` state from `useUnifiedOTPFlow` hook
+- **Close Action:** Sets `showModal` to `false` and optionally calls `nav.goToPrevious()`
+- **Backdrop Click:** Does NOT close modal (requires explicit close action via X button or Cancel button)
+
+### Consistency Across Flows
+
+All OTP flows (SMS, Email, WhatsApp) follow this same modal structure:
+
+- ✅ Same overlay styling (fixed position, backdrop, centered)
+- ✅ Same container styling (white background, rounded corners, shadow, max-width 550px)
+- ✅ Same header structure (draggable, gradient background, logo, title, subtitle, close button)
+- ✅ Same body padding and layout
+- ✅ Same footer button structure (Cancel + Register/Validate buttons)
+- ✅ Same draggable behavior via `useDraggableModal` hook
+
+**Only differences:**
+- Field types (phone number vs email address)
+- Preview box content (phone number formatting vs email display)
+- Button text ("Register SMS Device" vs "Register Email Device" vs "Register WhatsApp Device")
+- Subtitle text in OTP validation modal (device-specific messaging)
+
+### References
+
+- `useDraggableModal` hook: `src/v8/hooks/useDraggableModal.ts`
+- SMS Device Registration Modal: `src/v8/flows/types/SMSFlowV8.tsx` (renderStep2Register)
+- Email Device Registration Modal: `src/v8/flows/types/EmailFlowV8.tsx` (renderStep2Register)
+- WhatsApp Device Registration Modal: `src/v8/flows/types/WhatsAppFlowV8.tsx` (renderStep2Register)
+
 ## Related Documentation
 
-- `docs/EMAIL_REGISTRATION_UI_FLOW.md` - Email flow documentation with state preservation details
+- `docs/EMAIL_REGISTRATION_UI_FLOW.md` - Email flow documentation with state preservation details and modal structure
+- `docs/WHATSAPP_REGISTRATION_UI_FLOW.md` - WhatsApp flow documentation with state preservation details and modal structure
 - `docs/SMS_REGISTER_FLOW_ANALYSIS.md` - SMS flow analysis with state preservation details
 - `docs/MFA_CALLBACK_ROUTES_CRITICAL.md` - Critical documentation for OAuth callback routes
 

@@ -110,7 +110,6 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 					...uiSettings,
 				};
 
-				console.log('[UISettings] Loaded settings:', mergedSettings);
 				setSettings(mergedSettings);
 
 				// Apply theme settings immediately

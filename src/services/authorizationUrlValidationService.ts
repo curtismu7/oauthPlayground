@@ -572,7 +572,4 @@ if (typeof window !== 'undefined') {
 	(window as any).quickValidateAuthUrl = (url: string) =>
 		authorizationUrlValidationService.quickValidate(url);
 
-	console.log('🔍 Authorization URL Validation Service loaded. Available commands:');
-	console.log('  - validateAuthUrl(url, flowType) - Full URL validation');
-	console.log('  - quickValidateAuthUrl(url) - Quick validation for common issues');
 }

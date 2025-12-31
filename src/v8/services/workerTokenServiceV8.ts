@@ -92,12 +92,6 @@ class WorkerTokenServiceV8 {
 	 * Save worker token credentials to all storage layers
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		console.log(`${MODULE_TAG} Saving worker token credentials`, {
-			hasEnvironmentId: !!credentials.environmentId,
-			hasClientId: !!credentials.clientId,
-			hasClientSecret: !!credentials.clientSecret,
-		});
-
 		const data: WorkerTokenData = {
 			token: '', // Token will be fetched when needed
 			environmentId: credentials.environmentId,
@@ -115,7 +109,6 @@ class WorkerTokenServiceV8 {
 		// Save to browser storage (primary)
 		try {
 			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-			console.log(`${MODULE_TAG} Saved to browser storage`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save to browser storage`, error);
 		}
@@ -136,8 +129,6 @@ class WorkerTokenServiceV8 {
 				request.onsuccess = () => resolve();
 				request.onerror = () => reject(request.error);
 			});
-
-			console.log(`${MODULE_TAG} Saved to IndexedDB backup`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save to IndexedDB`, error);
 			// Don't throw - browser storage is primary
@@ -414,7 +405,6 @@ export const workerTokenServiceV8 = new WorkerTokenServiceV8();
 if (typeof window !== 'undefined') {
 	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 =
 		workerTokenServiceV8;
-	console.log(`${MODULE_TAG} Service available globally as window.workerTokenServiceV8`);
 }
 
 export default workerTokenServiceV8;

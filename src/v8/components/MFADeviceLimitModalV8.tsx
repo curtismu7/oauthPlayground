@@ -4,6 +4,7 @@
 import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { FiAlertCircle, FiInfo, FiX } from '@/services/commonImportsService';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 
 interface MFADeviceLimitModalV8Props {
 	isOpen: boolean;
@@ -11,13 +12,13 @@ interface MFADeviceLimitModalV8Props {
 	deviceType?: string;
 }
 
-const ModalOverlay = styled.div`
+const ModalOverlay = styled.div<{ $hasPosition: boolean }>`
 	position: fixed;
 	inset: 0;
 	background: rgba(15, 23, 42, 0.55);
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: ${(props) => (props.$hasPosition ? 'block' : 'flex')};
+	align-items: ${(props) => (props.$hasPosition ? 'normal' : 'center')};
+	justify-content: ${(props) => (props.$hasPosition ? 'normal' : 'center')};
 	z-index: 1050;
 	padding: 1.5rem;
 `;
@@ -38,6 +39,12 @@ const ModalHeader = styled.div`
 	align-items: flex-start;
 	gap: 0.75rem;
 	margin-bottom: 1.25rem;
+	cursor: grab;
+	user-select: none;
+
+	&:active {
+		cursor: grabbing;
+	}
 `;
 
 const ModalTitle = styled.h3`
@@ -179,6 +186,7 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 	}, [isOpen, onClose]);
 
 	const modalTitleId = useId();
+	const { modalRef, modalPosition, handleMouseDown, modalStyle } = useDraggableModal(isOpen);
 
 	if (!isOpen) {
 		return null;
@@ -193,18 +201,22 @@ export const MFADeviceLimitModalV8: React.FC<MFADeviceLimitModalV8Props> = ({
 					? 'TOTP'
 					: 'MFA';
 
+	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
+
 	return (
-		<ModalOverlay role="presentation" onClick={onClose}>
+		<ModalOverlay role="presentation" onClick={onClose} $hasPosition={hasPosition}>
 			<ModalContent
+				ref={modalRef}
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={modalTitleId}
 				onClick={(event) => event.stopPropagation()}
+				style={modalStyle}
 			>
 				<CloseButton type="button" aria-label="Close error details" onClick={onClose}>
 					<FiX size={18} />
 				</CloseButton>
-				<ModalHeader>
+				<ModalHeader onMouseDown={handleMouseDown}>
 					<FiAlertCircle size={28} color="#dc2626" />
 					<div>
 						<ModalTitle id={modalTitleId}>Device Limit Reached</ModalTitle>

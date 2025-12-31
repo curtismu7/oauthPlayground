@@ -109,7 +109,6 @@ export class FocusManager {
 		if (element && typeof element.focus === 'function') {
 			element.focus();
 			this.addToHistory(element);
-			logger.info('[FocusManager] Focus set to element:', element);
 		}
 	}
 
@@ -385,8 +384,6 @@ export class AccessibilityManager {
 		if (this.config.enableFocusManagement) {
 			this.setupFocusManagement();
 		}
-
-		logger.info('[AccessibilityManager] Accessibility features initialized');
 	}
 
 	// Handle reduced motion preference

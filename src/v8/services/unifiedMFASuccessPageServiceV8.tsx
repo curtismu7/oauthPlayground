@@ -18,7 +18,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiCheck, FiCopy, FiHome, FiInfo, FiChevronDown, FiChevronUp, FiShield } from 'react-icons/fi';
+import { FiCheck, FiCopy, FiHome, FiInfo, FiChevronDown, FiChevronUp, FiShield, FiBook } from 'react-icons/fi';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
@@ -156,6 +156,24 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 	const handleGoToAuthentication = () => {
 		navigate('/v8/mfa-hub');
 	};
+
+	const handleGoToDocumentation = () => {
+		// Map device type to documentation route
+		const docsRouteMap: Record<string, string> = {
+			SMS: '/v8/mfa/register/sms/docs',
+			EMAIL: '/v8/mfa/register/email/docs',
+			WHATSAPP: '/v8/mfa/register/whatsapp/docs',
+			VOICE: '/v8/mfa/register/sms/docs', // Voice uses SMS flow
+			FIDO2: '/v8/mfa/register/fido2/docs',
+		};
+
+		const route = docsRouteMap[deviceType as string] || '/v8/mfa/register/sms/docs';
+		navigate(route);
+	};
+
+	// Show documentation button for all registration flows that have documentation
+	const hasDocumentation = deviceType && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceType as string);
+	const showDocumentationButton = flowType === 'registration' && hasDocumentation;
 	
 	// Build JSON response for display
 	const jsonResponse = responseData || completionResult || verificationResult || {};
@@ -907,7 +925,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 			)}
 			
 			{/* Action Buttons */}
-			<div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '32px' }}>
+			<div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '32px', flexWrap: 'wrap' }}>
 				<button
 					type="button"
 					onClick={handleGoHome}
@@ -928,6 +946,29 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					<FiHome />
 					Back to MFA Hub
 				</button>
+				{/* Show Documentation button for OTP registration flows */}
+				{showDocumentationButton && (
+					<button
+						type="button"
+						onClick={handleGoToDocumentation}
+						style={{
+							padding: '12px 24px',
+							fontSize: '16px',
+							fontWeight: '600',
+							borderRadius: '8px',
+							border: '1px solid #f59e0b',
+							background: '#f59e0b',
+							color: 'white',
+							cursor: 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						<FiBook />
+						View Documentation
+					</button>
+				)}
 				{/* Show Authentication button only for registration flows */}
 				{flowType === 'registration' && (
 					<button
