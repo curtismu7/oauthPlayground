@@ -172,7 +172,6 @@ export class CredentialsServiceV8 {
 			});
 		}
 
-		console.log(`${MODULE_TAG} Getting smart defaults`, { flowKey, flowType: config.flowType });
 
 		const defaults: Credentials = {
 			environmentId: '',
@@ -195,10 +194,6 @@ export class CredentialsServiceV8 {
 	 * const defaults = CredentialsServiceV8.getDefaultCredentials('oauth-authz-v8', config);
 	 */
 	static getDefaultCredentials(flowKey: string, config: CredentialsConfig): Credentials {
-		console.log(`${MODULE_TAG} Getting default credentials`, {
-			flowKey,
-			flowType: config.flowType,
-		});
 
 		const defaults: Credentials = {
 			environmentId: '',
@@ -231,7 +226,6 @@ export class CredentialsServiceV8 {
 	 * const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 	 */
 	static loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Credentials {
-		console.log(`${MODULE_TAG} Loading credentials with app discovery`, { flowKey });
 
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
@@ -267,7 +261,6 @@ export class CredentialsServiceV8 {
 				}),
 		};
 
-		console.log(`${MODULE_TAG} Credentials merged with app config`, { flowKey });
 		return merged;
 	}
 
@@ -287,13 +280,6 @@ export class CredentialsServiceV8 {
 		if (!config?.includeRedirectUri) return false;
 
 		const needsUpdate = !appRedirectUris.includes(currentRedirectUri);
-		if (needsUpdate) {
-			console.log(`${MODULE_TAG} Redirect URI needs app update`, {
-				flowKey,
-				current: currentRedirectUri,
-				registered: appRedirectUris,
-			});
-		}
 		return needsUpdate;
 	}
 
@@ -313,13 +299,6 @@ export class CredentialsServiceV8 {
 		if (!config?.includeLogoutUri) return false;
 
 		const needsUpdate = !appLogoutUris?.includes(currentLogoutUri);
-		if (needsUpdate) {
-			console.log(`${MODULE_TAG} Logout URI needs app update`, {
-				flowKey,
-				current: currentLogoutUri,
-				registered: appLogoutUris,
-			});
-		}
 		return needsUpdate;
 	}
 
@@ -407,18 +386,16 @@ export class CredentialsServiceV8 {
 	 * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
 	 */
 	static saveCredentials(flowKey: string, credentials: Credentials): void {
-		console.log(`${MODULE_TAG} Saving credentials to storage`, { flowKey });
 
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			localStorage.setItem(storageKey, JSON.stringify(credentials));
-			console.log(`${MODULE_TAG} Credentials saved successfully`, { flowKey });
 
 			// BACKUP: Also save to IndexedDB for maximum reliability
 			if (typeof window !== 'undefined' && (window as any).IndexedDBBackupServiceV8U) {
 				(window as any).IndexedDBBackupServiceV8U.save(storageKey, credentials, 'credentials')
 					.then(() => {
-						console.log(`${MODULE_TAG} ✅ Credentials backed up to IndexedDB`, { flowKey });
+						// Credentials backed up to IndexedDB
 					})
 					.catch((err: Error) => {
 						console.warn(`${MODULE_TAG} ⚠️ IndexedDB backup failed (non-critical)`, {
@@ -439,12 +416,10 @@ export class CredentialsServiceV8 {
 	 * CredentialsServiceV8.clearCredentials('oauth-authz-v8');
 	 */
 	static clearCredentials(flowKey: string): void {
-		console.log(`${MODULE_TAG} Clearing credentials from storage`, { flowKey });
 
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			localStorage.removeItem(storageKey);
-			console.log(`${MODULE_TAG} Credentials cleared successfully`, { flowKey });
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error clearing credentials from storage`, { flowKey, error });
 		}
@@ -468,7 +443,6 @@ export class CredentialsServiceV8 {
 		errors: Array<{ message: string; field?: string }>;
 		warnings: Array<{ message: string; field?: string }>;
 	} {
-		console.log(`${MODULE_TAG} Validating credentials`, { flowType });
 
 		const errors: Array<{ message: string; field?: string }> = [];
 		const warnings: Array<{ message: string; field?: string }> = [];
@@ -531,10 +505,6 @@ export class CredentialsServiceV8 {
 			warnings.push({ message: 'Issuer URL should be a valid URL', field: 'issuerUrl' });
 		}
 
-		console.log(`${MODULE_TAG} Validation complete`, {
-			errorCount: errors.length,
-			warningCount: warnings.length,
-		});
 
 		return { errors, warnings };
 	}
@@ -571,7 +541,6 @@ export class CredentialsServiceV8 {
 	 * const json = CredentialsServiceV8.exportCredentials(credentials);
 	 */
 	static exportCredentials(credentials: Credentials): string {
-		console.log(`${MODULE_TAG} Exporting credentials`);
 		return JSON.stringify(credentials, null, 2);
 	}
 
@@ -584,7 +553,6 @@ export class CredentialsServiceV8 {
 	 * const creds = CredentialsServiceV8.importCredentials(jsonString);
 	 */
 	static importCredentials(json: string): Credentials {
-		console.log(`${MODULE_TAG} Importing credentials`);
 
 		try {
 			const parsed = JSON.parse(json);

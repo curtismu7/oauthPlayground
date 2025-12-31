@@ -254,5 +254,4 @@ export const flowTrackingService = new FlowTrackingService();
 // Make available globally in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 	(window as any).FlowTrackingService = flowTrackingService;
-	console.log('🔧 [FlowTracking] Service available globally as window.FlowTrackingService');
 }

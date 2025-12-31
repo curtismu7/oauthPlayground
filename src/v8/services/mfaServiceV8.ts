@@ -199,6 +199,7 @@ export interface UserLookupResult {
 		given?: string;
 		family?: string;
 	};
+	phoneNumbers?: Array<{ number?: string; type?: string }>;
 	account?: {
 		locked?: boolean;
 		status?: string;
@@ -548,9 +549,64 @@ export class MFAServiceV8 {
 				username: userData.username,
 			});
 
-			return userData as unknown as UserLookupResult;
+		return userData as unknown as UserLookupResult;
+	} catch (error) {
+		console.error(`${MODULE_TAG} User lookup error`, error);
+		throw error;
+	}
+}
+
+	/**
+	 * List users with search and pagination
+	 * @param environmentId - PingOne environment ID
+	 * @param search - Optional search term to filter users
+	 * @param limit - Number of users to return (default: 10)
+	 * @param offset - Offset for pagination (default: 0)
+	 * @returns List of users with pagination info
+	 */
+	static async listUsers(
+		environmentId: string,
+		search?: string,
+		limit: number = 10,
+		offset: number = 0
+	): Promise<{
+		users: Array<{ id: string; username: string; email: string }>;
+		count: number;
+		totalCount: number;
+		hasMore: boolean;
+		limit: number;
+		offset: number;
+	}> {
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId,
+				workerToken: accessToken,
+				...(search && { search }),
+				limit,
+				offset,
+			};
+
+			const response = await fetch('/api/pingone/mfa/list-users', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				throw new Error(
+					`Failed to list users: ${errorData.message || errorData.error || response.statusText}`
+				);
+			}
+
+			const data = await response.json();
+			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} User lookup error`, error);
+			console.error(`${MODULE_TAG} List users error`, error);
 			throw error;
 		}
 	}
@@ -570,45 +626,21 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const paramsWithToken = params as RegisterDeviceParams & {
-				tokenType?: 'worker' | 'user';
-				userToken?: string;
-			};
-			const tokenType = paramsWithToken.tokenType;
-			const userToken = paramsWithToken.userToken;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'mfaServiceV8.ts:626',message:'registerDevice entry',data:{tokenType:(params as {tokenType?:string}).tokenType,hasUserToken:!!(params as {userToken?:string}).userToken,username:params.username,deviceType:params.type},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
 
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL FIX: Device registration should ALWAYS use worker tokens, regardless of flow type
+			// The user login (OAuth flow) is only for authentication - the API calls must use worker tokens
+			// This ensures device registration works correctly for both admin and user flows
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
-			// Validate user token has required scope for device registration
-			// Skip validation if userToken is 'oauth_completed' placeholder (we'll use worker token instead)
-			if (
-				paramsWithToken.tokenType === 'user' &&
-				paramsWithToken.userToken &&
-				paramsWithToken.userToken !== 'oauth_completed'
-			) {
-				const tokenScopes = MFAServiceV8.getTokenScopes(paramsWithToken.userToken);
-				if (!tokenScopes.includes('p1:create:device')) {
-					const errorMessage =
-						`User token is missing required scope "p1:create:device". ` +
-						`Token scopes: ${tokenScopes.join(', ') || 'none'}. ` +
-						`\n\nTo fix this:\n` +
-						`1. Go to PingOne Admin Console → Applications → Your OAuth Application\n` +
-						`2. Navigate to the "Scopes" or "Resource Access" section\n` +
-						`3. Ensure "p1:create:device" scope is enabled/added to the application\n` +
-						`4. Verify the user has permission to use this scope\n` +
-						`5. Log in again using the User Login modal (the scope is already requested: "openid profile email p1:create:device")\n\n` +
-						`Note: The scope is being requested in the authorization URL, but PingOne is only granting "openid". ` +
-						`This indicates the OAuth application configuration needs to be updated.`;
-					console.error(`${MODULE_TAG} ${errorMessage}`);
-					throw new Error(errorMessage);
-				}
-			}
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'mfaServiceV8.ts:632',message:'registerDevice using worker token',data:{hasAccessToken:!!accessToken,accessTokenLength:accessToken?.length,username:params.username,deviceType:params.type},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+
+			// NOTE: User token scope validation removed - device registration always uses worker tokens
+			// The user login (OAuth flow) is only for authentication purposes
 
 			// Registration uses Platform APIs only - NO MFA v1 APIs
 			// Build device registration payload
@@ -675,11 +707,8 @@ export class MFAServiceV8 {
 				environmentId: params.environmentId,
 				userId: user.id,
 				type: params.type,
-				workerToken: trimmedToken, // Note: This field name is misleading - it can be either worker or user token
-				tokenType:
-					('tokenType' in params
-						? (params as { tokenType?: 'worker' | 'user' }).tokenType
-						: undefined) || 'worker', // Explicitly send token type for server logging
+				workerToken: trimmedToken, // Always worker token (device registration always uses worker tokens)
+				tokenType: 'worker', // Always worker - device registration always uses worker tokens regardless of flow type
 			};
 
 			// Include phone for SMS, VOICE, and WHATSAPP devices
@@ -1214,17 +1243,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Getting device details ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Get device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/get-device';
@@ -1542,17 +1562,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Device deletion ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Delete device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/delete-device';
@@ -1641,17 +1652,8 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 			console.log(`${MODULE_TAG} User lookup successful, userId:`, user.id);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Getting all devices ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Use backend proxy to avoid CORS issues
 			const proxyEndpoint = '/api/pingone/mfa/get-all-devices';
@@ -1836,17 +1838,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Updating device nickname ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Update device nickname via backend proxy to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/update-device-nickname';
@@ -1955,17 +1948,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Updating device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Update device via backend proxy to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/update-device';
@@ -2072,17 +2056,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Blocking device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Block device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/block-device';
@@ -2178,17 +2153,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Unblocking device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Unblock device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/unblock-device';
@@ -2286,8 +2252,8 @@ export class MFAServiceV8 {
 		});
 
 		try {
-			// Get appropriate token (worker or user) based on credentials
-			const accessToken = await MFAServiceV8.getToken(credentials);
+			// CRITICAL: Unlocking device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Unlock device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/unlock-device';
@@ -2388,17 +2354,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Activating TOTP device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// According to totp.md: Use POST /devices/{deviceID} with Content-Type: application/vnd.pingidentity.device.activate+json
 			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
@@ -2660,17 +2617,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Sending OTP ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
@@ -2803,17 +2751,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Resending pairing code ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Validate token before sending
 			if (!accessToken || typeof accessToken !== 'string' || accessToken.trim().length === 0) {
@@ -3551,17 +3490,8 @@ export class MFAServiceV8 {
 			// Look up user by username
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
-			// Get appropriate token (worker or user) based on credentials
-			const tokenType =
-				'tokenType' in params ? (params as { tokenType?: 'worker' | 'user' }).tokenType : undefined;
-			const userToken =
-				'userToken' in params ? (params as { userToken?: string }).userToken : undefined;
-			const tokenParams: { tokenType?: 'worker' | 'user'; userToken?: string } = {};
-			if (tokenType) tokenParams.tokenType = tokenType;
-			if (userToken) tokenParams.userToken = userToken;
-			const accessToken = await MFAServiceV8.getToken(
-				Object.keys(tokenParams).length > 0 ? tokenParams : undefined
-			);
+			// CRITICAL: Device activation ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
+			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Activate device via backend proxy
 			// Per rightOTP.md: POST /v1/environments/{ENV_ID}/users/{USER_ID}/devices/{DEVICE_ID}

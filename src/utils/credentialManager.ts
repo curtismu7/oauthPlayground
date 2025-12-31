@@ -807,16 +807,10 @@ class CredentialManager {
 	loadPermanentCredentials(): PermanentCredentials {
 		try {
 			const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
-			console.log(' [CredentialManager] Loading from localStorage:', {
-				key: this.PERMANENT_CREDENTIALS_KEY,
-				stored: stored,
-				allKeys: Object.keys(localStorage).filter((key) => key.includes('pingone')),
-			});
 
 			if (stored) {
 				// Load from localStorage if available
 				const credentials = JSON.parse(stored);
-				console.log(' [CredentialManager] Loaded from localStorage:', credentials);
 
 				// Ensure required fields have defaults
 				const result = {
@@ -831,12 +825,10 @@ class CredentialManager {
 					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
-				console.log(' [CredentialManager] Returning credentials:', result);
 				return result;
 			} else {
 				// No localStorage found, return empty credentials
 				// The async loading will be handled by loadPermanentCredentialsAsync
-				console.log(' [CredentialManager] No stored credentials found');
 				return {
 					environmentId: '',
 					clientId: '',
@@ -862,16 +854,10 @@ class CredentialManager {
 	async loadPermanentCredentialsAsync(): Promise<PermanentCredentials> {
 		try {
 			const stored = localStorage.getItem(this.PERMANENT_CREDENTIALS_KEY);
-			console.log(' [CredentialManager] Loading from localStorage (async):', {
-				key: this.PERMANENT_CREDENTIALS_KEY,
-				stored: stored,
-				allKeys: Object.keys(localStorage).filter((key) => key.includes('pingone')),
-			});
 
 			if (stored) {
 				// Load from localStorage if available
 				const credentials = JSON.parse(stored);
-				console.log(' [CredentialManager] Loaded from localStorage:', credentials);
 
 				// Ensure required fields have defaults
 				const result = {
@@ -886,21 +872,14 @@ class CredentialManager {
 					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
 
-				console.log(' [CredentialManager] Returning credentials:', result);
 				return result;
 			} else {
 				// Fallback to environment variables
-				console.log(
-					' [CredentialManager] No localStorage found, checking environment variables...'
-				);
 				const credentials = await this.loadFromEnvironmentVariables();
 
 				if (credentials.environmentId && credentials.clientId) {
-					console.log(' [CredentialManager] Loaded from environment variables:', credentials);
 					// Auto-save to localStorage for future use
 					this.savePermanentCredentials(credentials);
-				} else {
-					console.log(' [CredentialManager] No credentials found in localStorage or environment');
 				}
 
 				return credentials;
@@ -1014,17 +993,13 @@ class CredentialManager {
 		if (
 			this.cache.all &&
 			this.cache.timestamp &&
-			now - this.cache.timestamp < this.CACHE_DURATION
+			now - 			this.cache.timestamp < this.CACHE_DURATION
 		) {
-			console.log(' [CredentialManager] getAllCredentials - using cache');
 			return this.cache.all;
 		}
 
 		const permanent = this.loadPermanentCredentials();
 		const session = this.loadSessionCredentials();
-
-		console.log(' [CredentialManager] getAllCredentials - permanent:', permanent);
-		console.log(' [CredentialManager] getAllCredentials - session:', session);
 
 		const result = {
 			...permanent,
@@ -1035,7 +1010,6 @@ class CredentialManager {
 		this.cache.all = result;
 		this.cache.timestamp = now;
 
-		console.log(' [CredentialManager] getAllCredentials - result:', result);
 		return result;
 	}
 
@@ -1045,9 +1019,6 @@ class CredentialManager {
 	async getAllCredentialsAsync(): Promise<AllCredentials> {
 		const permanent = await this.loadPermanentCredentialsAsync();
 		const session = this.loadSessionCredentials();
-
-		console.log(' [CredentialManager] getAllCredentialsAsync - permanent:', permanent);
-		console.log(' [CredentialManager] getAllCredentialsAsync - session:', session);
 
 		const result = {
 			...permanent,
