@@ -90,12 +90,10 @@ export class AppDiscoveryServiceV8 {
 	 * const token = await AppDiscoveryServiceV8.getWorkerToken();
 	 */
 	static async getWorkerToken(): Promise<string | null> {
-		console.log(`${MODULE_TAG} Getting worker token`);
 
 		// Try to get from storage (async)
 		const stored = await AppDiscoveryServiceV8.getStoredWorkerToken();
 		if (stored) {
-			console.log(`${MODULE_TAG} Using stored worker token`);
 			return stored;
 		}
 
@@ -114,13 +112,11 @@ export class AppDiscoveryServiceV8 {
 		});
 
 		if (!token) {
-			console.log(`${MODULE_TAG} User cancelled worker token prompt`);
 			return null;
 		}
 
 		// Store token (async)
 		await AppDiscoveryServiceV8.storeWorkerToken(token);
-		console.log(`${MODULE_TAG} Worker token stored`);
 
 		return token;
 	}
@@ -133,9 +129,6 @@ export class AppDiscoveryServiceV8 {
 		try {
 			// Use global worker token service
 			const token = await workerTokenServiceV8.getToken();
-			if (token) {
-				console.log(`${MODULE_TAG} Retrieved stored worker token from global service`);
-			}
 			return token;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to get stored worker token`, {
@@ -170,7 +163,6 @@ export class AppDiscoveryServiceV8 {
 
 			// Check if expired
 			if (data.expiresAt && Date.now() > data.expiresAt) {
-				console.log(`${MODULE_TAG} Stored worker token expired`);
 				// Clear token asynchronously (can't await in sync method)
 				workerTokenServiceV8.clearToken().catch((err) => {
 					console.error(`${MODULE_TAG} Failed to clear expired token`, err);
@@ -347,7 +339,6 @@ export class AppDiscoveryServiceV8 {
 
 			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
 
-			console.log(`${MODULE_TAG} Fetching applications via backend proxy`, { proxyUrl });
 
 			// Fetch from backend proxy
 			const response = await fetch(proxyUrl, {
@@ -369,21 +360,9 @@ export class AppDiscoveryServiceV8 {
 
 			const data = await response.json();
 
-			// Debug: Log full response to see what we're getting
-			console.log(`${MODULE_TAG} API Response`, {
-				hasEmbedded: !!data._embedded,
-				hasApplications: !!data._embedded?.applications,
-				dataKeys: Object.keys(data),
-				embeddedKeys: data._embedded ? Object.keys(data._embedded) : [],
-				fullData: data,
-			});
 
 			const applications = data._embedded?.applications || [];
 
-			console.log(`${MODULE_TAG} Applications discovered`, {
-				count: applications.length,
-				apps: applications.map((app: DiscoveredApplication) => ({ id: app.id, name: app.name })),
-			});
 
 			return applications as DiscoveredApplication[];
 		} catch (error) {

@@ -35,7 +35,6 @@ export class WorkerTokenManager {
 
 	private constructor() {
 		this.credentialStorage = new CredentialStorageManager();
-		console.log('🎫 [WorkerTokenManager] Initialized');
 	}
 
 	/**

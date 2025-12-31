@@ -268,7 +268,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 	}, [isOpen, onClose]);
 
 	// Load credentials from environment variables
-	const loadFromEnvironmentVariables = async () => {
+	const loadFromEnvironmentVariables = useCallback(async () => {
 		try {
 			console.log(' [CredentialSetupModal] Loading credentials from environment variables...');
 
@@ -297,7 +297,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			console.error(' [CredentialSetupModal] Failed to load from environment variables:', error);
 			// Keep the default form data if environment loading fails
 		}
-	};
+	}, []);
 
 	// Load existing credentials using V7 standardized system when modal opens
 	useEffect(() => {
@@ -434,10 +434,6 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		loadFromEnvironmentVariables,
 	]);
 
-	// Debug form data changes
-	useEffect(() => {
-		console.log(' [CredentialSetupModal] Form data changed:', formData);
-	}, [formData]);
 
 	// Validate Environment ID format (more flexible for PingOne)
 	const validateEnvironmentId = (envId: string): boolean => {

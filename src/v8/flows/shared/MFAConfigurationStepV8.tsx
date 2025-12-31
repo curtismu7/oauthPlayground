@@ -53,10 +53,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	// Use a function to ensure we only read credentials.tokenType once on mount
 	const [tokenType, setTokenType] = useState<TokenType>(() => {
 		const initialType = credentials.tokenType || 'worker';
-		console.log(`[⚙️ MFA-CONFIG-STEP-V8] Initializing tokenType:`, { 
-			fromCredentials: credentials.tokenType, 
-			initialType 
-		});
 		return initialType;
 	});
 	
@@ -466,7 +462,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	
 	// Determine if login button should be visible
 	// Show when registrationFlowType is 'user' (or when not provided and tokenType is 'user' for backward compatibility)
-	const shouldShowLoginButton = registrationFlowType === 'user' || (registrationFlowType === undefined && tokenType === 'user');
+	// BUT disable it if we have a valid user token (including 'oauth_completed' placeholder) - this means we've returned from authentication
+	const hasValidUserToken = userToken && (userTokenStatus === 'active' || userToken === 'oauth_completed');
+	const shouldShowLoginButton = (registrationFlowType === 'user' || (registrationFlowType === undefined && tokenType === 'user')) && !hasValidUserToken;
 
 	// Debug: Log when component renders
 	React.useEffect(() => {
@@ -1074,14 +1072,14 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 								borderRadius: '6px',
 								fontSize: '12px',
 								fontWeight: '600',
-								cursor: isLoadingPolicies || !isTokenValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
-								opacity: isLoadingPolicies || !isTokenValid || !credentials.environmentId ? 0.6 : 1,
+								cursor: isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId ? 'not-allowed' : 'pointer',
+								opacity: isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId ? 0.6 : 1,
 								boxShadow: '0 2px 4px rgba(2,132,199,0.2)',
 								transition: 'all 0.2s ease',
 							}}
-							disabled={isLoadingPolicies || !isTokenValid || !credentials.environmentId}
+							disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
 							onMouseEnter={(e) => {
-								if (!isLoadingPolicies && isTokenValid && credentials.environmentId) {
+								if (!isLoadingPolicies && tokenStatus.isValid && credentials.environmentId) {
 									e.currentTarget.style.transform = 'translateY(-1px)';
 									e.currentTarget.style.boxShadow = '0 4px 8px rgba(2,132,199,0.3)';
 								}

@@ -327,12 +327,6 @@ const initialize = (config?: Partial<AccessibilityConfig>): void => {
 	}
 
 	applyUserPreferences();
-
-	logger.info('AccessibilityService', 'Accessibility service initialized', {
-		config: state.config,
-		deviceCapabilities: state.deviceCapabilities,
-		currentBreakpoint: state.currentBreakpoint,
-	});
 };
 
 const getDeviceCapabilities = (): DeviceCapabilities => {
