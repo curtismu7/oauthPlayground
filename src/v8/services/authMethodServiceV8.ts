@@ -166,8 +166,6 @@ export class AuthMethodServiceV8 {
 	static getAvailableMethodsForFlow(flowType: string): AuthMethodV8[] {
 		const normalizedFlowType = flowType.toLowerCase();
 
-		console.log(`${MODULE_TAG} Getting available auth methods for flow`, { flowType });
-
 		// Client Credentials - always requires authentication
 		if (
 			normalizedFlowType.includes('client-credentials') ||

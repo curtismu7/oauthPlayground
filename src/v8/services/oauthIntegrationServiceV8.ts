@@ -70,7 +70,6 @@ export class OAuthIntegrationServiceV8 {
 	 * @returns PKCE codes (verifier and challenge)
 	 */
 	static async generatePKCECodes(): Promise<PKCECodes> {
-		console.log(`${MODULE_TAG} Generating PKCE codes`);
 
 		// Generate random code verifier (43-128 characters)
 		const codeVerifier = OAuthIntegrationServiceV8.generateRandomString(128);
@@ -95,13 +94,6 @@ export class OAuthIntegrationServiceV8 {
 		credentials: OAuthCredentials,
 		pkceCodes?: PKCECodes
 	): Promise<AuthorizationUrlParams> {
-		console.log(`${MODULE_TAG} Generating authorization URL`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			redirectUri: credentials.redirectUri,
-			scopes: credentials.scopes,
-			hasPKCE: !!pkceCodes,
-		});
 
 		// Validate required fields
 		if (!credentials.redirectUri) {
@@ -153,10 +145,6 @@ export class OAuthIntegrationServiceV8 {
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-		console.log(`${MODULE_TAG} Authorization URL generated`, {
-			url: `${authorizationUrl.substring(0, 100)}...`,
-		});
-
 		return {
 			authorizationUrl,
 			state,
@@ -176,7 +164,6 @@ export class OAuthIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code: string; state: string } {
-		console.log(`${MODULE_TAG} Parsing callback URL`);
 
 		try {
 			const url = new URL(callbackUrl);
@@ -244,7 +231,6 @@ export class OAuthIntegrationServiceV8 {
 			// Use relative path to leverage Vite proxy (proxies /api to http://localhost:3001)
 			// This avoids SSL protocol errors and CORS issues
 			const tokenEndpoint = '/api/token-exchange';
-			console.log(`${MODULE_TAG} Token endpoint (via proxy):`, tokenEndpoint);
 
 			const bodyParams: Record<string, string> = {
 				grant_type: 'authorization_code',
