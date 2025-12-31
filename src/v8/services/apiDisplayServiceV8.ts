@@ -41,7 +41,6 @@ class ApiDisplayServiceV8 {
 			const saved = localStorage.getItem('apiDisplay.visible');
 			if (saved !== null) {
 				this.visible = saved === 'true';
-				console.log(`${MODULE_TAG} Loaded visibility state from localStorage:`, this.visible);
 			}
 		} catch (error) {
 			console.warn(`${MODULE_TAG} Failed to load visibility state:`, error);
@@ -60,7 +59,6 @@ class ApiDisplayServiceV8 {
 	 */
 	show(): void {
 		if (!this.visible) {
-			console.log(`${MODULE_TAG} Showing API display`);
 			this.visible = true;
 			this.saveState();
 			this.notifyListeners();
@@ -72,7 +70,6 @@ class ApiDisplayServiceV8 {
 	 */
 	hide(): void {
 		if (this.visible) {
-			console.log(`${MODULE_TAG} Hiding API display`);
 			this.visible = false;
 			this.saveState();
 			this.notifyListeners();
@@ -83,7 +80,6 @@ class ApiDisplayServiceV8 {
 	 * Toggle API display visibility
 	 */
 	toggle(): void {
-		console.log(`${MODULE_TAG} Toggling API display visibility`);
 		this.visible = !this.visible;
 		this.saveState();
 		this.notifyListeners();
@@ -96,12 +92,10 @@ class ApiDisplayServiceV8 {
 	 */
 	subscribe(listener: VisibilityChangeListener): () => void {
 		this.listeners.add(listener);
-		console.log(`${MODULE_TAG} Listener subscribed (total: ${this.listeners.size})`);
 		
 		// Return unsubscribe function
 		return () => {
 			this.listeners.delete(listener);
-			console.log(`${MODULE_TAG} Listener unsubscribed (remaining: ${this.listeners.size})`);
 		};
 	}
 
@@ -109,7 +103,6 @@ class ApiDisplayServiceV8 {
 	 * Notify all listeners of visibility change
 	 */
 	private notifyListeners(): void {
-		console.log(`${MODULE_TAG} Notifying ${this.listeners.size} listeners of visibility change:`, this.visible);
 		this.listeners.forEach((listener) => {
 			try {
 				listener(this.visible);
@@ -125,7 +118,6 @@ class ApiDisplayServiceV8 {
 	private saveState(): void {
 		try {
 			localStorage.setItem('apiDisplay.visible', String(this.visible));
-			console.log(`${MODULE_TAG} Saved visibility state to localStorage:`, this.visible);
 		} catch (error) {
 			console.warn(`${MODULE_TAG} Failed to save visibility state:`, error);
 		}

@@ -414,9 +414,4 @@ export { AuthorizationUrlValidationModalService };
 if (typeof window !== 'undefined') {
 	(window as any).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
 
-	console.log('🔍 Authorization URL Validation Modal Service loaded. Available commands:');
-	console.log(
-		'  - authorizationUrlValidationModalService.showValidationModal(result, url, onProceed, onFix)'
-	);
-	console.log('  - authorizationUrlValidationModalService.hideModal()');
 }

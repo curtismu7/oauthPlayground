@@ -254,9 +254,4 @@ if (typeof window !== 'undefined') {
 	(
 		window as { IndexedDBBackupServiceV8U?: typeof IndexedDBBackupServiceV8U }
 	).IndexedDBBackupServiceV8U = IndexedDBBackupServiceV8U;
-	console.log(`${MODULE_TAG} 🔧 Service available globally as window.IndexedDBBackupServiceV8U`);
-	console.log(`${MODULE_TAG} 🔧 Available commands:`);
-	console.log(`${MODULE_TAG}   - IndexedDBBackupServiceV8U.getStats()`);
-	console.log(`${MODULE_TAG}   - IndexedDBBackupServiceV8U.listByType('pkce')`);
-	console.log(`${MODULE_TAG}   - IndexedDBBackupServiceV8U.clearAll()`);
 }

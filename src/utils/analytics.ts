@@ -137,7 +137,6 @@ export class AnalyticsManager {
 			this.startFlushTimer();
 
 			this.isInitialized = true;
-			logger.info('[AnalyticsManager] Analytics initialized successfully');
 		} catch (error) {
 			logger.error('[AnalyticsManager] Failed to initialize analytics:', error);
 		}
