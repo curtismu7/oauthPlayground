@@ -104,9 +104,6 @@ class FlowCredentialIsolationService {
 	loadFlowCredentials(config: FlowCredentialConfig): FlowCredentialResult {
 		const { flowKey, defaultCredentials = {}, useSharedFallback = false } = config;
 
-		console.group(`🔒 [CREDENTIAL ISOLATION] Loading credentials for flow: ${flowKey}`);
-		console.log(`📋 Flow Key: ${flowKey}`);
-		console.log(`📋 Use Shared Fallback: ${useSharedFallback}`);
 
 		// Try flow-specific storage FIRST (PRIMARY SOURCE)
 		const flowStorageKey = this.getFlowStorageKey(flowKey);
@@ -136,7 +133,6 @@ class FlowCredentialIsolationService {
 
 		// Only try shared storage if no flow-specific credentials AND opt-in enabled
 		if (!hasFlowSpecificCredentials && useSharedFallback) {
-			console.log(`📋 No flow-specific credentials, trying shared fallback (opt-in)`);
 			const sharedData = localStorage.getItem(this.SHARED_STORAGE_KEY);
 
 			if (sharedData) {
@@ -146,19 +142,12 @@ class FlowCredentialIsolationService {
 						credentials = { ...defaultCredentials, ...parsed };
 						credentialSource = 'shared-fallback';
 						hasSharedCredentials = true;
-						console.log(`⚠️ Using shared credentials (opt-in fallback)`);
 					}
 				} catch (error) {
 					console.error(`❌ Failed to parse shared data:`, error);
 				}
 			}
-		} else if (!hasFlowSpecificCredentials) {
-			console.log(`🔒 No flow-specific credentials and shared fallback disabled (isolation mode)`);
 		}
-
-		console.log(`📋 Final credential source: ${credentialSource}`);
-		console.log(`📋 Final credentials:`, credentials);
-		console.groupEnd();
 
 		return {
 			credentials,
@@ -313,13 +302,6 @@ export const flowCredentialIsolationService = new FlowCredentialIsolationService
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
 	(window as any).FlowCredentialIsolationService = flowCredentialIsolationService;
-	console.log(`🔒 FlowCredentialIsolationService available globally`);
-	console.log(`🔒 Available commands:`);
-	console.log(`  - FlowCredentialIsolationService.auditAllFlows()`);
-	console.log(`  - FlowCredentialIsolationService.loadFlowCredentials({flowKey: "flow-key"})`);
-	console.log(`  - FlowCredentialIsolationService.saveFlowCredentials("flow-key", credentials)`);
-	console.log(`  - FlowCredentialIsolationService.migrateSharedToFlowSpecific("flow-key")`);
-	console.log(`  - FlowCredentialIsolationService.clearAllFlowCredentials()`);
 }
 
 export default flowCredentialIsolationService;

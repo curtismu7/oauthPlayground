@@ -575,15 +575,9 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		// Try to extract flow type from formData or selectedAppType
 		const grantTypes = formData.grantTypes as string[] | undefined;
 
-		console.log('[CONFIG-CHECKER] Determining flow type for comparison:', {
-			selectedAppType,
-			grantTypes,
-			formDataGrantTypes: formData.grantTypes,
-		});
 
 		// If grant types include client_credentials, it's a client credentials flow
 		if (grantTypes?.some((gt) => gt.toLowerCase() === 'client_credentials')) {
-			console.log('[CONFIG-CHECKER] Detected client-credentials flow');
 			return 'client-credentials';
 		}
 
@@ -592,41 +586,18 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			grantTypes?.some((gt) => gt.toLowerCase() === 'authorization_code') &&
 			grantTypes.some((gt) => gt.toLowerCase() === 'implicit')
 		) {
-			console.log('[CONFIG-CHECKER] Detected hybrid flow (authorization_code + implicit)');
 			return 'hybrid';
 		}
 
 		// Otherwise, use the app type mapping
 		const result = appTypeToFlowType[selectedAppType || ''] || selectedAppType;
-		console.log('[CONFIG-CHECKER] Using app type mapping result:', result);
 		return result;
 	}, [selectedAppType, formData.grantTypes]);
 
 	const comparisonService = useMemo(() => {
-		console.log('[CONFIG-CHECKER] Creating ConfigComparisonService with:', {
-			workerToken: workerToken ? `${workerToken.substring(0, 20)}...` : 'undefined',
-			environmentId,
-			region,
-			clientId: formData.clientId,
-			clientSecret: formData.clientSecret
-				? `${formData.clientSecret.substring(0, 10)}...`
-				: 'undefined',
-			flowType: flowTypeForComparison,
-		});
-
 		// Use the application's clientId and clientSecret from formData (which now contains application credentials)
 		const applicationClientId = formData.clientId as string;
 		const applicationClientSecret = formData.clientSecret as string;
-
-		console.log('[CONFIG-CHECKER] Using application credentials for comparison:', {
-			applicationClientId: applicationClientId
-				? `${applicationClientId.substring(0, 10)}...`
-				: 'undefined',
-			applicationClientSecret: applicationClientSecret
-				? `${applicationClientSecret.substring(0, 10)}...`
-				: 'undefined',
-			workerToken: workerToken ? `${workerToken.substring(0, 20)}...` : 'undefined',
-		});
 
 		return new ConfigComparisonService(
 			workerToken,
@@ -831,7 +802,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
 		// Handle worker token refresh if requested and not already used
 		if (refreshWorkerToken && !hasUsedTokenRefresh && onGenerateWorkerToken) {
-			console.log('[CONFIG-CHECKER] Refreshing worker token before config check...');
 			setHasUsedTokenRefresh(true); // Mark as used to prevent multiple refreshes
 			setRefreshWorkerToken(false); // Uncheck the checkbox
 
@@ -850,23 +820,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			}
 		}
 
-		// Debug: Check if worker token is present
-		console.log('[CONFIG-CHECKER] Worker token present:', !!workerToken);
-		console.log('[CONFIG-CHECKER] Worker token length:', workerToken?.length || 0);
-		console.log(
-			'[CONFIG-CHECKER] Worker token (first 50 chars):',
-			`${workerToken?.substring(0, 50)}...`
-		);
-
-		// Debug: Check credentials being passed to ConfigComparisonService
-		console.log('[CONFIG-CHECKER] Credentials being passed:', {
-			clientId: formData.clientId,
-			clientSecret: formData.clientSecret
-				? `${formData.clientSecret.substring(0, 10)}...`
-				: 'undefined',
-			environmentId,
-			region,
-		});
 
 		setLoading('check');
 		logger.info('CONFIG-CHECKER', 'Starting configuration check', {
@@ -913,7 +866,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				errorMessage.includes('Unauthorized')
 			) {
 				// Clear expired token from localStorage
-				console.log('[CONFIG-CHECKER] Clearing expired worker token from localStorage');
 				localStorage.removeItem('worker_token');
 				localStorage.removeItem('worker_token_expires_at');
 
@@ -1150,11 +1102,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				return;
 			}
 
-			console.log('[CONFIG-CHECKER] Updating application with selected fields:', {
-				appId: app.id,
-				selectedFields: Array.from(selectedDiffs),
-				payload: updatePayload,
-			});
 
 			const result = await pingOneAppCreationService.updateApplication(app.id, updatePayload);
 
@@ -1224,10 +1171,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				updatePayload.responseTypes = diffs.normalizedRemote.responseTypes || [];
 			}
 
-			console.log('[CONFIG-CHECKER] Updating Our App with PingOne values:', {
-				selectedFields: Array.from(selectedDiffs),
-				payload: updatePayload,
-			});
 
 			// Use the existing onImportConfig callback to update our app
 			if (onImportConfig) {
@@ -1242,7 +1185,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				setSelectedDiffs(new Set());
 
 				// Auto-refresh the configuration check to show updated values
-				console.log('[CONFIG-CHECKER] Auto-refreshing after updating Our App...');
 				setTimeout(() => {
 					handleRefresh();
 				}, 1000); // Wait 1 second for the update to propagate
@@ -1264,7 +1206,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		setDiffs(null);
 
 		// Refresh the main application to show any updates made via Config Checker
-		console.log('[CONFIG-CHECKER] Modal closed, refreshing main application...');
 		if (onImportConfig) {
 			// Trigger a refresh of the main application state
 			setTimeout(() => {

@@ -1224,11 +1224,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return saved === 'true';
 	});
 
-	// Debug log for drag mode state
-	React.useEffect(() => {
-		console.log('🎯 Sidebar isDragDropMode state:', isDragDropMode);
-		console.log('🔍 localStorage value:', localStorage.getItem('sidebar.dragDropMode'));
-	}, [isDragDropMode]);
 
 	// Function to reset drag mode (for debugging)
 	// const _resetDragMode = () => {
