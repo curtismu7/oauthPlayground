@@ -60,17 +60,20 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [isSaving, setIsSaving] = useState(false);
 	const [showSuccessPage, setShowSuccessPage] = useState(false);
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
+	// Track if we're processing a callback (returning from PingOne authentication)
+	const [isProcessingCallback, setIsProcessingCallback] = useState(false);
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
 		? 'https://localhost:3000/user-mfa-login-callback'
 		: 'https://localhost:3000/user-login-callback';
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
-	// Reset success page state when modal closes
+	// Reset success page state and processing state when modal closes
 	useEffect(() => {
 		if (!isOpen) {
 			setShowSuccessPage(false);
 			setSessionInfo(null);
+			setIsProcessingCallback(false);
 		}
 	}, [isOpen]);
 
@@ -216,6 +219,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			if (isProcessingRef.current) {
 				return;
 			}
+
+			// Set processing state to disable login button
+			setIsProcessingCallback(true);
 
 			// Use window.location.search as fallback since window.location.replace bypasses React Router
 			// This ensures we detect the code even if React Router's searchParams haven't updated yet
@@ -438,6 +444,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				} finally {
 					// eslint-disable-next-line require-atomic-updates
 					isProcessingRef.current = false;
+					setIsProcessingCallback(false);
 				}
 			} else if (error && storedState) {
 				const errorDescription = searchParams.get('error_description') || '';
@@ -458,6 +465,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					? `${window.location.pathname}?${newSearch}`
 					: window.location.pathname;
 				window.history.replaceState({}, document.title, newUrl);
+				setIsProcessingCallback(false);
 			}
 		};
 
@@ -1567,6 +1575,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							onClick={handleLogin}
 							disabled={
 								isRedirecting ||
+								isProcessingCallback ||
 								!environmentId.trim() ||
 								!clientId.trim() ||
 								!clientSecret.trim() ||
@@ -1577,6 +1586,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								padding: '12px 20px',
 								background:
 									isRedirecting ||
+									isProcessingCallback ||
 									!environmentId.trim() ||
 									!clientId.trim() ||
 									!clientSecret.trim() ||
@@ -1590,6 +1600,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								fontWeight: '600',
 								cursor:
 									isRedirecting ||
+									isProcessingCallback ||
 									!environmentId.trim() ||
 									!clientId.trim() ||
 									!clientSecret.trim() ||
@@ -1602,10 +1613,10 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 								gap: '8px',
 							}}
 						>
-							{isRedirecting ? (
+							{isRedirecting || isProcessingCallback ? (
 								<>
 									<span>⏳</span>
-									<span>Redirecting...</span>
+									<span>{isRedirecting ? 'Redirecting...' : 'Processing authentication...'}</span>
 								</>
 							) : (
 								<>

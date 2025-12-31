@@ -54,6 +54,7 @@ import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
+import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -838,15 +839,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				return matches;
 			});
 
-				filteredCount: userDevices.length,
-				removedCount: rawDevices.length - userDevices.length,
-				devices: userDevices.map((d: Record<string, unknown>) => ({
-					id: d.id,
-					type: d.type,
-					nickname: d.nickname || d.name,
-				})),
-			});
-
 			let authDevices: Device[] = userDevices.map((d: Record<string, unknown>) => {
 				const device: Device = {
 					id: (d.id as string) || '',
@@ -987,7 +979,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				} catch (error) {
 					console.warn('[MFA-AUTHN-MAIN-V8] Could not end PingOne session:', error);
 				}
-			}
 			}
 
 			// Call auth context logout to clear local session state
@@ -2568,14 +2559,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							</button>
 							<div>
 								<label htmlFor={`${usernameInputId}-modal`} style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
-									Enter username
+									Select username
 								</label>
-								<input
+								<UserSearchDropdownV8
 									id={`${usernameInputId}-modal`}
-									type="text"
+									environmentId={credentials.environmentId}
 									value={usernameInput}
-									onChange={(e) => {
-										const newUsername = e.target.value;
+									onChange={(newUsername) => {
 										setUsernameInput(newUsername);
 										setCredentials((prev) => ({ ...prev, username: newUsername }));
 										// Save to storage immediately so it syncs to main UI
@@ -2592,22 +2582,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											username: newUsername,
 										});
 									}}
-									onKeyDown={(e) => {
-										if (e.key === 'Enter' && usernameInput.trim()) {
-											setShowUsernameDecisionModal(false);
-											handleStartMFA();
-										}
-									}}
-									placeholder="Enter username (e.g., user@example.com)"
-									style={{
-										width: '100%',
-										padding: '10px 12px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										fontSize: '14px',
-										marginBottom: '8px',
-									}}
-									autoFocus
+									placeholder="Search for a user..."
+									disabled={!credentials.environmentId}
 								/>
 								<button
 									type="button"
@@ -3095,11 +3071,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										throw new Error('Unable to determine userId. Please check your username and try again.');
 									}
 
-										userId,
-										authenticationId: authState.authenticationId,
-										deviceId,
-									});
-
 									const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
 										environmentId: credentials.environmentId,
 										username: usernameInput.trim(),
@@ -3351,8 +3322,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 														}
 
 														const deviceType = (selectedDevice.type as string)?.toUpperCase() || 'UNKNOWN';
-															username: usernameInput.trim(),
-														});
 
 														// Validate required fields
 														if (!authState.authenticationId) {
@@ -3901,11 +3870,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							<button
 								type="button"
 								onClick={async () => {
-										hasChallengeId: !!authState.challengeId,
-										hasPublicKeyOptions: !!authState.publicKeyCredentialRequestOptions,
-										isWebAuthnSupported: WebAuthnAuthenticationServiceV8.isWebAuthnSupported(),
-									});
-									
 									// This modal is for username-based FIDO2 authentication
 									// It requires either challengeId OR publicKeyCredentialRequestOptions
 									if (!authState.authenticationId) {

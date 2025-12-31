@@ -33,7 +33,7 @@ import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 const MODULE_TAG = '[📊 MFA-REPORTING-FLOW-V8]';
 const FLOW_KEY = 'mfa-reporting-v8';
 
-type ReportType = 'user-auth' | 'device-auth' | 'fido2';
+type ReportType = 'sms' | 'mfa-enabled' | 'fido2' | 'email' | 'totp';
 
 interface Credentials {
 	environmentId: string;
@@ -75,31 +75,16 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [tokenStatus, setTokenStatus] = useState(() =>
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
-	const [selectedReport, setSelectedReport] = useState<ReportType>('user-auth');
+	const [selectedReport, setSelectedReport] = useState<ReportType>('sms');
+	const [username, setUsername] = useState<string>(''); // For device-based reports
 	const [reports, setReports] = useState<Array<Record<string, unknown>>>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	// Helper function to format date for datetime-local input
-	const formatDateForInput = (date: Date): string => {
-		const year = date.getFullYear();
-		const month = String(date.getMonth() + 1).padStart(2, '0');
-		const day = String(date.getDate()).padStart(2, '0');
-		const hours = String(date.getHours()).padStart(2, '0');
-		const minutes = String(date.getMinutes()).padStart(2, '0');
-		return `${year}-${month}-${day}T${hours}:${minutes}`;
-	};
-
-	// Helper function to get today's date at end of day (23:59)
-	const getTodayEndOfDay = (): string => {
-		const today = new Date();
-		today.setHours(23, 59, 0, 0);
-		return formatDateForInput(today);
-	};
-
-	const [dateRange, setDateRange] = useState({
-		startDate: '',
-		endDate: getTodayEndOfDay(), // Default to today
-	});
-	const [limit, setLimit] = useState(50);
+	const [reportId, setReportId] = useState<string | null>(null); // For MFA-enabled devices report polling
+	const [isPolling, setIsPolling] = useState(false);
+	
+	// Helper variables
+	const needsUsername = selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp';
+	const isMfaEnabledReport = selectedReport === 'mfa-enabled';
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 
 	// Subscribe to API display visibility changes
@@ -181,29 +166,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 		toastV8.success('Worker token generated and saved!');
 	};
 
-	const handleTimePeriodClick = (days: number) => {
-		const endDate = new Date();
-		endDate.setHours(23, 59, 0, 0); // End of today
-		
-		const startDate = new Date(endDate);
-		startDate.setDate(startDate.getDate() - days);
-		startDate.setHours(0, 0, 0, 0); // Start of that day
-
-		setDateRange({
-			startDate: formatDateForInput(startDate),
-			endDate: formatDateForInput(endDate),
-		});
-	};
-
-	// Update end date to today whenever it changes or component mounts
-	useEffect(() => {
-		if (!dateRange.endDate) {
-			setDateRange((prev) => ({
-				...prev,
-				endDate: getTodayEndOfDay(),
-			}));
-		}
-	}, []);
 
 	const loadReports = async () => {
 		if (!credentials.environmentId?.trim()) {
@@ -215,31 +177,89 @@ export const MFAReportingFlowV8: React.FC = () => {
 			return;
 		}
 
+		// For device-based reports (FIDO2, Email, TOTP), username is required
+		if ((selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp') && !username.trim()) {
+			toastV8.error('Username is required for device-based reports');
+			return;
+		}
+
 		setIsLoading(true);
 		try {
-			const params: ReportParams = {
-				environmentId: credentials.environmentId,
-				limit,
-			};
-
-			if (dateRange.startDate) params.startDate = dateRange.startDate;
-			if (dateRange.endDate) params.endDate = dateRange.endDate;
-
 			let data: Array<Record<string, unknown>> = [];
 
 			switch (selectedReport) {
-				case 'user-auth':
-					data = await MFAReportingServiceV8.getUserAuthenticationReports(params);
+				case 'sms': {
+					// Official Reporting API: Create SMS devices report
+					const reportResult = await MFAReportingServiceV8.createSMSDevicesReport({
+						environmentId: credentials.environmentId,
+						filter: '(deviceType eq "SMS")',
+					});
+					
+					// Check if report has entries directly or needs to be fetched
+					if (reportResult._embedded?.entries) {
+						data = reportResult._embedded.entries as Array<Record<string, unknown>>;
+					} else if (reportResult.id) {
+						// Need to fetch report results
+						const reportData = await MFAReportingServiceV8.getReportResults({
+							environmentId: credentials.environmentId,
+							reportId: reportResult.id as string,
+						});
+						data = (reportData._embedded?.entries || []) as Array<Record<string, unknown>>;
+					}
 					break;
-				case 'device-auth':
-					data = await MFAReportingServiceV8.getDeviceAuthenticationReports(params);
+				}
+				case 'mfa-enabled': {
+					// Official Reporting API: Create MFA-enabled devices report (file-based)
+					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport({
+						environmentId: credentials.environmentId,
+					});
+					
+					// Store reportId for polling
+					if (reportResult.id) {
+						setReportId(reportResult.id as string);
+						toastV8.info('Report created. Use "Poll Report Results" button to retrieve results.');
+						setReports([]); // Clear previous reports
+						return;
+					}
 					break;
-				case 'fido2':
-					data = await MFAReportingServiceV8.getFIDO2DeviceReports(params);
+				}
+				case 'fido2': {
+					// Device filtering: Get all devices filtered by FIDO2 type
+					data = await MFAReportingServiceV8.getDevicesByType(
+						{
+							environmentId: credentials.environmentId,
+							username: username.trim(),
+						},
+						'FIDO2'
+					);
 					break;
+				}
+				case 'email': {
+					// Device filtering: Get all devices filtered by EMAIL type
+					data = await MFAReportingServiceV8.getDevicesByType(
+						{
+							environmentId: credentials.environmentId,
+							username: username.trim(),
+						},
+						'EMAIL'
+					);
+					break;
+				}
+				case 'totp': {
+					// Device filtering: Get all devices filtered by TOTP type
+					data = await MFAReportingServiceV8.getDevicesByType(
+						{
+							environmentId: credentials.environmentId,
+							username: username.trim(),
+						},
+						'TOTP'
+					);
+					break;
+				}
 			}
 
 			setReports(data);
+			setReportId(null); // Clear reportId for non-polling reports
 			toastV8.success(`Loaded ${data.length} reports`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load reports`, error);
@@ -248,6 +268,38 @@ export const MFAReportingFlowV8: React.FC = () => {
 			);
 		} finally {
 			setIsLoading(false);
+		}
+	};
+
+	const pollReportResults = async () => {
+		if (!reportId) {
+			toastV8.error('No report ID available. Please create a report first.');
+			return;
+		}
+
+		setIsPolling(true);
+		try {
+			// Poll for report results
+			const reportData = await MFAReportingServiceV8.pollReportResults(
+				{
+					environmentId: credentials.environmentId,
+					reportId,
+				},
+				10, // maxAttempts
+				2000 // pollInterval (2 seconds)
+			);
+
+			// Extract entries from report data
+			const entries = (reportData._embedded?.entries || []) as Array<Record<string, unknown>>;
+			setReports(entries);
+			toastV8.success(`Retrieved ${entries.length} report entries`);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to poll report results`, error);
+			toastV8.error(
+				`Failed to poll report: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			setIsPolling(false);
 		}
 	};
 
@@ -263,14 +315,20 @@ export const MFAReportingFlowV8: React.FC = () => {
 		toastV8.success('Report exported to JSON');
 	};
 
-	const getReportTitle = () => {
+	const getReportTitle = (): string => {
 		switch (selectedReport) {
-			case 'user-auth':
-				return 'User Authentication Reports';
-			case 'device-auth':
-				return 'Device Authentication Reports';
+			case 'sms':
+				return 'SMS Devices Report';
+			case 'mfa-enabled':
+				return 'MFA-Enabled Devices Report';
 			case 'fido2':
-				return 'FIDO2 Device Reports';
+				return 'FIDO2 Devices Report';
+			case 'email':
+				return 'Email Devices Report';
+			case 'totp':
+				return 'TOTP Devices Report';
+			default:
+				return 'MFA Report';
 		}
 	};
 
@@ -282,7 +340,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 				transition: 'padding-bottom 0.3s ease',
 			}}
 		>
-
 			<MFAHeaderV8
 				title="MFA Reporting"
 				description="View MFA usage reports and analytics"
@@ -372,152 +429,62 @@ export const MFAReportingFlowV8: React.FC = () => {
 							<select
 								id="report-type"
 								value={selectedReport}
-								onChange={(e) => setSelectedReport(e.target.value as ReportType)}
+								onChange={(e) => {
+									setSelectedReport(e.target.value as ReportType);
+									setReportId(null); // Clear reportId when changing report type
+									setReports([]); // Clear reports
+								}}
 							>
-								<option value="user-auth">User Authentication Reports</option>
-								<option value="device-auth">Device Authentication Reports</option>
-								<option value="fido2">FIDO2 Device Reports</option>
+								<option value="sms">SMS Devices Report (Official Reporting API)</option>
+								<option value="mfa-enabled">MFA-Enabled Devices Report (Official Reporting API)</option>
+								<option value="fido2">FIDO2 Devices Report (Device Filtering)</option>
+								<option value="email">Email Devices Report (Device Filtering)</option>
+								<option value="totp">TOTP Devices Report (Device Filtering)</option>
 							</select>
 						</div>
 
-						<div className="form-group">
-							<label htmlFor="report-limit">Limit</label>
-							<input
-								id="report-limit"
-								type="number"
-								value={limit}
-								onChange={(e) => setLimit(parseInt(e.target.value) || 50)}
-								min="1"
-								max="1000"
-							/>
-						</div>
-					</div>
-
-					{selectedReport !== 'fido2' && (
-						<div className="date-range-section">
-							<h3>Date Range (Optional)</h3>
-							
-							{/* Predefined Time Period Buttons */}
-							<div style={{ marginBottom: '16px' }}>
-								<div style={{ 
-									display: 'flex', 
-									gap: '8px', 
-									flexWrap: 'wrap',
-									marginBottom: '12px'
-								}}>
-									<button
-										type="button"
-										onClick={() => handleTimePeriodClick(1)}
-										style={{
-											padding: '8px 16px',
-											background: '#8b5cf6',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											fontSize: '13px',
-											fontWeight: '500',
-											cursor: 'pointer',
-											transition: 'background 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											if (e.currentTarget.style.background !== '#7c3aed') {
-												e.currentTarget.style.background = '#7c3aed';
-											}
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.background = '#8b5cf6';
-										}}
-									>
-										1 Day
-									</button>
-									<button
-										type="button"
-										onClick={() => handleTimePeriodClick(15)}
-										style={{
-											padding: '8px 16px',
-											background: '#8b5cf6',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											fontSize: '13px',
-											fontWeight: '500',
-											cursor: 'pointer',
-											transition: 'background 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											if (e.currentTarget.style.background !== '#7c3aed') {
-												e.currentTarget.style.background = '#7c3aed';
-											}
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.background = '#8b5cf6';
-										}}
-									>
-										15 Days
-									</button>
-									<button
-										type="button"
-										onClick={() => handleTimePeriodClick(30)}
-										style={{
-											padding: '8px 16px',
-											background: '#8b5cf6',
-											color: 'white',
-											border: 'none',
-											borderRadius: '6px',
-											fontSize: '13px',
-											fontWeight: '500',
-											cursor: 'pointer',
-											transition: 'background 0.2s ease',
-										}}
-										onMouseEnter={(e) => {
-											if (e.currentTarget.style.background !== '#7c3aed') {
-												e.currentTarget.style.background = '#7c3aed';
-											}
-										}}
-										onMouseLeave={(e) => {
-											e.currentTarget.style.background = '#8b5cf6';
-										}}
-									>
-										30 Days
-									</button>
-								</div>
-								<small style={{ color: '#6b7280', fontSize: '12px' }}>
-									Click a button to quickly set the date range. End date defaults to today.
+						{needsUsername && (
+							<div className="form-group">
+								<label htmlFor="report-username">
+									Username <span className="required">*</span>
+								</label>
+								<input
+									id="report-username"
+									type="text"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									placeholder="Enter username"
+								/>
+								<small style={{ color: '#6b7280', fontSize: '11px', marginTop: '4px' }}>
+									Required for device-based reports
 								</small>
 							</div>
+						)}
+					</div>
 
-							<div className="credentials-grid">
-								<div className="form-group">
-									<label htmlFor="start-date">Start Date</label>
-									<input
-										id="start-date"
-										type="datetime-local"
-										value={dateRange.startDate}
-										onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
-									/>
-								</div>
-								<div className="form-group">
-									<label htmlFor="end-date">End Date</label>
-									<input
-										id="end-date"
-										type="datetime-local"
-										value={dateRange.endDate || getTodayEndOfDay()}
-										onChange={(e) => {
-											const newEndDate = e.target.value || getTodayEndOfDay();
-											setDateRange({ ...dateRange, endDate: newEndDate });
-										}}
-										onBlur={(e) => {
-											// If end date is cleared, reset to today
-											if (!e.target.value) {
-												setDateRange({ ...dateRange, endDate: getTodayEndOfDay() });
-											}
-										}}
-									/>
-									<small style={{ color: '#6b7280', fontSize: '11px', marginTop: '4px' }}>
-										Defaults to today (end of day)
-									</small>
-								</div>
-							</div>
+					{isMfaEnabledReport && reportId && (
+						<div style={{ marginTop: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '6px' }}>
+							<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#374151' }}>
+								<strong>Report ID:</strong> {reportId}
+							</p>
+							<button
+								type="button"
+								onClick={pollReportResults}
+								disabled={isPolling}
+								style={{
+									padding: '8px 16px',
+									background: '#8b5cf6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '500',
+									cursor: isPolling ? 'not-allowed' : 'pointer',
+									opacity: isPolling ? 0.6 : 1,
+								}}
+							>
+								{isPolling ? '🔄 Polling...' : '🔄 Poll Report Results'}
+							</button>
 						</div>
 					)}
 
@@ -525,10 +492,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 						type="button"
 						className="btn btn-primary"
 						onClick={loadReports}
-						disabled={!credentials.environmentId || !tokenStatus.isValid || isLoading}
+						disabled={!credentials.environmentId || !tokenStatus.isValid || isLoading || (needsUsername && !username.trim())}
 						style={{ marginTop: '20px' }}
 					>
-						{isLoading ? '🔄 Loading...' : 'Load Reports'}
+						{isLoading ? '🔄 Loading...' : isMfaEnabledReport ? '📊 Create Report' : '📊 Load Reports'}
 					</button>
 				</div>
 
@@ -730,7 +697,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 			`}</style>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
 		</div>
 	);
 };
