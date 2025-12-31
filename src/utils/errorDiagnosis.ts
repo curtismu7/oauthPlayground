@@ -323,7 +323,6 @@ async function retryWithBackoff(fn, maxRetries = 3) {
 		});
 
 		this.isInitialized = true;
-		logger.info('[ErrorDiagnosisManager] Error patterns initialized');
 	}
 
 	// Diagnose an error

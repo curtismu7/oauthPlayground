@@ -209,7 +209,4 @@ export const environmentIdPersistenceService = new EnvironmentIdPersistenceServi
 // Export for global access in development
 if (typeof window !== 'undefined') {
 	(window as any).environmentIdPersistenceService = environmentIdPersistenceService;
-	console.log(
-		'🔧 EnvironmentIdPersistenceService available globally as window.environmentIdPersistenceService'
-	);
 }

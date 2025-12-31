@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FiSettings, FiX } from 'react-icons/fi';
 import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 
 interface MFASettingsModalV8Props {
 	isOpen: boolean;
@@ -76,17 +77,33 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 		}
 	};
 
+	const { modalRef, modalPosition, handleMouseDown, modalStyle } = useDraggableModal(isOpen);
+
 	if (!isOpen) return null;
 
+	const hasPosition = modalPosition.x !== 0 || modalPosition.y !== 0;
+
 	return (
-		<div className="modal-overlay">
-			<div className="modal-content">
-				<div className="modal-header">
+		<div 
+			className="modal-overlay" 
+			style={hasPosition ? { display: 'block' } : {}}
+		>
+			<div 
+				className="modal-content"
+				ref={modalRef}
+				style={modalStyle}
+			>
+				<div className="modal-header" onMouseDown={handleMouseDown} style={{ cursor: 'grab', userSelect: 'none' }}>
 					<h3>
 						<FiSettings style={{ marginRight: '8px' }} />
 						MFA Settings
 					</h3>
-					<button onClick={onClose} className="close-button" aria-label="Close modal">
+					<button 
+						onMouseDown={(e) => e.stopPropagation()}
+						onClick={onClose} 
+						className="close-button" 
+						aria-label="Close modal"
+					>
 						<FiX />
 					</button>
 				</div>
@@ -205,6 +222,7 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 					max-height: 90vh;
 					overflow-y: auto;
 					box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+					margin: 0;
 				}
 				.modal-header {
 					display: flex;
@@ -212,6 +230,9 @@ export const MFASettingsModalV8: React.FC<MFASettingsModalV8Props> = ({
 					align-items: center;
 					padding: 16px 24px;
 					border-bottom: 1px solid #e5e7eb;
+				}
+				.modal-header:active {
+					cursor: grabbing;
 				}
 				.modal-header h3 {
 					margin: 0;
