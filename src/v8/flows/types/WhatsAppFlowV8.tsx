@@ -33,6 +33,9 @@ import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPage
 import { WhatsAppNotEnabledModalV8 } from '@/v8/components/WhatsAppNotEnabledModalV8';
 import { NicknamePromptModalV8 } from '@/v8/components/NicknamePromptModalV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
+import { getFullPhoneNumber } from '../controllers/WhatsAppFlowController';
+import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 
 const MODULE_TAG = '[📲 WHATSAPP-MFA]';
 
@@ -615,6 +618,16 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	// Ref to store step 4 props for modal management (moved to avoid Rules of Hooks violation)
 	const step4PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
 	
+	// Ref to store step 2 props for hooks to access
+	const step2PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
+	
+	// Auto-populate phone from PingOne user when entering step 2
+	const phoneFetchAttemptedRef = React.useRef<{ step: number; username: string } | null>(null);
+	const pendingPhoneFetchTriggerRef = React.useRef<{ step: number; username: string; environmentId: string } | null>(null);
+	
+	// Ref to track device name reset for step 2
+	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
+	
 	// Bidirectional sync between Registration Flow Type and tokenType dropdown
 	// When Registration Flow Type changes, update tokenType dropdown
 	// Moved from createRenderStep0 to component level to fix hooks order issue
@@ -728,10 +741,120 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		);
 	};
 
-	// Step 2: Register Device (using controller) - Similar to SMS renderStep2Register
+	// Auto-populate phone from PingOne user when entering step 2
+	React.useEffect(() => {
+		const trigger = pendingPhoneFetchTriggerRef.current;
+		if (!trigger) return;
+		
+		// Clear the ref immediately to avoid re-triggering
+		pendingPhoneFetchTriggerRef.current = null;
+		
+		const { step, username, environmentId } = trigger;
+		if (!step2PropsRef.current) return;
+		
+		const props = step2PropsRef.current;
+		const currentPhone = props.credentials.phoneNumber?.trim() || '';
+		
+		// Only fetch if we don't already have a phone number
+		if (currentPhone) {
+			return;
+		}
+		
+		// Check if we've already attempted to fetch phone for this step/username combination
+		const lastAttempt = phoneFetchAttemptedRef.current;
+		if (lastAttempt && lastAttempt.step === step && lastAttempt.username === username) {
+			return; // Already attempted for this step/username
+		}
+		
+		// Mark that we're attempting to fetch
+		phoneFetchAttemptedRef.current = { step, username };
+		
+		// Fetch user data from PingOne to get phone number
+		const fetchUserPhone = async () => {
+			try {
+				const phoneNumber = await fetchPhoneFromPingOne(environmentId, username);
+				
+				if (phoneNumber && props.credentials.phoneNumber !== phoneNumber) {
+					props.setCredentials((prev) => ({
+						...prev,
+						phoneNumber: phoneNumber,
+					}));
+				}
+			} catch (error) {
+				// Silently fail - user can manually enter phone number
+				console.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
+			}
+		};
+		
+		fetchUserPhone();
+	}, []);
+
+	// Draggable modal hooks
+	const step2ModalDrag = useDraggableModal(showModal);
+	const step4ModalDrag = useDraggableModal(showValidationModal);
+
+	// Step 2: Register Device (using controller) - Modal structure matching SMS
 	// Use useCallback to capture adminDeviceStatus and registrationFlowType in closure
 	const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus, deviceAuthPolicies } = props;
+
+		// Store step 2 props for useEffect to access
+		step2PropsRef.current = props;
+
+		// Auto-populate phone from PingOne when entering step 2
+		if (nav.currentStep === 2 && credentials.username?.trim() && !credentials.phoneNumber?.trim() && credentials.environmentId?.trim()) {
+			// Store trigger in ref to avoid setState during render - useEffect will pick it up
+			pendingPhoneFetchTriggerRef.current = {
+				step: nav.currentStep,
+				username: credentials.username.trim(),
+				environmentId: credentials.environmentId.trim(),
+			};
+		}
+
+		// Reset deviceName to device type when entering registration step (Step 2)
+		// Use ref to track if we've already done this for this step/deviceType combination
+		// This avoids Rules of Hooks violation by not using useEffect inside render function
+		if (nav.currentStep === 2 && credentials) {
+			// Force deviceType to be WHATSAPP for WhatsApp flow
+			const validDeviceType = 'WHATSAPP';
+			
+			const resetKey = `${nav.currentStep}-${validDeviceType}`;
+			const lastReset = step2DeviceNameResetRef.current;
+			
+			if (!lastReset || lastReset.step !== nav.currentStep || lastReset.deviceType !== validDeviceType) {
+				// Check if deviceName needs to be reset - reset if empty, matches wrong device type, or is a generic name
+				const shouldReset = !credentials.deviceName || 
+					credentials.deviceName === credentials.deviceType ||
+					credentials.deviceName === 'SMS' ||
+					credentials.deviceName === 'EMAIL' ||
+					credentials.deviceName === 'FIDO2' ||
+					credentials.deviceName === 'FIDO' ||
+					credentials.deviceName === 'TOTP';
+				
+				if (shouldReset || credentials.deviceType !== validDeviceType) {
+					// Use setTimeout to avoid state update during render
+					setTimeout(() => {
+						setCredentials({
+							...credentials,
+							deviceType: validDeviceType, // Force correct device type
+							deviceName: validDeviceType, // Set device name to match device type
+						});
+					}, 0);
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: validDeviceType,
+					};
+				} else {
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: validDeviceType,
+					};
+				}
+			}
+		}
+
+		// Ensure deviceType is set correctly - default to WHATSAPP for WhatsApp flow
+		const currentDeviceType = credentials.deviceType || 'WHATSAPP';
 
 		// Handle device registration
 		const handleRegisterDevice = async () => {
@@ -940,10 +1063,16 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				const normalizedMessage = errorMessage.toLowerCase();
-				const isWhatsAppNotAllowedError =
-					normalizedMessage.includes('whatsapp mfa is not enabled') ||
-					normalizedMessage.includes('pairing device type whatsapp is not allowed') ||
-					(error && typeof error === 'object' && (error as { code?: string }).code === 'WHATSAPP_DEVICE_TYPE_NOT_ALLOWED');
+				
+				// Only trigger WhatsApp MFA disabled modal for very specific error codes
+				// Be conservative - don't show modal for policy-level restrictions or ambiguous errors
+				// Only show if we're certain it's an environment-level WhatsApp MFA disabled error
+				const errorCode = error && typeof error === 'object' && 'code' in error 
+					? (error as { code?: string }).code 
+					: undefined;
+				// Only show modal for explicit WhatsApp MFA disabled error codes
+				// Policy-level restrictions or other errors should show generic error message
+				const isWhatsAppNotAllowedError = errorCode === 'WHATSAPP_MFA_NOT_ENABLED';
 
 				const isDeviceLimitError =
 					normalizedMessage.includes('exceed') ||
@@ -952,11 +1081,11 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 				if (isWhatsAppNotAllowedError) {
 					nav.setValidationErrors([
-						'WhatsApp MFA is not enabled or not allowed for this environment or Device Authentication Policy. Please enable WhatsApp MFA in the PingOne Admin Console or select a different policy that allows WhatsApp.',
+						'WhatsApp MFA is not enabled for this environment. Please enable WhatsApp MFA in the PingOne Admin Console.',
 					]);
 					setShowWhatsAppNotEnabledModal(true);
 					toastV8.error(
-						'WhatsApp MFA is not enabled or not allowed for this environment or Device Authentication Policy.'
+						'WhatsApp MFA is not enabled for this environment.'
 					);
 				} else if (isDeviceLimitError) {
 					setShowDeviceLimitModal(true);
@@ -1557,6 +1686,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			);
 
 			// Show validation UI as modal
+			const hasPosition = step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0;
+
 			return (
 				<div
 					style={{
@@ -1566,9 +1697,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						right: 0,
 						bottom: 0,
 						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
+						display: hasPosition ? 'block' : 'flex',
+						alignItems: hasPosition ? 'normal' : 'center',
+						justifyContent: hasPosition ? 'normal' : 'center',
 						zIndex: 1000,
 					}}
 					onClick={() => {
@@ -1576,6 +1707,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					}}
 				>
 					<div
+						ref={step4ModalDrag.modalRef}
 						style={{
 							background: 'white',
 							borderRadius: '16px',
@@ -1584,20 +1716,25 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							width: '90%',
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 							overflow: 'hidden',
+							...step4ModalDrag.modalStyle,
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
 						{/* Header with Logo */}
 						<div
+							onMouseDown={step4ModalDrag.handleMouseDown}
 							style={{
 								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 								padding: '16px 20px 12px 20px',
 								textAlign: 'center',
 								position: 'relative',
+								cursor: 'grab',
+								userSelect: 'none',
 							}}
 						>
 							<button
 								type="button"
+								onMouseDown={(e) => e.stopPropagation()}
 								onClick={() => {
 									setShowValidationModal(false);
 									// Previous button removed - just close modal
@@ -1854,7 +1991,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 													credentials,
 													mfaState.deviceId,
 													otpState,
-													setOtpState,
+													updateOtpState,
 													nav,
 													setIsLoading
 												);

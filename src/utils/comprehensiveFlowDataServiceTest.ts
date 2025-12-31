@@ -597,8 +597,6 @@ export const comprehensiveFlowDataServiceTest = new ComprehensiveFlowDataService
 // Make it available globally for testing
 if (typeof window !== 'undefined') {
 	(window as any).ComprehensiveFlowDataServiceTest = comprehensiveFlowDataServiceTest;
-	console.log(`🧪 ComprehensiveFlowDataServiceTest available globally`);
-	console.log(`🧪 Run tests with: ComprehensiveFlowDataServiceTest.runAllTests()`);
 }
 
 export default comprehensiveFlowDataServiceTest;
