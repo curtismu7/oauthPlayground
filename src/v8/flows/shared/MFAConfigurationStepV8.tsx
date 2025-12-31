@@ -104,7 +104,17 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	const [userToken, setUserToken] = useState<string>(initialUserToken);
 	const [userTokenStatus, setUserTokenStatus] = useState<'active' | 'activation_required' | 'invalid'>(initialUserTokenStatus);
 
-	// Ref to prevent infinite loops between credentials updates and local state sync
+	/**
+	 * Ref to prevent infinite loops between credentials updates and local state sync.
+	 * 
+	 * Token sync flow:
+	 * 1. Auth context → credentials (OAuth callback)
+	 * 2. Credentials → local state (userToken, tokenType)
+	 * 3. Local state → credentials (user input changes)
+	 * 
+	 * This ref prevents race conditions when multiple useEffects try to update credentials
+	 * simultaneously. When set to true, other effects skip updating credentials to prevent loops.
+	 */
 	const isUpdatingCredentialsRef = React.useRef(false);
 
 	// Validate user token format (basic JWT check) - defined early so it can be used in useEffects
@@ -175,7 +185,18 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, []);
 
-	// Sync tokenType when credentials.tokenType changes (but only if not currently updating)
+	/**
+	 * Sync credentials.tokenType → local tokenType state.
+	 * 
+	 * This effect handles:
+	 * - Registration flow type changes (admin → worker, user → user)
+	 * - External credential updates
+	 * 
+	 * Flow: credentials.tokenType → local tokenType state
+	 * 
+	 * The isUpdatingCredentialsRef guard prevents loops when the reverse sync
+	 * (local state → credentials) is in progress.
+	 */
 	React.useEffect(() => {
 		// Skip if we're in the middle of updating credentials (prevents loops)
 		if (isUpdatingCredentialsRef.current) {
@@ -222,8 +243,17 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, [credentials.tokenType, tokenType, registrationFlowType, setCredentials]);
 
-	// Sync userToken from auth context if available and credentials.userToken is missing
-	// This is critical for OAuth callback scenarios where user just logged in
+	/**
+	 * Sync userToken from auth context → credentials.
+	 * 
+	 * This effect handles OAuth callback scenarios where the user just logged in
+	 * and the token exists in authContext but hasn't been synced to credentials yet.
+	 * 
+	 * Flow: authContext.tokens.access_token → credentials.userToken
+	 * 
+	 * This runs before the credentials → local state sync to ensure the token
+	 * is available in credentials for other components to use.
+	 */
 	React.useEffect(() => {
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
@@ -251,7 +281,19 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, [authContext.tokens?.access_token, authContext.isAuthenticated, credentials.userToken, tokenType, registrationFlowType, setCredentials, validateUserToken]);
 
-	// Sync userToken state when credentials.userToken changes (e.g., from UserLoginModal)
+	/**
+	 * Sync credentials.userToken → local state (userToken, userTokenStatus).
+	 * 
+	 * This effect handles:
+	 * - Token received from UserLoginModal
+	 * - Token removed/cleared
+	 * - Token validation status updates
+	 * 
+	 * Flow: credentials.userToken → local userToken state
+	 * 
+	 * This runs after auth context sync to update local state when credentials change
+	 * from external sources (modals, OAuth callbacks, etc.).
+	 */
 	React.useEffect(() => {
 		// CRITICAL: If credentials has a userToken and tokenType is 'user', ensure local tokenType is also 'user'
 		// This prevents the token from being cleared when the other useEffect runs
@@ -327,10 +369,18 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		}
 	}, [credentials.userToken, credentials.tokenType, userToken, userTokenStatus, tokenType, authContext.tokens?.access_token, registrationFlowType, validateUserToken]);
 
-	// Update credentials when token type or user token changes
-	// Only depend on local state (tokenType, userToken) to prevent loops
+	/**
+	 * Update credentials when token type or user token changes.
+	 * 
+	 * This effect syncs local state (tokenType, userToken) → credentials.
+	 * It only runs when local state changes (user input), not when credentials change
+	 * from external sources, preventing infinite loops.
+	 * 
+	 * The isUpdatingCredentialsRef guard prevents this effect from running while
+	 * other effects are updating credentials, avoiding race conditions.
+	 */
 	React.useEffect(() => {
-		// Skip if we're already updating (prevents loops)
+		// Skip if we're already updating (prevents loops and race conditions)
 		if (isUpdatingCredentialsRef.current) {
 			return;
 		}
@@ -479,7 +529,14 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	}, [deviceTypeLabel, tokenType, userToken, tokenStatus.isValid, credentials.environmentId, credentials.username, credentials.deviceAuthenticationPolicyId]);
 
 	return (
-		<div className="step-content" style={{ maxWidth: '900px', margin: '0 auto' }}>
+		<>
+			<style>{`
+				@keyframes policy-refresh-spin {
+					from { transform: rotate(0deg); }
+					to { transform: rotate(360deg); }
+				}
+			`}</style>
+			<div className="step-content" style={{ maxWidth: '900px', margin: '0 auto' }}>
 			<div style={{ marginBottom: '32px' }}>
 				<h2 style={{ 
 					margin: '0 0 8px 0', 
@@ -1076,6 +1133,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 								opacity: isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId ? 0.6 : 1,
 								boxShadow: '0 2px 4px rgba(2,132,199,0.2)',
 								transition: 'all 0.2s ease',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '6px',
 							}}
 							disabled={isLoadingPolicies || !tokenStatus.isValid || !credentials.environmentId}
 							onMouseEnter={(e) => {
@@ -1089,6 +1149,19 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 								e.currentTarget.style.boxShadow = '0 2px 4px rgba(2,132,199,0.2)';
 							}}
 						>
+							{isLoadingPolicies && (
+								<span
+									style={{
+										display: 'inline-block',
+										width: '12px',
+										height: '12px',
+										border: '2px solid rgba(255, 255, 255, 0.3)',
+										borderTop: '2px solid white',
+										borderRadius: '50%',
+										animation: 'policy-refresh-spin 0.8s linear infinite',
+									}}
+								/>
+							)}
 							{isLoadingPolicies ? 'Refreshing…' : 'Refresh'}
 						</button>
 					</div>
@@ -1240,6 +1313,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 				</div>
 			</div>
 		</div>
+		</>
 	);
 };
 
