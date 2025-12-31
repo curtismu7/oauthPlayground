@@ -120,6 +120,11 @@ const pingOneRequestContext = new AsyncLocalStorage();
 const pingOneCallStore = new Map();
 const PINGONE_CALL_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+// In-memory store for all PingOne API calls (for API display)
+// Stores all calls made via logPingOneApiCall for frontend display
+const pingOneApiCallsStore = [];
+const MAX_API_CALLS_STORE = 200; // Limit to prevent memory issues
+
 setInterval(() => {
 	const now = Date.now();
 	for (const [id, entry] of pingOneCallStore.entries()) {
@@ -684,6 +689,38 @@ function logPingOneApiCall(
 			typeof metadata.endpoint === 'string' &&
 			metadata.endpoint.toLowerCase().includes('proxy'));
 
+	// Store call in in-memory store for frontend API display
+	// Only store real PingOne API calls (not proxy calls, and only calls to pingone.com/auth.pingone)
+	const isRealPingOneCall = url.includes('pingone.com') || url.includes('auth.pingone');
+	if (isRealPingOneCall && !isProxyCall) {
+		const apiCallEntry = {
+			id: `backend-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+			method: method,
+			url: url,
+			operationName: operationName,
+			headers: safeHeaders,
+			body: requestBodyObj,
+			response: response
+				? {
+						status: response.status,
+						statusText: response.statusText,
+						headers: responseHeaders,
+						data: responseData,
+					}
+				: null,
+			timestamp: now.toISOString(),
+			duration: duration,
+			metadata: metadata,
+			isProxy: false,
+			source: 'backend',
+		};
+		pingOneApiCallsStore.unshift(apiCallEntry); // Add to beginning (newest first)
+		// Limit the number of stored calls
+		if (pingOneApiCallsStore.length > MAX_API_CALLS_STORE) {
+			pingOneApiCallsStore.splice(MAX_API_CALLS_STORE);
+		}
+	}
+
 	// Write to both PingOne API log file and api-log.log (async, non-blocking)
 	// Note: fs.appendFile will create the file if it doesn't exist
 	console.log(
@@ -864,6 +901,17 @@ app.get('/api/pingone/calls/:id', (req, res) => {
 	}
 	pingOneCallStore.delete(id);
 	return res.json({ calls: record.calls });
+});
+
+// Get all PingOne API calls for frontend API display
+app.get('/api/pingone/api-calls', (req, res) => {
+	try {
+		// Return all stored API calls
+		return res.json({ calls: pingOneApiCallsStore });
+	} catch (error) {
+		console.error('[API Calls Endpoint] Error:', error);
+		return res.status(500).json({ error: 'Failed to retrieve API calls', message: error.message });
+	}
 });
 
 // In-memory cookie jar for PingOne redirectless flows (per-user session)
@@ -8471,13 +8519,8 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		}
 
 		// Initialize devicePayload with type field (required for all device types)
-		// For WhatsApp, the request body structure should be:
-		// {
-		//   "type": "WHATSAPP",
-		//   "phone": "+1.5125551234",
-		//   "policy": { "id": "{{deviceAuthenticationPolicyID}}" }
-		// }
-		// Note: For non-FIDO2 devices, "status" will also be included (ACTIVE or ACTIVATION_REQUIRED)
+		// For all OTP flows (SMS, EMAIL, VOICE, WHATSAPP), include status field in JSON body
+		// Status values: ACTIVE or ACTIVATION_REQUIRED
 		const devicePayload = { type };
 
 		// FIDO2-specific: Include RP (Relying Party) information if provided
@@ -8558,17 +8601,26 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			}
 		} else if (type === 'EMAIL' && email) {
 			// Handle email - can be string or object
-			if (typeof email === 'object' && email !== null && email.address) {
-				devicePayload.email = {
-					address: String(email.address).trim(),
-				};
-			} else if (typeof email === 'string') {
-				const trimmedEmail = email.trim();
-				if (trimmedEmail) {
-					devicePayload.email = {
-						address: trimmedEmail,
-					};
+			// PingOne API requires email as a STRING, not an object (same as phone)
+			// Extract email address from object if needed, otherwise use string directly
+			// Per PingOne API docs: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-email
+			// Format: { "type": "EMAIL", "email": "name@example.com", "policy": { "id": "..." } }
+			let emailString = null;
+			if (typeof email === 'object' && email !== null) {
+				// Extract from object (could have 'address' property or be the email string itself)
+				if (email.address) {
+					emailString = String(email.address).trim();
+				} else if (email.value) {
+					emailString = String(email.value).trim();
+				} else if (typeof email === 'string') {
+					// Edge case: object might be a string object
+					emailString = String(email).trim();
 				}
+			} else if (typeof email === 'string') {
+				emailString = email.trim();
+			}
+			if (emailString) {
+				devicePayload.email = emailString; // ALWAYS send as string, not object
 			}
 		}
 		// NOTE: nickname is NOT included in device creation payload
@@ -8593,114 +8645,98 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// Valid format: { "type": "FIDO2", "rp": { "id": "...", "name": "..." }, "policy": { "id": "..." } }
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-fido2
 		// Do NOT include status, name, or nickname for FIDO2
+		
+		// For all OTP flows (SMS, EMAIL, VOICE, WHATSAPP, TOTP), ALWAYS include status field
+		// Status selection logic:
+		// - Admin Flow (worker token): User can choose ACTIVE or ACTIVATION_REQUIRED via adminDeviceStatus dropdown
+		// - User Flow (user token): Always ACTIVATION_REQUIRED (enforced by PingOne API)
+		// CRITICAL FIX: Status field is REQUIRED for all OTP device types (SMS, EMAIL, VOICE, WHATSAPP)
+		// This was documented as a fix - status must be explicitly included in the JSON body
 		if (type !== 'FIDO2') {
-			// Always include status explicitly for educational purposes (for non-FIDO2 devices including WhatsApp)
-			// Status selection logic (same as SMS):
-			// - Admin Flow (worker token): User can choose ACTIVE or ACTIVATION_REQUIRED via adminDeviceStatus dropdown
-			// - User Flow (user token): Always ACTIVATION_REQUIRED (enforced by PingOne API)
-			//
-			// Per PingOne API docs:
-			// - If actor makes request on behalf of another user (Worker App/Admin Flow): Can use ACTIVE or ACTIVATION_REQUIRED
-			// - If actor is the same user (User Flow): Can only use ACTIVATION_REQUIRED
-			//
-			// The frontend calculates the correct status based on registrationFlowType:
-			// - Admin Flow: Uses adminDeviceStatus (user's selection: ACTIVE or ACTIVATION_REQUIRED)
-			// - User Flow: Always ACTIVATION_REQUIRED
-			//
-			// We respect the status from the request body (which comes from user's selection)
-			if (status) {
+			// Always set status explicitly for OTP flows (SMS, EMAIL, VOICE, WHATSAPP, TOTP)
+			// Validate status value before using it
+			if (status === 'ACTIVE' || status === 'ACTIVATION_REQUIRED') {
 				// Use the status from request body (respects user's selection in Admin Flow or User Flow)
 				devicePayload.status = status;
-				console.log(
-					'[MFA Register Device] ✅ Status from user selection included in device payload:',
-					{
-						deviceType: type,
-						status: devicePayload.status,
-						statusSource: 'user-selection',
-						tokenType: tokenType,
-						isWhatsApp: type === 'WHATSAPP',
-						note: "Status comes from user's selection: Admin Flow (user chooses ACTIVE/ACTIVATION_REQUIRED) or User Flow (always ACTIVATION_REQUIRED)",
-					}
-				);
 			} else if (tokenType === 'worker') {
-				// Fallback: For Admin Flow, default to ACTIVE if status not provided
-				// (This should not happen as frontend always sends status, but included for safety)
+				// Fallback: For Admin Flow, default to ACTIVE if status not provided or invalid
 				devicePayload.status = 'ACTIVE';
-				console.warn(
-					'[MFA Register Device] ⚠️ Status not provided in request - defaulting to ACTIVE for Admin Flow:',
-					{
-						deviceType: type,
-						status: devicePayload.status,
-						statusSource: 'default-ACTIVE',
-						tokenType: tokenType,
-						isWhatsApp: type === 'WHATSAPP',
-						note: 'Frontend should always provide status - this is a fallback',
-					}
-				);
 			} else {
-				// Fallback: For User Flow, default to ACTIVATION_REQUIRED (enforced by PingOne)
-				// (This should not happen as frontend always sends status, but included for safety)
+				// Fallback: For User Flow or unknown token type, default to ACTIVATION_REQUIRED
 				devicePayload.status = 'ACTIVATION_REQUIRED';
-				console.warn(
-					'[MFA Register Device] ⚠️ Status not provided in request - defaulting to ACTIVATION_REQUIRED for User Flow:',
-					{
-						deviceType: type,
-						status: devicePayload.status,
-						statusSource: 'default-ACTIVATION_REQUIRED',
-						tokenType: tokenType,
-						isWhatsApp: type === 'WHATSAPP',
-						note: 'Frontend should always provide status - this is a fallback',
-					}
-				);
 			}
+			// Log to ensure status is always set
+			console.log('[MFA Register Device] ✅ Status field set for OTP device:', {
+				deviceType: type,
+				status: devicePayload.status,
+				statusFromRequest: status,
+				tokenType: tokenType,
+			});
 		}
 		// According to API docs: policy should be an object with id property
 		// Format: { "policy": { "id": "policy-id-string" } }
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-sms
-		// NOTE: For educational purposes, we always include policy.id when available
-		// The policy.id comes from the Device Authentication Policy dropdown selection
-		// Even though API docs may say it's optional, it's required for proper MFA device configuration
+		// CRITICAL FIX: Device registration ALWAYS uses worker tokens, so policy should always be included when available
+		// The user login (OAuth flow) is only for authentication - API calls always use worker tokens
 		if (policy) {
+			// Worker Flow (Admin): Policy can be included if provided
+			let policyIdValue = null;
+			
+			// Extract policy ID and validate it's not empty
 			if (typeof policy === 'object' && policy.id) {
-				// Already in correct format: { id: "..." }
-				// This should be the policy ID selected from the dropdown
-				devicePayload.policy = policy;
-				console.log(
-					'[MFA Register Device] ✅ Policy included in device payload (from dropdown selection):',
-					{
-						policyId: policy.id,
-						policyObject: policy,
-						deviceType: type,
-						isWhatsApp: type === 'WHATSAPP',
-						note: 'Policy ID comes from Device Authentication Policy dropdown selection',
-					}
-				);
+				policyIdValue = String(policy.id).trim();
 			} else if (typeof policy === 'string') {
-				// Convert string to object format
-				devicePayload.policy = { id: policy };
-				console.log('[MFA Register Device] ✅ Policy converted from string to object:', {
-					policyId: policy,
-					deviceType: type,
-					isWhatsApp: type === 'WHATSAPP',
-				});
-			} else {
-				// Fallback: use as-is
-				devicePayload.policy = policy;
-				console.log('[MFA Register Device] ⚠️ Policy used as-is (fallback - unexpected format):', {
+				policyIdValue = policy.trim();
+			}
+			
+			// Validate that policy ID is not a placeholder template string
+			const isPlaceholder = policyIdValue && (
+				policyIdValue.includes('{{') || 
+				policyIdValue.includes('}}') ||
+				policyIdValue.toLowerCase().includes('deviceauthenticationpolicyid') ||
+				policyIdValue.toLowerCase().includes('placeholder')
+			);
+			
+			if (isPlaceholder) {
+				console.error('[MFA Register Device] ❌ Policy ID is a placeholder template - not including in request:', {
+					policyIdValue: policyIdValue,
 					policyType: typeof policy,
 					policyValue: policy,
 					deviceType: type,
-					isWhatsApp: type === 'WHATSAPP',
+					note: 'Policy ID appears to be a placeholder template (e.g., "{{deviceAuthenticationPolicyID}}"). Please select a valid Device Authentication Policy from the dropdown.',
+				});
+				// Don't include placeholder in request - this will cause validation errors
+			} else if (policyIdValue && policyIdValue.length > 0) {
+				// Only include policy if we have a valid non-empty policy ID (not a placeholder)
+				devicePayload.policy = { id: policyIdValue };
+				console.log(
+					'[MFA Register Device] ✅ Policy included in device payload:',
+					{
+						policyId: policyIdValue,
+						policyObject: devicePayload.policy,
+						deviceType: type,
+						tokenType: tokenType || 'worker',
+						note: 'Policy ID included (device registration always uses worker tokens).',
+					}
+				);
+			} else {
+				// Policy was provided but ID is empty/invalid - don't include it
+				console.warn('[MFA Register Device] ⚠️ Policy provided but ID is empty or invalid - not including in request:', {
+					policyType: typeof policy,
+					policyValue: policy,
+					deviceType: type,
+					tokenType: tokenType,
+					note: 'Policy ID must be a non-empty string. Please select a valid Device Authentication Policy.',
 				});
 			}
 		} else {
-			// Log warning if policy is missing (for educational purposes, we should always include it)
+			// Log info if policy is missing (device registration always uses worker tokens)
 			console.warn('[MFA Register Device] ⚠️ Policy not provided in request body:', {
 				deviceType: type,
-				isWhatsApp: type === 'WHATSAPP',
+				tokenType: tokenType || 'worker',
 				requestBodyKeys: Object.keys(req.body),
 				hasPolicyInReqBody: 'policy' in req.body,
-				note: 'For educational purposes, policy.id should be included when available. Policy ID should come from Device Authentication Policy dropdown selection.',
+				note: 'Policy.id can be included but is optional. Policy will be omitted.',
 			});
 		}
 
@@ -8752,6 +8788,23 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			actualLength: requestHeaders['Authorization'].length,
 			lengthMatch: requestHeaders['Authorization'].length === 'Bearer '.length + cleanToken.length,
 		});
+		
+		// Ensure email is a string (not an object) before sending to PingOne
+		// This is a safety check in case email was set as an object elsewhere
+		// Per PingOne API docs: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-email
+		// Format: { "type": "EMAIL", "email": "name@example.com", "policy": { "id": "..." } }
+		if (type === 'EMAIL' && devicePayload.email && typeof devicePayload.email === 'object') {
+			const emailObj = devicePayload.email;
+			if (emailObj.address) {
+				devicePayload.email = String(emailObj.address).trim();
+			} else if (emailObj.value) {
+				devicePayload.email = String(emailObj.value).trim();
+			} else {
+				// Fallback: try to stringify the object
+				devicePayload.email = JSON.stringify(emailObj);
+			}
+		}
+		
 		const requestBody = devicePayload;
 
 		// Log the request details before making the call
@@ -8782,11 +8835,45 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 					: null,
 		});
 
+		// #region agent log
+		// Log the exact JSON body being sent to PingOne (for all device types, especially EMAIL)
+		const jsonBodyString = JSON.stringify(requestBody);
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'server.js:8786',
+				message: 'JSON body being sent to PingOne for device registration',
+				data: {
+					deviceType: type,
+					jsonBodyString,
+					jsonBodyParsed: requestBody,
+					endpoint: deviceEndpoint,
+					requestBodyKeys: Object.keys(requestBody),
+					hasType: 'type' in requestBody,
+					typeValue: requestBody.type,
+					hasEmail: 'email' in requestBody,
+					emailValue: requestBody.email,
+					hasStatus: 'status' in requestBody,
+					statusValue: requestBody.status,
+					hasPolicy: 'policy' in requestBody,
+					policyValue: requestBody.policy,
+					hasPhone: 'phone' in requestBody,
+					phoneValue: requestBody.phone,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'A',
+			}),
+		}).catch(() => {});
+		// #endregion
+
 		const startTime = Date.now();
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
 			headers: requestHeaders,
-			body: JSON.stringify(requestBody),
+			body: jsonBodyString,
 		});
 		const duration = Date.now() - startTime;
 
@@ -8800,10 +8887,47 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// Clone response for logging (before consuming it)
 		const responseClone = response.clone();
 
+		// #region agent log
+		// Log error response details if request failed
+		let errorTextForLogging = null;
+		if (!response.ok) {
+			errorTextForLogging = await responseClone.text();
+			let errorData = null;
+			try {
+				errorData = JSON.parse(errorTextForLogging);
+			} catch {
+				errorData = { raw: errorTextForLogging };
+			}
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'server.js:8827',
+					message: 'PingOne device registration error response',
+					data: {
+						status: response.status,
+						statusText: response.statusText,
+						errorData,
+						errorText: errorTextForLogging,
+						jsonBodyThatWasSent: jsonBodyString,
+						deviceType: type,
+						endpoint: deviceEndpoint,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'A',
+				}),
+			}).catch(() => {});
+		}
+		// #endregion
+
 		// Parse response body
+		// If we already consumed responseClone for error logging, use that text; otherwise clone and read
+		const responseCloneForParsing = errorTextForLogging ? null : response.clone();
 		let responseData;
 		try {
-			const responseText = await responseClone.text();
+			const responseText = errorTextForLogging || (await responseCloneForParsing.text());
 			try {
 				responseData = JSON.parse(responseText);
 			} catch {
@@ -8909,36 +9033,17 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 						: null,
 			});
 
-			// Derive a friendly error message for common WhatsApp configuration issues
-			let clientResponseData = responseData || {};
-			try {
-				const errorCode = clientResponseData.code;
-				const details = Array.isArray(clientResponseData.details) ? clientResponseData.details : [];
-				const hasWhatsAppDeviceTypeError =
-					type === 'WHATSAPP' &&
-					(errorCode === 'INVALID_DATA' ||
-						details.some(
-							(detail) =>
-								detail &&
-								detail.code === 'INVALID_VALUE' &&
-								detail.target === 'deviceType' &&
-								typeof detail.message === 'string' &&
-								detail.message.toLowerCase().includes('whatsapp')
-						));
-
-				if (hasWhatsAppDeviceTypeError) {
-					const friendlyMessage =
-						'WhatsApp MFA is not enabled or not allowed for this environment or Device Authentication Policy. ' +
-						'Enable WhatsApp MFA in the PingOne Admin Console (MFA Settings) or select a different policy that allows WhatsApp.';
-					clientResponseData = {
-						...clientResponseData,
-						message: friendlyMessage,
-						friendlyCode: 'WHATSAPP_DEVICE_TYPE_NOT_ALLOWED',
-						friendlyMessage,
-					};
-				}
-			} catch (e) {
-				console.warn('[MFA Register Device] Failed to derive friendly WhatsApp error message:', e);
+			// Log the actual error from PingOne for debugging
+			// Don't override error messages - let the actual PingOne error come through
+			const clientResponseData = responseData || {};
+			if (type === 'WHATSAPP') {
+				console.log('[MFA Register Device] WhatsApp registration error details:', {
+					errorCode: clientResponseData.code,
+					errorMessage: clientResponseData.message,
+					errorDescription: clientResponseData.error_description,
+					details: clientResponseData.details,
+					originalError: JSON.stringify(clientResponseData, null, 2),
+				});
 			}
 
 			return res.status(response.status).json({
@@ -11955,10 +12060,135 @@ app.post('/api/pingone/mfa/lookup-user', async (req, res) => {
 			username: user.username,
 			email: user.email,
 			name: user.name,
+			phoneNumbers: user.phoneNumbers || [],
 		});
 	} catch (error) {
 		console.error('[MFA Lookup User] Error:', error);
 		res.status(500).json({ error: 'Failed to lookup user', message: error.message });
+	}
+});
+
+// List Users with Search and Pagination
+app.post('/api/pingone/mfa/list-users', async (req, res) => {
+	try {
+		const { environmentId, workerToken, search, limit, offset } = req.body;
+
+		if (!environmentId || !workerToken) {
+			return res.status(400).json({ error: 'Missing required fields: environmentId, workerToken' });
+		}
+
+		// Clean and validate token
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		const region = req.body.region || 'na';
+		const apiBase =
+			region === 'eu'
+				? 'https://api.pingone.eu'
+				: region === 'asia'
+					? 'https://api.pingone.asia'
+					: 'https://api.pingone.com';
+
+		// Build query parameters
+		const queryParams = new URLSearchParams();
+		const pageLimit = limit || 10;
+		queryParams.append('limit', String(pageLimit));
+		if (offset) {
+			queryParams.append('offset', String(offset));
+		}
+
+		// Add search filter if provided (SCIM filter syntax)
+		if (search && search.trim()) {
+			const searchTerm = search.trim();
+			// Escape special characters for SCIM filter (escape backslashes first, then quotes)
+			const escapedSearch = searchTerm.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+			// Search in username and email fields (use parentheses for OR expression)
+			const filter = `(username sw "${escapedSearch}" or emails.value sw "${escapedSearch}")`;
+			queryParams.append('filter', filter);
+		}
+
+		const usersEndpoint = `${apiBase}/v1/environments/${environmentId}/users?${queryParams.toString()}`;
+
+		const startTime = Date.now();
+		const response = await global.fetch(usersEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${cleanToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		const duration = Date.now() - startTime;
+		const responseClone = response.clone();
+		let responseData;
+		try {
+			responseData = await responseClone.json();
+		} catch {
+			responseData = { error: 'Failed to parse response' };
+		}
+
+		// Log API call
+		logPingOneApiCall(
+			'List Users',
+			usersEndpoint,
+			'GET',
+			{
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
+			},
+			null,
+			response,
+			responseData,
+			duration,
+			{ environmentId, search, limit: pageLimit, offset: offset || 0 }
+		);
+
+		if (!response.ok) {
+			const errorData = responseData || { error: 'Unknown error' };
+			return res.status(response.status).json(errorData);
+		}
+
+		// Extract users from response
+		const users = responseData._embedded?.users || responseData.Resources || responseData.items || [];
+		
+		// Extract pagination info if available
+		const totalCount = responseData.count || responseData.totalResults || users.length;
+		const hasMore = users.length === pageLimit; // If we got exactly the limit, there might be more
+
+		return res.json({
+			users: users.map((user) => ({
+				id: user.id,
+				username: user.username || user.userName || '',
+				email: user.emails?.[0]?.value || '',
+			})),
+			count: users.length,
+			totalCount,
+			hasMore,
+			limit: pageLimit,
+			offset: offset || 0,
+		});
+	} catch (error) {
+		console.error('[List Users] Error:', error);
+		return res.status(500).json({
+			error: 'Failed to list users',
+			message: error instanceof Error ? error.message : String(error),
+		});
 	}
 });
 
@@ -12340,7 +12570,16 @@ app.post('/api/pingone/mfa/user-authentication-reports', async (req, res) => {
  */
 app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) => {
 	try {
-		const { environmentId, workerToken, filter, limit } = req.body;
+		const { 
+			environmentId, 
+			workerToken, 
+			dataExplorationTemplateId, 
+			fields, 
+			filter, 
+			sync, 
+			deliverAs 
+		} = req.body;
+		
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields: environmentId, workerToken' });
 		}
@@ -12365,17 +12604,46 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
-		// Build query parameters
-		const queryParams = new URLSearchParams();
-		if (filter) queryParams.append('filter', filter);
-		if (limit) queryParams.append('limit', limit.toString());
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/reports/smsDevices`;
 
-		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/reports/smsDevices${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+		// Build request body according to PingOne API spec
+		// Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-report-of-sms-devices---entries-in-response
+		const requestBody = {};
+		
+		// dataExplorationTemplate is optional but if provided, include it
+		if (dataExplorationTemplateId) {
+			requestBody.dataExplorationTemplate = {
+				id: dataExplorationTemplateId
+			};
+		}
+		
+		// fields array - default to standard SMS device fields if not provided
+		requestBody.fields = fields || [
+			{ name: 'userId' },
+			{ name: 'username' },
+			{ name: 'phone' },
+			{ name: 'deviceStatus' },
+			{ name: 'deviceId' }
+		];
+		
+		// filter - optional, but if provided, include it in body (not query params)
+		if (filter) {
+			requestBody.filter = filter;
+		}
+		
+		// sync - optional, default to "true" if not provided
+		requestBody.sync = sync !== undefined ? sync : 'true';
+		
+		// deliverAs - required for entries in response
+		requestBody.deliverAs = deliverAs || 'ENTRIES';
 
 		console.log('[MFA Reports] Creating SMS devices report:', {
 			environmentId,
+			hasDataExplorationTemplate: !!dataExplorationTemplateId,
+			fieldsCount: requestBody.fields.length,
 			hasFilter: !!filter,
-			hasLimit: !!limit,
+			sync: requestBody.sync,
+			deliverAs: requestBody.deliverAs,
 		});
 
 		const startTime = Date.now();
@@ -12385,6 +12653,7 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${cleanToken}`,
 			},
+			body: JSON.stringify(requestBody),
 		});
 
 		const duration = Date.now() - startTime;
@@ -12404,11 +12673,11 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
 			},
-			{ filter, limit },
+			requestBody,
 			response,
 			responseData,
 			duration,
-			{ environmentId, hasFilter: !!filter, hasLimit: !!limit }
+			{ environmentId, hasFilter: !!filter, fieldsCount: requestBody.fields.length }
 		);
 
 		if (!response.ok) {
@@ -12444,6 +12713,7 @@ app.post('/api/pingone/mfa/reports/create-sms-devices-report', async (req, res) 
 /**
  * Get Report Results - Entries in Response
  * GET /v1/environments/{envID}/reports/{reportID}
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#get-get-report-results---entries-in-response
  * Retrieves report results when entries are in the response
  */
 app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
@@ -12475,6 +12745,7 @@ app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
+		// GET endpoint for report results
 		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/reports/${reportId}`;
 
 		console.log('[MFA Reports] Getting report results:', {
@@ -12507,7 +12778,7 @@ app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
 			reportsEndpoint,
 			'GET',
 			{
-				'Content-Type': 'application/json',
+				Accept: 'application/json',
 				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
 			},
 			null,
@@ -12550,11 +12821,21 @@ app.post('/api/pingone/mfa/reports/get-report-results', async (req, res) => {
 /**
  * Create Report of MFA-Enabled Devices - Results in File
  * POST /v1/environments/{envID}/reports/mfaEnabledDevices
+ * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-report-of-mfa-enabled-devices---results-in-file
  * Creates a report of MFA-enabled devices with results stored in a file (requires polling)
  */
 app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (req, res) => {
 	try {
-		const { environmentId, workerToken, filter, limit } = req.body;
+		const { 
+			environmentId, 
+			workerToken, 
+			dataExplorationTemplateId, 
+			fields, 
+			filter, 
+			sync, 
+			deliverAs 
+		} = req.body;
+		
 		if (!environmentId || !workerToken) {
 			return res.status(400).json({ error: 'Missing required fields: environmentId, workerToken' });
 		}
@@ -12579,17 +12860,46 @@ app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (re
 					? 'https://api.pingone.asia'
 					: 'https://api.pingone.com';
 
-		// Build query parameters
-		const queryParams = new URLSearchParams();
-		if (filter) queryParams.append('filter', filter);
-		if (limit) queryParams.append('limit', limit.toString());
+		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/reports/mfaEnabledDevices`;
 
-		const reportsEndpoint = `${apiBase}/v1/environments/${environmentId}/reports/mfaEnabledDevices${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+		// Build request body according to PingOne API spec (similar to SMS devices report)
+		// For file-based reports, deliverAs should be "FILE"
+		const requestBody = {};
+		
+		// dataExplorationTemplate is optional but if provided, include it
+		if (dataExplorationTemplateId) {
+			requestBody.dataExplorationTemplate = {
+				id: dataExplorationTemplateId
+			};
+		}
+		
+		// fields array - default to standard MFA device fields if not provided
+		requestBody.fields = fields || [
+			{ name: 'userId' },
+			{ name: 'username' },
+			{ name: 'deviceType' },
+			{ name: 'deviceStatus' },
+			{ name: 'deviceId' }
+		];
+		
+		// filter - optional, but if provided, include it in body (not query params)
+		if (filter) {
+			requestBody.filter = filter;
+		}
+		
+		// sync - optional, default to "true" if not provided
+		requestBody.sync = sync !== undefined ? sync : 'true';
+		
+		// deliverAs - required, should be "FILE" for file-based reports
+		requestBody.deliverAs = deliverAs || 'FILE';
 
 		console.log('[MFA Reports] Creating MFA-enabled devices report:', {
 			environmentId,
+			hasDataExplorationTemplate: !!dataExplorationTemplateId,
+			fieldsCount: requestBody.fields.length,
 			hasFilter: !!filter,
-			hasLimit: !!limit,
+			sync: requestBody.sync,
+			deliverAs: requestBody.deliverAs,
 		});
 
 		const startTime = Date.now();
@@ -12599,6 +12909,7 @@ app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (re
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${cleanToken}`,
 			},
+			body: JSON.stringify(requestBody),
 		});
 
 		const duration = Date.now() - startTime;
@@ -12618,11 +12929,11 @@ app.post('/api/pingone/mfa/reports/create-mfa-enabled-devices-report', async (re
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
 			},
-			{ filter, limit },
+			requestBody,
 			response,
 			responseData,
 			duration,
-			{ environmentId, hasFilter: !!filter, hasLimit: !!limit }
+			{ environmentId, hasFilter: !!filter, fieldsCount: requestBody.fields.length }
 		);
 
 		if (!response.ok) {

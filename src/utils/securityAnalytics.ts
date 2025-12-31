@@ -193,7 +193,6 @@ export class SecurityAnalyticsManager {
 			this.setupRiskAssessment();
 
 			this.isMonitoring = true;
-			logger.info('[SecurityAnalyticsManager] Security analytics initialized');
 		} catch (error) {
 			logger.error('[SecurityAnalyticsManager] Failed to initialize security analytics:', error);
 		}

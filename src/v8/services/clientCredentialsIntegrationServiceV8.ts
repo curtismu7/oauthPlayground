@@ -159,7 +159,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 			}
 
 
-			console.log(`${MODULE_TAG} Requesting token with scopes: ${credentials.scopes}`);
 			proxyRequestBody.scope = credentials.scopes;
 
 			// Apply client authentication method
@@ -168,7 +167,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 					// HTTP Basic Authentication (RFC 7617) - pass via headers to backend
 					const credentials_b64 = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 					headers['Authorization'] = `Basic ${credentials_b64}`;
-					console.log(`${MODULE_TAG} Using Basic authentication`);
 					break;
 				}
 
@@ -183,10 +181,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 						throw new Error('Client secret cannot be empty or whitespace only');
 					}
 					proxyRequestBody.client_secret = trimmedSecret;
-					console.log(`${MODULE_TAG} Using POST body authentication`, {
-						clientSecretLength: trimmedSecret.length,
-						hasSpecialChars: /[^a-zA-Z0-9._~-]/.test(trimmedSecret),
-					});
 					break;
 				}
 
@@ -268,19 +262,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 				throw new Error('Internal error: grant_type must be "client_credentials" for this flow');
 			}
 
-			// Log the complete request body for debugging
-			console.log(`${MODULE_TAG} ========== CLIENT CREDENTIALS REQUEST ==========`);
-			console.log(`${MODULE_TAG} Request body (what we're sending to backend):`, {
-				grant_type: proxyRequestBody.grant_type,
-				client_id: proxyRequestBody.client_id,
-				scope: proxyRequestBody.scope,
-				hasClientSecret: !!proxyRequestBody.client_secret,
-				clientSecretLength: proxyRequestBody.client_secret?.length || 0,
-				clientSecretFirstChars: proxyRequestBody.client_secret ? `${proxyRequestBody.client_secret.substring(0, 10)}...` : 'none',
-				clientSecretLastChars: proxyRequestBody.client_secret ? `...${proxyRequestBody.client_secret.substring(proxyRequestBody.client_secret.length - 10)}` : 'none',
-				authMethod,
-			});
-			
 			// VERIFY: Ensure client_secret is a string and not corrupted
 			if (authMethod === 'client_secret_post' && proxyRequestBody.client_secret) {
 				if (typeof proxyRequestBody.client_secret !== 'string') {
@@ -294,13 +275,7 @@ export class ClientCredentialsIntegrationServiceV8 {
 					console.error(`${MODULE_TAG} ❌ ERROR: client_secret is empty or whitespace!`);
 					throw new Error('Client secret cannot be empty');
 				}
-				console.log(`${MODULE_TAG} ✅ Verified client_secret is valid string (length: ${proxyRequestBody.client_secret.length})`);
 			}
-			
-			console.log(`${MODULE_TAG} ✅ Verified grant_type: ${proxyRequestBody.grant_type}`);
-			console.log(`${MODULE_TAG} Request URL:`, tokenEndpoint);
-			console.log(`${MODULE_TAG} Request headers:`, headers);
-			console.log(`${MODULE_TAG} ===============================================`);
 
 			// Build request for backend proxy
 			const proxyRequest: {
