@@ -26,8 +26,6 @@ const mockPingOneApp = {
 
 // Test the normalization function
 export function testConfigChecker() {
-	console.log('🧪 Testing Config Checker...');
-
 	try {
 		// Create a mock service instance
 		const service = new ConfigComparisonService('mock-token', 'mock-env', 'NA');
@@ -36,20 +34,8 @@ export function testConfigChecker() {
 		const normalizedForm = (service as any).normalize(mockFormData);
 		const normalizedApp = (service as any).normalize(mockPingOneApp);
 
-		console.log('✅ Form data normalized:', normalizedForm);
-		console.log('✅ PingOne app normalized:', normalizedApp);
-
 		// Test diff function
 		const diffs = (service as any).diff(normalizedForm, normalizedApp);
-		console.log('✅ Differences found:', diffs);
-
-		if (diffs.length === 0) {
-			console.log('✅ No differences detected - normalization working correctly');
-		} else {
-			console.log('⚠️ Differences detected:', diffs);
-		}
-
-		console.log('🎉 Config Checker test completed successfully!');
 	} catch (error) {
 		console.error('❌ Config Checker test failed:', error);
 	}

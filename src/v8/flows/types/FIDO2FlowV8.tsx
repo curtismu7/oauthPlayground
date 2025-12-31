@@ -25,6 +25,7 @@ import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthentic
 import { MfaAuthenticationServiceV8, type DeviceAuthenticationResponse } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
@@ -1758,6 +1759,8 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			transition: 'padding-bottom 0.3s ease',
 			overflow: 'visible',
 		}}>
+			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
+			
 			<MFAFlowBaseV8
 				deviceType={deviceType as DeviceType}
 				renderStep0={renderStep0}

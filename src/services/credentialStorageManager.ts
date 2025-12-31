@@ -57,11 +57,6 @@ export class CredentialStorageManager {
 			...config,
 		};
 
-		console.log('🔧 [CredentialStorageManager] Initialized with config:', {
-			enableFileStorage: this.config.enableFileStorage,
-			enableMemoryCache: this.config.enableMemoryCache,
-			fileStoragePath: this.config.fileStoragePath,
-		});
 	}
 
 	/**
@@ -665,7 +660,6 @@ export class CredentialStorageManager {
 		};
 
 		window.addEventListener('storage', this.storageEventHandler);
-		console.log('✅ [CrossTabSync] Initialized storage event listener');
 	}
 
 	/**
