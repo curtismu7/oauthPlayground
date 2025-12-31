@@ -891,18 +891,6 @@ export const comprehensiveFlowDataService = new ComprehensiveFlowDataService();
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
 	(window as any).ComprehensiveFlowDataService = comprehensiveFlowDataService;
-	console.log(`🔍 ComprehensiveFlowDataService available globally`);
-	console.log(`🔍 Available commands:`);
-	console.log(`  - ComprehensiveFlowDataService.auditAllFlowData()`);
-	console.log(`  - ComprehensiveFlowDataService.loadFlowDataComprehensive({flowKey: "flow-key"})`);
-	console.log(`  - ComprehensiveFlowDataService.saveFlowDataComprehensive("flow-key", data)`);
-	console.log(
-		`  - ComprehensiveFlowDataService.saveFlowCredentialsIsolated("flow-key", credentials, {backupToEnv: true})`
-	);
-	console.log(`  - ComprehensiveFlowDataService.loadFlowCredentialsIsolated("flow-key")`);
-	console.log(`  - ComprehensiveFlowDataService.testCredentialIsolation("flow1", "flow2")`);
-	console.log(`  - ComprehensiveFlowDataService.clearAllFlowData()`);
-	console.log(`  - ComprehensiveFlowDataService.clearAllSharedData()`);
 }
 
 export default comprehensiveFlowDataService;

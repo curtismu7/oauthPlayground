@@ -8,7 +8,8 @@
  */
 
 import React, { useState } from 'react';
-import { FiBook, FiChevronDown, FiChevronUp, FiDownload, FiFileText, FiInfo } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiBook, FiChevronDown, FiChevronUp, FiDownload, FiFileText, FiInfo, FiHome } from 'react-icons/fi';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 interface MFADocumentationPageV8Props {
@@ -274,8 +275,17 @@ const generateMarkdown = (
 	const deviceInfo = DEVICE_DOCS[deviceType];
 	const title = `Ping Identity - ${deviceInfo.deviceName} MFA ${flowType === 'registration' ? 'Registration' : 'Authentication'} Flow`;
 
+	const generatedDate = new Date().toLocaleString('en-US', {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+		timeZoneName: 'short',
+	});
+	
 	let md = `# ${title}\n\n`;
-	md += `**Generated:** ${new Date().toISOString()}\n\n`;
+	md += `**Generated:** ${generatedDate}\n\n`;
 	md += `## Overview\n\n`;
 	md += `This document describes the PingOne MFA API calls required for ${deviceInfo.deviceName} device ${flowType === 'registration' ? 'registration' : 'authentication'}.\n\n`;
 
@@ -358,6 +368,142 @@ const downloadAsMarkdown = (content: string, filename: string): void => {
 	URL.revokeObjectURL(url);
 };
 
+// Convert markdown to HTML with better formatting for PDF
+const markdownToHtml = (markdown: string): string => {
+	let html = '';
+	let inCodeBlock = false;
+	let inList = false;
+	
+	const lines = markdown.split('\n');
+	
+	for (let i = 0; i < lines.length; i++) {
+		const line = lines[i];
+		const trimmed = line.trim();
+		
+		// Handle code blocks
+		if (trimmed.startsWith('```')) {
+			if (inCodeBlock) {
+				html += '</code></pre>\n';
+				inCodeBlock = false;
+			} else {
+				const lang = trimmed.substring(3).trim() || 'text';
+				html += `<pre class="code-block"><code class="language-${lang}">`;
+				inCodeBlock = true;
+			}
+			continue;
+		}
+		
+		if (inCodeBlock) {
+			html += escapeHtml(line) + '\n';
+			continue;
+		}
+		
+		// Handle headers
+		if (trimmed.startsWith('# ')) {
+			if (inList) {
+				html += '</ul>\n';
+				inList = false;
+			}
+			html += `<h1>${processInlineMarkdown(trimmed.substring(2))}</h1>\n`;
+			continue;
+		}
+		if (trimmed.startsWith('## ')) {
+			if (inList) {
+				html += '</ul>\n';
+				inList = false;
+			}
+			html += `<h2>${processInlineMarkdown(trimmed.substring(3))}</h2>\n`;
+			continue;
+		}
+		if (trimmed.startsWith('### ')) {
+			if (inList) {
+				html += '</ul>\n';
+				inList = false;
+			}
+			html += `<h3>${processInlineMarkdown(trimmed.substring(4))}</h3>\n`;
+			continue;
+		}
+		
+		// Handle horizontal rules
+		if (trimmed === '---' || trimmed === '***') {
+			if (inList) {
+				html += '</ul>\n';
+				inList = false;
+			}
+			html += '<hr class="section-divider">\n';
+			continue;
+		}
+		
+		// Handle list items
+		if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+			if (!inList) {
+				html += '<ul class="documentation-list">\n';
+				inList = true;
+			}
+			const listContent = trimmed.substring(2);
+			html += `<li>${processInlineMarkdown(listContent)}</li>\n`;
+			continue;
+		}
+		
+		// Close list if we hit a non-list line
+		if (inList && trimmed !== '') {
+			html += '</ul>\n';
+			inList = false;
+		}
+		
+		// Handle empty lines
+		if (trimmed === '') {
+			html += '<br>\n';
+			continue;
+		}
+		
+		// Handle regular paragraphs
+		html += `<p class="documentation-paragraph">${processInlineMarkdown(trimmed)}</p>\n`;
+	}
+	
+	// Close any open tags
+	if (inList) {
+		html += '</ul>\n';
+	}
+	if (inCodeBlock) {
+		html += '</code></pre>\n';
+	}
+	
+	return html;
+};
+
+// Process inline markdown (bold, code, links)
+const processInlineMarkdown = (text: string): string => {
+	// Escape HTML first
+	text = escapeHtml(text);
+	
+	// Process links [text](url)
+	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+	
+	// Process inline code `code`
+	text = text.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
+	
+	// Process bold **text**
+	text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+	
+	// Process italic *text* (but not if it's part of **text**)
+	text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+	
+	return text;
+};
+
+// Escape HTML entities
+const escapeHtml = (text: string): string => {
+	const map: Record<string, string> = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#039;',
+	};
+	return text.replace(/[&<>"']/g, (m) => map[m] || m);
+};
+
 const downloadAsPDF = (content: string, title: string): void => {
 	// Create a new window with the content
 	const printWindow = window.open('', '_blank');
@@ -370,87 +516,169 @@ const downloadAsPDF = (content: string, title: string): void => {
 		<!DOCTYPE html>
 		<html>
 		<head>
-			<title>${title}</title>
+			<meta charset="UTF-8">
+			<title>${escapeHtml(title)}</title>
 			<style>
+				@page {
+					margin: 2cm;
+					size: letter;
+				}
+				
+				* {
+					box-sizing: border-box;
+				}
+				
 				body {
 					font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-					max-width: 800px;
+					max-width: 850px;
 					margin: 0 auto;
-					padding: 40px;
-					line-height: 1.6;
-					color: #333;
+					padding: 40px 50px;
+					line-height: 1.7;
+					color: #1f2937;
+					font-size: 11pt;
+					background: white;
 				}
+				
 				h1 {
 					color: #E31837;
-					border-bottom: 3px solid #E31837;
-					padding-bottom: 10px;
+					border-bottom: 4px solid #E31837;
+					padding-bottom: 12px;
+					margin-bottom: 24px;
+					margin-top: 0;
+					font-size: 28pt;
+					font-weight: 700;
+					page-break-after: avoid;
 				}
+				
 				h2 {
 					color: #1f2937;
-					margin-top: 30px;
-					border-bottom: 1px solid #e5e7eb;
-					padding-bottom: 5px;
+					margin-top: 36px;
+					margin-bottom: 16px;
+					border-bottom: 2px solid #e5e7eb;
+					padding-bottom: 8px;
+					font-size: 20pt;
+					font-weight: 600;
+					page-break-after: avoid;
 				}
+				
 				h3 {
 					color: #374151;
-					margin-top: 20px;
+					margin-top: 24px;
+					margin-bottom: 12px;
+					font-size: 16pt;
+					font-weight: 600;
+					page-break-after: avoid;
 				}
-				pre {
-					background: #f3f4f6;
-					padding: 15px;
-					border-radius: 6px;
-					overflow-x: auto;
-					border: 1px solid #e5e7eb;
+				
+				p {
+					margin: 12px 0;
+					text-align: justify;
 				}
-				code {
-					background: #f3f4f6;
-					padding: 2px 6px;
-					border-radius: 3px;
-					font-size: 0.9em;
+				
+				.documentation-paragraph {
+					margin: 14px 0;
 				}
+				
 				ul, ol {
-					margin-left: 20px;
+					margin: 16px 0;
+					padding-left: 32px;
 				}
+				
+				.documentation-list {
+					margin: 16px 0;
+					padding-left: 32px;
+				}
+				
+				.documentation-list li {
+					margin: 8px 0;
+					line-height: 1.8;
+				}
+				
+				pre {
+					background: #f8f9fa;
+					padding: 20px;
+					border-radius: 8px;
+					overflow-x: auto;
+					border: 1px solid #e1e4e8;
+					margin: 20px 0;
+					page-break-inside: avoid;
+					font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Courier New', monospace;
+					font-size: 9.5pt;
+					line-height: 1.5;
+				}
+				
+				.code-block {
+					background: #f8f9fa;
+					border-left: 4px solid #E31837;
+				}
+				
+				code {
+					font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', 'Droid Sans Mono', 'Courier New', monospace;
+					font-size: 0.95em;
+				}
+				
+				.inline-code {
+					background: #f1f3f5;
+					padding: 3px 6px;
+					border-radius: 4px;
+					font-size: 0.9em;
+					color: #d63384;
+					border: 1px solid #dee2e6;
+				}
+				
+				hr.section-divider {
+					border: none;
+					border-top: 2px solid #e5e7eb;
+					margin: 32px 0;
+					page-break-after: avoid;
+				}
+				
+				a {
+					color: #E31837;
+					text-decoration: none;
+					border-bottom: 1px solid #E31837;
+				}
+				
+				a:hover {
+					background-color: #fef2f2;
+				}
+				
+				strong {
+					font-weight: 600;
+					color: #111827;
+				}
+				
+				em {
+					font-style: italic;
+					color: #4b5563;
+				}
+				
 				@media print {
-					body { padding: 20px; }
+					body {
+						padding: 20px;
+						max-width: 100%;
+					}
+					
+					h1, h2, h3 {
+						page-break-after: avoid;
+					}
+					
+					pre, code {
+						page-break-inside: avoid;
+					}
+					
+					ul, ol {
+						page-break-inside: avoid;
+					}
+					
+					hr.section-divider {
+						page-break-after: avoid;
+					}
 				}
 			</style>
 		</head>
 		<body>
-			${content
-				.split('\n')
-				.map((line) => {
-					// Convert markdown to HTML
-					if (line.startsWith('# ')) {
-						return `<h1>${line.substring(2)}</h1>`;
-					}
-					if (line.startsWith('## ')) {
-						return `<h2>${line.substring(3)}</h2>`;
-					}
-					if (line.startsWith('### ')) {
-						return `<h3>${line.substring(4)}</h3>`;
-					}
-					if (line.startsWith('- ')) {
-						return `<li>${line.substring(2)}</li>`;
-					}
-					if (line.startsWith('```json')) {
-						return '<pre><code>';
-					}
-					if (line.startsWith('```')) {
-						return '</code></pre>';
-					}
-					if (line.startsWith('**') && line.endsWith('**')) {
-						return `<strong>${line.substring(2, line.length - 2)}</strong>`;
-					}
-					if (line.includes('`')) {
-						return line.replace(/`([^`]+)`/g, '<code>$1</code>');
-					}
-					if (line.trim() === '') {
-						return '<br>';
-					}
-					return `<p>${line}</p>`;
-				})
-				.join('\n')}
+			${markdownToHtml(content)}
 		</body>
 		</html>
 	`;
@@ -471,6 +699,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 	currentStep,
 	totalSteps,
 }) => {
+	const navigate = useNavigate();
 	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]));
 	const deviceInfo = DEVICE_DOCS[deviceType];
 	const apiCalls = getApiCalls(deviceType, flowType);
@@ -590,8 +819,29 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				</p>
 			</div>
 
-			{/* Download Buttons */}
-			<div style={{ display: 'flex', gap: '12px', marginBottom: '32px', justifyContent: 'center' }}>
+			{/* Download Buttons and Navigation */}
+			<div style={{ display: 'flex', gap: '12px', marginBottom: '32px', justifyContent: 'center', flexWrap: 'wrap' }}>
+				<button
+					type="button"
+					onClick={() => navigate('/v8/mfa-hub')}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '12px 24px',
+						background: '#10b981',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '15px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+					}}
+				>
+					<FiHome size={18} />
+					Back to Hub
+				</button>
 				<button
 					type="button"
 					onClick={handleDownloadMarkdown}
@@ -759,7 +1009,7 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 										>
 											{call.step}
 										</div>
-										<div style={{ fontSize: '13px', color: '#6b7280' }}>
+										<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
 											<strong>{call.method}</strong> {call.endpoint}
 										</div>
 									</div>
@@ -818,10 +1068,10 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 											<div style={{ marginBottom: '16px' }}>
 												<div
 													style={{
-														fontSize: '13px',
-														fontWeight: '600',
+														fontSize: '15px',
+														fontWeight: '700',
 														color: '#374151',
-														marginBottom: '8px',
+														marginBottom: '12px',
 													}}
 												>
 													Request Body:
@@ -832,10 +1082,11 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 														padding: '16px',
 														background: '#f9fafb',
 														borderRadius: '6px',
-														border: '1px solid #e5e7eb',
-														fontSize: '13px',
+														border: '4px solid #f97316',
+														fontSize: '14px',
 														overflow: 'auto',
 														color: '#1f2937',
+														fontWeight: '500',
 													}}
 												>
 													{JSON.stringify(call.requestBody, null, 2)}

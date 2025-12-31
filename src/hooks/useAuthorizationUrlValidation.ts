@@ -205,8 +205,4 @@ if (typeof window !== 'undefined') {
 	(window as any).usePreSendUrlValidation = usePreSendUrlValidation;
 	(window as any).useRealtimeUrlValidation = useRealtimeUrlValidation;
 
-	console.log('🔍 Authorization URL Validation Hooks loaded. Available hooks:');
-	console.log('  - useAuthorizationUrlValidation(options) - Main validation hook');
-	console.log('  - usePreSendUrlValidation(options) - Pre-send validation hook');
-	console.log('  - useRealtimeUrlValidation(options) - Real-time validation hook');
 }

@@ -60,7 +60,6 @@ export class MFAFlowComponentFactory {
 	 */
 	static register(deviceType: DeviceType, component: ComponentType): void {
 		MFAFlowComponentFactory.componentRegistry.set(deviceType, component);
-		console.log(`${MODULE_TAG} Registered component for ${deviceType}`);
 	}
 
 	/**

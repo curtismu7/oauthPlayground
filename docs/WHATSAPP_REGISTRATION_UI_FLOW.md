@@ -1,15 +1,15 @@
-# Email Registration UI Flow
+# WhatsApp Registration UI Flow
 
-This document provides a visual diagram of the UI page flow for Email device registration.
+This document provides a visual diagram of the UI page flow for WhatsApp device registration. WhatsApp follows the same UI pattern as SMS, using a modal structure for device registration.
 
 ## Flow Diagram
 
 ```mermaid
 flowchart TD
-    Start([Start: MFA Hub]) --> Config[Page: Email Configuration<br/>Step 0 - Configure]
+    Start([Start: MFA Hub]) --> Config[Page: WhatsApp Configuration<br/>Step 0 - Configure]
     
     Config -->|User Flow| AuthModal[Modal: PingOne Authentication<br/>User Login Modal]
-    Config -->|Admin Flow<br/>Worker Token| DeviceReg[Modal: Email Device Registration<br/>Step 2 - Register Device]
+    Config -->|Admin Flow<br/>Worker Token| DeviceReg[Modal: WhatsApp Device Registration<br/>Step 2 - Register Device]
     
     AuthModal -->|PingOne Redirect| AuthCallback[OAuth Callback<br/>user-mfa-login-callback]
     AuthCallback --> AuthSuccess[Modal: Authentication Success<br/>User Authentication Success Modal]
@@ -41,9 +41,9 @@ flowchart TD
 
 ## Detailed Step Descriptions
 
-### Step 0: Email Configuration Page
-- **Route:** `/v8/mfa/register/email/config` or `/v8/mfa/register/email/device` (if configured)
-- **Purpose:** Configure email registration settings
+### Step 0: WhatsApp Configuration Page
+- **Route:** `/v8/mfa/register/whatsapp/config` or `/v8/mfa/register/whatsapp/device` (if configured)
+- **Purpose:** Configure WhatsApp registration settings
 - **Fields:**
   - Environment ID
   - Username
@@ -85,16 +85,20 @@ flowchart TD
 - **Navigation:** Auto-navigates to Step 2 (Device Registration Modal) after 2 seconds
 - **Fallback:** "Continue to Device Registration" button is always available for manual navigation if auto-advance fails or user wants to proceed immediately
 
-### Step 1: Email Device Registration/Selection Modal
-- **Route:** `/v8/mfa/register/email/device` (Step 1)
-- **Display:** Modal overlay (fixed position, centered)
-- **Purpose:** Register new email device or select existing device for user
-- **Fields:**
-  - Email address (auto-filled from PingOne if available)
-  - Device nickname (optional)
-- **Actions:**
-  - "Register Device" button (for new devices)
-  - Device selection (for existing devices)
+### Step 1: WhatsApp Device Selection
+- **Route:** `/v8/mfa/register/whatsapp/device` (Step 1)
+- **Purpose:** Select an existing WhatsApp device or choose to register a new one
+- **Display:** Inline content (not a modal)
+- **Features:**
+  - Lists existing WhatsApp devices (if any)
+  - "Register New Device" button to proceed to registration
+  - Device selection for existing devices
+- **Note:** This step is skipped during registration flow when coming from configuration page (`isConfigured === true`)
+
+### Step 2: WhatsApp Device Registration Modal
+- **Route:** `/v8/mfa/register/whatsapp/device` (Step 2)
+- **Display:** **Modal overlay (fixed position, draggable, centered)**
+- **Purpose:** Register new WhatsApp device for user
 - **Modal Structure:**
   - **Modal Overlay:** Fixed position (`position: fixed`), semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
   - **Modal Container:** White background, rounded corners, box shadow, centered on screen
@@ -105,12 +109,18 @@ flowchart TD
     - Close button (X) in top right corner
   - **Modal Body:**
     - Username display (read-only, gray background box)
-    - Email Address field (with email icon, auto-filled from PingOne if available)
+    - Phone Number field (with country code picker)
     - Device Name field
-    - Email Preview box (yellow background, if email is auto-filled)
+    - Phone Number Preview box (yellow background, shows formatted phone number)
     - Worker Token Status indicator
     - API Display Toggle checkbox
-    - Action buttons: Cancel (left) and Register Email Device (right, primary)
+    - Action buttons: Cancel (left) and Register WhatsApp Device (right, primary)
+- **Fields:**
+  - **Phone Number:** Required, with country code picker (47 countries with flags)
+  - **Device Name:** Required, friendly name to identify the device (e.g., "My WhatsApp", "Work WhatsApp")
+- **Actions:**
+  - "Cancel" button - Closes modal and returns to previous step
+  - "Register WhatsApp Device" button - Validates and registers device
 - **Modal Behavior:**
   - Modal is displayed as a fixed overlay (`position: fixed`) on top of the page
   - Centered on screen with semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
@@ -119,50 +129,63 @@ flowchart TD
   - Has a close button (X) in the header to return to previous step
   - Backdrop click does NOT close modal (requires explicit close action)
 - **Process:**
-  1. User enters email address (if not auto-filled) or selects existing device
-  2. User enters device nickname (optional, for new devices)
-  3. Clicks "Register Device" button
-  4. API call: `POST /v1/environments/{envId}/users/{userId}/devices`
+  1. User enters phone number (with country code)
+  2. User enters device name
+  3. Clicks "Register WhatsApp Device" button
+  4. API call: `POST /v1/environments/{envId}/users/{userId}/devices` with `type: "WHATSAPP"`
   5. PingOne responds with device status:
      - **ACTIVE:** Device is immediately ready → Show Success Page (Step 4)
      - **ACTIVATION_REQUIRED:** OTP automatically sent by PingOne → Auto-advance to Step 4 (Validate OTP), skipping Step 3
 - **Fallback:** "Next Step" button is always available in the footer as a backup for manual progression if auto-advance fails or user wants to proceed immediately
 
 ### Step 3: Send OTP Code
-- **Route:** `/v8/mfa/register/email/device` (Step 3)
-- **Purpose:** Send OTP code to registered email address
+- **Route:** `/v8/mfa/register/whatsapp/device` (Step 3)
+- **Purpose:** Send OTP code to registered WhatsApp phone number
 - **Behavior:**
   - **For ACTIVATION_REQUIRED devices:** This step is automatically skipped - PingOne sends OTP during device registration
   - **For existing ACTIVE devices:** User can manually send OTP for device authentication
 - **Features:**
   - "Send OTP Code" button
   - "Resend OTP Code" button (after initial send)
-  - Device ID and email address display
+  - Device ID and phone number display
   - Success message after OTP is sent
   - Error handling for send failures
 - **Process:**
   1. User clicks "Send OTP Code" button
   2. API call: `POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}/otp/send`
-  3. OTP is sent to email address
+  3. OTP is sent to WhatsApp phone number
   4. Navigate to Step 4 (Validate OTP)
 - **Note:** For newly registered devices with `ACTIVATION_REQUIRED` status, this step is skipped because PingOne automatically sends the OTP during device registration.
 
 ### Step 4: Validate OTP OR Success Page (Conditional)
-- **Route:** `/v8/mfa/register/email/device` (Step 4)
+- **Route:** `/v8/mfa/register/whatsapp/device` (Step 4)
 - **Display:** 
   - OTP Validation: **Modal overlay (fixed position, draggable, centered)**
   - Success: Full page component
 - **Purpose:** Validate OTP code (if ACTIVATION_REQUIRED) OR show success (if ACTIVE)
 - **Behavior:**
   - **If device status is ACTIVE:** Shows Success Page immediately
-  - **If device status is ACTIVATION_REQUIRED:** Shows OTP Validation form
+  - **If device status is ACTIVATION_REQUIRED:** Shows OTP Validation modal
+- **OTP Validation Modal Structure:**
+  - **Modal Overlay:** Fixed position (`position: fixed`), semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
+  - **Modal Container:** White background, rounded corners, box shadow, centered on screen
+  - **Modal Header:**
+    - Draggable header with PingIdentity logo
+    - Title: "Validate OTP Code"
+    - Subtitle: "Enter the code sent to your WhatsApp"
+    - Close button (X) in top right corner
+  - **Modal Body:**
+    - OTP input field (6 digits)
+    - "Validate OTP" button
+    - "Resend OTP" button (if needed)
+    - Error display for invalid OTP attempts
 - **OTP Validation Features:**
   - OTP input field (6 digits)
   - "Validate OTP" button
   - "Resend OTP" button (if needed)
   - Error display for invalid OTP attempts
 - **OTP Validation Process:**
-  1. User receives OTP code via email (automatically sent by PingOne during registration, or manually sent from Step 3)
+  1. User receives OTP code via WhatsApp (automatically sent by PingOne during registration, or manually sent from Step 3)
   2. User enters OTP code
   3. API call: `POST /v1/environments/{envId}/users/{userId}/devices/{deviceId}/otp/check`
   4. If valid → Device status changes to ACTIVE → Success Page is shown (same Step 4, re-renders automatically)
@@ -170,7 +193,7 @@ flowchart TD
 - **Fallback:** "Next Step" button is always available in the footer as a backup for manual progression if needed (though typically not needed since OTP validation triggers automatic re-render to Success Page)
 - **Success Page Features:**
   - Success message
-  - Device details (ID, email, nickname, status)
+  - Device details (ID, phone number, nickname, status)
   - "Start Again" button (returns to MFA Hub via `navigateToMfaHubWithCleanup`)
   - API calls display (collapsible, via `SuperSimpleApiDisplayV8`)
   - Documentation button (opens documentation modal)
@@ -183,9 +206,9 @@ flowchart TD
 ### Admin Flow Path (Worker Token)
 ```
 MFA Hub 
-  → Email Configuration (Step 0)
-  → Email Device Selection (Step 1 - skipped during registration flow)
-  → Email Device Registration Modal (Step 2)
+  → WhatsApp Configuration (Step 0)
+  → WhatsApp Device Selection (Step 1 - skipped during registration flow)
+  → WhatsApp Device Registration Modal (Step 2)
   → [ACTIVE] Success Page (Step 4)
   OR
   → [ACTIVATION_REQUIRED] Skip Step 3 (Send OTP - automatic)
@@ -196,12 +219,12 @@ MFA Hub
 ### User Flow Path (User Token via PingOne Auth)
 ```
 MFA Hub
-  → Email Configuration (Step 0)
+  → WhatsApp Configuration (Step 0)
   → PingOne Authentication Modal
   → OAuth Callback
   → Authentication Success Modal
-  → Email Device Selection (Step 1 - skipped during registration flow)
-  → Email Device Registration Modal (Step 2)
+  → WhatsApp Device Selection (Step 1 - skipped during registration flow)
+  → WhatsApp Device Registration Modal (Step 2)
   → [ACTIVE] Success Page (Step 4)
   OR
   → [ACTIVATION_REQUIRED] Skip Step 3 (Send OTP - automatic)
@@ -209,7 +232,7 @@ MFA Hub
       → After successful OTP validation: Success Page (Step 4 - re-renders)
 ```
 
-**Note:** Step 3 (Send OTP) is automatically skipped for devices registered with `ACTIVATION_REQUIRED` status because PingOne sends the OTP automatically during device registration. Step 4 is a conditional step that shows either OTP Validation Modal OR Success Page depending on device status. After successful OTP validation, the device status becomes ACTIVE and Step 4 re-renders to show the Success Page (no navigation to Step 5).
+**Note:** Step 3 (Send OTP) is automatically skipped for devices registered with `ACTIVATION_REQUIRED` status because PingOne sends the OTP automatically during device registration. Step 4 is a conditional step that shows either OTP Validation Modal OR Success Page depending on device status. After successful OTP validation, the device status becomes `ACTIVE` and Step 4 re-renders to show the Success Page (no navigation to Step 5).
 
 ## Key Differences: Admin vs User Flow
 
@@ -225,7 +248,7 @@ MFA Hub
 
 ## Step Structure
 
-The Email Registration flow uses **5 steps** (Step 0, Step 1, Step 2, Step 3, Step 4):
+The WhatsApp Registration flow uses **5 steps** (Step 0, Step 1, Step 2, Step 3, Step 4):
 - **Step Labels:** `['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']`
 - **Step 0:** Configuration Page
 - **Step 1:** Device Selection (inline content, skipped during registration flow)
@@ -239,21 +262,101 @@ After successful OTP validation in Step 4, the device status becomes `ACTIVE` an
 
 ## Notes
 
-- **OTP Auto-send:** When a device is registered with `ACTIVATION_REQUIRED` status, PingOne automatically sends an OTP code to the email address. No separate "Send OTP" step is required.
+- **OTP Auto-send:** When a device is registered with `ACTIVATION_REQUIRED` status, PingOne automatically sends an OTP code to the WhatsApp phone number. No separate "Send OTP" step is required.
 - **Token Persistence:** User tokens are saved to localStorage immediately upon receipt to ensure they persist across page refreshes.
 - **State Preservation After PingOne Authentication (User Flows Only):**
   - Before redirecting to PingOne for user authentication, the current page path (including query parameters) is stored in `sessionStorage` under the key `user_login_return_to_mfa`.
-  - After successful PingOne authentication, the OAuth callback handler (`CallbackHandlerV8U`) retrieves the stored return path and redirects the user back to the exact page they were on (e.g., `/v8/mfa/register/email/device?step=1`).
+  - After successful PingOne authentication, the OAuth callback handler (`CallbackHandlerV8U`) retrieves the stored return path and redirects the user back to the exact page they were on (e.g., `/v8/mfa/register/whatsapp/device?step=2`).
   - The callback handler also sets a marker `mfa_oauth_callback_return` in `sessionStorage` to signal that state restoration should occur.
-  - `MFAFlowBaseV8` detects this marker and automatically advances the flow from Step 0 to Step 1 if a user token is present and Step 0 validation passes.
+  - `MFAFlowBaseV8` detects this marker and automatically advances the flow from Step 0 to Step 2 if a user token is present and Step 0 validation passes.
   - This ensures users return to the exact step they were on (not the MFA Hub) and can seamlessly continue their device registration flow.
   - **Storage Keys Used:**
-    - `user_login_return_to_mfa`: Stores the return path as a plain string (e.g., `/v8/mfa/register/email/device?step=2`)
+    - `user_login_return_to_mfa`: Stores the return path as a plain string (e.g., `/v8/mfa/register/whatsapp/device?step=2`)
     - `mfa_oauth_callback_return`: Marker set to `'true'` after OAuth callback to trigger state restoration
   - **Note:** This state preservation mechanism only applies to User Flows that require PingOne authentication. Admin Flows (using worker tokens) do not require this mechanism.
-- **Email Auto-fill:** Email address is automatically fetched from PingOne user profile if available, otherwise user must enter it.
+- **Phone Number Validation:** Uses the same phone validation logic as SMS (E.164 format, country code picker with 47 countries)
 - **Step 4 Conditional Rendering:** Step 4 uses conditional logic to show either OTP Validation Modal OR Success Page based on device status (`deviceRegisteredActive` state or `mfaState.deviceStatus`).
 - **Fallback Navigation:** All steps include "Next Step" buttons in the footer (via `StepActionButtonsV8` component) as a backup mechanism for manual progression, even when auto-advance is active. These buttons are enabled when step prerequisites are met (valid credentials, required fields filled, etc.). This ensures users can always progress manually if auto-advance fails or if they prefer manual control.
+
+## UI Modal Structure (Step 2: Device Registration)
+
+The WhatsApp device registration modal follows the same structure as SMS:
+
+### Modal Overlay
+- **Position:** `position: fixed`
+- **Dimensions:** Full viewport (`top: 0, left: 0, right: 0, bottom: 0`)
+- **Background:** Semi-transparent backdrop (`rgba(0, 0, 0, 0.5)`)
+- **Display:** Centered using flexbox when modal is first opened (`display: flex, alignItems: center, justifyContent: center`)
+- **Z-index:** `1000`
+
+### Modal Container
+- **Background:** White (`#ffffff`)
+- **Border Radius:** `16px` (rounded corners)
+- **Padding:** `0` (content uses internal padding)
+- **Max Width:** `550px`
+- **Width:** `90%` (responsive)
+- **Box Shadow:** `0 20px 60px rgba(0, 0, 0, 0.3)` (elevated appearance)
+- **Overflow:** `hidden`
+- **Draggable:** Yes, using `useDraggableModal` hook
+
+### Modal Header
+- **Background:** Linear gradient (`135deg, #10b981 0%, #059669 100%`) - Green theme for WhatsApp
+- **Padding:** `16px 20px 12px 20px`
+- **Text Alignment:** Center
+- **Position:** Relative (for close button positioning)
+- **Cursor:** `grab` (indicates draggable)
+- **User Select:** `none` (prevents text selection during drag)
+- **Components:**
+  - PingIdentity Logo (36px size)
+  - Title: "Register MFA Device" (18px, white, font-weight 600)
+  - Subtitle: "Add a new device for multi-factor authentication" (12px, rgba(255, 255, 255, 0.9))
+  - Close Button (X): Absolute positioned top-right, circular button with transparent white background
+
+### Modal Body
+- **Padding:** `16px 20px`
+- **Components:**
+  - Username Display (gray background box)
+  - Phone Number Field (with country code picker)
+  - Device Name Field
+  - Phone Number Preview (yellow background box)
+  - Worker Token Status indicator
+  - API Display Toggle checkbox
+  - Action Buttons: Cancel (left) and Register WhatsApp Device (right, primary green button)
+
+### Modal Footer (Action Buttons)
+- **Layout:** Flexbox with gap (`12px`)
+- **Cancel Button:**
+  - Background: Light gray (`#f3f4f6`)
+  - Border: Gray (`#d1d5db`)
+  - Color: Dark gray (`#374151`)
+  - Flex: `1`
+- **Register Button:**
+  - Background: Green (`#10b981`) when enabled, gray (`#d1d5db`) when disabled
+  - Color: White
+  - Flex: `2`
+  - Box Shadow: Green glow when enabled
+  - Hover Effect: Darker green (`#059669`)
+
+## UI Modal Structure (Step 4: OTP Validation)
+
+The WhatsApp OTP validation modal follows the same structure as SMS:
+
+### Modal Overlay
+- Same as Step 2 (Device Registration Modal)
+
+### Modal Container
+- Same structure as Step 2
+
+### Modal Header
+- **Background:** Linear gradient (same green theme)
+- **Title:** "Validate OTP Code"
+- **Subtitle:** "Enter the code sent to your WhatsApp"
+
+### Modal Body
+- OTP Input Field (6 digits)
+- Validate OTP Button
+- Resend OTP Button (if needed)
+- Error Display (if validation fails)
 
 ## Security & Implementation Details
 
@@ -271,6 +374,13 @@ All API calls correctly pass `tokenType` and `userToken` parameters to ensure pr
 - **Admin Flows:** Use worker tokens
 - This ensures proper authentication and authorization boundaries
 
+**User Token Handling and 'oauth_completed' Placeholder:**
+- After successful OAuth authentication, `credentials.userToken` is set to the literal string `'oauth_completed'` (not the actual access token)
+- This placeholder indicates successful authentication without storing the actual token
+- When `tokenType === 'user'` and `userToken === 'oauth_completed'`, `MFAServiceV8.getToken()` automatically falls back to using the worker token for device registration API calls
+- This ensures proper API permissions (`p1:create:device` scope) while maintaining user flow semantics
+- Scope validation is skipped when the placeholder is detected (since worker token is used instead)
+
 ### ✅ Auto-Advance Reliability
 **Status:** ✅ **IMPLEMENTED**
 
@@ -281,29 +391,33 @@ Auto-advance is implemented at key points with fallback buttons:
    - ACTIVATION_REQUIRED devices: Auto-advances to OTP Validation Modal after 100ms
    - Fallback: "Next Step" button always available
 
-2. **OTP Validation Success → Step 4 (Success Page):**
+2. **OTP Validation Success → Success Page:**
    - Auto-advances to Success Page after 100ms delay
    - Fallback: "Next Step" button always available
 
-3. **Authentication Success → Step 1 (Device Registration):**
+3. **Authentication Success → Step 2 (Device Registration):**
    - Auto-advances after 2 seconds
    - Fallback: "Continue to Device Registration" button always available
 
 ### ✅ Code Quality & Consistency
 **Status:** ✅ **OPTIMIZED**
 
-- **No unused state variables:** Cleaned up unused `showValidationModal` state
+- **Modal Structure:** Uses `useDraggableModal` hook for consistent draggable modal behavior
 - **Consistent patterns:** Matches SMS flow implementation patterns for maintainability
 - **Error handling:** Proper try/catch blocks with user-friendly error messages
 - **Type safety:** Uses TypeScript with proper type definitions
 
-### 📋 Detailed Analysis
+### 📋 Device Type in API Requests
 
-For a comprehensive security analysis, including:
-- Detailed issue breakdown
-- Security implications
-- Auto-advance failure point analysis
-- Code quality improvements
-- All fixes applied
+WhatsApp uses `type: "WHATSAPP"` in all PingOne MFA API requests:
+- **Device Registration:** `POST /v1/environments/{envId}/users/{userId}/devices` with `type: "WHATSAPP"`
+- **Device Activation:** Uses the same endpoints as SMS, but for WhatsApp device type
+- **OTP Send/Validate:** Uses the same endpoints as SMS, but for WhatsApp device type
 
-See: **`docs/EMAIL_FLOW_SECURITY_ANALYSIS.md`**
+## References
+
+- PingOne MFA API Docs: https://apidocs.pingidentity.com/pingone/mfa/v1/api/
+- WhatsApp Device Registration: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-whatsapp
+- SMS Registration Flow Analysis: `docs/SMS_REGISTER_FLOW_ANALYSIS.md`
+- Email Registration UI Flow: `docs/EMAIL_REGISTRATION_UI_FLOW.md`
+

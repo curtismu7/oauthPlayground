@@ -97,7 +97,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					);
 					setRegion(parsed.region || 'us');
 					setAuthMethod(parsed.authMethod || 'client_secret_basic');
-					console.log(`${MODULE_TAG} Loaded saved credentials`);
 				} catch (e) {
 					console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
 				}
@@ -140,7 +139,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				authMethod,
 			};
 			localStorage.setItem('worker_credentials_v8', JSON.stringify(credsToSave));
-			console.log(`${MODULE_TAG} Credentials saved`);
 		}
 
 		// Build token endpoint
@@ -193,8 +191,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 		setIsGenerating(true);
 		try {
-			console.log(`${MODULE_TAG} Generating worker token`, { environmentId, region });
-
 			const scopeList = requestDetails.requestParams.scope
 				.split(/\s+/)
 				.map((scope) => scope.trim())
@@ -210,7 +206,6 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				region,
 				tokenEndpointAuthMethod: authMethod,
 			});
-			console.log(`${MODULE_TAG} Credentials saved to workerTokenServiceV8`);
 
 			// Track the API call
 			const startTime = Date.now();
@@ -273,17 +268,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 			// Now store token using workerTokenServiceV8 (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
 			await workerTokenServiceV8.saveToken(token, expiresAt);
-			console.log(`${MODULE_TAG} Token saved to workerTokenServiceV8`);
-
-			if (typeof data.scope === 'string' && data.scope.trim().length > 0) {
-				console.log(`${MODULE_TAG} Token scopes:`, data.scope);
-			}
 
 			// Dispatch event for status update
 			window.dispatchEvent(new Event('workerTokenUpdated'));
 
 			toastV8.success('Worker token generated successfully!');
-			console.log(`${MODULE_TAG} Token generated and stored`);
 
 			onTokenGenerated?.(token);
 

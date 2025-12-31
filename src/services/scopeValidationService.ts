@@ -572,12 +572,4 @@ if (typeof window !== 'undefined') {
 	(window as any).clearScopeCache = () => scopeValidationService.clearCache();
 	(window as any).resetScopeMetrics = () => scopeValidationService.resetMetrics();
 
-	console.log('🔍 Enhanced Scope Validation Service loaded. Available commands:');
-	console.log('  - validateScopes(scopes, flowType) - Validate scopes for authorization');
-	console.log('  - getScopeSummary(scopes, flowType) - Get detailed validation summary');
-	console.log('  - getRecommendedScopes(flowType) - Get recommended scopes for flow type');
-	console.log('  - getScopeMetrics() - Get performance metrics');
-	console.log('  - getScopeCacheStats() - Get cache statistics');
-	console.log('  - clearScopeCache() - Clear validation cache');
-	console.log('  - resetScopeMetrics() - Reset performance metrics');
 }
