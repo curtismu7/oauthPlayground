@@ -387,7 +387,8 @@ const createPopOutWindow = (
 											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
 											const bodyTextEscaped = bodyText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
 											const responseTextEscaped = responseText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
-											const urlEscaped = call.url.replace(/'/g, "\\\\'");
+											const displayUrl = call.actualPingOneUrl || call.url;
+											const urlEscaped = displayUrl.replace(/'/g, "\\\\'");
 											
 											return \`
 												<tr onclick="window.toggleExpand('\${call.id}')" style="cursor: pointer; background: \${isExpanded ? '#f3f4f6' : 'white'}; border-bottom: 1px solid #e5e7eb;" onmouseover="this.style.background='\${isExpanded ? '#f3f4f6' : '#f9fafb'}'" onmouseout="this.style.background='\${isExpanded ? '#f3f4f6' : 'white'}'">
