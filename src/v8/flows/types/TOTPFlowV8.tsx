@@ -1151,7 +1151,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 		// If validation is complete, show success screen
 		if (mfaState.verificationResult && mfaState.verificationResult.status === 'COMPLETED') {
-			const successData = buildSuccessPageData(credentials, mfaState);
+			// TOTP flow doesn't use useUnifiedOTPFlow hook, so we need to get flow type from credentials or location state
+			const locationState = location.state as { registrationFlowType?: 'admin' | 'user'; adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED' } | null;
+			const flowType = locationState?.registrationFlowType || credentials.tokenType === 'user' ? 'user' : 'admin';
+			const deviceStatus = locationState?.adminDeviceStatus || 'ACTIVATION_REQUIRED';
+			const successData = buildSuccessPageData(credentials, mfaState, flowType, deviceStatus, credentials.tokenType);
 			return (
 				<MFASuccessPageV8
 					{...props}
