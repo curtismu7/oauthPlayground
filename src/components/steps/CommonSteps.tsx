@@ -210,6 +210,7 @@ export interface StepCredentials {
 	environmentId?: string; // Optional for OAuth flows
 	issuerUrl?: string; // Used by OAuth flows instead of environmentId
 	region?: string; // PingOne region (us, eu, ap, ca, na)
+	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 	redirectUri: string;
 	postLogoutRedirectUri?: string; // Post-logout redirect URI for logout flows
 	scopes?: string; // Should be optional
