@@ -12,6 +12,8 @@ export interface AuthzCredentials {
 	userInfoEndpoint?: string;
 	clientAuthMethod?: string;
 	loginHint?: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca';
+	customDomain?: string;
 }
 
 export interface WorkerTokenCredentials {
@@ -21,6 +23,7 @@ export interface WorkerTokenCredentials {
 	scopes: string[];
 	region: 'us' | 'eu' | 'ap' | 'ca';
 	authMethod: 'client_secret_basic' | 'client_secret_post';
+	customDomain?: string;
 }
 
 export interface ExportedCredentials {
