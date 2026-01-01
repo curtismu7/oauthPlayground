@@ -6,6 +6,7 @@
  */
 
 import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
+import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
@@ -320,7 +321,7 @@ export abstract class MFAFlowController {
 
 	/**
 	 * Initialize device authentication (for existing devices)
-	 * Uses PingOne MFA API: POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
+	 * Uses PingOne MFA API: POST auth.pingone.com/{environmentId}/deviceAuthentications
 	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-initialize-device-authentication
 	 * When deviceId is provided, the request immediately targets that device for OTP delivery.
 	 */
@@ -349,11 +350,14 @@ export abstract class MFAFlowController {
 			policyId: credentials.deviceAuthenticationPolicyId,
 		});
 		
-		// Use PingOne MFA API so the backend follows the official Initialize Device Authentication flow
+		// Use MfaAuthenticationServiceV8 which correctly implements PingOne MFA API
 		// DeviceId in the request body immediately targets this device for OTP
-		const result = await MFAServiceV8.initializeDeviceAuthentication({
-			...credentials,
+		const result = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+			environmentId: credentials.environmentId,
+			username: credentials.username,
+			deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
 			deviceId, // Pass deviceId to immediately trigger authentication for this device
+			region: credentials.region, // Pass region from credentials
 		});
 
 		if (result.status === 'DEVICE_SELECTION_REQUIRED' && deviceId && result.id) {
@@ -375,21 +379,27 @@ export abstract class MFAFlowController {
 
 	/**
 	 * Cancel device authentication
-	 * POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications/{authenticationId}/cancel
+	 * POST auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/cancel
 	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-cancel-device-authentication
 	 */
 	async cancelDeviceAuthentication(
 		credentials: MFACredentials,
 		authenticationId: string
 	): Promise<{ status: string; [key: string]: unknown }> {
-		return await MFAServiceV8.cancelDeviceAuthentication({
-			...credentials,
+		if (!credentials.username) {
+			throw new Error('Username is required to cancel device authentication');
+		}
+		return await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+			credentials.environmentId,
+			credentials.username,
 			authenticationId,
-		});
+			credentials.region // Pass region from credentials
+		);
 	}
 
 	/**
 	 * Select device for authentication (when multiple devices available)
+	 * Uses MfaAuthenticationServiceV8 which correctly implements PingOne MFA API
 	 */
 	async selectDeviceForAuthentication(
 		credentials: MFACredentials,
@@ -397,15 +407,23 @@ export abstract class MFAFlowController {
 		deviceId: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Selecting device for authentication`);
-		return await MFAServiceV8.selectDeviceForAuthentication({
-			...credentials,
+		const result = await MfaAuthenticationServiceV8.selectDeviceForAuthentication({
+			environmentId: credentials.environmentId,
+			username: credentials.username,
 			authenticationId,
 			deviceId,
+			region: credentials.region, // Pass region from credentials
 		});
+		return {
+			status: result.status,
+			nextStep: result.nextStep,
+			...result,
+		};
 	}
 
 	/**
 	 * Validate OTP for device authentication (for existing devices)
+	 * Uses MfaAuthenticationServiceV8.validateOTP() which correctly implements PingOne MFA API
 	 */
 	async validateOTPForDevice(
 		credentials: MFACredentials,
@@ -423,22 +441,27 @@ export abstract class MFAFlowController {
 		setValidationState({ lastValidationError: null });
 
 		try {
-			const result = await MFAServiceV8.validateOTPForDevice({
+			// Use MfaAuthenticationServiceV8.validateOTP() which correctly implements PingOne MFA API
+			// It uses _links.otp.check URL when available, or constructs the correct endpoint
+			const result = await MfaAuthenticationServiceV8.validateOTP({
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				authenticationId,
 				otp: otpCode,
+				region: credentials.region, // Pass region from credentials
+				// otpCheckUrl is optional - if not provided, service will construct endpoint
 			});
 
 			setMfaState({
 				...mfaState,
 				verificationResult: {
 					status: result.status,
-					message: (result.message as string) || 'OTP validated successfully',
+					message: result.message || 'OTP validated successfully',
 				},
 			});
 
-			if (result.status === 'COMPLETED') {
+			// Check valid flag or COMPLETED status
+			if (result.valid || result.status === 'COMPLETED') {
 				setValidationState({ validationAttempts: 0, lastValidationError: null });
 				nav.markStepComplete();
 				toastV8.success('Authentication successful!');
@@ -450,10 +473,10 @@ export abstract class MFAFlowController {
 			} else {
 				setValidationState({
 					validationAttempts: validationState.validationAttempts + 1,
-					lastValidationError: 'Invalid OTP code',
+					lastValidationError: result.message || 'Invalid OTP code',
 				});
-				nav.setValidationErrors(['Invalid OTP code. Please try again.']);
-				toastV8.error('Invalid OTP code');
+				nav.setValidationErrors([result.message || 'Invalid OTP code. Please try again.']);
+				toastV8.error(result.message || 'Invalid OTP code');
 				return false;
 			}
 		} catch (error) {
