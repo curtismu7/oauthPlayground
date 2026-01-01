@@ -245,6 +245,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		clientId: '',
 		clientSecret: '',
 		redirectUri: `${window.location.origin}/authz-callback`,
+		region: 'us' as 'us' | 'eu' | 'ap' | 'ca',
+		customDomain: '',
 	});
 
 	const [errors, setErrors] = useState<Record<string, string>>({});
@@ -637,6 +639,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				clientSecret: formData.clientSecret,
 				redirectUri: formData.redirectUri,
 				scopes: ['openid', 'profile', 'email'],
+				region: formData.region,
+				customDomain: formData.customDomain.trim() || undefined,
 			};
 
 			exportAuthzCredentials(credentials);
@@ -667,6 +671,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						clientId: authz.clientId || formData.clientId,
 						clientSecret: authz.clientSecret || formData.clientSecret,
 						redirectUri: authz.redirectUri || formData.redirectUri,
+						region: authz.region || 'us',
+						customDomain: authz.customDomain || '',
 					};
 
 					setFormData(newFormData);
@@ -861,6 +867,41 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							{errors.redirectUri && <div className="invalid-feedback">{errors.redirectUri}</div>}
 							<div className="form-text">
 								Must match the redirect URI configured in your PingOne application
+							</div>
+						</FormGroup>
+
+						<FormGroup>
+							<label htmlFor="region">Region</label>
+							<select
+								id="region"
+								name="region"
+								value={formData.region}
+								onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
+								disabled={isLoading}
+								style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+							>
+								<option value="us">North America (US)</option>
+								<option value="eu">Europe (EU)</option>
+								<option value="ap">Asia Pacific (AP)</option>
+								<option value="ca">Canada (CA)</option>
+							</select>
+							<div className="form-text">The region where your PingOne environment is hosted</div>
+						</FormGroup>
+
+						<FormGroup>
+							<label htmlFor="customDomain">Custom Domain (Optional)</label>
+							<input
+								type="text"
+								id="customDomain"
+								name="customDomain"
+								value={formData.customDomain}
+								onChange={handleChange}
+								disabled={isLoading}
+								placeholder="auth.yourcompany.com"
+								style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+							/>
+							<div className="form-text">
+								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the region-based domain. Leave empty to use the default region domain.
 							</div>
 						</FormGroup>
 
