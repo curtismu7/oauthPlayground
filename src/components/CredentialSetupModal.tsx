@@ -526,6 +526,19 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			// Save using V7 standardized storage system
 			console.log(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
 
+			// Build base URL - use custom domain if provided, otherwise use region-based domain
+			const baseUrl = formData.customDomain.trim() 
+				? `https://${formData.customDomain.trim()}`
+				: (() => {
+					const regionDomains = {
+						us: 'auth.pingone.com',
+						eu: 'auth.pingone.eu',
+						ap: 'auth.pingone.asia',
+						ca: 'auth.pingone.ca',
+					};
+					return `https://${regionDomains[formData.region]}`;
+				})();
+
 			const v7Credentials = {
 				environmentId: formData.environmentId,
 				clientId: formData.clientId,
@@ -538,9 +551,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				responseType: 'code',
 				grantType: 'authorization_code',
 				issuerUrl: '',
-				authorizationEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
-				tokenEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/token`,
-				userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
+				region: formData.region,
+				customDomain: formData.customDomain.trim() || undefined,
+				authorizationEndpoint: `${baseUrl}/${formData.environmentId}/as/authorize`,
+				tokenEndpoint: `${baseUrl}/${formData.environmentId}/as/token`,
+				userInfoEndpoint: `${baseUrl}/${formData.environmentId}/as/userinfo`,
 				clientAuthMethod: 'client_secret_post',
 				tokenEndpointAuthMethod: 'client_secret_post',
 			};
@@ -563,9 +578,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				clientId: formData.clientId,
 				redirectUri: formData.redirectUri,
 				scopes: ['openid', 'profile', 'email'],
-				authEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
-				tokenEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/token`,
-				userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
+				authEndpoint: `${baseUrl}/${formData.environmentId}/as/authorize`,
+				tokenEndpoint: `${baseUrl}/${formData.environmentId}/as/token`,
+				userInfoEndpoint: `${baseUrl}/${formData.environmentId}/as/userinfo`,
 			});
 
 			const _sessionSuccess = credentialManager.saveSessionCredentials({
