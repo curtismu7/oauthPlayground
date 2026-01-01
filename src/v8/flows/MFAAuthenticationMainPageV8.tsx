@@ -2182,12 +2182,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 											// Initialize device authentication with the specific device
-											const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
-												environmentId: credentials.environmentId,
-												username: usernameInput.trim(),
-												deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-												deviceId: device.id as string,
-											});
+			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
+				environmentId: credentials.environmentId,
+				username: usernameInput.trim(),
+				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+				deviceId: device.id as string,
+				region: credentials.region,
+				customDomain: credentials.customDomain,
+			});
 
 											const status = response.status || '';
 											const nextStep = response.nextStep || '';
@@ -3980,7 +3982,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											authState.authenticationId,
 											assertion,
 											credentials.environmentId,
-											credentials.region // Pass region from credentials
+											credentials.region, // Pass region from credentials
+											credentials.customDomain // Pass custom domain from credentials
 										);
 
 										// After sending assertion, check status and complete authentication
