@@ -144,6 +144,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			registrationPolicyId: stored.registrationPolicyId || '',
 			tokenType: stored.tokenType || 'worker',
 			userToken: stored.userToken || '',
+			region: (stored.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us',
 		};
 	});
 

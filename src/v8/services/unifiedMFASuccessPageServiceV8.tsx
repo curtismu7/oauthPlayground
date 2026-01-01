@@ -76,6 +76,12 @@ export interface UnifiedMFASuccessPageData {
 	
 	// Additional response data (for JSON display)
 	responseData?: Record<string, unknown>;
+	
+	// Flow-specific context for documentation
+	registrationFlowType?: 'admin' | 'user';
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	tokenType?: 'worker' | 'user';
+	clientId?: string; // For Authorization Code Flow documentation
 }
 
 export interface UnifiedMFASuccessPageProps {
@@ -168,7 +174,25 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 		};
 
 		const route = docsRouteMap[deviceType as string] || '/v8/mfa/register/sms/docs';
-		navigate(route);
+		
+		// Pass flow-specific data via location.state for documentation page
+		navigate(route, {
+			state: {
+				registrationFlowType: data.registrationFlowType,
+				adminDeviceStatus: data.adminDeviceStatus,
+				tokenType: data.tokenType,
+				environmentId: data.environmentId,
+				userId: data.userId,
+				deviceId: data.deviceId,
+				policyId: data.policyId,
+				deviceStatus: data.deviceStatus,
+				username: data.username,
+				clientId: data.clientId,
+				phone: data.phone,
+				email: data.email,
+				deviceName: data.deviceName || data.deviceNickname,
+			}
+		});
 	};
 
 	// Show documentation button for all registration flows that have documentation
