@@ -27,6 +27,7 @@ export interface WorkerTokenData {
 	clientSecret: string;
 	scopes?: string[];
 	region?: 'us' | 'eu' | 'ap' | 'ca';
+	customDomain?: string;
 	tokenEndpointAuthMethod?:
 		| 'none'
 		| 'client_secret_basic'
@@ -43,6 +44,7 @@ export interface WorkerTokenCredentials {
 	clientSecret: string;
 	scopes?: string[];
 	region?: 'us' | 'eu' | 'ap' | 'ca';
+	customDomain?: string;
 	tokenEndpointAuthMethod?:
 		| 'none'
 		| 'client_secret_basic'
@@ -99,6 +101,7 @@ class WorkerTokenServiceV8 {
 			clientSecret: credentials.clientSecret,
 			scopes: credentials.scopes || [],
 			region: credentials.region || 'us',
+			customDomain: credentials.customDomain,
 			tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
 			savedAt: Date.now(),
 		};
