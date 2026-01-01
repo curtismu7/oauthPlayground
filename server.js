@@ -7408,9 +7408,14 @@ app.post('/api/pingone/mfa/select-device', async (req, res) => {
 		// Content-Type: application/vnd.pingidentity.device.select+json
 		// Body: { "device": { "id": "{deviceID}" }, "compatibility": "FULL" }
 		// This matches the unified MFA flow format
+		const customDomain = req.body.customDomain;
 		const normalizedRegion = region || 'us';
-		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
-		const authPath = `https://auth.pingone.${tld}`;
+		const authPath = customDomain 
+			? `https://${customDomain}`
+			: (() => {
+				const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
+				return `https://auth.pingone.${tld}`;
+			})();
 		const selectDeviceUrl = `${authPath}/${environmentId}/deviceAuthentications/${resolvedDeviceAuthId}`;
 
 		const requestBody = {
@@ -13230,9 +13235,15 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			});
 		}
 
+		// Get custom domain from request body, or use region-based domain
+		const customDomain = req.body.customDomain;
 		const normalizedRegion = region || 'us';
-		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
-		const authPath = `https://auth.pingone.${tld}`;
+		const authPath = customDomain 
+			? `https://${customDomain}`
+			: (() => {
+				const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
+				return `https://auth.pingone.${tld}`;
+			})();
 
 		const mfaEndpoint = `${authPath}/${environmentId}/deviceAuthentications`;
 
