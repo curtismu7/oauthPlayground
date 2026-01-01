@@ -808,6 +808,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				environmentId: credentials.environmentId,
 				username: usernameInput.trim(),
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+				region: credentials.region,
+				customDomain: credentials.customDomain,
 			});
 
 
