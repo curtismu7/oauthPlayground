@@ -804,7 +804,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			);
 
 			// 2. Initialize MFA Authentication (this returns the devices available for this auth session)
-			const response = await MFAServiceV8.initializeDeviceAuthentication({
+			const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
 				environmentId: credentials.environmentId,
 				username: usernameInput.trim(),
 				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -2182,7 +2182,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											setAuthState((prev) => ({ ...prev, isLoading: true }));
 
 											// Initialize device authentication with the specific device
-											const response = await MFAServiceV8.initializeDeviceAuthentication({
+											const response = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
 												environmentId: credentials.environmentId,
 												username: usernameInput.trim(),
 												deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
@@ -3979,7 +3979,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 										const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
 											authState.authenticationId,
 											assertion,
-											credentials.environmentId
+											credentials.environmentId,
+											credentials.region // Pass region from credentials
 										);
 
 										// After sending assertion, check status and complete authentication
