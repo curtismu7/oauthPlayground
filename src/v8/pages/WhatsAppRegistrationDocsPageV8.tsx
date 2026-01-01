@@ -9,13 +9,48 @@
  */
 
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { MFADocumentationPageV8 } from '../components/MFADocumentationPageV8';
 import { CredentialsServiceV8 } from '../services/credentialsServiceV8';
 
 const FLOW_KEY = 'mfa-flow-v8';
 
 export const WhatsAppRegistrationDocsPageV8: React.FC = () => {
-	// Load credentials from storage to populate documentation with user's actual values
+	const location = useLocation();
+	
+	// Try to get flow-specific data from location.state (when navigating from success page)
+	const flowData = location.state as {
+		registrationFlowType?: 'admin' | 'user';
+		adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+		tokenType?: 'worker' | 'user';
+		environmentId?: string;
+		userId?: string;
+		deviceId?: string;
+		policyId?: string;
+		deviceStatus?: string;
+		username?: string;
+		clientId?: string;
+		phone?: string;
+		email?: string;
+		deviceName?: string;
+	} | null;
+	
+	// Fall back to sessionStorage if location.state is not available
+	let storedFlowData: typeof flowData = null;
+	if (!flowData) {
+		try {
+			const stored = sessionStorage.getItem('mfa-flow-documentation-data');
+			if (stored) {
+				storedFlowData = JSON.parse(stored);
+			}
+		} catch (e) {
+			// Ignore parse errors
+		}
+	}
+	
+	const actualFlowData = flowData || storedFlowData;
+	
+	// Load credentials as fallback
 	const credentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 		flowKey: FLOW_KEY,
 		flowType: 'oidc',
@@ -29,6 +64,21 @@ export const WhatsAppRegistrationDocsPageV8: React.FC = () => {
 		<MFADocumentationPageV8
 			deviceType="WHATSAPP"
 			flowType="registration"
+			registrationFlowType={actualFlowData?.registrationFlowType}
+			adminDeviceStatus={actualFlowData?.adminDeviceStatus}
+			tokenType={actualFlowData?.tokenType}
+			flowSpecificData={{
+				environmentId: actualFlowData?.environmentId || credentials.environmentId,
+				userId: actualFlowData?.userId,
+				deviceId: actualFlowData?.deviceId,
+				policyId: actualFlowData?.policyId || credentials.deviceAuthenticationPolicyId,
+				deviceStatus: actualFlowData?.deviceStatus,
+				username: actualFlowData?.username || credentials.username,
+				clientId: actualFlowData?.clientId || credentials.clientId,
+				phone: actualFlowData?.phone,
+				email: actualFlowData?.email,
+				deviceName: actualFlowData?.deviceName,
+			}}
 			credentials={{
 				environmentId: credentials.environmentId,
 				username: credentials.username,

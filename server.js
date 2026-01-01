@@ -7364,7 +7364,7 @@ app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
 app.post('/api/pingone/mfa/select-device', async (req, res) => {
 	try {
 		// Accept both deviceAuthId and authenticationId for compatibility
-		const { environmentId, deviceAuthId, authenticationId, deviceId, workerToken } = req.body;
+		const { environmentId, deviceAuthId, authenticationId, deviceId, workerToken, region } = req.body;
 		const resolvedDeviceAuthId = deviceAuthId || authenticationId;
 
 		if (!environmentId || !resolvedDeviceAuthId || !deviceId || !workerToken) {
@@ -7408,7 +7408,10 @@ app.post('/api/pingone/mfa/select-device', async (req, res) => {
 		// Content-Type: application/vnd.pingidentity.device.select+json
 		// Body: { "device": { "id": "{deviceID}" }, "compatibility": "FULL" }
 		// This matches the unified MFA flow format
-		const selectDeviceUrl = `https://auth.pingone.com/${environmentId}/deviceAuthentications/${resolvedDeviceAuthId}`;
+		const normalizedRegion = region || 'us';
+		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
+		const authPath = `https://auth.pingone.${tld}`;
+		const selectDeviceUrl = `${authPath}/${environmentId}/deviceAuthentications/${resolvedDeviceAuthId}`;
 
 		const requestBody = {
 			device: { id: deviceId },
@@ -7484,11 +7487,15 @@ app.post('/api/pingone/mfa/select-device', async (req, res) => {
 		}
 
 		// selectDeviceData was already parsed above for logging
+		// PingOne response may include selectedDevice object with id property
+		const selectedDeviceId = selectDeviceData?.selectedDevice?.id || selectDeviceData?.selectedDeviceId || null;
 		console.log('[MFA Device Auth] Device selected successfully:', {
 			status: selectDeviceData.status,
 			nextStep: selectDeviceData.nextStep,
 			challengeId: selectDeviceData.challengeId,
 			hasLinks: !!selectDeviceData._links,
+			selectedDeviceId: selectedDeviceId || 'not in response',
+			requestedDeviceId: deviceId,
 		});
 		res.json(selectDeviceData);
 	} catch (error) {
@@ -10435,6 +10442,10 @@ app.post('/api/pingone/mfa/send-otp', async (req, res) => {
 });
 
 // Validate OTP
+// DEPRECATED: This endpoint uses the wrong API (device activation endpoint instead of device authentication endpoint)
+// Use MfaAuthenticationServiceV8.validateOTP() which correctly uses auth.pingone.com/{envId}/deviceAuthentications/{authId}
+// with Content-Type: application/vnd.pingidentity.otp.check+json
+// This endpoint is kept for backwards compatibility but should not be used
 app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 	try {
 		const { environmentId, userId, deviceId, otp, workerToken } = req.body;
@@ -13137,11 +13148,19 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			policyId,
 			deviceAuthenticationPolicyId,
 			region,
+			oneTimeDevice, // For one-time device authentication (selectedDevice.oneTime)
+			customNotification, // For custom notification messages
 		} = req.body;
-		if (!environmentId || (!userId && !username) || !workerToken) {
+		// No-username variant: Allow initialization without username/userId if oneTimeDevice is provided
+		if (!environmentId || !workerToken) {
 			return res.status(400).json({
-				error:
-					'Missing required fields: environmentId, userId (or username), and workerToken are required',
+				error: 'Missing required fields: environmentId and workerToken are required',
+			});
+		}
+		// If no oneTimeDevice, username or userId is required
+		if (!oneTimeDevice && !userId && !username) {
+			return res.status(400).json({
+				error: 'Missing required fields: userId, username, or oneTimeDevice must be provided',
 			});
 		}
 
@@ -13211,25 +13230,47 @@ app.post('/api/pingone/mfa/initialize-device-authentication', async (req, res) =
 			});
 		}
 
-		const normalizedRegion = region || 'na';
-		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' ? 'asia' : 'com';
+		const normalizedRegion = region || 'us';
+		const tld = normalizedRegion === 'eu' ? 'eu' : normalizedRegion === 'asia' || normalizedRegion === 'ap' ? 'asia' : normalizedRegion === 'ca' ? 'ca' : 'com';
 		const authPath = `https://auth.pingone.${tld}`;
 
 		const mfaEndpoint = `${authPath}/${environmentId}/deviceAuthentications`;
 
-		const requestBody = {
-			user: {
+		const requestBody = {};
+		
+		// Add user only if userId is provided (no-username variant omits this)
+		if (resolvedUserId) {
+			requestBody.user = {
 				id: resolvedUserId,
-			},
-		};
+			};
+		}
 
-		if (deviceId) {
-			requestBody.device = { id: deviceId };
+		// Handle one-time device authentication (selectedDevice.oneTime)
+		if (oneTimeDevice) {
+			requestBody.selectedDevice = {
+				oneTime: {
+					type: oneTimeDevice.type, // EMAIL, SMS, or VOICE
+					...(oneTimeDevice.type === 'EMAIL' && oneTimeDevice.email && { email: oneTimeDevice.email }),
+					...((oneTimeDevice.type === 'SMS' || oneTimeDevice.type === 'VOICE') && oneTimeDevice.phone && { phone: oneTimeDevice.phone }),
+				},
+			};
+		} else if (deviceId) {
+			// Use selectedDevice.id per PingOne MFA API documentation
+			// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#mfa-device-authentications
+			requestBody.selectedDevice = { id: deviceId };
 		}
 
 		const resolvedPolicyId = policyId || deviceAuthenticationPolicyId;
 		if (resolvedPolicyId) {
 			requestBody.policy = { id: resolvedPolicyId };
+		}
+		
+		// Add custom notification if provided
+		if (customNotification) {
+			requestBody.notification = {
+				...(customNotification.message && { message: customNotification.message }),
+				...(customNotification.variables && { variables: customNotification.variables }),
+			};
 		}
 
 		console.log('[MFA Initialize Device Auth] Request details', {
