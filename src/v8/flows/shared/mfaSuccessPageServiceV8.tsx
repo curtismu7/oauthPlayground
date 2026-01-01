@@ -41,6 +41,10 @@ export interface MFASuccessPageData {
 	fido2CredentialId?: string;
 	secret?: string;
 	keyUri?: string;
+	// Flow-specific context
+	registrationFlowType?: 'admin' | 'user';
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	tokenType?: 'worker' | 'user';
 }
 
 export interface MFASuccessPageProps extends MFAFlowBaseRenderProps {
@@ -175,6 +179,10 @@ const convertToUnifiedData = (
 			keyUri: successData.keyUri,
 		},
 		timestamp: successData.createdAt || successData.updatedAt || new Date().toISOString(),
+		registrationFlowType: successData.registrationFlowType,
+		adminDeviceStatus: successData.adminDeviceStatus,
+		tokenType: successData.tokenType || credentials.tokenType,
+		clientId: credentials.clientId,
 	};
 };
 
@@ -199,7 +207,10 @@ export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({ successData, c
  */
 export const buildSuccessPageData = (
 	credentials: MFACredentials,
-	mfaState: MFAFlowBaseRenderProps['mfaState']
+	mfaState: MFAFlowBaseRenderProps['mfaState'],
+	registrationFlowType?: 'admin' | 'user',
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED',
+	tokenType?: 'worker' | 'user'
 ): MFASuccessPageData => {
 	return {
 		deviceId: mfaState.deviceId || '',
@@ -217,6 +228,9 @@ export const buildSuccessPageData = (
 		fido2CredentialId: mfaState.fido2CredentialId,
 		secret: mfaState.secret,
 		keyUri: mfaState.keyUri,
+		registrationFlowType,
+		adminDeviceStatus,
+		tokenType,
 	};
 };
 
