@@ -1565,7 +1565,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			// If validation is complete, show success screen using shared service
 			// Close modal and show success page directly in step 4 (like SMS flow)
 			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
-				const successData = buildSuccessPageData(credentials, mfaState);
+				const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 				return (
 					<MFASuccessPageV8
 						{...props}
@@ -1579,7 +1579,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 4) {
 				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
 				if (deviceRegisteredActive || mfaState.verificationResult) {
-					const successData = buildSuccessPageData(credentials, mfaState);
+					const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 					return (
 						<MFASuccessPageV8
 							{...props}

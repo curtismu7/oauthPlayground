@@ -32,6 +32,8 @@ export interface MFACredentials {
 	// Token configuration per rightTOTP.md: Support Worker Token OR User Token (access token from implicit)
 	tokenType?: TokenType; // 'worker' or 'user'
 	userToken?: string; // Access token from implicit flow (when tokenType is 'user')
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 	[key: string]: unknown;
 }
 

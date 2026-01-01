@@ -1282,20 +1282,17 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		// If device was just registered with ACTIVE status, show success page using unified service
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE' && !showModal) {
-			// Build success data from deviceRegisteredActive
-			const successData: MFASuccessPageData = {
+			// Build success data from deviceRegisteredActive using helper function
+			const tempMfaState = {
 				deviceId: deviceRegisteredActive.deviceId,
-				deviceType: deviceRegisteredActive.deviceType || credentials.deviceType || 'SMS',
 				deviceStatus: deviceRegisteredActive.status,
 				nickname: deviceRegisteredActive.deviceName,
-				username: deviceRegisteredActive.username || credentials.username,
-				...(deviceRegisteredActive.userId && { userId: deviceRegisteredActive.userId }),
-				environmentId: deviceRegisteredActive.environmentId || credentials.environmentId,
-				...(deviceRegisteredActive.createdAt && { createdAt: deviceRegisteredActive.createdAt }),
-				...(deviceRegisteredActive.updatedAt && { updatedAt: deviceRegisteredActive.updatedAt }),
-				...(credentials.phoneNumber && { phone: getFullPhoneNumber(credentials) }),
-				...(credentials.email && { email: credentials.email }),
-			};
+				userId: deviceRegisteredActive.userId,
+				environmentId: deviceRegisteredActive.environmentId,
+				createdAt: deviceRegisteredActive.createdAt,
+				updatedAt: deviceRegisteredActive.updatedAt,
+			} as MFAFlowBaseRenderProps['mfaState'];
+			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 			return (
 				<MFASuccessPageV8
 					{...props}
@@ -1311,20 +1308,17 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		// If modal is closed but we have a successfully registered ACTIVE device, show success page using unified service
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (!showModal && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
-			// Build success data from deviceRegisteredActive
-			const successData: MFASuccessPageData = {
+			// Build success data from deviceRegisteredActive using helper function
+			const tempMfaState = {
 				deviceId: deviceRegisteredActive.deviceId,
-				deviceType: deviceRegisteredActive.deviceType || credentials.deviceType || 'SMS',
 				deviceStatus: deviceRegisteredActive.status,
 				nickname: deviceRegisteredActive.deviceName,
-				username: deviceRegisteredActive.username || credentials.username,
-				...(deviceRegisteredActive.userId && { userId: deviceRegisteredActive.userId }),
-				environmentId: deviceRegisteredActive.environmentId || credentials.environmentId,
-				...(deviceRegisteredActive.createdAt && { createdAt: deviceRegisteredActive.createdAt }),
-				...(deviceRegisteredActive.updatedAt && { updatedAt: deviceRegisteredActive.updatedAt }),
-				...(credentials.phoneNumber && { phone: getFullPhoneNumber(credentials) }),
-				...(credentials.email && { email: credentials.email }),
-			};
+				userId: deviceRegisteredActive.userId,
+				environmentId: deviceRegisteredActive.environmentId,
+				createdAt: deviceRegisteredActive.createdAt,
+				updatedAt: deviceRegisteredActive.updatedAt,
+			} as MFAFlowBaseRenderProps['mfaState'];
+			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 			return (
 				<MFASuccessPageV8
 					{...props}
@@ -2158,7 +2152,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					setShowValidationModal(false);
 				}
 				
-				const successData = buildSuccessPageData(credentials, mfaState);
+				const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 				return (
 					<MFASuccessPageV8
 						{...props}
@@ -2174,7 +2168,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				// Device is already active, show success page
 				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
 				if (deviceRegisteredActive || mfaState.verificationResult) {
-					const successData = buildSuccessPageData(credentials, mfaState);
+					const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 					return (
 						<MFASuccessPageV8
 							{...props}

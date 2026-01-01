@@ -1091,7 +1091,16 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE' && !showModal) {
 			// Build success data from deviceRegisteredActive
-			const successData = buildSuccessPageData(deviceRegisteredActive, credentials);
+			const tempMfaState = {
+				deviceId: deviceRegisteredActive.deviceId,
+				deviceStatus: deviceRegisteredActive.status,
+				nickname: deviceRegisteredActive.deviceName,
+				userId: deviceRegisteredActive.userId,
+				environmentId: deviceRegisteredActive.environmentId,
+				createdAt: deviceRegisteredActive.createdAt,
+				updatedAt: deviceRegisteredActive.updatedAt,
+			} as MFAFlowBaseRenderProps['mfaState'];
+			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 			return (
 				<MFASuccessPageV8
 					{...props}
@@ -1108,7 +1117,16 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
 		if (!showModal && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
 			// Build success data from deviceRegisteredActive
-			const successData = buildSuccessPageData(deviceRegisteredActive, credentials);
+			const tempMfaState = {
+				deviceId: deviceRegisteredActive.deviceId,
+				deviceStatus: deviceRegisteredActive.status,
+				nickname: deviceRegisteredActive.deviceName,
+				userId: deviceRegisteredActive.userId,
+				environmentId: deviceRegisteredActive.environmentId,
+				createdAt: deviceRegisteredActive.createdAt,
+				updatedAt: deviceRegisteredActive.updatedAt,
+			} as MFAFlowBaseRenderProps['mfaState'];
+			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 			return (
 				<MFASuccessPageV8
 					{...props}
@@ -1809,7 +1827,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					setShowValidationModal(false);
 				}
 				
-				const successData = buildSuccessPageData(credentials, mfaState);
+				const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 				return (
 					<MFASuccessPageV8
 						{...props}
@@ -1825,7 +1843,7 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				// Device is already active, show success page
 				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
 				if (deviceRegisteredActive || mfaState.verificationResult) {
-					const successData = buildSuccessPageData(credentials, mfaState);
+					const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
 					return (
 						<MFASuccessPageV8
 							{...props}

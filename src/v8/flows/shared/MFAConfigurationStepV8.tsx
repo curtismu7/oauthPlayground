@@ -367,7 +367,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			setUserToken(authToken);
 			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Auth context token validated`, { status, tokenLength: authToken.length });
 		}
-	}, [credentials.userToken, credentials.tokenType, userToken, userTokenStatus, tokenType, authContext.tokens?.access_token, registrationFlowType, validateUserToken]);
+	}, [credentials.userToken, credentials.tokenType, userToken, userTokenStatus, tokenType, authContext.tokens?.access_token, registrationFlowType, validateUserToken, setCredentials, showUserLoginModal]);
 
 	/**
 	 * Update credentials when token type or user token changes.
@@ -1093,6 +1093,112 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 						color: '#6b7280',
 					}}>
 						PingOne environment ID
+					</small>
+				</div>
+
+				<div className="form-group" style={{
+					display: 'flex',
+					flexDirection: 'column',
+				}}>
+					<label 
+						htmlFor="mfa-region"
+						style={{
+							display: 'block',
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '8px',
+						}}
+					>
+						Region
+					</label>
+					<select
+						id="mfa-region"
+						value={credentials.region || 'us'}
+						onChange={(e) =>
+							setCredentials({
+								...credentials,
+								region: e.target.value as 'us' | 'eu' | 'ap' | 'ca' | 'na',
+							})
+						}
+						style={{
+							width: '100%',
+							padding: '12px 14px',
+							border: '1px solid #d1d5db',
+							borderRadius: '6px',
+							fontSize: '14px',
+							background: 'white',
+							color: '#111827',
+							cursor: 'pointer',
+							transition: 'border-color 0.2s ease',
+						}}
+						onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+						onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+					>
+						<option value="us">US (North America) - auth.pingone.com</option>
+						<option value="eu">EU (Europe) - auth.pingone.eu</option>
+						<option value="ap">AP (Asia Pacific) - auth.pingone.asia</option>
+						<option value="ca">CA (Canada) - auth.pingone.ca</option>
+					</select>
+					<small style={{
+						display: 'block',
+						marginTop: '6px',
+						fontSize: '12px',
+						color: '#6b7280',
+					}}>
+						The region where your PingOne environment is hosted
+					</small>
+				</div>
+
+				{/* Custom Domain */}
+				<div style={{
+					marginTop: '20px',
+					display: 'flex',
+					flexDirection: 'column',
+				}}>
+					<label 
+						htmlFor="mfa-custom-domain"
+						style={{
+							display: 'block',
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '8px',
+						}}
+					>
+						Custom Domain (Optional)
+					</label>
+					<input
+						id="mfa-custom-domain"
+						type="text"
+						value={credentials.customDomain || ''}
+						onChange={(e) =>
+							setCredentials({
+								...credentials,
+								customDomain: e.target.value.trim() || undefined,
+							})
+						}
+						placeholder="auth.yourcompany.com"
+						style={{
+							width: '100%',
+							padding: '12px 14px',
+							border: '1px solid #d1d5db',
+							borderRadius: '6px',
+							fontSize: '14px',
+							background: 'white',
+							color: '#111827',
+							transition: 'border-color 0.2s ease',
+						}}
+						onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+						onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+					/>
+					<small style={{
+						display: 'block',
+						marginTop: '6px',
+						fontSize: '12px',
+						color: '#6b7280',
+					}}>
+						Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the region-based domain. Leave empty to use the default region domain.
 					</small>
 				</div>
 

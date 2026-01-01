@@ -31,10 +31,16 @@ export interface AuthenticationCredentials {
 	username?: string; // Optional - can use userId instead
 	userId?: string; // Optional - can use username instead (will be looked up)
 	deviceAuthenticationPolicyId: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
 export interface DeviceAuthenticationInitParams extends AuthenticationCredentials {
 	deviceId?: string; // Optional: target specific device immediately (Phase 1)
+	customNotification?: {
+		message?: string; // Custom notification message template
+		variables?: Record<string, string>; // Variables for message template
+	}; // Optional: custom notification support
 }
 
 /**
@@ -42,9 +48,9 @@ export interface DeviceAuthenticationInitParams extends AuthenticationCredential
  * Used when contact details (email/phone) are stored in our DB, not in PingOne
  */
 export interface OneTimeDeviceAuthenticationParams extends AuthenticationCredentials {
-	type: 'EMAIL' | 'SMS';
+	type: 'EMAIL' | 'SMS' | 'VOICE';
 	email?: string; // Required for EMAIL type
-	phone?: string; // Required for SMS type
+	phone?: string; // Required for SMS or VOICE type
 }
 
 export interface DeviceAuthenticationResponse {
@@ -64,6 +70,7 @@ export interface OTPValidationParams {
 	authenticationId: string;
 	otp: string;
 	otpCheckUrl?: string; // From _links.otp.check.href
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
 }
 
 export interface OTPValidationResult {
@@ -79,6 +86,7 @@ export interface DeviceSelectionParams {
 	userId?: string; // Optional - will be looked up if not provided
 	authenticationId: string;
 	deviceId: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
 }
 
 export interface WebAuthnAuthenticationParams {
@@ -148,7 +156,10 @@ export class MfaAuthenticationServiceV8 {
 				user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
 			} else {
-				throw new Error('Either username or userId must be provided');
+				// No-username variant: Initialize device authentication without username/userId
+				// This requires a special request body structure
+				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+				userId = ''; // Will be omitted from request body
 			}
 
 			// Check user lock status if policy requires it (skipUserLockVerification is false or undefined)
@@ -185,16 +196,32 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			const requestBody = {
+			// Determine region for actual PingOne URL
+			const region = params.region || 'us';
+			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
+
+			const requestBody: Record<string, unknown> = {
 				environmentId: params.environmentId,
-				userId,
+				...(userId && { user: { id: userId } }), // Only include user if userId is provided
 				deviceId: params.deviceId,
 				deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
 				workerToken: cleanToken,
 			};
+			
+			// Add custom notification if provided
+			if (params.customNotification) {
+				requestBody.notification = {
+					message: params.customNotification.message,
+					...(params.customNotification.variables && { variables: params.customNotification.variables }),
+				};
+			}
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/initialize-device-authentication',
+				actualPingOneUrl,
+				isProxy: true,
 				body: {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : undefined,
@@ -351,8 +378,8 @@ export class MfaAuthenticationServiceV8 {
 		if (params.type === 'EMAIL' && !params.email) {
 			throw new Error('Email is required for EMAIL type one-time device authentication');
 		}
-		if (params.type === 'SMS' && !params.phone) {
-			throw new Error('Phone is required for SMS type one-time device authentication');
+		if ((params.type === 'SMS' || params.type === 'VOICE') && !params.phone) {
+			throw new Error(`Phone is required for ${params.type} type one-time device authentication`);
 		}
 
 		try {
@@ -367,12 +394,21 @@ export class MfaAuthenticationServiceV8 {
 				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
 			} else {
-				throw new Error('Either username or userId must be provided');
+				// No-username variant: Initialize device authentication without username/userId
+				// This requires a special request body structure
+				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+				userId = ''; // Will be omitted from request body
 			}
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
+			// Determine region for actual PingOne URL
+			const region = params.region || 'us';
+			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
+
 			const requestBody = {
 				environmentId: params.environmentId,
 				userId,
@@ -388,6 +424,8 @@ export class MfaAuthenticationServiceV8 {
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/initialize-device-authentication',
+				actualPingOneUrl,
+				isProxy: true,
 				body: {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : undefined,
@@ -455,7 +493,7 @@ export class MfaAuthenticationServiceV8 {
 		environmentId: string,
 		usernameOrUserId: string,
 		authenticationId: string,
-		options?: { isUserId?: boolean }
+		options?: { isUserId?: boolean; region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' }
 	): Promise<DeviceAuthenticationResponse> {
 		console.log(`${MODULE_TAG} Reading device authentication status`, { authenticationId, isUserId: options?.isUserId });
 
@@ -485,9 +523,17 @@ export class MfaAuthenticationServiceV8 {
 			const cleanTokenStr = cleanToken || '';
 			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}&workerToken=${encodeURIComponent(cleanTokenStr)}`;
 			
+			// Determine region for actual PingOne URL
+			const region = options?.region || 'us';
+			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}`;
+			
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
 				url: '/api/pingone/mfa/read-device-authentication',
+				actualPingOneUrl,
+				isProxy: true,
 				queryParams: cleanTokenStr
 					? {
 							environmentId,
@@ -657,9 +703,18 @@ export class MfaAuthenticationServiceV8 {
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
 			};
+			
+			// Determine region for actual PingOne URL
+			const region = params.region || 'us';
+			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications/${params.authenticationId}`;
+			
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/select-device',
+				actualPingOneUrl,
+				isProxy: true,
 				body: {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : undefined,
@@ -817,9 +872,13 @@ export class MfaAuthenticationServiceV8 {
 			}
 
 			const result = responseData as Partial<DeviceAuthenticationResponse>;
+			// PingOne response may include selectedDevice object with id property
+			const selectedDeviceId = (result as { selectedDevice?: { id?: string } })?.selectedDevice?.id;
 			console.log(`${MODULE_TAG} Device selected for authentication`, {
 				status: result.status,
 				nextStep: result.nextStep,
+				selectedDeviceId: selectedDeviceId || 'not in response',
+				requestedDeviceId: params.deviceId,
 			});
 
 			// Ensure required fields exist
@@ -1064,8 +1123,11 @@ export class MfaAuthenticationServiceV8 {
 					const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 					userId = user.id as string;
 				} else {
-					throw new Error('Either username or userId must be provided');
-				}
+				// No-username variant: Initialize device authentication without username/userId
+				// This requires a special request body structure
+				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+				userId = ''; // Will be omitted from request body
+			}
 				
 				// Fallback to direct endpoint
 				endpoint = `/mfa/v1/environments/${params.environmentId}/users/${encodeURIComponent(
@@ -1080,9 +1142,15 @@ export class MfaAuthenticationServiceV8 {
 			const requestBody = {
 				otp: params.otp,
 			};
+			
+			// If using otpCheckUrl, it's a direct PingOne API call, not a proxy
+			const isProxyCall = !params.otpCheckUrl;
+			
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: endpoint,
+				actualPingOneUrl: params.otpCheckUrl || endpoint, // Use otpCheckUrl as actual URL if available
+				isProxy: isProxyCall,
 				headers: cleanToken
 					? {
 							'Content-Type': contentType,
@@ -1228,6 +1296,8 @@ export class MfaAuthenticationServiceV8 {
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: completeUrl,
+				actualPingOneUrl: completeUrl, // completeUrl is already a direct PingOne URL from _links
+				isProxy: false, // Direct call to PingOne, not via proxy
 				headers: cleanToken
 					? {
 							'Content-Type': 'application/json',
@@ -1321,7 +1391,8 @@ export class MfaAuthenticationServiceV8 {
 	static async cancelDeviceAuthentication(
 		environmentId: string,
 		username: string,
-		authenticationId: string
+		authenticationId: string,
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
 	): Promise<{ status: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
 
@@ -1329,17 +1400,20 @@ export class MfaAuthenticationServiceV8 {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-			const actualPingOneUrl = `https://api.pingone.com/mfa/v1/environments/${environmentId}/users/${encodeURIComponent(
-				username
-			)}/deviceAuthentications/${authenticationId}/cancel`;
+			// Determine region for actual PingOne URL
+			const actualRegion = region || 'us';
+			const tld = actualRegion === 'eu' ? 'eu' : actualRegion === 'asia' || actualRegion === 'ap' ? 'asia' : actualRegion === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}/cancel`;
 			const proxyEndpoint = '/api/pingone/mfa/cancel-device-authentication';
 
 			// Track API call
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
-				url: actualPingOneUrl,
+				url: proxyEndpoint,
 				actualPingOneUrl,
+				isProxy: true,
 				headers: {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ***REDACTED***`,
@@ -1425,7 +1499,8 @@ export class MfaAuthenticationServiceV8 {
 				userHandle?: string;
 			};
 		},
-		environmentId?: string
+		environmentId?: string,
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
 			deviceAuthId,
@@ -1480,9 +1555,17 @@ export class MfaAuthenticationServiceV8 {
 				environmentId: finalEnvironmentId, // Include environment ID in request body
 				assertion: assertionBody.assertion,
 			};
+			// Determine region for actual PingOne URL
+			const actualRegion = region || 'us';
+			const tld = actualRegion === 'eu' ? 'eu' : actualRegion === 'asia' || actualRegion === 'ap' ? 'asia' : actualRegion === 'ca' ? 'ca' : 'com';
+			const authPath = `https://auth.pingone.${tld}`;
+			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}/assertion`;
+			
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/check-fido2-assertion',
+				actualPingOneUrl,
+				isProxy: true,
 				body: {
 					deviceAuthId,
 					environmentId: finalEnvironmentId, // Include environment ID for display
