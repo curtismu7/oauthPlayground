@@ -2455,7 +2455,7 @@ export class MFAServiceV8 {
 	static async initializeOneTimeDeviceAuthentication(params: {
 		environmentId: string;
 		username: string;
-		type: 'EMAIL' | 'SMS';
+		type: 'EMAIL' | 'SMS' | 'VOICE';
 		email?: string; // Required for EMAIL type
 		phone?: string; // Required for SMS type
 		workerToken?: string;

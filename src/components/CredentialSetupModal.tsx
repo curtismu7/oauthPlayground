@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { FiEye, FiEyeOff, FiLoader, FiLock } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiEye, FiEyeOff, FiLoader, FiLock, FiDownload, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
+import {
+	exportAuthzCredentials,
+	importCredentials,
+	triggerFileImport,
+	type AuthzCredentials,
+} from '../services/credentialExportImportService';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -614,6 +620,83 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		onClose();
 	};
 
+	const handleExport = () => {
+		try {
+			if (!formData.environmentId || !formData.clientId || !formData.clientSecret) {
+				setSaveStatus({
+					type: 'danger',
+					title: 'Export failed',
+					message: 'Please fill in all required fields before exporting.',
+				});
+				return;
+			}
+
+			const credentials: AuthzCredentials = {
+				environmentId: formData.environmentId,
+				clientId: formData.clientId,
+				clientSecret: formData.clientSecret,
+				redirectUri: formData.redirectUri,
+				scopes: ['openid', 'profile', 'email'],
+			};
+
+			exportAuthzCredentials(credentials);
+			setSaveStatus({
+				type: 'success',
+				title: 'Credentials exported!',
+				message: 'Your credentials have been exported to a JSON file.',
+			});
+		} catch (error) {
+			console.error('[CredentialSetupModal] Export error:', error);
+			setSaveStatus({
+				type: 'danger',
+				title: 'Export failed',
+				message: error instanceof Error ? error.message : 'Failed to export credentials.',
+			});
+		}
+	};
+
+	const handleImport = () => {
+		triggerFileImport(async (file) => {
+			try {
+				const imported = await importCredentials(file);
+
+				if (imported.authz) {
+					const authz = imported.authz;
+					const newFormData = {
+						environmentId: authz.environmentId || formData.environmentId,
+						clientId: authz.clientId || formData.clientId,
+						clientSecret: authz.clientSecret || formData.clientSecret,
+						redirectUri: authz.redirectUri || formData.redirectUri,
+					};
+
+					setFormData(newFormData);
+					setOriginalFormData(newFormData);
+					setHasUnsavedChanges(true);
+					setHasBeenSaved(false);
+
+					setSaveStatus({
+						type: 'success',
+						title: 'Credentials imported!',
+						message: 'Your credentials have been imported. Click "Save Configuration" to save them.',
+					});
+				} else {
+					setSaveStatus({
+						type: 'danger',
+						title: 'Import failed',
+						message: 'The selected file does not contain authorization credentials.',
+					});
+				}
+			} catch (error) {
+				console.error('[CredentialSetupModal] Import error:', error);
+				setSaveStatus({
+					type: 'danger',
+					title: 'Import failed',
+					message: error instanceof Error ? error.message : 'Failed to import credentials.',
+				});
+			}
+		});
+	};
+
 	if (!isOpen) {
 		return null;
 	}
@@ -870,29 +953,81 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							Do not show again
 						</label>
 
-						<div style={{ display: 'flex', gap: '0.75rem' }}>
-							<CancelButton onClick={handleCancel} disabled={isLoading}>
-								Cancel
-							</CancelButton>
-							<SaveButton
-								onClick={handleSubmit}
-								disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
-								style={{
-									opacity: hasBeenSaved && !hasUnsavedChanges ? 0.5 : 1,
-									cursor: hasBeenSaved && !hasUnsavedChanges ? 'not-allowed' : 'pointer',
-								}}
-							>
-								{isLoading ? (
-									<>
-										<FiLoader className="animate-spin" />
-										Saving...
-									</>
-								) : hasBeenSaved && !hasUnsavedChanges ? (
-									'Saved'
-								) : (
-									'Save Configuration'
-								)}
-							</SaveButton>
+						<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+							<div style={{ display: 'flex', gap: '0.5rem' }}>
+								<button
+									type="button"
+									onClick={handleExport}
+									disabled={isLoading}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1rem',
+										fontSize: '0.875rem',
+										fontWeight: '500',
+										color: '#3b82f6',
+										background: 'white',
+										border: '1px solid #3b82f6',
+										borderRadius: '6px',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+										opacity: isLoading ? 0.65 : 1,
+									}}
+									title="Export credentials to JSON file"
+								>
+									<FiDownload />
+									Export
+								</button>
+								<button
+									type="button"
+									onClick={handleImport}
+									disabled={isLoading}
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1rem',
+										fontSize: '0.875rem',
+										fontWeight: '500',
+										color: '#10b981',
+										background: 'white',
+										border: '1px solid #10b981',
+										borderRadius: '6px',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+										opacity: isLoading ? 0.65 : 1,
+									}}
+									title="Import credentials from JSON file"
+								>
+									<FiUpload />
+									Import
+								</button>
+							</div>
+							<div style={{ display: 'flex', gap: '0.75rem' }}>
+								<CancelButton onClick={handleCancel} disabled={isLoading}>
+									Cancel
+								</CancelButton>
+								<SaveButton
+									onClick={handleSubmit}
+									disabled={isLoading || (hasBeenSaved && !hasUnsavedChanges)}
+									style={{
+										opacity: hasBeenSaved && !hasUnsavedChanges ? 0.5 : 1,
+										cursor: hasBeenSaved && !hasUnsavedChanges ? 'not-allowed' : 'pointer',
+									}}
+								>
+									{isLoading ? (
+										<>
+											<FiLoader className="animate-spin" />
+											Saving...
+										</>
+									) : hasBeenSaved && !hasUnsavedChanges ? (
+										'Saved'
+									) : (
+										'Save Configuration'
+									)}
+								</SaveButton>
+							</div>
 						</div>
 					</div>
 				</ModalFooter>

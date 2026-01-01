@@ -1492,11 +1492,12 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 					// Call Check Assertion endpoint
 					// Pass environmentId from credentials to avoid loading from storage
-					const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
-						mfaState.authenticationId,
-						assertion,
-						credentials.environmentId
-					);
+										const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
+											mfaState.authenticationId,
+											assertion,
+											credentials.environmentId,
+											credentials.region // Pass region from credentials
+										);
 
 					console.log(`${MODULE_TAG} FIDO2 assertion checked`, {
 						status: assertionResult.status,
@@ -1680,8 +1681,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { mfaState, credentials } = props;
 
-			// Use shared success page service
-			const successData = buildSuccessPageData(credentials, mfaState);
+		// Use shared success page service
+		// FIDO2 flow doesn't use useUnifiedOTPFlow hook, so default to admin flow
+		const successData = buildSuccessPageData(credentials, mfaState, 'admin', 'ACTIVE', credentials.tokenType || 'worker');
 			return (
 				<MFASuccessPageV8
 					{...props}
