@@ -158,17 +158,21 @@ const createPopOutWindow = (
 
 			function isProxyCall(call) {
 				const url = call.url || '';
+				const actualUrl = call.actualPingOneUrl || url;
 				
 				// If isProxy is explicitly set, use that (backend calls set this correctly)
 				if (typeof call.isProxy === 'boolean') {
 					return call.isProxy;
 				}
 				
-				// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
-				// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
-				const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+				// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct URL)
+				// Direct PingOne URLs (standard or custom domain) don't start with /api/
+				// Check both url and actualPingOneUrl for direct URLs
+				const isDirectStandardUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+				const isDirectCustomUrl = actualUrl && actualUrl.startsWith('https://') && !actualUrl.startsWith('/api/') && !url.startsWith('/api/');
+				const isDirectPingOneUrl = isDirectStandardUrl || isDirectCustomUrl;
 				
-				// If it's a direct PingOne URL, it's not a proxy
+				// If it's a direct PingOne URL (standard or custom domain), it's not a proxy
 				if (isDirectPingOneUrl) {
 					return false;
 				}
@@ -214,10 +218,23 @@ const createPopOutWindow = (
 					return String(url || '');
 				}
 				
-				let shortUrl = url
-					.replace('https://api.pingone.com/v1/', '')
-					.replace('https://auth.pingone.com/', 'auth/')
-					.replace('/api/pingone/mfa/', 'mfa/');
+				let shortUrl = url;
+				
+				// Handle standard PingOne domains
+				shortUrl = shortUrl.replace('https://api.pingone.com/v1/', '');
+				shortUrl = shortUrl.replace('https://auth.pingone.com/', 'auth/');
+				shortUrl = shortUrl.replace('https://auth.pingone.eu/', 'auth/');
+				shortUrl = shortUrl.replace('https://auth.pingone.asia/', 'auth/');
+				shortUrl = shortUrl.replace('https://auth.pingone.ca/', 'auth/');
+				
+				// Handle custom domains (match pattern: https://auth.yourcompany.com/ or https://api.yourcompany.com/)
+				// Replace any custom domain with 'auth/' or 'api/' prefix
+				shortUrl = shortUrl.replace(/https:\/\/auth\.([^\/]+)\//, 'auth/');
+				shortUrl = shortUrl.replace(/https:\/\/api\.([^\/]+)\/v1\//, 'api/');
+				
+				// Handle proxy endpoints
+				shortUrl = shortUrl.replace('/api/pingone/mfa/', 'mfa/');
+				
 				if (shortUrl.length > 60) {
 					shortUrl = shortUrl.substring(0, 57) + '...';
 				}
@@ -391,7 +408,7 @@ const createPopOutWindow = (
 																		<div style="color: #6b7280; font-size: 10px; font-weight: 600;">FULL URL:</div>
 																		<button class="copy-btn \${copiedField === 'url-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${urlEscaped}', 'url-\${call.id}')">\${copiedField === 'url-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
 																	</div>
-																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${call.actualPingOneUrl || call.url}</div>
+																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
 																</div>
 																\${hasBody ? \`
 																	<div>
