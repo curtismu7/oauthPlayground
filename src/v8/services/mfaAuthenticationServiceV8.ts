@@ -87,6 +87,7 @@ export interface DeviceSelectionParams {
 	authenticationId: string;
 	deviceId: string;
 	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region: us (North America), eu (Europe), ap (Asia Pacific), ca (Canada), na (alias for us)
+	customDomain?: string; // Custom domain for PingOne API (e.g., auth.yourcompany.com). If provided, overrides region-based domain.
 }
 
 export interface WebAuthnAuthenticationParams {
@@ -110,6 +111,17 @@ export interface AuthenticationCompletionResult {
  * Handles device authentication flows using MFA v1 APIs only
  */
 export class MfaAuthenticationServiceV8 {
+	/**
+	 * Get PingOne auth base URL - uses custom domain if provided, otherwise uses region-based domain
+	 */
+	private static getAuthBaseUrl(region?: 'us' | 'eu' | 'ap' | 'ca' | 'na', customDomain?: string): string {
+		if (customDomain) {
+			return `https://${customDomain}`;
+		}
+		const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+		return `https://auth.pingone.${tld}`;
+	}
+
 	/**
 	 * Initialize device authentication
 	 * POST /mfa/v1/environments/{environmentId}/users/{userId}/deviceAuthentications
@@ -196,10 +208,8 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			// Determine region for actual PingOne URL
-			const region = params.region || 'us';
-			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
 
 			const requestBody: Record<string, unknown> = {
@@ -403,10 +413,8 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			// Determine region for actual PingOne URL
-			const region = params.region || 'us';
-			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
 
 			const requestBody = {
@@ -493,7 +501,7 @@ export class MfaAuthenticationServiceV8 {
 		environmentId: string,
 		usernameOrUserId: string,
 		authenticationId: string,
-		options?: { isUserId?: boolean; region?: 'us' | 'eu' | 'ap' | 'ca' | 'na' }
+		options?: { isUserId?: boolean; region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; customDomain?: string }
 	): Promise<DeviceAuthenticationResponse> {
 		console.log(`${MODULE_TAG} Reading device authentication status`, { authenticationId, isUserId: options?.isUserId });
 
@@ -523,10 +531,8 @@ export class MfaAuthenticationServiceV8 {
 			const cleanTokenStr = cleanToken || '';
 			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}&workerToken=${encodeURIComponent(cleanTokenStr)}`;
 			
-			// Determine region for actual PingOne URL
-			const region = options?.region || 'us';
-			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(options?.region || 'us', options?.customDomain);
 			const actualPingOneUrl = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}`;
 			
 			const callId = apiCallTrackerService.trackApiCall({
@@ -704,10 +710,8 @@ export class MfaAuthenticationServiceV8 {
 				workerToken: cleanToken,
 			};
 			
-			// Determine region for actual PingOne URL
-			const region = params.region || 'us';
-			const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications/${params.authenticationId}`;
 			
 			const callId = apiCallTrackerService.trackApiCall({
@@ -1123,14 +1127,15 @@ export class MfaAuthenticationServiceV8 {
 					const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 					userId = user.id as string;
 				} else {
-				// No-username variant: Initialize device authentication without username/userId
-				// This requires a special request body structure
-				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-				userId = ''; // Will be omitted from request body
-			}
+					// No-username variant: Initialize device authentication without username/userId
+					// This requires a special request body structure
+					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
+					userId = ''; // Will be omitted from request body
+				}
 				
-				// Fallback to direct endpoint
-				endpoint = `/mfa/v1/environments/${params.environmentId}/users/${encodeURIComponent(
+				// Fallback to direct endpoint - use custom domain if provided
+				const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
+				endpoint = `${authPath}/mfa/v1/environments/${params.environmentId}/users/${encodeURIComponent(
 					userId
 				)}/deviceAuthentications/${params.authenticationId}/otp`;
 				contentType = 'application/json';
@@ -1392,7 +1397,8 @@ export class MfaAuthenticationServiceV8 {
 		environmentId: string,
 		username: string,
 		authenticationId: string,
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		customDomain?: string
 	): Promise<{ status: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Canceling device authentication`, { authenticationId });
 
@@ -1400,10 +1406,8 @@ export class MfaAuthenticationServiceV8 {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-			// Determine region for actual PingOne URL
-			const actualRegion = region || 'us';
-			const tld = actualRegion === 'eu' ? 'eu' : actualRegion === 'asia' || actualRegion === 'ap' ? 'asia' : actualRegion === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
 			const actualPingOneUrl = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}/cancel`;
 			const proxyEndpoint = '/api/pingone/mfa/cancel-device-authentication';
 
@@ -1500,7 +1504,8 @@ export class MfaAuthenticationServiceV8 {
 			};
 		},
 		environmentId?: string,
-		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		customDomain?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
 			deviceAuthId,
@@ -1555,10 +1560,8 @@ export class MfaAuthenticationServiceV8 {
 				environmentId: finalEnvironmentId, // Include environment ID in request body
 				assertion: assertionBody.assertion,
 			};
-			// Determine region for actual PingOne URL
-			const actualRegion = region || 'us';
-			const tld = actualRegion === 'eu' ? 'eu' : actualRegion === 'asia' || actualRegion === 'ap' ? 'asia' : actualRegion === 'ca' ? 'ca' : 'com';
-			const authPath = `https://auth.pingone.${tld}`;
+			// Determine base URL - use custom domain if provided, otherwise use region-based domain
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}/assertion`;
 			
 			const callId = apiCallTrackerService.trackApiCall({

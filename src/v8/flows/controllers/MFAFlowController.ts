@@ -208,7 +208,7 @@ export abstract class MFAFlowController {
 	 */
 	async validateOTP(
 		credentials: MFACredentials,
-		deviceId: string,
+		_deviceId: string,
 		otpCode: string,
 		mfaState: MFAState,
 		setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void,
@@ -358,6 +358,7 @@ export abstract class MFAFlowController {
 			deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
 			deviceId, // Pass deviceId to immediately trigger authentication for this device
 			region: credentials.region, // Pass region from credentials
+			customDomain: credentials.customDomain, // Pass custom domain from credentials
 		});
 
 		if (result.status === 'DEVICE_SELECTION_REQUIRED' && deviceId && result.id) {
@@ -389,11 +390,12 @@ export abstract class MFAFlowController {
 		if (!credentials.username) {
 			throw new Error('Username is required to cancel device authentication');
 		}
-		return await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+		return 		await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
 			credentials.environmentId,
 			credentials.username,
 			authenticationId,
-			credentials.region // Pass region from credentials
+			credentials.region, // Pass region from credentials
+			credentials.customDomain // Pass custom domain from credentials
 		);
 	}
 
@@ -413,6 +415,7 @@ export abstract class MFAFlowController {
 			authenticationId,
 			deviceId,
 			region: credentials.region, // Pass region from credentials
+			customDomain: credentials.customDomain, // Pass custom domain from credentials
 		});
 		return {
 			status: result.status,
