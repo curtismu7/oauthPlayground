@@ -14,7 +14,7 @@ import type { MFACredentials } from '@/v8/services/mfaServiceV8';
 const MODULE_TAG = '[📱 MFA-ONE-TIME-V8]';
 
 interface OneTimeDeviceState {
-	deviceType: 'EMAIL' | 'SMS' | null;
+	deviceType: 'EMAIL' | 'SMS' | 'VOICE' | null;
 	contactValue: string;
 	deviceAuthId?: string;
 	otpCheckUrl?: string;
@@ -42,13 +42,13 @@ export default function MFAOneTimeDevicesV8() {
 	const [workerToken, setWorkerToken] = useState<string>('');
 	const [showAdvanced, setShowAdvanced] = useState(false);
 
-	const maskContact = (type: 'EMAIL' | 'SMS', value: string): string => {
+	const maskContact = (type: 'EMAIL' | 'SMS' | 'VOICE', value: string): string => {
 		if (type === 'EMAIL') {
 			const [username, domain] = value.split('@');
 			if (username.length <= 2) return `${username}@${domain}`;
 			return `${username.slice(0, 2)}•••@${domain}`;
 		} else {
-			// SMS phone masking
+			// SMS/VOICE phone masking
 			if (value.length <= 4) return value;
 			const last4 = value.slice(-4);
 			const prefix = value.slice(0, 3);
@@ -76,14 +76,14 @@ export default function MFAOneTimeDevicesV8() {
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				type: deviceState.deviceType,
-				[deviceState.deviceType.toLowerCase()]: deviceState.contactValue,
+				...(deviceState.deviceType === 'EMAIL' ? { email: deviceState.contactValue } : { phone: deviceState.contactValue }),
 				workerToken: token
 			});
 
 			setDeviceState(prev => ({
 				...prev,
 				deviceAuthId: response.id,
-				otpCheckUrl: response._links?.['otp.check']?.href,
+				...(response._links?.['otp.check']?.href && { otpCheckUrl: response._links['otp.check'].href }),
 				otpSent: true,
 				loading: false
 			}));
@@ -112,7 +112,7 @@ export default function MFAOneTimeDevicesV8() {
 				deviceAuthId: deviceState.deviceAuthId,
 				otp: deviceState.otpCode,
 				workerToken: token,
-				otpCheckUrl: deviceState.otpCheckUrl
+				...(deviceState.otpCheckUrl && { otpCheckUrl: deviceState.otpCheckUrl })
 			});
 
 			if (result.valid) {
@@ -217,7 +217,7 @@ export default function MFAOneTimeDevicesV8() {
 							<CardTitle className="text-lg">Phase 1 vs Phase 2 Comparison</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<div className="grid md:grid-cols-2 gap-4">
+							<div className="grid md:grid-cols-3 gap-4">
 								<div className="space-y-4">
 									<div className="p-4 border rounded-lg">
 										<Badge className="mb-2">Phase 1 - Standard Devices</Badge>
@@ -269,7 +269,7 @@ export default function MFAOneTimeDevicesV8() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<div>
 									<Label htmlFor="environmentId">Environment ID</Label>
 									<Input
@@ -315,7 +315,7 @@ export default function MFAOneTimeDevicesV8() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-4">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<Button
 									variant={deviceState.deviceType === 'EMAIL' ? 'default' : 'outline'}
 									onClick={() => setDeviceState(prev => ({ ...prev, deviceType: 'EMAIL' }))}
@@ -332,12 +332,21 @@ export default function MFAOneTimeDevicesV8() {
 									<span className="text-2xl mb-1">📱</span>
 									<span>SMS OTP</span>
 								</Button>
+							<Button
+									variant={deviceState.deviceType === 'VOICE' ? 'default' : 'outline'}
+									onClick={() => setDeviceState(prev => ({ ...prev, deviceType: 'VOICE' }))}
+									className="h-20 flex-col"
+								>
+									<span className="text-2xl mb-1">📞</span>
+									<span>Voice OTP</span>
+								</Button>
 							</div>
+							
 
 							{deviceState.deviceType && (
 								<div>
 									<Label htmlFor="contactValue">
-										{deviceState.deviceType === 'EMAIL' ? 'Email Address' : 'Phone Number'}
+										{deviceState.deviceType === 'EMAIL' ? 'Email Address' : deviceState.deviceType === 'VOICE' ? 'Phone Number (Voice)' : 'Phone Number'}
 									</Label>
 									<Input
 										id="contactValue"
@@ -354,7 +363,7 @@ export default function MFAOneTimeDevicesV8() {
 							)}
 
 							{deviceState.error && (
-								<Alert variant="destructive">
+								<Alert>
 									<AlertDescription>{deviceState.error}</AlertDescription>
 								</Alert>
 							)}

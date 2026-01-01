@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react';
+import { FiDownload, FiUpload } from 'react-icons/fi';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
@@ -14,6 +15,12 @@ import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import pingOneFetch from '@/utils/pingOneFetch';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import {
+	exportWorkerTokenCredentials,
+	importCredentials,
+	triggerFileImport,
+	type WorkerTokenCredentials,
+} from '@/services/credentialExportImportService';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -95,7 +102,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							? parsed.scopes.join(' ')
 							: ''
 					);
-					setRegion(parsed.region || 'us');
+					setRegion('us'); // Always default to 'us' (.com)
 					setAuthMethod(parsed.authMethod || 'client_secret_basic');
 				} catch (e) {
 					console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
@@ -264,6 +271,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 			const data = responseData as { access_token?: string; expires_in?: number };
 			const token = data.access_token;
+			if (!token) {
+				throw new Error('No access token received in response');
+			}
 
 			// Now store token using workerTokenServiceV8 (credentials are already saved)
 			const expiresAt = data.expires_in ? Date.now() + data.expires_in * 1000 : undefined;
@@ -798,42 +808,155 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					</div>
 
 					{/* Actions */}
-					<div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
-						<button
-							type="button"
-							onClick={onClose}
-							style={{
-								flex: 1,
-								padding: '10px 16px',
-								background: '#e5e7eb',
-								color: '#1f2937',
-								border: 'none',
-								borderRadius: '4px',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: 'pointer',
-							}}
-						>
-							Cancel
-						</button>
-						<button
-							type="button"
-							onClick={handleGenerate}
-							disabled={isGenerating}
-							style={{
-								flex: 1,
-								padding: '10px 16px',
-								background: isGenerating ? '#9ca3af' : '#3b82f6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '4px',
-								fontSize: '14px',
-								fontWeight: '600',
-								cursor: isGenerating ? 'not-allowed' : 'pointer',
-							}}
-						>
-							{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
-						</button>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '20px' }}>
+						{/* Export/Import buttons */}
+						<div style={{ display: 'flex', gap: '8px' }}>
+							<button
+								type="button"
+								onClick={() => {
+									try {
+										if (!environmentId.trim() || !clientId.trim() || !clientSecret.trim()) {
+											toastV8.error('Please fill in all required fields before exporting');
+											return;
+										}
+
+										const normalizedScopes = scopeInput
+											.split(/\s+/)
+											.map((scope) => scope.trim())
+											.filter(Boolean);
+
+										const credentials: WorkerTokenCredentials = {
+											environmentId: environmentId.trim(),
+											clientId: clientId.trim(),
+											clientSecret: clientSecret.trim(),
+											scopes: normalizedScopes.length > 0 ? normalizedScopes : [PINGONE_WORKER_MFA_SCOPE_STRING],
+											region,
+											authMethod: (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') ? authMethod : 'client_secret_basic',
+										};
+
+										exportWorkerTokenCredentials(credentials);
+										toastV8.success('Worker token credentials exported successfully!');
+									} catch (error) {
+										console.error(`${MODULE_TAG} Export error:`, error);
+										toastV8.error(error instanceof Error ? error.message : 'Failed to export credentials');
+									}
+								}}
+								disabled={isGenerating}
+								style={{
+									flex: 1,
+									padding: '8px 12px',
+									background: 'white',
+									color: '#3b82f6',
+									border: '1px solid #3b82f6',
+									borderRadius: '4px',
+									fontSize: '13px',
+									fontWeight: '500',
+									cursor: isGenerating ? 'not-allowed' : 'pointer',
+									opacity: isGenerating ? 0.65 : 1,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '6px',
+								}}
+								title="Export credentials to JSON file"
+							>
+								<FiDownload size={14} />
+								Export
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									triggerFileImport(async (file) => {
+										try {
+											const imported = await importCredentials(file);
+
+											if (imported.workerToken) {
+												const wt = imported.workerToken;
+												setEnvironmentId(wt.environmentId || environmentId);
+												setClientId(wt.clientId || clientId);
+												setClientSecret(wt.clientSecret || clientSecret);
+												setScopeInput(
+													Array.isArray(wt.scopes) && wt.scopes.length > 0
+														? wt.scopes.join(' ')
+														: scopeInput
+												);
+												setRegion('us'); // Always default to 'us' (.com)
+												if (wt.authMethod && (wt.authMethod === 'client_secret_basic' || wt.authMethod === 'client_secret_post')) {
+													setAuthMethod(wt.authMethod);
+												}
+
+												toastV8.success('Worker token credentials imported successfully!');
+											} else {
+												toastV8.error('The selected file does not contain worker token credentials');
+											}
+										} catch (error) {
+											console.error(`${MODULE_TAG} Import error:`, error);
+											toastV8.error(error instanceof Error ? error.message : 'Failed to import credentials');
+										}
+									});
+								}}
+								disabled={isGenerating}
+								style={{
+									flex: 1,
+									padding: '8px 12px',
+									background: 'white',
+									color: '#10b981',
+									border: '1px solid #10b981',
+									borderRadius: '4px',
+									fontSize: '13px',
+									fontWeight: '500',
+									cursor: isGenerating ? 'not-allowed' : 'pointer',
+									opacity: isGenerating ? 0.65 : 1,
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '6px',
+								}}
+								title="Import credentials from JSON file"
+							>
+								<FiUpload size={14} />
+								Import
+							</button>
+						</div>
+
+						{/* Main action buttons */}
+						<div style={{ display: 'flex', gap: '8px' }}>
+							<button
+								type="button"
+								onClick={onClose}
+								style={{
+									flex: 1,
+									padding: '10px 16px',
+									background: '#e5e7eb',
+									color: '#1f2937',
+									border: 'none',
+									borderRadius: '4px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: 'pointer',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={handleGenerate}
+								disabled={isGenerating}
+								style={{
+									flex: 1,
+									padding: '10px 16px',
+									background: isGenerating ? '#9ca3af' : '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '4px',
+									fontSize: '14px',
+									fontWeight: '600',
+									cursor: isGenerating ? 'not-allowed' : 'pointer',
+								}}
+							>
+								{isGenerating ? '🔄 Generating...' : '🔑 Generate Token'}
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
