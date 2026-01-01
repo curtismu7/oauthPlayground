@@ -22,6 +22,22 @@ interface MFADocumentationPageV8Props {
 	};
 	currentStep?: number;
 	totalSteps?: number;
+	// Flow-specific props
+	registrationFlowType?: 'admin' | 'user';
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	tokenType?: 'worker' | 'user';
+	flowSpecificData?: {
+		environmentId?: string;
+		userId?: string;
+		deviceId?: string;
+		policyId?: string;
+		deviceStatus?: string;
+		username?: string;
+		clientId?: string;
+		phone?: string;
+		email?: string;
+		deviceName?: string;
+	};
 }
 
 interface ApiCall {
@@ -77,200 +93,588 @@ const DEVICE_DOCS: Record<
 			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device',
 		deviceName: 'FIDO2',
 	},
-	MOBILE_APP: {
+	MOBILE: {
 		registrationApiDocs:
 			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-mobile-app',
 		activationApiDocs:
 			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device',
 		deviceName: 'Mobile App',
 	},
+	VOICE: {
+		registrationApiDocs:
+			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-voice',
+		activationApiDocs:
+			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device',
+		deviceName: 'Voice',
+	},
+	OATH_TOKEN: {
+		registrationApiDocs:
+			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-totp',
+		activationApiDocs:
+			'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-activate-mfa-user-device',
+		deviceName: 'OATH Token',
+	},
+};
+
+/**
+ * Helper function to substitute placeholders with actual values
+ */
+const substituteValues = (
+	template: string,
+	values: Record<string, string | undefined>
+): string => {
+	let result = template;
+	Object.entries(values).forEach(([key, value]) => {
+		if (value) {
+			result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+		}
+	});
+	return result;
 };
 
 const getApiCalls = (
 	deviceType: DeviceType,
-	flowType: 'registration' | 'authentication'
+	flowType: 'registration' | 'authentication',
+	flowSpecificData?: {
+		registrationFlowType?: 'admin' | 'user';
+		adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+		tokenType?: 'worker' | 'user';
+		environmentId?: string;
+		userId?: string;
+		deviceId?: string;
+		policyId?: string;
+		deviceStatus?: string;
+		username?: string;
+		clientId?: string;
+		phone?: string;
+		email?: string;
+		deviceName?: string;
+	}
 ): ApiCall[] => {
-	const deviceInfo = DEVICE_DOCS[deviceType];
-	const baseUrl = 'https://api.pingone.com/v1/environments/{environmentId}/users/{userId}';
+	const registrationFlowType = flowSpecificData?.registrationFlowType || 'admin';
+	const adminDeviceStatus = flowSpecificData?.adminDeviceStatus || 'ACTIVE';
+	
+	// Create value map for substitution
+	const valueMap: Record<string, string> = {
+		environmentId: flowSpecificData?.environmentId || '{environmentId}',
+		userId: flowSpecificData?.userId || '{userId}',
+		deviceId: flowSpecificData?.deviceId || '{deviceId}',
+		deviceAuthenticationPolicyId: flowSpecificData?.policyId || '{deviceAuthenticationPolicyId}',
+		username: flowSpecificData?.username || '{username}',
+		phone: flowSpecificData?.phone || '+1.5125201234',
+		email: flowSpecificData?.email || 'user@example.com',
+		deviceName: flowSpecificData?.deviceName || 'My Device',
+	};
+	
+	const baseUrlTemplate = 'https://api.pingone.com/v1/environments/{environmentId}/users/{userId}';
+	const baseUrl = substituteValues(baseUrlTemplate, valueMap);
 
 	if (flowType === 'registration') {
-		const calls: ApiCall[] = [
-			{
-				step: '1. User Lookup',
+		const calls: ApiCall[] = [];
+		
+		// For USER flow, add Authorization Code Flow steps first
+		if (registrationFlowType === 'user') {
+			// Step 1: Build Authorization URL
+			const authEndpoint = `https://auth.pingone.com/${valueMap.environmentId}/as/authorize`;
+			const redirectUri = '{redirectUri}'; // Placeholder, should be actual redirect URI
+			const scopes = 'openid profile email p1:create:device';
+			const authUrlParams = new URLSearchParams({
+				client_id: flowSpecificData?.clientId || '{clientId}',
+				response_type: 'code',
+				redirect_uri: redirectUri,
+				scope: scopes,
+				state: '{state}',
+				code_challenge: '{codeChallenge}',
+				code_challenge_method: 'S256',
+			});
+			
+			calls.push({
+				step: '1. Build Authorization URL',
 				method: 'GET',
-				endpoint: `${baseUrl.replace('/users/{userId}', '/users')}?filter=username eq "{username}"`,
-				description: 'Find the user by username to get the user ID',
+				endpoint: `${authEndpoint}?${authUrlParams.toString()}`,
+				description: 'Build the authorization URL with PKCE parameters for user authentication',
+				requestBody: {},
+				responseBody: {},
+				notes: [
+					'Uses Authorization Code Flow with PKCE (Proof Key for Code Exchange)',
+					'code_challenge is SHA256 hash of code_verifier',
+					'User will be redirected to PingOne login page',
+				],
+			});
+			
+			// Step 2: User Redirects to Authorization Server
+			calls.push({
+				step: '2. User Redirects to Authorization Server',
+				method: 'GET (Browser Redirect)',
+				endpoint: authEndpoint,
+				description: 'User is redirected to PingOne authorization server for authentication',
+				requestBody: {},
+				responseBody: {},
+				notes: [
+					'This is a browser redirect, not an API call',
+					'User authenticates with PingOne credentials',
+					'After successful authentication, user is redirected back to redirect_uri',
+				],
+			});
+			
+			// Step 3: Authorization Server Returns Authorization Code
+			calls.push({
+				step: '3. Authorization Server Returns Authorization Code',
+				method: 'GET (Browser Redirect)',
+				endpoint: `${redirectUri}?code={authorizationCode}&state={state}`,
+				description: 'Authorization server redirects user back with authorization code',
+				requestBody: {},
+				responseBody: {
+					code: '{authorizationCode}',
+					state: '{state}',
+				},
+				notes: [
+					'Authorization code is returned in the URL query parameters',
+					'Code is single-use and short-lived (typically expires in 1-10 minutes)',
+					'State parameter must match the original state for security',
+				],
+			});
+			
+			// Step 4: Exchange Authorization Code for Access Token
+			const tokenEndpoint = `https://auth.pingone.com/${valueMap.environmentId}/as/token`;
+			calls.push({
+				step: '4. Exchange Authorization Code for Access Token',
+				method: 'POST',
+				endpoint: tokenEndpoint,
+				description: 'Exchange the authorization code for an access token (JWT)',
+				requestBody: {
+					grant_type: 'authorization_code',
+					client_id: flowSpecificData?.clientId || '{clientId}',
+					code: '{authorizationCode}',
+					redirect_uri: redirectUri,
+					code_verifier: '{codeVerifier}',
+				},
+				responseBody: {
+					access_token: '{accessToken}',
+					token_type: 'Bearer',
+					expires_in: 3600,
+					scope: scopes,
+				},
+				notes: [
+					'code_verifier must match the code_challenge from step 1',
+					'Access token is a JWT containing user information including user ID (sub claim)',
+					'This token will be used for device registration API calls',
+				],
+			});
+			
+			// Step 5: Extract User ID from Access Token
+			calls.push({
+				step: '5. Extract User ID from Access Token',
+				method: 'N/A (JWT Decode)',
+				endpoint: 'N/A',
+				description: 'Decode the JWT access token to extract the user ID (sub claim)',
+				requestBody: {},
+				responseBody: {
+					sub: valueMap.userId || '{userId}',
+					exp: 1234567890,
+					iat: 1234564290,
+					scope: scopes,
+				},
+				notes: [
+					'User ID is found in the "sub" (subject) claim of the JWT',
+					'User ID is validated against the session when creating device',
+					'Device registration API will verify the token belongs to the user',
+				],
+			});
+		} else {
+			// For ADMIN flow, start with Worker Token (Client Credentials Grant)
+			const tokenEndpoint = substituteValues('https://auth.pingone.com/{environmentId}/as/token', valueMap);
+			calls.push({
+				step: '1. Get Worker Token (Client Credentials Grant)',
+				method: 'POST',
+				endpoint: tokenEndpoint,
+				description: 'Obtain a worker token using Client Credentials Grant for administrative API calls',
+				requestBody: {
+					grant_type: 'client_credentials',
+					client_id: flowSpecificData?.clientId || '{clientId}',
+					client_secret: '{clientSecret}',
+					scope: 'mfa:device:manage mfa:device:read',
+				},
+				responseBody: {
+					access_token: '{workerToken}',
+					token_type: 'Bearer',
+					expires_in: 3600,
+					scope: 'mfa:device:manage mfa:device:read',
+				},
+				notes: [
+					'Content-Type: application/x-www-form-urlencoded',
+					'Client authentication can use client_secret_post (in body) or client_secret_basic (Authorization header)',
+					'Required scopes: mfa:device:manage, mfa:device:read',
+					'Worker token is used for all subsequent API calls in Admin Flow',
+				],
+			});
+			
+			// Step 2: User Lookup (using worker token)
+			const usersEndpoint = substituteValues('https://api.pingone.com/v1/environments/{environmentId}/users', valueMap);
+			calls.push({
+				step: '2. User Lookup',
+				method: 'GET',
+				endpoint: `${usersEndpoint}?filter=username eq "${valueMap.username}"`,
+				description: 'Find the user by username to get the user ID (Admin Flow)',
 				requestBody: {},
 				responseBody: {
 					_embedded: {
 						users: [
 							{
-								id: 'user-id-123',
-								username: 'john.doe',
-								email: 'john.doe@example.com',
+								id: valueMap.userId || '{userId}',
+								username: valueMap.username || '{username}',
 							},
 						],
 					},
 				},
 				notes: [
-					'Authorization: Bearer {workerToken} for Admin Flow',
-					'Authorization: Bearer {userToken} for User Flow',
-				],
-			},
-		];
-
-		// Add device-specific registration call
-		if (deviceType === 'SMS') {
-			calls.push({
-				step: '2. Register SMS Device',
-				method: 'POST',
-				endpoint: `${baseUrl}/devices`,
-				description: 'Create a new SMS device for the user',
-				requestBody: {
-					type: 'SMS',
-					phone: {
-						number: '+1.5125201234',
-					},
-					nickname: 'My SMS Device',
-					status: 'ACTIVATION_REQUIRED',
-					policy: {
-						id: '{deviceAuthenticationPolicyId}',
-					},
-				},
-				responseBody: {
-					id: 'device-id-123',
-					type: 'SMS',
-					status: 'ACTIVATION_REQUIRED',
-					nickname: 'My SMS Device',
-					phone: {
-						number: '+1.5125201234',
-					},
-					_links: {
-						'device.activate': {
-							href: `${baseUrl}/devices/{deviceId}`,
-						},
-					},
-				},
-				notes: [
-					'Authorization: Bearer {workerToken} for Admin Flow',
-					'Authorization: Bearer {userToken} for User Flow',
-					'Status must be "ACTIVATION_REQUIRED" for User Flow',
-					'Admin Flow can use "ACTIVE" or "ACTIVATION_REQUIRED"',
-					'OTP is automatically sent when status is "ACTIVATION_REQUIRED"',
-				],
-			});
-		} else if (deviceType === 'EMAIL') {
-			calls.push({
-				step: '2. Register Email Device',
-				method: 'POST',
-				endpoint: `${baseUrl}/devices`,
-				description: 'Create a new Email device for the user',
-				requestBody: {
-					type: 'EMAIL',
-					email: 'user@example.com',
-					nickname: 'My Email Device',
-					status: 'ACTIVATION_REQUIRED',
-					policy: {
-						id: '{deviceAuthenticationPolicyId}',
-					},
-				},
-				responseBody: {
-					id: 'device-id-123',
-					type: 'EMAIL',
-					status: 'ACTIVATION_REQUIRED',
-					nickname: 'My Email Device',
-					email: 'user@example.com',
-					_links: {
-						'device.activate': {
-							href: `${baseUrl}/devices/{deviceId}`,
-						},
-					},
-				},
-				notes: [
-					'Authorization: Bearer {workerToken} for Admin Flow',
-					'Authorization: Bearer {userToken} for User Flow',
-					'Status must be "ACTIVATION_REQUIRED" for User Flow',
-					'Admin Flow can use "ACTIVE" or "ACTIVATION_REQUIRED"',
-					'OTP is automatically sent when status is "ACTIVATION_REQUIRED"',
-				],
-			});
-		} else if (deviceType === 'WHATSAPP') {
-			calls.push({
-				step: '2. Register WhatsApp Device',
-				method: 'POST',
-				endpoint: `${baseUrl}/devices`,
-				description: 'Create a new WhatsApp device for the user',
-				requestBody: {
-					type: 'WHATSAPP',
-					phone: {
-						number: '+1.5125201234',
-					},
-					nickname: 'My WhatsApp Device',
-					status: 'ACTIVATION_REQUIRED',
-					policy: {
-						id: '{deviceAuthenticationPolicyId}',
-					},
-				},
-				responseBody: {
-					id: 'device-id-123',
-					type: 'WHATSAPP',
-					status: 'ACTIVATION_REQUIRED',
-					nickname: 'My WhatsApp Device',
-					phone: {
-						number: '+1.5125201234',
-					},
-					_links: {
-						'device.activate': {
-							href: `${baseUrl}/devices/{deviceId}`,
-						},
-					},
-				},
-				notes: [
-					'Authorization: Bearer {workerToken} for Admin Flow',
-					'Authorization: Bearer {userToken} for User Flow',
-					'Status must be "ACTIVATION_REQUIRED" for User Flow',
-					'Admin Flow can use "ACTIVE" or "ACTIVATION_REQUIRED"',
-					'OTP is automatically sent when status is "ACTIVATION_REQUIRED"',
+					'Authorization: Bearer {workerToken} (from step 1)',
+					'Admin flow uses worker token for all API calls',
 				],
 			});
 		}
 
-		// Add activation call for ACTIVATION_REQUIRED devices
-		calls.push({
-			step: '3. Activate Device (if ACTIVATION_REQUIRED)',
-			method: 'POST',
-			endpoint: `${baseUrl}/devices/{deviceId}`,
-			description: 'Activate the device by verifying the OTP code',
-			requestBody: {
-				otp: '123456',
-			},
-			responseBody: {
-				id: 'device-id-123',
-				type: deviceType,
-				status: 'ACTIVE',
-				nickname: 'My Device',
-				updatedAt: '2024-01-15T10:35:00Z',
-			},
-			notes: [
+		// Add device-specific registration call
+		// Determine step number based on flow type
+		const registrationStepNumber = registrationFlowType === 'user' ? '6' : '3';
+		
+		// For user flow, status is always ACTIVATION_REQUIRED
+		// For admin flow, status depends on adminDeviceStatus
+		const deviceStatus = registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
+		
+		// Build device-specific request body
+		let deviceRequestBody: Record<string, unknown> = {
+			type: deviceType,
+			nickname: valueMap.deviceName,
+			status: deviceStatus,
+		};
+		
+		// Add device-specific fields
+		if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
+			deviceRequestBody.phone = { number: valueMap.phone };
+		} else if (deviceType === 'EMAIL') {
+			deviceRequestBody.email = valueMap.email;
+		}
+		
+		// Add policy ID (always included for both flows, as worker tokens are always used)
+		if (valueMap.deviceAuthenticationPolicyId && !valueMap.deviceAuthenticationPolicyId.startsWith('{')) {
+			deviceRequestBody.policy = { id: valueMap.deviceAuthenticationPolicyId };
+		}
+		
+		// Build response body with actual values
+		let deviceResponseBody: Record<string, unknown> = {
+			id: valueMap.deviceId || '{deviceId}',
+			type: deviceType,
+			status: deviceStatus,
+			nickname: valueMap.deviceName,
+		};
+		
+		if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
+			deviceResponseBody.phone = { number: valueMap.phone };
+		} else if (deviceType === 'EMAIL') {
+			deviceResponseBody.email = valueMap.email;
+		}
+		
+		if (deviceStatus === 'ACTIVATION_REQUIRED') {
+			deviceResponseBody._links = {
+				'device.activate': {
+					href: `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}`,
+				},
+			};
+		}
+		
+		// Build notes based on flow type
+		const registrationNotes: string[] = [];
+		if (registrationFlowType === 'user') {
+			registrationNotes.push('Authorization: Bearer {userToken} (from Authorization Code Flow)');
+			registrationNotes.push('User ID is extracted from the access token (JWT sub claim) and validated against the session');
+			registrationNotes.push('Status is always "ACTIVATION_REQUIRED" for User Flow');
+			registrationNotes.push('User flow always requires OTP validation after device registration');
+		} else {
+			registrationNotes.push('Authorization: Bearer {workerToken}');
+			registrationNotes.push('Admin flow uses worker token for API calls');
+			if (adminDeviceStatus === 'ACTIVE') {
+				registrationNotes.push('Admin flow can create ACTIVE devices that skip OTP validation');
+			} else {
+				registrationNotes.push('Admin flow can also create ACTIVATION_REQUIRED devices');
+			}
+		}
+		if (deviceStatus === 'ACTIVATION_REQUIRED') {
+			registrationNotes.push('OTP is automatically sent when status is "ACTIVATION_REQUIRED"');
+		}
+		
+		if (deviceType === 'SMS') {
+			calls.push({
+				step: `${registrationStepNumber}. Register SMS Device`,
+				method: 'POST',
+				endpoint: `${baseUrl}/devices`,
+				description: 'Create a new SMS device for the user',
+				requestBody: deviceRequestBody,
+				responseBody: deviceResponseBody,
+				notes: registrationNotes,
+			});
+		} else if (deviceType === 'EMAIL') {
+			calls.push({
+				step: `${registrationStepNumber}. Register Email Device`,
+				method: 'POST',
+				endpoint: `${baseUrl}/devices`,
+				description: 'Create a new Email device for the user',
+				requestBody: deviceRequestBody,
+				responseBody: deviceResponseBody,
+				notes: registrationNotes,
+			});
+		} else if (deviceType === 'WHATSAPP') {
+			calls.push({
+				step: `${registrationStepNumber}. Register WhatsApp Device`,
+				method: 'POST',
+				endpoint: `${baseUrl}/devices`,
+				description: 'Create a new WhatsApp device for the user',
+				requestBody: deviceRequestBody,
+				responseBody: deviceResponseBody,
+				notes: registrationNotes,
+			});
+		}
+
+		// Add activation call only for ACTIVATION_REQUIRED devices
+		if (deviceStatus === 'ACTIVATION_REQUIRED') {
+			const activationStepNumber = registrationFlowType === 'user' ? '7' : '4';
+			const activationEndpoint = `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}`;
+			
+			const activationNotes: string[] = [
 				'Content-Type: application/vnd.pingidentity.device.activate+json',
-				'Authorization: Bearer {workerToken} for Admin Flow',
-				'Authorization: Bearer {userToken} for User Flow',
-				'Use the device.activate URI from registration response',
-				'OTP is sent automatically when device is created with ACTIVATION_REQUIRED status',
-			],
-		});
+			];
+			
+			if (registrationFlowType === 'user') {
+				activationNotes.push('Authorization: Bearer {userToken} (from Authorization Code Flow)');
+				activationNotes.push('User flow always validates OTP after device registration');
+			} else {
+				activationNotes.push('Authorization: Bearer {workerToken}');
+				activationNotes.push('Admin flow can create ACTIVATION_REQUIRED devices that require OTP validation');
+			}
+			activationNotes.push('Use the device.activate URI from registration response');
+			activationNotes.push('OTP is sent automatically when device is created with ACTIVATION_REQUIRED status');
+			
+			calls.push({
+				step: `${activationStepNumber}. Activate Device (OTP Validation)`,
+				method: 'POST',
+				endpoint: activationEndpoint,
+				description: 'Activate the device by verifying the OTP code',
+				requestBody: {
+					otp: '{otpCode}',
+				},
+				responseBody: {
+					id: valueMap.deviceId || '{deviceId}',
+					type: deviceType,
+					status: 'ACTIVE',
+					nickname: valueMap.deviceName,
+					updatedAt: new Date().toISOString(),
+				},
+				notes: activationNotes,
+			});
+		}
 
 		return calls;
 	}
 
-	// Authentication flow API calls would go here
-	return [];
+	// Authentication flow API calls
+	const calls: ApiCall[] = [];
+	
+	// Step 1: Get Worker Token (Client Credentials Grant) - Required for all authentication API calls
+	const tokenEndpoint = substituteValues('https://auth.pingone.com/{environmentId}/as/token', valueMap);
+	calls.push({
+		step: '1. Get Worker Token (Client Credentials Grant)',
+		method: 'POST',
+		endpoint: tokenEndpoint,
+		description: 'Obtain a worker token using Client Credentials Grant for MFA device authentication API calls',
+		requestBody: {
+			grant_type: 'client_credentials',
+			client_id: flowSpecificData?.clientId || '{clientId}',
+			client_secret: '{clientSecret}',
+			scope: 'mfa:device:manage mfa:device:read',
+		},
+		responseBody: {
+			access_token: '{workerToken}',
+			token_type: 'Bearer',
+			expires_in: 3600,
+			scope: 'mfa:device:manage mfa:device:read',
+		},
+		notes: [
+			'Content-Type: application/x-www-form-urlencoded',
+			'Client authentication can use client_secret_post (in body) or client_secret_basic (Authorization header)',
+			'Required scopes: mfa:device:manage, mfa:device:read',
+			'Worker token is used for all subsequent MFA authentication API calls',
+		],
+	});
+	
+	// Step 2: Initialize Device Authentication
+	const authPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications', valueMap);
+	calls.push({
+		step: '2. Initialize Device Authentication',
+		method: 'POST',
+		endpoint: authPath,
+		description: 'Initialize a device authentication session for MFA verification',
+		requestBody: {
+			user: {
+				id: valueMap.userId || '{userId}',
+			},
+			selectedDevice: deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP' 
+				? { id: valueMap.deviceId || '{deviceId}' }
+				: undefined,
+			policy: {
+				id: valueMap.deviceAuthenticationPolicyId || '{deviceAuthenticationPolicyId}',
+			},
+		},
+		responseBody: {
+			id: '{authenticationId}',
+			status: deviceType === 'FIDO2' ? 'ASSERTION_REQUIRED' : 'OTP_REQUIRED',
+			nextStep: deviceType === 'FIDO2' ? 'ASSERTION_REQUIRED' : 'OTP_REQUIRED',
+			_links: {
+				'otp.check': {
+					href: `${authPath}/{authenticationId}/otp/check`,
+				},
+			},
+		},
+		notes: [
+			'Authorization: Bearer {workerToken} (from step 1)',
+			'Content-Type: application/json',
+			'selectedDevice.id is optional - can be included to target specific device immediately',
+			'If selectedDevice.id is provided, OTP/assertion is sent immediately',
+			'Response status indicates next required action: OTP_REQUIRED, ASSERTION_REQUIRED, or DEVICE_SELECTION_REQUIRED',
+		],
+	});
+	
+	// Step 3: Select Device (if status is DEVICE_SELECTION_REQUIRED)
+	if (deviceType === 'FIDO2') {
+		// For FIDO2, add device selection step (if multiple devices)
+		const selectDevicePath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}', valueMap);
+		calls.push({
+			step: '3. Select Device for Authentication (if multiple devices)',
+			method: 'POST',
+			endpoint: `${selectDevicePath} (from _links.device.select.href)`,
+			description: 'Select a specific FIDO2 device when multiple devices are available',
+			requestBody: {
+				selectedDevice: {
+					id: valueMap.deviceId || '{deviceId}',
+				},
+			},
+			responseBody: {
+				id: '{authenticationId}',
+				status: 'ASSERTION_REQUIRED',
+				nextStep: 'ASSERTION_REQUIRED',
+				_links: {
+					'assertion.check': {
+						href: `${selectDevicePath}/assertion/check`,
+					},
+				},
+			},
+			notes: [
+				'Authorization: Bearer {workerToken}',
+				'Content-Type: application/vnd.pingidentity.device.select+json',
+				'Only required if Initialize Device Authentication returned DEVICE_SELECTION_REQUIRED status',
+				'Use the device.select URI from the _links in the initialize response',
+			],
+		});
+	}
+	
+	// Step 4: Validate OTP or Check Assertion
+	if (deviceType === 'FIDO2') {
+		// FIDO2 Assertion Check
+		const assertionCheckPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/assertion', valueMap);
+		calls.push({
+			step: `${deviceType === 'FIDO2' ? '4' : '3'}. Check FIDO2 Assertion`,
+			method: 'POST',
+			endpoint: assertionCheckPath,
+			description: 'Validate the WebAuthn assertion from the FIDO2 device',
+			requestBody: {
+				assertion: {
+					id: '{credentialId}',
+					rawId: '{rawId}',
+					type: 'public-key',
+					response: {
+						clientDataJSON: '{clientDataJSON}',
+						authenticatorData: '{authenticatorData}',
+						signature: '{signature}',
+						userHandle: '{userHandle}',
+					},
+				},
+			},
+			responseBody: {
+				id: '{authenticationId}',
+				status: 'COMPLETED',
+				nextStep: 'COMPLETED',
+				_links: {
+					complete: {
+						href: `${assertionCheckPath}/complete`,
+					},
+				},
+			},
+			notes: [
+				'Authorization: Bearer {workerToken}',
+				'Content-Type: application/vnd.pingidentity.assertion.check+json',
+				'Assertion data comes from navigator.credentials.get() WebAuthn API',
+				'Use the assertion.check URI from _links in the previous response',
+			],
+		});
+	} else {
+		// OTP Validation for SMS/Email/WhatsApp
+		const otpCheckPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/otp/check', valueMap);
+		calls.push({
+			step: '3. Validate OTP',
+			method: 'POST',
+			endpoint: `${otpCheckPath} (from _links.otp.check.href)`,
+			description: 'Validate the OTP code received via SMS/Email/WhatsApp',
+			requestBody: {
+				otp: '{otpCode}',
+			},
+			responseBody: {
+				id: '{authenticationId}',
+				status: 'COMPLETED',
+				nextStep: 'COMPLETED',
+				_links: {
+					complete: {
+						href: `${otpCheckPath.replace('/otp/check', '/complete')}`,
+					},
+				},
+			},
+			notes: [
+				'Authorization: Bearer {workerToken}',
+				'Content-Type: application/vnd.pingidentity.otp.check+json',
+				'Use the otp.check URI from _links in the Initialize Device Authentication response',
+				'OTP code is sent automatically when device authentication is initialized',
+			],
+		});
+	}
+	
+	// Step 5: Complete Authentication (optional, if complete link is available)
+	const completePath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/complete', valueMap);
+	const completeStepNumber = deviceType === 'FIDO2' ? '5' : '4';
+	calls.push({
+		step: `${completeStepNumber}. Complete Authentication (optional)`,
+		method: 'POST',
+		endpoint: `${completePath} (from _links.complete.href)`,
+		description: 'Complete the device authentication session (optional step if complete link is provided)',
+		requestBody: {},
+		responseBody: {
+			id: '{authenticationId}',
+			status: 'COMPLETED',
+		},
+		notes: [
+			'Authorization: Bearer {workerToken}',
+			'Content-Type: application/json',
+			'This step is optional - authentication may be considered complete after OTP/assertion validation',
+			'Use the complete URI from _links in the previous response if available',
+		],
+	});
+	
+	return calls;
 };
 
 const generateMarkdown = (
 	deviceType: DeviceType,
 	flowType: 'registration' | 'authentication',
-	apiCalls: ApiCall[]
+	apiCalls: ApiCall[],
+	registrationFlowType?: 'admin' | 'user',
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED'
 ): string => {
 	const deviceInfo = DEVICE_DOCS[deviceType];
 	const title = `Ping Identity - ${deviceInfo.deviceName} MFA ${flowType === 'registration' ? 'Registration' : 'Authentication'} Flow`;
@@ -294,17 +698,41 @@ const generateMarkdown = (
 	md += `- **Activation API:** [${deviceInfo.activationApiDocs}](${deviceInfo.activationApiDocs})\n`;
 	md += `- **PingOne MFA API Docs:** https://apidocs.pingidentity.com/pingone/mfa/v1/api/\n\n`;
 
-	md += `## Flow Rules\n\n`;
-	md += `### Admin Flow\n`;
-	md += `- **Token Type:** Worker Token (Client Credentials Grant)\n`;
-	md += `- **Status Options:** Can choose \`ACTIVE\` or \`ACTIVATION_REQUIRED\`\n`;
-	md += `- **Use Case:** Administrative device provisioning\n\n`;
+	// Add flow-specific explanation section
+	if (registrationFlowType) {
+		md += `## Flow Type: ${registrationFlowType === 'user' ? 'User Flow' : 'Admin Flow'}\n\n`;
+		
+		if (registrationFlowType === 'user') {
+			md += `This documentation is for a **User Flow** registration.\n\n`;
+			md += `### User Flow Characteristics:\n\n`;
+			md += `- **Authentication Method:** Uses Authorization Code Flow with PKCE (Proof Key for Code Exchange) for user authentication\n`;
+			md += `- **User ID Validation:** User ID is extracted from the access token (JWT sub claim) and validated against the session when creating the device\n`;
+			md += `- **Device Status:** Always \`ACTIVATION_REQUIRED\` - user flows must require OTP validation for security\n`;
+			md += `- **OTP Validation:** User flow always validates OTP after device registration\n`;
+			md += `- **Token Usage:** API calls use the user's access token obtained from the Authorization Code Flow\n\n`;
+		} else {
+			md += `This documentation is for an **Admin Flow** registration using the **${adminDeviceStatus || 'ACTIVE'}** path.\n\n`;
+			md += `### Admin Flow Characteristics:\n\n`;
+			md += `- **Token Usage:** Uses worker token (Client Credentials Grant) for all API calls\n`;
+			md += `- **Two Paths Available:**\n`;
+			md += `  - **ACTIVE:** Device is ready immediately, no OTP validation needed\n`;
+			md += `  - **ACTIVATION_REQUIRED:** Device requires OTP validation before use\n`;
+			md += `- **Current Flow:** This documentation shows the **${adminDeviceStatus || 'ACTIVE'}** path\n`;
+			md += `- **Use Case:** Administrative device provisioning where admin can choose the appropriate path based on security requirements\n\n`;
+		}
+	} else {
+		md += `## Flow Rules\n\n`;
+		md += `### Admin Flow\n`;
+		md += `- **Token Type:** Worker Token (Client Credentials Grant)\n`;
+		md += `- **Status Options:** Can choose \`ACTIVE\` or \`ACTIVATION_REQUIRED\`\n`;
+		md += `- **Use Case:** Administrative device provisioning\n\n`;
 
-	md += `### User Flow\n`;
-	md += `- **Token Type:** User Token (Access Token from Authorization Code Flow)\n`;
-	md += `- **Status Options:** Always \`ACTIVATION_REQUIRED\` (security requirement)\n`;
-	md += `- **Use Case:** User self-service device registration\n`;
-	md += `- **Authentication:** User must authenticate with PingOne before device registration\n\n`;
+		md += `### User Flow\n`;
+		md += `- **Token Type:** User Token (Access Token from Authorization Code Flow)\n`;
+		md += `- **Status Options:** Always \`ACTIVATION_REQUIRED\` (security requirement)\n`;
+		md += `- **Use Case:** User self-service device registration\n`;
+		md += `- **Authentication:** User must authenticate with PingOne before device registration\n\n`;
+	}
 
 	md += `## API Calls\n\n`;
 
@@ -698,11 +1126,15 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 	credentials: _credentials,
 	currentStep,
 	totalSteps,
+	registrationFlowType: _registrationFlowType,
+	adminDeviceStatus: _adminDeviceStatus,
+	tokenType: _tokenType,
+	flowSpecificData,
 }) => {
 	const navigate = useNavigate();
 	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]));
 	const deviceInfo = DEVICE_DOCS[deviceType];
-	const apiCalls = getApiCalls(deviceType, flowType);
+	const apiCalls = getApiCalls(deviceType, flowType, flowSpecificData);
 
 	const toggleSection = (index: number): void => {
 		setExpandedSections((prev) => {
