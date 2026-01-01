@@ -408,6 +408,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								allCredentials.redirectUri ||
 								oldCredentials?.redirectUri ||
 								`${window.location.origin}/authz-callback`,
+							region: (allCredentials.region || oldCredentials?.region || 'us') as 'us' | 'eu' | 'ap' | 'ca',
+							customDomain: allCredentials.customDomain || oldCredentials?.customDomain || '',
 						};
 						setFormData(newFormData);
 						setOriginalFormData(newFormData);
