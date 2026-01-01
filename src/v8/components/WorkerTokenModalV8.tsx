@@ -42,6 +42,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [clientSecret, setClientSecret] = useState('');
 	const [scopeInput, setScopeInput] = useState(PINGONE_WORKER_MFA_SCOPE_STRING);
 	const [region, setRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>('us');
+	const [customDomain, setCustomDomain] = useState<string>('');
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_basic');
 	const [showSecret, setShowSecret] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
@@ -103,6 +104,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							: ''
 					);
 					setRegion('us'); // Always default to 'us' (.com)
+					setCustomDomain(parsed.customDomain || '');
 					setAuthMethod(parsed.authMethod || 'client_secret_basic');
 				} catch (e) {
 					console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
@@ -143,19 +145,24 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				clientSecret: clientSecret.trim(),
 				scopes: normalizedScopes,
 				region,
+				customDomain: customDomain.trim() || undefined,
 				authMethod,
 			};
 			localStorage.setItem('worker_credentials_v8', JSON.stringify(credsToSave));
 		}
 
-		// Build token endpoint
-		const regionDomains = {
-			us: 'auth.pingone.com',
-			eu: 'auth.pingone.eu',
-			ap: 'auth.pingone.asia',
-			ca: 'auth.pingone.ca',
-		};
-		const domain = regionDomains[region];
+		// Build token endpoint - use custom domain if provided, otherwise use region-based domain
+		const domain = customDomain.trim() 
+			? customDomain.trim()
+			: (() => {
+				const regionDomains = {
+					us: 'auth.pingone.com',
+					eu: 'auth.pingone.eu',
+					ap: 'auth.pingone.asia',
+					ca: 'auth.pingone.ca',
+				};
+				return regionDomains[region];
+			})();
 		const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
 		const params = new URLSearchParams({
@@ -211,6 +218,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 				clientSecret: clientSecret.trim(),
 				scopes: scopeList,
 				region,
+				customDomain: customDomain.trim() || undefined,
 				tokenEndpointAuthMethod: authMethod,
 			});
 
@@ -733,6 +741,39 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							</select>
 						</div>
 
+						{/* Custom Domain */}
+						<div>
+							<label
+								htmlFor="customDomain"
+								style={{
+									display: 'block',
+									fontWeight: '600',
+									fontSize: '13px',
+									color: '#374151',
+									marginBottom: '6px',
+								}}
+							>
+								Custom Domain (Optional)
+							</label>
+							<input
+								id="customDomain"
+								type="text"
+								value={customDomain}
+								onChange={(e) => setCustomDomain(e.target.value)}
+								placeholder="auth.yourcompany.com"
+								style={{
+									width: '100%',
+									padding: '10px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '4px',
+									fontSize: '14px',
+								}}
+							/>
+							<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the region-based domain. Leave empty to use the default region domain.
+							</small>
+						</div>
+
 						{/* Token Endpoint Authentication */}
 						<div>
 							<label
@@ -831,6 +872,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											clientSecret: clientSecret.trim(),
 											scopes: normalizedScopes.length > 0 ? normalizedScopes : [PINGONE_WORKER_MFA_SCOPE_STRING],
 											region,
+											customDomain: customDomain.trim() || undefined,
 											authMethod: (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') ? authMethod : 'client_secret_basic',
 										};
 
@@ -881,6 +923,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 														: scopeInput
 												);
 												setRegion('us'); // Always default to 'us' (.com)
+												setCustomDomain(wt.customDomain || '');
 												if (wt.authMethod && (wt.authMethod === 'client_secret_basic' || wt.authMethod === 'client_secret_post')) {
 													setAuthMethod(wt.authMethod);
 												}
