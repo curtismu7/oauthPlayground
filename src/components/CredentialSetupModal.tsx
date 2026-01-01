@@ -294,6 +294,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				clientId: envConfig.clientId || '',
 				clientSecret: envConfig.clientSecret || '', // Pre-populate client secret from .env
 				redirectUri: envConfig.redirectUri || `${window.location.origin}/authz-callback`,
+				region: 'us' as 'us' | 'eu' | 'ap' | 'ca',
+				customDomain: '',
 			};
 
 			console.log(
@@ -329,6 +331,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							responseType: 'code',
 							grantType: 'authorization_code',
 							issuerUrl: '',
+							region: 'us',
+							customDomain: '',
 							authorizationEndpoint: '',
 							tokenEndpoint: '',
 							userInfoEndpoint: '',
@@ -347,6 +351,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							clientSecret: v7Credentials.credentials.clientSecret || '',
 							redirectUri:
 								v7Credentials.credentials.redirectUri || `${window.location.origin}/authz-callback`,
+							region: (v7Credentials.credentials.region || 'us') as 'us' | 'eu' | 'ap' | 'ca',
+							customDomain: v7Credentials.credentials.customDomain || '',
 						};
 						setFormData(newFormData);
 						setOriginalFormData(newFormData);
@@ -930,7 +936,20 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								name="authEndpoint"
 								value={
 									formData.environmentId
-										? `https://auth.pingone.com/${formData.environmentId}/as/authorize`
+										? (() => {
+											const baseUrl = formData.customDomain.trim() 
+												? `https://${formData.customDomain.trim()}`
+												: (() => {
+													const regionDomains = {
+														us: 'auth.pingone.com',
+														eu: 'auth.pingone.eu',
+														ap: 'auth.pingone.asia',
+														ca: 'auth.pingone.ca',
+													};
+													return `https://${regionDomains[formData.region]}`;
+												})();
+											return `${baseUrl}/${formData.environmentId}/as/authorize`;
+										})()
 										: ''
 								}
 								readOnly
