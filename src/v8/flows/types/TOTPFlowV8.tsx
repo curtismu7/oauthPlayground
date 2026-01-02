@@ -22,7 +22,6 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
 import type { MFACredentials } from '../shared/MFATypes';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
@@ -358,7 +357,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const [activationError, setActivationError] = useState<string | null>(null);
 
 	// Track successful registration
-	const [deviceRegisteredActive, setDeviceRegisteredActive] = useState<{
+	const [_deviceRegisteredActive, _setDeviceRegisteredActive] = useState<{
 		deviceId: string;
 		deviceName: string;
 		deviceType: 'TOTP';
@@ -492,7 +491,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		};
 
 		loadDevices();
-	}, [deviceLoadTrigger?.currentStep, deviceLoadTrigger?.environmentId, deviceLoadTrigger?.username, deviceLoadTrigger?.tokenValid, isConfigured, controller, deviceSelection.existingDevices.length, deviceSelection.loadingDevices]);
+	}, [deviceLoadTrigger, isConfigured, controller, deviceSelection.existingDevices.length, deviceSelection.loadingDevices]);
 
 	// Step 1: Device Selection (inline, similar to SMS)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
@@ -993,8 +992,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					</div>
 				</div>
 			</div>
+			</>
 		);
-	}, [showModal, step2ModalDrag, controller, navigate]);
+	}, [showModal, step2ModalDrag, controller, navigate, registrationFlowType, adminDeviceStatus]);
 
 	// Step 3: Scan QR Code & Activate (Modal - ALWAYS shown, activation OTP only if ACTIVATION_REQUIRED)
 	const renderStep3QrCode = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -1376,8 +1376,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					</div>
 				</div>
 			</div>
+			</>
 		);
-	}, [showQrModal, step3ModalDrag, qrCodeUrl, totpSecret, navigate, controller, activationOtp, setActivationOtp, activationError, setActivationError]);
+	}, [showQrModal, step3ModalDrag, qrCodeUrl, totpSecret]);
 
 	// Step 4: Validate OTP (Modal - for authentication after device is activated)
 	const renderStep4Validate = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -1489,6 +1490,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header with Logo */}
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 					<div
 						onMouseDown={step4ModalDrag.handleMouseDown}
 						style={{
@@ -1705,8 +1707,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					</div>
 				</div>
 			</div>
+			</>
 		);
-	}, [showValidationModal, step4ModalDrag, validationState, setValidationState, navigate]);
+	}, [showValidationModal, step4ModalDrag, validationState, setValidationState, navigate, controller]);
 
 	// Validation function for Step 0
 	const validateStep0 = (
