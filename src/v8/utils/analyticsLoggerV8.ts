@@ -2,40 +2,58 @@
  * @file analyticsLoggerV8.ts
  * @module v8/utils
  * @description Silent analytics logger that doesn't spam console with connection errors
- * @version 8.1.0
+ * @version 8.2.0
  *
  * Uses a circuit breaker pattern to avoid repeated connection attempts when server is unavailable.
- * Since browsers log network errors from sendBeacon, we check server availability first
- * using a lightweight HEAD request with a very short timeout.
+ * Since browsers log network errors from sendBeacon, we use a cached availability check
+ * and skip calls when server is known to be unavailable.
  */
 
 // Circuit breaker state - track if server is known to be unavailable
 let serverUnavailable = false;
 let lastCheckTime = 0;
+let availabilityCheckPromise: Promise<boolean> | null = null;
 const CHECK_INTERVAL = 30000; // Check again after 30 seconds
-const SERVER_CHECK_TIMEOUT = 50; // Very short timeout for availability check (50ms)
+const SERVER_CHECK_TIMEOUT = 100; // Short timeout for availability check (100ms)
 
 /**
  * Check if analytics server is available
- * Uses a lightweight HEAD request with short timeout
+ * Uses a lightweight OPTIONS request with short timeout
+ * Caches the result to avoid repeated checks
  */
 async function checkServerAvailability(): Promise<boolean> {
+	// If we already have a check in progress, return that promise
+	if (availabilityCheckPromise) {
+		return availabilityCheckPromise;
+	}
+
 	const url = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
 	const controller = new AbortController();
 	const timeoutId = setTimeout(() => controller.abort(), SERVER_CHECK_TIMEOUT);
 
-	try {
-		const response = await fetch(url, {
-			method: 'HEAD',
-			signal: controller.signal,
-			mode: 'no-cors', // Avoid CORS errors, we just want to know if server responds
-		});
-		clearTimeout(timeoutId);
-		return true; // Server responded (even if with error, it means server is up)
-	} catch {
-		clearTimeout(timeoutId);
-		return false; // Server is not available
-	}
+	availabilityCheckPromise = (async () => {
+		try {
+			// Use OPTIONS request which is lightweight and doesn't require CORS preflight
+			// Use no-cors mode to avoid CORS errors - we just want to know if server responds
+			await fetch(url, {
+				method: 'OPTIONS',
+				signal: controller.signal,
+				mode: 'no-cors',
+			});
+			clearTimeout(timeoutId);
+			return true; // Request was sent (server might be available)
+		} catch {
+			clearTimeout(timeoutId);
+			return false; // Server is not available
+		} finally {
+			// Clear the promise after a short delay to allow reuse
+			setTimeout(() => {
+				availabilityCheckPromise = null;
+			}, 1000);
+		}
+	})();
+
+	return availabilityCheckPromise;
 }
 
 /**
@@ -53,25 +71,32 @@ export function sendAnalyticsLog(data: Record<string, unknown>): void {
 		}
 		// Reset flag to try again after interval
 		serverUnavailable = false;
+		availabilityCheckPromise = null; // Clear cached check
 	}
 
-	// Check server availability asynchronously (don't await to avoid blocking)
-	// If server is unavailable, mark it and skip this call
+	// Check server availability and send analytics if available
+	// Use fire-and-forget pattern to avoid blocking
 	void (async () => {
-		const isAvailable = await checkServerAvailability();
-		if (!isAvailable) {
-			serverUnavailable = true;
-			lastCheckTime = Date.now();
-			return; // Don't send analytics if server is unavailable
-		}
-
-		// Server is available, send the analytics
 		try {
+			const isAvailable = await checkServerAvailability();
+			if (!isAvailable) {
+				serverUnavailable = true;
+				lastCheckTime = Date.now();
+				return; // Don't send analytics if server is unavailable
+			}
+
+			// Server appears to be available, send the analytics
 			const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
 			const url = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
-			navigator.sendBeacon(url, blob);
+			const sent = navigator.sendBeacon(url, blob);
+
+			// If sendBeacon returns false, mark server as unavailable
+			if (!sent) {
+				serverUnavailable = true;
+				lastCheckTime = Date.now();
+			}
 		} catch {
-			// Silently ignore errors
+			// Silently ignore errors and mark server as unavailable
 			serverUnavailable = true;
 			lastCheckTime = Date.now();
 		}
