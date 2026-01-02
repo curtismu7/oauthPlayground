@@ -36,8 +36,211 @@ import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
-// Step 0: Configure Credentials (TOTP-specific - uses shared component)
-const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof useLocation>, credentialsUpdatedRef: React.MutableRefObject<boolean>) => {
+interface TOTPConfigureStepProps extends MFAFlowBaseRenderProps {
+	registrationFlowType?: 'admin' | 'user';
+	setRegistrationFlowType?: (type: 'admin' | 'user') => void;
+	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	setAdminDeviceStatus?: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void;
+}
+
+const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
+	const { registrationFlowType = 'admin', setRegistrationFlowType, adminDeviceStatus = 'ACTIVE', setAdminDeviceStatus } = props;
+
+	// Ref to prevent infinite loops in bidirectional sync
+	const isSyncingRef = React.useRef(false);
+
+	// Bidirectional sync between Registration Flow Type and tokenType dropdown
+	React.useEffect(() => {
+		if (isSyncingRef.current) return;
+		
+		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
+		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
+		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
+			console.log(`${MODULE_TAG} User Flow selected - ensuring User Token is used`);
+			isSyncingRef.current = true;
+			props.setCredentials((prev) => ({
+				...prev,
+				tokenType: 'user',
+			}));
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
+			console.log(`${MODULE_TAG} Admin Flow selected - ensuring Worker Token is used`);
+			isSyncingRef.current = true;
+			if (props.showUserLoginModal) {
+				props.setShowUserLoginModal(false);
+			}
+			props.setCredentials((prev) => ({
+				...prev,
+				tokenType: 'worker',
+				userToken: '',
+			}));
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		}
+	}, [registrationFlowType, props.credentials.tokenType, props.credentials.userToken, props.showUserLoginModal, props.setCredentials, props.setShowUserLoginModal]);
+
+	// When tokenType dropdown changes, sync to Registration Flow Type
+	React.useEffect(() => {
+		if (isSyncingRef.current) return;
+		
+		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
+			console.log(`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`);
+			setRegistrationFlowType?.('admin');
+			return;
+		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
+			console.log(`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`);
+			setRegistrationFlowType?.('user');
+			return;
+		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
+			isSyncingRef.current = true;
+			setRegistrationFlowType?.('admin');
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		}
+	}, [props.credentials.tokenType, registrationFlowType, setRegistrationFlowType]);
+
+	return (
+		<>
+			{/* Registration Flow Type Selection */}
+			<div style={{ 
+				marginBottom: '28px',
+				padding: '20px',
+				background: '#ffffff',
+				borderRadius: '8px',
+				border: '1px solid #e5e7eb',
+				boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+			}}>
+				{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are inside */}
+				<label style={{ display: 'block', marginBottom: '12px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+					Registration Flow Type
+					<MFAInfoButtonV8 contentKey="mfa.registrationFlowType" displayMode="tooltip" />
+				</label>
+				<div style={{ display: 'flex', gap: '16px' }}>
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button inside handles keyboard events */}
+					<label
+						style={{
+							flex: 1,
+							padding: '16px',
+							border: `2px solid ${registrationFlowType === 'admin' ? '#3b82f6' : '#d1d5db'}`,
+							borderRadius: '8px',
+							background: registrationFlowType === 'admin' ? '#eff6ff' : 'white',
+							cursor: 'pointer',
+							transition: 'all 0.2s ease',
+						}}
+						onClick={() => setRegistrationFlowType?.('admin')}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+							<input
+								type="radio"
+								name="registration-flow-type"
+								value="admin"
+								checked={registrationFlowType === 'admin'}
+								onChange={() => setRegistrationFlowType?.('admin')}
+								style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
+							/>
+							<div style={{ flex: 1 }}>
+								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>Admin Flow</span>
+								<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+									Using Worker Token
+								</div>
+							</div>
+						</div>
+						{registrationFlowType === 'admin' && (
+							<div style={{ marginLeft: '28px', marginTop: '8px' }}>
+								{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are below */}
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontWeight: '500', color: '#374151' }}>
+									Device Status:
+								</label>
+								<div style={{ display: 'flex', gap: '12px' }}>
+									<label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+										<input
+											type="radio"
+											name="admin-device-status"
+											value="ACTIVE"
+											checked={adminDeviceStatus === 'ACTIVE'}
+											onChange={() => setAdminDeviceStatus?.('ACTIVE')}
+											style={{ margin: 0, cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '13px', color: '#374151' }}>ACTIVE</span>
+									</label>
+									<label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+										<input
+											type="radio"
+											name="admin-device-status"
+											value="ACTIVATION_REQUIRED"
+											checked={adminDeviceStatus === 'ACTIVATION_REQUIRED'}
+											onChange={() => setAdminDeviceStatus?.('ACTIVATION_REQUIRED')}
+											style={{ margin: 0, cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '13px', color: '#374151' }}>ACTIVATION_REQUIRED</span>
+									</label>
+								</div>
+							</div>
+						)}
+					</label>
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button inside handles keyboard events */}
+					<label
+						style={{
+							flex: 1,
+							padding: '16px',
+							border: `2px solid ${registrationFlowType === 'user' ? '#3b82f6' : '#d1d5db'}`,
+							borderRadius: '8px',
+							background: registrationFlowType === 'user' ? '#eff6ff' : 'white',
+							cursor: 'pointer',
+							transition: 'all 0.2s ease',
+						}}
+						onClick={() => setRegistrationFlowType?.('user')}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+							<input
+								type="radio"
+								name="registration-flow-type"
+								value="user"
+								checked={registrationFlowType === 'user'}
+								onChange={() => setRegistrationFlowType?.('user')}
+								style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
+							/>
+							<div style={{ flex: 1 }}>
+								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>User Flow</span>
+								<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+									Using access token from User Authentication
+								</div>
+							</div>
+						</div>
+						<div style={{ fontSize: '13px', color: '#6b7280', marginLeft: '28px', lineHeight: '1.5', padding: '8px 12px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
+							<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP validation required for device activation
+						</div>
+					</label>
+				</div>
+				<small style={{ display: 'block', marginTop: '12px', fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
+					Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow always requires activation.
+				</small>
+			</div>
+			
+			<MFAConfigurationStepV8
+				{...props}
+				deviceType="TOTP"
+				deviceTypeLabel="TOTP"
+				policyDescription="Determines which PingOne policy governs TOTP challenges."
+			/>
+		</>
+	);
+};
+
+// Step 0: Configure Credentials (TOTP-specific - includes flow selection)
+const createRenderStep0 = (
+	isConfigured: boolean, 
+	location: ReturnType<typeof useLocation>, 
+	credentialsUpdatedRef: React.MutableRefObject<boolean>,
+	registrationFlowType: 'admin' | 'user',
+	setRegistrationFlowType: (type: 'admin' | 'user') => void,
+	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED',
+	setAdminDeviceStatus: (status: 'ACTIVE' | 'ACTIVATION_REQUIRED') => void
+) => {
 	return (props: MFAFlowBaseRenderProps) => {
 		const { nav, credentials, setCredentials } = props;
 		const locationState = location.state as { 
@@ -65,11 +268,12 @@ const createRenderStep0 = (isConfigured: boolean, location: ReturnType<typeof us
 		}
 		
 		return (
-			<MFAConfigurationStepV8
+			<TOTPConfigureStep
 				{...props}
-				deviceType="TOTP"
-				deviceTypeLabel="TOTP"
-				policyDescription="Determines which PingOne policy governs TOTP challenges."
+				registrationFlowType={registrationFlowType}
+				setRegistrationFlowType={setRegistrationFlowType}
+				adminDeviceStatus={adminDeviceStatus}
+				setAdminDeviceStatus={setAdminDeviceStatus}
 			/>
 		);
 	};
@@ -169,6 +373,18 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	// Track API display visibility and height for dynamic padding
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 	const [apiDisplayHeight, setApiDisplayHeight] = useState(0);
+
+	// Device registration flow type: 'admin' (can choose ACTIVE or ACTIVATION_REQUIRED) or 'user' (always ACTIVATION_REQUIRED)
+	const initialLocationState = location.state as { 
+		registrationFlowType?: 'admin' | 'user';
+		adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	} | null;
+	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>(
+		initialLocationState?.registrationFlowType || 'admin'
+	);
+	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
+		initialLocationState?.adminDeviceStatus || 'ACTIVE'
+	);
 
 	useEffect(() => {
 		const checkVisibility = () => {
@@ -444,7 +660,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					deviceName: userEnteredDeviceName,
 				};
 				
-				const result = await controller.registerDevice(registrationCredentials, controller.getDeviceRegistrationParams(registrationCredentials));
+				// Determine device status based on flow type
+				const deviceStatus = registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
+				
+				const result = await controller.registerDevice(
+					registrationCredentials, 
+					controller.getDeviceRegistrationParams(registrationCredentials, deviceStatus)
+				);
 				
 				// Extract secret and keyUri from response
 				const deviceResponse = result as Record<string, unknown> & {
@@ -1471,7 +1693,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			</div>
 		);
-	}, [showValidationModal, step4ModalDrag, mfaState, setMfaState, credentials, tokenStatus, controller, validationState, setValidationState, navigate]);
+	}, [showValidationModal, step4ModalDrag, validationState, setValidationState, navigate]);
 
 	// Validation function for Step 0
 	const validateStep0 = (
@@ -1491,7 +1713,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		}}>
 			<MFAFlowBaseV8
 				deviceType="TOTP"
-				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef)}
+				renderStep0={createRenderStep0(isConfigured, location, credentialsUpdatedRef, registrationFlowType, setRegistrationFlowType, adminDeviceStatus, setAdminDeviceStatus)}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2Register}
 				renderStep3={renderStep3QrCode}
