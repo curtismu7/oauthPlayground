@@ -657,7 +657,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			return () => clearInterval(checkClosed);
 		}
 		return undefined;
-	}, [popOutWindow, apiCalls, showP1Only]);
+	}, [popOutWindow, apiCalls]);
 
 	// Listen for font size changes and filter changes from pop-out window
 	useEffect(() => {
@@ -797,7 +797,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 										data: call.response.data,
 									}
 								: undefined,
-							timestamp: new Date(call.timestamp),
+							timestamp: new Date(call.timestamp).getTime(),
 							duration: call.duration,
 							source: (call.source as 'frontend' | 'backend') || 'backend',
 							isProxy: call.isProxy || false,
@@ -926,6 +926,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					// Store actualPingOneUrl separately for display purposes
 					const originalUrl = call.url || '';
 					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl;
+					const isProxy = (call as { isProxy?: boolean }).isProxy;
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
 						method: String(call.method || 'GET'),
@@ -935,8 +936,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							call.timestamp instanceof Date
 								? call.timestamp.getTime()
 								: new Date(call.timestamp).getTime(),
-						actualPingOneUrl: actualPingOneUrl,
-						isProxy: (call as { isProxy?: boolean }).isProxy,
+						...(actualPingOneUrl !== undefined && { actualPingOneUrl }),
+						...(isProxy !== undefined && { isProxy }),
 					};
 					if (call.response) {
 						apiCall.response = {
@@ -956,7 +957,10 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error updating API calls:`, error);
 		}
-	}, [flowFilter, previousCallCount, showP1Only, serverHealth.isOnline, excludePatterns, includePatterns]);
+		// Note: excludePatterns and includePatterns are NOT in dependencies because
+		// the function uses excludePatternsRef.current and includePatternsRef.current internally.
+		// The refs are updated in a separate useEffect that triggers updateCalls when they change.
+	}, [flowFilter, showP1Only, serverHealth.isOnline, previousCallCount]);
 
 	// Store updateCalls in ref so it can be called from other effects
 	updateCallsRef.current = updateCalls;
