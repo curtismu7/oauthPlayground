@@ -28,9 +28,17 @@ export interface MFAConfiguration {
 	otpResendDelay: number; // seconds
 	fido2: {
 		preferredAuthenticatorType: 'platform' | 'cross-platform' | 'both';
-		requireUserVerification: boolean;
+		userVerification: 'discouraged' | 'preferred' | 'required';
 		discoverableCredentials: 'discouraged' | 'preferred' | 'required';
 		relyingPartyId: string;
+		relyingPartyIdType: 'pingone' | 'custom' | 'other';
+		fidoDeviceAggregation: boolean;
+		publicKeyCredentialHints: Array<'security-key' | 'client-device' | 'hybrid'>;
+		backupEligibility: 'allow' | 'disallow';
+		enforceBackupEligibilityDuringAuth: boolean;
+		attestationRequest: 'none' | 'direct' | 'enterprise';
+		includeEnvironmentName: boolean;
+		includeOrganizationName: boolean;
 	};
 	pushNotificationTimeout: number; // seconds
 	pushPollingInterval: number; // seconds
@@ -73,9 +81,17 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 	otpResendDelay: 30, // 30 seconds
 	fido2: {
 		preferredAuthenticatorType: 'both',
-		requireUserVerification: true,
-		discoverableCredentials: 'preferred',
-		relyingPartyId: window.location.hostname,
+		userVerification: 'required',
+		discoverableCredentials: 'required',
+		relyingPartyId: window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname,
+		relyingPartyIdType: 'other',
+		fidoDeviceAggregation: true,
+		publicKeyCredentialHints: [],
+		backupEligibility: 'allow',
+		enforceBackupEligibilityDuringAuth: true,
+		attestationRequest: 'none',
+		includeEnvironmentName: true,
+		includeOrganizationName: true,
 	},
 	pushNotificationTimeout: 120, // 2 minutes
 	pushPollingInterval: 2, // 2 seconds

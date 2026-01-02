@@ -281,12 +281,26 @@ const _extractFido2AssertionOptions = (
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
 	
-	// Extended location state type to include policy IDs from configuration page
+	// Extended location state type to include policy IDs and FIDO2 config from configuration page
 	const locationState = location.state as {
 		deviceType?: string;
 		fido2PolicyId?: string;
 		deviceAuthPolicyId?: string;
 		configured?: boolean;
+		fido2Config?: {
+			preferredAuthenticatorType: 'platform' | 'cross-platform' | 'both';
+			userVerification: 'discouraged' | 'preferred' | 'required';
+			discoverableCredentials: 'discouraged' | 'preferred' | 'required';
+			relyingPartyId: string;
+			relyingPartyIdType: 'pingone' | 'custom' | 'other';
+			fidoDeviceAggregation: boolean;
+			publicKeyCredentialHints: Array<'security-key' | 'client-device' | 'hybrid'>;
+			backupEligibility: 'allow' | 'disallow';
+			enforceBackupEligibilityDuringAuth: boolean;
+			attestationRequest: 'none' | 'direct' | 'enterprise';
+			includeEnvironmentName: boolean;
+			includeOrganizationName: boolean;
+		};
 	} | null;
 	
 	const isConfigured = locationState?.configured === true;
@@ -1104,10 +1118,12 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				// 6. PingOne marks device ACTIVE and it becomes usable
 				// Note: FIDO2 activation is WebAuthn-based, NOT OTP-based (per fido2-2.md section 1)
 				// This is all handled by registerFIDO2Device method
+				// Pass FIDO2 config from location state if available
 				const fido2Result = await controller.registerFIDO2Device(
 					registrationCredentials, 
 					deviceResult.deviceId,
-					publicKeyCredentialCreationOptions
+					publicKeyCredentialCreationOptions,
+					locationState?.fido2Config
 				);
 				
 				setMfaState({
