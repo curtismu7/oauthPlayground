@@ -21,7 +21,7 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
-import type { DeviceType, MFACredentials } from '../shared/MFATypes';
+import type { MFACredentials } from '../shared/MFATypes';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -80,7 +80,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-	}, [registrationFlowType, props.credentials.tokenType, props.credentials.userToken, props.showUserLoginModal, props.setCredentials, props.setShowUserLoginModal]);
+	}, [registrationFlowType, props.credentials.tokenType, props.showUserLoginModal, props.setCredentials, props.setShowUserLoginModal]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	React.useEffect(() => {
@@ -1565,6 +1565,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 						{/* OTP Input */}
 						<div style={{ marginBottom: '16px' }}>
+							{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is associated with MFAOTPInput component */}
 							<label
 								style={{
 									display: 'block',
