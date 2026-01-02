@@ -66,7 +66,7 @@ export class FIDO2FlowController extends MFAFlowController {
 		return errors.length === 0;
 	}
 
-	getDeviceRegistrationParams(credentials: MFACredentials, status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVATION_REQUIRED'): Partial<RegisterDeviceParams> {
+	getDeviceRegistrationParams(credentials: MFACredentials, _status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVATION_REQUIRED'): Partial<RegisterDeviceParams> {
 		// For FIDO2, we only send type, rp, and policy.
 		// Name, nickname, and status are NOT included in the FIDO2 device creation payload.
 		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-fido2
@@ -129,7 +129,14 @@ export class FIDO2FlowController extends MFAFlowController {
 	async registerFIDO2Device(
 		credentials: MFACredentials,
 		deviceId: string,
-		publicKeyCredentialCreationOptions?: string
+		publicKeyCredentialCreationOptions?: string,
+		fido2Config?: {
+			preferredAuthenticatorType?: 'platform' | 'cross-platform' | 'both';
+			userVerification?: 'discouraged' | 'preferred' | 'required';
+			discoverableCredentials?: 'discouraged' | 'preferred' | 'required';
+			publicKeyCredentialHints?: Array<'security-key' | 'client-device' | 'hybrid'>;
+			attestationRequest?: 'none' | 'direct' | 'enterprise';
+		}
 	): Promise<{ deviceId: string; status: string; credentialId?: string }> {
 		// Check WebAuthn support
 		if (!('credentials' in navigator && 'create' in navigator.credentials)) {
@@ -217,20 +224,56 @@ export class FIDO2FlowController extends MFAFlowController {
 			console.log(`${MODULE_TAG} ✅ Preferring platform authenticator (TouchID/FaceID):`, authenticatorPrefs);
 		}
 		
-		// Set userVerification preference
+		// Set userVerification preference (from session cookies or config)
 		if (authenticatorPrefs.userVerification) {
 			creationOptions.authenticatorSelection.userVerification = authenticatorPrefs.userVerification;
+		} else if (fido2Config?.userVerification) {
+			creationOptions.authenticatorSelection.userVerification = fido2Config.userVerification;
 		}
 		
-		// Ensure residentKey is set for passkeys (platform authenticators typically require this)
-		if (!creationOptions.authenticatorSelection.residentKey) {
-			creationOptions.authenticatorSelection.residentKey = 'preferred';
+		// Set authenticator attachment from config if provided
+		if (fido2Config?.preferredAuthenticatorType) {
+			if (fido2Config.preferredAuthenticatorType === 'platform') {
+				creationOptions.authenticatorSelection.authenticatorAttachment = 'platform';
+			} else if (fido2Config.preferredAuthenticatorType === 'cross-platform') {
+				creationOptions.authenticatorSelection.authenticatorAttachment = 'cross-platform';
+			}
+			// 'both' means we don't set it, letting the user choose
 		}
 		
-		// If requireResidentKey is not set and we're using platform authenticators, set it
-		if (creationOptions.authenticatorSelection.authenticatorAttachment === 'platform' && 
-		    creationOptions.authenticatorSelection.requireResidentKey === undefined) {
-			creationOptions.authenticatorSelection.requireResidentKey = true;
+		// Set discoverable credentials (residentKey) from config
+		if (fido2Config?.discoverableCredentials) {
+			if (fido2Config.discoverableCredentials === 'required') {
+				creationOptions.authenticatorSelection.residentKey = 'required';
+				creationOptions.authenticatorSelection.requireResidentKey = true;
+			} else if (fido2Config.discoverableCredentials === 'preferred') {
+				creationOptions.authenticatorSelection.residentKey = 'preferred';
+				creationOptions.authenticatorSelection.requireResidentKey = false;
+			} else if (fido2Config.discoverableCredentials === 'discouraged') {
+				creationOptions.authenticatorSelection.residentKey = 'discouraged';
+				creationOptions.authenticatorSelection.requireResidentKey = false;
+			}
+		} else {
+			// Default: Ensure residentKey is set for passkeys (platform authenticators typically require this)
+			if (!creationOptions.authenticatorSelection.residentKey) {
+				creationOptions.authenticatorSelection.residentKey = 'preferred';
+			}
+			
+			// If requireResidentKey is not set and we're using platform authenticators, set it
+			if (creationOptions.authenticatorSelection.authenticatorAttachment === 'platform' && 
+			    creationOptions.authenticatorSelection.requireResidentKey === undefined) {
+				creationOptions.authenticatorSelection.requireResidentKey = true;
+			}
+		}
+		
+		// Set public key credential hints from config
+		if (fido2Config?.publicKeyCredentialHints && fido2Config.publicKeyCredentialHints.length > 0) {
+			creationOptions.hints = fido2Config.publicKeyCredentialHints;
+		}
+		
+		// Set attestation from config
+		if (fido2Config?.attestationRequest) {
+			creationOptions.attestation = fido2Config.attestationRequest;
 		}
 
 		console.log(`${MODULE_TAG} Using PingOne's publicKeyCredentialCreationOptions:`, {
@@ -320,7 +363,7 @@ export class FIDO2FlowController extends MFAFlowController {
 			originHost: new URL(origin).hostname,
 			rpId: creationOptions.rp?.id,
 			hasAttestation: !!attestationObj,
-			attestationId: attestationObj.id.substring(0, 20) + '...',
+			attestationId: `${attestationObj.id.substring(0, 20)}...`,
 			note: 'PingOne will validate that origin is in the allowed origins list for the RP ID',
 		});
 		

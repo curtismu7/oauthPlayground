@@ -98,9 +98,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			}
 		};
 		loadEnvironmentAndSettings();
-	}, []);
+	}, [loadPingOneSettings]);
 
-	const loadPingOneSettings = async (envId: string) => {
+	const loadPingOneSettings = useCallback(async (envId: string) => {
 		setIsLoadingPingOneSettings(true);
 		try {
 			const settings = await MFAServiceV8.getMFASettings(envId);
@@ -112,7 +112,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		} finally {
 			setIsLoadingPingOneSettings(false);
 		}
-	};
+	}, []);
 
 	const handleSavePingOneSettings = async () => {
 		if (!environmentId || !pingOneSettings) return;
@@ -920,11 +920,16 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						]}
 						description="Preferred authenticator type for FIDO2 registration"
 					/>
-					<ToggleSetting
-						label="Require User Verification"
-						value={config.fido2.requireUserVerification}
-						onChange={(value) => updateNestedConfig('fido2', 'requireUserVerification', value)}
-						description="Require user verification (PIN, biometric) for FIDO2 operations"
+					<SelectSetting
+						label="User Verification"
+						value={config.fido2.userVerification}
+						onChange={(value) => updateNestedConfig('fido2', 'userVerification', value as 'discouraged' | 'preferred' | 'required')}
+						options={[
+							{ value: 'discouraged', label: 'Discouraged' },
+							{ value: 'preferred', label: 'Preferred' },
+							{ value: 'required', label: 'Required' },
+						]}
+						description="User verification requirement for FIDO2 operations (PIN, biometric)"
 					/>
 					<SelectSetting
 						label="Discoverable Credentials"
@@ -937,11 +942,69 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						]}
 						description="Whether to use discoverable (resident) credentials"
 					/>
-					<TextSetting
-						label="Relying Party ID"
-						value={config.fido2.relyingPartyId}
-						onChange={(value) => updateNestedConfig('fido2', 'relyingPartyId', value)}
-						description="Relying Party ID for WebAuthn operations (usually your domain)"
+					<SelectSetting
+						label="Relying Party ID Type"
+						value={config.fido2.relyingPartyIdType}
+						onChange={(value) => updateNestedConfig('fido2', 'relyingPartyIdType', value as 'pingone' | 'custom' | 'other')}
+						options={[
+							{ value: 'pingone', label: 'PingOne' },
+							{ value: 'custom', label: 'Custom Domain' },
+							{ value: 'other', label: 'Other' },
+						]}
+						description="Type of Relying Party ID to use"
+					/>
+					{config.fido2.relyingPartyIdType !== 'pingone' && (
+						<TextSetting
+							label="Relying Party ID"
+							value={config.fido2.relyingPartyId}
+							onChange={(value) => updateNestedConfig('fido2', 'relyingPartyId', value)}
+							description="Relying Party ID for WebAuthn operations (usually your domain)"
+						/>
+					)}
+					<ToggleSetting
+						label="FIDO Device Aggregation"
+						value={config.fido2.fidoDeviceAggregation}
+						onChange={(value) => updateNestedConfig('fido2', 'fidoDeviceAggregation', value)}
+						description="Enable FIDO device aggregation"
+					/>
+					<SelectSetting
+						label="Backup Eligibility"
+						value={config.fido2.backupEligibility}
+						onChange={(value) => updateNestedConfig('fido2', 'backupEligibility', value as 'allow' | 'disallow')}
+						options={[
+							{ value: 'allow', label: 'Allow' },
+							{ value: 'disallow', label: 'Disallow' },
+						]}
+						description="Whether credentials can be backed up"
+					/>
+					<ToggleSetting
+						label="Enforce Backup Eligibility During Authentication"
+						value={config.fido2.enforceBackupEligibilityDuringAuth}
+						onChange={(value) => updateNestedConfig('fido2', 'enforceBackupEligibilityDuringAuth', value)}
+						description="Enforce backup eligibility during authentication"
+					/>
+					<SelectSetting
+						label="Attestation Request"
+						value={config.fido2.attestationRequest}
+						onChange={(value) => updateNestedConfig('fido2', 'attestationRequest', value as 'none' | 'direct' | 'enterprise')}
+						options={[
+							{ value: 'none', label: 'None' },
+							{ value: 'direct', label: 'Direct' },
+							{ value: 'enterprise', label: 'Enterprise' },
+						]}
+						description="Type of attestation to request from the authenticator"
+					/>
+					<ToggleSetting
+						label="Include Environment Name"
+						value={config.fido2.includeEnvironmentName}
+						onChange={(value) => updateNestedConfig('fido2', 'includeEnvironmentName', value)}
+						description="Include environment name in display information"
+					/>
+					<ToggleSetting
+						label="Include Organization Name"
+						value={config.fido2.includeOrganizationName}
+						onChange={(value) => updateNestedConfig('fido2', 'includeOrganizationName', value)}
+						description="Include organization name in display information"
 					/>
 				</ConfigSection>
 
@@ -1147,7 +1210,7 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 				value={value}
 				onChange={(e) => {
 					const num = parseInt(e.target.value, 10);
-					if (!isNaN(num)) {
+					if (!Number.isNaN(num)) {
 						const clamped = min !== undefined && max !== undefined ? Math.max(min, Math.min(max, num)) : num;
 						onChange(clamped);
 					}
