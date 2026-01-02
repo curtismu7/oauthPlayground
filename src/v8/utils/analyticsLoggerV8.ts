@@ -2,59 +2,19 @@
  * @file analyticsLoggerV8.ts
  * @module v8/utils
  * @description Silent analytics logger that doesn't spam console with connection errors
- * @version 8.2.0
+ * @version 8.3.0
  *
  * Uses a circuit breaker pattern to avoid repeated connection attempts when server is unavailable.
- * Since browsers log network errors from sendBeacon, we use a cached availability check
- * and skip calls when server is known to be unavailable.
+ * Since browsers log network errors from sendBeacon, we track failures and skip subsequent calls.
+ * The first error may still appear, but subsequent calls will be suppressed.
  */
 
 // Circuit breaker state - track if server is known to be unavailable
 let serverUnavailable = false;
 let lastCheckTime = 0;
-let availabilityCheckPromise: Promise<boolean> | null = null;
-const CHECK_INTERVAL = 30000; // Check again after 30 seconds
-const SERVER_CHECK_TIMEOUT = 100; // Short timeout for availability check (100ms)
-
-/**
- * Check if analytics server is available
- * Uses a lightweight OPTIONS request with short timeout
- * Caches the result to avoid repeated checks
- */
-async function checkServerAvailability(): Promise<boolean> {
-	// If we already have a check in progress, return that promise
-	if (availabilityCheckPromise) {
-		return availabilityCheckPromise;
-	}
-
-	const url = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
-	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), SERVER_CHECK_TIMEOUT);
-
-	availabilityCheckPromise = (async () => {
-		try {
-			// Use OPTIONS request which is lightweight and doesn't require CORS preflight
-			// Use no-cors mode to avoid CORS errors - we just want to know if server responds
-			await fetch(url, {
-				method: 'OPTIONS',
-				signal: controller.signal,
-				mode: 'no-cors',
-			});
-			clearTimeout(timeoutId);
-			return true; // Request was sent (server might be available)
-		} catch {
-			clearTimeout(timeoutId);
-			return false; // Server is not available
-		} finally {
-			// Clear the promise after a short delay to allow reuse
-			setTimeout(() => {
-				availabilityCheckPromise = null;
-			}, 1000);
-		}
-	})();
-
-	return availabilityCheckPromise;
-}
+let failureCount = 0;
+const CHECK_INTERVAL = 60000; // Re-check after 60 seconds
+const MAX_FAILURES = 2; // Mark as unavailable after 2 failures
 
 /**
  * Silently send analytics log to ingest endpoint
@@ -71,34 +31,34 @@ export function sendAnalyticsLog(data: Record<string, unknown>): void {
 		}
 		// Reset flag to try again after interval
 		serverUnavailable = false;
-		availabilityCheckPromise = null; // Clear cached check
+		failureCount = 0;
 	}
 
-	// Check server availability and send analytics if available
-	// Use fire-and-forget pattern to avoid blocking
-	void (async () => {
-		try {
-			const isAvailable = await checkServerAvailability();
-			if (!isAvailable) {
-				serverUnavailable = true;
-				lastCheckTime = Date.now();
-				return; // Don't send analytics if server is unavailable
-			}
+	// Try to send analytics using sendBeacon
+	// Note: Browsers may still log the first error, but we'll suppress subsequent ones
+	try {
+		const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+		const url = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
+		const sent = navigator.sendBeacon(url, blob);
 
-			// Server appears to be available, send the analytics
-			const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-			const url = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
-			const sent = navigator.sendBeacon(url, blob);
-
-			// If sendBeacon returns false, mark server as unavailable
-			if (!sent) {
+		// If sendBeacon returns false, increment failure count
+		// After MAX_FAILURES, mark server as unavailable
+		if (!sent) {
+			failureCount += 1;
+			if (failureCount >= MAX_FAILURES) {
 				serverUnavailable = true;
 				lastCheckTime = Date.now();
 			}
-		} catch {
-			// Silently ignore errors and mark server as unavailable
+		} else {
+			// Success - reset failure count
+			failureCount = 0;
+		}
+	} catch {
+		// If sendBeacon throws (shouldn't happen, but just in case)
+		failureCount += 1;
+		if (failureCount >= MAX_FAILURES) {
 			serverUnavailable = true;
 			lastCheckTime = Date.now();
 		}
-	})();
+	}
 }
