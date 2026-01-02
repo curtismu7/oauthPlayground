@@ -28,12 +28,13 @@ import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
-	const location = useLocation();
+	const _location = useLocation();
 	
 	// Device type is always FIDO2 (PLATFORM and SECURITY_KEY are deprecated)
 	const currentDeviceType: DeviceType = 'FIDO2';
@@ -254,7 +255,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		
 		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
 		
-		// Navigate to actual registration flow with policy ID in state
+		// Navigate to actual registration flow with policy ID and FIDO2 config in state
 		// Always use FIDO2 route (PLATFORM and SECURITY_KEY are deprecated)
 		navigate(`/v8/mfa/register/fido2/device`, {
 			replace: false,
@@ -263,9 +264,10 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				deviceAuthPolicyId: selectedDeviceAuthPolicy?.id,
 				configured: true, // Flag to indicate configuration is complete
 				deviceType: currentDeviceType, // Pass the device type to the flow
+				fido2Config: fido2Config, // Pass FIDO2 configuration options
 			},
 		});
-	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid, currentDeviceType]);
+	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -851,6 +853,335 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								)}
 							</div>
 						)}
+					</div>
+				)}
+
+				{/* FIDO2 Advanced Configuration */}
+				{tokenStatus.isValid && (
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							marginBottom: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+							<FiSettings size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>FIDO2 Advanced Configuration</h2>
+						</div>
+
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+							{/* Authenticator Attachment */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Authenticator Attachment
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Type of authenticator to use for FIDO2 registration" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['platform', 'cross-platform', 'both'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="authenticatorAttachment"
+												value={option}
+												checked={fido2Config.preferredAuthenticatorType === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, preferredAuthenticatorType: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'platform' ? 'Platform' : option === 'cross-platform' ? 'Cross-platform' : 'Both'}
+											</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* User Verification */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									User Verification
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether user verification (PIN, biometric) is required" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="userVerification"
+												value={option}
+												checked={fido2Config.userVerification === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, userVerification: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Discoverable Credentials */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Discoverable Credentials
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether to use discoverable (resident) credentials stored on the device" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="discoverableCredentials"
+												value={option}
+												checked={fido2Config.discoverableCredentials === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, discoverableCredentials: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Relying Party ID */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Relying Party ID
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="The domain or identifier for your application" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+									{(['pingone', 'custom', 'other'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="relyingPartyIdType"
+												value={option}
+												checked={fido2Config.relyingPartyIdType === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, relyingPartyIdType: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'pingone' ? 'PingOne' : option === 'custom' ? 'Custom Domain' : 'Other'}
+											</span>
+										</label>
+									))}
+								</div>
+								{(fido2Config.relyingPartyIdType === 'custom' || fido2Config.relyingPartyIdType === 'other') && (
+									<input
+										type="text"
+										value={fido2Config.relyingPartyId}
+										onChange={(e) => {
+											const newConfig = { ...fido2Config, relyingPartyId: e.target.value };
+											setFido2Config(newConfig);
+											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+											MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+										}}
+										placeholder="localhost or your domain"
+										style={{
+											width: '100%',
+											padding: '10px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+										}}
+									/>
+								)}
+							</div>
+
+							{/* FIDO Device Aggregation */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									FIDO Device Aggregation
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Enable FIDO device aggregation" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['on', 'off'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="fidoDeviceAggregation"
+												value={option}
+												checked={(option === 'on' && fido2Config.fidoDeviceAggregation) || (option === 'off' && !fido2Config.fidoDeviceAggregation)}
+												onChange={() => {
+													const newConfig = { ...fido2Config, fidoDeviceAggregation: option === 'on' };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option === 'on' ? 'On' : 'Off'}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Public Key Credential Hints */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Public Key Credential Hints
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Hints for the types of authenticators to use" />
+								</label>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+									{([
+										{ value: 'security-key', label: 'Security Key' },
+										{ value: 'client-device', label: 'Client Device' },
+										{ value: 'hybrid', label: 'Hybrid' },
+									] as const).map((hint) => (
+										<label key={hint.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="checkbox"
+												checked={fido2Config.publicKeyCredentialHints.includes(hint.value)}
+												onChange={(e) => {
+													const newHints = e.target.checked
+														? [...fido2Config.publicKeyCredentialHints, hint.value]
+														: fido2Config.publicKeyCredentialHints.filter((h) => h !== hint.value);
+													const newConfig = { ...fido2Config, publicKeyCredentialHints: newHints };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{hint.label}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Backup Eligibility */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Backup Eligibility
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether credentials can be backed up" />
+								</label>
+								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+									{(['allow', 'disallow'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="backupEligibility"
+												value={option}
+												checked={fido2Config.backupEligibility === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, backupEligibility: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option === 'allow' ? 'Allow' : 'Disallow'}</span>
+										</label>
+									))}
+								</div>
+								<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+									<input
+										type="checkbox"
+										checked={fido2Config.enforceBackupEligibilityDuringAuth}
+										onChange={(e) => {
+											const newConfig = { ...fido2Config, enforceBackupEligibilityDuringAuth: e.target.checked };
+											setFido2Config(newConfig);
+											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+											MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+										}}
+										style={{ cursor: 'pointer' }}
+									/>
+									<span style={{ fontSize: '14px' }}>Enforce during authentication</span>
+									<FiInfo size={14} style={{ color: '#6b7280', cursor: 'help' }} title="Enforce backup eligibility during authentication" />
+								</label>
+							</div>
+
+							{/* Attestation Request */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Attestation Request
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Type of attestation to request from the authenticator" />
+								</label>
+								<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
+									Use attestation requests to recognize the devices and authenticators that your service supports.
+								</p>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['none', 'direct', 'enterprise'] as const).map((option) => (
+										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+											<input
+												type="radio"
+												name="attestationRequest"
+												value={option}
+												checked={fido2Config.attestationRequest === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, attestationRequest: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Additional Display Information */}
+							<div>
+								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+									Additional Display Information
+									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Additional information to display during registration" />
+								</label>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<input
+											type="checkbox"
+											checked={fido2Config.includeEnvironmentName}
+											onChange={(e) => {
+												const newConfig = { ...fido2Config, includeEnvironmentName: e.target.checked };
+												setFido2Config(newConfig);
+												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+												MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+											}}
+											style={{ cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Include Environment Name</span>
+									</label>
+									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<input
+											type="checkbox"
+											checked={fido2Config.includeOrganizationName}
+											onChange={(e) => {
+												const newConfig = { ...fido2Config, includeOrganizationName: e.target.checked };
+												setFido2Config(newConfig);
+												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+												MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+											}}
+											style={{ cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Include Organization Name</span>
+									</label>
+								</div>
+							</div>
+						</div>
 					</div>
 				)}
 
