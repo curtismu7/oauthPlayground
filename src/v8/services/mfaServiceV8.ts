@@ -31,6 +31,7 @@
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
+import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -348,7 +349,6 @@ export class MFAServiceV8 {
 		const requestId = `mfa-check-bypass-${Date.now()}`;
 
 		try {
-
 			const body = {
 				environmentId,
 				userId,
@@ -399,7 +399,6 @@ export class MFAServiceV8 {
 	 * @returns Access token
 	 */
 	static async getWorkerToken(): Promise<string> {
-
 		try {
 			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
@@ -478,7 +477,6 @@ export class MFAServiceV8 {
 		environmentId: string,
 		username: string
 	): Promise<UserLookupResult> {
-
 		try {
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
@@ -549,12 +547,12 @@ export class MFAServiceV8 {
 				username: userData.username,
 			});
 
-		return userData as unknown as UserLookupResult;
-	} catch (error) {
-		console.error(`${MODULE_TAG} User lookup error`, error);
-		throw error;
+			return userData as unknown as UserLookupResult;
+		} catch (error) {
+			console.error(`${MODULE_TAG} User lookup error`, error);
+			throw error;
+		}
 	}
-}
 
 	/**
 	 * List users with search and pagination
@@ -627,7 +625,20 @@ export class MFAServiceV8 {
 			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'mfaServiceV8.ts:626',message:'registerDevice entry',data:{tokenType:(params as {tokenType?:string}).tokenType,hasUserToken:!!(params as {userToken?:string}).userToken,username:params.username,deviceType:params.type},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'A'})}).catch(()=>{});
+			sendAnalyticsLog({
+				location: 'mfaServiceV8.ts:626',
+				message: 'registerDevice entry',
+				data: {
+					tokenType: (params as { tokenType?: string }).tokenType,
+					hasUserToken: !!(params as { userToken?: string }).userToken,
+					username: params.username,
+					deviceType: params.type,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'pre-fix',
+				hypothesisId: 'A',
+			});
 			// #endregion
 
 			// CRITICAL FIX: Device registration should ALWAYS use worker tokens, regardless of flow type
@@ -636,7 +647,20 @@ export class MFAServiceV8 {
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'mfaServiceV8.ts:632',message:'registerDevice using worker token',data:{hasAccessToken:!!accessToken,accessTokenLength:accessToken?.length,username:params.username,deviceType:params.type},timestamp:Date.now(),sessionId:'debug-session',runId:'pre-fix',hypothesisId:'A'})}).catch(()=>{});
+			sendAnalyticsLog({
+				location: 'mfaServiceV8.ts:632',
+				message: 'registerDevice using worker token',
+				data: {
+					hasAccessToken: !!accessToken,
+					accessTokenLength: accessToken?.length,
+					username: params.username,
+					deviceType: params.type,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'pre-fix',
+				hypothesisId: 'A',
+			});
 			// #endregion
 
 			// NOTE: User token scope validation removed - device registration always uses worker tokens
@@ -776,7 +800,6 @@ export class MFAServiceV8 {
 					}
 				}
 			}
-
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -984,8 +1007,7 @@ export class MFAServiceV8 {
 			const deviceActivateUri = dd._links?.['device.activate']?.href;
 
 			// FIDO2-specific: Log publicKeyCredentialCreationOptions for debugging
-			const publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
-
+			const _publicKeyOptionsLength = dd.publicKeyCredentialCreationOptions?.length || 0;
 
 			// FIDO2-specific: Extract publicKeyCredentialCreationOptions from device response
 			// Per fido2-2.md: PingOne returns this as a JSON string in the device creation response
@@ -2244,7 +2266,7 @@ export class MFAServiceV8 {
 		environmentId: string,
 		userId: string,
 		deviceId: string,
-		credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }
+		_credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }
 	): Promise<void> {
 		console.log(`${MODULE_TAG} Unlocking device`, {
 			userId,
@@ -3219,7 +3241,6 @@ export class MFAServiceV8 {
 							: undefined),
 				},
 			};
-
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({

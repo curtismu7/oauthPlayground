@@ -23,6 +23,7 @@ import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
@@ -325,26 +326,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		credentials.tokenType,
 		credentials.userToken,
 	]);
-
-	// Helper function to silently send analytics logs (fails gracefully if server unavailable)
-	const sendAnalyticsLog = (data: Record<string, unknown>): void => {
-		// Use AbortController with short timeout to fail fast and silently
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 100);
-
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(data),
-			signal: controller.signal,
-		})
-			.catch(() => {
-				// Silently ignore all errors (connection refused, timeout, etc.)
-			})
-			.finally(() => {
-				clearTimeout(timeoutId);
-			});
-	};
 
 	// Check for OAuth callback code in URL and open UserLoginModal if needed
 	useEffect(() => {

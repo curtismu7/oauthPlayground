@@ -18,11 +18,13 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
@@ -49,23 +51,19 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		});
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'SMSOTPConfigurationPageV8.tsx:45',
-				message: 'Initializing credentials from storage',
-				data: {
-					hasUserToken: !!stored.userToken,
-					tokenType: stored.tokenType,
-					userTokenLength: stored.userToken?.length,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'SMSOTPConfigurationPageV8.tsx:45',
+			message: 'Initializing credentials from storage',
+			data: {
+				hasUserToken: !!stored.userToken,
+				tokenType: stored.tokenType,
+				userTokenLength: stored.userToken?.length,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		return {
@@ -170,25 +168,21 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'SMSOTPConfigurationPageV8.tsx:140',
-				message: 'SMSOTPConfigurationPageV8 checking for callback code',
-				data: {
-					hasCode: !!code,
-					hasError: !!error,
-					hasUserLoginState: !!hasUserLoginState,
-					showUserLoginModal,
-					windowLocationSearch: window.location.search,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'SMSOTPConfigurationPageV8.tsx:140',
+			message: 'SMSOTPConfigurationPageV8 checking for callback code',
+			data: {
+				hasCode: !!code,
+				hasError: !!error,
+				hasUserLoginState: !!hasUserLoginState,
+				showUserLoginModal,
+				windowLocationSearch: window.location.search,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		// Only process if we have a code/error AND stored state (confirms this is from our user login flow)
@@ -202,26 +196,22 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 
 		const processCallback = async () => {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'SMSOTPConfigurationPageV8.tsx:159',
-					message: 'processCallback function called',
-					data: {
-						hasCode: !!code,
-						hasError: !!error,
-						hasState: !!state,
-						hasUserLoginState: !!hasUserLoginState,
-						stateFromUrl: state,
-						storedState: hasUserLoginState,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run3',
-					hypothesisId: 'F',
-				}),
-			}).catch(() => {});
+			sendAnalyticsLog({
+				location: 'SMSOTPConfigurationPageV8.tsx:159',
+				message: 'processCallback function called',
+				data: {
+					hasCode: !!code,
+					hasError: !!error,
+					hasState: !!state,
+					hasUserLoginState: !!hasUserLoginState,
+					stateFromUrl: state,
+					storedState: hasUserLoginState,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run3',
+				hypothesisId: 'F',
+			});
 			// #endregion
 
 			if (error) {
@@ -239,19 +229,15 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				// Validate state
 				if (state !== hasUserLoginState) {
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'SMSOTPConfigurationPageV8.tsx:173',
-							message: 'State validation failed',
-							data: { stateFromUrl: state, storedState: hasUserLoginState },
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'SMSOTPConfigurationPageV8.tsx:173',
+						message: 'State validation failed',
+						data: { stateFromUrl: state, storedState: hasUserLoginState },
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					toastV8.error('Security validation failed. Please try again.');
@@ -266,22 +252,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
 
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'SMSOTPConfigurationPageV8.tsx:186',
-							message: 'About to exchange code for tokens',
-							data: {
-								hasCodeVerifier: !!storedCodeVerifier,
-								hasStoredCredentials: !!storedCredentials,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'SMSOTPConfigurationPageV8.tsx:186',
+						message: 'About to exchange code for tokens',
+						data: {
+							hasCodeVerifier: !!storedCodeVerifier,
+							hasStoredCredentials: !!storedCredentials,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					if (!storedCodeVerifier || !storedCredentials) {
@@ -314,22 +296,18 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					);
 
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'SMSOTPConfigurationPageV8.tsx:211',
-							message: 'Token exchange successful',
-							data: {
-								hasAccessToken: !!tokenResponse?.access_token,
-								accessTokenLength: tokenResponse?.access_token?.length,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'SMSOTPConfigurationPageV8.tsx:211',
+						message: 'Token exchange successful',
+						data: {
+							hasAccessToken: !!tokenResponse?.access_token,
+							accessTokenLength: tokenResponse?.access_token?.length,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					// Clean up session storage and URL
@@ -350,19 +328,15 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						};
 
 						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'SMSOTPConfigurationPageV8.tsx:224',
-								message: 'Credentials updated to mark OAuth as completed',
-								data: { tokenType: updated.tokenType },
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'run3',
-								hypothesisId: 'F',
-							}),
-						}).catch(() => {});
+						sendAnalyticsLog({
+							location: 'SMSOTPConfigurationPageV8.tsx:224',
+							message: 'Credentials updated to mark OAuth as completed',
+							data: { tokenType: updated.tokenType },
+							timestamp: Date.now(),
+							sessionId: 'debug-session',
+							runId: 'run3',
+							hypothesisId: 'F',
+						});
 						// #endregion
 
 						return updated;
@@ -371,19 +345,15 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					toastV8.success('Authentication successful! You can now proceed.');
 				} catch (error) {
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'SMSOTPConfigurationPageV8.tsx:228',
-							message: 'Token exchange failed',
-							data: { errorMessage: error instanceof Error ? error.message : String(error) },
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'SMSOTPConfigurationPageV8.tsx:228',
+						message: 'Token exchange failed',
+						data: { errorMessage: error instanceof Error ? error.message : String(error) },
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					console.error(`[📱 SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
@@ -614,23 +584,19 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'SMSOTPConfigurationPageV8.tsx:467',
-				message: 'Saving credentials to storage',
-				data: {
-					hasUserToken: !!credentials.userToken,
-					tokenType: credentials.tokenType,
-					userTokenLength: credentials.userToken?.length,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'SMSOTPConfigurationPageV8.tsx:467',
+			message: 'Saving credentials to storage',
+			data: {
+				hasUserToken: !!credentials.userToken,
+				tokenType: credentials.tokenType,
+				userTokenLength: credentials.userToken?.length,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		CredentialsServiceV8.saveCredentials('mfa-flow-v8', credentials);
@@ -647,24 +613,20 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			});
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'SMSOTPConfigurationPageV8.tsx:479',
-					message: 'Verified saved credentials from storage',
-					data: {
-						hasUserToken: !!saved.userToken,
-						tokenType: saved.tokenType,
-						userTokenLength: saved.userToken?.length,
-						matches: credentials.userToken === saved.userToken,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run3',
-					hypothesisId: 'F',
-				}),
-			}).catch(() => {});
+			sendAnalyticsLog({
+				location: 'SMSOTPConfigurationPageV8.tsx:479',
+				message: 'Verified saved credentials from storage',
+				data: {
+					hasUserToken: !!saved.userToken,
+					tokenType: saved.tokenType,
+					userTokenLength: saved.userToken?.length,
+					matches: credentials.userToken === saved.userToken,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run3',
+				hypothesisId: 'F',
+			});
 			// #endregion
 		}, 50);
 	}, [credentials]);
@@ -780,6 +742,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					}}
 				>
+					{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are inside */}
 					<label
 						style={{
 							display: 'block',
@@ -792,6 +755,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 						Registration Flow Type <span style={{ color: '#dc2626' }}>*</span>
 					</label>
 					<div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 						<label
 							style={{
 								flex: 1,
@@ -846,6 +810,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 									Device Status:
 								</div>
 								<div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 									<label
 										style={{
 											display: 'flex',
@@ -889,6 +854,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 											<strong>ACTIVE</strong> - Device created as ready to use, no activation needed
 										</span>
 									</label>
+									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 									<label
 										style={{
 											display: 'flex',
@@ -935,6 +901,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 								</div>
 							</div>
 						</label>
+						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
 						<label
 							style={{
 								flex: 1,
@@ -1047,7 +1014,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 								reset: () => {},
 								setValidationErrors: () => {},
 								setValidationWarnings: () => {},
-							} as any
+							} as ReturnType<typeof useStepNavigationV8>
 						}
 						showDeviceLimitModal={false}
 						setShowDeviceLimitModal={() => {}}
