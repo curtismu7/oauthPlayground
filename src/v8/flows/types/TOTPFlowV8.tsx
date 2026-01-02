@@ -782,6 +782,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		const isValidForm = credentials.deviceName?.trim();
 
 		return (
+			<>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 			<div
 				style={{
 					position: 'fixed',
@@ -799,6 +802,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					// Don't close on backdrop click
 				}}
 			>
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 				<div
 					ref={step2ModalDrag.modalRef}
 					style={{
@@ -814,6 +819,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header with Logo */}
+						{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 					<div
 						onMouseDown={step2ModalDrag.handleMouseDown}
 						style={{
@@ -1112,6 +1118,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		const hasPosition = step3ModalDrag.modalPosition.x !== 0 || step3ModalDrag.modalPosition.y !== 0;
 
 		return (
+			<>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal overlay needs click handler */}
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal overlay click handled by modal content */}
 			<div
 				style={{
 					position: 'fixed',
@@ -1129,6 +1138,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					// Don't close on backdrop click
 				}}
 			>
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 				<div
 					ref={step3ModalDrag.modalRef}
 					style={{
@@ -1144,6 +1155,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					onClick={(e) => e.stopPropagation()}
 				>
 					{/* Header with Logo */}
+						{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 					<div
 						onMouseDown={step3ModalDrag.handleMouseDown}
 						style={{
