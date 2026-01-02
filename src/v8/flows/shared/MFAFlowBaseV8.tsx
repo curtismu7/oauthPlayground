@@ -326,6 +326,26 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		credentials.userToken,
 	]);
 
+	// Helper function to silently send analytics logs (fails gracefully if server unavailable)
+	const sendAnalyticsLog = (data: Record<string, unknown>): void => {
+		// Use AbortController with short timeout to fail fast and silently
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 100);
+
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(data),
+			signal: controller.signal,
+		})
+			.catch(() => {
+				// Silently ignore all errors (connection refused, timeout, etc.)
+			})
+			.finally(() => {
+				clearTimeout(timeoutId);
+			});
+	};
+
 	// Check for OAuth callback code in URL and open UserLoginModal if needed
 	useEffect(() => {
 		const code = searchParams.get('code');
@@ -333,43 +353,35 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		const isOAuthCallbackReturn = sessionStorage.getItem('mfa_oauth_callback_return') === 'true';
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'MFAFlowBaseV8.tsx:319',
-				message: 'Checking for OAuth callback code in MFAFlowBaseV8',
-				data: {
-					hasCode: !!code,
-					hasUserLoginState: !!hasUserLoginState,
-					isOAuthCallbackReturn,
-					showUserLoginModal,
-					windowLocationSearch: window.location.search,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'MFAFlowBaseV8.tsx:319',
+			message: 'Checking for OAuth callback code in MFAFlowBaseV8',
+			data: {
+				hasCode: !!code,
+				hasUserLoginState: !!hasUserLoginState,
+				isOAuthCallbackReturn,
+				showUserLoginModal,
+				windowLocationSearch: window.location.search,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		// If we have a code and user login state, this is a callback from user login
 		if (code && hasUserLoginState && !showUserLoginModal) {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'MFAFlowBaseV8.tsx:324',
-					message: 'Opening UserLoginModal to process callback code',
-					data: { hasCode: !!code, hasUserLoginState: !!hasUserLoginState, showUserLoginModal },
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run3',
-					hypothesisId: 'F',
-				}),
-			}).catch(() => {});
+			sendAnalyticsLog({
+				location: 'MFAFlowBaseV8.tsx:324',
+				message: 'Opening UserLoginModal to process callback code',
+				data: { hasCode: !!code, hasUserLoginState: !!hasUserLoginState, showUserLoginModal },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run3',
+				hypothesisId: 'F',
+			});
 			// #endregion
 
 			console.log(
@@ -786,19 +798,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					onClose={() => setShowUserLoginModal(false)}
 					onTokenReceived={(token) => {
 						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'MFAFlowBaseV8.tsx:718',
-								message: 'onTokenReceived callback invoked',
-								data: { hasToken: !!token, tokenLength: token?.length },
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'run3',
-								hypothesisId: 'F',
-							}),
-						}).catch(() => {});
+						sendAnalyticsLog({
+							location: 'MFAFlowBaseV8.tsx:718',
+							message: 'onTokenReceived callback invoked',
+							data: { hasToken: !!token, tokenLength: token?.length },
+							timestamp: Date.now(),
+							sessionId: 'debug-session',
+							runId: 'run3',
+							hypothesisId: 'F',
+						});
 						// #endregion
 
 						console.log(`${MODULE_TAG} Token received, updating credentials`, {
@@ -819,23 +827,19 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							const updated = { ...prev, userToken: token, tokenType: 'user' as const };
 
 							// #region agent log
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'MFAFlowBaseV8.tsx:730',
-									message: 'Credentials updated with user token',
-									data: {
-										hasUserToken: !!updated.userToken,
-										tokenType: updated.tokenType,
-										userTokenLength: updated.userToken?.length,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'run3',
-									hypothesisId: 'F',
-								}),
-							}).catch(() => {});
+							sendAnalyticsLog({
+								location: 'MFAFlowBaseV8.tsx:730',
+								message: 'Credentials updated with user token',
+								data: {
+									hasUserToken: !!updated.userToken,
+									tokenType: updated.tokenType,
+									userTokenLength: updated.userToken?.length,
+								},
+								timestamp: Date.now(),
+								sessionId: 'debug-session',
+								runId: 'run3',
+								hypothesisId: 'F',
+							});
 							// #endregion
 
 							console.log(`${MODULE_TAG} Updated credentials`, {
