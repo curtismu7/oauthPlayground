@@ -26,6 +26,7 @@ import { MfaAuthenticationServiceV8, type DeviceAuthenticationResponse } from '@
 import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
@@ -54,6 +55,7 @@ const decodeBase64ToUint8Array = (value: string): Uint8Array => {
 		return bytes;
 	}
 
+	// biome-ignore lint/suspicious/noExplicitAny: Buffer type from globalThis is not available in all environments
 	const bufferCtor = (globalThis as { Buffer?: any }).Buffer;
 	if (bufferCtor) {
 		const buffer = bufferCtor.from(normalized, 'base64');
@@ -258,7 +260,7 @@ const normalizePublicKeyOptions = (
 	};
 };
 
-const extractFido2AssertionOptions = (
+const _extractFido2AssertionOptions = (
 	response: DeviceAuthenticationResponse
 ): PublicKeyCredentialRequestOptions | null => {
 	const rawOptions = findNestedValue(response, PUBLIC_KEY_OPTION_KEYS);
@@ -384,6 +386,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	// Store setCredentials and credentials in refs for useEffect to use (to avoid setState during render)
 	const setCredentialsRef = React.useRef<((credentials: MFACredentials | ((prev: MFACredentials) => MFACredentials)) => void) | null>(null);
 	const credentialsRef = React.useRef<MFACredentials | null>(null);
+	
+	// Store nav in ref for modal handlers
+	const navRef = React.useRef<ReturnType<typeof useStepNavigationV8> | null>(null);
 	
 	// Sync deviceType and set default device name in useEffect to avoid setState during render
 	// This runs after render and updates credentials if deviceType doesn't match
@@ -880,6 +885,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		// Store credentials and setCredentials in refs for useEffect to use (to avoid setState during render)
 		credentialsRef.current = credentials;
 		setCredentialsRef.current = setCredentials;
+		
+		// Store nav in ref for modal handlers
+		navRef.current = nav;
 
 		// Update trigger state for device loading effect (only when on step 1 and values changed)
 		// Store in ref to avoid setState during render - useEffect will pick it up
@@ -1022,6 +1030,26 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			setIsLoading(true);
 			setIsRegistering(true);
 			try {
+				// Check if user already has a FIDO device registered
+				// PingOne allows only one FIDO device per user
+				const existingDevices = await controller.loadExistingDevices(registrationCredentials, tokenStatus);
+				const hasExistingFIDODevice = existingDevices.length > 0;
+				
+				if (hasExistingFIDODevice) {
+					console.log(`${MODULE_TAG} User already has a FIDO device registered:`, {
+						deviceCount: existingDevices.length,
+						devices: existingDevices.map((d: Record<string, unknown>) => ({
+							id: d.id,
+							nickname: d.nickname || d.name,
+							status: d.status,
+						})),
+					});
+					setShowFIDODeviceExistsModal(true);
+					setIsLoading(false);
+					setIsRegistering(false);
+					return;
+				}
+
 				// First, create the device in PingOne with ACTIVATION_REQUIRED status
 				// FIDO2 devices must be created with ACTIVATION_REQUIRED to get publicKeyCredentialCreationOptions
 				const deviceParams = controller.getDeviceRegistrationParams(registrationCredentials, 'ACTIVATION_REQUIRED');
@@ -1037,11 +1065,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					deviceResultKeys: Object.keys(deviceResult),
 					deviceResultType: typeof deviceResult,
 					// Try multiple ways to access the field
+					// biome-ignore lint/suspicious/noExplicitAny: Device result type is dynamic from API
 					directAccess: (deviceResult as any).publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
 					typedAccess: (deviceResult as { publicKeyCredentialCreationOptions?: string }).publicKeyCredentialCreationOptions?.substring(0, 50) || 'NOT FOUND',
 				});
 				
 				// Try multiple ways to extract the field
+				// biome-ignore lint/suspicious/noExplicitAny: Device result type is dynamic from API
 				const publicKeyCredentialCreationOptions = 
 					(deviceResult as any).publicKeyCredentialCreationOptions ||
 					(deviceResult as { publicKeyCredentialCreationOptions?: string }).publicKeyCredentialCreationOptions ||
@@ -1787,6 +1817,24 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			/>
 			
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+			
+			<FIDODeviceExistsModalV8
+				isOpen={showFIDODeviceExistsModal}
+				onClose={() => setShowFIDODeviceExistsModal(false)}
+				onBackToSelection={() => {
+					setShowFIDODeviceExistsModal(false);
+					// Navigate back to device selection step
+					if (navRef.current) {
+						navRef.current.goToStep(1);
+						navRef.current.setValidationErrors([]);
+						navRef.current.setValidationWarnings([]);
+					}
+				}}
+				onBackToHub={() => {
+					setShowFIDODeviceExistsModal(false);
+					navigateToMfaHubWithCleanup(navigate);
+				}}
+			/>
 			
 		</div>
 	);
