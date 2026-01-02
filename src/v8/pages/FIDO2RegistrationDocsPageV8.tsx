@@ -3,7 +3,7 @@
  * @module v8/pages
  * @description FIDO2 Device Registration API Documentation Page
  * @version 8.0.0
- * 
+ *
  * This page displays the complete API documentation for FIDO2 device registration,
  * showing all PingOne API calls in the correct order with full request/response details.
  */
@@ -17,7 +17,7 @@ const FLOW_KEY = 'mfa-flow-v8';
 
 export const FIDO2RegistrationDocsPageV8: React.FC = () => {
 	const location = useLocation();
-	
+
 	// Try to get flow-specific data from location.state (when navigating from success page)
 	const flowData = location.state as {
 		registrationFlowType?: 'admin' | 'user';
@@ -34,7 +34,7 @@ export const FIDO2RegistrationDocsPageV8: React.FC = () => {
 		email?: string;
 		deviceName?: string;
 	} | null;
-	
+
 	// Fall back to sessionStorage if location.state is not available
 	let storedFlowData: typeof flowData = null;
 	if (!flowData) {
@@ -43,13 +43,13 @@ export const FIDO2RegistrationDocsPageV8: React.FC = () => {
 			if (stored) {
 				storedFlowData = JSON.parse(stored);
 			}
-		} catch (e) {
+		} catch (_e) {
 			// Ignore parse errors
 		}
 	}
-	
+
 	const actualFlowData = flowData || storedFlowData;
-	
+
 	// Load credentials as fallback
 	const credentials = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
 		flowKey: FLOW_KEY,
@@ -65,7 +65,7 @@ export const FIDO2RegistrationDocsPageV8: React.FC = () => {
 			deviceType="FIDO2"
 			flowType="registration"
 			registrationFlowType={actualFlowData?.registrationFlowType || 'admin'}
-			adminDeviceStatus={actualFlowData?.adminDeviceStatus || 'ACTIVE'}
+			adminDeviceStatus={actualFlowData?.adminDeviceStatus || 'ACTIVATION_REQUIRED'}
 			tokenType={actualFlowData?.tokenType || 'worker'}
 			flowSpecificData={{
 				environmentId: actualFlowData?.environmentId || credentials.environmentId,
@@ -87,4 +87,3 @@ export const FIDO2RegistrationDocsPageV8: React.FC = () => {
 		/>
 	);
 };
-
