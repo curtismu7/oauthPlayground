@@ -8,8 +8,16 @@
  */
 
 import React, { useState } from 'react';
+import {
+	FiBook,
+	FiChevronDown,
+	FiChevronUp,
+	FiDownload,
+	FiFileText,
+	FiHome,
+	FiInfo,
+} from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiBook, FiChevronDown, FiChevronUp, FiDownload, FiFileText, FiInfo, FiHome } from 'react-icons/fi';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 interface MFADocumentationPageV8Props {
@@ -119,10 +127,7 @@ const DEVICE_DOCS: Record<
 /**
  * Helper function to substitute placeholders with actual values
  */
-const substituteValues = (
-	template: string,
-	values: Record<string, string | undefined>
-): string => {
+const substituteValues = (template: string, values: Record<string, string | undefined>): string => {
 	let result = template;
 	Object.entries(values).forEach(([key, value]) => {
 		if (value) {
@@ -153,7 +158,7 @@ const getApiCalls = (
 ): ApiCall[] => {
 	const registrationFlowType = flowSpecificData?.registrationFlowType || 'admin';
 	const adminDeviceStatus = flowSpecificData?.adminDeviceStatus || 'ACTIVE';
-	
+
 	// Create value map for substitution
 	const valueMap: Record<string, string> = {
 		environmentId: flowSpecificData?.environmentId || '{environmentId}',
@@ -165,13 +170,13 @@ const getApiCalls = (
 		email: flowSpecificData?.email || 'user@example.com',
 		deviceName: flowSpecificData?.deviceName || 'My Device',
 	};
-	
+
 	const baseUrlTemplate = 'https://api.pingone.com/v1/environments/{environmentId}/users/{userId}';
 	const baseUrl = substituteValues(baseUrlTemplate, valueMap);
 
 	if (flowType === 'registration') {
 		const calls: ApiCall[] = [];
-		
+
 		// For USER flow, add Authorization Code Flow steps first
 		if (registrationFlowType === 'user') {
 			// Step 1: Build Authorization URL
@@ -187,7 +192,7 @@ const getApiCalls = (
 				code_challenge: '{codeChallenge}',
 				code_challenge_method: 'S256',
 			});
-			
+
 			calls.push({
 				step: '1. Build Authorization URL',
 				method: 'GET',
@@ -201,7 +206,7 @@ const getApiCalls = (
 					'User will be redirected to PingOne login page',
 				],
 			});
-			
+
 			// Step 2: User Redirects to Authorization Server
 			calls.push({
 				step: '2. User Redirects to Authorization Server',
@@ -216,7 +221,7 @@ const getApiCalls = (
 					'After successful authentication, user is redirected back to redirect_uri',
 				],
 			});
-			
+
 			// Step 3: Authorization Server Returns Authorization Code
 			calls.push({
 				step: '3. Authorization Server Returns Authorization Code',
@@ -234,7 +239,7 @@ const getApiCalls = (
 					'State parameter must match the original state for security',
 				],
 			});
-			
+
 			// Step 4: Exchange Authorization Code for Access Token
 			const tokenEndpoint = `https://auth.pingone.com/${valueMap.environmentId}/as/token`;
 			calls.push({
@@ -261,7 +266,7 @@ const getApiCalls = (
 					'This token will be used for device registration API calls',
 				],
 			});
-			
+
 			// Step 5: Extract User ID from Access Token
 			calls.push({
 				step: '5. Extract User ID from Access Token',
@@ -283,12 +288,16 @@ const getApiCalls = (
 			});
 		} else {
 			// For ADMIN flow, start with Worker Token (Client Credentials Grant)
-			const tokenEndpoint = substituteValues('https://auth.pingone.com/{environmentId}/as/token', valueMap);
+			const tokenEndpoint = substituteValues(
+				'https://auth.pingone.com/{environmentId}/as/token',
+				valueMap
+			);
 			calls.push({
 				step: '1. Get Worker Token (Client Credentials Grant)',
 				method: 'POST',
 				endpoint: tokenEndpoint,
-				description: 'Obtain a worker token using Client Credentials Grant for administrative API calls',
+				description:
+					'Obtain a worker token using Client Credentials Grant for administrative API calls',
 				requestBody: {
 					grant_type: 'client_credentials',
 					client_id: flowSpecificData?.clientId || '{clientId}',
@@ -308,9 +317,12 @@ const getApiCalls = (
 					'Worker token is used for all subsequent API calls in Admin Flow',
 				],
 			});
-			
+
 			// Step 2: User Lookup (using worker token)
-			const usersEndpoint = substituteValues('https://api.pingone.com/v1/environments/{environmentId}/users', valueMap);
+			const usersEndpoint = substituteValues(
+				'https://api.pingone.com/v1/environments/{environmentId}/users',
+				valueMap
+			);
 			calls.push({
 				step: '2. User Lookup',
 				method: 'GET',
@@ -337,44 +349,48 @@ const getApiCalls = (
 		// Add device-specific registration call
 		// Determine step number based on flow type
 		const registrationStepNumber = registrationFlowType === 'user' ? '6' : '3';
-		
+
 		// For user flow, status is always ACTIVATION_REQUIRED
 		// For admin flow, status depends on adminDeviceStatus
-		const deviceStatus = registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
-		
+		const deviceStatus =
+			registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
+
 		// Build device-specific request body
-		let deviceRequestBody: Record<string, unknown> = {
+		const deviceRequestBody: Record<string, unknown> = {
 			type: deviceType,
 			nickname: valueMap.deviceName,
 			status: deviceStatus,
 		};
-		
+
 		// Add device-specific fields
 		if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
 			deviceRequestBody.phone = { number: valueMap.phone };
 		} else if (deviceType === 'EMAIL') {
 			deviceRequestBody.email = valueMap.email;
 		}
-		
+
 		// Add policy ID (always included for both flows, as worker tokens are always used)
-		if (valueMap.deviceAuthenticationPolicyId && !valueMap.deviceAuthenticationPolicyId.startsWith('{')) {
+		if (
+			valueMap.deviceAuthenticationPolicyId &&
+			!valueMap.deviceAuthenticationPolicyId.startsWith('{')
+		) {
 			deviceRequestBody.policy = { id: valueMap.deviceAuthenticationPolicyId };
 		}
-		
+
 		// Build response body with actual values
-		let deviceResponseBody: Record<string, unknown> = {
+		const deviceResponseBody: Record<string, unknown> = {
 			id: valueMap.deviceId || '{deviceId}',
 			type: deviceType,
 			status: deviceStatus,
 			nickname: valueMap.deviceName,
 		};
-		
+
 		if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
 			deviceResponseBody.phone = { number: valueMap.phone };
 		} else if (deviceType === 'EMAIL') {
 			deviceResponseBody.email = valueMap.email;
 		}
-		
+
 		if (deviceStatus === 'ACTIVATION_REQUIRED') {
 			deviceResponseBody._links = {
 				'device.activate': {
@@ -382,27 +398,48 @@ const getApiCalls = (
 				},
 			};
 		}
-		
+		// FIDO2 always includes activation link (WebAuthn-based activation)
+		if (deviceType === 'FIDO2') {
+			deviceResponseBody._links = {
+				'device.activate': {
+					href: `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}/activate/fido2`,
+				},
+			};
+		}
+
 		// Build notes based on flow type
 		const registrationNotes: string[] = [];
 		if (registrationFlowType === 'user') {
 			registrationNotes.push('Authorization: Bearer {userToken} (from Authorization Code Flow)');
-			registrationNotes.push('User ID is extracted from the access token (JWT sub claim) and validated against the session');
+			registrationNotes.push(
+				'User ID is extracted from the access token (JWT sub claim) and validated against the session'
+			);
 			registrationNotes.push('Status is always "ACTIVATION_REQUIRED" for User Flow');
 			registrationNotes.push('User flow always requires OTP validation after device registration');
 		} else {
 			registrationNotes.push('Authorization: Bearer {workerToken}');
 			registrationNotes.push('Admin flow uses worker token for API calls');
 			if (adminDeviceStatus === 'ACTIVE') {
-				registrationNotes.push('Admin flow can create ACTIVE devices that skip OTP validation');
+				if (deviceType === 'FIDO2') {
+					registrationNotes.push(
+						'Admin flow can create FIDO2 devices with ACTIVE status, but WebAuthn activation is still required'
+					);
+				} else {
+					registrationNotes.push('Admin flow can create ACTIVE devices that skip OTP validation');
+				}
 			} else {
 				registrationNotes.push('Admin flow can also create ACTIVATION_REQUIRED devices');
 			}
 		}
-		if (deviceStatus === 'ACTIVATION_REQUIRED') {
+		if (deviceStatus === 'ACTIVATION_REQUIRED' && deviceType !== 'FIDO2') {
 			registrationNotes.push('OTP is automatically sent when status is "ACTIVATION_REQUIRED"');
 		}
-		
+		if (deviceType === 'FIDO2') {
+			registrationNotes.push(
+				'FIDO2 devices always require WebAuthn activation, regardless of initial status'
+			);
+		}
+
 		if (deviceType === 'SMS') {
 			calls.push({
 				step: `${registrationStepNumber}. Register SMS Device`,
@@ -433,27 +470,55 @@ const getApiCalls = (
 				responseBody: deviceResponseBody,
 				notes: registrationNotes,
 			});
+		} else if (deviceType === 'FIDO2') {
+			// FIDO2 device registration
+			calls.push({
+				step: `${registrationStepNumber}. Register FIDO2 Device`,
+				method: 'POST',
+				endpoint: `${baseUrl}/devices`,
+				description: 'Create a new FIDO2 device for the user',
+				requestBody: deviceRequestBody,
+				responseBody: {
+					...deviceResponseBody,
+					publicKeyCredentialCreationOptions: '{publicKeyCredentialCreationOptions}',
+					_links: {
+						'device.activate': {
+							href: `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}/activate/fido2`,
+						},
+					},
+				},
+				notes: [
+					...registrationNotes,
+					'Response includes publicKeyCredentialCreationOptions (JSON string) for WebAuthn registration',
+					'FIDO2 activation uses WebAuthn ceremony, not OTP',
+				],
+			});
 		}
 
 		// Add activation call only for ACTIVATION_REQUIRED devices
-		if (deviceStatus === 'ACTIVATION_REQUIRED') {
+		// For FIDO2, activation is WebAuthn-based, not OTP-based
+		if (deviceStatus === 'ACTIVATION_REQUIRED' && deviceType !== 'FIDO2') {
 			const activationStepNumber = registrationFlowType === 'user' ? '7' : '4';
 			const activationEndpoint = `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}`;
-			
+
 			const activationNotes: string[] = [
 				'Content-Type: application/vnd.pingidentity.device.activate+json',
 			];
-			
+
 			if (registrationFlowType === 'user') {
 				activationNotes.push('Authorization: Bearer {userToken} (from Authorization Code Flow)');
 				activationNotes.push('User flow always validates OTP after device registration');
 			} else {
 				activationNotes.push('Authorization: Bearer {workerToken}');
-				activationNotes.push('Admin flow can create ACTIVATION_REQUIRED devices that require OTP validation');
+				activationNotes.push(
+					'Admin flow can create ACTIVATION_REQUIRED devices that require OTP validation'
+				);
 			}
 			activationNotes.push('Use the device.activate URI from registration response');
-			activationNotes.push('OTP is sent automatically when device is created with ACTIVATION_REQUIRED status');
-			
+			activationNotes.push(
+				'OTP is sent automatically when device is created with ACTIVATION_REQUIRED status'
+			);
+
 			calls.push({
 				step: `${activationStepNumber}. Activate Device (OTP Validation)`,
 				method: 'POST',
@@ -473,19 +538,81 @@ const getApiCalls = (
 			});
 		}
 
+		// FIDO2 activation (WebAuthn-based, not OTP-based)
+		// FIDO2 always requires WebAuthn activation, regardless of initial device status
+		if (deviceType === 'FIDO2') {
+			const activationStepNumber = registrationFlowType === 'user' ? '7' : '4';
+			const fido2ActivationEndpoint = `${baseUrl}/devices/${valueMap.deviceId || '{deviceId}'}/activate/fido2`;
+
+			const fido2ActivationNotes: string[] = [
+				'Content-Type: application/vnd.pingidentity.device.activate.fido2+json',
+			];
+
+			if (registrationFlowType === 'user') {
+				fido2ActivationNotes.push(
+					'Authorization: Bearer {userToken} (from Authorization Code Flow)'
+				);
+				fido2ActivationNotes.push(
+					'User flow always requires WebAuthn activation after device registration'
+				);
+			} else {
+				fido2ActivationNotes.push('Authorization: Bearer {workerToken}');
+				fido2ActivationNotes.push(
+					'FIDO2 devices always require WebAuthn activation, regardless of initial status'
+				);
+			}
+			fido2ActivationNotes.push(
+				'Use the device.activate URI from registration response (_links.device.activate.href)'
+			);
+			fido2ActivationNotes.push(
+				'WebAuthn registration data comes from navigator.credentials.create() in the browser'
+			);
+			fido2ActivationNotes.push(
+				'Send the WebAuthn attestation object and client data to this endpoint'
+			);
+			fido2ActivationNotes.push(
+				'FIDO2 activation is required even if device was created with ACTIVE status'
+			);
+
+			calls.push({
+				step: `${activationStepNumber}. Activate FIDO2 Device (WebAuthn Registration)`,
+				method: 'POST',
+				endpoint: fido2ActivationEndpoint,
+				description: 'Activate the FIDO2 device by submitting WebAuthn registration data',
+				requestBody: {
+					attestationObject: '{attestationObject}',
+					clientDataJSON: '{clientDataJSON}',
+					credentialId: '{credentialId}',
+					origin: '{origin}',
+				},
+				responseBody: {
+					id: valueMap.deviceId || '{deviceId}',
+					type: 'FIDO2',
+					status: 'ACTIVE',
+					nickname: valueMap.deviceName,
+					updatedAt: new Date().toISOString(),
+				},
+				notes: fido2ActivationNotes,
+			});
+		}
+
 		return calls;
 	}
 
 	// Authentication flow API calls
 	const calls: ApiCall[] = [];
-	
+
 	// Step 1: Get Worker Token (Client Credentials Grant) - Required for all authentication API calls
-	const tokenEndpoint = substituteValues('https://auth.pingone.com/{environmentId}/as/token', valueMap);
+	const tokenEndpoint = substituteValues(
+		'https://auth.pingone.com/{environmentId}/as/token',
+		valueMap
+	);
 	calls.push({
 		step: '1. Get Worker Token (Client Credentials Grant)',
 		method: 'POST',
 		endpoint: tokenEndpoint,
-		description: 'Obtain a worker token using Client Credentials Grant for MFA device authentication API calls',
+		description:
+			'Obtain a worker token using Client Credentials Grant for MFA device authentication API calls',
 		requestBody: {
 			grant_type: 'client_credentials',
 			client_id: flowSpecificData?.clientId || '{clientId}',
@@ -505,9 +632,12 @@ const getApiCalls = (
 			'Worker token is used for all subsequent MFA authentication API calls',
 		],
 	});
-	
+
 	// Step 2: Initialize Device Authentication
-	const authPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications', valueMap);
+	const authPath = substituteValues(
+		'https://auth.pingone.com/{environmentId}/deviceAuthentications',
+		valueMap
+	);
 	calls.push({
 		step: '2. Initialize Device Authentication',
 		method: 'POST',
@@ -517,9 +647,10 @@ const getApiCalls = (
 			user: {
 				id: valueMap.userId || '{userId}',
 			},
-			selectedDevice: deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP' 
-				? { id: valueMap.deviceId || '{deviceId}' }
-				: undefined,
+			selectedDevice:
+				deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP'
+					? { id: valueMap.deviceId || '{deviceId}' }
+					: undefined,
 			policy: {
 				id: valueMap.deviceAuthenticationPolicyId || '{deviceAuthenticationPolicyId}',
 			},
@@ -542,11 +673,14 @@ const getApiCalls = (
 			'Response status indicates next required action: OTP_REQUIRED, ASSERTION_REQUIRED, or DEVICE_SELECTION_REQUIRED',
 		],
 	});
-	
+
 	// Step 3: Select Device (if status is DEVICE_SELECTION_REQUIRED)
 	if (deviceType === 'FIDO2') {
 		// For FIDO2, add device selection step (if multiple devices)
-		const selectDevicePath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}', valueMap);
+		const selectDevicePath = substituteValues(
+			'https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}',
+			valueMap
+		);
 		calls.push({
 			step: '3. Select Device for Authentication (if multiple devices)',
 			method: 'POST',
@@ -575,11 +709,14 @@ const getApiCalls = (
 			],
 		});
 	}
-	
+
 	// Step 4: Validate OTP or Check Assertion
 	if (deviceType === 'FIDO2') {
 		// FIDO2 Assertion Check
-		const assertionCheckPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/assertion', valueMap);
+		const assertionCheckPath = substituteValues(
+			'https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/assertion',
+			valueMap
+		);
 		calls.push({
 			step: `${deviceType === 'FIDO2' ? '4' : '3'}. Check FIDO2 Assertion`,
 			method: 'POST',
@@ -617,7 +754,10 @@ const getApiCalls = (
 		});
 	} else {
 		// OTP Validation for SMS/Email/WhatsApp
-		const otpCheckPath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/otp/check', valueMap);
+		const otpCheckPath = substituteValues(
+			'https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/otp/check',
+			valueMap
+		);
 		calls.push({
 			step: '3. Validate OTP',
 			method: 'POST',
@@ -644,15 +784,19 @@ const getApiCalls = (
 			],
 		});
 	}
-	
+
 	// Step 5: Complete Authentication (optional, if complete link is available)
-	const completePath = substituteValues('https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/complete', valueMap);
+	const completePath = substituteValues(
+		'https://auth.pingone.com/{environmentId}/deviceAuthentications/{authenticationId}/complete',
+		valueMap
+	);
 	const completeStepNumber = deviceType === 'FIDO2' ? '5' : '4';
 	calls.push({
 		step: `${completeStepNumber}. Complete Authentication (optional)`,
 		method: 'POST',
 		endpoint: `${completePath} (from _links.complete.href)`,
-		description: 'Complete the device authentication session (optional step if complete link is provided)',
+		description:
+			'Complete the device authentication session (optional step if complete link is provided)',
 		requestBody: {},
 		responseBody: {
 			id: '{authenticationId}',
@@ -665,7 +809,7 @@ const getApiCalls = (
 			'Use the complete URI from _links in the previous response if available',
 		],
 	});
-	
+
 	return calls;
 };
 
@@ -687,7 +831,7 @@ const generateMarkdown = (
 		minute: '2-digit',
 		timeZoneName: 'short',
 	});
-	
+
 	let md = `# ${title}\n\n`;
 	md += `**Generated:** ${generatedDate}\n\n`;
 	md += `## Overview\n\n`;
@@ -701,7 +845,7 @@ const generateMarkdown = (
 	// Add flow-specific explanation section
 	if (registrationFlowType) {
 		md += `## Flow Type: ${registrationFlowType === 'user' ? 'User Flow' : 'Admin Flow'}\n\n`;
-		
+
 		if (registrationFlowType === 'user') {
 			md += `This documentation is for a **User Flow** registration.\n\n`;
 			md += `### User Flow Characteristics:\n\n`;
@@ -801,13 +945,13 @@ const markdownToHtml = (markdown: string): string => {
 	let html = '';
 	let inCodeBlock = false;
 	let inList = false;
-	
+
 	const lines = markdown.split('\n');
-	
+
 	for (let i = 0; i < lines.length; i++) {
 		const line = lines[i];
 		const trimmed = line.trim();
-		
+
 		// Handle code blocks
 		if (trimmed.startsWith('```')) {
 			if (inCodeBlock) {
@@ -820,12 +964,12 @@ const markdownToHtml = (markdown: string): string => {
 			}
 			continue;
 		}
-		
+
 		if (inCodeBlock) {
-			html += escapeHtml(line) + '\n';
+			html += `${escapeHtml(line)}\n`;
 			continue;
 		}
-		
+
 		// Handle headers
 		if (trimmed.startsWith('# ')) {
 			if (inList) {
@@ -851,7 +995,7 @@ const markdownToHtml = (markdown: string): string => {
 			html += `<h3>${processInlineMarkdown(trimmed.substring(4))}</h3>\n`;
 			continue;
 		}
-		
+
 		// Handle horizontal rules
 		if (trimmed === '---' || trimmed === '***') {
 			if (inList) {
@@ -861,7 +1005,7 @@ const markdownToHtml = (markdown: string): string => {
 			html += '<hr class="section-divider">\n';
 			continue;
 		}
-		
+
 		// Handle list items
 		if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
 			if (!inList) {
@@ -872,23 +1016,23 @@ const markdownToHtml = (markdown: string): string => {
 			html += `<li>${processInlineMarkdown(listContent)}</li>\n`;
 			continue;
 		}
-		
+
 		// Close list if we hit a non-list line
 		if (inList && trimmed !== '') {
 			html += '</ul>\n';
 			inList = false;
 		}
-		
+
 		// Handle empty lines
 		if (trimmed === '') {
 			html += '<br>\n';
 			continue;
 		}
-		
+
 		// Handle regular paragraphs
 		html += `<p class="documentation-paragraph">${processInlineMarkdown(trimmed)}</p>\n`;
 	}
-	
+
 	// Close any open tags
 	if (inList) {
 		html += '</ul>\n';
@@ -896,7 +1040,7 @@ const markdownToHtml = (markdown: string): string => {
 	if (inCodeBlock) {
 		html += '</code></pre>\n';
 	}
-	
+
 	return html;
 };
 
@@ -904,19 +1048,19 @@ const markdownToHtml = (markdown: string): string => {
 const processInlineMarkdown = (text: string): string => {
 	// Escape HTML first
 	text = escapeHtml(text);
-	
+
 	// Process links [text](url)
 	text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-	
+
 	// Process inline code `code`
 	text = text.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>');
-	
+
 	// Process bold **text**
 	text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-	
+
 	// Process italic *text* (but not if it's part of **text**)
 	text = text.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
-	
+
 	return text;
 };
 
@@ -1252,7 +1396,15 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 			</div>
 
 			{/* Download Buttons and Navigation */}
-			<div style={{ display: 'flex', gap: '12px', marginBottom: '32px', justifyContent: 'center', flexWrap: 'wrap' }}>
+			<div
+				style={{
+					display: 'flex',
+					gap: '12px',
+					marginBottom: '32px',
+					justifyContent: 'center',
+					flexWrap: 'wrap',
+				}}
+			>
 				<button
 					type="button"
 					onClick={() => navigate('/v8/mfa-hub')}
