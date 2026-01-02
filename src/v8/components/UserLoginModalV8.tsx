@@ -16,6 +16,7 @@ import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethod
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import {
 	type SessionInfo,
@@ -145,19 +146,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						: savedRedirectUri;
 
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UserLoginModalV8.tsx:134',
-						message: 'Initial redirect URI loaded from saved credentials',
-						data: { savedRedirectUri, defaultRedirectUriForMfa, initialRedirectUri, isMfaFlow },
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run1',
-						hypothesisId: 'C',
-					}),
-				}).catch(() => {});
+				sendAnalyticsLog({
+					location: 'UserLoginModalV8.tsx:134',
+					message: 'Initial redirect URI loaded from saved credentials',
+					data: { savedRedirectUri, defaultRedirectUriForMfa, initialRedirectUri, isMfaFlow },
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'C',
+				});
 				// #endregion
 
 				setRedirectUri(initialRedirectUri);
@@ -198,19 +195,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'UserLoginModalV8.tsx:189',
-				message: 'Callback processing useEffect running',
-				data: { isOpen, locationSearch: location.search },
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'UserLoginModalV8.tsx:189',
+			message: 'Callback processing useEffect running',
+			data: { isOpen, locationSearch: location.search },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		// Check if we're returning from a callback (check both when modal opens and on URL change)
@@ -231,25 +224,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const state = searchParams.get('state') || windowSearchParams.get('state');
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'UserLoginModalV8.tsx:207',
-					message: 'checkCallback function called',
-					data: {
-						hasCode: !!code,
-						hasError: !!error,
-						hasState: !!state,
-						fromSearchParams: !!searchParams.get('code'),
-						fromWindowLocation: !!windowSearchParams.get('code'),
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run3',
-					hypothesisId: 'F',
-				}),
-			}).catch(() => {});
+			sendAnalyticsLog({
+				location: 'UserLoginModalV8.tsx:207',
+				message: 'checkCallback function called',
+				data: {
+					hasCode: !!code,
+					hasError: !!error,
+					hasState: !!state,
+					fromSearchParams: !!searchParams.get('code'),
+					fromWindowLocation: !!windowSearchParams.get('code'),
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run3',
+				hypothesisId: 'F',
+			});
 			// #endregion
 
 			// Only process if we have a stored state (confirms this is from our user login flow)
@@ -317,25 +306,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					const credentials = JSON.parse(storedCredentials);
 
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UserLoginModalV8.tsx:260',
-							message: 'About to exchange code for tokens',
-							data: {
-								hasCode: !!code,
-								hasCodeVerifier: !!storedCodeVerifier,
-								hasCredentials: !!storedCredentials,
-								environmentId: credentials.environmentId,
-								clientId: credentials.clientId,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'UserLoginModalV8.tsx:260',
+						message: 'About to exchange code for tokens',
+						data: {
+							hasCode: !!code,
+							hasCodeVerifier: !!storedCodeVerifier,
+							hasCredentials: !!storedCredentials,
+							environmentId: credentials.environmentId,
+							clientId: credentials.clientId,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					// Exchange authorization code for tokens
@@ -356,23 +341,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					);
 
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UserLoginModalV8.tsx:282',
-							message: 'Token exchange successful',
-							data: {
-								hasAccessToken: !!tokenResponse.access_token,
-								accessTokenLength: tokenResponse.access_token?.length,
-								tokenType: tokenResponse.token_type,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'UserLoginModalV8.tsx:282',
+						message: 'Token exchange successful',
+						data: {
+							hasAccessToken: !!tokenResponse.access_token,
+							accessTokenLength: tokenResponse.access_token?.length,
+							tokenType: tokenResponse.token_type,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					// Clean up session storage
@@ -397,23 +378,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 					// Use access token (callback for parent components)
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UserLoginModalV8.tsx:308',
-							message: 'Calling handleTokenReceived callback',
-							data: {
-								hasToken: !!tokenResponse.access_token,
-								tokenLength: tokenResponse.access_token?.length,
-								hasOnTokenReceived: !!onTokenReceived,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'run3',
-							hypothesisId: 'F',
-						}),
-					}).catch(() => {});
+					sendAnalyticsLog({
+						location: 'UserLoginModalV8.tsx:308',
+						message: 'Calling handleTokenReceived callback',
+						data: {
+							hasToken: !!tokenResponse.access_token,
+							tokenLength: tokenResponse.access_token?.length,
+							hasOnTokenReceived: !!onTokenReceived,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
 					// #endregion
 
 					handleTokenReceived(tokenResponse.access_token);
@@ -480,28 +457,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const windowHasError = windowSearchParams.get('error');
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'UserLoginModalV8.tsx:377',
-				message: 'Checking if callback should be processed',
-				data: {
-					hasCode: !!hasCode,
-					hasError: !!hasError,
-					hasStoredState: !!hasStoredState,
-					windowHasCode: !!windowHasCode,
-					windowHasError: !!windowHasError,
-					windowLocationSearch: window.location.search,
-					willProcessWithSearchParams: (hasCode || hasError) && hasStoredState,
-					willProcessWithWindow: (windowHasCode || windowHasError) && hasStoredState,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run3',
-				hypothesisId: 'F',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'UserLoginModalV8.tsx:377',
+			message: 'Checking if callback should be processed',
+			data: {
+				hasCode: !!hasCode,
+				hasError: !!hasError,
+				hasStoredState: !!hasStoredState,
+				windowHasCode: !!windowHasCode,
+				windowHasError: !!windowHasError,
+				windowLocationSearch: window.location.search,
+				willProcessWithSearchParams: (hasCode || hasError) && hasStoredState,
+				willProcessWithWindow: (windowHasCode || windowHasError) && hasStoredState,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run3',
+			hypothesisId: 'F',
+		});
 		// #endregion
 
 		// Only process if we have a code/error AND stored state (to avoid processing other OAuth flows)
@@ -770,19 +743,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		const fieldValue = redirectUri.trim();
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'UserLoginModalV8.tsx:604',
-				message: 'Redirect URI field value check',
-				data: { fieldValue, isMfaFlow, defaultRedirectUriForMfa, currentPath: location.pathname },
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'A',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'UserLoginModalV8.tsx:604',
+			message: 'Redirect URI field value check',
+			data: { fieldValue, isMfaFlow, defaultRedirectUriForMfa, currentPath: location.pathname },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'A',
+		});
 		// #endregion
 
 		const finalRedirectUri =
@@ -794,24 +763,20 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				: defaultRedirectUriForMfa;
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				location: 'UserLoginModalV8.tsx:614',
-				message: 'Redirect URI decision result',
-				data: {
-					fieldValue,
-					finalRedirectUri,
-					defaultRedirectUriForMfa,
-					willUseFieldValue: fieldValue === finalRedirectUri,
-				},
-				timestamp: Date.now(),
-				sessionId: 'debug-session',
-				runId: 'run1',
-				hypothesisId: 'A',
-			}),
-		}).catch(() => {});
+		sendAnalyticsLog({
+			location: 'UserLoginModalV8.tsx:614',
+			message: 'Redirect URI decision result',
+			data: {
+				fieldValue,
+				finalRedirectUri,
+				defaultRedirectUriForMfa,
+				willUseFieldValue: fieldValue === finalRedirectUri,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'A',
+		});
 		// #endregion
 
 		// Save credentials using CredentialsServiceV8 (always use user-login-callback for User Login Flow)
@@ -844,24 +809,20 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 			const urlRedirectUri = urlObj.searchParams.get('redirect_uri');
 
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'UserLoginModalV8.tsx:657',
-					message: 'Authorization URL redirect_uri check',
-					data: {
-						expectedRedirectUri: finalRedirectUri,
-						actualRedirectUriInUrl: urlRedirectUri,
-						match: finalRedirectUri === urlRedirectUri,
-						fullAuthorizationUrl: authorizationUrl,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'D',
-				}),
-			}).catch(() => {});
+			sendAnalyticsLog({
+				location: 'UserLoginModalV8.tsx:657',
+				message: 'Authorization URL redirect_uri check',
+				data: {
+					expectedRedirectUri: finalRedirectUri,
+					actualRedirectUriInUrl: urlRedirectUri,
+					match: finalRedirectUri === urlRedirectUri,
+					fullAuthorizationUrl: authorizationUrl,
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				runId: 'run1',
+				hypothesisId: 'D',
+			});
 			// #endregion
 
 			// Store state, code verifier, and credentials for validation and token exchange
@@ -893,25 +854,21 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				sessionStorage.setItem('user_login_return_to_mfa', fullPath);
 
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UserLoginModalV8.tsx:691',
-						message: 'Stored return path to MFA flow',
-						data: {
-							fullPath,
-							currentPath,
-							currentSearch,
-							redirectUri: finalRedirectUri,
-							isMfaFlow,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'run1',
-						hypothesisId: 'B',
-					}),
-				}).catch(() => {});
+				sendAnalyticsLog({
+					location: 'UserLoginModalV8.tsx:691',
+					message: 'Stored return path to MFA flow',
+					data: {
+						fullPath,
+						currentPath,
+						currentSearch,
+						redirectUri: finalRedirectUri,
+						isMfaFlow,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'B',
+				});
 				// #endregion
 			} else {
 				console.warn(
