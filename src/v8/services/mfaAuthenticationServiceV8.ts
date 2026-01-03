@@ -114,11 +114,21 @@ export class MfaAuthenticationServiceV8 {
 	/**
 	 * Get PingOne auth base URL - uses custom domain if provided, otherwise uses region-based domain
 	 */
-	private static getAuthBaseUrl(region?: 'us' | 'eu' | 'ap' | 'ca' | 'na', customDomain?: string): string {
+	private static getAuthBaseUrl(
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+		customDomain?: string
+	): string {
 		if (customDomain) {
 			return `https://${customDomain}`;
 		}
-		const tld = region === 'eu' ? 'eu' : ((region === 'ap' || (region as string) === 'asia')) ? 'asia' : region === 'ca' ? 'ca' : 'com';
+		const tld =
+			region === 'eu'
+				? 'eu'
+				: region === 'ap' || (region as string) === 'asia'
+					? 'asia'
+					: region === 'ca'
+						? 'ca'
+						: 'com';
 		return `https://auth.pingone.${tld}`;
 	}
 
@@ -153,78 +163,98 @@ export class MfaAuthenticationServiceV8 {
 						skipUserLockVerification: policy.skipUserLockVerification,
 					});
 				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to read policy for lock verification, continuing:`, error);
+					console.warn(
+						`${MODULE_TAG} Failed to read policy for lock verification, continuing:`,
+						error
+					);
 					// Continue without policy - don't fail initialization
 				}
 			}
 
-			// Get userId - use provided userId or look up by username
-			let userId: string;
+			// Get user data for lock verification if needed
+			// Note: We don't resolve userId here - let the backend do it from username
+			// This allows the backend to handle user lookup and error handling consistently
 			let user: import('./mfaServiceV8').UserLookupResult | null = null;
-			if (params.userId) {
-				userId = params.userId;
-			} else if (params.username) {
-				const { MFAServiceV8 } = await import('./mfaServiceV8');
-				user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
-				userId = user.id as string;
-			} else {
-				// No-username variant: Initialize device authentication without username/userId
-				// This requires a special request body structure
-				console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
-				userId = ''; // Will be omitted from request body
-			}
 
 			// Check user lock status if policy requires it (skipUserLockVerification is false or undefined)
 			// If skipUserLockVerification is true, skip the check
-			if (policy?.skipUserLockVerification !== true) {
-				// If we don't have user data yet, fetch it
-				if (!user && params.username) {
-					const { MFAServiceV8 } = await import('./mfaServiceV8');
+			if (policy?.skipUserLockVerification !== true && params.username) {
+				// Fetch user data for lock verification
+				const { MFAServiceV8 } = await import('./mfaServiceV8');
+				try {
 					user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
-				}
 
-				// Check if user is locked (check multiple possible fields)
-				const isLocked = user?.locked === true || 
-					user?.account?.locked === true || 
-					user?.status === 'LOCKED' ||
-					user?.account?.status === 'LOCKED';
+					// Check if user is locked (check multiple possible fields)
+					const isLocked =
+						user?.locked === true ||
+						user?.account?.locked === true ||
+						user?.status === 'LOCKED' ||
+						user?.account?.status === 'LOCKED';
 
-				if (isLocked) {
-					const errorMessage = 'User account is locked. Please contact your administrator to unlock your account.';
-					console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
-						userId,
-						username: params.username,
-						userStatus: user?.status,
-						accountStatus: user?.account?.status,
-						userLocked: user?.locked,
-						accountLocked: user?.account?.locked,
-					});
-					throw new Error(errorMessage);
+					if (isLocked) {
+						const errorMessage =
+							'User account is locked. Please contact your administrator to unlock your account.';
+						console.error(`${MODULE_TAG} User is locked, blocking authentication:`, {
+							userId: user.id,
+							username: params.username,
+							userStatus: user?.status,
+							accountStatus: user?.account?.status,
+							userLocked: user?.locked,
+							accountLocked: user?.account?.locked,
+						});
+						throw new Error(errorMessage);
+					}
+				} catch (error) {
+					// If lookup fails, let the backend handle it (it will return proper error)
+					console.warn(`${MODULE_TAG} Could not verify user lock status, continuing:`, error);
 				}
 			} else {
-				console.log(`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true)`);
+				console.log(
+					`${MODULE_TAG} Skipping user lock verification (skipUserLockVerification=true or no username)`
+				);
 			}
 
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
-			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
+				params.region,
+				params.customDomain
+			);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
 
+			// Build request body according to backend endpoint expectations
+			// Backend expects: environmentId, username OR userId, deviceId (optional), deviceAuthenticationPolicyId, workerToken, region, customDomain
+			// Backend will resolve userId from username if needed, and will construct the PingOne API request
 			const requestBody: Record<string, unknown> = {
 				environmentId: params.environmentId,
-				...(userId && { user: { id: userId } }), // Only include user if userId is provided
-				deviceId: params.deviceId,
 				deviceAuthenticationPolicyId: params.deviceAuthenticationPolicyId,
 				workerToken: cleanToken,
+				...(params.region && { region: params.region }),
+				...(params.customDomain && { customDomain: params.customDomain }),
 			};
-			
+
+			// Include username or userId (backend will resolve userId from username if needed)
+			if (params.userId) {
+				requestBody.userId = params.userId;
+			} else if (params.username) {
+				requestBody.username = params.username;
+			}
+
+			// Only include deviceId if explicitly provided (to target a specific device)
+			// If deviceId is NOT provided, PingOne will return a list of available devices
+			if (params.deviceId) {
+				requestBody.deviceId = params.deviceId;
+			}
+
 			// Add custom notification if provided
 			if (params.customNotification) {
-				requestBody.notification = {
+				requestBody.customNotification = {
 					message: params.customNotification.message,
-					...(params.customNotification.variables && { variables: params.customNotification.variables }),
+					...(params.customNotification.variables && {
+						variables: params.customNotification.variables,
+					}),
 				};
 			}
 			const callId = apiCallTrackerService.trackApiCall({
@@ -272,13 +302,33 @@ export class MfaAuthenticationServiceV8 {
 			if (!response.ok) {
 				// Check for NO_USABLE_DEVICES error
 				if (typeof responseData === 'object' && responseData !== null) {
-					const errorObj = responseData as { error?: string | { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> }; message?: string; unavailableDevices?: Array<{ id: string }> };
-					
-					if (errorObj.error === 'NO_USABLE_DEVICES' || (typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')) {
-						const unavailableDevices = errorObj.unavailableDevices || (typeof errorObj.error === 'object' ? errorObj.error.unavailableDevices : undefined) || [];
-						const errorMessage = (typeof errorObj.error === 'object' ? errorObj.error.message : undefined) || errorObj.message || 'No usable devices found for authentication';
-						
-						const error = new Error(errorMessage) as Error & { errorCode?: string; unavailableDevices?: Array<{ id: string }> };
+					const errorObj = responseData as {
+						error?:
+							| string
+							| { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> };
+						message?: string;
+						unavailableDevices?: Array<{ id: string }>;
+					};
+
+					if (
+						errorObj.error === 'NO_USABLE_DEVICES' ||
+						(typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')
+					) {
+						const unavailableDevices =
+							errorObj.unavailableDevices ||
+							(typeof errorObj.error === 'object'
+								? errorObj.error.unavailableDevices
+								: undefined) ||
+							[];
+						const errorMessage =
+							(typeof errorObj.error === 'object' ? errorObj.error.message : undefined) ||
+							errorObj.message ||
+							'No usable devices found for authentication';
+
+						const error = new Error(errorMessage) as Error & {
+							errorCode?: string;
+							unavailableDevices?: Array<{ id: string }>;
+						};
 						error.errorCode = 'NO_USABLE_DEVICES';
 						error.unavailableDevices = unavailableDevices;
 						throw error;
@@ -304,16 +354,18 @@ export class MfaAuthenticationServiceV8 {
 
 					if (pingError && Array.isArray(pingErrorDetails)) {
 						// WhatsApp temporarily locked (LIMIT_EXCEEDED)
-						const limitExceededDetail = pingErrorDetails.find((d) =>
-							(d.code === 'LIMIT_EXCEEDED') &&
-							d.innerError &&
-							typeof d.innerError.deliveryMethod === 'string' &&
-							d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
+						const limitExceededDetail = pingErrorDetails.find(
+							(d) =>
+								d.code === 'LIMIT_EXCEEDED' &&
+								d.innerError &&
+								typeof d.innerError.deliveryMethod === 'string' &&
+								d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
 						);
 
 						if (limitExceededDetail) {
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							let friendlyMessage = 'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
+							let friendlyMessage =
+								'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -330,10 +382,11 @@ export class MfaAuthenticationServiceV8 {
 						}
 
 						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find((d) =>
-							(d.code === 'INVALID_VALUE') &&
-							typeof d.message === 'string' &&
-							d.message.toLowerCase().includes('could not find suitable content')
+						const invalidValueDetail = pingErrorDetails.find(
+							(d) =>
+								d.code === 'INVALID_VALUE' &&
+								typeof d.message === 'string' &&
+								d.message.toLowerCase().includes('could not find suitable content')
 						);
 
 						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
@@ -345,11 +398,14 @@ export class MfaAuthenticationServiceV8 {
 						}
 					}
 				}
-				
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				throw new Error(`Failed to initialize device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+				throw new Error(
+					`Failed to initialize device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
@@ -414,7 +470,10 @@ export class MfaAuthenticationServiceV8 {
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
-			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
+				params.region,
+				params.customDomain
+			);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications`;
 
 			const requestBody = {
@@ -472,10 +531,13 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				throw new Error(`Failed to initialize one-time device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+				throw new Error(
+					`Failed to initialize one-time device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
@@ -501,9 +563,16 @@ export class MfaAuthenticationServiceV8 {
 		environmentId: string,
 		usernameOrUserId: string,
 		authenticationId: string,
-		options?: { isUserId?: boolean; region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; customDomain?: string }
+		options?: {
+			isUserId?: boolean;
+			region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+			customDomain?: string;
+		}
 	): Promise<DeviceAuthenticationResponse> {
-		console.log(`${MODULE_TAG} Reading device authentication status`, { authenticationId, isUserId: options?.isUserId });
+		console.log(`${MODULE_TAG} Reading device authentication status`, {
+			authenticationId,
+			isUserId: options?.isUserId,
+		});
 
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
@@ -530,11 +599,14 @@ export class MfaAuthenticationServiceV8 {
 			const startTime = Date.now();
 			const cleanTokenStr = cleanToken || '';
 			const proxyEndpoint = `/api/pingone/mfa/read-device-authentication?environmentId=${encodeURIComponent(environmentId)}&userId=${encodeURIComponent(userId)}&authenticationId=${encodeURIComponent(authenticationId)}&workerToken=${encodeURIComponent(cleanTokenStr)}`;
-			
+
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
-			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(options?.region || 'us', options?.customDomain);
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
+				options?.region || 'us',
+				options?.customDomain
+			);
 			const actualPingOneUrl = `${authPath}/${environmentId}/deviceAuthentications/${authenticationId}`;
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'GET',
 				url: '/api/pingone/mfa/read-device-authentication',
@@ -556,16 +628,13 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
-			const response = await pingOneFetch(
-				proxyEndpoint,
-				{
-					method: 'GET',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					retry: { maxAttempts: 3 },
-				}
-			);
+			const response = await pingOneFetch(proxyEndpoint, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				retry: { maxAttempts: 3 },
+			});
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -588,10 +657,13 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				throw new Error(`Failed to read device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+				throw new Error(
+					`Failed to read device authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const data = responseData as DeviceAuthenticationResponse;
@@ -633,7 +705,10 @@ export class MfaAuthenticationServiceV8 {
 				const { MFAServiceV8 } = await import('./mfaServiceV8');
 				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
 				userId = user.id as string;
-				console.log(`${MODULE_TAG} Looked up userId for username:`, { username: params.username, userId });
+				console.log(`${MODULE_TAG} Looked up userId for username:`, {
+					username: params.username,
+					userId,
+				});
 			}
 
 			if (!userId) {
@@ -651,53 +726,69 @@ export class MfaAuthenticationServiceV8 {
 				);
 
 				// Check if device selection is required and get list of allowed devices
-				const needsDeviceSelection = 
-					authData.status === 'DEVICE_SELECTION_REQUIRED' || 
+				const needsDeviceSelection =
+					authData.status === 'DEVICE_SELECTION_REQUIRED' ||
 					authData.nextStep === 'SELECTION_REQUIRED' ||
 					authData.nextStep === 'DEVICE_SELECTION_REQUIRED';
 
 				if (needsDeviceSelection) {
 					// Get list of allowed devices from _embedded.devices or devices array
-					const allowedDevices = (authData._embedded as { devices?: Array<{ id: string; type?: string; nickname?: string }> })?.devices || 
-						(authData.devices as Array<{ id: string; type?: string; nickname?: string }> | undefined) || 
+					const allowedDevices =
+						(
+							authData._embedded as {
+								devices?: Array<{ id: string; type?: string; nickname?: string }>;
+							}
+						)?.devices ||
+						(authData.devices as
+							| Array<{ id: string; type?: string; nickname?: string }>
+							| undefined) ||
 						[];
 
 					console.log(`${MODULE_TAG} Validating device selection:`, {
 						selectedDeviceId: params.deviceId,
-						allowedDeviceIds: allowedDevices.map(d => d.id),
+						allowedDeviceIds: allowedDevices.map((d) => d.id),
 						allowedDeviceCount: allowedDevices.length,
 					});
 
 					// Check if selected device is in the allowed list
-					const isDeviceAllowed = allowedDevices.some(device => device.id === params.deviceId);
+					const isDeviceAllowed = allowedDevices.some((device) => device.id === params.deviceId);
 
 					if (!isDeviceAllowed && allowedDevices.length > 0) {
-						const allowedDeviceList = allowedDevices.map(d => 
-							`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
-						).join(', ');
-						
+						const allowedDeviceList = allowedDevices
+							.map(
+								(d) =>
+									`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
+							)
+							.join(', ');
+
 						throw new Error(
 							`Device ${params.deviceId} is not allowed by the current authentication policy. ` +
-							`Please select one of the allowed devices: ${allowedDeviceList}. ` +
-							`You may need to re-run "Initialize Authentication" to get the current list of allowed devices.`
+								`Please select one of the allowed devices: ${allowedDeviceList}. ` +
+								`You may need to re-run "Initialize Authentication" to get the current list of allowed devices.`
 						);
 					} else if (!isDeviceAllowed && allowedDevices.length === 0) {
 						throw new Error(
 							`Device ${params.deviceId} is not allowed by the current authentication policy. ` +
-							`No devices are currently available for selection. Please re-run "Initialize Authentication" to refresh the device list.`
+								`No devices are currently available for selection. Please re-run "Initialize Authentication" to refresh the device list.`
 						);
 					}
 				}
 			} catch (validationError) {
 				// If validation fails, check if it's our custom error (device not allowed)
 				// or a different error (e.g., can't read auth data)
-				if (validationError instanceof Error && validationError.message.includes('is not allowed')) {
+				if (
+					validationError instanceof Error &&
+					validationError.message.includes('is not allowed')
+				) {
 					// Re-throw our validation error
 					throw validationError;
 				}
 				// For other errors (e.g., can't read auth data), log warning but continue
 				// The actual selection call will fail if device is invalid
-				console.warn(`${MODULE_TAG} Could not validate device before selection (will attempt anyway):`, validationError);
+				console.warn(
+					`${MODULE_TAG} Could not validate device before selection (will attempt anyway):`,
+					validationError
+				);
 			}
 
 			// Track API call for display
@@ -709,11 +800,14 @@ export class MfaAuthenticationServiceV8 {
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
 			};
-			
+
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
-			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
+			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
+				params.region,
+				params.customDomain
+			);
 			const actualPingOneUrl = `${authPath}/${params.environmentId}/deviceAuthentications/${params.authenticationId}`;
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/select-device',
@@ -727,17 +821,14 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
-			const response = await pingOneFetch(
-				'/api/pingone/mfa/select-device',
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(requestBody),
-					retry: { maxAttempts: 3 },
-				}
-			);
+			const response = await pingOneFetch('/api/pingone/mfa/select-device', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+				retry: { maxAttempts: 3 },
+			});
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -762,13 +853,33 @@ export class MfaAuthenticationServiceV8 {
 			if (!response.ok) {
 				// Check for NO_USABLE_DEVICES error
 				if (typeof responseData === 'object' && responseData !== null) {
-					const errorObj = responseData as { error?: string | { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> }; message?: string; unavailableDevices?: Array<{ id: string }> };
-					
-					if (errorObj.error === 'NO_USABLE_DEVICES' || (typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')) {
-						const unavailableDevices = errorObj.unavailableDevices || (typeof errorObj.error === 'object' ? errorObj.error.unavailableDevices : undefined) || [];
-						const errorMessage = (typeof errorObj.error === 'object' ? errorObj.error.message : undefined) || errorObj.message || 'No usable devices found for authentication';
-						
-						const error = new Error(errorMessage) as Error & { errorCode?: string; unavailableDevices?: Array<{ id: string }> };
+					const errorObj = responseData as {
+						error?:
+							| string
+							| { code?: string; message?: string; unavailableDevices?: Array<{ id: string }> };
+						message?: string;
+						unavailableDevices?: Array<{ id: string }>;
+					};
+
+					if (
+						errorObj.error === 'NO_USABLE_DEVICES' ||
+						(typeof errorObj.error === 'object' && errorObj.error?.code === 'NO_USABLE_DEVICES')
+					) {
+						const unavailableDevices =
+							errorObj.unavailableDevices ||
+							(typeof errorObj.error === 'object'
+								? errorObj.error.unavailableDevices
+								: undefined) ||
+							[];
+						const errorMessage =
+							(typeof errorObj.error === 'object' ? errorObj.error.message : undefined) ||
+							errorObj.message ||
+							'No usable devices found for authentication';
+
+						const error = new Error(errorMessage) as Error & {
+							errorCode?: string;
+							unavailableDevices?: Array<{ id: string }>;
+						};
 						error.errorCode = 'NO_USABLE_DEVICES';
 						error.unavailableDevices = unavailableDevices;
 						throw error;
@@ -794,16 +905,18 @@ export class MfaAuthenticationServiceV8 {
 
 					if (pingError && Array.isArray(pingErrorDetails)) {
 						// WhatsApp temporarily locked (LIMIT_EXCEEDED)
-						const limitExceededDetail = pingErrorDetails.find((d) =>
-							(d.code === 'LIMIT_EXCEEDED') &&
-							d.innerError &&
-							typeof d.innerError.deliveryMethod === 'string' &&
-							d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
+						const limitExceededDetail = pingErrorDetails.find(
+							(d) =>
+								d.code === 'LIMIT_EXCEEDED' &&
+								d.innerError &&
+								typeof d.innerError.deliveryMethod === 'string' &&
+								d.innerError.deliveryMethod.toUpperCase() === 'WHATSAPP'
 						);
 
 						if (limitExceededDetail) {
 							const expiresAt = limitExceededDetail.innerError?.coolDownExpiresAt;
-							let friendlyMessage = 'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
+							let friendlyMessage =
+								'WhatsApp MFA is temporarily locked due to too many recent attempts. Please wait a few minutes and try again, or select a different device such as SMS or FIDO2.';
 							if (expiresAt && typeof expiresAt === 'number') {
 								try {
 									const lockUntil = new Date(expiresAt);
@@ -820,10 +933,11 @@ export class MfaAuthenticationServiceV8 {
 						}
 
 						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find((d) =>
-							(d.code === 'INVALID_VALUE') &&
-							typeof d.message === 'string' &&
-							d.message.toLowerCase().includes('could not find suitable content')
+						const invalidValueDetail = pingErrorDetails.find(
+							(d) =>
+								d.code === 'INVALID_VALUE' &&
+								typeof d.message === 'string' &&
+								d.message.toLowerCase().includes('could not find suitable content')
 						);
 
 						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
@@ -836,10 +950,11 @@ export class MfaAuthenticationServiceV8 {
 					}
 				}
 
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+
 				// If it's a 400 error, try to read the device authentication to get allowed devices
 				if (response.status === 400) {
 					try {
@@ -849,30 +964,45 @@ export class MfaAuthenticationServiceV8 {
 							params.authenticationId,
 							{ isUserId: true }
 						);
-						
-						const allowedDevices = (authData._embedded as { devices?: Array<{ id: string; type?: string; nickname?: string }> })?.devices || 
-							(authData.devices as Array<{ id: string; type?: string; nickname?: string }> | undefined) || 
+
+						const allowedDevices =
+							(
+								authData._embedded as {
+									devices?: Array<{ id: string; type?: string; nickname?: string }>;
+								}
+							)?.devices ||
+							(authData.devices as
+								| Array<{ id: string; type?: string; nickname?: string }>
+								| undefined) ||
 							[];
-						
+
 						if (allowedDevices.length > 0) {
-							const allowedDeviceList = allowedDevices.map(d => 
-								`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
-							).join(', ');
-							
+							const allowedDeviceList = allowedDevices
+								.map(
+									(d) =>
+										`${d.id}${d.nickname ? ` (${d.nickname})` : ''}${d.type ? ` [${d.type}]` : ''}`
+								)
+								.join(', ');
+
 							throw new Error(
 								`Device selection failed: ${errorText}. ` +
-								`The selected device (${params.deviceId}) is not allowed by the current authentication policy. ` +
-								`Allowed devices: ${allowedDeviceList}. ` +
-								`Please re-run "Initialize Authentication" and select a device from the allowed list.`
+									`The selected device (${params.deviceId}) is not allowed by the current authentication policy. ` +
+									`Allowed devices: ${allowedDeviceList}. ` +
+									`Please re-run "Initialize Authentication" and select a device from the allowed list.`
 							);
 						}
 					} catch (readError) {
 						// If we can't read auth data, just use the original error
-						console.warn(`${MODULE_TAG} Could not read device authentication for better error message:`, readError);
+						console.warn(
+							`${MODULE_TAG} Could not read device authentication for better error message:`,
+							readError
+						);
 					}
 				}
-				
-				throw new Error(`Failed to select device: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+
+				throw new Error(
+					`Failed to select device: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const result = responseData as Partial<DeviceAuthenticationResponse>;
@@ -912,9 +1042,9 @@ export class MfaAuthenticationServiceV8 {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
-		
+
 		let workerToken = await workerTokenServiceV8.getToken();
-		
+
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
 		if (workerToken) {
@@ -930,15 +1060,15 @@ export class MfaAuthenticationServiceV8 {
 				console.warn(`${MODULE_TAG} Could not decode token to check expiry:`, error);
 			}
 		}
-		
+
 		// Check if token is missing, expired, or about to expire
 		const now = Date.now();
 		const isExpired = tokenExpiry && now >= tokenExpiry;
 		const timeRemaining = tokenExpiry ? Math.max(0, tokenExpiry - now) : 0;
 		const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
-		const isAboutToExpire = tokenExpiry && timeRemaining <= (renewalThreshold * 1000);
+		const isAboutToExpire = tokenExpiry && timeRemaining <= renewalThreshold * 1000;
 		const needsRenewal = !workerToken || isExpired || isAboutToExpire;
-		
+
 		console.log(`${MODULE_TAG} Worker token check:`, {
 			hasToken: !!workerToken,
 			timeRemainingSeconds,
@@ -948,50 +1078,58 @@ export class MfaAuthenticationServiceV8 {
 			needsRenewal,
 			autoRenewalEnabled,
 		});
-		
+
 		if (needsRenewal) {
 			if (!autoRenewalEnabled) {
-				console.log(`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`);
+				console.log(
+					`${MODULE_TAG} Token needs renewal but auto-renewal is disabled in MFA configuration`
+				);
 				if (!workerToken || isExpired) {
 					throw new Error('Worker token not found or expired. Please generate a new worker token.');
 				}
 				// Token exists but is about to expire - warn user but don't auto-renew
-				console.warn(`${MODULE_TAG} Worker token is about to expire (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), but auto-renewal is disabled`);
+				console.warn(
+					`${MODULE_TAG} Worker token is about to expire (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), but auto-renewal is disabled`
+				);
 			} else {
-				console.log(`${MODULE_TAG} Token needs renewal (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), attempting automatic renewal (auto-renewal enabled)...`);
+				console.log(
+					`${MODULE_TAG} Token needs renewal (${timeRemainingSeconds}s remaining, threshold: ${renewalThreshold}s), attempting automatic renewal (auto-renewal enabled)...`
+				);
 				const credentials = await workerTokenServiceV8.loadCredentials();
-				
+
 				if (!credentials) {
 					throw new Error('Worker token not found. Please generate a worker token first.');
 				}
-				
+
 				// Attempt to issue a new token using stored credentials
 				try {
 					const region = credentials.region || 'us';
-					const apiBase = 
-						region === 'eu' ? 'https://auth.pingone.eu' :
-						region === 'ap' ? 'https://auth.pingone.asia' :
-						region === 'ca' ? 'https://auth.pingone.ca' :
-						'https://auth.pingone.com';
-					
+					const apiBase =
+						region === 'eu'
+							? 'https://auth.pingone.eu'
+							: region === 'ap'
+								? 'https://auth.pingone.asia'
+								: region === 'ca'
+									? 'https://auth.pingone.ca'
+									: 'https://auth.pingone.com';
+
 					const actualPingOneUrl = `${apiBase}/${credentials.environmentId}/as/token`;
 					const proxyEndpoint = '/api/pingone/token';
 					const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
 					const scopeList = credentials.scopes;
-					const normalizedScopes: string[] = Array.isArray(scopeList) && scopeList.length > 0
-						? scopeList 
-						: defaultScopes;
-					
+					const normalizedScopes: string[] =
+						Array.isArray(scopeList) && scopeList.length > 0 ? scopeList : defaultScopes;
+
 					const params = new URLSearchParams({
 						grant_type: 'client_credentials',
 						client_id: credentials.clientId,
 						scope: normalizedScopes.join(' '),
 					});
-					
+
 					const headers: Record<string, string> = {
 						'Content-Type': 'application/x-www-form-urlencoded',
 					};
-					
+
 					const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
 					if (authMethod === 'client_secret_post') {
 						params.set('client_secret', credentials.clientSecret);
@@ -999,7 +1137,7 @@ export class MfaAuthenticationServiceV8 {
 						const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 						headers.Authorization = `Basic ${basicAuth}`;
 					}
-					
+
 					// Track API call
 					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 					const startTime = Date.now();
@@ -1020,7 +1158,7 @@ export class MfaAuthenticationServiceV8 {
 						step: 'mfa-Renew Worker Token',
 						flowType: 'mfa',
 					});
-					
+
 					console.log(`${MODULE_TAG} Renewing worker token...`);
 					let response: Response;
 					try {
@@ -1049,7 +1187,7 @@ export class MfaAuthenticationServiceV8 {
 						);
 						throw error;
 					}
-					
+
 					const responseClone = response.clone();
 					let data: unknown;
 					try {
@@ -1058,7 +1196,7 @@ export class MfaAuthenticationServiceV8 {
 						const errorText = await response.text();
 						data = { error: 'Failed to parse response', rawResponse: errorText.substring(0, 200) };
 					}
-					
+
 					// Update API call with response
 					apiCallTrackerService.updateApiCallResponse(
 						callId,
@@ -1069,34 +1207,40 @@ export class MfaAuthenticationServiceV8 {
 						},
 						Date.now() - startTime
 					);
-					
+
 					if (!response.ok) {
 						const errorData = data as { error?: string; rawResponse?: string };
-						throw new Error(`Token renewal failed: ${response.status} ${response.statusText} - ${errorData.error || errorData.rawResponse || 'Unknown error'}`);
+						throw new Error(
+							`Token renewal failed: ${response.status} ${response.statusText} - ${errorData.error || errorData.rawResponse || 'Unknown error'}`
+						);
 					}
-					
+
 					const tokenData = data as { access_token: string; expires_in?: number };
 					const newToken = tokenData.access_token;
-					const expiresAt = tokenData.expires_in ? Date.now() + tokenData.expires_in * 1000 : undefined;
-					
+					const expiresAt = tokenData.expires_in
+						? Date.now() + tokenData.expires_in * 1000
+						: undefined;
+
 					await workerTokenServiceV8.saveToken(newToken, expiresAt);
 					console.log(`${MODULE_TAG} Worker token renewed successfully`);
-					
+
 					// Dispatch event for status update
 					window.dispatchEvent(new Event('workerTokenUpdated'));
-					
+
 					workerToken = newToken;
 				} catch (renewError) {
 					console.error(`${MODULE_TAG} Failed to renew token automatically:`, renewError);
-					throw new Error(`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`);
+					throw new Error(
+						`Worker token expired and automatic renewal failed: ${renewError instanceof Error ? renewError.message : 'Unknown error'}. Please generate a new worker token.`
+					);
 				}
 			}
 		}
-		
+
 		if (!workerToken) {
 			throw new Error('Worker token not found. Please generate a worker token first.');
 		}
-		
+
 		return workerToken.trim().replace(/^Bearer\s+/i, '');
 	}
 
@@ -1124,7 +1268,10 @@ export class MfaAuthenticationServiceV8 {
 					userId = params.userId;
 				} else if (params.username) {
 					const { MFAServiceV8 } = await import('./mfaServiceV8');
-					const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+					const user = await MFAServiceV8.lookupUserByUsername(
+						params.environmentId,
+						params.username
+					);
 					userId = user.id as string;
 				} else {
 					// No-username variant: Initialize device authentication without username/userId
@@ -1132,9 +1279,12 @@ export class MfaAuthenticationServiceV8 {
 					console.log(`${MODULE_TAG} Using no-username variant for device authentication`);
 					userId = ''; // Will be omitted from request body
 				}
-				
+
 				// Fallback to direct endpoint - use custom domain if provided
-				const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(params.region, params.customDomain);
+				const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
+					params.region,
+					params.customDomain
+				);
 				endpoint = `${authPath}/mfa/v1/environments/${params.environmentId}/users/${encodeURIComponent(
 					userId
 				)}/deviceAuthentications/${params.authenticationId}/otp`;
@@ -1147,10 +1297,10 @@ export class MfaAuthenticationServiceV8 {
 			const requestBody = {
 				otp: params.otp,
 			};
-			
+
 			// If using otpCheckUrl, it's a direct PingOne API call, not a proxy
 			const isProxyCall = !params.otpCheckUrl;
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: endpoint,
@@ -1200,9 +1350,10 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
 				console.error(`${MODULE_TAG} OTP validation failed`, {
 					status: response.status,
 					statusText: response.statusText,
@@ -1213,10 +1364,14 @@ export class MfaAuthenticationServiceV8 {
 				let attemptsRemaining: number | undefined;
 				if (typeof responseData === 'object' && responseData !== null) {
 					const errorData = responseData as Record<string, unknown>;
-					attemptsRemaining = (errorData.details as Array<{ innerError?: { attemptsRemaining?: number } }>)?.[0]?.innerError?.attemptsRemaining;
+					attemptsRemaining = (
+						errorData.details as Array<{ innerError?: { attemptsRemaining?: number } }>
+					)?.[0]?.innerError?.attemptsRemaining;
 				}
 
-				const otpError = new Error(`OTP validation failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`) as Error & {
+				const otpError = new Error(
+					`OTP validation failed: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				) as Error & {
 					attemptsRemaining?: number;
 				};
 				if (attemptsRemaining !== undefined) {
@@ -1250,9 +1405,7 @@ export class MfaAuthenticationServiceV8 {
 	 * Poll for authentication completion (follow _links.challenge.poll)
 	 * Used for Push notifications and WebAuthn challenges
 	 */
-	static async pollAuthenticationStatus(
-		pollUrl: string
-	): Promise<DeviceAuthenticationResponse> {
+	static async pollAuthenticationStatus(pollUrl: string): Promise<DeviceAuthenticationResponse> {
 		console.log(`${MODULE_TAG} Polling authentication status`, { pollUrl });
 
 		try {
@@ -1267,7 +1420,9 @@ export class MfaAuthenticationServiceV8 {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Failed to poll authentication status: ${response.status} ${response.statusText}`);
+				throw new Error(
+					`Failed to poll authentication status: ${response.status} ${response.statusText}`
+				);
 			}
 
 			const data = await response.json();
@@ -1347,10 +1502,13 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				throw new Error(`Failed to complete authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+				throw new Error(
+					`Failed to complete authentication: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const data = responseData as Record<string, unknown>;
@@ -1363,7 +1521,7 @@ export class MfaAuthenticationServiceV8 {
 			const result: AuthenticationCompletionResult = {
 				status: 'COMPLETED',
 			};
-			
+
 			// Add optional properties if they exist
 			if (data.access_token) {
 				result.accessToken = String(data.access_token);
@@ -1374,14 +1532,19 @@ export class MfaAuthenticationServiceV8 {
 			if (data.expires_in) {
 				result.expiresIn = Number(data.expires_in);
 			}
-			
+
 			// Add any additional properties from the response
 			Object.keys(data).forEach((key) => {
-				if (key !== 'access_token' && key !== 'token_type' && key !== 'expires_in' && key !== 'status') {
+				if (
+					key !== 'access_token' &&
+					key !== 'token_type' &&
+					key !== 'expires_in' &&
+					key !== 'status'
+				) {
 					result[key] = data[key];
 				}
 			});
-			
+
 			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error completing authentication`, error);
@@ -1427,22 +1590,19 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
-			const response = await pingOneFetch(
-				proxyEndpoint,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						environmentId,
-						userId: username,
-						authenticationId,
-						workerToken: cleanToken,
-					}),
-					retry: { maxAttempts: 3 },
-				}
-			);
+			const response = await pingOneFetch(proxyEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environmentId,
+					userId: username,
+					authenticationId,
+					workerToken: cleanToken,
+				}),
+				retry: { maxAttempts: 3 },
+			});
 
 			const responseClone = response.clone();
 			let data: unknown;
@@ -1465,7 +1625,9 @@ export class MfaAuthenticationServiceV8 {
 
 			if (!response.ok) {
 				const errorData = data as { error?: string; message?: string };
-				throw new Error(`Failed to cancel device authentication: ${response.status} ${response.statusText} - ${errorData.error || errorData.message || 'Unknown error'}`);
+				throw new Error(
+					`Failed to cancel device authentication: ${response.status} ${response.statusText} - ${errorData.error || errorData.message || 'Unknown error'}`
+				);
 			}
 
 			const result = data as { status: string; [key: string]: unknown };
@@ -1482,10 +1644,10 @@ export class MfaAuthenticationServiceV8 {
 	 * Check Assertion (FIDO Device)
 	 * POST {{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthID}}
 	 * Content-Type: application/vnd.pingidentity.assertion.check+json
-	 * 
+	 *
 	 * Validates the WebAuthn assertion for a FIDO2 device in an MFA authentication flow
 	 * when the device authentication status is ASSERTION_REQUIRED.
-	 * 
+	 *
 	 * @param deviceAuthId - The device authentication ID
 	 * @param assertion - WebAuthn assertion result from navigator.credentials.get()
 	 * @param environmentId - Optional environment ID (if not provided, will be loaded from credentials)
@@ -1533,7 +1695,7 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			
+
 			// Get environment ID - use provided parameter or load from credentials service
 			let finalEnvironmentId = environmentId;
 			if (!finalEnvironmentId) {
@@ -1550,11 +1712,13 @@ export class MfaAuthenticationServiceV8 {
 				});
 				finalEnvironmentId = credentials?.environmentId;
 			}
-			
+
 			if (!finalEnvironmentId) {
-				throw new Error('Environment ID is required for FIDO2 assertion check. Please configure your credentials in the MFA Authentication page.');
+				throw new Error(
+					'Environment ID is required for FIDO2 assertion check. Please configure your credentials in the MFA Authentication page.'
+				);
 			}
-			
+
 			const requestBody = {
 				deviceAuthId,
 				environmentId: finalEnvironmentId, // Include environment ID in request body
@@ -1563,7 +1727,7 @@ export class MfaAuthenticationServiceV8 {
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
 			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}/assertion`;
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/check-fido2-assertion',
@@ -1609,10 +1773,13 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorText = typeof responseData === 'object' && responseData !== null && 'message' in responseData
-					? String(responseData.message)
-					: response.statusText;
-				throw new Error(`Failed to check FIDO2 assertion: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`);
+				const errorText =
+					typeof responseData === 'object' && responseData !== null && 'message' in responseData
+						? String(responseData.message)
+						: response.statusText;
+				throw new Error(
+					`Failed to check FIDO2 assertion: ${response.status} ${response.statusText}${errorText ? ` - ${errorText}` : ''}`
+				);
 			}
 
 			const data = responseData as { status: string; nextStep?: string; [key: string]: unknown };
@@ -1640,7 +1807,7 @@ export class MfaAuthenticationServiceV8 {
 		assertionCheck?: string;
 	} {
 		const links = response._links || {};
-		
+
 		return {
 			otpCheck: links['otp.check']?.href,
 			challengePoll: links['challenge.poll']?.href,
