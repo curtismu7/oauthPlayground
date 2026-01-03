@@ -7,21 +7,21 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FiCheck, FiRefreshCw, FiDownload, FiUpload, FiInfo, FiArrowLeft } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import {
+	type MFAConfiguration,
+	MFAConfigurationServiceV8,
+} from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import {
-	MFAConfigurationServiceV8,
-	type MFAConfiguration,
-} from '@/v8/services/mfaConfigurationServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
-import { MFAServiceV8, type MFASettings } from '@/v8/services/mfaServiceV8';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 
 const MODULE_TAG = '[⚙️ MFA-CONFIG-PAGE-V8]';
 
@@ -35,23 +35,25 @@ const REGION_DOMAINS: Record<'us' | 'eu' | 'ap' | 'ca', string> = {
 export const MFAConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const [config, setConfig] = useState<MFAConfiguration>(() => MFAConfigurationServiceV8.loadConfiguration());
+	const [config, setConfig] = useState<MFAConfiguration>(() =>
+		MFAConfigurationServiceV8.loadConfiguration()
+	);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
-	
+
 	// PingOne MFA Settings state
 	const [pingOneSettings, setPingOneSettings] = useState<MFASettings | null>(null);
 	const [isLoadingPingOneSettings, setIsLoadingPingOneSettings] = useState(false);
 	const [isSavingPingOneSettings, setIsSavingPingOneSettings] = useState(false);
 	const [hasPingOneSettingsChanges, setHasPingOneSettingsChanges] = useState(false);
 	const [environmentId, setEnvironmentId] = useState<string>('');
-	
+
 	// Get return path from location state
 	const locationState = location.state as { returnPath?: string; returnState?: unknown } | null;
 	const returnPath = locationState?.returnPath;
-	
+
 	// Determine flow type from return path for better button text
 	const getFlowLabel = (path: string | undefined): string => {
 		if (!path) return 'Device Registration';
@@ -84,6 +86,23 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		return () => unsubscribe();
 	}, []);
 
+	// Define loadPingOneSettings before useEffect that uses it
+	const loadPingOneSettings = useCallback(async (envId: string) => {
+		setIsLoadingPingOneSettings(true);
+		try {
+			const settings = await MFAServiceV8.getMFASettings(envId);
+			setPingOneSettings(settings);
+			setHasPingOneSettingsChanges(false);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load PingOne MFA settings:`, error);
+			toastV8.error(
+				'Failed to load PingOne MFA settings. Please ensure you have a valid worker token.'
+			);
+		} finally {
+			setIsLoadingPingOneSettings(false);
+		}
+	}, []);
+
 	// Load environment ID and PingOne MFA Settings
 	useEffect(() => {
 		const loadEnvironmentAndSettings = async () => {
@@ -100,23 +119,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		loadEnvironmentAndSettings();
 	}, [loadPingOneSettings]);
 
-	const loadPingOneSettings = useCallback(async (envId: string) => {
-		setIsLoadingPingOneSettings(true);
-		try {
-			const settings = await MFAServiceV8.getMFASettings(envId);
-			setPingOneSettings(settings);
-			setHasPingOneSettingsChanges(false);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load PingOne MFA settings:`, error);
-			toastV8.error('Failed to load PingOne MFA settings. Please ensure you have a valid worker token.');
-		} finally {
-			setIsLoadingPingOneSettings(false);
-		}
-	}, []);
-
 	const handleSavePingOneSettings = async () => {
 		if (!environmentId || !pingOneSettings) return;
-		
+
 		setIsSavingPingOneSettings(true);
 		try {
 			await MFAServiceV8.updateMFASettings(environmentId, pingOneSettings);
@@ -124,7 +129,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			toastV8.success('PingOne MFA settings updated successfully');
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to save PingOne MFA settings:`, error);
-			toastV8.error(error instanceof Error ? error.message : 'Failed to update PingOne MFA settings');
+			toastV8.error(
+				error instanceof Error ? error.message : 'Failed to update PingOne MFA settings'
+			);
 		} finally {
 			setIsSavingPingOneSettings(false);
 		}
@@ -132,13 +139,14 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 	const handleResetPingOneSettings = async () => {
 		if (!environmentId) return;
-		
+
 		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
 		const confirmed = await uiNotificationServiceV8.confirm({
 			title: 'Reset PingOne MFA Settings',
-			message: 'Are you sure you want to reset PingOne MFA settings to defaults? This cannot be undone.',
+			message:
+				'Are you sure you want to reset PingOne MFA settings to defaults? This cannot be undone.',
 		});
-		
+
 		if (!confirmed) {
 			return;
 		}
@@ -149,7 +157,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			await loadPingOneSettings(environmentId);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to reset PingOne MFA settings:`, error);
-			toastV8.error(error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings');
+			toastV8.error(
+				error instanceof Error ? error.message : 'Failed to reset PingOne MFA settings'
+			);
 		}
 	};
 
@@ -173,7 +183,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			title: 'Reset Configuration',
 			message: 'Are you sure you want to reset all settings to defaults? This cannot be undone.',
 		});
-		
+
 		if (confirmed) {
 			MFAConfigurationServiceV8.resetToDefaults();
 			setConfig(MFAConfigurationServiceV8.loadConfiguration());
@@ -187,7 +197,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		try {
 			const credentials = await workerTokenServiceV8.loadCredentials();
 			if (!credentials) {
-				toastV8.error('Worker token credentials are missing. Open the worker token modal to save them first.');
+				toastV8.error(
+					'Worker token credentials are missing. Open the worker token modal to save them first.'
+				);
 				setIsRefreshingToken(false);
 				return;
 			}
@@ -207,7 +219,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				return;
 			}
 
-			const resolvedScopes = (scopes?.length ? scopes : PINGONE_WORKER_MFA_SCOPE_STRING.split(/\s+/)).join(' ');
+			const resolvedScopes = (
+				scopes?.length ? scopes : PINGONE_WORKER_MFA_SCOPE_STRING.split(/\s+/)
+			).join(' ');
 			const domain = REGION_DOMAINS[region] ?? REGION_DOMAINS.us;
 			const tokenEndpoint = `https://${domain}/${environmentId}/as/token`;
 			const params = new URLSearchParams({
@@ -234,7 +248,11 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 			if (!response.ok) {
 				const errorJson = await response.json().catch(() => null);
-				const message = errorJson?.error_description || errorJson?.error || response.statusText || 'Unknown error refreshing worker token';
+				const message =
+					errorJson?.error_description ||
+					errorJson?.error ||
+					response.statusText ||
+					'Unknown error refreshing worker token';
 				throw new Error(message);
 			}
 
@@ -249,7 +267,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			window.dispatchEvent(new Event('workerTokenUpdated'));
 
 			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus(token, expiresAt);
-			const timeRemainingLabel = status.minutesRemaining ? `${status.minutesRemaining} min remaining` : status.message;
+			const timeRemainingLabel = status.minutesRemaining
+				? `${status.minutesRemaining} min remaining`
+				: status.message;
 			toastV8.success(`Worker token refreshed successfully (${timeRemainingLabel}).`);
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to refresh worker token`, error);
@@ -344,15 +364,17 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	};
 
 	return (
-		<div style={{ 
-			padding: '24px', 
-			paddingBottom: isApiDisplayVisible ? '450px' : '24px',
-			maxWidth: '1200px', 
-			margin: '0 auto',
-			transition: 'padding-bottom 0.3s ease',
-		}}>
+		<div
+			style={{
+				padding: '24px',
+				paddingBottom: isApiDisplayVisible ? '450px' : '24px',
+				maxWidth: '1200px',
+				margin: '0 auto',
+				transition: 'padding-bottom 0.3s ease',
+			}}
+		>
 			<MFANavigationV8 currentPage="settings" showBackToMain={true} />
-			
+
 			{/* Back Button */}
 			{returnPath && (
 				<button
@@ -386,7 +408,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<span>Back to {getFlowLabel(returnPath)}</span>
 				</button>
 			)}
-			
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Header */}
@@ -403,7 +425,8 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					MFA Configuration
 				</h1>
 				<p style={{ margin: 0, fontSize: '16px', color: 'rgba(255, 255, 255, 0.9)' }}>
-					Manage MFA-specific settings for authentication flows, device management, and user experience
+					Manage MFA-specific settings for authentication flows, device management, and user
+					experience
 				</p>
 			</div>
 
@@ -539,24 +562,53 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							</div>
 						) : pingOneSettings ? (
 							<>
-								<div style={{ marginBottom: '20px', padding: '12px', background: '#eff6ff', borderRadius: '8px', border: '1px solid #bfdbfe' }}>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+								<div
+									style={{
+										marginBottom: '20px',
+										padding: '12px',
+										background: '#eff6ff',
+										borderRadius: '8px',
+										border: '1px solid #bfdbfe',
+									}}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '8px',
+										}}
+									>
 										<FiInfo size={16} color="#3b82f6" />
 										<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
 											About PingOne MFA Settings
 										</span>
 									</div>
 									<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
-										These are environment-level settings that control MFA behavior across all policies. 
-										For policy-specific settings (like pairing and lockout), configure them in Device Authentication Policies.
+										These are environment-level settings that control MFA behavior across all
+										policies. For policy-specific settings (like pairing and lockout), configure
+										them in Device Authentication Policies.
 										<MFAInfoButtonV8 contentKey="mfa.settings" displayMode="tooltip" />
 									</p>
 								</div>
 
 								{/* Pairing Settings */}
 								{pingOneSettings.pairing && (
-									<div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e5e7eb' }}>
-										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+									<div
+										style={{
+											marginBottom: '20px',
+											paddingBottom: '20px',
+											borderBottom: '1px solid #e5e7eb',
+										}}
+									>
+										<h4
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '16px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Pairing Settings
 										</h4>
 										{pingOneSettings.pairing.maxAllowedDevices !== undefined && (
@@ -582,7 +634,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 												onChange={(value) => {
 													setPingOneSettings({
 														...pingOneSettings,
-														pairing: { ...pingOneSettings.pairing, pairingKeyFormat: value as string },
+														pairing: {
+															...pingOneSettings.pairing,
+															pairingKeyFormat: value as string,
+														},
 													});
 													setHasPingOneSettingsChanges(true);
 												}}
@@ -631,8 +686,21 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 								{/* Lockout Settings */}
 								{pingOneSettings.lockout && (
-									<div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #e5e7eb' }}>
-										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+									<div
+										style={{
+											marginBottom: '20px',
+											paddingBottom: '20px',
+											borderBottom: '1px solid #e5e7eb',
+										}}
+									>
+										<h4
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '16px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											Lockout Settings
 										</h4>
 										{pingOneSettings.lockout.failureCount !== undefined && (
@@ -674,7 +742,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 												onChange={(value) => {
 													setPingOneSettings({
 														...pingOneSettings,
-														lockout: { ...pingOneSettings.lockout, progressiveLockoutEnabled: value },
+														lockout: {
+															...pingOneSettings.lockout,
+															progressiveLockoutEnabled: value,
+														},
 													});
 													setHasPingOneSettingsChanges(true);
 												}}
@@ -687,7 +758,14 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								{/* OTP Settings */}
 								{pingOneSettings.otp && (
 									<div style={{ marginBottom: '20px' }}>
-										<h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#374151' }}>
+										<h4
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '16px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
 											OTP Settings
 										</h4>
 										{pingOneSettings.otp.otpLength !== undefined && (
@@ -772,7 +850,8 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							</>
 						) : (
 							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
-								No PingOne MFA settings available. Please ensure you have a valid worker token and environment ID.
+								No PingOne MFA settings available. Please ensure you have a valid worker token and
+								environment ID.
 							</div>
 						)}
 					</ConfigSection>
@@ -862,7 +941,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				</ConfigSection>
 
 				{/* OTP Settings */}
-				<ConfigSection title="OTP Settings" description="Configure OTP code handling and validation">
+				<ConfigSection
+					title="OTP Settings"
+					description="Configure OTP code handling and validation"
+				>
 					<SelectSetting
 						label="OTP Code Length"
 						value={config.otpCodeLength}
@@ -912,7 +994,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Preferred Authenticator Type"
 						value={config.fido2.preferredAuthenticatorType}
-						onChange={(value) => updateNestedConfig('fido2', 'preferredAuthenticatorType', value as 'platform' | 'cross-platform' | 'both')}
+						onChange={(value) =>
+							updateNestedConfig(
+								'fido2',
+								'preferredAuthenticatorType',
+								value as 'platform' | 'cross-platform' | 'both'
+							)
+						}
 						options={[
 							{ value: 'platform', label: 'Platform (Touch ID, Face ID, Windows Hello)' },
 							{ value: 'cross-platform', label: 'Cross-Platform (Security Keys)' },
@@ -923,7 +1011,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="User Verification"
 						value={config.fido2.userVerification}
-						onChange={(value) => updateNestedConfig('fido2', 'userVerification', value as 'discouraged' | 'preferred' | 'required')}
+						onChange={(value) =>
+							updateNestedConfig(
+								'fido2',
+								'userVerification',
+								value as 'discouraged' | 'preferred' | 'required'
+							)
+						}
 						options={[
 							{ value: 'discouraged', label: 'Discouraged' },
 							{ value: 'preferred', label: 'Preferred' },
@@ -934,7 +1028,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Discoverable Credentials"
 						value={config.fido2.discoverableCredentials}
-						onChange={(value) => updateNestedConfig('fido2', 'discoverableCredentials', value as 'discouraged' | 'preferred' | 'required')}
+						onChange={(value) =>
+							updateNestedConfig(
+								'fido2',
+								'discoverableCredentials',
+								value as 'discouraged' | 'preferred' | 'required'
+							)
+						}
 						options={[
 							{ value: 'discouraged', label: 'Discouraged (Server-side storage)' },
 							{ value: 'preferred', label: 'Preferred (Client-side storage)' },
@@ -945,7 +1045,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Relying Party ID Type"
 						value={config.fido2.relyingPartyIdType}
-						onChange={(value) => updateNestedConfig('fido2', 'relyingPartyIdType', value as 'pingone' | 'custom' | 'other')}
+						onChange={(value) =>
+							updateNestedConfig(
+								'fido2',
+								'relyingPartyIdType',
+								value as 'pingone' | 'custom' | 'other'
+							)
+						}
 						options={[
 							{ value: 'pingone', label: 'PingOne' },
 							{ value: 'custom', label: 'Custom Domain' },
@@ -970,7 +1076,9 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="Backup Eligibility"
 						value={config.fido2.backupEligibility}
-						onChange={(value) => updateNestedConfig('fido2', 'backupEligibility', value as 'allow' | 'disallow')}
+						onChange={(value) =>
+							updateNestedConfig('fido2', 'backupEligibility', value as 'allow' | 'disallow')
+						}
 						options={[
 							{ value: 'allow', label: 'Allow' },
 							{ value: 'disallow', label: 'Disallow' },
@@ -980,13 +1088,21 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<ToggleSetting
 						label="Enforce Backup Eligibility During Authentication"
 						value={config.fido2.enforceBackupEligibilityDuringAuth}
-						onChange={(value) => updateNestedConfig('fido2', 'enforceBackupEligibilityDuringAuth', value)}
+						onChange={(value) =>
+							updateNestedConfig('fido2', 'enforceBackupEligibilityDuringAuth', value)
+						}
 						description="Enforce backup eligibility during authentication"
 					/>
 					<SelectSetting
 						label="Attestation Request"
 						value={config.fido2.attestationRequest}
-						onChange={(value) => updateNestedConfig('fido2', 'attestationRequest', value as 'none' | 'direct' | 'enterprise')}
+						onChange={(value) =>
+							updateNestedConfig(
+								'fido2',
+								'attestationRequest',
+								value as 'none' | 'direct' | 'enterprise'
+							)
+						}
 						options={[
 							{ value: 'none', label: 'None' },
 							{ value: 'direct', label: 'Direct' },
@@ -1074,11 +1190,16 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				</ConfigSection>
 
 				{/* Security Settings */}
-				<ConfigSection title="Security Settings" description="Security-related configuration options">
+				<ConfigSection
+					title="Security Settings"
+					description="Security-related configuration options"
+				>
 					<ToggleSetting
 						label="Require Username for Authentication"
 						value={config.security.requireUsernameForAuthentication}
-						onChange={(value) => updateNestedConfig('security', 'requireUsernameForAuthentication', value)}
+						onChange={(value) =>
+							updateNestedConfig('security', 'requireUsernameForAuthentication', value)
+						}
 						description="Require username input before starting authentication"
 					/>
 					<ToggleSetting
@@ -1202,7 +1323,15 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 }) => {
 	return (
 		<div>
-			<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+			<label
+				style={{
+					display: 'block',
+					fontSize: '14px',
+					fontWeight: '500',
+					color: '#374151',
+					marginBottom: '8px',
+				}}
+			>
 				{label}
 			</label>
 			<input
@@ -1211,7 +1340,8 @@ const NumberSetting: React.FC<NumberSettingProps> = ({
 				onChange={(e) => {
 					const num = parseInt(e.target.value, 10);
 					if (!Number.isNaN(num)) {
-						const clamped = min !== undefined && max !== undefined ? Math.max(min, Math.min(max, num)) : num;
+						const clamped =
+							min !== undefined && max !== undefined ? Math.max(min, Math.min(max, num)) : num;
 						onChange(clamped);
 					}
 				}}
@@ -1238,10 +1368,24 @@ interface SelectSettingProps extends SettingProps {
 	options: Array<{ value: string | number; label: string }>;
 }
 
-const SelectSetting: React.FC<SelectSettingProps> = ({ label, description, value, onChange, options }) => {
+const SelectSetting: React.FC<SelectSettingProps> = ({
+	label,
+	description,
+	value,
+	onChange,
+	options,
+}) => {
 	return (
 		<div>
-			<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+			<label
+				style={{
+					display: 'block',
+					fontSize: '14px',
+					fontWeight: '500',
+					color: '#374151',
+					marginBottom: '8px',
+				}}
+			>
 				{label}
 			</label>
 			<select
@@ -1282,7 +1426,15 @@ interface TextSettingProps extends SettingProps {
 const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, onChange }) => {
 	return (
 		<div>
-			<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+			<label
+				style={{
+					display: 'block',
+					fontSize: '14px',
+					fontWeight: '500',
+					color: '#374151',
+					marginBottom: '8px',
+				}}
+			>
 				{label}
 			</label>
 			<input
@@ -1300,10 +1452,8 @@ const TextSetting: React.FC<TextSettingProps> = ({ label, description, value, on
 			{description && (
 				<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>{description}</p>
 			)}
-			
 		</div>
 	);
 };
 
 export default MFAConfigurationPageV8;
-
