@@ -12,40 +12,53 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { FiKey, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import {
+	FiArrowRight,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
+	FiInfo,
+	FiKey,
+	FiSettings,
+	FiShield,
+	FiX,
+} from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
+import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
 
 export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
 	const _location = useLocation();
-	
+
 	// Device type is always FIDO2 (PLATFORM and SECURITY_KEY are deprecated)
 	const currentDeviceType: DeviceType = 'FIDO2';
-	
+
 	const getDeviceTypeDisplayName = useCallback(() => {
 		return 'FIDO2';
 	}, []);
-	
+
 	// Environment and token state
 	const [environmentId, setEnvironmentId] = useState<string>('');
-	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// WebAuthn support check
@@ -59,13 +72,15 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	});
 
 	// FIDO2 Policy state
-	const [fido2Policies, setFido2Policies] = useState<Array<{
-		id?: string;
-		name: string;
-		description?: string;
-		default?: boolean;
-		[key: string]: unknown;
-	}>>([]);
+	const [fido2Policies, setFido2Policies] = useState<
+		Array<{
+			id?: string;
+			name: string;
+			description?: string;
+			default?: boolean;
+			[key: string]: unknown;
+		}>
+	>([]);
 	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
 	const [policiesError, setPoliciesError] = useState<string | null>(null);
 	const [selectedFido2PolicyId, setSelectedFido2PolicyId] = useState<string>('');
@@ -74,7 +89,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
 	const [isLoadingDeviceAuthPolicies, setIsLoadingDeviceAuthPolicies] = useState(false);
 	const [deviceAuthPoliciesError, setDeviceAuthPoliciesError] = useState<string | null>(null);
-	const [selectedDeviceAuthPolicy, setSelectedDeviceAuthPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
+	const [selectedDeviceAuthPolicy, setSelectedDeviceAuthPolicy] =
+		useState<DeviceAuthenticationPolicy | null>(null);
 
 	// API Display visibility state (for padding adjustment)
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
@@ -85,17 +101,21 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	const publicKeyContent = MFAEducationServiceV8.getContent('fido2.publicKey');
 	const phishingContent = MFAEducationServiceV8.getContent('security.phishingResistance');
 	const passkeysVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.webauthn');
-	const passkeysVsDeviceBindingContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.device.binding');
-	const biometricsVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.biometrics.vs.webauthn');
-	
+	const passkeysVsDeviceBindingContent = MFAEducationServiceV8.getContent(
+		'fido2.passkeys.vs.device.binding'
+	);
+	const biometricsVsWebAuthnContent = MFAEducationServiceV8.getContent(
+		'fido2.biometrics.vs.webauthn'
+	);
+
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState({
 		advancedConcepts: true,
 		comparisonTable: true,
 	});
-	
+
 	const toggleSection = (key: keyof typeof collapsedSections) => {
-		setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
+		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	};
 
 	// Load environment ID
@@ -111,11 +131,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 		const initializeWebAuthn = async () => {
 			const supported = FIDO2Service.isWebAuthnSupported();
 			setWebAuthnSupported(supported);
-			
+
 			if (supported) {
 				// Get basic capabilities first
 				const capabilities = FIDO2Service.getCapabilities();
-				
+
 				// Check platform authenticator availability asynchronously
 				try {
 					const platformAvailable = await FIDO2Service.isPlatformAuthenticatorAvailable();
@@ -134,7 +154,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						webAuthnSupported: capabilities.webAuthnSupported,
 						platformAuthenticator: capabilities.platformAuthenticator,
 						crossPlatformAuthenticator: capabilities.crossPlatformAuthenticator,
-						passkeySupport: capabilities.platformAuthenticator || capabilities.crossPlatformAuthenticator,
+						passkeySupport:
+							capabilities.platformAuthenticator || capabilities.crossPlatformAuthenticator,
 						conditionalUI: false,
 					});
 				}
@@ -176,7 +197,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 				if (!response.ok) {
 					const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-					throw new Error(errorData.message || errorData.error || `Failed to load FIDO2 policies: ${response.status}`);
+					throw new Error(
+						errorData.message ||
+							errorData.error ||
+							`Failed to load FIDO2 policies: ${response.status}`
+					);
 				}
 
 				const data = await response.json();
@@ -185,13 +210,15 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 				// Auto-select default policy
 				if (policiesList.length > 0) {
-					const defaultPolicy = policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+					const defaultPolicy =
+						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
 					if (defaultPolicy.id) {
 						setSelectedFido2PolicyId(defaultPolicy.id);
 					}
 				}
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
 				setPoliciesError(errorMessage);
 				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
 			} finally {
@@ -222,7 +249,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					setSelectedDeviceAuthPolicy(defaultPolicy);
 				}
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'Failed to load device authentication policies';
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to load device authentication policies';
 				setDeviceAuthPoliciesError(errorMessage);
 				console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
 			} finally {
@@ -247,14 +275,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 			toastV8.warning('Please select a FIDO2 policy before proceeding');
 			return;
 		}
-		
+
 		if (!tokenStatus.isValid) {
 			toastV8.warning('Please generate a worker token before proceeding');
 			return;
 		}
-		
+
 		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
-		
+
 		// Navigate to actual registration flow with policy ID and FIDO2 config in state
 		// Always use FIDO2 route (PLATFORM and SECURITY_KEY are deprecated)
 		navigate(`/v8/mfa/register/fido2/device`, {
@@ -272,16 +300,18 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
-			
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
-			<div style={{ 
-				maxWidth: '1200px', 
-				margin: '0 auto', 
-				padding: '32px 20px',
-				paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
-				transition: 'padding-bottom 0.3s ease',
-			}}>
+
+			<div
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					padding: '32px 20px',
+					paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
+					transition: 'padding-bottom 0.3s ease',
+				}}
+			>
 				{/* Header */}
 				<div
 					style={{
@@ -299,7 +329,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						</h1>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Configure {getDeviceTypeDisplayName()} policies, learn about WebAuthn, and prepare for device registration
+						Configure {getDeviceTypeDisplayName()} policies, learn about WebAuthn, and prepare for
+						device registration
 					</p>
 				</div>
 
@@ -323,7 +354,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								WebAuthn Not Supported
 							</p>
 							<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#7f1d1d' }}>
-								Your browser does not support WebAuthn. Please use a modern browser like Chrome, Firefox, Safari, or Edge.
+								Your browser does not support WebAuthn. Please use a modern browser like Chrome,
+								Firefox, Safari, or Edge.
 							</p>
 						</div>
 					</div>
@@ -344,7 +376,8 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							Worker Token Required
 						</h3>
 						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
-							You need a valid worker token to configure {getDeviceTypeDisplayName()} policies and register devices.
+							You need a valid worker token to configure {getDeviceTypeDisplayName()} policies and
+							register devices.
 						</p>
 						<button
 							type="button"
@@ -365,7 +398,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					</div>
 				)}
 
-				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '24px',
+						marginBottom: '24px',
+					}}
+				>
 					{/* FIDO2 Education */}
 					<div
 						style={{
@@ -375,13 +415,26 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
 							<FiBook size={20} color="#3b82f6" />
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>About FIDO2 & WebAuthn</h2>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								About FIDO2 & WebAuthn
+							</h2>
 						</div>
 
 						<div style={{ marginBottom: '20px' }}>
-							<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
 								{webauthnContent.title}
 								<MFAInfoButtonV8 contentKey="fido2.webauthn" displayMode="tooltip" />
 							</h3>
@@ -391,7 +444,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						</div>
 
 						<div style={{ marginBottom: '20px' }}>
-							<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
 								{authenticatorContent.title}
 								<MFAInfoButtonV8 contentKey="fido2.authenticator" displayMode="tooltip" />
 							</h3>
@@ -401,7 +463,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 						</div>
 
 						<div style={{ marginBottom: '20px' }}>
-							<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
 								{publicKeyContent.title}
 								<MFAInfoButtonV8 contentKey="fido2.publicKey" displayMode="tooltip" />
 							</h3>
@@ -409,7 +480,14 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								{publicKeyContent.description}
 							</p>
 							{publicKeyContent.securityNote && (
-								<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#10b981', fontWeight: '500' }}>
+								<p
+									style={{
+										margin: '8px 0 0 0',
+										fontSize: '13px',
+										color: '#10b981',
+										fontWeight: '500',
+									}}
+								>
 									🔒 {publicKeyContent.securityNote}
 								</p>
 							)}
@@ -424,14 +502,21 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								marginTop: '20px',
 							}}
 						>
-							<h3 style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '600', color: '#166534' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#166534',
+								}}
+							>
 								{phishingContent.title}
 							</h3>
 							<p style={{ margin: 0, fontSize: '13px', color: '#166534', lineHeight: '1.5' }}>
 								{phishingContent.description}
 							</p>
 						</div>
-						
+
 						{/* Advanced Concepts - Collapsible Section */}
 						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
 							<button
@@ -455,23 +540,46 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									<FiBook size={18} />
 									Advanced Concepts: Passkeys, Device Binding & Biometrics
 								</span>
-								{collapsedSections.advancedConcepts ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+								{collapsedSections.advancedConcepts ? (
+									<FiChevronDown size={20} />
+								) : (
+									<FiChevronUp size={20} />
+								)}
 							</button>
-							
+
 							{!collapsedSections.advancedConcepts && (
 								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
 									<div style={{ marginBottom: '20px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
 											{passkeysVsWebAuthnContent.title}
-											<MFAInfoButtonV8 contentKey="fido2.passkeys.vs.webauthn" displayMode="tooltip" />
+											<MFAInfoButtonV8
+												contentKey="fido2.passkeys.vs.webauthn"
+												displayMode="tooltip"
+											/>
 										</h4>
 										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
 											{passkeysVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
-												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
 													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
 														if (part.startsWith('**') && part.endsWith('**')) {
 															const text = part.replace(/\*\*/g, '');
-															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
 														}
 														return <span key={i}>{part}</span>;
 													})}
@@ -479,19 +587,38 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 											))}
 										</div>
 									</div>
-									
+
 									<div style={{ marginBottom: '20px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
 											{passkeysVsDeviceBindingContent.title}
-											<MFAInfoButtonV8 contentKey="fido2.passkeys.vs.device.binding" displayMode="tooltip" />
+											<MFAInfoButtonV8
+												contentKey="fido2.passkeys.vs.device.binding"
+												displayMode="tooltip"
+											/>
 										</h4>
 										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
 											{passkeysVsDeviceBindingContent.description.split('\n\n').map((para, idx) => (
-												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
 													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
 														if (part.startsWith('**') && part.endsWith('**')) {
 															const text = part.replace(/\*\*/g, '');
-															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
 														}
 														return <span key={i}>{part}</span>;
 													})}
@@ -499,19 +626,38 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 											))}
 										</div>
 									</div>
-									
+
 									<div style={{ marginBottom: '20px' }}>
-										<h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
 											{biometricsVsWebAuthnContent.title}
-											<MFAInfoButtonV8 contentKey="fido2.biometrics.vs.webauthn" displayMode="tooltip" />
+											<MFAInfoButtonV8
+												contentKey="fido2.biometrics.vs.webauthn"
+												displayMode="tooltip"
+											/>
 										</h4>
 										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
 											{biometricsVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
-												<p key={idx} style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}>
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
 													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
 														if (part.startsWith('**') && part.endsWith('**')) {
 															const text = part.replace(/\*\*/g, '');
-															return <strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>{text}</strong>;
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
 														}
 														return <span key={i}>{part}</span>;
 													})}
@@ -522,7 +668,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								</div>
 							)}
 						</div>
-						
+
 						{/* Comparison Table - Collapsible Section */}
 						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
 							<button
@@ -546,78 +692,171 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									<FiShield size={18} />
 									WebAuthn vs Device Binding/JWS Verification Comparison
 								</span>
-								{collapsedSections.comparisonTable ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+								{collapsedSections.comparisonTable ? (
+									<FiChevronDown size={20} />
+								) : (
+									<FiChevronUp size={20} />
+								)}
 							</button>
-							
+
 							{!collapsedSections.comparisonTable && (
 								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
-									<div style={{
-										background: 'white',
-										border: '1px solid #e5e7eb',
-										borderRadius: '8px',
-										overflow: 'hidden',
-										boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-									}}>
+									<div
+										style={{
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '8px',
+											overflow: 'hidden',
+											boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+										}}
+									>
 										<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
 											<thead>
 												<tr style={{ background: '#f9fafb' }}>
-													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
 														Feature
 													</th>
-													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
 														WebAuthn
 													</th>
-													<th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', borderBottom: '2px solid #e5e7eb', color: '#1f2937' }}>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
 														Device Binding / JWS Verification
 													</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Technology</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>W3C WebAuthn standard</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>JWS (JSON Web Signature) with device binding</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Technology
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														W3C WebAuthn standard
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														JWS (JSON Web Signature) with device binding
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Credential Storage</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Device authenticator (hardware key, TPM, or platform authenticator)</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Device-specific binding (hardware or software-based)</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Credential Storage
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device authenticator (hardware key, TPM, or platform authenticator)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device-specific binding (hardware or software-based)
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>User Experience</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Native browser prompts, biometric authentication</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>App-specific implementation, may require additional steps</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														User Experience
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Native browser prompts, biometric authentication
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														App-specific implementation, may require additional steps
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Cross-Device</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Supported via passkeys (synced credentials)</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Device-bound, not transferable</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Cross-Device
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Supported via passkeys (synced credentials)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device-bound, not transferable
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Security Model</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Public key cryptography, phishing-resistant</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Device attestation, cryptographic binding</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Security Model
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Public key cryptography, phishing-resistant
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device attestation, cryptographic binding
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Browser Support</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Native browser API support (Chrome, Firefox, Safari, Edge)</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Requires custom implementation or SDK</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Browser Support
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Native browser API support (Chrome, Firefox, Safari, Edge)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Requires custom implementation or SDK
+													</td>
 												</tr>
 												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Use Cases</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Web applications, passwordless authentication, passkeys</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>Mobile apps, high-security scenarios, device-specific authentication</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Use Cases
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Web applications, passwordless authentication, passkeys
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Mobile apps, high-security scenarios, device-specific authentication
+													</td>
 												</tr>
 												<tr style={{ background: '#f9fafb' }}>
-													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>Standards</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>W3C WebAuthn, FIDO2 CTAP</td>
-													<td style={{ padding: '12px', color: '#6b7280' }}>JWS (RFC 7515), custom device binding protocols</td>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Standards
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														W3C WebAuthn, FIDO2 CTAP
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														JWS (RFC 7515), custom device binding protocols
+													</td>
 												</tr>
 											</tbody>
 										</table>
 									</div>
-									<p style={{ margin: '16px 0 0 0', fontSize: '13px', color: '#6b7280', fontStyle: 'italic' }}>
-										Reference: <a href="https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>Ping Identity Passkeys Documentation</a>
+									<p
+										style={{
+											margin: '16px 0 0 0',
+											fontSize: '13px',
+											color: '#6b7280',
+											fontStyle: 'italic',
+										}}
+									>
+										Reference:{' '}
+										<a
+											href="https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ color: '#3b82f6', textDecoration: 'underline' }}
+										>
+											Ping Identity Passkeys Documentation
+										</a>
 									</p>
 								</div>
 							)}
@@ -634,9 +873,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 							}}
 						>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+							>
 								<FiCheckCircle size={20} color="#10b981" />
-								<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>Browser Capabilities</h2>
+								<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+									Browser Capabilities
+								</h2>
 							</div>
 
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -646,7 +889,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									) : (
 										<FiX size={16} color="#ef4444" />
 									)}
-									<span style={{ fontSize: '14px' }}>Platform Authenticator (Touch ID, Face ID, Windows Hello)</span>
+									<span style={{ fontSize: '14px' }}>
+										Platform Authenticator (Touch ID, Face ID, Windows Hello)
+									</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.crossPlatformAuthenticator ? (
@@ -654,7 +899,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									) : (
 										<FiX size={16} color="#ef4444" />
 									)}
-									<span style={{ fontSize: '14px' }}>Cross-Platform Authenticator (Security Keys)</span>
+									<span style={{ fontSize: '14px' }}>
+										Cross-Platform Authenticator (Security Keys)
+									</span>
 								</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 									{enhancedCapabilities.passkeySupport ? (
@@ -688,9 +935,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
 							<FiSettings size={20} color="#3b82f6" />
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>FIDO2 Policy Configuration</h2>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								FIDO2 Policy Configuration
+							</h2>
 						</div>
 
 						{isLoadingPolicies ? (
@@ -740,7 +991,12 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							<div>
 								<label
 									htmlFor="fido2-policy-select"
-									style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
 								>
 									Select FIDO2 Policy:
 								</label>
@@ -766,9 +1022,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 								</select>
 								{selectedFido2PolicyId && (
 									<div style={{ marginTop: '12px' }}>
-										{fido2Policies
-											.find((p) => p.id === selectedFido2PolicyId)
-											?.description && (
+										{fido2Policies.find((p) => p.id === selectedFido2PolicyId)?.description && (
 											<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
 												{fido2Policies.find((p) => p.id === selectedFido2PolicyId)?.description}
 											</p>
@@ -791,9 +1045,13 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
 							<FiShield size={20} color="#3b82f6" />
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>Device Authentication Policy</h2>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								Device Authentication Policy
+							</h2>
 						</div>
 
 						{isLoadingDeviceAuthPolicies ? (
@@ -807,7 +1065,9 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 									padding: '12px',
 								}}
 							>
-								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b' }}>{deviceAuthPoliciesError}</p>
+								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b' }}>
+									{deviceAuthPoliciesError}
+								</p>
 							</div>
 						) : deviceAuthPolicies.length === 0 ? (
 							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
@@ -817,7 +1077,12 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							<div>
 								<label
 									htmlFor="device-auth-policy-select"
-									style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
 								>
 									Select Device Authentication Policy:
 								</label>
@@ -867,21 +1132,44 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
 							<FiSettings size={20} color="#3b82f6" />
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>FIDO2 Advanced Configuration</h2>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								FIDO2 Advanced Configuration
+							</h2>
 						</div>
 
 						<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 							{/* Authenticator Attachment */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Authenticator Attachment
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Type of authenticator to use for FIDO2 registration" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Type of authenticator to use for FIDO2 registration"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px' }}>
 									{(['platform', 'cross-platform', 'both'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="authenticatorAttachment"
@@ -891,12 +1179,19 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, preferredAuthenticatorType: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
 											<span style={{ fontSize: '14px' }}>
-												{option === 'platform' ? 'Platform' : option === 'cross-platform' ? 'Cross-platform' : 'Both'}
+												{option === 'platform'
+													? 'Platform'
+													: option === 'cross-platform'
+														? 'Cross-platform'
+														: 'Both'}
 											</span>
 										</label>
 									))}
@@ -905,13 +1200,32 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* User Verification */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									User Verification
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether user verification (PIN, biometric) is required" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether user verification (PIN, biometric) is required"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px' }}>
 									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="userVerification"
@@ -921,11 +1235,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, userVerification: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
-											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
 										</label>
 									))}
 								</div>
@@ -933,13 +1252,32 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* Discoverable Credentials */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Discoverable Credentials
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether to use discoverable (resident) credentials stored on the device" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether to use discoverable (resident) credentials stored on the device"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px' }}>
 									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="discoverableCredentials"
@@ -949,11 +1287,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, discoverableCredentials: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
-											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
 										</label>
 									))}
 								</div>
@@ -961,13 +1304,32 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* Relying Party ID */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Relying Party ID
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="The domain or identifier for your application" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="The domain or identifier for your application"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
 									{(['pingone', 'custom', 'other'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="relyingPartyIdType"
@@ -977,17 +1339,25 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, relyingPartyIdType: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
 											<span style={{ fontSize: '14px' }}>
-												{option === 'pingone' ? 'PingOne' : option === 'custom' ? 'Custom Domain' : 'Other'}
+												{option === 'pingone'
+													? 'PingOne'
+													: option === 'custom'
+														? 'Custom Domain'
+														: 'Other'}
 											</span>
 										</label>
 									))}
 								</div>
-								{(fido2Config.relyingPartyIdType === 'custom' || fido2Config.relyingPartyIdType === 'other') && (
+								{(fido2Config.relyingPartyIdType === 'custom' ||
+									fido2Config.relyingPartyIdType === 'other') && (
 									<input
 										type="text"
 										value={fido2Config.relyingPartyId}
@@ -995,7 +1365,10 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 											const newConfig = { ...fido2Config, relyingPartyId: e.target.value };
 											setFido2Config(newConfig);
 											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-											MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+											MFAConfigurationServiceV8.saveConfiguration({
+												...fullConfig,
+												fido2: newConfig,
+											});
 										}}
 										placeholder="localhost or your domain"
 										style={{
@@ -1011,23 +1384,51 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* FIDO Device Aggregation */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									FIDO Device Aggregation
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Enable FIDO device aggregation" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Enable FIDO device aggregation"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px' }}>
 									{(['on', 'off'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="fidoDeviceAggregation"
 												value={option}
-												checked={(option === 'on' && fido2Config.fidoDeviceAggregation) || (option === 'off' && !fido2Config.fidoDeviceAggregation)}
+												checked={
+													(option === 'on' && fido2Config.fidoDeviceAggregation) ||
+													(option === 'off' && !fido2Config.fidoDeviceAggregation)
+												}
 												onChange={() => {
-													const newConfig = { ...fido2Config, fidoDeviceAggregation: option === 'on' };
+													const newConfig = {
+														...fido2Config,
+														fidoDeviceAggregation: option === 'on',
+													};
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
@@ -1039,17 +1440,38 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* Public Key Credential Hints */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Public Key Credential Hints
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Hints for the types of authenticators to use" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Hints for the types of authenticators to use"
+									/>
 								</label>
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-									{([
-										{ value: 'security-key', label: 'Security Key' },
-										{ value: 'client-device', label: 'Client Device' },
-										{ value: 'hybrid', label: 'Hybrid' },
-									] as const).map((hint) => (
-										<label key={hint.value} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+									{(
+										[
+											{ value: 'security-key', label: 'Security Key' },
+											{ value: 'client-device', label: 'Client Device' },
+											{ value: 'hybrid', label: 'Hybrid' },
+										] as const
+									).map((hint) => (
+										<label
+											key={hint.value}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="checkbox"
 												checked={fido2Config.publicKeyCredentialHints.includes(hint.value)}
@@ -1060,7 +1482,10 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, publicKeyCredentialHints: newHints };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
@@ -1072,13 +1497,32 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* Backup Eligibility */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Backup Eligibility
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Whether credentials can be backed up" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether credentials can be backed up"
+									/>
 								</label>
 								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
 									{(['allow', 'disallow'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="backupEligibility"
@@ -1088,43 +1532,80 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, backupEligibility: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
-											<span style={{ fontSize: '14px' }}>{option === 'allow' ? 'Allow' : 'Disallow'}</span>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'allow' ? 'Allow' : 'Disallow'}
+											</span>
 										</label>
 									))}
 								</div>
-								<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+								<label
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+								>
 									<input
 										type="checkbox"
 										checked={fido2Config.enforceBackupEligibilityDuringAuth}
 										onChange={(e) => {
-											const newConfig = { ...fido2Config, enforceBackupEligibilityDuringAuth: e.target.checked };
+											const newConfig = {
+												...fido2Config,
+												enforceBackupEligibilityDuringAuth: e.target.checked,
+											};
 											setFido2Config(newConfig);
 											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-											MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+											MFAConfigurationServiceV8.saveConfiguration({
+												...fullConfig,
+												fido2: newConfig,
+											});
 										}}
 										style={{ cursor: 'pointer' }}
 									/>
 									<span style={{ fontSize: '14px' }}>Enforce during authentication</span>
-									<FiInfo size={14} style={{ color: '#6b7280', cursor: 'help' }} title="Enforce backup eligibility during authentication" />
+									<FiInfo
+										size={14}
+										style={{ color: '#6b7280', cursor: 'help' }}
+										title="Enforce backup eligibility during authentication"
+									/>
 								</label>
 							</div>
 
 							{/* Attestation Request */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Attestation Request
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Type of attestation to request from the authenticator" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Type of attestation to request from the authenticator"
+									/>
 								</label>
 								<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
-									Use attestation requests to recognize the devices and authenticators that your service supports.
+									Use attestation requests to recognize the devices and authenticators that your
+									service supports.
 								</p>
 								<div style={{ display: 'flex', gap: '16px' }}>
 									{(['none', 'direct', 'enterprise'] as const).map((option) => (
-										<label key={option} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
 											<input
 												type="radio"
 												name="attestationRequest"
@@ -1134,11 +1615,16 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 													const newConfig = { ...fido2Config, attestationRequest: option };
 													setFido2Config(newConfig);
 													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-													MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
 												}}
 												style={{ cursor: 'pointer' }}
 											/>
-											<span style={{ fontSize: '14px' }}>{option.charAt(0).toUpperCase() + option.slice(1)}</span>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
 										</label>
 									))}
 								</div>
@@ -1146,34 +1632,61 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 
 							{/* Additional Display Information */}
 							<div>
-								<label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500' }}>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
 									Additional Display Information
-									<FiInfo size={14} style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }} title="Additional information to display during registration" />
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Additional information to display during registration"
+									/>
 								</label>
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+									<label
+										style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+									>
 										<input
 											type="checkbox"
 											checked={fido2Config.includeEnvironmentName}
 											onChange={(e) => {
-												const newConfig = { ...fido2Config, includeEnvironmentName: e.target.checked };
+												const newConfig = {
+													...fido2Config,
+													includeEnvironmentName: e.target.checked,
+												};
 												setFido2Config(newConfig);
 												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-												MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												MFAConfigurationServiceV8.saveConfiguration({
+													...fullConfig,
+													fido2: newConfig,
+												});
 											}}
 											style={{ cursor: 'pointer' }}
 										/>
 										<span style={{ fontSize: '14px' }}>Include Environment Name</span>
 									</label>
-									<label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+									<label
+										style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+									>
 										<input
 											type="checkbox"
 											checked={fido2Config.includeOrganizationName}
 											onChange={(e) => {
-												const newConfig = { ...fido2Config, includeOrganizationName: e.target.checked };
+												const newConfig = {
+													...fido2Config,
+													includeOrganizationName: e.target.checked,
+												};
 												setFido2Config(newConfig);
 												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
-												MFAConfigurationServiceV8.saveConfiguration({ ...fullConfig, fido2: newConfig });
+												MFAConfigurationServiceV8.saveConfiguration({
+													...fullConfig,
+													fido2: newConfig,
+												});
 											}}
 											style={{ cursor: 'pointer' }}
 										/>
@@ -1246,8 +1759,6 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 					}}
 				/>
 			)}
-			
 		</div>
 	);
 };
-

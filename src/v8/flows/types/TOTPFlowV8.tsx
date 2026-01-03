@@ -12,26 +12,26 @@
  * - Step 4: Validate (Modal - for authentication after device is activated)
  */
 
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiX } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
+import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
-import type { MFACredentials } from '../shared/MFATypes';
-import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { FiShield, FiX } from 'react-icons/fi';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { MFASuccessPageV8, buildSuccessPageData } from '../shared/mfaSuccessPageServiceV8';
-import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
+import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
+import type { MFACredentials } from '../shared/MFATypes';
+import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
@@ -495,7 +495,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 1: Device Selection (inline, similar to SMS)
 	const renderStep1WithSelection = (props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus } = props;
+		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, tokenStatus } = props;
 
 		// During registration flow (from config page), skip device selection and go straight to registration
 		if (isConfigured && nav.currentStep === 1) {
@@ -1378,7 +1378,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			</div>
 			</>
 		);
-	}, [showQrModal, step3ModalDrag, qrCodeUrl, totpSecret]);
+	}, [showQrModal, step3ModalDrag, qrCodeUrl, totpSecret, activationOtp, activationError]);
 
 	// Step 4: Validate OTP (Modal - for authentication after device is activated)
 	const renderStep4Validate = useCallback((props: MFAFlowBaseRenderProps) => {
@@ -1475,6 +1475,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					// Don't close on backdrop click
 				}}
 			>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: Modal content click handled by buttons */}
 				<div
 					ref={step4ModalDrag.modalRef}
 					style={{
@@ -1707,9 +1709,8 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					</div>
 				</div>
 			</div>
-			</>
 		);
-	}, [showValidationModal, step4ModalDrag, validationState, setValidationState, navigate, controller]);
+	}, [showValidationModal, step4ModalDrag, validationState, setValidationState, navigate, controller, location]);
 
 	// Validation function for Step 0
 	const validateStep0 = (
