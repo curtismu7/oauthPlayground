@@ -403,7 +403,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		tokenStatus,
 	]);
 
-	// Watch for worker token errors and show prompt modal
+	// Watch for worker token errors and show prompt modal (or attempt silent retrieval)
 	useEffect(() => {
 		const hasWorkerTokenError = nav.validationErrors.some(
 			(error) =>
@@ -418,10 +418,141 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		);
 
 		if (hasWorkerTokenError && !showWorkerTokenPromptModal) {
-			console.log(`${MODULE_TAG} Worker token error detected, showing prompt modal`);
-			setShowWorkerTokenPromptModal(true);
+			// Check MFA configuration for silent API retrieval setting
+			void (async () => {
+				let silentRetrievalSucceeded = false;
+				try {
+					const { MFAConfigurationServiceV8 } = await import(
+						'@/v8/services/mfaConfigurationServiceV8'
+					);
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const silentApiRetrieval = config.workerToken.silentApiRetrieval;
+
+					console.log(`${MODULE_TAG} Worker token error detected`, {
+						silentApiRetrieval,
+						hasWorkerTokenError,
+					});
+
+					if (silentApiRetrieval) {
+						// Attempt to silently fetch token using stored credentials
+						console.log(
+							`${MODULE_TAG} Silent API retrieval enabled, attempting to fetch token automatically...`
+						);
+						try {
+							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+							const credentials = await workerTokenServiceV8.loadCredentials();
+
+							if (credentials) {
+								// Try to automatically fetch token using stored credentials
+								const region = credentials.region || 'us';
+								const apiBase =
+									region === 'eu'
+										? 'https://auth.pingone.eu'
+										: region === 'ap'
+											? 'https://auth.pingone.asia'
+											: region === 'ca'
+												? 'https://auth.pingone.ca'
+												: 'https://auth.pingone.com';
+
+								const proxyEndpoint = '/api/pingone/token';
+								const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
+								const scopeList = credentials.scopes;
+								const normalizedScopes: string[] =
+									Array.isArray(scopeList) && scopeList.length > 0 ? scopeList : defaultScopes;
+
+								const params = new URLSearchParams({
+									grant_type: 'client_credentials',
+									client_id: credentials.clientId,
+									scope: normalizedScopes.join(' '),
+								});
+
+								const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
+								if (authMethod === 'client_secret_post') {
+									params.set('client_secret', credentials.clientSecret);
+								}
+
+								const headers: Record<string, string> = {
+									'Content-Type': 'application/json',
+								};
+
+								// Use the same format as getWorkerTokenWithAutoRenew
+								const requestBody: Record<string, unknown> = {
+									environment_id: credentials.environmentId,
+									region,
+									body: params.toString(),
+									auth_method: authMethod,
+								};
+
+								if (authMethod === 'client_secret_basic') {
+									const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+									requestBody.headers = { Authorization: `Basic ${basicAuth}` };
+								}
+
+								const response = await fetch(proxyEndpoint, {
+									method: 'POST',
+									headers,
+									body: JSON.stringify(requestBody),
+								});
+
+								if (response.ok) {
+									const data = (await response.json()) as {
+										access_token: string;
+										expires_in?: number;
+									};
+
+									if (data.access_token) {
+										const expiresIn = data.expires_in || 3600; // Default to 1 hour
+										const expiresAt = Date.now() + expiresIn * 1000;
+
+										await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
+
+										console.log(
+											`${MODULE_TAG} Token automatically fetched and saved via silent API retrieval`
+										);
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										setTokenStatus(newStatus);
+										nav.setValidationErrors([]);
+										toastV8.success('Worker token automatically retrieved!');
+										silentRetrievalSucceeded = true;
+										return; // Success - don't show modal
+									}
+								}
+
+								// If we get here, silent retrieval failed
+								console.warn(
+									`${MODULE_TAG} Silent API retrieval failed (status: ${response.status}), will show modal`
+								);
+							} else {
+								console.warn(`${MODULE_TAG} No stored credentials for silent API retrieval`);
+							}
+						} catch (silentError) {
+							console.error(`${MODULE_TAG} Silent API retrieval error:`, silentError);
+							// Fall through to show modal
+						}
+					}
+
+					// Show modal only if silent retrieval didn't succeed
+					if (!silentRetrievalSucceeded && !showWorkerTokenPromptModal) {
+						if (!silentApiRetrieval) {
+							console.log(
+								`${MODULE_TAG} Silent API retrieval disabled, showing worker token prompt modal`
+							);
+						} else {
+							console.log(
+								`${MODULE_TAG} Silent API retrieval failed, showing worker token prompt modal as fallback`
+							);
+						}
+						setShowWorkerTokenPromptModal(true);
+					}
+				} catch (configError) {
+					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
+					// Default to showing modal if config can't be loaded
+					setShowWorkerTokenPromptModal(true);
+				}
+			})();
 		}
-	}, [nav.validationErrors, showWorkerTokenPromptModal]);
+	}, [nav.validationErrors, showWorkerTokenPromptModal, setTokenStatus, nav]);
 
 	useEffect(() => {
 		// NOTE: Scope checking removed - worker token provides necessary permissions
