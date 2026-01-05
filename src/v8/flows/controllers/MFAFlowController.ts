@@ -5,12 +5,12 @@
  * @version 8.2.0
  */
 
-import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
+import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
+import { MFAServiceV8, type RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
-import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 
 const MODULE_TAG = '[🎮 MFA-CONTROLLER]';
 
@@ -89,7 +89,9 @@ export abstract class MFAFlowController {
 	/**
 	 * Filter devices by type (implemented by subclasses)
 	 */
-	protected abstract filterDevicesByType(devices: Array<Record<string, unknown>>): Array<Record<string, unknown>>;
+	protected abstract filterDevicesByType(
+		devices: Array<Record<string, unknown>>
+	): Array<Record<string, unknown>>;
 
 	/**
 	 * Register a new device
@@ -109,7 +111,7 @@ export abstract class MFAFlowController {
 		} as RegisterDeviceParams;
 
 		const result = await MFAServiceV8.registerDevice(params);
-		
+
 		if (this.callbacks.onDeviceRegistered) {
 			this.callbacks.onDeviceRegistered(result.deviceId, result.status);
 		}
@@ -128,7 +130,9 @@ export abstract class MFAFlowController {
 			...(result.createdAt ? { createdAt: result.createdAt } : {}),
 			...(result.updatedAt ? { updatedAt: result.updatedAt } : {}),
 			// FIDO2-specific: Include publicKeyCredentialCreationOptions if present
-			...(result.publicKeyCredentialCreationOptions ? { publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions } : {}),
+			...(result.publicKeyCredentialCreationOptions
+				? { publicKeyCredentialCreationOptions: result.publicKeyCredentialCreationOptions }
+				: {}),
 			// TOTP-specific: Include secret and keyUri if present
 			...(result.secret ? { secret: result.secret } : {}),
 			...(result.keyUri ? { keyUri: result.keyUri } : {}),
@@ -159,19 +163,21 @@ export abstract class MFAFlowController {
 				environmentId: credentials.environmentId,
 				username: credentials.username,
 				deviceId,
+				region: credentials.region,
+				customDomain: credentials.customDomain,
 			});
 
-			console.log(`${MODULE_TAG} OTP sent successfully`, { 
+			console.log(`${MODULE_TAG} OTP sent successfully`, {
 				hasOtpCheckUrl: !!otpCheckUrl,
 				deviceAuthId,
 				deviceId,
 			});
-			
-			// Even if otpCheckUrl is not returned, if we have a deviceAuthId, 
+
+			// Even if otpCheckUrl is not returned, if we have a deviceAuthId,
 			// the OTP was likely sent (PingOne sends OTP automatically when deviceId is provided)
 			if (deviceAuthId) {
-				setState({ 
-					otpSent: true, 
+				setState({
+					otpSent: true,
 					sendRetryCount: 0,
 					deviceAuthId, // Store deviceAuthId for validation
 					...(otpCheckUrl ? { otpCheckUrl } : {}), // Only include otpCheckUrl if it exists
@@ -179,7 +185,9 @@ export abstract class MFAFlowController {
 				nav.markStepComplete();
 				toastV8.success('OTP sent successfully!');
 			} else {
-				throw new Error('Failed to initialize device authentication - no authentication ID returned');
+				throw new Error(
+					'Failed to initialize device authentication - no authentication ID returned'
+				);
 			}
 
 			if (this.callbacks.onOTPSent) {
@@ -213,7 +221,9 @@ export abstract class MFAFlowController {
 		mfaState: MFAState,
 		setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void,
 		validationState: ValidationState,
-		setValidationState: (state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => void,
+		setValidationState: (
+			state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
+		) => void,
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
@@ -230,13 +240,14 @@ export abstract class MFAFlowController {
 				deviceAuthId: mfaState.deviceAuthId || '',
 				otp: otpCode,
 				workerToken: cleanToken,
-				otpCheckUrl: mfaState.otpCheckUrl // Use otp.check URL from _links if available
+				otpCheckUrl: mfaState.otpCheckUrl, // Use otp.check URL from _links if available
 			});
 
 			setMfaState({
 				verificationResult: {
 					status: result.valid ? 'SUCCESS' : 'FAILED',
-					message: result.message || (result.valid ? 'OTP validated successfully' : 'Invalid OTP code')
+					message:
+						result.message || (result.valid ? 'OTP validated successfully' : 'Invalid OTP code'),
 				},
 			});
 
@@ -246,7 +257,7 @@ export abstract class MFAFlowController {
 				setMfaState({
 					verificationResult: {
 						status: 'COMPLETED',
-						message: result.message || 'OTP validated successfully'
+						message: result.message || 'OTP validated successfully',
 					},
 				});
 				nav.markStepComplete();
@@ -258,20 +269,42 @@ export abstract class MFAFlowController {
 				}
 				return true;
 			} else {
+				// Normalize error message for invalid OTP codes
+				const errorMsg = result.message || 'Invalid OTP code';
+				const userFriendlyError =
+					errorMsg.toLowerCase().includes('invalid') ||
+					errorMsg.toLowerCase().includes('incorrect') ||
+					errorMsg.toLowerCase().includes('wrong')
+						? 'OTP code invalid'
+						: errorMsg;
+
 				setValidationState({
 					validationAttempts: validationState.validationAttempts + 1,
-					lastValidationError: result.message || 'Invalid OTP code',
+					lastValidationError: userFriendlyError,
 				});
-				nav.setValidationErrors([result.message || 'Invalid OTP code. Please try again.']);
-				toastV8.error(result.message || 'Invalid OTP code');
+				nav.setValidationErrors([userFriendlyError]);
+				toastV8.error(userFriendlyError);
 				return false;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} OTP validation failed`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+			// Normalize error message for invalid OTP codes
+			let userFriendlyError = errorMessage;
+			if (
+				errorMessage.toLowerCase().includes('invalid') ||
+				errorMessage.toLowerCase().includes('incorrect') ||
+				errorMessage.toLowerCase().includes('wrong') ||
+				errorMessage.toLowerCase().includes('400') ||
+				errorMessage.toLowerCase().includes('bad request')
+			) {
+				userFriendlyError = 'OTP code invalid';
+			}
+
 			setValidationState({
 				validationAttempts: validationState.validationAttempts + 1,
-				lastValidationError: errorMessage,
+				lastValidationError: userFriendlyError,
 			});
 
 			this.handleOTPValidationError(errorMessage, nav);
@@ -288,7 +321,10 @@ export abstract class MFAFlowController {
 	/**
 	 * Handle OTP send errors with specific error messages
 	 */
-	protected handleOTPSendError(errorMessage: string, nav: ReturnType<typeof useStepNavigationV8>): void {
+	protected handleOTPSendError(
+		errorMessage: string,
+		nav: ReturnType<typeof useStepNavigationV8>
+	): void {
 		if (
 			errorMessage.toLowerCase().includes('worker token') ||
 			errorMessage.toLowerCase().includes('missing') ||
@@ -297,8 +333,13 @@ export abstract class MFAFlowController {
 			nav.setValidationErrors([
 				'Worker token is missing or invalid. Please click "Manage Token" button to generate a new worker token.',
 			]);
-		} else if (errorMessage.toLowerCase().includes('rate limit') || errorMessage.toLowerCase().includes('too many')) {
-			nav.setValidationErrors(['Rate limit exceeded. Please wait a few minutes before trying again.']);
+		} else if (
+			errorMessage.toLowerCase().includes('rate limit') ||
+			errorMessage.toLowerCase().includes('too many')
+		) {
+			nav.setValidationErrors([
+				'Rate limit exceeded. Please wait a few minutes before trying again.',
+			]);
 		} else {
 			nav.setValidationErrors([`Failed to send OTP: ${errorMessage}`]);
 		}
@@ -308,11 +349,19 @@ export abstract class MFAFlowController {
 	/**
 	 * Handle OTP validation errors with specific error messages
 	 */
-	protected handleOTPValidationError(errorMessage: string, nav: ReturnType<typeof useStepNavigationV8>): void {
+	protected handleOTPValidationError(
+		errorMessage: string,
+		nav: ReturnType<typeof useStepNavigationV8>
+	): void {
 		if (errorMessage.toLowerCase().includes('expired')) {
 			nav.setValidationErrors(['OTP code has expired. Please go back and request a new code.']);
-		} else if (errorMessage.toLowerCase().includes('too many') || errorMessage.toLowerCase().includes('attempts')) {
-			nav.setValidationErrors(['Too many failed attempts. Please wait a few minutes or request a new code.']);
+		} else if (
+			errorMessage.toLowerCase().includes('too many') ||
+			errorMessage.toLowerCase().includes('attempts')
+		) {
+			nav.setValidationErrors([
+				'Too many failed attempts. Please wait a few minutes or request a new code.',
+			]);
 		} else {
 			nav.setValidationErrors([`OTP validation failed: ${errorMessage}`]);
 		}
@@ -346,10 +395,13 @@ export abstract class MFAFlowController {
 			throw new Error(errorMessage);
 		}
 
-		console.log(`${MODULE_TAG} Initializing device authentication for ${this.deviceType} via PingOne MFA API`, {
-			policyId: credentials.deviceAuthenticationPolicyId,
-		});
-		
+		console.log(
+			`${MODULE_TAG} Initializing device authentication for ${this.deviceType} via PingOne MFA API`,
+			{
+				policyId: credentials.deviceAuthenticationPolicyId,
+			}
+		);
+
 		// Use MfaAuthenticationServiceV8 which correctly implements PingOne MFA API
 		// DeviceId in the request body immediately targets this device for OTP
 		const result = await MfaAuthenticationServiceV8.initializeDeviceAuthentication({
@@ -390,7 +442,7 @@ export abstract class MFAFlowController {
 		if (!credentials.username) {
 			throw new Error('Username is required to cancel device authentication');
 		}
-		return 		await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+		return await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
 			credentials.environmentId,
 			credentials.username,
 			authenticationId,
@@ -435,7 +487,9 @@ export abstract class MFAFlowController {
 		mfaState: MFAState,
 		setMfaState: (state: Partial<MFAState> | ((prev: MFAState) => MFAState)) => void,
 		validationState: ValidationState,
-		setValidationState: (state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => void,
+		setValidationState: (
+			state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
+		) => void,
 		nav: ReturnType<typeof useStepNavigationV8>,
 		setIsLoading: (loading: boolean) => void
 	): Promise<boolean> {
@@ -474,20 +528,42 @@ export abstract class MFAFlowController {
 				}
 				return true;
 			} else {
+				// Normalize error message for invalid OTP codes
+				const errorMsg = result.message || 'Invalid OTP code';
+				const userFriendlyError =
+					errorMsg.toLowerCase().includes('invalid') ||
+					errorMsg.toLowerCase().includes('incorrect') ||
+					errorMsg.toLowerCase().includes('wrong')
+						? 'OTP code invalid'
+						: errorMsg;
+
 				setValidationState({
 					validationAttempts: validationState.validationAttempts + 1,
-					lastValidationError: result.message || 'Invalid OTP code',
+					lastValidationError: userFriendlyError,
 				});
-				nav.setValidationErrors([result.message || 'Invalid OTP code. Please try again.']);
-				toastV8.error(result.message || 'Invalid OTP code');
+				nav.setValidationErrors([userFriendlyError]);
+				toastV8.error(userFriendlyError);
 				return false;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} OTP validation for device authentication failed`, error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+			// Normalize error message for invalid OTP codes
+			let userFriendlyError = errorMessage;
+			if (
+				errorMessage.toLowerCase().includes('invalid') ||
+				errorMessage.toLowerCase().includes('incorrect') ||
+				errorMessage.toLowerCase().includes('wrong') ||
+				errorMessage.toLowerCase().includes('400') ||
+				errorMessage.toLowerCase().includes('bad request')
+			) {
+				userFriendlyError = 'OTP code invalid';
+			}
+
 			setValidationState({
 				validationAttempts: validationState.validationAttempts + 1,
-				lastValidationError: errorMessage,
+				lastValidationError: userFriendlyError,
 			});
 
 			this.handleOTPValidationError(errorMessage, nav);
@@ -515,4 +591,3 @@ export abstract class MFAFlowController {
 	 */
 	abstract getDeviceRegistrationParams(credentials: MFACredentials): Partial<RegisterDeviceParams>;
 }
-

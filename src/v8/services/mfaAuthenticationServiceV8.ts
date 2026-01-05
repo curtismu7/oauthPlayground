@@ -262,6 +262,10 @@ export class MfaAuthenticationServiceV8 {
 				url: '/api/pingone/mfa/initialize-device-authentication',
 				actualPingOneUrl,
 				isProxy: true,
+				headers: {
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
 				body: {
 					...requestBody,
 					workerToken: cleanToken ? '***REDACTED***' : undefined,
@@ -694,6 +698,9 @@ export class MfaAuthenticationServiceV8 {
 			deviceId: params.deviceId,
 			username: params.username,
 			userId: params.userId,
+			environmentId: params.environmentId,
+			region: params.region,
+			customDomain: params.customDomain,
 		});
 
 		try {
@@ -794,12 +801,27 @@ export class MfaAuthenticationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			const requestBody = {
+			const requestBody: {
+				environmentId: string;
+				deviceAuthId: string;
+				deviceId: string;
+				workerToken: string;
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				customDomain?: string;
+			} = {
 				environmentId: params.environmentId,
 				deviceAuthId: params.authenticationId,
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
 			};
+
+			// Include region and customDomain if provided (backend needs these to construct correct PingOne URL)
+			if (params.region) {
+				requestBody.region = params.region;
+			}
+			if (params.customDomain) {
+				requestBody.customDomain = params.customDomain;
+			}
 
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
 			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(
@@ -819,6 +841,15 @@ export class MfaAuthenticationServiceV8 {
 				},
 				step: options?.stepName || 'mfa-Select Device for Authentication',
 				flowType: 'mfa',
+			});
+
+			// Log request details for debugging
+			console.log(`${MODULE_TAG} Sending device selection request:`, {
+				url: '/api/pingone/mfa/select-device',
+				requestBody: {
+					...requestBody,
+					workerToken: cleanToken ? `${cleanToken.substring(0, 20)}...` : 'MISSING',
+				},
 			});
 
 			const response = await pingOneFetch('/api/pingone/mfa/select-device', {
@@ -851,6 +882,22 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
+				// Log full error response for debugging
+				console.error(`${MODULE_TAG} Device selection failed:`, {
+					status: response.status,
+					statusText: response.statusText,
+					responseData,
+					requestBody: {
+						environmentId: params.environmentId,
+						deviceAuthId: params.authenticationId,
+						deviceId: params.deviceId,
+						hasRegion: !!params.region,
+						region: params.region,
+						hasCustomDomain: !!params.customDomain,
+						customDomain: params.customDomain,
+					},
+				});
+
 				// Check for NO_USABLE_DEVICES error
 				if (typeof responseData === 'object' && responseData !== null) {
 					const errorObj = responseData as {
@@ -1043,7 +1090,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		let workerToken = await workerTokenServiceV8.getToken();
+		const workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
@@ -1667,7 +1714,8 @@ export class MfaAuthenticationServiceV8 {
 		},
 		environmentId?: string,
 		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
-		customDomain?: string
+		customDomain?: string,
+		origin?: string
 	): Promise<{ status: string; nextStep?: string; [key: string]: unknown }> {
 		console.log(`${MODULE_TAG} Checking FIDO2 assertion`, {
 			deviceAuthId,
@@ -1677,17 +1725,49 @@ export class MfaAuthenticationServiceV8 {
 		try {
 			const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
 
+			// Validate token format before sending
+			// JWT tokens have 3 dot-separated parts and are typically 200+ characters
+			const tokenParts = cleanToken.split('.');
+			if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+				console.error(`${MODULE_TAG} Invalid worker token format - not a JWT:`, {
+					tokenLength: cleanToken.length,
+					tokenParts: tokenParts.length,
+					tokenPreview: cleanToken.substring(0, 30),
+				});
+				throw new Error(
+					'Invalid worker token format. The token must be a valid JWT (3 dot-separated parts). Please generate a new token using the "Manage Token" button.'
+				);
+			}
+
+			// Additional validation: JWT tokens are typically 200+ characters
+			// If the token is very short (like 44 chars), it might be a hash, not a JWT
+			if (cleanToken.length < 100) {
+				console.error(`${MODULE_TAG} Worker token seems too short to be a valid JWT:`, {
+					tokenLength: cleanToken.length,
+					tokenPreview: cleanToken.substring(0, 30),
+					isJWTFormat: tokenParts.length === 3,
+				});
+				throw new Error(
+					'Invalid worker token. The token appears to be too short to be a valid JWT. Please generate a new token using the "Manage Token" button.'
+				);
+			}
+
 			// Build assertion body according to PingOne API spec
+			// Ensure assertion is an object, not a string
+			const assertionObject = typeof assertion === 'string' ? JSON.parse(assertion) : assertion;
+
 			const assertionBody = {
 				assertion: {
-					id: assertion.id,
-					rawId: assertion.rawId,
-					type: assertion.type,
+					id: assertionObject.id,
+					rawId: assertionObject.rawId,
+					type: assertionObject.type,
 					response: {
-						clientDataJSON: assertion.response.clientDataJSON,
-						authenticatorData: assertion.response.authenticatorData,
-						signature: assertion.response.signature,
-						...(assertion.response.userHandle && { userHandle: assertion.response.userHandle }),
+						clientDataJSON: assertionObject.response.clientDataJSON,
+						authenticatorData: assertionObject.response.authenticatorData,
+						signature: assertionObject.response.signature,
+						...(assertionObject.response.userHandle && {
+							userHandle: assertionObject.response.userHandle,
+						}),
 					},
 				},
 			};
@@ -1719,28 +1799,135 @@ export class MfaAuthenticationServiceV8 {
 				);
 			}
 
-			const requestBody = {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1724',
+					message: 'Assertion body structure check',
+					data: {
+						assertionType: typeof assertionBody.assertion,
+						isString: typeof assertionBody.assertion === 'string',
+						isObject: typeof assertionBody.assertion === 'object',
+						hasId: !!assertionBody.assertion?.id,
+						hasRawId: !!assertionBody.assertion?.rawId,
+						hasResponse: !!assertionBody.assertion?.response,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'A',
+				}),
+			}).catch(() => {});
+			// #endregion
+
+			// Build request body for backend proxy
+			// The backend will transform this into the PingOne API format
+			const backendRequestBody: {
+				deviceAuthId: string;
+				environmentId: string;
+				assertion: typeof assertionBody.assertion;
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				customDomain?: string;
+				origin?: string;
+			} = {
 				deviceAuthId,
 				environmentId: finalEnvironmentId, // Include environment ID in request body
-				assertion: assertionBody.assertion,
+				assertion: assertionBody.assertion, // Send as object to backend, backend will stringify for PingOne
 			};
+
+			// Include region, customDomain, and origin if provided (backend needs these to construct correct PingOne URL and request body)
+			if (region) {
+				backendRequestBody.region = region;
+			}
+			if (customDomain) {
+				backendRequestBody.customDomain = customDomain;
+			}
+			if (origin) {
+				backendRequestBody.origin = origin;
+			} else {
+				// Default to current window origin if not provided
+				backendRequestBody.origin = window.location.origin;
+			}
 			// Determine base URL - use custom domain if provided, otherwise use region-based domain
 			const authPath = MfaAuthenticationServiceV8.getAuthBaseUrl(region, customDomain);
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}/assertion`;
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1774',
+					message: 'Request body before stringify',
+					data: {
+						requestBodyType: typeof backendRequestBody,
+						assertionType: typeof backendRequestBody.assertion,
+						isAssertionString: typeof backendRequestBody.assertion === 'string',
+						isAssertionObject:
+							typeof backendRequestBody.assertion === 'object' &&
+							backendRequestBody.assertion !== null,
+						assertionKeys:
+							typeof backendRequestBody.assertion === 'object' &&
+							backendRequestBody.assertion !== null
+								? Object.keys(backendRequestBody.assertion)
+								: [],
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'B',
+				}),
+			}).catch(() => {});
+			// #endregion
+
+			// Build the request body that will be sent to PingOne (via backend proxy)
+			// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
+			const pingOneRequestBody = {
+				origin: origin || window.location.origin,
+				assertion: JSON.stringify(assertionBody.assertion), // Assertion must be a JSON string for PingOne
+				compatibility: 'FULL', // Required by PingOne API
+			};
 
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/check-fido2-assertion',
 				actualPingOneUrl,
 				isProxy: true,
-				body: {
-					deviceAuthId,
-					environmentId: finalEnvironmentId, // Include environment ID for display
-					assertion: assertionBody.assertion, // Include assertion data for display
+				headers: {
+					Authorization: `Bearer {{accessToken}}`, // Worker token required
+					'Content-Type': 'application/vnd.pingidentity.assertion.check+json',
+					Accept: 'application/json',
 				},
+				body: pingOneRequestBody, // Show the actual request body format sent to PingOne
 				step: 'mfa-Check FIDO2 Assertion',
 				flowType: 'mfa',
 			});
+
+			// #region agent log
+			const stringifiedBody = JSON.stringify(backendRequestBody);
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'mfaAuthenticationServiceV8.ts:1802',
+					message: 'Request body after stringify',
+					data: {
+						stringifiedLength: stringifiedBody.length,
+						stringifiedPreview: stringifiedBody.substring(0, 200),
+						hasAssertionString: stringifiedBody.includes('"assertion"'),
+						assertionIsStringified:
+							stringifiedBody.includes('"assertion":"') ||
+							stringifiedBody.includes('"assertion": "'),
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'run1',
+					hypothesisId: 'C',
+				}),
+			}).catch(() => {});
+			// #endregion
 
 			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
 				method: 'POST',
@@ -1748,7 +1935,7 @@ export class MfaAuthenticationServiceV8 {
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${cleanToken}`,
 				},
-				body: JSON.stringify(requestBody),
+				body: stringifiedBody, // Send backend request body (backend will transform to PingOne format)
 				retry: { maxAttempts: 3 },
 			});
 
