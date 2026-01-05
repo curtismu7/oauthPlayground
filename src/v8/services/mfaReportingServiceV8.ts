@@ -24,6 +24,8 @@ export interface ReportParams {
 	endDate?: string; // ISO 8601 format
 	limit?: number;
 	filter?: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'; // PingOne region
+	customDomain?: string; // Custom domain for PingOne API
 }
 
 export interface UserAuthenticationReport {
@@ -195,36 +197,41 @@ export class MFAReportingServiceV8 {
 			);
 
 			if (!response.ok) {
-				const errorData = reportsData as { 
-					error?: string; 
-					message?: string; 
+				const errorData = reportsData as {
+					error?: string;
+					message?: string;
 					details?: unknown;
 					endpoint?: string;
 				};
-				
+
 				// Use the enhanced error message from backend if available
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				
+
 				// Provide more helpful error messages for common issues
 				if (response.status === 403) {
 					// Check if backend provided enhanced error message
 					if (errorData.message && errorData.message.includes('403 Forbidden')) {
 						throw new Error(errorData.message);
 					}
-					
+
 					// Otherwise, provide our own enhanced message
 					throw new Error(
 						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
-						`Required scope: p1:read:environment or p1:read:report. ` +
-						`Note: User authentication reports may require additional MFA reporting permissions. ` +
-						`Original error: ${errorMessage}`
+							`Required scope: p1:read:environment or p1:read:report. ` +
+							`Note: User authentication reports may require additional MFA reporting permissions. ` +
+							`Original error: ${errorMessage}`
 					);
 				}
-				
+
 				throw new Error(`Failed to get reports: ${errorMessage}`);
 			}
 
-			const reports = (reportsData as { _embedded?: { userMfaDeviceAuthentications?: UserAuthenticationReport[] } })._embedded?.userMfaDeviceAuthentications || [] as UserAuthenticationReport[];
+			const reports =
+				(
+					reportsData as {
+						_embedded?: { userMfaDeviceAuthentications?: UserAuthenticationReport[] };
+					}
+				)._embedded?.userMfaDeviceAuthentications || ([] as UserAuthenticationReport[]);
 
 			console.log(`${MODULE_TAG} Retrieved ${reports.length} user authentication reports`);
 			return reports;
@@ -316,7 +323,9 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get reports: ${response.statusText}`);
 			}
 
-			const reports = (reportsData as { _embedded?: { mfaDeviceAuthentications?: DeviceAuthenticationReport[] } })._embedded?.mfaDeviceAuthentications || [];
+			const reports =
+				(reportsData as { _embedded?: { mfaDeviceAuthentications?: DeviceAuthenticationReport[] } })
+					._embedded?.mfaDeviceAuthentications || [];
 
 			console.log(`${MODULE_TAG} Retrieved ${reports.length} device authentication reports`);
 			return reports;
@@ -404,14 +413,16 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get reports: ${response.statusText}`);
 			}
 
-			const reports = (reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded?.fido2Devices || [] as FIDO2DeviceReport[];
+			const reports =
+				(reportsData as { _embedded?: { fido2Devices?: FIDO2DeviceReport[] } })._embedded
+					?.fido2Devices || ([] as FIDO2DeviceReport[]);
 
-		console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
-		return reports;
-	} catch (error) {
-		console.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
-		throw error;
-	}
+			console.log(`${MODULE_TAG} Retrieved ${reports.length} FIDO2 device reports`);
+			return reports;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Get FIDO2 device reports error`, error);
+			throw error;
+		}
 	}
 
 	/**
@@ -422,7 +433,7 @@ export class MFAReportingServiceV8 {
 	 * @returns Report data with embedded entries
 	 */
 	static async createSMSDevicesReport(
-		params: ReportParams & { 
+		params: ReportParams & {
 			filter?: string;
 			dataExplorationTemplateId?: string;
 			fields?: Array<{ name: string }>;
@@ -434,17 +445,39 @@ export class MFAReportingServiceV8 {
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+			// Clean token - remove Bearer prefix if present and trim whitespace
+			const cleanToken = accessToken.trim().replace(/^Bearer\s+/i, '');
 
 			const proxyEndpoint = '/api/pingone/mfa/reports/create-sms-devices-report';
-			const requestBody = {
+			const requestBody: {
+				environmentId: string;
+				workerToken: string;
+				dataExplorationTemplateId?: string;
+				fields?: Array<{ name: string }>;
+				filter?: string;
+				sync?: string;
+				deliverAs?: string;
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				customDomain?: string;
+			} = {
 				environmentId: params.environmentId,
-				workerToken: accessToken,
-				...(params.dataExplorationTemplateId && { dataExplorationTemplateId: params.dataExplorationTemplateId }),
+				workerToken: cleanToken,
+				...(params.dataExplorationTemplateId && {
+					dataExplorationTemplateId: params.dataExplorationTemplateId,
+				}),
 				...(params.fields && { fields: params.fields }),
 				...(params.filter && { filter: params.filter }),
 				...(params.sync !== undefined && { sync: params.sync }),
 				...(params.deliverAs && { deliverAs: params.deliverAs }),
 			};
+
+			// Include region and customDomain if provided (backend needs these to construct correct PingOne URL)
+			if (params.region) {
+				requestBody.region = params.region;
+			}
+			if (params.customDomain) {
+				requestBody.customDomain = params.customDomain;
+			}
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -501,15 +534,15 @@ export class MFAReportingServiceV8 {
 			if (!response.ok) {
 				const errorData = reportData as { error?: string; message?: string; details?: unknown };
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				
+
 				if (response.status === 403) {
 					throw new Error(
 						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
-						`Required scope: p1:read:report or p1:read:environment. ` +
-						`Original error: ${errorMessage}`
+							`Required scope: p1:read:report or p1:read:environment. ` +
+							`Original error: ${errorMessage}`
 					);
 				}
-				
+
 				throw new Error(`Failed to create SMS devices report: ${errorMessage}`);
 			}
 
@@ -598,15 +631,15 @@ export class MFAReportingServiceV8 {
 			if (!response.ok) {
 				const errorData = reportData as { error?: string; message?: string; details?: unknown };
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				
+
 				if (response.status === 403) {
 					throw new Error(
 						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
-						`Required scope: p1:read:report or p1:read:environment. ` +
-						`Original error: ${errorMessage}`
+							`Required scope: p1:read:report or p1:read:environment. ` +
+							`Original error: ${errorMessage}`
 					);
 				}
-				
+
 				throw new Error(`Failed to get report results: ${errorMessage}`);
 			}
 
@@ -626,7 +659,7 @@ export class MFAReportingServiceV8 {
 	 * @returns Report job ID and status (requires polling)
 	 */
 	static async createMFAEnabledDevicesReport(
-		params: ReportParams & { 
+		params: ReportParams & {
 			filter?: string;
 			dataExplorationTemplateId?: string;
 			fields?: Array<{ name: string }>;
@@ -638,17 +671,39 @@ export class MFAReportingServiceV8 {
 
 		try {
 			const accessToken = await MFAReportingServiceV8.getWorkerToken();
+			// Clean token - remove Bearer prefix if present and trim whitespace
+			const cleanToken = accessToken.trim().replace(/^Bearer\s+/i, '');
 
 			const proxyEndpoint = '/api/pingone/mfa/reports/create-mfa-enabled-devices-report';
-			const requestBody = {
+			const requestBody: {
+				environmentId: string;
+				workerToken: string;
+				dataExplorationTemplateId?: string;
+				fields?: Array<{ name: string }>;
+				filter?: string;
+				sync?: string;
+				deliverAs?: string;
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				customDomain?: string;
+			} = {
 				environmentId: params.environmentId,
-				workerToken: accessToken,
-				...(params.dataExplorationTemplateId && { dataExplorationTemplateId: params.dataExplorationTemplateId }),
+				workerToken: cleanToken,
+				...(params.dataExplorationTemplateId && {
+					dataExplorationTemplateId: params.dataExplorationTemplateId,
+				}),
 				...(params.fields && { fields: params.fields }),
 				...(params.filter && { filter: params.filter }),
 				...(params.sync !== undefined && { sync: params.sync }),
 				...(params.deliverAs && { deliverAs: params.deliverAs }),
 			};
+
+			// Include region and customDomain if provided (backend needs these to construct correct PingOne URL)
+			if (params.region) {
+				requestBody.region = params.region;
+			}
+			if (params.customDomain) {
+				requestBody.customDomain = params.customDomain;
+			}
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -705,15 +760,15 @@ export class MFAReportingServiceV8 {
 			if (!response.ok) {
 				const errorData = reportData as { error?: string; message?: string; details?: unknown };
 				const errorMessage = errorData.message || errorData.error || response.statusText;
-				
+
 				if (response.status === 403) {
 					throw new Error(
 						`Access denied (403 Forbidden). Your worker token may not have the required permissions. ` +
-						`Required scope: p1:read:report or p1:read:environment. ` +
-						`Original error: ${errorMessage}`
+							`Required scope: p1:read:report or p1:read:environment. ` +
+							`Original error: ${errorMessage}`
 					);
 				}
-				
+
 				throw new Error(`Failed to create MFA-enabled devices report: ${errorMessage}`);
 			}
 
@@ -742,7 +797,11 @@ export class MFAReportingServiceV8 {
 		maxAttempts: number = 10,
 		pollInterval: number = 2000
 	): Promise<Record<string, unknown>> {
-		console.log(`${MODULE_TAG} Polling report results`, { reportId: params.reportId, maxAttempts, pollInterval });
+		console.log(`${MODULE_TAG} Polling report results`, {
+			reportId: params.reportId,
+			maxAttempts,
+			pollInterval,
+		});
 
 		let attempts = 0;
 		while (attempts < maxAttempts) {
@@ -762,7 +821,9 @@ export class MFAReportingServiceV8 {
 				// Status is PENDING or IN_PROGRESS, continue polling
 				attempts++;
 				if (attempts < maxAttempts) {
-					console.log(`${MODULE_TAG} Report status: ${status}, polling again in ${pollInterval}ms (attempt ${attempts}/${maxAttempts})`);
+					console.log(
+						`${MODULE_TAG} Report status: ${status}, polling again in ${pollInterval}ms (attempt ${attempts}/${maxAttempts})`
+					);
 					await new Promise((resolve) => setTimeout(resolve, pollInterval));
 				}
 			} catch (error) {
@@ -870,7 +931,9 @@ export class MFAReportingServiceV8 {
 				throw new Error(`Failed to get ${deviceType} devices: ${errorMessage}`);
 			}
 
-			const devicesResponse = devicesData as { _embedded?: { devices?: Array<Record<string, unknown>> } };
+			const devicesResponse = devicesData as {
+				_embedded?: { devices?: Array<Record<string, unknown>> };
+			};
 			const devices = devicesResponse._embedded?.devices || [];
 
 			console.log(`${MODULE_TAG} Retrieved ${devices.length} ${deviceType} devices`);

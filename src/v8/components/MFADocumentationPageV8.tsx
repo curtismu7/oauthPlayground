@@ -1594,7 +1594,8 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 											{call.step}
 										</div>
 										<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
-											<strong>{call.method}</strong> {call.endpoint}
+											<strong>{call.method}</strong>{' '}
+											<span style={{ color: '#f97316' }}>{call.endpoint}</span>
 										</div>
 									</div>
 									{isExpanded ? (
@@ -1808,6 +1809,39 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 						</a>
 					</li>
 				</ul>
+			</div>
+
+			{/* Bottom Navigation - Back to Hub Button */}
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					marginTop: '48px',
+					paddingTop: '32px',
+					borderTop: '1px solid #e5e7eb',
+				}}
+			>
+				<button
+					type="button"
+					onClick={() => navigate('/v8/mfa-hub')}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '12px 24px',
+						background: '#10b981',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '15px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+					}}
+				>
+					<FiHome size={18} />
+					Back to Hub
+				</button>
 			</div>
 		</div>
 	);

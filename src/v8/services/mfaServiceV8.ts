@@ -2676,17 +2676,34 @@ export class MFAServiceV8 {
 			});
 
 			// Step 1: Initialize device authentication
-			const initRequestBody = {
+			const initRequestBody: {
+				environmentId: string;
+				userId: string;
+				deviceId: string;
+				workerToken: string;
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+				customDomain?: string;
+			} = {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: cleanToken,
 			};
 
+			// Include region and customDomain if provided (backend needs these to construct correct PingOne URL)
+			if (params.region) {
+				initRequestBody.region = params.region;
+			}
+			if (params.customDomain) {
+				initRequestBody.customDomain = params.customDomain;
+			}
+
 			console.log(`${MODULE_TAG} Initializing device authentication`, {
 				environmentId: params.environmentId,
 				userId: user.id,
 				deviceId: params.deviceId,
+				hasRegion: !!params.region,
+				hasCustomDomain: !!params.customDomain,
 			});
 
 			const initResponse = await pingOneFetch('/api/pingone/mfa/initialize-device-authentication', {
@@ -2847,6 +2864,8 @@ export class MFAServiceV8 {
 				userId: user.id,
 				deviceId: params.deviceId,
 				workerToken: trimmedToken,
+				...(params.region && { region: params.region }),
+				...(params.customDomain && { customDomain: params.customDomain }),
 			};
 
 			console.log(`${MODULE_TAG} [RESEND] Request details:`, {
@@ -2856,6 +2875,8 @@ export class MFAServiceV8 {
 				username: params.username,
 				deviceStatus,
 				tokenValidated: true,
+				region: params.region,
+				customDomain: params.customDomain,
 			});
 
 			const startTime = Date.now();
@@ -3357,9 +3378,11 @@ export class MFAServiceV8 {
 							tokenStatusMessage: tokenStatusMessage || 'none',
 						});
 
-						throw new Error(
-							`Failed to activate FIDO2 device: ${errorMessage}${tokenStatusMessage}`
-						);
+						// Provide user-friendly error message
+						const userFriendlyMessage = tokenStatusMessage
+							? `Worker token has expired or is invalid.${tokenStatusMessage}`
+							: `Device activation failed. Please check your worker token and try again.`;
+						throw new Error(userFriendlyMessage);
 					}
 				}
 
@@ -3377,9 +3400,40 @@ export class MFAServiceV8 {
 							errorMessage.toLowerCase().includes('header')),
 				});
 
-				throw new Error(
-					`Failed to activate FIDO2 device: ${errorMessage}${originDebugInfo?.hint ? ` (${originDebugInfo.hint})` : ''}`
-				);
+				// Normalize error message to be user-friendly
+				const errorLower = errorMessage.toLowerCase();
+				let userFriendlyMessage = 'Device activation failed. Please try again.';
+
+				if (
+					errorLower.includes('origin') ||
+					errorLower.includes('rpid') ||
+					errorLower.includes('relying party')
+				) {
+					userFriendlyMessage =
+						'Configuration error. Please ensure your FIDO2 policy RP ID matches your application domain.';
+					if (originDebugInfo?.hint) {
+						userFriendlyMessage += ` ${originDebugInfo.hint}`;
+					}
+				} else if (errorLower.includes('invalid') && errorLower.includes('attestation')) {
+					userFriendlyMessage = 'Invalid device attestation. Please try registering again.';
+				} else if (errorLower.includes('device') && errorLower.includes('not found')) {
+					userFriendlyMessage = 'Device not found. Please try registering again.';
+				} else if (response.status === 400) {
+					userFriendlyMessage =
+						'Invalid request. Please check your device configuration and try again.';
+				} else if (response.status === 500) {
+					userFriendlyMessage = 'Server error. Please try again later.';
+				} else if (
+					errorMessage &&
+					errorMessage.length < 100 &&
+					!errorMessage.includes('Error:') &&
+					!errorMessage.includes('at ')
+				) {
+					// Use original message if it's already user-friendly
+					userFriendlyMessage = errorMessage;
+				}
+
+				throw new Error(userFriendlyMessage);
 			}
 
 			console.log(`${MODULE_TAG} FIDO2 device activated successfully`);
@@ -4655,12 +4709,36 @@ export class MFAServiceV8 {
 				workerToken: `[REDACTED_${accessToken.length}_chars]`,
 			});
 
+			// Construct actual PingOne URL for display
+			const getAuthBaseUrl = (
+				region?: 'us' | 'eu' | 'ap' | 'ca' | 'na',
+				customDomain?: string
+			): string => {
+				if (customDomain) {
+					return `https://${customDomain}`;
+				}
+				const tld =
+					region === 'eu'
+						? 'eu'
+						: region === 'ap' || region === 'asia'
+							? 'asia'
+							: region === 'ca'
+								? 'ca'
+								: 'com';
+				return `https://auth.pingone.${tld}`;
+			};
+			const actualPingOneUrl = `${getAuthBaseUrl(params.region, params.customDomain)}/${params.environmentId}/deviceAuthentications/${params.authenticationId}/device`;
+
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: '/api/pingone/mfa/select-device',
+				actualPingOneUrl,
+				isProxy: true,
 				headers: {
 					'Content-Type': 'application/json',
+					Accept: 'application/json',
+					Authorization: 'Bearer {{accessToken}}', // Worker token required
 				},
 				body: requestBody,
 				step: 'mfa-Select Device for Authentication',

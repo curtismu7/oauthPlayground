@@ -898,6 +898,12 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						onChange={(value) => updateNestedConfig('workerToken', 'showTokenAtEnd', value)}
 						description="Display the generated worker token at the end of the generation process"
 					/>
+					<ToggleSetting
+						label="Silent API Token Retrieval"
+						value={config.workerToken.silentApiRetrieval}
+						onChange={(value) => updateNestedConfig('workerToken', 'silentApiRetrieval', value)}
+						description="Automatically fetch worker token via API in the background without showing modals or UI prompts"
+					/>
 				</ConfigSection>
 
 				{/* Default Policies */}
@@ -948,11 +954,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					<SelectSetting
 						label="OTP Code Length"
 						value={config.otpCodeLength}
-						onChange={(value) => updateConfig('otpCodeLength', value as 4 | 6 | 8)}
+						onChange={(value) => updateConfig('otpCodeLength', value as 6 | 7 | 8 | 9 | 10)}
 						options={[
-							{ value: 4, label: '4 digits' },
 							{ value: 6, label: '6 digits' },
+							{ value: 7, label: '7 digits' },
 							{ value: 8, label: '8 digits' },
+							{ value: 9, label: '9 digits' },
+							{ value: 10, label: '10 digits' },
 						]}
 						description="Expected length of OTP codes"
 					/>

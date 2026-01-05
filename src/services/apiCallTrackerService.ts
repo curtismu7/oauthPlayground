@@ -40,6 +40,25 @@ class ApiCallTrackerService {
 			timestamp: new Date(),
 		};
 
+		// #region agent log - Debug headers tracking
+		if (
+			call.url?.includes('check-fido2-assertion') ||
+			call.url?.includes('select-device') ||
+			call.url?.includes('validate-otp')
+		) {
+			console.log('[ApiCallTrackerService] Tracking API call with headers:', {
+				id,
+				url: call.url,
+				method: call.method,
+				hasHeaders: !!call.headers,
+				headersType: typeof call.headers,
+				headersKeys: call.headers ? Object.keys(call.headers) : [],
+				headers: call.headers,
+				headersCount: call.headers ? Object.keys(call.headers).length : 0,
+			});
+		}
+		// #endregion
+
 		this.apiCalls.unshift(apiCall); // Add to beginning (newest first)
 
 		// Limit the number of stored calls
@@ -71,6 +90,24 @@ class ApiCallTrackerService {
 	 * Get all API calls
 	 */
 	getApiCalls(): ApiCall[] {
+		// #region agent log - Debug API calls retrieval
+		const callsWithHeaders = this.apiCalls.filter(
+			(call) => call.headers && Object.keys(call.headers).length > 0
+		);
+		if (callsWithHeaders.length > 0) {
+			console.log('[ApiCallTrackerService] getApiCalls - Calls with headers:', {
+				totalCalls: this.apiCalls.length,
+				callsWithHeaders: callsWithHeaders.length,
+				callsWithHeadersDetails: callsWithHeaders.map((call) => ({
+					id: call.id,
+					url: call.url,
+					method: call.method,
+					headersKeys: Object.keys(call.headers!),
+					headers: call.headers,
+				})),
+			});
+		}
+		// #endregion
 		return [...this.apiCalls];
 	}
 

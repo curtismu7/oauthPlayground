@@ -95,6 +95,11 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 	// API Display visibility state (for padding adjustment)
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 
+	// FIDO2 Configuration state - load from service
+	const [fido2Config, setFido2Config] = useState(() => {
+		return MFAConfigurationServiceV8.loadConfiguration().fido2;
+	});
+
 	// Education content
 	const webauthnContent = MFAEducationServiceV8.getContent('fido2.webauthn');
 	const authenticatorContent = MFAEducationServiceV8.getContent('fido2.authenticator');
@@ -295,7 +300,7 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 				fido2Config: fido2Config, // Pass FIDO2 configuration options
 			},
 		});
-	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid]);
+	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid, fido2Config]);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
