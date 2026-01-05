@@ -16,12 +16,13 @@ export interface MFAConfiguration {
 		retryAttempts: number;
 		retryDelay: number; // milliseconds
 		showTokenAtEnd: boolean; // show token after generation
+		silentApiRetrieval: boolean; // silently fetch token via API without showing modals
 	};
 	autoSelectDefaultPolicies: boolean;
 	autoSelectFirstDevice: boolean;
 	alwaysShowDeviceSelection: boolean;
 	deviceSelectionTimeout: number; // seconds
-	otpCodeLength: 4 | 6 | 8;
+	otpCodeLength: 6 | 7 | 8 | 9 | 10;
 	otpInputAutoFocus: boolean;
 	otpInputAutoSubmit: boolean;
 	otpValidationTimeout: number; // seconds
@@ -69,6 +70,7 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		retryAttempts: 3,
 		retryDelay: 1000, // 1 second
 		showTokenAtEnd: true, // show token after generation by default
+		silentApiRetrieval: false, // by default, show modals for token retrieval
 	},
 	autoSelectDefaultPolicies: true,
 	autoSelectFirstDevice: true,
@@ -83,7 +85,8 @@ const DEFAULT_CONFIG: MFAConfiguration = {
 		preferredAuthenticatorType: 'both',
 		userVerification: 'required',
 		discoverableCredentials: 'required',
-		relyingPartyId: window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname,
+		relyingPartyId:
+			window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname,
 		relyingPartyIdType: 'other',
 		fidoDeviceAggregation: true,
 		publicKeyCredentialHints: [],
@@ -129,7 +132,7 @@ export class MFAConfigurationServiceV8 {
 			const parsed = JSON.parse(stored) as Partial<MFAConfiguration>;
 			// Merge with defaults to ensure all fields exist
 			const config = { ...DEFAULT_CONFIG, ...parsed };
-			
+
 			// Deep merge nested objects
 			if (parsed.workerToken) {
 				config.workerToken = { ...DEFAULT_CONFIG.workerToken, ...parsed.workerToken };
@@ -207,7 +210,7 @@ export class MFAConfigurationServiceV8 {
 	static importConfiguration(json: string): boolean {
 		try {
 			const parsed = JSON.parse(json) as Partial<MFAConfiguration>;
-			
+
 			// Validate that it's a valid configuration object
 			if (typeof parsed !== 'object' || parsed === null) {
 				console.error(`${MODULE_TAG} Invalid configuration format: not an object`);
@@ -216,7 +219,7 @@ export class MFAConfigurationServiceV8 {
 
 			// Merge with defaults to ensure all fields exist
 			const config = { ...DEFAULT_CONFIG, ...parsed };
-			
+
 			// Deep merge nested objects
 			if (parsed.workerToken) {
 				config.workerToken = { ...DEFAULT_CONFIG.workerToken, ...parsed.workerToken };
@@ -257,4 +260,3 @@ export class MFAConfigurationServiceV8 {
 		MFAConfigurationServiceV8.saveConfiguration(config);
 	}
 }
-

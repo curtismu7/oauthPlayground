@@ -318,13 +318,9 @@ const createRenderStep0 = (
 		// Update ref with current props so hooks at component level can access them
 		step0PropsRef.current = props;
 
-		// Update tokenType state to trigger effects when it changes (moved to useEffect to avoid render warning)
-		// Use setTimeout to defer state update outside of render
+		// Update tokenType ref (state update moved to useEffect to avoid render warning)
 		if (credentials.tokenType !== prevTokenTypeRef.current) {
 			prevTokenTypeRef.current = credentials.tokenType;
-			setTimeout(() => {
-				setLastTokenType(credentials.tokenType);
-			}, 0);
 		}
 
 		// Update credentials with policy ID from location.state if available (only once)
@@ -802,6 +798,15 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Device loading is now handled inside WhatsAppDeviceSelectionStep component (like SMS)
 
+	// Update tokenType state when it changes (moved from render function to avoid render warning)
+	React.useEffect(() => {
+		const currentTokenType = step0PropsRef.current?.credentials?.tokenType;
+		if (currentTokenType !== undefined && currentTokenType !== prevTokenTypeRef.current) {
+			prevTokenTypeRef.current = currentTokenType;
+			setLastTokenType(currentTokenType);
+		}
+	}, [step0PropsRef.current?.credentials?.tokenType, lastTokenType, setLastTokenType]);
+
 	// Clear success state when navigating to step 1 (moved to useEffect to avoid render warning)
 	React.useEffect(() => {
 		const nav = step0PropsRef.current?.nav;
@@ -920,49 +925,33 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			}
 
 			// Reset deviceName to device type when entering registration step (Step 2)
+			// ALWAYS reset to device type, regardless of previous value
 			// Use ref to track if we've already done this for this step/deviceType combination
 			// This avoids Rules of Hooks violation by not using useEffect inside render function
 			if (nav.currentStep === 2 && credentials) {
 				// Force deviceType to be WHATSAPP for WhatsApp flow
 				const validDeviceType = 'WHATSAPP';
 
-				const resetKey = `${nav.currentStep}-${validDeviceType}`;
 				const lastReset = step2DeviceNameResetRef.current;
 
+				// Always reset when entering step 2, unless we've already reset for this exact step/deviceType
 				if (
 					!lastReset ||
 					lastReset.step !== nav.currentStep ||
 					lastReset.deviceType !== validDeviceType
 				) {
-					// Check if deviceName needs to be reset - reset if empty, matches wrong device type, or is a generic name
-					const shouldReset =
-						!credentials.deviceName ||
-						credentials.deviceName === credentials.deviceType ||
-						credentials.deviceName === 'SMS' ||
-						credentials.deviceName === 'EMAIL' ||
-						credentials.deviceName === 'FIDO2' ||
-						credentials.deviceName === 'FIDO' ||
-						credentials.deviceName === 'TOTP';
-
-					if (shouldReset || credentials.deviceType !== validDeviceType) {
-						// Use setTimeout to avoid state update during render
-						setTimeout(() => {
-							setCredentials({
-								...credentials,
-								deviceType: validDeviceType, // Force correct device type
-								deviceName: validDeviceType, // Set device name to match device type
-							});
-						}, 0);
-						step2DeviceNameResetRef.current = {
-							step: nav.currentStep,
-							deviceType: validDeviceType,
-						};
-					} else {
-						step2DeviceNameResetRef.current = {
-							step: nav.currentStep,
-							deviceType: validDeviceType,
-						};
-					}
+					// Always reset device name to device type when entering registration step
+					setTimeout(() => {
+						setCredentials({
+							...credentials,
+							deviceType: validDeviceType, // Force correct device type
+							deviceName: validDeviceType, // Always set device name to device type
+						});
+					}, 0);
+					step2DeviceNameResetRef.current = {
+						step: nav.currentStep,
+						deviceType: validDeviceType,
+					};
 				}
 			}
 
@@ -1183,7 +1172,30 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							`${MODULE_TAG} Device registered with ACTIVE status, showing success screen...`
 						);
 						nav.markStepComplete();
-						// Stay on step 2 to show success screen (don't navigate away)
+
+						// Store registration success state to trigger success page (same pattern as SMS flow)
+						const resultWithExtras = result as {
+							deviceId: string;
+							status: string;
+							userId?: string;
+							createdAt?: string;
+							updatedAt?: string;
+							environmentId?: string;
+						};
+						setDeviceRegisteredActive({
+							deviceId: resultWithExtras.deviceId,
+							deviceName: userEnteredDeviceName,
+							deviceType: 'WHATSAPP',
+							status: 'ACTIVE',
+							username: registrationCredentials.username,
+							...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
+							...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
+							...(resultWithExtras.updatedAt ? { updatedAt: resultWithExtras.updatedAt } : {}),
+							environmentId:
+								resultWithExtras.environmentId || registrationCredentials.environmentId,
+						});
+						setShowModal(false);
+
 						toastV8.success(
 							'WhatsApp device registered successfully! Device is ready to use (ACTIVE status).'
 						);
@@ -1234,6 +1246,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					setIsLoading(false);
 				}
 			};
+
+			// Check if device was successfully registered with ACTIVE status
+			// We'll hide the register button and show Next button instead
+			const isDeviceRegisteredActive =
+				(deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') ||
+				(mfaState.deviceId && mfaState.deviceStatus === 'ACTIVE' && !showModal);
 
 			// Use phone validation utility for format checking
 			const isValidPhone =
@@ -1402,21 +1420,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						</button>
 					</div>
 
-					{mfaState.deviceId && mfaState.deviceStatus === 'ACTIVE' && (
-						<div className="success-box" style={{ marginTop: '20px' }}>
-							<h3>✅ Device Registered Successfully!</h3>
-							<p>
-								<strong>Device ID:</strong> {mfaState.deviceId}
-							</p>
-							<p>
-								<strong>Status:</strong> {mfaState.deviceStatus}
-							</p>
-							<p style={{ marginTop: '12px', fontSize: '14px', color: '#047857' }}>
-								Your WhatsApp device is ready to use. No activation is required.
-							</p>
-						</div>
-					)}
-
 					{/* Nickname Prompt Modal */}
 					<NicknamePromptModalV8
 						isOpen={showNicknameModal}
@@ -1480,6 +1483,58 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, nav, setIsLoading, isLoading } = props;
 			// navigate is now available from component level
+
+			// If device is ACTIVE and we just came from step 2, show success page
+			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 3) {
+				// Check if we have deviceRegisteredActive (just registered) or deviceId (device exists)
+				if (deviceRegisteredActive || mfaState.deviceId) {
+					const activeDevice = deviceRegisteredActive || {
+						deviceId: mfaState.deviceId,
+						deviceName: mfaState.nickname || credentials.deviceName || 'WHATSAPP',
+						deviceType: 'WHATSAPP' as const,
+						status: 'ACTIVE' as const,
+						username: credentials.username,
+						userId: mfaState.userId,
+						environmentId: credentials.environmentId,
+						createdAt: mfaState.createdAt,
+						updatedAt: mfaState.updatedAt,
+					};
+
+					// Build success data
+					const tempMfaState = {
+						deviceId: activeDevice.deviceId,
+						deviceStatus: activeDevice.status,
+						nickname: activeDevice.deviceName,
+						userId: activeDevice.userId,
+						environmentId: activeDevice.environmentId,
+						createdAt: activeDevice.createdAt,
+						updatedAt: activeDevice.updatedAt,
+					} as MFAFlowBaseRenderProps['mfaState'];
+					const successData = buildSuccessPageData(
+						credentials,
+						tempMfaState,
+						registrationFlowType,
+						adminDeviceStatus,
+						credentials.tokenType
+					);
+
+					// Store in state if not already stored
+					if (!deviceRegisteredActive) {
+						setDeviceRegisteredActive(activeDevice);
+					}
+
+					return (
+						<MFASuccessPageV8
+							{...props}
+							successData={successData}
+							onStartAgain={() => {
+								setDeviceRegisteredActive(null);
+								nav.goToStep(0);
+							}}
+						/>
+					);
+				}
+			}
 
 			// Skip step 3 (Send OTP) for ACTIVATION_REQUIRED devices - OTP is sent automatically by PingOne
 			// Redirect to step 4 (Validate) instead
@@ -2255,15 +2310,29 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 										onClick={async () => {
 											setIsLoading(true);
 											try {
-												await controller.sendOTP(
-													credentials,
-													mfaState.deviceId,
-													otpState,
-													updateOtpState,
-													nav,
-													setIsLoading
-												);
-												toastV8.success('OTP code resent successfully!');
+												// For ACTIVATION_REQUIRED devices, use resendPairingCode endpoint
+												// For ACTIVE devices, use sendOTP (device authentication flow)
+												if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+													await MFAServiceV8.resendPairingCode({
+														environmentId: credentials.environmentId,
+														username: credentials.username,
+														deviceId: mfaState.deviceId,
+														region: credentials.region,
+														customDomain: credentials.customDomain,
+													});
+													toastV8.success('OTP code resent successfully!');
+												} else {
+													// For ACTIVE devices or if status is unknown, use sendOTP
+													await controller.sendOTP(
+														credentials,
+														mfaState.deviceId,
+														otpState,
+														updateOtpState,
+														nav,
+														setIsLoading
+													);
+													toastV8.success('OTP code resent successfully!');
+												}
 											} catch (error) {
 												const errorMessage =
 													error instanceof Error ? error.message : 'Unknown error';
@@ -2290,7 +2359,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							</div>
 
 							{/* Error Display */}
-							{validationAttempts > 0 && lastValidationError && (
+							{validationAttempts > 0 && (
 								<div
 									style={{
 										marginTop: '12px',
@@ -2304,7 +2373,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									<p style={{ margin: '0', fontSize: '13px', fontWeight: '600' }}>
 										{validationAttempts >= 3 ? '⚠️ Multiple Failed Attempts' : '⚠️ Validation Failed'}
 									</p>
-									<p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>{lastValidationError}</p>
+									<p style={{ margin: '4px 0 0 0', fontSize: '12px' }}>
+										{lastValidationError || 'OTP code invalid'}
+									</p>
 								</div>
 							)}
 						</div>
