@@ -6,6 +6,7 @@
  */
 
 import React from 'react';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 
 export interface MFAOTPInputProps {
 	value: string;
@@ -19,17 +20,32 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 	value,
 	onChange,
 	disabled = false,
-	placeholder = '123456',
-	maxLength = 6,
+	placeholder,
+	maxLength,
 }) => {
+	// Get configured OTP length from MFA configuration service
+	const config = MFAConfigurationServiceV8.loadConfiguration();
+	const configuredLength = maxLength ?? config.otpCodeLength;
+	const defaultPlaceholder = '0'.repeat(configuredLength);
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const cleaned = e.target.value.replace(/[^\d]/g, '').slice(0, maxLength);
+		const cleaned = e.target.value.replace(/[^\d]/g, '').slice(0, configuredLength);
 		onChange(cleaned);
 	};
 
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-			<label htmlFor="mfa-otp" style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#374151', textAlign: 'center', width: '100%' }}>
+			<label
+				htmlFor="mfa-otp"
+				style={{
+					display: 'block',
+					marginBottom: '8px',
+					fontSize: '14px',
+					fontWeight: '600',
+					color: '#374151',
+					textAlign: 'center',
+					width: '100%',
+				}}
+			>
 				OTP Code <span className="required">*</span>
 			</label>
 			<input
@@ -38,10 +54,11 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 				value={value}
 				onChange={handleChange}
 				disabled={disabled}
-				placeholder={placeholder}
+				placeholder={placeholder ?? defaultPlaceholder}
+				maxLength={configuredLength}
 				style={{
 					padding: '12px 16px',
-					border: `2px solid ${value.length === maxLength ? '#10b981' : '#d1d5db'}`,
+					border: `2px solid ${value.length === configuredLength ? '#10b981' : '#d1d5db'}`,
 					borderRadius: '8px',
 					fontSize: '20px',
 					fontFamily: 'monospace',
@@ -58,4 +75,3 @@ export const MFAOTPInput: React.FC<MFAOTPInputProps> = ({
 		</div>
 	);
 };
-
