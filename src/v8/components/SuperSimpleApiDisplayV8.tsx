@@ -16,9 +16,9 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useServerHealth } from '@/hooks/useServerHealth';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { useServerHealth } from '@/hooks/useServerHealth';
 
 const MODULE_TAG = '[⚡ SUPER-SIMPLE-API-V8]';
 
@@ -26,6 +26,7 @@ interface ApiCall {
 	id: string;
 	method: string;
 	url: string;
+	headers?: Record<string, string>;
 	body?: unknown;
 	response?:
 		| {
@@ -229,8 +230,8 @@ const createPopOutWindow = (
 				
 				// Handle custom domains (match pattern: https://auth.yourcompany.com/ or https://api.yourcompany.com/)
 				// Replace any custom domain with 'auth/' or 'api/' prefix
-				shortUrl = shortUrl.replace(/https:\/\/auth\.([^\/]+)\//, 'auth/');
-				shortUrl = shortUrl.replace(/https:\/\/api\.([^\/]+)\/v1\//, 'api/');
+				shortUrl = shortUrl.replace(/https://auth.([^/]+)//, 'auth/');
+				shortUrl = shortUrl.replace(/https://api.([^/]+)/v1//, 'api/');
 				
 				// Handle proxy endpoints
 				shortUrl = shortUrl.replace('/api/pingone/mfa/', 'mfa/');
@@ -381,12 +382,22 @@ const createPopOutWindow = (
 											const methodColor = call.method === 'GET' ? '#3b82f6' : call.method === 'POST' ? '#10b981' : call.method === 'DELETE' ? '#ef4444' : '#6b7280';
 											const apiType = getApiTypeIcon(call);
 											const isExpanded = expandedIds.has(call.id);
+											const hasHeaders = call.headers && typeof call.headers === 'object' && Object.keys(call.headers).length > 0;
 											const hasBody = call.body && typeof call.body === 'object' && Object.keys(call.body).length > 0;
 											const hasResponse = call.response?.data !== undefined && call.response.data !== null;
+											const headersText = hasHeaders ? JSON.stringify(call.headers, null, 2) : '';
 											const bodyText = hasBody ? (typeof call.body === 'string' ? call.body : JSON.stringify(call.body, null, 2)) : '';
 											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
-											const bodyTextEscaped = bodyText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
-											const responseTextEscaped = responseText.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '\\\\"').replace(/\\n/g, '\\\\n');
+											// Escape for use in JavaScript strings within HTML onclick attributes
+											// Use JSON.stringify to properly escape the text for JavaScript
+											const escapeForJsString = (text: string): string => {
+												// JSON.stringify will properly escape all special characters
+												// Remove the surrounding quotes that JSON.stringify adds
+												return JSON.stringify(text).slice(1, -1);
+											};
+											const headersTextEscaped = hasHeaders ? escapeForJsString(headersText) : '';
+											const bodyTextEscaped = hasBody ? escapeForJsString(bodyText) : '';
+											const responseTextEscaped = hasResponse ? escapeForJsString(responseText) : '';
 											const displayUrl = call.actualPingOneUrl || call.url;
 											const urlEscaped = displayUrl.replace(/'/g, "\\\\'");
 											
@@ -411,6 +422,15 @@ const createPopOutWindow = (
 																	</div>
 																	<div style="color: #2563eb; font-size: 11px; word-break: break-all; white-space: normal; overflow-wrap: anywhere;">\${displayUrl}</div>
 																</div>
+																\${hasHeaders ? \`
+																	<div>
+																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">REQUEST HEADERS:</div>
+																			<button class="copy-btn \${copiedField === 'headers-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${headersTextEscaped}', 'headers-\${call.id}')">\${copiedField === 'headers-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																		</div>
+																		<div class="json-display"><pre>\${headersText}</pre></div>
+																	</div>
+																\` : ''}
 																\${hasBody ? \`
 																	<div>
 																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
@@ -421,10 +441,10 @@ const createPopOutWindow = (
 																	</div>
 																\` : ''}
 																\${hasResponse ? \`
-																	<div>
+																	<div style="padding: 8px 12px; background: #e0f2fe; border-radius: 4px; border: 1px solid #38bdf8; margin-top: 12px;">
 																		<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-																			<div style="color: #6b7280; font-size: 10px; font-weight: 600;">RESPONSE:</div>
-																			<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy'}</button>
+																			<div style="color: #0369a1; font-size: 11px; font-weight: 700;">RESPONSE (for debugging):</div>
+																			<button class="copy-btn \${copiedField === 'response-' + call.id ? 'copied' : ''}" onclick="event.stopPropagation(); window.handleCopy('\${responseTextEscaped}', 'response-\${call.id}')" style="padding: 4px 10px; background: \${copiedField === 'response-' + call.id ? '#10b981' : '#0ea5e9'}; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: 600;">\${copiedField === 'response-' + call.id ? '✓ Copied' : '📋 Copy Response'}</button>
 																		</div>
 																		<div class="json-display"><pre>\${responseText}</pre></div>
 																	</div>
@@ -571,7 +591,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 }) => {
 	// Check server health to avoid polling when server is down
 	const serverHealth = useServerHealth(30000); // Check every 30 seconds
-	
+
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 	const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 	const [isVisible, setIsVisible] = useState(apiDisplayServiceV8.isVisible());
@@ -772,44 +792,54 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				try {
 					const response = await fetch('/api/pingone/api-calls');
 					if (response.ok) {
-						const data = (await response.json()) as { calls: Array<{
-							id: string;
-							method: string;
-							url: string;
-							body?: unknown;
-							response?: { status: number; statusText?: string; headers?: Record<string, string>; data?: unknown };
-							timestamp: string;
-							duration?: number;
-							source?: string;
-							isProxy?: boolean;
-						}> };
+						const data = (await response.json()) as {
+							calls: Array<{
+								id: string;
+								method: string;
+								url: string;
+								body?: unknown;
+								response?: {
+									status: number;
+									statusText?: string;
+									headers?: Record<string, string>;
+									data?: unknown;
+								};
+								timestamp: string;
+								duration?: number;
+								source?: string;
+								isProxy?: boolean;
+							}>;
+						};
 						if (data.calls && Array.isArray(data.calls)) {
-						backendCalls = data.calls.map((call) => ({
-							id: call.id,
-							method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
-							url: call.url,
-							body: call.body || null,
-							response: call.response
-								? {
-										status: call.response.status,
-										statusText: call.response.statusText || '',
-										headers: call.response.headers,
-										data: call.response.data,
-									}
-								: undefined,
-							timestamp: new Date(call.timestamp).getTime(),
-							duration: call.duration,
-							source: (call.source as 'frontend' | 'backend') || 'backend',
-							isProxy: call.isProxy || false,
-							// Backend calls are never proxy calls (already filtered in logPingOneApiCall)
-						}));
+							backendCalls = data.calls.map((call) => ({
+								id: call.id,
+								method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
+								url: call.url,
+								body: call.body || null,
+								response: call.response
+									? {
+											status: call.response.status,
+											statusText: call.response.statusText || '',
+											headers: call.response.headers,
+											data: call.response.data,
+										}
+									: undefined,
+								timestamp: new Date(call.timestamp).getTime(),
+								duration: call.duration,
+								source: (call.source as 'frontend' | 'backend') || 'backend',
+								isProxy: call.isProxy || false,
+								// Backend calls are never proxy calls (already filtered in logPingOneApiCall)
+							}));
 						}
 					}
 				} catch (error) {
 					// Silently fail - backend calls are optional
 					// Only log if it's not a connection refused error (server down)
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					if (!errorMessage.includes('ERR_CONNECTION_REFUSED') && !errorMessage.includes('Failed to fetch')) {
+					if (
+						!errorMessage.includes('ERR_CONNECTION_REFUSED') &&
+						!errorMessage.includes('Failed to fetch')
+					) {
 						console.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
 					}
 				}
@@ -913,8 +943,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						const url = call.url || '';
 						// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
 						// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
-						const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
-						const isProxyUrl = url.startsWith('/api/pingone/') || (url.startsWith('/api/') && !isDirectPingOneUrl);
+						const isDirectPingOneUrl =
+							(url.includes('pingone.com') || url.includes('auth.pingone')) &&
+							!url.startsWith('/api/');
+						const isProxyUrl =
+							url.startsWith('/api/pingone/') || (url.startsWith('/api/') && !isDirectPingOneUrl);
 						// Also check the isProxy flag from backend calls
 						const isBackendProxyCall = (call as { isProxy?: boolean }).isProxy === true;
 						return !isProxyUrl && !isBackendProxyCall;
@@ -927,6 +960,28 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					const originalUrl = call.url || '';
 					const actualPingOneUrl = (call as { actualPingOneUrl?: string }).actualPingOneUrl;
 					const isProxy = (call as { isProxy?: boolean }).isProxy;
+					const callHeaders = (call as { headers?: Record<string, string> }).headers;
+
+					// #region agent log - Debug headers mapping
+					if (
+						originalUrl.includes('check-fido2-assertion') ||
+						originalUrl.includes('select-device') ||
+						originalUrl.includes('validate-otp') ||
+						originalUrl.includes('initialize-device')
+					) {
+						console.log('[SuperSimpleApiDisplayV8] Mapping call with headers:', {
+							originalUrl,
+							hasHeaders: !!callHeaders,
+							headersType: typeof callHeaders,
+							headersKeys: callHeaders ? Object.keys(callHeaders) : [],
+							headers: callHeaders,
+							callId: call.id,
+							callType: typeof call,
+							callKeys: Object.keys(call),
+						});
+					}
+					// #endregion
+
 					const apiCall: ApiCall = {
 						id: String(call.id || ''),
 						method: String(call.method || 'GET'),
@@ -938,11 +993,35 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								: new Date(call.timestamp).getTime(),
 						...(actualPingOneUrl !== undefined && { actualPingOneUrl }),
 						...(isProxy !== undefined && { isProxy }),
+						...(callHeaders && {
+							headers: callHeaders,
+						}),
 					};
+
+					// #region agent log - Debug headers after mapping
+					if (
+						originalUrl.includes('check-fido2-assertion') ||
+						originalUrl.includes('select-device') ||
+						originalUrl.includes('validate-otp') ||
+						originalUrl.includes('initialize-device')
+					) {
+						console.log('[SuperSimpleApiDisplayV8] Mapped API call with headers:', {
+							apiCallId: apiCall.id,
+							apiCallUrl: apiCall.url,
+							hasHeaders: !!(apiCall as { headers?: Record<string, string> }).headers,
+							headersType: typeof (apiCall as { headers?: Record<string, string> }).headers,
+							headersKeys: (apiCall as { headers?: Record<string, string> }).headers
+								? Object.keys((apiCall as { headers?: Record<string, string> }).headers!)
+								: [],
+							headers: (apiCall as { headers?: Record<string, string> }).headers,
+						});
+					}
+					// #endregion
+
 					if (call.response) {
 						apiCall.response = {
-							status: Number(call.response.status) || 0,
-							data: call.response.data,
+							status: Number(call.response?.status) || 0,
+							data: call.response?.data,
 						};
 					}
 					return apiCall;
@@ -1001,7 +1080,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 	const getStatusLabel = (status?: number): string => {
 		if (!status) return '';
-		
+
 		const statusMap: Record<number, string> = {
 			200: 'success',
 			201: 'created',
@@ -1038,34 +1117,41 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 		return 'unknown';
 	};
 
-	const isProxyCall = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean }): boolean => {
+	const isProxyCall = (call: {
+		url?: string;
+		actualPingOneUrl?: string;
+		isProxy?: boolean;
+	}): boolean => {
 		const url = call.url || '';
-		
+
 		// If isProxy is explicitly set, use that (backend calls set this correctly)
 		if (typeof call.isProxy === 'boolean') {
 			return call.isProxy;
 		}
-		
+
 		// A proxy call is one where url starts with /api/pingone/ or /api/ (when it's not a direct pingone.com URL)
 		// Direct PingOne URLs contain pingone.com or auth.pingone and don't start with /api/
-		const isDirectPingOneUrl = (url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
-		
+		const isDirectPingOneUrl =
+			(url.includes('pingone.com') || url.includes('auth.pingone')) && !url.startsWith('/api/');
+
 		// If it's a direct PingOne URL, it's not a proxy
 		if (isDirectPingOneUrl) {
 			return false;
 		}
-		
+
 		// Otherwise, check if it starts with /api/pingone/ or /api/
 		const isProxyUrl = url.startsWith('/api/pingone/') || url.startsWith('/api/');
 		return isProxyUrl;
 	};
 
-	const getApiTypeIcon = (call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string) => {
+	const getApiTypeIcon = (
+		call: { url?: string; actualPingOneUrl?: string; isProxy?: boolean } | string
+	) => {
 		// Handle both string URL (legacy) and call object
 		const url = typeof call === 'string' ? call : call.url || '';
 		const callObj = typeof call === 'string' ? { url } : call;
 		const isProxy = isProxyCall(callObj);
-		
+
 		// Check if it's an admin/worker token API call
 		const isAdminApi =
 			url.includes('/as/token') || // Token endpoint
@@ -1078,7 +1164,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 		// Different icons for proxy vs direct calls
 		if (isProxy) {
-			return isAdminApi 
+			return isAdminApi
 				? { icon: '🔀', label: 'Proxy Admin API (Worker Token)', color: '#f59e0b' }
 				: { icon: '🔄', label: 'Proxy User API', color: '#3b82f6' };
 		}
@@ -1382,7 +1468,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 												background: showP1Only ? '#10b981' : '#6b7280',
 												color: 'white',
 											}}
-											title={showP1Only ? 'Show all calls (including proxy)' : 'Show only P1 calls (filter proxy)'}
+											title={
+												showP1Only
+													? 'Show all calls (including proxy)'
+													: 'Show only P1 calls (filter proxy)'
+											}
 										>
 											{showP1Only ? '🔍 P1 Only' : '📋 All Calls'}
 										</button>
@@ -1561,7 +1651,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								)}
 								{apiCalls.length > 0 &&
 									apiCalls.map((call) => {
-										const apiType = getApiTypeIcon(call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean });
+										const apiType = getApiTypeIcon(
+											call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean }
+										);
 										return (
 											<React.Fragment key={call.id}>
 												{/* Main Row */}
@@ -1680,6 +1772,93 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 															style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}
 														>
 															<div style={{ display: 'grid', gap: '12px' }}>
+																{/* API Call (Method + URL) - Quick Copy for Debugging */}
+																<div
+																	style={{
+																		padding: '8px 12px',
+																		background: '#f3f4f6',
+																		borderRadius: '4px',
+																		border: '1px solid #e5e7eb',
+																	}}
+																>
+																	<div
+																		style={{
+																			display: 'flex',
+																			alignItems: 'center',
+																			justifyContent: 'space-between',
+																			marginBottom: '4px',
+																		}}
+																	>
+																		<div
+																			style={{
+																				color: '#6b7280',
+																				fontSize: '10px',
+																				fontWeight: '600',
+																			}}
+																		>
+																			API CALL ({call.method}):
+																		</div>
+																		<button
+																			type="button"
+																			onClick={(e) => {
+																				e.stopPropagation();
+																				const apiCallText = `${call.method} ${(call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''}`;
+																				handleCopy(apiCallText, `apiCall-${call.id}`);
+																			}}
+																			style={{
+																				padding: '4px 8px',
+																				background:
+																					copiedField === `apiCall-${call.id}`
+																						? '#10b981'
+																						: '#3b82f6',
+																				color: 'white',
+																				border: 'none',
+																				borderRadius: '3px',
+																				fontSize: '10px',
+																				cursor: 'pointer',
+																				fontWeight: '600',
+																			}}
+																			title="Copy API call (method + URL) for debugging"
+																		>
+																			{copiedField === `apiCall-${call.id}`
+																				? '✓ Copied'
+																				: '📋 Copy API Call'}
+																		</button>
+																	</div>
+																	<div
+																		style={{
+																			color: '#1f2937',
+																			fontSize: '11px',
+																			wordBreak: 'break-all',
+																			fontFamily: 'monospace',
+																		}}
+																	>
+																		<span
+																			style={{
+																				padding: '2px 6px',
+																				background:
+																					call.method === 'GET'
+																						? '#3b82f6'
+																						: call.method === 'POST'
+																							? '#10b981'
+																							: call.method === 'DELETE'
+																								? '#ef4444'
+																								: '#6b7280',
+																				color: 'white',
+																				borderRadius: '2px',
+																				fontSize: '9px',
+																				fontWeight: 'bold',
+																				marginRight: '6px',
+																			}}
+																		>
+																			{call.method}
+																		</span>
+																		{(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																			call.url ||
+																			''}
+																	</div>
+																</div>
+
 																{/* Full URL */}
 																<div>
 																	<div
@@ -1703,7 +1882,15 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			type="button"
 																			onClick={(e) => {
 																				e.stopPropagation();
-																				handleCopy(String((call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || ''), `url-${call.id}`);
+																				handleCopy(
+																					String(
+																						(call as { actualPingOneUrl?: string })
+																							.actualPingOneUrl ||
+																							call.url ||
+																							''
+																					),
+																					`url-${call.id}`
+																				);
 																			}}
 																			style={{
 																				padding: '2px 6px',
@@ -1729,9 +1916,148 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			wordBreak: 'break-all',
 																		}}
 																	>
-																		{String((call as { actualPingOneUrl?: string }).actualPingOneUrl || call.url || '')}
+																		{String(
+																			(call as { actualPingOneUrl?: string }).actualPingOneUrl ||
+																				call.url ||
+																				''
+																		)}
 																	</div>
 																</div>
+
+																{/* Request Headers */}
+																{(() => {
+																	const headers = (call as { headers?: Record<string, string> })
+																		.headers;
+
+																	// #region agent log - Debug headers display
+																	if (
+																		call.url?.includes('check-fido2-assertion') ||
+																		call.url?.includes('select-device') ||
+																		call.url?.includes('validate-otp') ||
+																		call.url?.includes('initialize-device')
+																	) {
+																		console.log(
+																			'[SuperSimpleApiDisplayV8] Rendering headers section:',
+																			{
+																				callUrl: call.url,
+																				callId: call.id,
+																				hasHeaders: !!headers,
+																				headersType: typeof headers,
+																				headersIsNull: headers === null,
+																				headersIsUndefined: headers === undefined,
+																				headersKeys: headers ? Object.keys(headers) : [],
+																				headersKeysLength: headers
+																					? Object.keys(headers).length
+																					: 0,
+																				headers,
+																				callType: typeof call,
+																				callKeys: Object.keys(call),
+																				callHasHeadersProperty: 'headers' in call,
+																			}
+																		);
+																	}
+																	// #endregion
+
+																	if (!headers || Object.keys(headers).length === 0) {
+																		// #region agent log - Debug why headers are not shown
+																		if (
+																			call.url?.includes('check-fido2-assertion') ||
+																			call.url?.includes('select-device') ||
+																			call.url?.includes('validate-otp') ||
+																			call.url?.includes('initialize-device')
+																		) {
+																			console.warn(
+																				'[SuperSimpleApiDisplayV8] Headers section NOT rendered - headers missing or empty:',
+																				{
+																					callUrl: call.url,
+																					callId: call.id,
+																					hasHeaders: !!headers,
+																					headersType: typeof headers,
+																					headersValue: headers,
+																					headersKeysLength: headers
+																						? Object.keys(headers).length
+																						: 0,
+																				}
+																			);
+																		}
+																		// #endregion
+																		return null;
+																	}
+
+																	const headersText = JSON.stringify(headers, null, 2);
+
+																	return (
+																		<div>
+																			<div
+																				style={{
+																					display: 'flex',
+																					alignItems: 'center',
+																					justifyContent: 'space-between',
+																					marginBottom: '4px',
+																				}}
+																			>
+																				<div
+																					style={{
+																						color: '#6b7280',
+																						fontSize: '10px',
+																						fontWeight: '600',
+																					}}
+																				>
+																					REQUEST HEADERS:
+																				</div>
+																				<button
+																					type="button"
+																					onClick={(e) => {
+																						e.stopPropagation();
+																						handleCopy(headersText, `headers-${call.id}`);
+																					}}
+																					style={{
+																						padding: '2px 6px',
+																						background:
+																							copiedField === `headers-${call.id}`
+																								? '#10b981'
+																								: '#e5e7eb',
+																						color:
+																							copiedField === `headers-${call.id}`
+																								? 'white'
+																								: '#374151',
+																						border: 'none',
+																						borderRadius: '3px',
+																						fontSize: '9px',
+																						cursor: 'pointer',
+																						fontWeight: '600',
+																					}}
+																					title="Copy request headers"
+																				>
+																					{copiedField === `headers-${call.id}`
+																						? '✓ Copied'
+																						: '📋 Copy'}
+																				</button>
+																			</div>
+																			<div
+																				style={{
+																					background: 'white',
+																					padding: '12px',
+																					borderRadius: '4px',
+																					fontSize: '12px',
+																					overflowX: 'auto',
+																					maxHeight: '400px',
+																					overflowY: 'auto',
+																				}}
+																			>
+																				<pre
+																					style={{
+																						margin: 0,
+																						whiteSpace: 'pre-wrap',
+																						wordWrap: 'break-word',
+																					}}
+																				>
+																					{headersText}
+																				</pre>
+																			</div>
+																		</div>
+																	);
+																})()}
 
 																{/* Request Body */}
 																{(() => {
@@ -1752,7 +2078,14 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																	}
 
 																	return (
-																		<div>
+																		<div
+																			style={{
+																				padding: '8px 12px',
+																				background: '#fef3c7',
+																				borderRadius: '4px',
+																				border: '1px solid #fbbf24',
+																			}}
+																		>
 																			<div
 																				style={{
 																					display: 'flex',
@@ -1763,12 +2096,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			>
 																				<div
 																					style={{
-																						color: '#6b7280',
-																						fontSize: '10px',
-																						fontWeight: '600',
+																						color: '#92400e',
+																						fontSize: '11px',
+																						fontWeight: '700',
 																					}}
 																				>
-																					REQUEST BODY:
+																					REQUEST BODY (for debugging):
 																				</div>
 																				<button
 																					type="button"
@@ -1777,26 +2110,23 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						handleCopy(bodyText, `body-${call.id}`);
 																					}}
 																					style={{
-																						padding: '2px 6px',
+																						padding: '4px 8px',
 																						background:
 																							copiedField === `body-${call.id}`
 																								? '#10b981'
-																								: '#e5e7eb',
-																						color:
-																							copiedField === `body-${call.id}`
-																								? 'white'
-																								: '#374151',
+																								: '#f59e0b',
+																						color: 'white',
 																						border: 'none',
 																						borderRadius: '3px',
-																						fontSize: '9px',
+																						fontSize: '10px',
 																						cursor: 'pointer',
 																						fontWeight: '600',
 																					}}
-																					title="Copy request body"
+																					title="Copy request body for debugging"
 																				>
 																					{copiedField === `body-${call.id}`
 																						? '✓ Copied'
-																						: '📋 Copy'}
+																						: '📋 Copy Body'}
 																				</button>
 																			</div>
 																			<div
@@ -1839,7 +2169,15 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																	}
 
 																	return (
-																		<div>
+																		<div
+																			style={{
+																				padding: '8px 12px',
+																				background: '#e0f2fe',
+																				borderRadius: '4px',
+																				border: '1px solid #38bdf8',
+																				marginTop: '12px',
+																			}}
+																		>
 																			<div
 																				style={{
 																					display: 'flex',
@@ -1850,12 +2188,12 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																			>
 																				<div
 																					style={{
-																						color: '#6b7280',
-																						fontSize: '10px',
-																						fontWeight: '600',
+																						color: '#0369a1',
+																						fontSize: '11px',
+																						fontWeight: '700',
 																					}}
 																				>
-																					RESPONSE:
+																					RESPONSE (for debugging):
 																				</div>
 																				<button
 																					type="button"
@@ -1864,26 +2202,23 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																						handleCopy(responseText, `response-${call.id}`);
 																					}}
 																					style={{
-																						padding: '2px 6px',
+																						padding: '4px 10px',
 																						background:
 																							copiedField === `response-${call.id}`
 																								? '#10b981'
-																								: '#e5e7eb',
-																						color:
-																							copiedField === `response-${call.id}`
-																								? 'white'
-																								: '#374151',
+																								: '#0ea5e9',
+																						color: 'white',
 																						border: 'none',
-																						borderRadius: '3px',
-																						fontSize: '9px',
+																						borderRadius: '4px',
+																						fontSize: '10px',
 																						cursor: 'pointer',
 																						fontWeight: '600',
 																					}}
-																					title="Copy response"
+																					title="Copy response for debugging"
 																				>
 																					{copiedField === `response-${call.id}`
 																						? '✓ Copied'
-																						: '📋 Copy'}
+																						: '📋 Copy Response'}
 																				</button>
 																			</div>
 																			<div
