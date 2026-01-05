@@ -6,30 +6,35 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FiMail, FiShield, FiX } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { CountryCodePickerV8 } from '@/v8/components/CountryCodePickerV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
+import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { MFAFlowBaseV8, type MFAFlowBaseRenderProps } from '../shared/MFAFlowBaseV8';
-import type { DeviceType, MFACredentials } from '../shared/MFATypes';
+import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
+import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
 import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { MFADeviceSelector, type Device } from '../components/MFADeviceSelector';
-import { MFAOTPInput } from '../components/MFAOTPInput';
-import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { FiShield, FiX, FiMail } from 'react-icons/fi';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { validateAndNormalizePhone, isValidPhoneFormat } from '@/v8/utils/phoneValidationV8';
+import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
+import type { DeviceType, MFACredentials } from '../shared/MFATypes';
+import {
+	buildSuccessPageData,
+	getSuccessPageStep,
+	type MFASuccessPageData,
+	MFASuccessPageV8,
+} from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
-import { MFASuccessPageV8, buildSuccessPageData, getSuccessPageStep, type MFASuccessPageData } from '../shared/mfaSuccessPageServiceV8';
-import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
-import { fetchPhoneFromPingOne } from '@/v8/services/phoneAutoPopulationServiceV8';
-import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -190,7 +195,11 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 					toastV8.warning('Please select a specific device');
 					break;
 				default:
-					updateOtpState({ otpSent: nextStep === 'OTP_REQUIRED', sendRetryCount: 0, sendError: null });
+					updateOtpState({
+						otpSent: nextStep === 'OTP_REQUIRED',
+						sendRetryCount: 0,
+						sendError: null,
+					});
 					nav.markStepComplete();
 					nav.goToStep(3);
 					toastV8.success('Device selected for authentication. Follow the next step to continue.');
@@ -306,10 +315,16 @@ interface SMSConfigureStepProps extends MFAFlowBaseRenderProps {
 }
 
 const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
-	const { registrationFlowType = 'user', setRegistrationFlowType, adminDeviceStatus = 'ACTIVE', setAdminDeviceStatus } = props;
-	const currentDeviceType = (props.credentials.deviceType === 'SMS' || props.credentials.deviceType === 'EMAIL') 
-		? props.credentials.deviceType 
-		: 'SMS';
+	const {
+		registrationFlowType = 'user',
+		setRegistrationFlowType,
+		adminDeviceStatus = 'ACTIVE',
+		setAdminDeviceStatus,
+	} = props;
+	const currentDeviceType =
+		props.credentials.deviceType === 'SMS' || props.credentials.deviceType === 'EMAIL'
+			? props.credentials.deviceType
+			: 'SMS';
 
 	// Ref to prevent infinite loops in bidirectional sync
 	const isSyncingRef = React.useRef(false);
@@ -319,7 +334,7 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 	React.useEffect(() => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
-		
+
 		// User Flow: Uses User Token (from OAuth login), always set status to ACTIVATION_REQUIRED
 		// Admin Flow: Uses Worker Token, can choose ACTIVE or ACTIVATION_REQUIRED
 		if (registrationFlowType === 'user' && props.credentials.tokenType !== 'user') {
@@ -337,15 +352,17 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && props.credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`);
+			console.log(
+				`${MODULE_TAG} Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
+			);
 			isSyncingRef.current = true;
-			
+
 			// Close UserLoginModal if it's open (Admin Flow uses worker token, not user token)
 			if (props.showUserLoginModal) {
 				console.log(`${MODULE_TAG} Closing UserLoginModal - Admin Flow uses worker token`);
 				props.setShowUserLoginModal(false);
 			}
-			
+
 			props.setCredentials((prev) => ({
 				...prev,
 				tokenType: 'worker',
@@ -356,29 +373,42 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 				isSyncingRef.current = false;
 			}, 0);
 		}
-	}, [registrationFlowType, props.credentials.tokenType, props.credentials.userToken, props.showUserLoginModal, props.setCredentials, props.setShowUserLoginModal]);
+	}, [
+		registrationFlowType,
+		props.credentials.tokenType,
+		props.credentials.userToken,
+		props.showUserLoginModal,
+		props.setCredentials,
+		props.setShowUserLoginModal,
+	]);
 
 	// When tokenType dropdown changes, sync to Registration Flow Type
 	React.useEffect(() => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
-		
+
 		// Admin Flow uses Worker Token, User Flow uses User Token
 		// Sync when switching between flows
 		if (props.credentials.tokenType === 'worker' && registrationFlowType === 'user') {
 			// User changed dropdown to "Worker Token" but User Flow is selected - this is invalid
 			// User Flow must use User Token, so we should switch to Admin Flow
-			console.log(`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`);
+			console.log(
+				`${MODULE_TAG} Token type is 'worker' but User Flow is selected - switching to Admin Flow`
+			);
 			setRegistrationFlowType('admin');
 			return;
 		} else if (props.credentials.tokenType === 'user' && registrationFlowType === 'admin') {
 			// User changed dropdown to "User Token" but Admin Flow is selected - switch to User Flow
-			console.log(`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`);
+			console.log(
+				`${MODULE_TAG} Token type is 'user' but Admin Flow is selected - switching to User Flow`
+			);
 			setRegistrationFlowType('user');
 			return;
 		} else if (props.credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`);
+			console.log(
+				`${MODULE_TAG} Token type dropdown changed to 'worker' - syncing Registration Flow Type`
+			);
 			isSyncingRef.current = true;
 			setRegistrationFlowType?.('admin');
 			// Reset flag after state update
@@ -391,14 +421,16 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 	return (
 		<>
 			{/* Registration Flow Type Selection - SMS/Email specific - MOVED ABOVE MFAConfigurationStepV8 */}
-			<div style={{ 
-				marginBottom: '28px',
-				padding: '20px',
-				background: '#ffffff',
-				borderRadius: '8px',
-				border: '1px solid #e5e7eb',
-				boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)'
-			}}>
+			<div
+				style={{
+					marginBottom: '28px',
+					padding: '20px',
+					background: '#ffffff',
+					borderRadius: '8px',
+					border: '1px solid #e5e7eb',
+					boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+				}}
+			>
 				<label
 					style={{
 						display: 'block',
@@ -423,7 +455,9 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 						}}
 						onClick={() => setRegistrationFlowType?.('admin')}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+						>
 							<input
 								type="radio"
 								name="registration-flow-type"
@@ -433,19 +467,38 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 								style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
 							/>
 							<div style={{ flex: 1 }}>
-								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>Admin Flow</span>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+									Admin Flow
+								</span>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginTop: '2px',
+										fontStyle: 'italic',
+									}}
+								>
 									Using worker token
 								</div>
 							</div>
 						</div>
 						{/* Always show device status options for Admin Flow, even when not selected */}
 						<div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-							<div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+							<div
+								style={{
+									fontSize: '13px',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '8px',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '6px',
+								}}
+							>
 								Device Status:
-								<MFAInfoButtonV8 
-									contentKey="device.status.rules" 
-									displayMode="modal" 
+								<MFAInfoButtonV8
+									contentKey="device.status.rules"
+									displayMode="modal"
 									label="What is this?"
 									stopPropagation={true}
 								/>
@@ -483,7 +536,12 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 										}}
 										onClick={(e) => e.stopPropagation()}
 										disabled={registrationFlowType !== 'admin'}
-										style={{ margin: 0, cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed', width: '16px', height: '16px' }}
+										style={{
+											margin: 0,
+											cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+											width: '16px',
+											height: '16px',
+										}}
 									/>
 									<span style={{ fontSize: '13px', color: '#374151' }}>
 										<strong>ACTIVE</strong> - Device created as ready to use, no activation needed
@@ -521,7 +579,12 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 										}}
 										onClick={(e) => e.stopPropagation()}
 										disabled={registrationFlowType !== 'admin'}
-										style={{ margin: 0, cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed', width: '16px', height: '16px' }}
+										style={{
+											margin: 0,
+											cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+											width: '16px',
+											height: '16px',
+										}}
 									/>
 									<span style={{ fontSize: '13px', color: '#374151' }}>
 										<strong>ACTIVATION_REQUIRED</strong> - OTP will be sent for device activation
@@ -542,7 +605,9 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 						}}
 						onClick={() => setRegistrationFlowType?.('user')}
 					>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+						>
 							<input
 								type="radio"
 								name="registration-flow-type"
@@ -552,26 +617,58 @@ const SMSConfigureStep: React.FC<SMSConfigureStepProps> = (props) => {
 								style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
 							/>
 							<div style={{ flex: 1 }}>
-								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>User Flow</span>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+								<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+									User Flow
+								</span>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginTop: '2px',
+										fontStyle: 'italic',
+									}}
+								>
 									Using access token from User Authentication
 								</div>
 							</div>
 						</div>
-						<div style={{ fontSize: '13px', color: '#6b7280', marginLeft: '28px', lineHeight: '1.5', padding: '8px 12px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-							<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP will be sent for device activation
+						<div
+							style={{
+								fontSize: '13px',
+								color: '#6b7280',
+								marginLeft: '28px',
+								lineHeight: '1.5',
+								padding: '8px 12px',
+								background: '#f9fafb',
+								borderRadius: '6px',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP will be sent
+							for device activation
 						</div>
 					</label>
 				</div>
-				<small style={{ display: 'block', marginTop: '12px', fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
-					Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow always requires activation.
+				<small
+					style={{
+						display: 'block',
+						marginTop: '12px',
+						fontSize: '12px',
+						color: '#6b7280',
+						lineHeight: '1.5',
+					}}
+				>
+					Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow always
+					requires activation.
 				</small>
 			</div>
-			
+
 			<MFAConfigurationStepV8
 				{...props}
 				deviceType={currentDeviceType}
-				deviceTypeLabel={currentDeviceType === 'EMAIL' ? 'Email' : currentDeviceType === 'VOICE' ? 'Voice' : 'SMS'}
+				deviceTypeLabel={
+					currentDeviceType === 'EMAIL' ? 'Email' : currentDeviceType === 'VOICE' ? 'Voice' : 'SMS'
+				}
 				registrationFlowType={registrationFlowType}
 				policyDescription={`Controls how PingOne challenges the user during ${currentDeviceType === 'EMAIL' ? 'Email' : currentDeviceType === 'VOICE' ? 'Voice' : 'SMS'} MFA authentication.`}
 			/>
@@ -621,11 +718,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	// Initialize controller using factory - will be updated dynamically based on selected device type
 	// Note: The shared hook already provides a controller, but we keep this for dynamic device type switching
 	const [controllerDeviceType, setControllerDeviceType] = useState<'SMS' | 'EMAIL'>('SMS');
-	const dynamicController = useMemo(() => 
-		MFAFlowControllerFactory.create({ deviceType: controllerDeviceType }), 
+	const dynamicController = useMemo(
+		() => MFAFlowControllerFactory.create({ deviceType: controllerDeviceType }),
 		[controllerDeviceType]
 	);
-	
+
 	// Use the dynamic controller if device type is different, otherwise use the hook's controller
 	const effectiveController = controllerDeviceType !== 'SMS' ? dynamicController : controller;
 
@@ -634,23 +731,27 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Track if we've updated credentials from location.state
 	const credentialsUpdatedRef = React.useRef(false);
-	
+
 	// Ref to track if deviceName has been reset for step 2 (to avoid Rules of Hooks violation)
 	const step2DeviceNameResetRef = React.useRef<{ step: number; deviceType: string } | null>(null);
-	
+
 	// Ref to store step 2 props for hooks to access
 	const step2PropsRef = React.useRef<MFAFlowBaseRenderProps | null>(null);
-	
+
 	// Auto-populate phone from PingOne user when entering step 2
 	const phoneFetchAttemptedRef = React.useRef<{ step: number; username: string } | null>(null);
-	const pendingPhoneFetchTriggerRef = React.useRef<{ step: number; username: string; environmentId: string } | null>(null);
-	
+	const pendingPhoneFetchTriggerRef = React.useRef<{
+		step: number;
+		username: string;
+		environmentId: string;
+	} | null>(null);
+
 	// Step 0: Configure Credentials - skip if coming from config page with all prerequisites
 	const renderStep0 = useMemo(() => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { nav, credentials, setCredentials, tokenStatus } = props;
-			const locationState = location.state as { 
-				configured?: boolean; 
+			const locationState = location.state as {
+				configured?: boolean;
 				deviceAuthenticationPolicyId?: string;
 				policyName?: string;
 				environmentId?: string;
@@ -658,7 +759,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				registrationFlowType?: 'admin' | 'user';
 				adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
 			} | null;
-			
+
 			// Merge location.state into credentials (only once, deferred to avoid render-phase updates)
 			if (!credentialsUpdatedRef.current && locationState) {
 				// Defer state update to avoid render-phase update warning
@@ -667,8 +768,10 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					let hasChanges = false;
 
 					// Merge policy ID
-					if (locationState.deviceAuthenticationPolicyId && 
-						updated.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId) {
+					if (
+						locationState.deviceAuthenticationPolicyId &&
+						updated.deviceAuthenticationPolicyId !== locationState.deviceAuthenticationPolicyId
+					) {
 						updated.deviceAuthenticationPolicyId = locationState.deviceAuthenticationPolicyId;
 						hasChanges = true;
 					}
@@ -709,9 +812,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// Check if all prerequisites are satisfied
 			// Per rightTOTP.md: Check token validity based on token type (worker or user)
 			const tokenType = credentials.tokenType || 'worker';
-			const isTokenValid = tokenType === 'worker' 
-				? tokenStatus.isValid 
-				: !!credentials.userToken?.trim();
+			const isTokenValid =
+				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 			const hasMinimumConfig =
 				!!credentials.environmentId?.trim() &&
 				!!credentials.username?.trim() &&
@@ -725,13 +827,15 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// - User Token input with "Login with PingOne" button
 			// - Environment ID, Policy, Username fields
 			// - Registration Flow Type selector
-			// 
+			//
 			// Even if coming from config page with all prerequisites, we show Step 0
 			// so users can configure token type and see the new UI
 			if (false && isConfigured && nav.currentStep === 0 && hasMinimumConfig) {
 				// Disabled: Always show Step 0 now
 				setTimeout(() => {
-					console.log(`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`);
+					console.log(
+						`${MODULE_TAG} Step 0 skip logic disabled - always showing new configuration screens`
+					);
 					// nav.goToStep(1);
 				}, 0);
 				// return null;
@@ -740,14 +844,25 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// If configured flag is true but we are missing env/user/policy,
 			// stay on Step 0 so user can complete configuration
 			if (isConfigured && !hasMinimumConfig) {
-				console.log(`${MODULE_TAG} Configured flag is true but missing prerequisites, staying on Step 0`, {
-					hasEnvironmentId: !!credentials.environmentId?.trim(),
-					hasUsername: !!credentials.username?.trim(),
-					hasPolicy: !!credentials.deviceAuthenticationPolicyId?.trim(),
-				});
+				console.log(
+					`${MODULE_TAG} Configured flag is true but missing prerequisites, staying on Step 0`,
+					{
+						hasEnvironmentId: !!credentials.environmentId?.trim(),
+						hasUsername: !!credentials.username?.trim(),
+						hasPolicy: !!credentials.deviceAuthenticationPolicyId?.trim(),
+					}
+				);
 			}
-			
-			return <SMSConfigureStep {...props} registrationFlowType={registrationFlowType} setRegistrationFlowType={setRegistrationFlowType} adminDeviceStatus={adminDeviceStatus} setAdminDeviceStatus={setAdminDeviceStatus} />;
+
+			return (
+				<SMSConfigureStep
+					{...props}
+					registrationFlowType={registrationFlowType}
+					setRegistrationFlowType={setRegistrationFlowType}
+					adminDeviceStatus={adminDeviceStatus}
+					setAdminDeviceStatus={setAdminDeviceStatus}
+				/>
+			);
 		};
 	}, [isConfigured, location, registrationFlowType, adminDeviceStatus]);
 
@@ -784,35 +899,35 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	React.useEffect(() => {
 		const trigger = pendingPhoneFetchTriggerRef.current;
 		if (!trigger) return;
-		
+
 		// Clear the ref immediately to avoid re-triggering
 		pendingPhoneFetchTriggerRef.current = null;
-		
+
 		const { step, username, environmentId } = trigger;
 		if (!step2PropsRef.current) return;
-		
+
 		const props = step2PropsRef.current;
 		const currentPhone = props.credentials.phoneNumber?.trim() || '';
-		
+
 		// Only fetch if we don't already have a phone number
 		if (currentPhone) {
 			return;
 		}
-		
+
 		// Check if we've already attempted to fetch phone for this step/username combination
 		const lastAttempt = phoneFetchAttemptedRef.current;
 		if (lastAttempt && lastAttempt.step === step && lastAttempt.username === username) {
 			return; // Already attempted for this step/username
 		}
-		
+
 		// Mark that we're attempting to fetch
 		phoneFetchAttemptedRef.current = { step, username };
-		
+
 		// Fetch user data from PingOne to get phone number
 		const fetchUserPhone = async () => {
 			try {
 				const phoneNumber = await fetchPhoneFromPingOne(environmentId, username);
-				
+
 				if (phoneNumber && props.credentials.phoneNumber !== phoneNumber) {
 					props.setCredentials((prev) => ({
 						...prev,
@@ -824,7 +939,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				console.error(`${MODULE_TAG} Failed to fetch user phone from PingOne:`, error);
 			}
 		};
-		
+
 		fetchUserPhone();
 	}, []);
 
@@ -858,8 +973,12 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				</svg>
 			</div>
 			<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-				<span style={{ fontSize: '20px', fontWeight: '700', color: '#E31837', lineHeight: '1.2' }}>Ping</span>
-				<span style={{ fontSize: '12px', fontWeight: '400', color: '#6b7280', lineHeight: '1.2' }}>Identity.</span>
+				<span style={{ fontSize: '20px', fontWeight: '700', color: '#E31837', lineHeight: '1.2' }}>
+					Ping
+				</span>
+				<span style={{ fontSize: '12px', fontWeight: '400', color: '#6b7280', lineHeight: '1.2' }}>
+					Identity.
+				</span>
 			</div>
 		</div>
 	);
@@ -870,1065 +989,1255 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Step 2: Register Device (using controller) - Now as a Modal
 	// Use useCallback to capture adminDeviceStatus and registrationFlowType in closure
-		const renderStep2Register = useCallback((props: MFAFlowBaseRenderProps) => {
-		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading, isLoading, setShowDeviceLimitModal, tokenStatus, setShowWorkerTokenModal } = props;
+	const renderStep2Register = useCallback(
+		(props: MFAFlowBaseRenderProps) => {
+			const {
+				credentials,
+				setCredentials,
+				mfaState,
+				setMfaState,
+				nav,
+				setIsLoading,
+				isLoading,
+				setShowDeviceLimitModal,
+				tokenStatus,
+				setShowWorkerTokenModal,
+			} = props;
 
-		// Store step 2 props for useEffect to access
-		step2PropsRef.current = props;
+			// Store step 2 props for useEffect to access
+			step2PropsRef.current = props;
 
-		// Auto-populate phone from PingOne when entering step 2 (for SMS and Voice device types)
-		const isPhoneBasedDevice = credentials.deviceType === 'SMS' || credentials.deviceType === 'VOICE';
-		if (nav.currentStep === 2 && credentials.username?.trim() && !credentials.phoneNumber?.trim() && credentials.environmentId?.trim() && isPhoneBasedDevice) {
-			// Store trigger in ref to avoid setState during render - useEffect will pick it up
-			pendingPhoneFetchTriggerRef.current = {
-				step: nav.currentStep,
-				username: credentials.username.trim(),
-				environmentId: credentials.environmentId.trim(),
-			};
-		}
+			// Auto-populate phone from PingOne when entering step 2 (for SMS and Voice device types)
+			const isPhoneBasedDevice =
+				credentials.deviceType === 'SMS' || credentials.deviceType === 'VOICE';
+			if (
+				nav.currentStep === 2 &&
+				credentials.username?.trim() &&
+				!credentials.phoneNumber?.trim() &&
+				credentials.environmentId?.trim() &&
+				isPhoneBasedDevice
+			) {
+				// Store trigger in ref to avoid setState during render - useEffect will pick it up
+				pendingPhoneFetchTriggerRef.current = {
+					step: nav.currentStep,
+					username: credentials.username.trim(),
+					environmentId: credentials.environmentId.trim(),
+				};
+			}
 
-		// Reset deviceName to device type when entering registration step (Step 2)
-		// Use ref to track if we've already done this for this step/deviceType combination
-		// This avoids Rules of Hooks violation by not using useEffect inside render function
-		if (nav.currentStep === 2 && credentials) {
-			// Force deviceType to be SMS, VOICE, or EMAIL for SMS flow (ignore any stale values like FIDO2)
-			const validDeviceType = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL' || credentials.deviceType === 'VOICE') 
-				? credentials.deviceType 
-				: 'SMS';
-			
-			const resetKey = `${nav.currentStep}-${validDeviceType}`;
-			const lastReset = step2DeviceNameResetRef.current;
-			
-			if (!lastReset || lastReset.step !== nav.currentStep || lastReset.deviceType !== validDeviceType) {
-				// Check if deviceName needs to be reset - reset if empty, matches wrong device type, or is a generic name
-				const shouldReset = !credentials.deviceName || 
-					credentials.deviceName === credentials.deviceType ||
-					credentials.deviceName === 'SMS' ||
-					credentials.deviceName === 'EMAIL' ||
-					credentials.deviceName === 'VOICE' ||
-					credentials.deviceName === 'FIDO2' ||
-					credentials.deviceName === 'FIDO' ||
-					credentials.deviceName === 'TOTP' ||
-					credentials.deviceName === 'WHATSAPP';
-				
-				if (shouldReset || credentials.deviceType !== validDeviceType) {
-					// Use setTimeout to avoid state update during render
+			// Reset deviceName to device type when entering registration step (Step 2)
+			// ALWAYS reset to device type, regardless of previous value
+			// Use ref to track if we've already done this for this step/deviceType combination
+			// This avoids Rules of Hooks violation by not using useEffect inside render function
+			if (nav.currentStep === 2 && credentials) {
+				// Force deviceType to be SMS, VOICE, or EMAIL for SMS flow (ignore any stale values like FIDO2)
+				const validDeviceType =
+					credentials.deviceType === 'SMS' ||
+					credentials.deviceType === 'EMAIL' ||
+					credentials.deviceType === 'VOICE'
+						? credentials.deviceType
+						: 'SMS';
+
+				const lastReset = step2DeviceNameResetRef.current;
+
+				// Always reset when entering step 2, unless we've already reset for this exact step/deviceType
+				if (
+					!lastReset ||
+					lastReset.step !== nav.currentStep ||
+					lastReset.deviceType !== validDeviceType
+				) {
+					// Always reset device name to device type when entering registration step
 					setTimeout(() => {
 						setCredentials({
 							...credentials,
 							deviceType: validDeviceType, // Force correct device type
-							deviceName: validDeviceType, // Set device name to match device type
+							deviceName: validDeviceType, // Always set device name to device type
 						});
 					}, 0);
 					step2DeviceNameResetRef.current = {
 						step: nav.currentStep,
 						deviceType: validDeviceType,
 					};
-				} else {
-					step2DeviceNameResetRef.current = {
-						step: nav.currentStep,
-						deviceType: validDeviceType,
-					};
 				}
 			}
-		}
 
-		// Ensure deviceType is set correctly - default to SMS for SMS flow, but allow EMAIL or VOICE if selected
-		// This ensures the button text and validation match what the user selected
-		const currentDeviceType = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL' || credentials.deviceType === 'VOICE') 
-			? credentials.deviceType 
-			: 'SMS';
-		const isPhoneBased = currentDeviceType === 'SMS' || currentDeviceType === 'VOICE';
+			// Ensure deviceType is set correctly - default to SMS for SMS flow, but allow EMAIL or VOICE if selected
+			// This ensures the button text and validation match what the user selected
+			const currentDeviceType =
+				credentials.deviceType === 'SMS' ||
+				credentials.deviceType === 'EMAIL' ||
+				credentials.deviceType === 'VOICE'
+					? credentials.deviceType
+					: 'SMS';
+			const isPhoneBased = currentDeviceType === 'SMS' || currentDeviceType === 'VOICE';
 
-		// Handle device registration
-		const handleRegisterDevice = async () => {
-			// Guardrail: Ensure all required credentials are present before registration
-			const missingFields: string[] = [];
-			if (!credentials.environmentId?.trim()) {
-				missingFields.push('Environment ID');
-			}
-			if (!credentials.username?.trim()) {
-				missingFields.push('Username');
-			}
-			if (!credentials.deviceAuthenticationPolicyId?.trim()) {
-				missingFields.push('Device Authentication Policy');
-			}
-			// Per rightTOTP.md: Check token validity based on token type (worker or user)
-			// CRITICAL: Use registrationFlowType if available (more reliable than credentials.tokenType)
-			// Fall back to credentials.tokenType if registrationFlowType is not set
-			const effectiveTokenType = registrationFlowType === 'admin' ? 'worker' 
-				: registrationFlowType === 'user' ? 'user'
-				: credentials.tokenType || 'worker';
-			const isTokenValid = effectiveTokenType === 'worker' 
-				? tokenStatus.isValid 
-				: !!credentials.userToken?.trim();
-			if (!isTokenValid) {
-				missingFields.push(effectiveTokenType === 'worker' ? 'Worker Token' : 'User Token');
-			}
+			// Handle device registration
+			const handleRegisterDevice = async () => {
+				// Guardrail: Ensure all required credentials are present before registration
+				const missingFields: string[] = [];
+				if (!credentials.environmentId?.trim()) {
+					missingFields.push('Environment ID');
+				}
+				if (!credentials.username?.trim()) {
+					missingFields.push('Username');
+				}
+				if (!credentials.deviceAuthenticationPolicyId?.trim()) {
+					missingFields.push('Device Authentication Policy');
+				}
+				// Per rightTOTP.md: Check token validity based on token type (worker or user)
+				// CRITICAL: Use registrationFlowType if available (more reliable than credentials.tokenType)
+				// Fall back to credentials.tokenType if registrationFlowType is not set
+				const effectiveTokenType =
+					registrationFlowType === 'admin'
+						? 'worker'
+						: registrationFlowType === 'user'
+							? 'user'
+							: credentials.tokenType || 'worker';
+				const isTokenValid =
+					effectiveTokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+				if (!isTokenValid) {
+					missingFields.push(effectiveTokenType === 'worker' ? 'Worker Token' : 'User Token');
+				}
 
-			if (missingFields.length > 0) {
-				nav.setValidationErrors([
-					`Missing required configuration: ${missingFields.join(', ')}. Please complete Step 0 configuration.`
-				]);
-				toastV8.error(`Cannot register device: ${missingFields.join(', ')} required`);
-				return;
-			}
-
-			// Get the actual device type from credentials (most up-to-date value)
-			// This ensures we validate based on what's actually selected in the dropdown
-			const actualDeviceType = (credentials.deviceType === 'SMS' || credentials.deviceType === 'EMAIL' || credentials.deviceType === 'VOICE') 
-				? credentials.deviceType 
-				: 'SMS';
-			
-			// Validate based on device type (use actualDeviceType to match what user selected)
-			// Both SMS and VOICE use phone numbers
-			if (actualDeviceType === 'SMS' || actualDeviceType === 'VOICE') {
-				if (!credentials.phoneNumber?.trim()) {
-					nav.setValidationErrors(['Phone number is required. Please enter a valid phone number.']);
+				if (missingFields.length > 0) {
+					nav.setValidationErrors([
+						`Missing required configuration: ${missingFields.join(', ')}. Please complete Step 0 configuration.`,
+					]);
+					toastV8.error(`Cannot register device: ${missingFields.join(', ')} required`);
 					return;
 				}
-				// Use phone validation utility to handle multiple formats
-				const phoneValidation = validateAndNormalizePhone(credentials.phoneNumber, credentials.countryCode);
-				if (!phoneValidation.isValid) {
-					nav.setValidationErrors([phoneValidation.error || 'Invalid phone number format']);
-					return;
-				}
-			} else if (actualDeviceType === 'EMAIL') {
-				if (!credentials.email?.trim()) {
-					nav.setValidationErrors(['Email address is required. Please enter a valid email address.']);
-					return;
-				}
-				if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
-					nav.setValidationErrors(['Please enter a valid email address format.']);
-					return;
-				}
-			}
-			// Use the device name exactly as entered by the user
-			const userEnteredDeviceName = credentials.deviceName?.trim();
-			if (!userEnteredDeviceName) {
-				nav.setValidationErrors(['Device name is required. Please enter a name for this device.']);
-				return;
-			}
 
-			setIsLoading(true);
-			try {
-				// For VOICE, use SMS controller (both use phone numbers)
-				// For SMS/EMAIL, use the appropriate controller
-				const controllerTypeForVoice = actualDeviceType === 'VOICE' ? 'SMS' : actualDeviceType;
-				
-				// Update controller device type if it changed
-				if (controllerDeviceType !== controllerTypeForVoice) {
-					setControllerDeviceType(controllerTypeForVoice);
-				}
-				
-				// Get the correct controller for the device type (use SMS controller for VOICE)
-				const correctController = MFAFlowControllerFactory.create({ deviceType: controllerTypeForVoice });
-				
-				// Use the device name exactly as entered by the user, and ensure deviceType is correct
-				const registrationCredentials = {
-					...credentials,
-					deviceName: userEnteredDeviceName,
-					deviceType: actualDeviceType, // Ensure deviceType matches what user selected (VOICE, SMS, or EMAIL)
-				};
-				// Determine device status based on selected flow type
-				const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' = registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
-				
-				// CRITICAL: Ensure status is explicitly set
-				if (registrationFlowType === 'admin' && deviceStatus !== adminDeviceStatus) {
-					console.error(`${MODULE_TAG} ⚠️ STATUS MISMATCH:`, {
-						'Expected (adminDeviceStatus)': adminDeviceStatus,
-						'Calculated (deviceStatus)': deviceStatus,
-						'Registration Flow Type': registrationFlowType,
-					});
-				}
-				
-				// Get device registration params from controller
-				const deviceParams = correctController.getDeviceRegistrationParams(registrationCredentials, deviceStatus);
-				
-				// For VOICE, override the type to 'VOICE' in the API call
-				// (We use SMS controller but need to send type: "VOICE" to the API)
-				if (actualDeviceType === 'VOICE') {
-					deviceParams.type = 'VOICE' as DeviceType;
-				}
-				
-				const result = await correctController.registerDevice(
-					registrationCredentials, 
-					deviceParams
-				);
-				
-				// Use the actual status returned from the API, not the requested status
-				const actualDeviceStatus = result.status || deviceStatus;
-				
-				// Per rightOTP.md: Extract device.activate URI from registration response
-				// If device.activate URI exists, device requires activation
-				// If missing, device is ACTIVE (double-check with status)
-				const deviceActivateUri = (result as { deviceActivateUri?: string }).deviceActivateUri;
-				
-				
-				// Update mfaState with device info - will be updated again in ACTIVATION_REQUIRED branch if needed
-				setMfaState({
-					...mfaState,
-					deviceId: result.deviceId,
-					deviceStatus: actualDeviceStatus,
-					// Store device.activate URI per rightOTP.md
-					...(deviceActivateUri ? { deviceActivateUri } : {}),
-				});
+				// Get the actual device type from credentials (most up-to-date value)
+				// This ensures we validate based on what's actually selected in the dropdown
+				const actualDeviceType =
+					credentials.deviceType === 'SMS' ||
+					credentials.deviceType === 'EMAIL' ||
+					credentials.deviceType === 'VOICE'
+						? credentials.deviceType
+						: 'SMS';
 
-				// Refresh device list
-				const devices = await correctController.loadExistingDevices(registrationCredentials, tokenStatus);
-				setDeviceSelection((prev) => ({
-					...prev,
-					existingDevices: devices,
-				}));
-
-				// Per rightOTP.md: Branch logic
-				// A. If user selected "ACTIVE" OR B. If PingOne returned no device.activate URI AND status is ACTIVE
-				// → Device is ACTIVE. Show success. No OTP required.
-				// C. If status is ACTIVATION_REQUIRED
-				// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
-				// → User must enter OTP to activate device (go directly to validation step)
-				// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
-				const hasDeviceActivateUri = !!deviceActivateUri;
-				
-				// CRITICAL: Use the REQUESTED status (deviceStatus) as the primary source of truth
-				// However, if PingOne returns ACTIVE and no deviceActivateUri, the device is already active
-				// and we should NOT try to activate it (will cause 400 error)
-				const requestedActivationRequired = deviceStatus === 'ACTIVATION_REQUIRED';
-				const requestedActive = deviceStatus === 'ACTIVE';
-				const apiConfirmedActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
-				const apiReturnedActiveWithoutUri = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
-				
-				// If API returned ACTIVE without deviceActivateUri, device is already active - show success
-				// Don't try to activate an already-active device (will cause 400 error)
-				if (apiReturnedActiveWithoutUri) {
-					// Device is already ACTIVE - show success screen
-					nav.markStepComplete();
-					const resultWithExtras = result as {
-						deviceId: string;
-						status: string;
-						userId?: string;
-						createdAt?: string;
-						updatedAt?: string;
-						environmentId?: string;
-					};
-					setDeviceRegisteredActive({
-						deviceId: resultWithExtras.deviceId,
-						deviceName: userEnteredDeviceName,
-						deviceType: actualDeviceType,
-						status: 'ACTIVE', // Device is already active
-						username: registrationCredentials.username,
-						...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
-						...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
-						...(resultWithExtras.updatedAt ? { updatedAt: resultWithExtras.updatedAt } : {}),
-						environmentId: resultWithExtras.environmentId || registrationCredentials.environmentId,
-					});
-					setShowModal(false);
-					const deviceTypeLabel = actualDeviceType === 'EMAIL' ? 'Email' : actualDeviceType === 'VOICE' ? 'Voice' : 'SMS';
-					toastV8.success(`${deviceTypeLabel} device registered successfully! Device is ready to use (ACTIVE status).`);
-				} else if (requestedActivationRequired) {
-					// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
-					// This applies to both Admin Flow (with ACTIVATION_REQUIRED selected) and User Flow (always ACTIVATION_REQUIRED)
-					// No need to manually call sendOTP - PingOne handles it automatically
-					// Follow the same pattern for both flows: close modal, open validation modal, go to Step 4
-					// Ensure device status is explicitly set to ACTIVATION_REQUIRED in mfaState before navigation
-					// (mfaState was already updated above, but we want to ensure status is correct)
-					setMfaState((prev) => ({
-						...prev,
-						deviceId: result.deviceId,
-						deviceStatus: 'ACTIVATION_REQUIRED', // Explicitly set status
-						...(deviceActivateUri ? { deviceActivateUri } : {}),
-					}));
-					
-					// Clean up any OAuth callback parameters from URL to prevent redirect issues
-					if (window.location.search.includes('code=') || window.location.search.includes('state=')) {
-						const cleanUrl = window.location.pathname;
-						window.history.replaceState({}, document.title, cleanUrl);
+				// Validate based on device type (use actualDeviceType to match what user selected)
+				// Both SMS and VOICE use phone numbers
+				if (actualDeviceType === 'SMS' || actualDeviceType === 'VOICE') {
+					if (!credentials.phoneNumber?.trim()) {
+						nav.setValidationErrors([
+							'Phone number is required. Please enter a valid phone number.',
+						]);
+						return;
 					}
-					
-					// Set validation modal to open and mark step complete
-					setShowValidationModal(true);
-					nav.markStepComplete();
-					
-					// Close registration modal first, then navigate to Step 4
-					// This ensures Step 2 returns null immediately and allows Step 4 to render
-					setShowModal(false);
-					
-					// Navigate to Step 4 after a short delay to ensure state updates complete
-					// This matches the pattern that works for admin flow
-					setTimeout(() => {
-						nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
-					}, 100);
-					
-					const deviceTypeLabel2 = actualDeviceType === 'EMAIL' ? 'Email' : actualDeviceType === 'VOICE' ? 'Voice' : 'SMS';
-					toastV8.success(`${deviceTypeLabel2} device registered! OTP has been sent automatically.`);
-				} else if (requestedActive && (apiConfirmedActive || actualDeviceStatus === 'ACTIVE')) {
-					// Admin flow: Device is ACTIVE, no OTP needed - show success screen
-					// Use requested status (deviceStatus) as the source of truth, but also check API response
-					const finalStatus = actualDeviceStatus === 'ACTIVE' ? 'ACTIVE' : deviceStatus;
-					const resultWithExtras = result as {
-						deviceId: string;
-						status: string;
-						userId?: string;
-						createdAt?: string;
-						updatedAt?: string;
-						environmentId?: string;
-					};
-					console.log(`${MODULE_TAG} Device registered with ACTIVE status, showing success screen...`, {
-						'Requested Status': deviceStatus,
-						'API Status': actualDeviceStatus,
-						'Final Status': finalStatus,
+					// Use phone validation utility to handle multiple formats
+					const phoneValidation = validateAndNormalizePhone(
+						credentials.phoneNumber,
+						credentials.countryCode
+					);
+					if (!phoneValidation.isValid) {
+						nav.setValidationErrors([phoneValidation.error || 'Invalid phone number format']);
+						return;
+					}
+				} else if (actualDeviceType === 'EMAIL') {
+					if (!credentials.email?.trim()) {
+						nav.setValidationErrors([
+							'Email address is required. Please enter a valid email address.',
+						]);
+						return;
+					}
+					if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
+						nav.setValidationErrors(['Please enter a valid email address format.']);
+						return;
+					}
+				}
+				// Use the device name exactly as entered by the user
+				const userEnteredDeviceName = credentials.deviceName?.trim();
+				if (!userEnteredDeviceName) {
+					nav.setValidationErrors([
+						'Device name is required. Please enter a name for this device.',
+					]);
+					return;
+				}
+
+				setIsLoading(true);
+				try {
+					// For VOICE, use SMS controller (both use phone numbers)
+					// For SMS/EMAIL, use the appropriate controller
+					const controllerTypeForVoice = actualDeviceType === 'VOICE' ? 'SMS' : actualDeviceType;
+
+					// Update controller device type if it changed
+					if (controllerDeviceType !== controllerTypeForVoice) {
+						setControllerDeviceType(controllerTypeForVoice);
+					}
+
+					// Get the correct controller for the device type (use SMS controller for VOICE)
+					const correctController = MFAFlowControllerFactory.create({
+						deviceType: controllerTypeForVoice,
 					});
-					nav.markStepComplete();
-					// Store registration success state before closing modal
-					// Use requested status if API didn't return status, otherwise use API status
-					setDeviceRegisteredActive({
-						deviceId: resultWithExtras.deviceId,
+
+					// Use the device name exactly as entered by the user, and ensure deviceType is correct
+					const registrationCredentials = {
+						...credentials,
 						deviceName: userEnteredDeviceName,
-						deviceType: actualDeviceType,
-						status: finalStatus, // Use requested status as primary, API status as fallback
-						username: registrationCredentials.username,
-						...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
-						...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
-						...(resultWithExtras.updatedAt ? { updatedAt: resultWithExtras.updatedAt } : {}),
-						environmentId: resultWithExtras.environmentId || registrationCredentials.environmentId,
+						deviceType: actualDeviceType, // Ensure deviceType matches what user selected (VOICE, SMS, or EMAIL)
+					};
+					// Determine device status based on selected flow type
+					const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
+						registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
+
+					// CRITICAL: Ensure status is explicitly set
+					if (registrationFlowType === 'admin' && deviceStatus !== adminDeviceStatus) {
+						console.error(`${MODULE_TAG} ⚠️ STATUS MISMATCH:`, {
+							'Expected (adminDeviceStatus)': adminDeviceStatus,
+							'Calculated (deviceStatus)': deviceStatus,
+							'Registration Flow Type': registrationFlowType,
+						});
+					}
+
+					// Get device registration params from controller
+					const deviceParams = correctController.getDeviceRegistrationParams(
+						registrationCredentials,
+						deviceStatus
+					);
+
+					// For VOICE, override the type to 'VOICE' in the API call
+					// (We use SMS controller but need to send type: "VOICE" to the API)
+					if (actualDeviceType === 'VOICE') {
+						deviceParams.type = 'VOICE' as DeviceType;
+					}
+
+					const result = await correctController.registerDevice(
+						registrationCredentials,
+						deviceParams
+					);
+
+					// Use the actual status returned from the API, not the requested status
+					const actualDeviceStatus = result.status || deviceStatus;
+
+					// Per rightOTP.md: Extract device.activate URI from registration response
+					// If device.activate URI exists, device requires activation
+					// If missing, device is ACTIVE (double-check with status)
+					const deviceActivateUri = (result as { deviceActivateUri?: string }).deviceActivateUri;
+
+					// Update mfaState with device info - will be updated again in ACTIVATION_REQUIRED branch if needed
+					setMfaState({
+						...mfaState,
+						deviceId: result.deviceId,
+						deviceStatus: actualDeviceStatus,
+						// Store device.activate URI per rightOTP.md
+						...(deviceActivateUri ? { deviceActivateUri } : {}),
 					});
-					// Close the registration modal - success screen will be shown by renderStep2Register
-					setShowModal(false);
-					// Stay on step 2 to show success screen (don't navigate away)
-					const deviceTypeLabel3 = actualDeviceType === 'EMAIL' ? 'Email' : actualDeviceType === 'VOICE' ? 'Voice' : 'SMS';
-					toastV8.success(`${deviceTypeLabel3} device registered successfully! Device is ready to use (ACTIVE status).`);
-				} else {
-					// Fallback: If status is unclear or unexpected
-					// This should not happen if status is being sent correctly
-					console.error(`${MODULE_TAG} ⚠️ UNEXPECTED STATUS:`, {
-						'Requested Status': deviceStatus,
-						'Actual Status from API': actualDeviceStatus,
-						'Has deviceActivateUri': hasDeviceActivateUri,
-						'Registration Flow Type': registrationFlowType,
-						'Admin Device Status': adminDeviceStatus,
-						'Full Result': result,
-					});
-					
-					// If we requested ACTIVATION_REQUIRED but got something else, treat as activation required
-					// Follow the same pattern as the main ACTIVATION_REQUIRED branch
-					// Type assertion needed because TypeScript can't narrow the type here
-					if ((deviceStatus as string) === 'ACTIVATION_REQUIRED') {
-						console.warn(`${MODULE_TAG} Requested ACTIVATION_REQUIRED but API returned ${actualDeviceStatus}, treating as ACTIVATION_REQUIRED`);
-						// Set mfaState correctly
+
+					// Refresh device list
+					const devices = await correctController.loadExistingDevices(
+						registrationCredentials,
+						tokenStatus
+					);
+					setDeviceSelection((prev) => ({
+						...prev,
+						existingDevices: devices,
+					}));
+
+					// Per rightOTP.md: Branch logic
+					// A. If user selected "ACTIVE" OR B. If PingOne returned no device.activate URI AND status is ACTIVE
+					// → Device is ACTIVE. Show success. No OTP required.
+					// C. If status is ACTIVATION_REQUIRED
+					// → PingOne automatically sends OTP when device is created with status: "ACTIVATION_REQUIRED"
+					// → User must enter OTP to activate device (go directly to validation step)
+					// Note: Admin Flow uses Worker Token and can choose ACTIVE or ACTIVATION_REQUIRED. User Flow uses User Token and always uses ACTIVATION_REQUIRED.
+					const hasDeviceActivateUri = !!deviceActivateUri;
+
+					// CRITICAL: Use the REQUESTED status (deviceStatus) as the primary source of truth
+					// However, if PingOne returns ACTIVE and no deviceActivateUri, the device is already active
+					// and we should NOT try to activate it (will cause 400 error)
+					const requestedActivationRequired = deviceStatus === 'ACTIVATION_REQUIRED';
+					const requestedActive = deviceStatus === 'ACTIVE';
+					const apiConfirmedActive = actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+					const apiReturnedActiveWithoutUri =
+						actualDeviceStatus === 'ACTIVE' && !hasDeviceActivateUri;
+
+					// If API returned ACTIVE without deviceActivateUri, device is already active - show success
+					// Don't try to activate an already-active device (will cause 400 error)
+					if (apiReturnedActiveWithoutUri) {
+						// Device is already ACTIVE - show success screen
+						nav.markStepComplete();
+						const resultWithExtras = result as {
+							deviceId: string;
+							status: string;
+							userId?: string;
+							createdAt?: string;
+							updatedAt?: string;
+							environmentId?: string;
+						};
+						setDeviceRegisteredActive({
+							deviceId: resultWithExtras.deviceId,
+							deviceName: userEnteredDeviceName,
+							deviceType: actualDeviceType,
+							status: 'ACTIVE', // Device is already active
+							username: registrationCredentials.username,
+							...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
+							...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
+							...(resultWithExtras.updatedAt ? { updatedAt: resultWithExtras.updatedAt } : {}),
+							environmentId:
+								resultWithExtras.environmentId || registrationCredentials.environmentId,
+						});
+						setShowModal(false);
+						const deviceTypeLabel =
+							actualDeviceType === 'EMAIL'
+								? 'Email'
+								: actualDeviceType === 'VOICE'
+									? 'Voice'
+									: 'SMS';
+						toastV8.success(
+							`${deviceTypeLabel} device registered successfully! Device is ready to use (ACTIVE status).`
+						);
+					} else if (requestedActivationRequired) {
+						// Device requires activation - PingOne automatically sends OTP when status is ACTIVATION_REQUIRED
+						// This applies to both Admin Flow (with ACTIVATION_REQUIRED selected) and User Flow (always ACTIVATION_REQUIRED)
+						// No need to manually call sendOTP - PingOne handles it automatically
+						// Follow the same pattern for both flows: close modal, open validation modal, go to Step 4
+						// Ensure device status is explicitly set to ACTIVATION_REQUIRED in mfaState before navigation
+						// (mfaState was already updated above, but we want to ensure status is correct)
 						setMfaState((prev) => ({
 							...prev,
 							deviceId: result.deviceId,
-							deviceStatus: 'ACTIVATION_REQUIRED',
+							deviceStatus: 'ACTIVATION_REQUIRED', // Explicitly set status
 							...(deviceActivateUri ? { deviceActivateUri } : {}),
 						}));
-						setShowModal(false);
+
+						// Clean up any OAuth callback parameters from URL to prevent redirect issues
+						if (
+							window.location.search.includes('code=') ||
+							window.location.search.includes('state=')
+						) {
+							const cleanUrl = window.location.pathname;
+							window.history.replaceState({}, document.title, cleanUrl);
+						}
+
+						// Set validation modal to open and mark step complete
 						setShowValidationModal(true);
 						nav.markStepComplete();
+
+						// Close registration modal first, then navigate to Step 4
+						// This ensures Step 2 returns null immediately and allows Step 4 to render
+						setShowModal(false);
+
+						// Navigate to Step 4 after a short delay to ensure state updates complete
+						// This matches the pattern that works for admin flow
 						setTimeout(() => {
 							nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
 						}, 100);
-						const deviceTypeLabel2 = actualDeviceType === 'EMAIL' ? 'Email' : actualDeviceType === 'VOICE' ? 'Voice' : 'SMS';
-					toastV8.success(`${deviceTypeLabel2} device registered! OTP has been sent automatically.`);
-					} else {
-						// Unknown status - default to OTP flow to be safe
-						console.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
-						setShowModal(false);
+
+						const deviceTypeLabel2 =
+							actualDeviceType === 'EMAIL'
+								? 'Email'
+								: actualDeviceType === 'VOICE'
+									? 'Voice'
+									: 'SMS';
+						toastV8.success(
+							`${deviceTypeLabel2} device registered! OTP has been sent automatically.`
+						);
+					} else if (requestedActive && (apiConfirmedActive || actualDeviceStatus === 'ACTIVE')) {
+						// Admin flow: Device is ACTIVE, no OTP needed - show success screen
+						// Use requested status (deviceStatus) as the source of truth, but also check API response
+						const finalStatus = actualDeviceStatus === 'ACTIVE' ? 'ACTIVE' : deviceStatus;
+						const resultWithExtras = result as {
+							deviceId: string;
+							status: string;
+							userId?: string;
+							createdAt?: string;
+							updatedAt?: string;
+							environmentId?: string;
+						};
+						console.log(
+							`${MODULE_TAG} Device registered with ACTIVE status, showing success screen...`,
+							{
+								'Requested Status': deviceStatus,
+								'API Status': actualDeviceStatus,
+								'Final Status': finalStatus,
+							}
+						);
 						nav.markStepComplete();
-						nav.goToStep(3);
-						const deviceTypeLabel5 = actualDeviceType === 'EMAIL' ? 'Email' : actualDeviceType === 'VOICE' ? 'Voice' : 'SMS';
-						toastV8.success(`${deviceTypeLabel5} device registered successfully!`);
+						// Store registration success state before closing modal
+						// Use requested status if API didn't return status, otherwise use API status
+						setDeviceRegisteredActive({
+							deviceId: resultWithExtras.deviceId,
+							deviceName: userEnteredDeviceName,
+							deviceType: actualDeviceType,
+							status: finalStatus, // Use requested status as primary, API status as fallback
+							username: registrationCredentials.username,
+							...(resultWithExtras.userId ? { userId: resultWithExtras.userId } : {}),
+							...(resultWithExtras.createdAt ? { createdAt: resultWithExtras.createdAt } : {}),
+							...(resultWithExtras.updatedAt ? { updatedAt: resultWithExtras.updatedAt } : {}),
+							environmentId:
+								resultWithExtras.environmentId || registrationCredentials.environmentId,
+						});
+						// Close the registration modal - success screen will be shown by renderStep2Register
+						setShowModal(false);
+						// Stay on step 2 to show success screen (don't navigate away)
+						const deviceTypeLabel3 =
+							actualDeviceType === 'EMAIL'
+								? 'Email'
+								: actualDeviceType === 'VOICE'
+									? 'Voice'
+									: 'SMS';
+						toastV8.success(
+							`${deviceTypeLabel3} device registered successfully! Device is ready to use (ACTIVE status).`
+						);
+					} else {
+						// Fallback: If status is unclear or unexpected
+						// This should not happen if status is being sent correctly
+						console.error(`${MODULE_TAG} ⚠️ UNEXPECTED STATUS:`, {
+							'Requested Status': deviceStatus,
+							'Actual Status from API': actualDeviceStatus,
+							'Has deviceActivateUri': hasDeviceActivateUri,
+							'Registration Flow Type': registrationFlowType,
+							'Admin Device Status': adminDeviceStatus,
+							'Full Result': result,
+						});
+
+						// If we requested ACTIVATION_REQUIRED but got something else, treat as activation required
+						// Follow the same pattern as the main ACTIVATION_REQUIRED branch
+						// Type assertion needed because TypeScript can't narrow the type here
+						if ((deviceStatus as string) === 'ACTIVATION_REQUIRED') {
+							console.warn(
+								`${MODULE_TAG} Requested ACTIVATION_REQUIRED but API returned ${actualDeviceStatus}, treating as ACTIVATION_REQUIRED`
+							);
+							// Set mfaState correctly
+							setMfaState((prev) => ({
+								...prev,
+								deviceId: result.deviceId,
+								deviceStatus: 'ACTIVATION_REQUIRED',
+								...(deviceActivateUri ? { deviceActivateUri } : {}),
+							}));
+							setShowModal(false);
+							setShowValidationModal(true);
+							nav.markStepComplete();
+							setTimeout(() => {
+								nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
+							}, 100);
+							const deviceTypeLabel2 =
+								actualDeviceType === 'EMAIL'
+									? 'Email'
+									: actualDeviceType === 'VOICE'
+										? 'Voice'
+										: 'SMS';
+							toastV8.success(
+								`${deviceTypeLabel2} device registered! OTP has been sent automatically.`
+							);
+						} else {
+							// Unknown status - default to OTP flow to be safe
+							console.warn(`${MODULE_TAG} Device status unclear, defaulting to OTP flow`);
+							setShowModal(false);
+							nav.markStepComplete();
+							nav.goToStep(3);
+							const deviceTypeLabel5 =
+								actualDeviceType === 'EMAIL'
+									? 'Email'
+									: actualDeviceType === 'VOICE'
+										? 'Voice'
+										: 'SMS';
+							toastV8.success(`${deviceTypeLabel5} device registered successfully!`);
+						}
 					}
-				}
-			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				const isDeviceLimitError =
-					errorMessage.toLowerCase().includes('exceed') ||
-					errorMessage.toLowerCase().includes('limit') ||
-					errorMessage.toLowerCase().includes('maximum');
-				
-				const isWorkerTokenError =
-					errorMessage.includes('Worker token') ||
-					errorMessage.includes('worker token') ||
-					errorMessage.includes('token is not available') ||
-					errorMessage.includes('token has expired');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					const isDeviceLimitError =
+						errorMessage.toLowerCase().includes('exceed') ||
+						errorMessage.toLowerCase().includes('limit') ||
+						errorMessage.toLowerCase().includes('maximum');
 
-				if (isDeviceLimitError) {
-					setShowDeviceLimitModal(true);
-					nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-					toastV8.error('Device limit exceeded. Please delete an existing device first.');
-				} else if (isWorkerTokenError) {
-					// Show worker token modal for token errors
-					setShowWorkerTokenModal(true);
-					nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
-					toastV8.error(`Registration failed: ${errorMessage}`);
-				} else {
-					nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-					toastV8.error(`Registration failed: ${errorMessage}`);
+					const isWorkerTokenError =
+						errorMessage.includes('Worker token') ||
+						errorMessage.includes('worker token') ||
+						errorMessage.includes('token is not available') ||
+						errorMessage.includes('token has expired');
+
+					if (isDeviceLimitError) {
+						setShowDeviceLimitModal(true);
+						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
+						toastV8.error('Device limit exceeded. Please delete an existing device first.');
+					} else if (isWorkerTokenError) {
+						// Show worker token modal for token errors
+						setShowWorkerTokenModal(true);
+						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
+						toastV8.error(`Registration failed: ${errorMessage}`);
+					} else {
+						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
+						toastV8.error(`Registration failed: ${errorMessage}`);
+					}
+				} finally {
+					setIsLoading(false);
 				}
-			} finally {
-				setIsLoading(false);
+			};
+
+			// Use the currentDeviceType already declared above (line 938)
+			const isSMS = currentDeviceType === 'SMS';
+			const isEMAIL = currentDeviceType === 'EMAIL';
+			// isPhoneBased is already declared above (line 941)
+			// Use phone validation utility for format checking
+			const isValidPhone =
+				credentials.phoneNumber?.trim() &&
+				isValidPhoneFormat(credentials.phoneNumber, credentials.countryCode);
+			const isValidEmail =
+				credentials.email?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email);
+			const isValidForm =
+				credentials.deviceName?.trim() &&
+				((isPhoneBased && isValidPhone) || (isEMAIL && isValidEmail));
+
+			// If device was just registered with ACTIVE status, show success page using unified service
+			// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
+			if (deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE' && !showModal) {
+				// Build success data from deviceRegisteredActive using helper function
+				const tempMfaState = {
+					deviceId: deviceRegisteredActive.deviceId,
+					deviceStatus: deviceRegisteredActive.status,
+					nickname: deviceRegisteredActive.deviceName,
+					userId: deviceRegisteredActive.userId,
+					environmentId: deviceRegisteredActive.environmentId,
+					createdAt: deviceRegisteredActive.createdAt,
+					updatedAt: deviceRegisteredActive.updatedAt,
+				} as MFAFlowBaseRenderProps['mfaState'];
+				const successData = buildSuccessPageData(
+					credentials,
+					tempMfaState,
+					registrationFlowType,
+					adminDeviceStatus,
+					credentials.tokenType
+				);
+				return (
+					<MFASuccessPageV8
+						{...props}
+						successData={successData}
+						onStartAgain={() => {
+							setDeviceRegisteredActive(null);
+							nav.goToStep(0);
+						}}
+					/>
+				);
 			}
-		};
 
-		// Use the currentDeviceType already declared above (line 938)
-		const isSMS = currentDeviceType === 'SMS';
-		const isEMAIL = currentDeviceType === 'EMAIL';
-		// isPhoneBased is already declared above (line 941)
-		// Use phone validation utility for format checking
-		const isValidPhone = credentials.phoneNumber?.trim() && isValidPhoneFormat(credentials.phoneNumber, credentials.countryCode);
-		const isValidEmail = credentials.email?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email);
-		const isValidForm = credentials.deviceName?.trim() && ((isPhoneBased && isValidPhone) || (isEMAIL && isValidEmail));
-
-		// If device was just registered with ACTIVE status, show success page using unified service
-		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
-		if (deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE' && !showModal) {
-			// Build success data from deviceRegisteredActive using helper function
-			const tempMfaState = {
-				deviceId: deviceRegisteredActive.deviceId,
-				deviceStatus: deviceRegisteredActive.status,
-				nickname: deviceRegisteredActive.deviceName,
-				userId: deviceRegisteredActive.userId,
-				environmentId: deviceRegisteredActive.environmentId,
-				createdAt: deviceRegisteredActive.createdAt,
-				updatedAt: deviceRegisteredActive.updatedAt,
-			} as MFAFlowBaseRenderProps['mfaState'];
-			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
-			return (
-				<MFASuccessPageV8
-					{...props}
-					successData={successData}
-					onStartAgain={() => {
-						setDeviceRegisteredActive(null);
-						nav.goToStep(0);
-					}}
-				/>
-			);
-		}
-
-		// If modal is closed but we have a successfully registered ACTIVE device, show success page using unified service
-		// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
-		if (!showModal && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
-			// Build success data from deviceRegisteredActive using helper function
-			const tempMfaState = {
-				deviceId: deviceRegisteredActive.deviceId,
-				deviceStatus: deviceRegisteredActive.status,
-				nickname: deviceRegisteredActive.deviceName,
-				userId: deviceRegisteredActive.userId,
-				environmentId: deviceRegisteredActive.environmentId,
-				createdAt: deviceRegisteredActive.createdAt,
-				updatedAt: deviceRegisteredActive.updatedAt,
-			} as MFAFlowBaseRenderProps['mfaState'];
-			const successData = buildSuccessPageData(credentials, tempMfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
-			return (
-				<MFASuccessPageV8
-					{...props}
-					successData={successData}
-					onStartAgain={() => {
-						setDeviceRegisteredActive(null);
-						navigate('/v8/mfa-hub');
-					}}
-				/>
-			);
-		}
-
-		// If we're on Step 4, don't render Step 2 content - let Step 4 handle rendering
-		if (nav.currentStep === 4) {
-			return null;
-		}
-
-		// Check if we're transitioning to Step 4 (OTP validation) - check this BEFORE checking if modal is closed
-		// This ensures we return null immediately when transitioning, even if modal is still open
-		// User flow always goes to Step 4 after registration (always ACTIVATION_REQUIRED)
-		// Admin flow with ACTIVATION_REQUIRED also goes to Step 4
-		const isTransitioningToStep4 = mfaState.deviceId && 
-			(mfaState.deviceStatus === 'ACTIVATION_REQUIRED' || 
-			 showValidationModal ||
-			 (registrationFlowType === 'user' && mfaState.deviceId)); // User flow always goes to validation after registration
-		if (isTransitioningToStep4) {
-			// We're transitioning to Step 4 - don't render Step 2 content, let Step 4 render
-			// Return null to allow Step 4 to render
-			return null;
-		}
-
-		// If modal is closed and no success state, show "Start again" message
-		if (!showModal && nav.currentStep !== 4) {
-			
-			return (
-				<div style={{
-					padding: '24px',
-					background: 'white',
-					borderRadius: '8px',
-					boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-					maxWidth: '600px',
-					margin: '0 auto',
-					textAlign: 'center',
-				}}>
-					<p style={{
-						fontSize: '16px',
-						color: '#6b7280',
-						margin: '0 0 20px 0',
-					}}>
-						Registration modal closed. Click below to start again.
-					</p>
-					<button
-						type="button"
-						onClick={() => {
-							setShowModal(true);
+			// If modal is closed but we have a successfully registered ACTIVE device, show success page using unified service
+			// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
+			if (!showModal && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
+				// Build success data from deviceRegisteredActive using helper function
+				const tempMfaState = {
+					deviceId: deviceRegisteredActive.deviceId,
+					deviceStatus: deviceRegisteredActive.status,
+					nickname: deviceRegisteredActive.deviceName,
+					userId: deviceRegisteredActive.userId,
+					environmentId: deviceRegisteredActive.environmentId,
+					createdAt: deviceRegisteredActive.createdAt,
+					updatedAt: deviceRegisteredActive.updatedAt,
+				} as MFAFlowBaseRenderProps['mfaState'];
+				const successData = buildSuccessPageData(
+					credentials,
+					tempMfaState,
+					registrationFlowType,
+					adminDeviceStatus,
+					credentials.tokenType
+				);
+				return (
+					<MFASuccessPageV8
+						{...props}
+						successData={successData}
+						onStartAgain={() => {
+							setDeviceRegisteredActive(null);
 							navigate('/v8/mfa-hub');
 						}}
-						style={{
-							padding: '12px 20px',
-							background: '#10b981',
-							color: 'white',
-							border: 'none',
-							borderRadius: '8px',
-							fontSize: '15px',
-							fontWeight: '600',
-							cursor: 'pointer',
-						}}
-					>
-						🔄 Start Again
-					</button>
-				</div>
-			);
-		}
+					/>
+				);
+			}
 
-		const hasPosition = step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0;
+			// If we're on Step 4, don't render Step 2 content - let Step 4 handle rendering
+			if (nav.currentStep === 4) {
+				return null;
+			}
 
-		return (
-			<div
-				style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					background: 'rgba(0, 0, 0, 0.5)',
-					display: hasPosition ? 'block' : 'flex',
-					alignItems: hasPosition ? 'normal' : 'center',
-					justifyContent: hasPosition ? 'normal' : 'center',
-					zIndex: 1000,
-				}}
-				onClick={() => {
-					// Don't close on backdrop click - require explicit cancel
-				}}
-			>
-				<div
-					ref={step2ModalDrag.modalRef}
-					style={{
-						background: 'white',
-						borderRadius: '16px',
-						padding: '0',
-						maxWidth: '550px',
-						width: '90%',
-						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-						overflow: 'hidden',
-						...step2ModalDrag.modalStyle,
-					}}
-					onClick={(e) => e.stopPropagation()}
-				>
-					{/* Header with Logo */}
+			// Check if we're transitioning to Step 4 (OTP validation) - check this BEFORE checking if modal is closed
+			// This ensures we return null immediately when transitioning, even if modal is still open
+			// User flow always goes to Step 4 after registration (always ACTIVATION_REQUIRED)
+			// Admin flow with ACTIVATION_REQUIRED also goes to Step 4
+			const isTransitioningToStep4 =
+				mfaState.deviceId &&
+				(mfaState.deviceStatus === 'ACTIVATION_REQUIRED' ||
+					showValidationModal ||
+					(registrationFlowType === 'user' && mfaState.deviceId)); // User flow always goes to validation after registration
+			if (isTransitioningToStep4) {
+				// We're transitioning to Step 4 - don't render Step 2 content, let Step 4 render
+				// Return null to allow Step 4 to render
+				return null;
+			}
+
+			// If modal is closed and no success state, show "Start again" message
+			if (!showModal && nav.currentStep !== 4) {
+				return (
 					<div
-						onMouseDown={step2ModalDrag.handleMouseDown}
 						style={{
-							background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-							padding: '16px 20px 12px 20px',
+							padding: '24px',
+							background: 'white',
+							borderRadius: '8px',
+							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+							maxWidth: '600px',
+							margin: '0 auto',
 							textAlign: 'center',
-							position: 'relative',
-							cursor: 'grab',
-							userSelect: 'none',
 						}}
 					>
-						<button
-							type="button"
-							onMouseDown={(e) => e.stopPropagation()}
-							onClick={() => {
-								setShowModal(false);
-								nav.goToPrevious();
-							}}
-							style={{
-								position: 'absolute',
-								top: '16px',
-								right: '16px',
-								background: 'rgba(255, 255, 255, 0.2)',
-								border: 'none',
-								borderRadius: '50%',
-								width: '32px',
-								height: '32px',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								cursor: 'pointer',
-								color: 'white',
-							}}
-						>
-							<FiX size={18} />
-						</button>
-						<PingIdentityLogo size={36} />
-						<h3
-							style={{
-								margin: '6px 0 0 0',
-								fontSize: '18px',
-								fontWeight: '600',
-								color: 'white',
-								textAlign: 'center',
-							}}
-						>
-							Register MFA Device
-						</h3>
 						<p
 							style={{
-								margin: '4px 0 0 0',
-								fontSize: '12px',
-								color: 'rgba(255, 255, 255, 0.9)',
-								textAlign: 'center',
+								fontSize: '16px',
+								color: '#6b7280',
+								margin: '0 0 20px 0',
 							}}
 						>
-							Add a new device for multi-factor authentication
+							Registration modal closed. Click below to start again.
 						</p>
-					</div>
-
-					{/* Modal Body */}
-					<div style={{ padding: '16px 20px' }}>
-						{/* Username Display */}
-						<div
+						<button
+							type="button"
+							onClick={() => {
+								setShowModal(true);
+								navigate('/v8/mfa-hub');
+							}}
 							style={{
-								marginBottom: '12px',
-								padding: '8px 12px',
-								background: '#f3f4f6',
-								borderRadius: '6px',
-								border: '1px solid #e5e7eb',
+								padding: '12px 20px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: 'pointer',
 							}}
 						>
-							<div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>Username</div>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{credentials.username}</div>
-						</div>
+							🔄 Start Again
+						</button>
+					</div>
+				);
+			}
 
-						{/* Device Type Selector */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="mfa-device-type-register"
-								style={{
-									display: 'block',
-									fontSize: '13px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Device Type <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<select
-								id="mfa-device-type-register"
-								value={credentials.deviceType || 'SMS'}
-								onChange={(e) => {
-									const newDeviceType = e.target.value as DeviceType;
-									const oldDeviceType = credentials.deviceType || 'SMS';
-									
-									// Update device name if:
-									// 1. It's empty
-									// 2. It matches the old device type (e.g., "SMS" when switching from SMS)
-									// 3. It's exactly "SMS", "EMAIL", or "VOICE" (generic device type names)
-									const currentDeviceName = credentials.deviceName?.trim() || '';
-									const shouldUpdateDeviceName = 
-										!currentDeviceName || 
-										currentDeviceName === oldDeviceType ||
-										currentDeviceName === 'SMS' ||
-										currentDeviceName === 'EMAIL' ||
-										currentDeviceName === 'VOICE';
-									
-									// Determine the new device name
-									const newDeviceName = shouldUpdateDeviceName ? newDeviceType : credentials.deviceName;
-									
-									// Update credentials with new device type and clear appropriate fields
-									setCredentials({
-										...credentials,
-										deviceType: newDeviceType,
-										deviceName: newDeviceName,
-										// Clear phone/email when switching types to avoid validation errors
-										// Keep phone for SMS and VOICE (both use phone numbers)
-										phoneNumber: (newDeviceType === 'SMS' || newDeviceType === 'VOICE') ? credentials.phoneNumber : '',
-										email: newDeviceType === 'EMAIL' ? credentials.email : '',
-									});
-									// Update controller device type when user changes selection
-									// Use SMS controller for VOICE (both use phone numbers)
-									if (newDeviceType === 'SMS' || newDeviceType === 'EMAIL') {
-										setControllerDeviceType(newDeviceType);
-									} else if (newDeviceType === 'VOICE') {
-										setControllerDeviceType('SMS'); // Use SMS controller for Voice
-									}
-								}}
-								style={{
-									padding: '12px 16px',
-									border: '1px solid #d1d5db',
-									borderRadius: '8px',
-									fontSize: '15px',
-									color: '#1f2937',
-									background: 'white',
-									width: '100%',
-									cursor: 'pointer',
-								}}
-							>
-								<option value="SMS">📱 SMS (Text Message)</option>
-								<option value="VOICE">📞 Voice Call</option>
-								<option value="EMAIL">📧 Email</option>
-							</select>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
-								Select the type of MFA device you want to register
-							</small>
-						</div>
+			const hasPosition =
+				step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0;
 
-						{/* Phone Number Field (for SMS and VOICE) */}
-						{isPhoneBased && (
-							<div style={{ marginBottom: '12px' }}>
-								<label
-									htmlFor="mfa-phone-register"
-									style={{
-										display: 'block',
-										fontSize: '14px',
-										fontWeight: '600',
-										color: '#374151',
-										marginBottom: '8px',
-									}}
-								>
-									Phone Number <span style={{ color: '#ef4444' }}>*</span>
-								</label>
-								<div style={{ display: 'flex', gap: '0' }}>
-									<CountryCodePickerV8
-										value={credentials.countryCode}
-										onChange={(code) => setCredentials({ ...credentials, countryCode: code })}
-									/>
-									<input
-										id="mfa-phone-register"
-										type="tel"
-										value={credentials.phoneNumber || ''}
-										onChange={(e) => {
-											const cleaned = e.target.value.replace(/[^\d\s-]/g, '');
-											setCredentials({ ...credentials, phoneNumber: cleaned });
-										}}
-										placeholder={credentials.countryCode === '+1' ? '5125201234' : '234567890'}
-										style={{
-											flex: 1,
-											padding: '12px 16px',
-											border: `1px solid ${
-												credentials.phoneNumber
-													? isValidPhone
-														? '#10b981'
-														: '#ef4444'
-													: '#ef4444'
-											}`,
-											boxShadow:
-												credentials.phoneNumber && isValidPhone
-													? 'none'
-													: '0 0 0 3px rgba(239, 68, 68, 0.25)',
-											outline: 'none',
-											borderRadius: '0 8px 8px 0',
-											fontSize: '15px',
-											fontFamily: 'monospace',
-											color: '#1f2937',
-											background: 'white',
-										}}
-									/>
-								</div>
-								<small style={{ display: 'block', marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
-									{credentials.countryCode === '+1' 
-										? 'US/Canada: Enter 10-digit number (area code + number)'
-										: 'International: Enter phone number with country code'}
-								</small>
-								{credentials.phoneNumber && (
-									<div
-										style={{
-											marginTop: '8px',
-											padding: '8px 10px',
-											background: '#fef3c7',
-											border: '1px solid #fbbf24',
-											borderRadius: '6px',
-										}}
-									>
-										<div style={{ fontSize: '11px', fontWeight: '600', color: '#92400e', marginBottom: '2px' }}>
-											📋 Phone Number Preview:
-										</div>
-										<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
-											<strong>Will send to:</strong> {getFullPhoneNumber(credentials)}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
-
-						{/* Email Field (for EMAIL) */}
-						{isEMAIL && (
-							<div style={{ marginBottom: '24px' }}>
-								<label
-									htmlFor="mfa-email-register"
-									style={{
-										display: 'block',
-										fontSize: '14px',
-										fontWeight: '600',
-										color: '#374151',
-										marginBottom: '8px',
-									}}
-								>
-									Email Address <span style={{ color: '#ef4444' }}>*</span>
-								</label>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-									<FiMail size={20} style={{ color: '#6b7280' }} />
-									<input
-										id="mfa-email-register"
-										type="email"
-										value={credentials.email || ''}
-										onChange={(e) => {
-											setCredentials({ ...credentials, email: e.target.value });
-										}}
-										placeholder="user@example.com"
-										style={{
-											flex: 1,
-											padding: '12px 16px',
-											border: `1px solid ${
-												credentials.email?.trim()
-													? (isValidEmail ? '#10b981' : '#ef4444')
-													: '#d1d5db'
-											}`,
-											boxShadow:
-												credentials.email?.trim() && isValidEmail
-													? 'none'
-													: '0 0 0 3px rgba(239, 68, 68, 0.25)',
-											outline: 'none',
-											borderRadius: '8px',
-											fontSize: '15px',
-											color: '#1f2937',
-											background: 'white',
-										}}
-									/>
-								</div>
-								<small style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
-									Enter the email address where you'll receive verification codes
-								</small>
-								{credentials.email && isValidEmail && (
-									<div
-										style={{
-											marginTop: '8px',
-											padding: '8px 10px',
-											background: '#fef3c7',
-											border: '1px solid #fbbf24',
-											borderRadius: '6px',
-										}}
-									>
-										<div style={{ fontSize: '11px', fontWeight: '600', color: '#92400e', marginBottom: '2px' }}>
-											📧 Email Preview:
-										</div>
-										<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
-											<strong>Will send to:</strong> {credentials.email}
-										</div>
-									</div>
-								)}
-							</div>
-						)}
-
-						{/* Device Name Field */}
-						<div style={{ marginBottom: '12px' }}>
-							<label
-								htmlFor="mfa-device-name-register"
-								style={{
-									display: 'block',
-									fontSize: '13px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Device Name <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<input
-								id="mfa-device-name-register"
-								type="text"
-								value={credentials.deviceName || (currentDeviceType || 'SMS')}
-								onChange={(e) => {
-									setCredentials({ ...credentials, deviceName: e.target.value });
-								}}
-								onFocus={(e) => {
-									const currentName = credentials.deviceName?.trim() || '';
-									if (!currentName || currentName === currentDeviceType || currentName === 'SMS' || currentName === 'EMAIL' || currentName === 'VOICE') {
-										e.target.select();
-									}
-									if (!credentials.deviceName) {
-										e.target.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
-									}
-								}}
-								onBlur={(e) => {
-									if (!credentials.deviceName) {
-										e.target.style.boxShadow = 'none';
-									}
-								}}
-								placeholder={currentDeviceType || 'Device Name'}
-								style={{
-									padding: '12px 16px',
-									border: `1px solid ${
-										credentials.deviceName?.trim() ? '#10b981' : '#ef4444'
-									}`,
-									boxShadow:
-										credentials.deviceName?.trim()
-											? 'none'
-											: '0 0 0 3px rgba(239, 68, 68, 0.25)',
-									outline: 'none',
-									borderRadius: '8px',
-									fontSize: '15px',
-									color: '#1f2937',
-									background: 'white',
-									width: '100%',
-								}}
-							/>
-							<small style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}>
-								Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal Email")
-							</small>
-						</div>
-
-						{/* Worker Token Status */}
-						<div style={{ marginBottom: '16px', padding: '10px 12px', background: tokenStatus.isValid ? '#d1fae5' : '#fee2e2', border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`, borderRadius: '6px' }}>
-							<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-									<span style={{ fontSize: '16px' }}>{tokenStatus.isValid ? '✅' : '⚠️'}</span>
-									<span style={{ fontSize: '14px', color: tokenStatus.isValid ? '#065f46' : '#991b1b', fontWeight: '500' }}>
-										{tokenStatus.isValid ? tokenStatus.message || 'Worker token valid' : tokenStatus.message || 'Worker token required'}
-									</span>
-								</div>
-								<button
-									type="button"
-									onClick={() => {
-										setShowWorkerTokenModal(true);
-									}}
-									style={{
-										padding: '8px 16px',
-										background: tokenStatus.isValid ? '#10b981' : '#ef4444',
-										color: 'white',
-										border: 'none',
-										borderRadius: '6px',
-										fontSize: '13px',
-										fontWeight: '600',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '6px',
-									}}
-								>
-									<span>🔑</span>
-									<span>{tokenStatus.isValid ? 'Manage Token' : 'Get Token'}</span>
-								</button>
-							</div>
-						</div>
-
-						{/* API Display Toggle */}
-						<div style={{ 
-							marginTop: '12px', 
-							marginBottom: '8px',
-							padding: '10px 12px',
-							background: '#f9fafb',
-							border: '1px solid #e5e7eb',
-							borderRadius: '6px',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}>
-							<input
-								type="checkbox"
-								id="api-display-toggle-modal"
-								checked={isApiDisplayVisible}
-								onChange={(e) => {
-									if (e.target.checked) {
-										apiDisplayServiceV8.show();
-									} else {
-										apiDisplayServiceV8.hide();
-									}
-								}}
-								style={{
-									width: '18px',
-									height: '18px',
-									cursor: 'pointer',
-									accentColor: '#10b981',
-								}}
-							/>
-							<label
-								htmlFor="api-display-toggle-modal"
-								style={{
-									fontSize: '13px',
-									color: '#374151',
-									cursor: 'pointer',
-									fontWeight: '500',
-									display: 'flex',
-									alignItems: 'center',
-									gap: '6px',
-									flex: 1,
-								}}
-							>
-								<span>📡</span>
-								<span>Show API Display</span>
-							</label>
-						</div>
-
-						{/* Action Buttons */}
-						<div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+			return (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						background: 'rgba(0, 0, 0, 0.5)',
+						display: hasPosition ? 'block' : 'flex',
+						alignItems: hasPosition ? 'normal' : 'center',
+						justifyContent: hasPosition ? 'normal' : 'center',
+						zIndex: 1000,
+					}}
+					onClick={() => {
+						// Don't close on backdrop click - require explicit cancel
+					}}
+				>
+					<div
+						ref={step2ModalDrag.modalRef}
+						style={{
+							background: 'white',
+							borderRadius: '16px',
+							padding: '0',
+							maxWidth: '550px',
+							width: '90%',
+							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+							overflow: 'hidden',
+							...step2ModalDrag.modalStyle,
+						}}
+						onClick={(e) => e.stopPropagation()}
+					>
+						{/* Header with Logo */}
+						<div
+							onMouseDown={step2ModalDrag.handleMouseDown}
+							style={{
+								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+								padding: '16px 20px 12px 20px',
+								textAlign: 'center',
+								position: 'relative',
+								cursor: 'grab',
+								userSelect: 'none',
+							}}
+						>
 							<button
 								type="button"
+								onMouseDown={(e) => e.stopPropagation()}
 								onClick={() => {
 									setShowModal(false);
 									nav.goToPrevious();
 								}}
 								style={{
-									flex: 1,
-									padding: '12px 20px',
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-									borderRadius: '8px',
-									fontSize: '15px',
-									fontWeight: '600',
-									cursor: 'pointer',
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								type="button"
-								disabled={isLoading || !isValidForm || !tokenStatus.isValid}
-								onClick={handleRegisterDevice}
-								style={{
-									flex: 2,
-									padding: '12px 20px',
-									background: isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
-									color: 'white',
+									position: 'absolute',
+									top: '16px',
+									right: '16px',
+									background: 'rgba(255, 255, 255, 0.2)',
 									border: 'none',
-									borderRadius: '8px',
-									fontSize: '15px',
-									fontWeight: '600',
-									cursor: isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
-									boxShadow: isValidForm && !isLoading && tokenStatus.isValid ? '0 4px 12px rgba(16, 185, 129, 0.3)' : 'none',
-									transition: 'all 0.2s ease',
-								}}
-								onMouseEnter={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
-										e.currentTarget.style.background = '#059669';
-										e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
-									}
-								}}
-								onMouseLeave={(e) => {
-									if (isValidForm && !isLoading && tokenStatus.isValid) {
-										e.currentTarget.style.background = '#10b981';
-										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-									}
+									borderRadius: '50%',
+									width: '32px',
+									height: '32px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									cursor: 'pointer',
+									color: 'white',
 								}}
 							>
-							{isLoading ? (
-								<>🔄 Registering...</>
-							) : (
-								<>Register {currentDeviceType === 'SMS' ? 'SMS' : 'Email'} Device →</>
-							)}
+								<FiX size={18} />
 							</button>
+							<PingIdentityLogo size={36} />
+							<h3
+								style={{
+									margin: '6px 0 0 0',
+									fontSize: '18px',
+									fontWeight: '600',
+									color: 'white',
+									textAlign: 'center',
+								}}
+							>
+								Register MFA Device
+							</h3>
+							<p
+								style={{
+									margin: '4px 0 0 0',
+									fontSize: '12px',
+									color: 'rgba(255, 255, 255, 0.9)',
+									textAlign: 'center',
+								}}
+							>
+								Add a new device for multi-factor authentication
+							</p>
+						</div>
+
+						{/* Modal Body */}
+						<div style={{ padding: '16px 20px' }}>
+							{/* Username Display */}
+							<div
+								style={{
+									marginBottom: '12px',
+									padding: '8px 12px',
+									background: '#f3f4f6',
+									borderRadius: '6px',
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								<div style={{ fontSize: '11px', color: '#6b7280', marginBottom: '2px' }}>
+									Username
+								</div>
+								<div style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>
+									{credentials.username}
+								</div>
+							</div>
+
+							{/* Device Type Selector */}
+							<div style={{ marginBottom: '12px' }}>
+								<label
+									htmlFor="mfa-device-type-register"
+									style={{
+										display: 'block',
+										fontSize: '13px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '6px',
+									}}
+								>
+									Device Type <span style={{ color: '#ef4444' }}>*</span>
+								</label>
+								<select
+									id="mfa-device-type-register"
+									value={credentials.deviceType || 'SMS'}
+									onChange={(e) => {
+										const newDeviceType = e.target.value as DeviceType;
+										const oldDeviceType = credentials.deviceType || 'SMS';
+
+										// Update device name if:
+										// 1. It's empty
+										// 2. It matches the old device type (e.g., "SMS" when switching from SMS)
+										// 3. It's exactly "SMS", "EMAIL", or "VOICE" (generic device type names)
+										const currentDeviceName = credentials.deviceName?.trim() || '';
+										const shouldUpdateDeviceName =
+											!currentDeviceName ||
+											currentDeviceName === oldDeviceType ||
+											currentDeviceName === 'SMS' ||
+											currentDeviceName === 'EMAIL' ||
+											currentDeviceName === 'VOICE';
+
+										// Determine the new device name
+										const newDeviceName = shouldUpdateDeviceName
+											? newDeviceType
+											: credentials.deviceName;
+
+										// Update credentials with new device type and clear appropriate fields
+										setCredentials({
+											...credentials,
+											deviceType: newDeviceType,
+											deviceName: newDeviceName,
+											// Clear phone/email when switching types to avoid validation errors
+											// Keep phone for SMS and VOICE (both use phone numbers)
+											phoneNumber:
+												newDeviceType === 'SMS' || newDeviceType === 'VOICE'
+													? credentials.phoneNumber
+													: '',
+											email: newDeviceType === 'EMAIL' ? credentials.email : '',
+										});
+										// Update controller device type when user changes selection
+										// Use SMS controller for VOICE (both use phone numbers)
+										if (newDeviceType === 'SMS' || newDeviceType === 'EMAIL') {
+											setControllerDeviceType(newDeviceType);
+										} else if (newDeviceType === 'VOICE') {
+											setControllerDeviceType('SMS'); // Use SMS controller for Voice
+										}
+									}}
+									style={{
+										padding: '12px 16px',
+										border: '1px solid #d1d5db',
+										borderRadius: '8px',
+										fontSize: '15px',
+										color: '#1f2937',
+										background: 'white',
+										width: '100%',
+										cursor: 'pointer',
+									}}
+								>
+									<option value="SMS">📱 SMS (Text Message)</option>
+									<option value="VOICE">📞 Voice Call</option>
+									<option value="EMAIL">📧 Email</option>
+								</select>
+								<small
+									style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
+								>
+									Select the type of MFA device you want to register
+								</small>
+							</div>
+
+							{/* Phone Number Field (for SMS and VOICE) */}
+							{isPhoneBased && (
+								<div style={{ marginBottom: '12px' }}>
+									<label
+										htmlFor="mfa-phone-register"
+										style={{
+											display: 'block',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+											marginBottom: '8px',
+										}}
+									>
+										Phone Number <span style={{ color: '#ef4444' }}>*</span>
+									</label>
+									<div style={{ display: 'flex', gap: '0' }}>
+										<CountryCodePickerV8
+											value={credentials.countryCode}
+											onChange={(code) => setCredentials({ ...credentials, countryCode: code })}
+										/>
+										<input
+											id="mfa-phone-register"
+											type="tel"
+											value={credentials.phoneNumber || ''}
+											onChange={(e) => {
+												const cleaned = e.target.value.replace(/[^\d\s-]/g, '');
+												setCredentials({ ...credentials, phoneNumber: cleaned });
+											}}
+											placeholder={credentials.countryCode === '+1' ? '5125201234' : '234567890'}
+											style={{
+												flex: 1,
+												padding: '12px 16px',
+												border: `1px solid ${
+													credentials.phoneNumber
+														? isValidPhone
+															? '#10b981'
+															: '#ef4444'
+														: '#ef4444'
+												}`,
+												boxShadow:
+													credentials.phoneNumber && isValidPhone
+														? 'none'
+														: '0 0 0 3px rgba(239, 68, 68, 0.25)',
+												outline: 'none',
+												borderRadius: '0 8px 8px 0',
+												fontSize: '15px',
+												fontFamily: 'monospace',
+												color: '#1f2937',
+												background: 'white',
+											}}
+										/>
+									</div>
+									<small
+										style={{
+											display: 'block',
+											marginTop: '6px',
+											fontSize: '12px',
+											color: '#6b7280',
+										}}
+									>
+										{credentials.countryCode === '+1'
+											? 'US/Canada: Enter 10-digit number (area code + number)'
+											: 'International: Enter phone number with country code'}
+									</small>
+									{credentials.phoneNumber && (
+										<div
+											style={{
+												marginTop: '8px',
+												padding: '8px 10px',
+												background: '#fef3c7',
+												border: '1px solid #fbbf24',
+												borderRadius: '6px',
+											}}
+										>
+											<div
+												style={{
+													fontSize: '11px',
+													fontWeight: '600',
+													color: '#92400e',
+													marginBottom: '2px',
+												}}
+											>
+												📋 Phone Number Preview:
+											</div>
+											<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
+												<strong>Will send to:</strong> {getFullPhoneNumber(credentials)}
+											</div>
+										</div>
+									)}
+								</div>
+							)}
+
+							{/* Email Field (for EMAIL) */}
+							{isEMAIL && (
+								<div style={{ marginBottom: '24px' }}>
+									<label
+										htmlFor="mfa-email-register"
+										style={{
+											display: 'block',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#374151',
+											marginBottom: '8px',
+										}}
+									>
+										Email Address <span style={{ color: '#ef4444' }}>*</span>
+									</label>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+										<FiMail size={20} style={{ color: '#6b7280' }} />
+										<input
+											id="mfa-email-register"
+											type="email"
+											value={credentials.email || ''}
+											onChange={(e) => {
+												setCredentials({ ...credentials, email: e.target.value });
+											}}
+											placeholder="user@example.com"
+											style={{
+												flex: 1,
+												padding: '12px 16px',
+												border: `1px solid ${
+													credentials.email?.trim()
+														? isValidEmail
+															? '#10b981'
+															: '#ef4444'
+														: '#d1d5db'
+												}`,
+												boxShadow:
+													credentials.email?.trim() && isValidEmail
+														? 'none'
+														: '0 0 0 3px rgba(239, 68, 68, 0.25)',
+												outline: 'none',
+												borderRadius: '8px',
+												fontSize: '15px',
+												color: '#1f2937',
+												background: 'white',
+											}}
+										/>
+									</div>
+									<small
+										style={{
+											display: 'block',
+											marginTop: '4px',
+											fontSize: '11px',
+											color: '#6b7280',
+										}}
+									>
+										Enter the email address where you'll receive verification codes
+									</small>
+									{credentials.email && isValidEmail && (
+										<div
+											style={{
+												marginTop: '8px',
+												padding: '8px 10px',
+												background: '#fef3c7',
+												border: '1px solid #fbbf24',
+												borderRadius: '6px',
+											}}
+										>
+											<div
+												style={{
+													fontSize: '11px',
+													fontWeight: '600',
+													color: '#92400e',
+													marginBottom: '2px',
+												}}
+											>
+												📧 Email Preview:
+											</div>
+											<div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#1f2937' }}>
+												<strong>Will send to:</strong> {credentials.email}
+											</div>
+										</div>
+									)}
+								</div>
+							)}
+
+							{/* Device Name Field */}
+							<div style={{ marginBottom: '12px' }}>
+								<label
+									htmlFor="mfa-device-name-register"
+									style={{
+										display: 'block',
+										fontSize: '13px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '6px',
+									}}
+								>
+									Device Name <span style={{ color: '#ef4444' }}>*</span>
+								</label>
+								<input
+									id="mfa-device-name-register"
+									type="text"
+									value={credentials.deviceName || currentDeviceType || 'SMS'}
+									onChange={(e) => {
+										setCredentials({ ...credentials, deviceName: e.target.value });
+									}}
+									onFocus={(e) => {
+										const currentName = credentials.deviceName?.trim() || '';
+										if (
+											!currentName ||
+											currentName === currentDeviceType ||
+											currentName === 'SMS' ||
+											currentName === 'EMAIL' ||
+											currentName === 'VOICE'
+										) {
+											e.target.select();
+										}
+										if (!credentials.deviceName) {
+											e.target.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
+										}
+									}}
+									onBlur={(e) => {
+										if (!credentials.deviceName) {
+											e.target.style.boxShadow = 'none';
+										}
+									}}
+									placeholder={currentDeviceType || 'Device Name'}
+									style={{
+										padding: '12px 16px',
+										border: `1px solid ${credentials.deviceName?.trim() ? '#10b981' : '#ef4444'}`,
+										boxShadow: credentials.deviceName?.trim()
+											? 'none'
+											: '0 0 0 3px rgba(239, 68, 68, 0.25)',
+										outline: 'none',
+										borderRadius: '8px',
+										fontSize: '15px',
+										color: '#1f2937',
+										background: 'white',
+										width: '100%',
+									}}
+								/>
+								<small
+									style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
+								>
+									Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal
+									Email")
+								</small>
+							</div>
+
+							{/* Worker Token Status */}
+							<div
+								style={{
+									marginBottom: '16px',
+									padding: '10px 12px',
+									background: tokenStatus.isValid ? '#d1fae5' : '#fee2e2',
+									border: `1px solid ${tokenStatus.isValid ? '#10b981' : '#ef4444'}`,
+									borderRadius: '6px',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										gap: '12px',
+									}}
+								>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+										<span style={{ fontSize: '16px' }}>{tokenStatus.isValid ? '✅' : '⚠️'}</span>
+										<span
+											style={{
+												fontSize: '14px',
+												color: tokenStatus.isValid ? '#065f46' : '#991b1b',
+												fontWeight: '500',
+											}}
+										>
+											{tokenStatus.isValid
+												? tokenStatus.message || 'Worker token valid'
+												: tokenStatus.message || 'Worker token required'}
+										</span>
+									</div>
+									<button
+										type="button"
+										onClick={() => {
+											setShowWorkerTokenModal(true);
+										}}
+										style={{
+											padding: '8px 16px',
+											background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+											color: 'white',
+											border: 'none',
+											borderRadius: '6px',
+											fontSize: '13px',
+											fontWeight: '600',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '6px',
+										}}
+									>
+										<span>🔑</span>
+										<span>{tokenStatus.isValid ? 'Manage Token' : 'Get Token'}</span>
+									</button>
+								</div>
+							</div>
+
+							{/* API Display Toggle */}
+							<div
+								style={{
+									marginTop: '12px',
+									marginBottom: '8px',
+									padding: '10px 12px',
+									background: '#f9fafb',
+									border: '1px solid #e5e7eb',
+									borderRadius: '6px',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								<input
+									type="checkbox"
+									id="api-display-toggle-modal"
+									checked={isApiDisplayVisible}
+									onChange={(e) => {
+										if (e.target.checked) {
+											apiDisplayServiceV8.show();
+										} else {
+											apiDisplayServiceV8.hide();
+										}
+									}}
+									style={{
+										width: '18px',
+										height: '18px',
+										cursor: 'pointer',
+										accentColor: '#10b981',
+									}}
+								/>
+								<label
+									htmlFor="api-display-toggle-modal"
+									style={{
+										fontSize: '13px',
+										color: '#374151',
+										cursor: 'pointer',
+										fontWeight: '500',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										flex: 1,
+									}}
+								>
+									<span>📡</span>
+									<span>Show API Display</span>
+								</label>
+							</div>
+
+							{/* Action Buttons */}
+							<div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+								<button
+									type="button"
+									onClick={() => {
+										setShowModal(false);
+										nav.goToPrevious();
+									}}
+									style={{
+										flex: 1,
+										padding: '12px 20px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '8px',
+										fontSize: '15px',
+										fontWeight: '600',
+										cursor: 'pointer',
+									}}
+								>
+									Cancel
+								</button>
+								<button
+									type="button"
+									disabled={isLoading || !isValidForm || !tokenStatus.isValid}
+									onClick={handleRegisterDevice}
+									style={{
+										flex: 2,
+										padding: '12px 20px',
+										background:
+											isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
+										color: 'white',
+										border: 'none',
+										borderRadius: '8px',
+										fontSize: '15px',
+										fontWeight: '600',
+										cursor:
+											isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+										boxShadow:
+											isValidForm && !isLoading && tokenStatus.isValid
+												? '0 4px 12px rgba(16, 185, 129, 0.3)'
+												: 'none',
+										transition: 'all 0.2s ease',
+									}}
+									onMouseEnter={(e) => {
+										if (isValidForm && !isLoading && tokenStatus.isValid) {
+											e.currentTarget.style.background = '#059669';
+											e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+										}
+									}}
+									onMouseLeave={(e) => {
+										if (isValidForm && !isLoading && tokenStatus.isValid) {
+											e.currentTarget.style.background = '#10b981';
+											e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+										}
+									}}
+								>
+									{isLoading ? (
+										<>🔄 Registering...</>
+									) : (
+										<>Register {currentDeviceType === 'SMS' ? 'SMS' : 'Email'} Device →</>
+									)}
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		);
-	}, [registrationFlowType, adminDeviceStatus, controllerDeviceType, setControllerDeviceType, setDeviceSelection, updateOtpState, setShowModal, showModal, deviceRegisteredActive, isApiDisplayVisible]);
+			);
+		},
+		[
+			registrationFlowType,
+			adminDeviceStatus,
+			controllerDeviceType,
+			setControllerDeviceType,
+			setDeviceSelection,
+			updateOtpState,
+			setShowModal,
+			showModal,
+			deviceRegisteredActive,
+			isApiDisplayVisible,
+		]
+	);
 
 	// Step 3: Send OTP (using controller)
 	const createRenderStep3 = () => {
@@ -1938,9 +2247,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 			const handleSendOTP = async () => {
 				// Guardrail: Ensure required credentials before sending OTP
-				if (!credentials.environmentId?.trim() || !credentials.username?.trim() || !tokenStatus.isValid) {
+				if (
+					!credentials.environmentId?.trim() ||
+					!credentials.username?.trim() ||
+					!tokenStatus.isValid
+				) {
 					nav.setValidationErrors([
-						'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.'
+						'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
 					]);
 					toastV8.error('Cannot send OTP: Missing required configuration');
 					return;
@@ -2000,7 +2313,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						</p>
 						{otpState.sendRetryCount > 0 && (
 							<p style={{ marginTop: '8px', fontSize: '13px', color: '#92400e' }}>
-								⚠️ Attempt {otpState.sendRetryCount + 1} - If you continue to have issues, check your phone number and try again.
+								⚠️ Attempt {otpState.sendRetryCount + 1} - If you continue to have issues, check your
+								phone number and try again.
 							</p>
 						)}
 					</div>
@@ -2018,10 +2332,22 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								gap: '8px',
 							}}
 						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									flexWrap: 'wrap',
+									gap: '8px',
+								}}
+							>
 								<div>
-									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>Device Authentication ID</p>
-									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>{mfaState.authenticationId}</p>
+									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>
+										Device Authentication ID
+									</p>
+									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>
+										{mfaState.authenticationId}
+									</p>
 								</div>
 								<button
 									type="button"
@@ -2044,8 +2370,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								</button>
 							</div>
 							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
-								Open the Device Authentication Details page to inspect the real-time status returned by PingOne after
-								initialization.
+								Open the Device Authentication Details page to inspect the real-time status returned
+								by PingOne after initialization.
 							</p>
 						</div>
 					)}
@@ -2057,7 +2383,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							onClick={handleSendOTP}
 							disabled={isLoading}
 						>
-							{isLoading ? '🔄 Sending...' : otpState.otpSent ? '🔄 Resend OTP Code' : 'Send OTP Code'}
+							{isLoading
+								? '🔄 Sending...'
+								: otpState.otpSent
+									? '🔄 Resend OTP Code'
+									: 'Send OTP Code'}
 						</button>
 
 						{otpState.otpSent && (
@@ -2114,7 +2444,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								After receiving the code, proceed to the next step to validate it.
 							</p>
 							<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-								💡 <strong>Tip:</strong> OTP codes typically expire after 5-10 minutes. If you don't receive the code, click "Resend OTP Code" above.
+								💡 <strong>Tip:</strong> OTP codes typically expire after 5-10 minutes. If you don't
+								receive the code, click "Resend OTP Code" above.
 							</p>
 						</div>
 					)}
@@ -2123,21 +2454,28 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		};
 	};
 
-		// Step 4: Validate OTP (using controller)
+	// Step 4: Validate OTP (using controller)
 	const createRenderStep4 = () => {
 		return (props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } = props;
-			
+			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
+				props;
+
 			// Helper function to update OTP state
-			const updateOtpState = (update: Partial<typeof otpState> | ((prev: typeof otpState) => typeof otpState)) => {
+			const updateOtpState = (
+				update: Partial<typeof otpState> | ((prev: typeof otpState) => typeof otpState)
+			) => {
 				setOtpState((prev) => {
 					const patch = typeof update === 'function' ? update(prev) : update;
 					return { ...prev, ...patch };
 				});
 			};
-			
+
 			// Close modal when verification is complete (handled in render, not useEffect)
-			if (mfaState.verificationResult && mfaState.verificationResult.status === 'COMPLETED' && showValidationModal) {
+			if (
+				mfaState.verificationResult &&
+				mfaState.verificationResult.status === 'COMPLETED' &&
+				showValidationModal
+			) {
 				// Use setTimeout to avoid state updates during render
 				setTimeout(() => {
 					setShowValidationModal(false);
@@ -2146,13 +2484,23 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 			// If validation is complete, show success screen using shared service
 			// Close modal and show success page
-			if (mfaState.verificationResult && (mfaState.verificationResult.status === 'COMPLETED' || mfaState.verificationResult.status === 'SUCCESS')) {
+			if (
+				mfaState.verificationResult &&
+				(mfaState.verificationResult.status === 'COMPLETED' ||
+					mfaState.verificationResult.status === 'SUCCESS')
+			) {
 				// Close modal if it's open
 				if (showValidationModal) {
 					setShowValidationModal(false);
 				}
-				
-				const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
+
+				const successData = buildSuccessPageData(
+					credentials,
+					mfaState,
+					registrationFlowType,
+					adminDeviceStatus,
+					credentials.tokenType
+				);
 				return (
 					<MFASuccessPageV8
 						{...props}
@@ -2168,7 +2516,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				// Device is already active, show success page
 				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
 				if (deviceRegisteredActive || mfaState.verificationResult) {
-					const successData = buildSuccessPageData(credentials, mfaState, registrationFlowType, adminDeviceStatus, credentials.tokenType);
+					const successData = buildSuccessPageData(
+						credentials,
+						mfaState,
+						registrationFlowType,
+						adminDeviceStatus,
+						credentials.tokenType
+					);
 					return (
 						<MFASuccessPageV8
 							{...props}
@@ -2209,20 +2563,24 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			// If modal is closed but we're on step 4, show a message
 			if (!showValidationModal) {
 				return (
-					<div style={{
-						padding: '24px',
-						background: 'white',
-						borderRadius: '8px',
-						boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-						maxWidth: '600px',
-						margin: '0 auto',
-						textAlign: 'center',
-					}}>
-						<p style={{
-							fontSize: '16px',
-							color: '#6b7280',
-							margin: '0 0 20px 0',
-						}}>
+					<div
+						style={{
+							padding: '24px',
+							background: 'white',
+							borderRadius: '8px',
+							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+							maxWidth: '600px',
+							margin: '0 auto',
+							textAlign: 'center',
+						}}
+					>
+						<p
+							style={{
+								fontSize: '16px',
+								color: '#6b7280',
+								margin: '0 0 20px 0',
+							}}
+						>
 							OTP validation modal closed. Click below to reopen.
 						</p>
 						<button
@@ -2247,7 +2605,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				);
 			}
 
-			const hasPosition = step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0;
+			const hasPosition =
+				step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0;
 
 			return (
 				<div
@@ -2338,11 +2697,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									textAlign: 'center',
 								}}
 							>
-								{credentials.deviceType === 'VOICE' 
+								{credentials.deviceType === 'VOICE'
 									? 'Enter the verification code from your voice call'
 									: credentials.deviceType === 'EMAIL'
-									? 'Enter the verification code sent to your email'
-									: 'Enter the verification code sent to your phone'}
+										? 'Enter the verification code sent to your email'
+										: 'Enter the verification code sent to your phone'}
 							</p>
 						</div>
 
@@ -2358,27 +2717,72 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									borderRadius: '6px',
 								}}
 							>
-								<p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#1e40af', fontWeight: '600' }}>
+								<p
+									style={{
+										margin: '0 0 4px 0',
+										fontSize: '12px',
+										color: '#1e40af',
+										fontWeight: '600',
+									}}
+								>
 									Device ID:
 								</p>
-								<p style={{ margin: '0 0 8px 0', fontSize: '11px', fontFamily: 'monospace', color: '#1f2937', wordBreak: 'break-all' }}>
+								<p
+									style={{
+										margin: '0 0 8px 0',
+										fontSize: '11px',
+										fontFamily: 'monospace',
+										color: '#1f2937',
+										wordBreak: 'break-all',
+									}}
+								>
 									{mfaState.deviceId}
 								</p>
 								{credentials.deviceType === 'EMAIL' ? (
 									<>
-										<p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#1e40af', fontWeight: '600' }}>
+										<p
+											style={{
+												margin: '0 0 4px 0',
+												fontSize: '12px',
+												color: '#1e40af',
+												fontWeight: '600',
+											}}
+										>
 											Email Address:
 										</p>
-										<p style={{ margin: '0', fontSize: '11px', fontFamily: 'monospace', color: '#1f2937' }}>
+										<p
+											style={{
+												margin: '0',
+												fontSize: '11px',
+												fontFamily: 'monospace',
+												color: '#1f2937',
+											}}
+										>
 											{credentials.email}
 										</p>
 									</>
 								) : (
 									<>
-										<p style={{ margin: '0 0 4px 0', fontSize: '12px', color: '#1e40af', fontWeight: '600' }}>
-											{credentials.deviceType === 'VOICE' ? 'Phone Number (Voice Call):' : 'Phone Number:'}
+										<p
+											style={{
+												margin: '0 0 4px 0',
+												fontSize: '12px',
+												color: '#1e40af',
+												fontWeight: '600',
+											}}
+										>
+											{credentials.deviceType === 'VOICE'
+												? 'Phone Number (Voice Call):'
+												: 'Phone Number:'}
 										</p>
-										<p style={{ margin: '0', fontSize: '11px', fontFamily: 'monospace', color: '#1f2937' }}>
+										<p
+											style={{
+												margin: '0',
+												fontSize: '11px',
+												fontFamily: 'monospace',
+												color: '#1f2937',
+											}}
+										>
 											{getFullPhoneNumber(credentials)}
 										</p>
 									</>
@@ -2414,9 +2818,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									disabled={isLoading || mfaState.otpCode.length !== 6}
 									onClick={async () => {
 										// Guardrail: Ensure required credentials before validating OTP
-										if (!credentials.environmentId?.trim() || !credentials.username?.trim() || !tokenStatus.isValid) {
+										if (
+											!credentials.environmentId?.trim() ||
+											!credentials.username?.trim() ||
+											!tokenStatus.isValid
+										) {
 											nav.setValidationErrors([
-												'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.'
+												'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
 											]);
 											toastV8.error('Cannot validate OTP: Missing required configuration');
 											return;
@@ -2426,7 +2834,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										// For ACTIVATION_REQUIRED devices, always use activateDevice (even if URI not in state)
 										// If deviceActivateUri exists, use it; otherwise construct it or let service handle it
 										const isActivationRequired = mfaState.deviceStatus === 'ACTIVATION_REQUIRED';
-										
+
 										// For ACTIVATION_REQUIRED devices, always use activateDevice
 										// For other cases, use activateDevice if URI is available, otherwise use validateOTP
 										if (isActivationRequired || mfaState.deviceActivateUri) {
@@ -2434,13 +2842,20 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 											setIsLoading(true);
 											try {
 												// Construct deviceActivateUri if not provided but we have the necessary info
-												let deviceActivateUri = mfaState.deviceActivateUri;
-												if (!deviceActivateUri && isActivationRequired && mfaState.deviceId && credentials.environmentId) {
+												const deviceActivateUri = mfaState.deviceActivateUri;
+												if (
+													!deviceActivateUri &&
+													isActivationRequired &&
+													mfaState.deviceId &&
+													credentials.environmentId
+												) {
 													// Construct the URI: POST /environments/{envID}/users/{userID}/devices/{deviceID}
 													// We'll let the service handle user lookup and URI construction
-													console.log(`${MODULE_TAG} deviceActivateUri not in state, will let service construct it`);
+													console.log(
+														`${MODULE_TAG} deviceActivateUri not in state, will let service construct it`
+													);
 												}
-												
+
 												const activationParams: {
 													environmentId: string;
 													username: string;
@@ -2456,9 +2871,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 												if (deviceActivateUri) {
 													activationParams.deviceActivateUri = deviceActivateUri;
 												}
-												
-												const activationResult = await MFAServiceV8.activateDevice(activationParams);
 
+												const activationResult =
+													await MFAServiceV8.activateDevice(activationParams);
 
 												// Update device status
 												setMfaState((prev) => ({
@@ -2474,7 +2889,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 												nav.goToStep(4); // Ensure we're on step 4 to show success page
 												toastV8.success('Device activated successfully!');
 											} catch (error) {
-												const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+												const errorMessage =
+													error instanceof Error ? error.message : 'Unknown error';
 												console.error(`${MODULE_TAG} Failed to activate device:`, error);
 												setValidationState({
 													validationAttempts: validationState.validationAttempts + 1,
@@ -2498,7 +2914,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 												nav,
 												setIsLoading
 											);
-											
+
 											// If validation succeeded, ensure we navigate to step 4 and show success
 											if (isValid) {
 												// Controller already navigates to step 4, but ensure verificationResult is set correctly
@@ -2506,7 +2922,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 													...prev,
 													verificationResult: {
 														status: 'COMPLETED',
-														message: 'OTP validated successfully'
+														message: 'OTP validated successfully',
 													},
 												}));
 											}
@@ -2534,15 +2950,29 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									onClick={async () => {
 										setIsLoading(true);
 										try {
-											await controller.sendOTP(
-												credentials,
-												mfaState.deviceId,
-												otpState,
-												updateOtpState,
-												nav,
-												setIsLoading
-											);
-											toastV8.success('OTP code resent successfully!');
+											// For ACTIVATION_REQUIRED devices, use resendPairingCode endpoint
+											// For ACTIVE devices, use sendOTP (device authentication flow)
+											if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+												await MFAServiceV8.resendPairingCode({
+													environmentId: credentials.environmentId,
+													username: credentials.username,
+													deviceId: mfaState.deviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												});
+												toastV8.success('OTP code resent successfully!');
+											} else {
+												// For ACTIVE devices or if status is unknown, use sendOTP
+												await controller.sendOTP(
+													credentials,
+													mfaState.deviceId,
+													otpState,
+													updateOtpState,
+													nav,
+													setIsLoading
+												);
+												toastV8.success('OTP code resent successfully!');
+											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
@@ -2582,10 +3012,25 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 										borderRadius: '6px',
 									}}
 								>
-									<p style={{ margin: '0 0 4px 0', fontSize: '12px', fontWeight: '600', color: validationState.validationAttempts >= 3 ? '#991b1b' : '#92400e' }}>
-										{validationState.validationAttempts >= 3 ? '⚠️ Multiple Failed Attempts' : '⚠️ Validation Failed'}
+									<p
+										style={{
+											margin: '0 0 4px 0',
+											fontSize: '12px',
+											fontWeight: '600',
+											color: validationState.validationAttempts >= 3 ? '#991b1b' : '#92400e',
+										}}
+									>
+										{validationState.validationAttempts >= 3
+											? '⚠️ Multiple Failed Attempts'
+											: '⚠️ Validation Failed'}
 									</p>
-									<p style={{ margin: '0', fontSize: '11px', color: validationState.validationAttempts >= 3 ? '#991b1b' : '#92400e' }}>
+									<p
+										style={{
+											margin: '0',
+											fontSize: '11px',
+											color: validationState.validationAttempts >= 3 ? '#991b1b' : '#92400e',
+										}}
+									>
 										{validationState.lastValidationError || 'Invalid OTP code entered'}
 									</p>
 									{validationState.validationAttempts >= 3 && (
@@ -2622,46 +3067,52 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	if (isCheckingCredentials) {
 		return (
 			<>
-				<div style={{ 
-					minHeight: '100vh',
-					background: '#f9fafb',
-				}}>
+				<div
+					style={{
+						minHeight: '100vh',
+						background: '#f9fafb',
+					}}
+				>
 					{/* Empty background - flow will render below */}
 				</div>
 				{/* Small loading modal */}
-				<div style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					background: 'rgba(0, 0, 0, 0.3)',
-					zIndex: 9999,
-				}}>
-					<div style={{
-						background: 'white',
-						borderRadius: '8px',
-						padding: '16px 20px',
-						boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-						minWidth: '160px',
-						textAlign: 'center',
-					}}>
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						background: 'rgba(0, 0, 0, 0.3)',
+						zIndex: 9999,
+					}}
+				>
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '16px 20px',
+							boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+							minWidth: '160px',
+							textAlign: 'center',
+						}}
+					>
 						{/* Spinner */}
-						<div style={{
-							width: '24px',
-							height: '24px',
-							border: '3px solid #e5e7eb',
-							borderTop: '3px solid #3b82f6',
-							borderRadius: '50%',
-							animation: 'spin 1s linear infinite',
-							margin: '0 auto 12px',
-						}} />
-						<div style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>
-							Loading...
-						</div>
+						<div
+							style={{
+								width: '24px',
+								height: '24px',
+								border: '3px solid #e5e7eb',
+								borderTop: '3px solid #3b82f6',
+								borderRadius: '50%',
+								animation: 'spin 1s linear infinite',
+								margin: '0 auto 12px',
+							}}
+						/>
+						<div style={{ fontSize: '13px', color: '#374151', fontWeight: '500' }}>Loading...</div>
 					</div>
 				</div>
 				<style>{`
@@ -2675,12 +3126,15 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	}
 
 	return (
-		<div style={{ 
-			minHeight: '100vh',
-			paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
-			transition: 'padding-bottom 0.3s ease',
-			overflow: 'visible',
-		}}>
+		<div
+			style={{
+				minHeight: '100vh',
+				paddingBottom:
+					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
+				transition: 'padding-bottom 0.3s ease',
+				overflow: 'visible',
+			}}
+		>
 			<MFAFlowBaseV8
 				deviceType="SMS"
 				renderStep0={renderStep0}
@@ -2692,7 +3146,11 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
 				shouldHideNextButton={(props) => {
 					// Hide Next button on step 2 when showing success page for ACTIVE devices
-					if (props.nav.currentStep === 2 && deviceRegisteredActive && deviceRegisteredActive.status === 'ACTIVE') {
+					if (
+						props.nav.currentStep === 2 &&
+						deviceRegisteredActive &&
+						deviceRegisteredActive.status === 'ACTIVE'
+					) {
 						return true;
 					}
 					// Hide final button on success step (step 4) - we have our own "Start Again" button
@@ -2702,9 +3160,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					return false;
 				}}
 			/>
-			
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
 		</div>
 	);
 };
