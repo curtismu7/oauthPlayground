@@ -21,8 +21,8 @@ import { usePageScroll } from '@/hooks/usePageScroll';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { MFAReportingServiceV8, type ReportParams } from '@/v8/services/mfaReportingServiceV8';
@@ -81,9 +81,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [reportId, setReportId] = useState<string | null>(null); // For MFA-enabled devices report polling
 	const [isPolling, setIsPolling] = useState(false);
-	
+
 	// Helper variables
-	const needsUsername = selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp';
+	const needsUsername =
+		selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp';
 	const isMfaEnabledReport = selectedReport === 'mfa-enabled';
 	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 
@@ -129,7 +130,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-		
+
 		// Save environment ID globally so it's shared across all flows
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
@@ -166,7 +167,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 		toastV8.success('Worker token generated and saved!');
 	};
 
-
 	const loadReports = async () => {
 		if (!credentials.environmentId?.trim()) {
 			toastV8.error('Environment ID is required');
@@ -178,7 +178,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 		}
 
 		// For device-based reports (FIDO2, Email, TOTP), username is required
-		if ((selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp') && !username.trim()) {
+		if (
+			(selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp') &&
+			!username.trim()
+		) {
 			toastV8.error('Username is required for device-based reports');
 			return;
 		}
@@ -193,8 +196,10 @@ export const MFAReportingFlowV8: React.FC = () => {
 					const reportResult = await MFAReportingServiceV8.createSMSDevicesReport({
 						environmentId: credentials.environmentId,
 						filter: '(deviceType eq "SMS")',
+						region: credentials.region as 'us' | 'eu' | 'ap' | 'ca' | 'na' | undefined,
+						customDomain: credentials.customDomain as string | undefined,
 					});
-					
+
 					// Check if report has entries directly or needs to be fetched
 					if (reportResult._embedded?.entries) {
 						data = reportResult._embedded.entries as Array<Record<string, unknown>>;
@@ -213,7 +218,7 @@ export const MFAReportingFlowV8: React.FC = () => {
 					const reportResult = await MFAReportingServiceV8.createMFAEnabledDevicesReport({
 						environmentId: credentials.environmentId,
 					});
-					
+
 					// Store reportId for polling
 					if (reportResult.id) {
 						setReportId(reportResult.id as string);
@@ -333,9 +338,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 	};
 
 	return (
-		<div 
+		<div
 			className="mfa-reporting-flow-v8"
-			style={{ 
+			style={{
 				paddingBottom: isApiDisplayVisible ? '450px' : '0',
 				transition: 'padding-bottom 0.3s ease',
 			}}
@@ -351,7 +356,6 @@ export const MFAReportingFlowV8: React.FC = () => {
 			/>
 
 			<div className="flow-container">
-
 				{/* Setup Section */}
 				<div className="setup-section">
 					<h2>Configuration</h2>
@@ -436,7 +440,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 								}}
 							>
 								<option value="sms">SMS Devices Report (Official Reporting API)</option>
-								<option value="mfa-enabled">MFA-Enabled Devices Report (Official Reporting API)</option>
+								<option value="mfa-enabled">
+									MFA-Enabled Devices Report (Official Reporting API)
+								</option>
 								<option value="fido2">FIDO2 Devices Report (Device Filtering)</option>
 								<option value="email">Email Devices Report (Device Filtering)</option>
 								<option value="totp">TOTP Devices Report (Device Filtering)</option>
@@ -463,7 +469,14 @@ export const MFAReportingFlowV8: React.FC = () => {
 					</div>
 
 					{isMfaEnabledReport && reportId && (
-						<div style={{ marginTop: '16px', padding: '12px', background: '#f3f4f6', borderRadius: '6px' }}>
+						<div
+							style={{
+								marginTop: '16px',
+								padding: '12px',
+								background: '#f3f4f6',
+								borderRadius: '6px',
+							}}
+						>
 							<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#374151' }}>
 								<strong>Report ID:</strong> {reportId}
 							</p>
@@ -492,10 +505,19 @@ export const MFAReportingFlowV8: React.FC = () => {
 						type="button"
 						className="btn btn-primary"
 						onClick={loadReports}
-						disabled={!credentials.environmentId || !tokenStatus.isValid || isLoading || (needsUsername && !username.trim())}
+						disabled={
+							!credentials.environmentId ||
+							!tokenStatus.isValid ||
+							isLoading ||
+							(needsUsername && !username.trim())
+						}
 						style={{ marginTop: '20px' }}
 					>
-						{isLoading ? '🔄 Loading...' : isMfaEnabledReport ? '📊 Create Report' : '📊 Load Reports'}
+						{isLoading
+							? '🔄 Loading...'
+							: isMfaEnabledReport
+								? '📊 Create Report'
+								: '📊 Load Reports'}
 					</button>
 				</div>
 
