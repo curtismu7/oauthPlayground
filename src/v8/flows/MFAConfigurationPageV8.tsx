@@ -641,40 +641,275 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			</div>
 
 
-			{/* Device Type Settings - Collapsible Sections */}
-
-
-			<div style={{marginTop: '20px' }>
-
-
-				<h4
-
-
-					style={{margin: '0 0 16px 0',
-
-
-						fontSize: '16px',
-
-
-						fontWeight: '600',
-
-
-						color: '#374151',
-
-
-					}
-
-
+			{/* OTP Failure Cooldown Section */}
+			{selectedPolicy && (
+				<div
+					style={{
+						marginTop: '20px',
+						marginBottom: '20px',
+						padding: '16px',
+						background: '#f9fafb',
+						border: '1px solid #e5e7eb',
+						borderRadius: '8px',
+					}}
 				>
+					<h4
+						style={{
+							margin: '0 0 12px 0',
+							fontSize: '16px',
+							fontWeight: '600',
+							color: '#374151',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						OTP Failure Cooldown
+						<MFAInfoButtonV8 contentKey="otp.failure.coolDown.duration" displayMode="tooltip" />
+					</h4>
+					<div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+						<div style={{ flex: 1, minWidth: '200px' }}>
+							<label
+								style={{
+									display: 'block',
+									marginBottom: '8px',
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#374151',
+								}}
+							>
+								Cooldown Duration
+								<MFAInfoButtonV8 contentKey="otp.failure.coolDown.duration" displayMode="tooltip" />
+							</label>
+							<input
+								type="number"
+								min="0"
+								max="30"
+								value={selectedPolicy.otp?.failure?.coolDown?.duration ?? 5}
+								onChange={(e) => {
+									const value = parseInt(e.target.value, 10);
+									setSelectedPolicy({
+										...selectedPolicy,
+										otp: {
+											...selectedPolicy.otp,
+											failure: {
+												...selectedPolicy.otp?.failure,
+												coolDown: {
+													...selectedPolicy.otp?.failure?.coolDown,
+													duration: value,
+												},
+											},
+										},
+									});
+									setHasPolicyChanges(true);
+								}}
+								style={{
+									width: '100%',
+									padding: '8px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+								}}
+							/>
+						</div>
+						<div style={{ flex: 1, minWidth: '200px' }}>
+							<label
+								style={{
+									display: 'block',
+									marginBottom: '8px',
+									fontSize: '14px',
+									fontWeight: '500',
+									color: '#374151',
+								}}
+							>
+								Time Unit
+								<MFAInfoButtonV8 contentKey="otp.failure.coolDown.timeUnit" displayMode="tooltip" />
+							</label>
+							<select
+								value={selectedPolicy.otp?.failure?.coolDown?.timeUnit ?? 'MINUTES'}
+								onChange={(e) => {
+									setSelectedPolicy({
+										...selectedPolicy,
+										otp: {
+											...selectedPolicy.otp,
+											failure: {
+												...selectedPolicy.otp?.failure,
+												coolDown: {
+													...selectedPolicy.otp?.failure?.coolDown,
+													timeUnit: e.target.value as 'MINUTES' | 'SECONDS',
+												},
+											},
+										},
+									});
+									setHasPolicyChanges(true);
+								}}
+								style={{
+									width: '100%',
+									padding: '8px 12px',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									fontSize: '14px',
+									background: 'white',
+								}}
+							>
+								<option value="MINUTES">MINUTES</option>
+								<option value="SECONDS">SECONDS</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Method Selection Section */}
+			{selectedPolicy && (
+				<div
+					style={{
+						marginBottom: '20px',
+						padding: '16px',
+						background: '#f9fafb',
+						border: '1px solid #e5e7eb',
+						borderRadius: '8px',
+					}}
+				>
+					<h4
+						style={{
+							margin: '0 0 12px 0',
+							fontSize: '16px',
+							fontWeight: '600',
+							color: '#374151',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						Method Selection
+						<MFAInfoButtonV8 contentKey="policy.authentication.deviceSelection" displayMode="tooltip" />
+					</h4>
+					<select
+						value={selectedPolicy.authentication?.deviceSelection || 'USER_CHOICE'}
+						onChange={(e) => {
+							setSelectedPolicy({
+								...selectedPolicy,
+								authentication: {
+									...selectedPolicy.authentication,
+									deviceSelection: e.target.value,
+								},
+							});
+							setHasPolicyChanges(true);
+						}}
+						style={{
+							width: '100%',
+							padding: '8px 12px',
+							border: '1px solid #d1d5db',
+							borderRadius: '6px',
+							fontSize: '14px',
+							background: 'white',
+						}}
+					>
+						<option value="DEFAULT_TO_FIRST">User selected default</option>
+						<option value="PROMPT_TO_SELECT_DEVICE">Prompt user to select</option>
+						<option value="ALWAYS_DISPLAY_DEVICES">Always display devices</option>
+					</select>
+				</div>
+			)}
+
+			{/* Pairing Settings Section */}
+			{selectedPolicy && (
+				<div
+					style={{
+						marginBottom: '20px',
+						padding: '16px',
+						background: '#f9fafb',
+						border: '1px solid #e5e7eb',
+						borderRadius: '8px',
+					}}
+				>
+					<h4
+						style={{
+							margin: '0 0 12px 0',
+							fontSize: '16px',
+							fontWeight: '600',
+							color: '#374151',
+						}}
+					>
+						Pairing Settings
+					</h4>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<ToggleSetting
+							label={
+								<>
+									Pairing Disabled
+									<MFAInfoButtonV8 contentKey="policy.pairingDisabled" displayMode="tooltip" />
+								</>
+							}
+							value={selectedPolicy.pairingDisabled ?? false}
+							onChange={(value) => {
+								setSelectedPolicy({
+									...selectedPolicy,
+									pairingDisabled: value,
+								});
+								setHasPolicyChanges(true);
+							}}
+							description="When enabled, device pairing/registration is disabled for this policy"
+						/>
+						<ToggleSetting
+							label={
+								<>
+									Prompt for Nickname on Pairing
+									<MFAInfoButtonV8 contentKey="policy.promptForNicknameOnPairing" displayMode="tooltip" />
+								</>
+							}
+							value={selectedPolicy.promptForNicknameOnPairing ?? false}
+							onChange={(value) => {
+								setSelectedPolicy({
+									...selectedPolicy,
+									promptForNicknameOnPairing: value,
+								});
+								setHasPolicyChanges(true);
+							}}
+							description="When enabled, users will be prompted to enter a custom nickname for their device"
+						/>
+						<ToggleSetting
+							label={
+								<>
+									Skip User Lock Verification
+									<MFAInfoButtonV8 contentKey="policy.skipUserLockVerification" displayMode="tooltip" />
+								</>
+							}
+							value={selectedPolicy.skipUserLockVerification ?? false}
+							onChange={(value) => {
+								setSelectedPolicy({
+									...selectedPolicy,
+									skipUserLockVerification: value,
+								});
+								setHasPolicyChanges(true);
+							}}
+							description="When enabled, the system will skip checking if the user account is locked"
+						/>
+					</div>
+				</div>
+			)}
+
+			{/* Device Type Settings - Collapsible Sections */}
+			{selectedPolicy && (
+				<div style={{ marginTop: '20px' }}>
+					<h4
+						style={{
+							margin: '0 0 16px 0',
+							fontSize: '16px',
+							fontWeight: '600',
+							color: '#374151',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						Device Type Settings
+						<MFAInfoButtonV8 contentKey="policy.deviceType.configuration" displayMode="tooltip" />
+					</h4>
 
 
-					Device Type Settings
-
-
-				</h4>
-
-
-				<p style={{margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }>
+				<p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }}>
 
 
 					Configure settings for each device type. Each section can be expanded to view and edit device-specific options.
@@ -719,22 +954,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							
 
 
-							style={{marginBottom: '12px',
-
-
+							style={{
+								marginBottom: '12px',
 								padding: '12px',
-
-
 								background: '#f9fafb',
-
-
 								borderRadius: '8px',
-
-
 								border: '1px solid #e5e7eb',
-
-
-							}
+							}}
 
 
 						>
@@ -743,31 +969,16 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							<summary
 
 
-								style={{cursor: 'pointer',
-
-
+								style={{
+									cursor: 'pointer',
 									fontWeight: '600',
-
-
 									fontSize: '14px',
-
-
 									color: '#374151',
-
-
 									listStyle: 'none',
-
-
 									display: 'flex',
-
-
 									alignItems: 'center',
-
-
 									justifyContent: 'space-between',
-
-
-								}
+								}}
 
 
 							>
@@ -776,22 +987,18 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								<span>{deviceType} Settings</span>
 
 
-								<span style={{fontSize: '12px', color: '#6b7280' }>
-
-
-									{isExpanded ? '▼' : '▶'}
-
-
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									▶
 								</span>
 
 
 							</summary>
 
 
-							<div style={{marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }>
+							<div style={{ marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }}>
 
 
-								<p style={{margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }>
+								<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
 
 
 									{deviceType} device configuration options. These settings are part of the policy and will be saved to PingOne.
@@ -803,7 +1010,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								{/* Placeholder for device-specific settings */}
 
 
-								<div style={{padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }>
+								<div style={{ padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }}>
 
 
 									Device-specific settings for {deviceType} will be displayed here.
@@ -1593,7 +1800,8 @@ interface SettingProps {
 	description?: string;
 }
 
-interface ToggleSettingProps extends SettingProps {
+interface ToggleSettingProps extends Omit<SettingProps, 'label'> {
+	label: string | React.ReactNode;
 	value: boolean;
 	onChange: (value: boolean) => void;
 }

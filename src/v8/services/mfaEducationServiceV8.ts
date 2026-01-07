@@ -385,6 +385,54 @@ The policy must be configured in PingOne before you can register devices.`,
 			securityLevel: 'low',
 		},
 
+		'otp.failure.count': {
+			title: 'OTP Failure Count',
+			description: `The maximum number of OTP entry failures allowed before triggering the cooldown period.
+
+**Range:**
+- Minimum: 1
+- Maximum: 7
+- Default: 5
+
+**How It Works:**
+- Each time a user enters an incorrect OTP code, the failure count increments
+- When the failure count reaches this maximum, the cooldown period is triggered
+- During the cooldown period, the user cannot attempt to enter another OTP code
+- The cooldown duration is controlled by the "Cooldown Duration" and "Time Unit" settings
+
+**Security Consideration:**
+- Lower values (1-3) provide stronger protection but may frustrate legitimate users
+- Higher values (5-7) are more user-friendly but provide less protection against brute-force attacks
+- Recommended: 5 failures for most use cases`,
+			securityLevel: 'medium',
+			securityNote:
+				'Failure count limits help prevent brute-force attacks by blocking repeated incorrect attempts.',
+		},
+
+		'policy.deviceType.configuration': {
+			title: 'Device Type Configuration',
+			description: `Each device type (EMAIL, TOTP, SMS, VOICE, MOBILE, FIDO2, WHATSAPP) can have specific configuration options in the policy.
+
+**Device Type Settings:**
+- Each device type can have its own enabled/disabled status
+- Device-specific pairing settings (e.g., pairingDisabled per device type)
+- Device-specific authentication requirements
+- Custom configuration options per device type
+
+**Important:**
+- All device type configurations must be present in the policy JSON (even if empty objects)
+- PingOne API requires all device types to be included when creating or updating a policy
+- Device type settings override environment-level settings for that specific device type
+
+**Configuration Structure:**
+Each device type (email, totp, sms, voice, mobile, fido2, whatsapp, name) is represented as an object in the policy JSON. These objects can contain device-specific settings like:
+- \`enabled\`: Whether this device type is enabled
+- \`pairingDisabled\`: Whether pairing is disabled for this device type
+- Other device-specific configuration options`,
+			securityLevel: 'low',
+			learnMoreUrl: 'https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies',
+		},
+
 		'policy.promptForNicknameOnPairing.explanation': {
 			title: 'Why Can I (or Can\'t I) Update the Device Nickname?',
 			description: `The ability to set a custom device nickname during registration depends on your Device Authentication Policy setting.
