@@ -1181,10 +1181,20 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						return;
 					}
 				}
-				// Get selected policy to check promptForNicknameOnPairing
+				// Get selected policy to check policy settings
 				const selectedPolicy = props.deviceAuthPolicies?.find(
 					(p) => p.id === credentials.deviceAuthenticationPolicyId
 				);
+				
+				// Check if pairing is disabled in the policy
+				if (selectedPolicy?.pairingDisabled === true) {
+					nav.setValidationErrors([
+						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
+					]);
+					toastV8.error('Device pairing is disabled for this policy');
+					return;
+				}
+
 				const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
 
 				// Use the device name exactly as entered by the user, or default to device type if not prompted
