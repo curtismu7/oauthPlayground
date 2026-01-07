@@ -224,7 +224,13 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 
 	return (
 		<>
-			<Backdrop onClick={onClose} onKeyDown={handleKeyDown} role="button" tabIndex={0} aria-label="Close modal" />
+			<Backdrop
+				onClick={onClose}
+				onKeyDown={handleKeyDown}
+				role="button"
+				tabIndex={0}
+				aria-label="Close modal"
+			/>
 			<ModalContainer onKeyDown={handleKeyDown}>
 				<ModalHeader>
 					<ModalTitle>
@@ -244,7 +250,8 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 						</SectionTitle>
 						<SectionContent>
 							<p>
-								In PingOne, there are <strong>two primary patterns</strong> for service-level tokens:
+								In PingOne, there are <strong>two primary patterns</strong> for service-level
+								tokens:
 							</p>
 							<ConceptBox variant="worker">
 								<ConceptTitle>
@@ -259,10 +266,12 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 										<strong>Purpose:</strong> PingOne Platform / Management API operations
 									</ConceptItem>
 									<ConceptItem>
-										<strong>Use cases:</strong> Creating applications, managing users, configuring environments
+										<strong>Use cases:</strong> Creating applications, managing users, configuring
+										environments
 									</ConceptItem>
 									<ConceptItem>
-										<strong>Conceptually:</strong> "I am PingOne itself (or an admin service), performing management operations"
+										<strong>Conceptually:</strong> "I am PingOne itself (or an admin service),
+										performing management operations"
 									</ConceptItem>
 								</ConceptList>
 							</ConceptBox>
@@ -280,10 +289,12 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 										<strong>Purpose:</strong> Machine-to-machine (M2M) calls to custom APIs
 									</ConceptItem>
 									<ConceptItem>
-										<strong>Use cases:</strong> Backend-to-backend calls, microservice communication, custom resource servers
+										<strong>Use cases:</strong> Backend-to-backend calls, microservice
+										communication, custom resource servers
 									</ConceptItem>
 									<ConceptItem>
-										<strong>Conceptually:</strong> "I am this specific application, calling an API I am authorized to use"
+										<strong>Conceptually:</strong> "I am this specific application, calling an API I
+										am authorized to use"
 									</ConceptItem>
 								</ConceptList>
 							</ConceptBox>
@@ -349,7 +360,9 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 										Commonly used with <ScopeExample>p1:read:user</ScopeExample>,{' '}
 										<ScopeExample>p1:update:user</ScopeExample>
 									</TableCell>
-									<TableCell>May not be needed; scopes usually tied to custom API resources</TableCell>
+									<TableCell>
+										May not be needed; scopes usually tied to custom API resources
+									</TableCell>
 								</TableRow>
 								<TableRow>
 									<TableCell>
@@ -373,7 +386,8 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 								<div>
 									<strong>Important: Use Singular Forms</strong>
 									<p style={{ margin: '8px 0 0 0' }}>
-										For PingOne user management, the canonical platform scopes are <strong>singular</strong>:
+										For PingOne user management, the canonical platform scopes are{' '}
+										<strong>singular</strong>:
 									</p>
 									<ul style={{ margin: '8px 0', paddingLeft: '24px' }}>
 										<li>
@@ -384,10 +398,9 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 										</li>
 									</ul>
 									<p style={{ margin: '8px 0 0 0' }}>
-										There is <strong>no official</strong>{' '}
-										<ScopeExample>p1:read:users</ScopeExample> or{' '}
-										<ScopeExample>p1:update:users</ScopeExample> scope. Any plural forms should be treated as{' '}
-										<strong>incorrect or outdated</strong>.
+										There is <strong>no official</strong> <ScopeExample>p1:read:users</ScopeExample>{' '}
+										or <ScopeExample>p1:update:users</ScopeExample> scope. Any plural forms should
+										be treated as <strong>incorrect or outdated</strong>.
 									</p>
 								</div>
 							</WarningBox>
@@ -397,8 +410,9 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 								<div>
 									<strong>Where These Scopes Live</strong>
 									<p style={{ margin: '8px 0 0 0' }}>
-										These scopes are defined on the <strong>PingOne API</strong> resource and control what kind of
-										operations are allowed against the PingOne Platform / Management APIs for user objects:
+										These scopes are defined on the <strong>PingOne API</strong> resource and
+										control what kind of operations are allowed against the PingOne Platform /
+										Management APIs for user objects:
 									</p>
 									<ul style={{ margin: '8px 0', paddingLeft: '24px' }}>
 										<li>
@@ -421,21 +435,23 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 						<SectionContent>
 							<ConceptList>
 								<ConceptItem>
-									<strong>Do not confuse Worker tokens with client_credentials tokens.</strong> Worker tokens are
-									specifically for PingOne Admin / Management operations.
+									<strong>Do not confuse Worker tokens with client_credentials tokens.</strong>{' '}
+									Worker tokens are specifically for PingOne Admin / Management operations.
 								</ConceptItem>
 								<ConceptItem>
 									<strong>Use singular scopes for user management:</strong>{' '}
-									<ScopeExample>p1:read:user</ScopeExample>, <ScopeExample>p1:update:user</ScopeExample>
+									<ScopeExample>p1:read:user</ScopeExample>,{' '}
+									<ScopeExample>p1:update:user</ScopeExample>
 								</ConceptItem>
 								<ConceptItem>
-									<strong>In our app:</strong> Use a <strong>Worker token</strong> when teaching PingOne Admin flows
-									(e.g., create application, admin-level user management). Use a <strong>client_credentials token</strong>{' '}
-									for generic M2M OAuth demonstrations, typically against custom APIs.
+									<strong>In our app:</strong> Use a <strong>Worker token</strong> when teaching
+									PingOne Admin flows (e.g., create application, admin-level user management). Use a{' '}
+									<strong>client_credentials token</strong> for generic M2M OAuth demonstrations,
+									typically against custom APIs.
 								</ConceptItem>
 								<ConceptItem>
-									<strong>Treat Worker tokens as highly sensitive.</strong> They have powerful rights over the
-									environment and must only be used in secure backend contexts.
+									<strong>Treat Worker tokens as highly sensitive.</strong> They have powerful
+									rights over the environment and must only be used in secure backend contexts.
 								</ConceptItem>
 							</ConceptList>
 						</SectionContent>
@@ -447,9 +463,9 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 							<div>
 								<strong>You're Using Client Credentials Flow</strong>
 								<p style={{ margin: '8px 0 0 0' }}>
-									This is a <strong>standard OAuth machine-to-machine</strong> flow. It represents your application
-									calling APIs it's authorized to use. This is <strong>not</strong> a Worker token and should not be
-									used for PingOne Admin operations.
+									This is a <strong>standard OAuth machine-to-machine</strong> flow. It represents
+									your application calling APIs it's authorized to use. This is <strong>not</strong>{' '}
+									a Worker token and should not be used for PingOne Admin operations.
 								</p>
 							</div>
 						</InfoBox>
@@ -461,8 +477,9 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 							<div>
 								<strong>You're Using a Worker Token</strong>
 								<p style={{ margin: '8px 0 0 0' }}>
-									This is a <strong>PingOne Admin service account</strong> token. It has high privileges and should
-									only be used for PingOne Platform / Management API operations. Treat this token as highly sensitive.
+									This is a <strong>PingOne Admin service account</strong> token. It has high
+									privileges and should only be used for PingOne Platform / Management API
+									operations. Treat this token as highly sensitive.
 								</p>
 							</div>
 						</WarningBox>
@@ -472,4 +489,3 @@ export const WorkerTokenVsClientCredentialsEducationModalV8: React.FC<
 		</>
 	);
 };
-

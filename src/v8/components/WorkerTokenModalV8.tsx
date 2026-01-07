@@ -6,14 +6,8 @@
  * @since 2024-11-16
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiDownload, FiUpload } from 'react-icons/fi';
-import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
-import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
-import pingOneFetch from '@/utils/pingOneFetch';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import {
 	exportWorkerTokenCredentials,
@@ -21,6 +15,15 @@ import {
 	triggerFileImport,
 	type WorkerTokenCredentials,
 } from '@/services/credentialExportImportService';
+import { UnifiedTokenDisplayService } from '@/services/unifiedTokenDisplayService';
+import pingOneFetch from '@/utils/pingOneFetch';
+import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { WorkerTokenRequestModalV8 } from './WorkerTokenRequestModalV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-MODAL-V8]';
 
@@ -29,6 +32,7 @@ interface WorkerTokenModalV8Props {
 	onClose: () => void;
 	onTokenGenerated?: (token: string) => void;
 	environmentId?: string;
+	showTokenOnly?: boolean; // If true, show only token display, skip credential form
 }
 
 export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
@@ -36,6 +40,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	onClose,
 	onTokenGenerated,
 	environmentId: propEnvironmentId = '',
+	showTokenOnly = false,
 }) => {
 	const [environmentId, setEnvironmentId] = useState(propEnvironmentId);
 	const [clientId, setClientId] = useState('');
@@ -61,6 +66,32 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		resolvedBody: string;
 	} | null>(null);
 	const [saveCredentials, setSaveCredentials] = useState(true);
+	const [currentToken, setCurrentToken] = useState<string | null>(null);
+	const [showTokenDisplay, setShowTokenDisplay] = useState(false);
+
+	// Check if we should display current token when modal opens
+	useEffect(() => {
+		if (isOpen) {
+			const checkToken = async () => {
+				const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				if (tokenStatus.isValid || showTokenOnly) {
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					if (config.workerToken.showTokenAtEnd || showTokenOnly) {
+						const token = await workerTokenServiceV8.getToken();
+						if (token) {
+							setCurrentToken(token);
+							setShowTokenDisplay(true);
+						}
+					}
+				}
+			};
+			void checkToken();
+		} else {
+			// Reset when modal closes
+			setCurrentToken(null);
+			setShowTokenDisplay(false);
+		}
+	}, [isOpen, showTokenOnly]);
 
 	// Lock body scroll when modal is open
 	React.useEffect(() => {
@@ -91,25 +122,43 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	// Load saved credentials on mount
 	React.useEffect(() => {
 		if (isOpen) {
-			const saved = localStorage.getItem('worker_credentials_v8');
-			if (saved) {
-				try {
-					const parsed = JSON.parse(saved);
-					setEnvironmentId(parsed.environmentId || propEnvironmentId);
-					setClientId(parsed.clientId || '');
-					setClientSecret(parsed.clientSecret || '');
+			// Load from workerTokenServiceV8 (the correct storage location)
+			workerTokenServiceV8.loadCredentials().then((creds) => {
+				if (creds) {
+					setEnvironmentId(creds.environmentId || propEnvironmentId);
+					setClientId(creds.clientId || '');
+					setClientSecret(creds.clientSecret || '');
 					setScopeInput(
-						Array.isArray(parsed.scopes) && parsed.scopes.length
-							? parsed.scopes.join(' ')
-							: ''
+						Array.isArray(creds.scopes) && creds.scopes.length ? creds.scopes.join(' ') : ''
 					);
-					setRegion('us'); // Always default to 'us' (.com)
-					setCustomDomain(parsed.customDomain || '');
-					setAuthMethod(parsed.authMethod || 'client_secret_basic');
-				} catch (e) {
-					console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+					setRegion(creds.region || 'us');
+					setCustomDomain(creds.customDomain || '');
+					setAuthMethod(creds.tokenEndpointAuthMethod || 'client_secret_basic');
+					console.log(`${MODULE_TAG} Loaded credentials from workerTokenServiceV8`);
+				} else {
+					// Fallback to old storage location for backwards compatibility
+					const saved = localStorage.getItem('worker_credentials_v8');
+					if (saved) {
+						try {
+							const parsed = JSON.parse(saved);
+							setEnvironmentId(parsed.environmentId || propEnvironmentId);
+							setClientId(parsed.clientId || '');
+							setClientSecret(parsed.clientSecret || '');
+							setScopeInput(
+								Array.isArray(parsed.scopes) && parsed.scopes.length ? parsed.scopes.join(' ') : ''
+							);
+							setRegion('us'); // Always default to 'us' (.com)
+							setCustomDomain(parsed.customDomain || '');
+							setAuthMethod(parsed.authMethod || 'client_secret_basic');
+							console.log(`${MODULE_TAG} Loaded credentials from legacy storage location`);
+						} catch (e) {
+							console.error(`${MODULE_TAG} Failed to load saved credentials`, e);
+						}
+					}
 				}
-			}
+			}).catch((error) => {
+				console.error(`${MODULE_TAG} Failed to load credentials from workerTokenServiceV8:`, error);
+			});
 		}
 	}, [isOpen, propEnvironmentId]);
 
@@ -138,31 +187,38 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 		setScopeInput(normalizedScopes.join(' '));
 
 		// Save credentials if checkbox is checked
+		// Use workerTokenServiceV8 to ensure credentials are saved to the correct location
+		// that silent API retrieval can find them
 		if (saveCredentials) {
-			const credsToSave = {
-				environmentId: environmentId.trim(),
-				clientId: clientId.trim(),
-				clientSecret: clientSecret.trim(),
-				scopes: normalizedScopes,
-				region,
-				customDomain: customDomain.trim() || undefined,
-				authMethod,
-			};
-			localStorage.setItem('worker_credentials_v8', JSON.stringify(credsToSave));
+			try {
+				await workerTokenServiceV8.saveCredentials({
+					environmentId: environmentId.trim(),
+					clientId: clientId.trim(),
+					clientSecret: clientSecret.trim(),
+					scopes: normalizedScopes,
+					region,
+					customDomain: customDomain.trim() || undefined,
+					tokenEndpointAuthMethod: authMethod,
+				});
+				console.log(`${MODULE_TAG} Credentials saved to workerTokenServiceV8 (checkbox was checked)`);
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to save credentials:`, error);
+				toastV8.error('Failed to save credentials. They will still be used for this token generation.');
+			}
 		}
 
 		// Build token endpoint - use custom domain if provided, otherwise use region-based domain
-		const domain = customDomain.trim() 
+		const domain = customDomain.trim()
 			? customDomain.trim()
 			: (() => {
-				const regionDomains = {
-					us: 'auth.pingone.com',
-					eu: 'auth.pingone.eu',
-					ap: 'auth.pingone.asia',
-					ca: 'auth.pingone.ca',
-				};
-				return regionDomains[region];
-			})();
+					const regionDomains = {
+						us: 'auth.pingone.com',
+						eu: 'auth.pingone.eu',
+						ap: 'auth.pingone.asia',
+						ca: 'auth.pingone.ca',
+					};
+					return regionDomains[region];
+				})();
 		const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
 		const params = new URLSearchParams({
@@ -418,19 +474,139 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 				{/* Content */}
 				<div style={{ padding: '24px' }}>
-					{/* Info Box */}
-					<div
-						style={{
-							padding: '12px',
-							background: '#dbeafe',
-							borderRadius: '6px',
-							border: '1px solid #93c5fd',
-							marginBottom: '16px',
-							fontSize: '13px',
-							color: '#1e40af',
-							lineHeight: '1.5',
-						}}
-					>
+					{/* Token Only Mode - Show only token display, skip credential form */}
+					{showTokenOnly ? (
+						<div>
+							{currentToken ? (
+								<div
+									style={{
+										padding: '16px',
+										background: '#d1fae5',
+										borderRadius: '6px',
+										border: '1px solid #10b981',
+										marginBottom: '20px',
+									}}
+								>
+									<div
+										style={{
+											marginBottom: '12px',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#065f46',
+										}}
+									>
+										✅ Worker Token
+									</div>
+									<div style={{ marginBottom: '16px' }}>
+										{UnifiedTokenDisplayService.showTokens(
+											{ access_token: currentToken },
+											'oauth',
+											'worker-token-current-v8',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
+									</div>
+									<button
+										type="button"
+										onClick={onClose}
+										style={{
+											padding: '10px 20px',
+											background: '#10b981',
+											color: 'white',
+											border: 'none',
+											borderRadius: '4px',
+											fontSize: '14px',
+											fontWeight: '600',
+											cursor: 'pointer',
+											width: '100%',
+										}}
+									>
+										Close
+									</button>
+								</div>
+							) : (
+								<div
+									style={{
+										padding: '16px',
+										textAlign: 'center',
+										color: '#6b7280',
+									}}
+								>
+									Loading token...
+								</div>
+							)}
+						</div>
+					) : (
+						<>
+							{/* Current Token Display (when not in token-only mode) */}
+							{showTokenDisplay && currentToken && (
+								<div
+									style={{
+										padding: '16px',
+										background: '#d1fae5',
+										borderRadius: '6px',
+										border: '1px solid #10b981',
+										marginBottom: '20px',
+									}}
+								>
+									<div
+										style={{
+											marginBottom: '12px',
+											fontSize: '14px',
+											fontWeight: '600',
+											color: '#065f46',
+										}}
+									>
+										✅ Current Worker Token
+									</div>
+									<div style={{ marginBottom: '12px' }}>
+										{UnifiedTokenDisplayService.showTokens(
+											{ access_token: currentToken },
+											'oauth',
+											'worker-token-current-v8',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
+									</div>
+									<button
+										type="button"
+										onClick={() => setShowTokenDisplay(false)}
+										style={{
+											padding: '6px 12px',
+											background: '#10b981',
+											color: 'white',
+											border: 'none',
+											borderRadius: '4px',
+											fontSize: '12px',
+											fontWeight: '600',
+											cursor: 'pointer',
+										}}
+									>
+										Hide Token
+									</button>
+								</div>
+							)}
+
+							{/* Info Box and Form - Only show if not in token-only mode */}
+							{!showTokenOnly && (
+								<>
+							{/* Info Box */}
+							<div
+								style={{
+									padding: '12px',
+									background: '#dbeafe',
+									borderRadius: '6px',
+									border: '1px solid #93c5fd',
+									marginBottom: '16px',
+									fontSize: '13px',
+									color: '#1e40af',
+									lineHeight: '1.5',
+								}}
+							>
 						<div style={{ marginBottom: '8px' }}>
 							<strong>ℹ️ What is a Worker Token?</strong>
 						</div>
@@ -461,7 +637,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								const config = MFAConfigurationServiceV8.loadConfiguration();
 								const autoRenewal = config.workerToken.autoRenewal;
 								const renewalThreshold = config.workerToken.renewalThreshold;
-								
+
 								return (
 									<div
 										style={{
@@ -481,7 +657,8 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											</>
 										) : (
 											<>
-												<strong>Disabled</strong> - You will need to manually generate new tokens when they expire.
+												<strong>Disabled</strong> - You will need to manually generate new tokens
+												when they expire.
 											</>
 										)}{' '}
 										<a
@@ -545,16 +722,16 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							<li>Create or select a Worker application</li>
 							<li>Copy the Environment ID, Client ID, and Client Secret</li>
 							<li>Ensure the app has required roles assigned</li>
-								<li>
-									Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If you see
-									“client authentication failed”, try switching between <em>Client Secret Post</em>{' '}
-									and <em>Client Secret Basic</em>.
-								</li>
+							<li>
+								Set <strong>Token Endpoint Auth Method</strong> to match your Worker app. If you see
+								“client authentication failed”, try switching between <em>Client Secret Post</em>{' '}
+								and <em>Client Secret Basic</em>.
+							</li>
 						</ol>
 					</div>
 
-					{/* Form Fields */}
-					<form
+						{/* Form Fields */}
+						<form
 						onSubmit={(e) => {
 							e.preventDefault();
 							handleGenerate();
@@ -703,7 +880,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 									resize: 'vertical',
 								}}
 							/>
-							<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
+							<small
+								style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}
+							>
 								Space-separated list. Leave empty for default scopes.
 							</small>
 						</div>
@@ -769,8 +948,11 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 									fontSize: '14px',
 								}}
 							/>
-							<small style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}>
-								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the region-based domain. Leave empty to use the default region domain.
+							<small
+								style={{ display: 'block', marginTop: '4px', color: '#6b7280', fontSize: '12px' }}
+							>
+								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the
+								region-based domain. Leave empty to use the default region domain.
 							</small>
 						</div>
 
@@ -811,10 +993,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							<div style={{ marginTop: '6px', fontSize: '12px', color: '#6b7280' }}>
 								{AuthMethodServiceV8.getMethodConfig(authMethod).description}
 							</div>
-						</div>
-					</form>
+							</div>
+						</form>
 
-					{/* Save Credentials Checkbox */}
+						{/* Save Credentials Checkbox */}
 					<div
 						style={{
 							marginTop: '16px',
@@ -870,17 +1052,25 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 											environmentId: environmentId.trim(),
 											clientId: clientId.trim(),
 											clientSecret: clientSecret.trim(),
-											scopes: normalizedScopes.length > 0 ? normalizedScopes : [PINGONE_WORKER_MFA_SCOPE_STRING],
+											scopes:
+												normalizedScopes.length > 0
+													? normalizedScopes
+													: [PINGONE_WORKER_MFA_SCOPE_STRING],
 											region,
 											customDomain: customDomain.trim() || undefined,
-											authMethod: (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') ? authMethod : 'client_secret_basic',
+											authMethod:
+												authMethod === 'client_secret_basic' || authMethod === 'client_secret_post'
+													? authMethod
+													: 'client_secret_basic',
 										};
 
 										exportWorkerTokenCredentials(credentials);
 										toastV8.success('Worker token credentials exported successfully!');
 									} catch (error) {
 										console.error(`${MODULE_TAG} Export error:`, error);
-										toastV8.error(error instanceof Error ? error.message : 'Failed to export credentials');
+										toastV8.error(
+											error instanceof Error ? error.message : 'Failed to export credentials'
+										);
 									}
 								}}
 								disabled={isGenerating}
@@ -924,17 +1114,25 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 												);
 												setRegion('us'); // Always default to 'us' (.com)
 												setCustomDomain(wt.customDomain || '');
-												if (wt.authMethod && (wt.authMethod === 'client_secret_basic' || wt.authMethod === 'client_secret_post')) {
+												if (
+													wt.authMethod &&
+													(wt.authMethod === 'client_secret_basic' ||
+														wt.authMethod === 'client_secret_post')
+												) {
 													setAuthMethod(wt.authMethod);
 												}
 
 												toastV8.success('Worker token credentials imported successfully!');
 											} else {
-												toastV8.error('The selected file does not contain worker token credentials');
+												toastV8.error(
+													'The selected file does not contain worker token credentials'
+												);
 											}
 										} catch (error) {
 											console.error(`${MODULE_TAG} Import error:`, error);
-											toastV8.error(error instanceof Error ? error.message : 'Failed to import credentials');
+											toastV8.error(
+												error instanceof Error ? error.message : 'Failed to import credentials'
+											);
 										}
 									});
 								}}
@@ -1001,6 +1199,10 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 							</button>
 						</div>
 					</div>
+								</>
+							)}
+						</>
+					)}
 				</div>
 			</div>
 
@@ -1017,7 +1219,9 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 					isExecuting={isGenerating}
 					showTokenAtEnd={(() => {
 						try {
-							const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+							const {
+								MFAConfigurationServiceV8,
+							} = require('@/v8/services/mfaConfigurationServiceV8');
 							const config = MFAConfigurationServiceV8.loadConfiguration();
 							return config.workerToken.showTokenAtEnd;
 						} catch {

@@ -15,17 +15,22 @@
  * <MFAHubV8 />
  */
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { usePageScroll } from '@/hooks/usePageScroll';
-import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { oauthStorage } from '@/utils/storage';
-import { pingOneLogoutService } from '@/services/pingOneLogoutService';
-import { useAuth } from '@/contexts/NewAuthContext';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { FiTrash2 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/NewAuthContext';
+import { usePageScroll } from '@/hooks/usePageScroll';
+import { pingOneLogoutService } from '@/services/pingOneLogoutService';
+import { oauthStorage } from '@/utils/storage';
+import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
+import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import WorkerTokenStatusServiceV8 from '@/v8/services/workerTokenStatusServiceV8';
+import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface FeatureCard {
 	title: string;
@@ -36,17 +41,150 @@ interface FeatureCard {
 	features: string[];
 }
 
+// Lazy load WorkerTokenModalV8 to avoid circular dependencies
+const WorkerTokenModalV8 = lazy(() =>
+	import('@/v8/components/WorkerTokenModalV8').then((mod) => ({
+		default: mod.WorkerTokenModalV8,
+	}))
+);
+
+// Wrapper component for lazy-loaded modal
+const WorkerTokenModalWrapper: React.FC<{
+	isOpen: boolean;
+	onClose: () => void;
+	onTokenGenerated: () => void;
+}> = ({ isOpen, onClose, onTokenGenerated }) => (
+	<Suspense fallback={null}>
+		<WorkerTokenModalV8 isOpen={isOpen} onClose={onClose} onTokenGenerated={onTokenGenerated} />
+	</Suspense>
+);
+
 export const MFAHubV8: React.FC = () => {
 	const navigate = useNavigate();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const authContext = useAuth();
+	
+	// Worker token state
+	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(true);
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Hub V8', force: true });
 
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
+
+	// Load configuration on mount
+	useEffect(() => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
+		setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+	}, []);
+
+		// Check worker token on mount and when token updates
+		useEffect(() => {
+			const checkToken = async () => {
+				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				setTokenStatus(currentStatus);
+
+				// If token is missing or expired, use helper to handle silent retrieval
+				// Pass Hub page checkbox values to override config (Hub page takes precedence)
+				if (!currentStatus.isValid) {
+					await handleShowWorkerTokenModal(
+						setShowWorkerTokenModal, 
+						setTokenStatus,
+						silentApiRetrieval,  // Hub page checkbox value takes precedence
+						showTokenAtEnd       // Hub page checkbox value takes precedence
+					);
+				}
+			};
+
+			checkToken();
+
+		// Listen for token updates
+		const handleTokenUpdate = () => {
+			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(newStatus);
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+	}, [silentApiRetrieval, showTokenAtEnd]); // Re-run when checkboxes change to trigger silent retrieval
+
+	// Listen for configuration updates
+	useEffect(() => {
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			if (customEvent.detail?.workerToken) {
+				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
+					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
+				}
+				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
+					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
+				}
+			}
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+		return () => window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+	}, []);
+
+	// Update configuration when checkboxes change
+	// Make checkboxes consistent: if Silent is ON, Show Token must be OFF (and vice versa)
+	const handleSilentApiRetrievalChange = async (value: boolean) => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		config.workerToken.silentApiRetrieval = value;
+		// If Silent is ON, Show Token must be OFF (silent means no modals)
+		if (value) {
+			config.workerToken.showTokenAtEnd = false;
+			setShowTokenAtEnd(false);
+		}
+		MFAConfigurationServiceV8.saveConfiguration(config);
+		setSilentApiRetrieval(value);
+		// Dispatch event to notify other components
+		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+		toastV8.info(`Silent API Token Retrieval set to: ${value}${value ? ' (Show Token disabled)' : ''}`);
+		
+		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+		if (value) {
+			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			if (!currentStatus.isValid) {
+				console.log('[MFA-HUB-V8] Silent API retrieval enabled, attempting to fetch token now...');
+				await handleShowWorkerTokenModal(
+					setShowWorkerTokenModal,
+					setTokenStatus,
+					value,  // Use new value
+					showTokenAtEnd,
+					false   // Not forced - respect silent setting
+				);
+			}
+		}
+	};
+
+	const handleShowTokenAtEndChange = (value: boolean) => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		config.workerToken.showTokenAtEnd = value;
+		// If Show Token is ON, Silent must be OFF (showing token means not silent)
+		if (value) {
+			config.workerToken.silentApiRetrieval = false;
+			setSilentApiRetrieval(false);
+		}
+		MFAConfigurationServiceV8.saveConfiguration(config);
+		setShowTokenAtEnd(value);
+		// Dispatch event to notify other components
+		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+		toastV8.info(`Show Token After Generation set to: ${value}${value ? ' (Silent API disabled)' : ''}`);
+	};
+
 	// Clear all tokens (worker and user tokens) and end PingOne session
 	const handleClearTokens = async () => {
-		if (!confirm('Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.')) {
+		if (
+			!confirm(
+				'Are you sure you want to clear all tokens and end your PingOne session? This will clear both worker tokens and user tokens, and log you out of PingOne.'
+			)
+		) {
 			return;
 		}
 
@@ -55,7 +193,7 @@ export const MFAHubV8: React.FC = () => {
 			// End PingOne session first (if we have an ID token)
 			const tokens = oauthStorage.getTokens();
 			const idToken = tokens?.id_token || authContext.tokens?.id_token;
-			
+
 			// Try to get environment ID from various sources
 			let environmentId: string | undefined;
 			if (authContext.config?.pingone?.environmentId) {
@@ -79,7 +217,7 @@ export const MFAHubV8: React.FC = () => {
 					// Ignore
 				}
 			}
-			
+
 			if (idToken && environmentId) {
 				try {
 					const logoutResult = await pingOneLogoutService.logout({
@@ -89,7 +227,7 @@ export const MFAHubV8: React.FC = () => {
 						openIn: 'new-tab',
 						clearClientStorage: false, // We'll clear storage ourselves below
 					});
-					
+
 					if (logoutResult.success) {
 						console.log('[MFA-HUB-V8] PingOne session logout initiated:', logoutResult.message);
 						toastV8.info('PingOne session logout initiated in a new tab');
@@ -138,7 +276,7 @@ export const MFAHubV8: React.FC = () => {
 					includeLogoutUri: false,
 					includeScopes: false,
 				});
-				
+
 				if (credentials.userToken) {
 					CredentialsServiceV8.saveCredentials(mfaFlowKey, {
 						...credentials,
@@ -162,7 +300,7 @@ export const MFAHubV8: React.FC = () => {
 					includeLogoutUri: false,
 					includeScopes: true,
 				});
-				
+
 				if (userLoginCreds.userToken) {
 					CredentialsServiceV8.saveCredentials(userLoginFlowKey, {
 						...userLoginCreds,
@@ -258,12 +396,19 @@ export const MFAHubV8: React.FC = () => {
 
 			<div className="hub-container">
 				<div className="welcome-section">
-					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'flex-start',
+							marginBottom: '16px',
+						}}
+					>
 						<div style={{ flex: 1 }}>
 							<h2>Welcome to MFA Management</h2>
 							<p>
-								Manage multi-factor authentication devices, view reports, and configure MFA policies for
-								your PingOne environment.
+								Manage multi-factor authentication devices, view reports, and configure MFA policies
+								for your PingOne environment.
 							</p>
 						</div>
 						<button
@@ -303,6 +448,175 @@ export const MFAHubV8: React.FC = () => {
 							<FiTrash2 size={16} />
 							{isClearingTokens ? 'Clearing...' : 'Clear Tokens'}
 						</button>
+					</div>
+
+					{/* Worker Token Status Section - ALWAYS VISIBLE */}
+					<div
+						style={{
+							marginTop: '24px',
+							padding: '24px',
+							background: '#ffffff',
+							borderRadius: '12px',
+							border: '2px solid #e5e7eb',
+							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '24px',
+								flexWrap: 'wrap',
+							}}
+						>
+							{/* Gauge */}
+							<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+								<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={120} />
+								<div
+									style={{
+										marginTop: '8px',
+										fontSize: '12px',
+										color: '#6b7280',
+										textAlign: 'center',
+										maxWidth: '120px',
+									}}
+								>
+									{tokenStatus.message}
+								</div>
+							</div>
+
+							{/* Settings and Controls */}
+							<div style={{ flex: 1, minWidth: '300px' }}>
+								<h3
+									style={{
+										fontSize: '18px',
+										fontWeight: '700',
+										margin: '0 0 20px 0',
+										color: '#1f2937',
+										borderBottom: '2px solid #e5e7eb',
+										paddingBottom: '12px',
+									}}
+								>
+									⚙️ Worker Token Settings
+								</h3>
+
+								{/* Checkboxes */}
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+									<label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+											cursor: 'pointer',
+											userSelect: 'none',
+											padding: '8px',
+											borderRadius: '6px',
+											transition: 'background-color 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.backgroundColor = '#f3f4f6';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.backgroundColor = 'transparent';
+										}}
+									>
+										<input
+											type="checkbox"
+											checked={silentApiRetrieval}
+											onChange={(e) => handleSilentApiRetrievalChange(e.target.checked)}
+											style={{
+												width: '20px',
+												height: '20px',
+												cursor: 'pointer',
+												accentColor: '#6366f1',
+												flexShrink: 0,
+											}}
+										/>
+										<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+											<span style={{ fontSize: '15px', color: '#374151', fontWeight: '500' }}>
+												Silent worker token API calls
+											</span>
+											<span style={{ fontSize: '12px', color: '#6b7280' }}>
+												Automatically fetch worker token in the background without showing modals
+											</span>
+										</div>
+									</label>
+
+									<label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '12px',
+											cursor: 'pointer',
+											userSelect: 'none',
+											padding: '8px',
+											borderRadius: '6px',
+											transition: 'background-color 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.backgroundColor = '#f3f4f6';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.backgroundColor = 'transparent';
+										}}
+									>
+										<input
+											type="checkbox"
+											checked={showTokenAtEnd}
+											onChange={(e) => handleShowTokenAtEndChange(e.target.checked)}
+											style={{
+												width: '20px',
+												height: '20px',
+												cursor: 'pointer',
+												accentColor: '#6366f1',
+												flexShrink: 0,
+											}}
+										/>
+										<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+											<span style={{ fontSize: '15px', color: '#374151', fontWeight: '500' }}>
+												Show worker token
+											</span>
+											<span style={{ fontSize: '12px', color: '#6b7280' }}>
+												Display the generated worker token in a modal after successful retrieval
+											</span>
+										</div>
+									</label>
+								</div>
+
+								{/* Refresh Button */}
+								<button
+									type="button"
+									onClick={async () => {
+										// Pass Hub page checkbox values to override config (Hub page takes precedence)
+										// forceShowModal=true because user explicitly clicked the button - always show modal
+										await handleShowWorkerTokenModal(
+											setShowWorkerTokenModal, 
+											setTokenStatus,
+											silentApiRetrieval,  // Hub page checkbox value takes precedence
+											showTokenAtEnd,      // Hub page checkbox value takes precedence
+											true                  // Force show modal - user clicked button
+										);
+									}}
+									style={{
+										marginTop: '16px',
+										padding: '8px 16px',
+										background: tokenStatus.isValid ? '#10b981' : '#6366f1',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										fontSize: '13px',
+										fontWeight: '600',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+									}}
+								>
+									<span>🔑</span>
+									<span>Get Worker Token</span>
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 
@@ -377,7 +691,8 @@ export const MFAHubV8: React.FC = () => {
 					background: #f8f9fa;
 					min-height: 100vh;
 					overflow-y: auto;
-					padding-bottom: 40px;
+					padding-bottom: ${paddingBottom !== '0' ? paddingBottom : '40px'};
+					transition: padding-bottom 0.3s ease;
 				}
 
 				.hub-container {
@@ -558,6 +873,22 @@ export const MFAHubV8: React.FC = () => {
 					}
 				}
 			`}</style>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalWrapper
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+					}}
+					onTokenGenerated={() => {
+						const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(newStatus);
+					}}
+				/>
+			)}
 		</div>
 	);
 };

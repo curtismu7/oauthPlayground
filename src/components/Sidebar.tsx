@@ -556,7 +556,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
+						badge: (
+							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
+								NEW
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'delete-all-devices-utility-v8',
@@ -567,7 +571,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiTrash2 />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">UTILITY</MigrationBadge>,
+						badge: (
+							<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
+								UTILITY
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'mfa-one-time-devices-v8',
@@ -578,7 +586,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								<FiZap />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="Phase 2: One-time MFA where app controls device info">EXPERIMENTAL</MigrationBadge>,
+						badge: (
+							<MigrationBadge title="Phase 2: One-time MFA where app controls device info">
+								EXPERIMENTAL
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'email-mfa-signon-v8',
@@ -590,9 +602,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</ColoredIcon>
 						),
 						badge: (
-							<MigrationBadge title="V8: Email-based MFA sign-on experience">
-								NEW
-							</MigrationBadge>
+							<MigrationBadge title="V8: Email-based MFA sign-on experience">NEW</MigrationBadge>
 						),
 					},
 					{
@@ -1064,84 +1074,84 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 	// Handle drag and drop
 	// const _handleDragEnd = (result: DropResult) => {
-			// 	const { destination, source, type } = result;
-			//
-			// 	// If dropped outside a valid drop zone
-			// 	if (!destination) {
-			// 		return;
-			// 	}
-			//
-			// 	// If dropped in the same position
-			// 	if (destination.droppableId === source.droppableId && destination.index === source.index) {
-			// 		return;
-			// 	}
-			//
-			// 	if (type === 'group') {
-			// 		// Reordering groups
-			// 		const newGroups = Array.from(menuGroups);
-			// 		const [reorderedGroup] = newGroups.splice(source.index, 1);
-			// 		newGroups.splice(destination.index, 0, reorderedGroup);
-			//
-			// 		setMenuGroups(newGroups);
-			// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
-			//
-			// 		v4ToastManager.showSuccess('Menu section reordered successfully!');
-			// 	} else {
-			// 		// Moving items between groups
-			// 		const sourceGroupIndex = menuGroups.findIndex((group) => group.id === source.droppableId);
-			// 		const destGroupIndex = menuGroups.findIndex((group) => group.id === destination.droppableId);
-			//
-			// 		if (sourceGroupIndex === -1 || destGroupIndex === -1) {
-			// 			return;
-			// 		}
-			//
-			// 		const newGroups = Array.from(menuGroups);
-			// 		const sourceGroup = { ...newGroups[sourceGroupIndex] };
-			// 		const destGroup = { ...newGroups[destGroupIndex] };
-			//
-			// 		// Remove item from source group
-			// 		const [movedItem] = sourceGroup.items.splice(source.index, 1);
-			//
-			// 		// Add item to destination group
-			// 		destGroup.items.splice(destination.index, 0, movedItem);
-			//
-			// 		// Update the groups
-			// 		newGroups[sourceGroupIndex] = sourceGroup;
-			// 		newGroups[destGroupIndex] = destGroup;
-			//
-			// 		setMenuGroups(newGroups);
-			// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
-			//
-			// 		v4ToastManager.showSuccess(
-			// 			`Moved "${movedItem.label}" to ${destGroup.label}`,
-			// 			{},
-			// 			{ duration: 3000 }
-			// 		);
-			// 	}
-			// };
+	// 	const { destination, source, type } = result;
+	//
+	// 	// If dropped outside a valid drop zone
+	// 	if (!destination) {
+	// 		return;
+	// 	}
+	//
+	// 	// If dropped in the same position
+	// 	if (destination.droppableId === source.droppableId && destination.index === source.index) {
+	// 		return;
+	// 	}
+	//
+	// 	if (type === 'group') {
+	// 		// Reordering groups
+	// 		const newGroups = Array.from(menuGroups);
+	// 		const [reorderedGroup] = newGroups.splice(source.index, 1);
+	// 		newGroups.splice(destination.index, 0, reorderedGroup);
+	//
+	// 		setMenuGroups(newGroups);
+	// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+	//
+	// 		v4ToastManager.showSuccess('Menu section reordered successfully!');
+	// 	} else {
+	// 		// Moving items between groups
+	// 		const sourceGroupIndex = menuGroups.findIndex((group) => group.id === source.droppableId);
+	// 		const destGroupIndex = menuGroups.findIndex((group) => group.id === destination.droppableId);
+	//
+	// 		if (sourceGroupIndex === -1 || destGroupIndex === -1) {
+	// 			return;
+	// 		}
+	//
+	// 		const newGroups = Array.from(menuGroups);
+	// 		const sourceGroup = { ...newGroups[sourceGroupIndex] };
+	// 		const destGroup = { ...newGroups[destGroupIndex] };
+	//
+	// 		// Remove item from source group
+	// 		const [movedItem] = sourceGroup.items.splice(source.index, 1);
+	//
+	// 		// Add item to destination group
+	// 		destGroup.items.splice(destination.index, 0, movedItem);
+	//
+	// 		// Update the groups
+	// 		newGroups[sourceGroupIndex] = sourceGroup;
+	// 		newGroups[destGroupIndex] = destGroup;
+	//
+	// 		setMenuGroups(newGroups);
+	// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+	//
+	// 		v4ToastManager.showSuccess(
+	// 			`Moved "${movedItem.label}" to ${destGroup.label}`,
+	// 			{},
+	// 			{ duration: 3000 }
+	// 		);
+	// 	}
+	// };
 
-			// Update group open state
-			// const _toggleMenuGroup = (groupId: string) => {
-			// 	setMenuGroups((prevGroups) => {
-			// 		const newGroups = prevGroups.map((group) =>
-			// 			group.id === groupId ? { ...group, isOpen: !group.isOpen } : group
-			// 		);
-			//
-			// 		// Update the openMenus state for persistence
-			// 		const newOpenState = newGroups.reduce(
-			// 			(acc, group) => {
-			// 				acc[group.label] = group.isOpen;
-			// 				return acc;
-			// 			},
-			// 			{} as Record<string, boolean>
-			// 		);
-			//
-			// 		setOpenMenus(newOpenState);
-			// 		localStorage.setItem('nav.openSections', JSON.stringify(newOpenState));
-			//
-			// 		return newGroups;
-			// 	});
-			// };
+	// Update group open state
+	// const _toggleMenuGroup = (groupId: string) => {
+	// 	setMenuGroups((prevGroups) => {
+	// 		const newGroups = prevGroups.map((group) =>
+	// 			group.id === groupId ? { ...group, isOpen: !group.isOpen } : group
+	// 		);
+	//
+	// 		// Update the openMenus state for persistence
+	// 		const newOpenState = newGroups.reduce(
+	// 			(acc, group) => {
+	// 				acc[group.label] = group.isOpen;
+	// 				return acc;
+	// 			},
+	// 			{} as Record<string, boolean>
+	// 		);
+	//
+	// 		setOpenMenus(newOpenState);
+	// 		localStorage.setItem('nav.openSections', JSON.stringify(newOpenState));
+	//
+	// 		return newGroups;
+	// 	});
+	// };
 	// 	if (!destination) {
 	// 		return;
 	// 	}
@@ -1223,7 +1233,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		const saved = localStorage.getItem('sidebar.dragDropMode');
 		return saved === 'true';
 	});
-
 
 	// Function to reset drag mode (for debugging)
 	// const _resetDragMode = () => {
