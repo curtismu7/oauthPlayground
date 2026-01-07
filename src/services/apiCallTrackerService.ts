@@ -90,24 +90,7 @@ class ApiCallTrackerService {
 	 * Get all API calls
 	 */
 	getApiCalls(): ApiCall[] {
-		// #region agent log - Debug API calls retrieval
-		const callsWithHeaders = this.apiCalls.filter(
-			(call) => call.headers && Object.keys(call.headers).length > 0
-		);
-		if (callsWithHeaders.length > 0) {
-			console.log('[ApiCallTrackerService] getApiCalls - Calls with headers:', {
-				totalCalls: this.apiCalls.length,
-				callsWithHeaders: callsWithHeaders.length,
-				callsWithHeadersDetails: callsWithHeaders.map((call) => ({
-					id: call.id,
-					url: call.url,
-					method: call.method,
-					headersKeys: Object.keys(call.headers!),
-					headers: call.headers,
-				})),
-			});
-		}
-		// #endregion
+		// Removed verbose logging - was causing console spam
 		return [...this.apiCalls];
 	}
 

@@ -59,7 +59,12 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 
 			try {
 				const currentOffset = reset ? 0 : offset;
-				const result = await MFAServiceV8.listUsers(environmentId, search || undefined, 10, currentOffset);
+				const result = await MFAServiceV8.listUsers(
+					environmentId,
+					search || undefined,
+					10,
+					currentOffset
+				);
 
 				if (reset) {
 					setUsers(result.users);
@@ -362,13 +367,9 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 											}
 										}}
 									>
-										<span style={{ fontWeight: '500', color: '#111827' }}>
-											{user.username}
-										</span>
+										<span style={{ fontWeight: '500', color: '#111827' }}>{user.username}</span>
 										{user.email && (
-											<span style={{ fontSize: '12px', color: '#6b7280' }}>
-												{user.email}
-											</span>
+											<span style={{ fontSize: '12px', color: '#6b7280' }}>{user.email}</span>
 										)}
 									</button>
 								))}
@@ -411,4 +412,3 @@ export const UserSearchDropdownV8: React.FC<UserSearchDropdownV8Props> = ({
 		</div>
 	);
 };
-

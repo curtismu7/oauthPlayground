@@ -113,8 +113,10 @@ export class EmailMFASignOnFlowServiceV8 {
 	 * Step 1: Create Application
 	 * POST /environments/{envID}/applications
 	 */
-	static async createApplication(params: CreateApplicationParams): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+	static async createApplication(
+		params: CreateApplicationParams
+	): Promise<Record<string, unknown>> {
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/applications`;
@@ -130,16 +132,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-application', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-application',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -195,7 +200,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	 * GET /environments/{envID}/resources
 	 */
 	static async getResources(environmentId: string): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/resources`;
@@ -209,7 +214,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch(
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
 				`/api/pingone/email-mfa-signon/get-resources?environmentId=${environmentId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
@@ -267,7 +272,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		environmentId: string,
 		resourceId: string
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/resources/${resourceId}/scopes`;
@@ -281,7 +286,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch(
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
 				`/api/pingone/email-mfa-signon/get-resource-scopes?environmentId=${environmentId}&resourceId=${resourceId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
@@ -341,7 +346,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		resourceId: string,
 		scopes?: string[]
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications/${applicationId}/grants`;
@@ -355,19 +360,22 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-resource-grant', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					applicationId,
-					resourceId,
-					scopes: scopes || [],
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-resource-grant',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						applicationId,
+						resourceId,
+						scopes: scopes || [],
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -416,7 +424,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	static async createSignOnPolicy(
 		params: CreateSignOnPolicyParams
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/signOnPolicies`;
@@ -430,16 +438,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-signon-policy', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-signon-policy',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -488,7 +499,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	static async createEmailMFAAction(
 		params: CreateEmailMFAActionParams
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/signOnPolicies/${params.signOnPolicyId}/actions`;
@@ -502,16 +513,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-email-mfa-action', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-email-mfa-action',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -562,7 +576,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		applicationId: string,
 		signOnPolicyId: string
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications/${applicationId}/signOnPolicyAssignments`;
@@ -576,18 +590,21 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/assign-signon-policy', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					applicationId,
-					signOnPolicyId,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/assign-signon-policy',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						applicationId,
+						signOnPolicyId,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -638,7 +655,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		name: string,
 		description?: string
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/populations`;
@@ -652,18 +669,21 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-population', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					name,
-					description,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-population',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						name,
+						description,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -710,7 +730,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	 * POST /environments/{envID}/users
 	 */
 	static async createUser(params: CreateUserParams): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/users`;
@@ -724,16 +744,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-user', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-user',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -785,7 +808,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		password: string,
 		forceChange?: boolean
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
@@ -799,19 +822,22 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/set-user-password', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					userId,
-					password,
-					forceChange: forceChange || false,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/set-user-password',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						userId,
+						password,
+						forceChange: forceChange || false,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -861,7 +887,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		environmentId: string,
 		userId: string
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/mfaEnabled`;
@@ -875,17 +901,20 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/enable-mfa', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					userId,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/enable-mfa',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						userId,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -934,7 +963,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	static async createDeviceAuthPolicy(
 		params: CreateDeviceAuthPolicyParams
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/deviceAuthenticationPolicies`;
@@ -948,16 +977,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/create-device-auth-policy', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/create-device-auth-policy',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1006,7 +1038,7 @@ export class EmailMFASignOnFlowServiceV8 {
 	static async registerEmailDevice(
 		params: RegisterEmailDeviceParams
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${params.userId}/devices`;
@@ -1020,16 +1052,19 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/register-email-device', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...params,
-					workerToken,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/register-email-device',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						...params,
+						workerToken,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1098,22 +1133,25 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/initiate-authorization', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					clientId,
-					redirectUri,
-					responseType,
-					scope,
-					state,
-					codeChallenge,
-					codeChallengeMethod,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/initiate-authorization',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						clientId,
+						redirectUri,
+						responseType,
+						scope,
+						state,
+						codeChallenge,
+						codeChallengeMethod,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1177,17 +1215,20 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/get-flow-status', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					flowId,
-					cookies: cookies || [],
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/get-flow-status',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						flowId,
+						cookies: cookies || [],
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1237,11 +1278,12 @@ export class EmailMFASignOnFlowServiceV8 {
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://auth.pingone.com/${params.environmentId}/flows/${params.flowId}`;
-		const stepName = params.action === 'usernamePassword.check' 
-			? 'Step 5: Complete User Lookup'
-			: params.action === 'otp.check'
-			? 'Step 5: Complete OTP Validation'
-			: `Step 5: Complete Flow Action (${params.action})`;
+		const stepName =
+			params.action === 'usernamePassword.check'
+				? 'Step 5: Complete User Lookup'
+				: params.action === 'otp.check'
+					? 'Step 5: Complete OTP Validation'
+					: `Step 5: Complete Flow Action (${params.action})`;
 
 		const callId = apiCallTrackerService.trackApiCall({
 			method: 'POST',
@@ -1252,13 +1294,16 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/complete-flow-action', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(params),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/complete-flow-action',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(params),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1318,13 +1363,16 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/resume-flow', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(params),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/resume-flow',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(params),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1374,7 +1422,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		environmentId: string,
 		applicationId: string
 	): Promise<Record<string, unknown>> {
-		const workerToken = await this.getWorkerToken();
+		const workerToken = await EmailMFASignOnFlowServiceV8.getWorkerToken();
 		const startTime = Date.now();
 
 		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications/${applicationId}/secret`;
@@ -1388,7 +1436,7 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch(
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
 				`/api/pingone/email-mfa-signon/get-application-secret?environmentId=${environmentId}&applicationId=${applicationId}&workerToken=${encodeURIComponent(workerToken)}`,
 				{
 					method: 'GET',
@@ -1463,20 +1511,23 @@ export class EmailMFASignOnFlowServiceV8 {
 		});
 
 		try {
-			const response = await this.pingOneFetch('/api/pingone/email-mfa-signon/exchange-code-for-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId,
-					code,
-					clientId,
-					clientSecret,
-					redirectUri,
-					codeVerifier,
-				}),
-			});
+			const response = await EmailMFASignOnFlowServiceV8.pingOneFetch(
+				'/api/pingone/email-mfa-signon/exchange-code-for-token',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId,
+						code,
+						clientId,
+						clientSecret,
+						redirectUri,
+						codeVerifier,
+					}),
+				}
+			);
 
 			const responseClone = response.clone();
 			let responseData: unknown;
@@ -1518,4 +1569,3 @@ export class EmailMFASignOnFlowServiceV8 {
 		}
 	}
 }
-

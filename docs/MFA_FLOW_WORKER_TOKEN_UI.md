@@ -222,6 +222,93 @@ const handleManageWorkerToken = () => {
 
 ---
 
-**Last Updated:** 2024-11-19  
-**Version:** 8.0.0  
-**Status:** Active - Worker token UI fully integrated
+## Worker Token Configuration Settings
+
+### Silent API Token Retrieval
+
+**Setting:** `silentApiRetrieval` (boolean)  
+**Location:** MFA Configuration Page (`/v8/mfa-config`)  
+**Default:** `false`
+
+**Behavior:**
+- When **ON**: The system attempts to automatically fetch a worker token using stored credentials without showing any modals
+- When **OFF**: The system shows the worker token modal to prompt for credentials when a token is needed
+- Works in conjunction with "Show Token After Generation" setting
+
+### Show Token After Generation
+
+**Setting:** `showTokenAtEnd` (boolean)  
+**Location:** MFA Configuration Page (`/v8/mfa-config`)  
+**Default:** `false`
+
+**Behavior:**
+- When **ON**: After generating or retrieving a token, the worker token modal displays the token for viewing/copying
+- When **OFF**: The token is generated/retrieved silently without displaying it
+- Works independently from "Silent API Token Retrieval" - controls only whether the token is displayed
+
+### Combined Settings Behavior
+
+The two settings work together to provide flexible token management:
+
+#### Scenario 1: Both Settings ON
+- **Silent API Retrieval:** ON
+- **Show Token After Generation:** ON
+- **Behavior:**
+  1. Token is fetched silently using stored credentials (no credential input screens)
+  2. Modal opens showing **only the token display** (token-only mode)
+  3. User can copy/decode the token
+  4. No credential form, info boxes, or other screens shown
+  5. User clicks "Close" to dismiss
+
+#### Scenario 2: Silent ON, Show OFF
+- **Silent API Retrieval:** ON
+- **Show Token After Generation:** OFF
+- **Behavior:**
+  1. Token is fetched silently using stored credentials
+  2. No modal shown (completely silent)
+  3. Token is available for API calls in the background
+
+#### Scenario 3: Silent OFF, Show ON
+- **Silent API Retrieval:** OFF
+- **Show Token After Generation:** ON
+- **Behavior:**
+  1. Full worker token modal shown with credential form
+  2. User enters credentials and generates token
+  3. After generation, token is displayed for viewing/copying
+  4. Standard modal flow with all screens
+
+#### Scenario 4: Both Settings OFF
+- **Silent API Retrieval:** OFF
+- **Show Token After Generation:** OFF
+- **Behavior:**
+  1. Full worker token modal shown with credential form
+  2. User enters credentials and generates token
+  3. Modal closes immediately after generation
+  4. Token is not displayed (only stored)
+
+### Token-Only Mode
+
+When both settings are ON and a token is successfully retrieved silently, the `WorkerTokenModalV8` component enters **token-only mode**:
+
+**UI Elements Shown:**
+- ✅ Token display section with copy/decode buttons
+- ✅ "Close" button
+
+**UI Elements Hidden:**
+- ❌ Info Box ("What is a Worker Token?")
+- ❌ "How to Get Credentials" section
+- ❌ Credential input form (Environment ID, Client ID, Client Secret, etc.)
+- ❌ Save Credentials checkbox
+- ❌ Export/Import buttons
+- ❌ Generate Token button
+
+**Implementation:**
+- Component receives `showTokenOnly={true}` prop
+- Token is automatically loaded when modal opens
+- Modal shows minimal UI focused on token display
+
+---
+
+**Last Updated:** 2025-01-27  
+**Version:** 8.1.0  
+**Status:** Active - Worker token UI fully integrated with configuration settings

@@ -17,22 +17,22 @@
  * <PingOneProtectFlowV8 />
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiActivity,
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiXCircle,
-	FiSettings,
 	FiDatabase,
+	FiSettings,
 	FiTrendingUp,
+	FiXCircle,
 } from 'react-icons/fi';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import uiNotificationServiceV8 from '@/v8/services/uiNotificationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 
 // Types for PingOne Protect
 interface ProtectCredentials {
@@ -165,7 +165,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Flow state
 	const [currentStep, setCurrentStep] = useState(0);
 	const [isLoading, setIsLoading] = useState(false);
-	const [apiResponses, setApiResponses] = useState<Array<{ id: string; data: unknown; timestamp: number }>>([]);
+	const [apiResponses, setApiResponses] = useState<
+		Array<{ id: string; data: unknown; timestamp: number }>
+	>([]);
 
 	// Risk evaluation state
 	const [riskEvaluation, setRiskEvaluation] = useState<RiskEvaluationResult | null>(null);
@@ -226,98 +228,114 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	// Save credentials when they change
 	useEffect(() => {
 		const saveTimeout = setTimeout(() => {
-			CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials as Credentials & { flowType?: string });
+			CredentialsServiceV8.saveCredentials(
+				FLOW_KEY,
+				credentials as Credentials & { flowType?: string }
+			);
 		}, 300);
 		return () => clearTimeout(saveTimeout);
 	}, [credentials]);
 
 	// API call helper
-	const makeApiCall = useCallback(async (
-		method: string,
-		endpoint: string,
-		body?: Record<string, unknown>,
-		description?: string
-	) => {
-		if (!credentials.environmentId || !credentials.workerToken) {
-			uiNotificationServiceV8.showError('Please configure environment ID and worker token first');
-			throw new Error('Missing credentials');
-		}
+	const makeApiCall = useCallback(
+		async (
+			method: string,
+			endpoint: string,
+			body?: Record<string, unknown>,
+			description?: string
+		) => {
+			if (!credentials.environmentId || !credentials.workerToken) {
+				uiNotificationServiceV8.showError('Please configure environment ID and worker token first');
+				throw new Error('Missing credentials');
+			}
 
-		setIsLoading(true);
-		const startTime = Date.now();
-		
-		try {
-			const url = `/api/pingone/protect${endpoint}`;
-			
-			const callId = apiCallTrackerService.trackApiCall({
-				method: method as 'GET' | 'POST' | 'PATCH' | 'DELETE',
-				url,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: body || null,
-				step: description || 'Protect API Call',
-			});
+			setIsLoading(true);
+			const startTime = Date.now();
 
-			const requestBody = body ? JSON.stringify({
-				...body,
-				environmentId: credentials.environmentId,
-				workerToken: credentials.workerToken,
-				region: credentials.region,
-			}) : undefined;
-
-			const response = await fetch(url, {
-				method,
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: requestBody || null,
-			});
-
-			const responseClone = response.clone();
-			let data: unknown;
-			
 			try {
-				data = await responseClone.json();
-			} catch {
-				const text = await response.text();
-				data = { error: 'Failed to parse response', rawResponse: text.substring(0, 500) };
+				const url = `/api/pingone/protect${endpoint}`;
+
+				const callId = apiCallTrackerService.trackApiCall({
+					method: method as 'GET' | 'POST' | 'PATCH' | 'DELETE',
+					url,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: body || null,
+					step: description || 'Protect API Call',
+				});
+
+				const requestBody = body
+					? JSON.stringify({
+							...body,
+							environmentId: credentials.environmentId,
+							workerToken: credentials.workerToken,
+							region: credentials.region,
+						})
+					: undefined;
+
+				const response = await fetch(url, {
+					method,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: requestBody || null,
+				});
+
+				const responseClone = response.clone();
+				let data: unknown;
+
+				try {
+					data = await responseClone.json();
+				} catch {
+					const text = await response.text();
+					data = { error: 'Failed to parse response', rawResponse: text.substring(0, 500) };
+				}
+
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: response.status,
+						statusText: response.statusText,
+						headers: Object.fromEntries(response.headers.entries()),
+						data,
+					},
+					Date.now() - startTime
+				);
+
+				// Store response for display
+				setApiResponses((prev) =>
+					[
+						...prev,
+						{
+							id: callId,
+							data,
+							timestamp: Date.now(),
+						},
+					].slice(-5)
+				); // Keep last 5 responses
+
+				if (!response.ok) {
+					const errorData = data as Record<string, unknown>;
+					throw new Error(
+						`API Error: ${response.status} ${response.statusText} - ${errorData.message || errorData.error || 'Unknown error'}`
+					);
+				}
+
+				return data;
+			} finally {
+				setIsLoading(false);
 			}
-
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					headers: Object.fromEntries(response.headers.entries()),
-					data,
-				},
-				Date.now() - startTime
-			);
-
-			// Store response for display
-			setApiResponses(prev => [...prev, {
-				id: callId,
-				data,
-				timestamp: Date.now(),
-			}].slice(-5)); // Keep last 5 responses
-
-			if (!response.ok) {
-				const errorData = data as Record<string, unknown>;
-				throw new Error(`API Error: ${response.status} ${response.statusText} - ${errorData.message || errorData.error || 'Unknown error'}`);
-			}
-
-			return data;
-		} finally {
-			setIsLoading(false);
-		}
-	}, [credentials]);
+		},
+		[credentials]
+	);
 
 	// API Methods
 	const fetchRiskPolicies = useCallback(async () => {
 		try {
 			const data = await makeApiCall('GET', '/risk-policies', undefined, 'Fetch Risk Policies');
-			const policies = (data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets || [];
+			const policies =
+				(data as { _embedded?: { riskPolicySets: RiskPolicy[] } })._embedded?.riskPolicySets || [];
 			setRiskPolicies(policies);
 			uiNotificationServiceV8.showSuccess(`Loaded ${policies.length} risk policies`);
 		} catch (error) {
@@ -329,13 +347,20 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const createRiskEvaluation = useCallback(async () => {
 		try {
 			if (!evaluationEvent.ip || !evaluationEvent.user?.id) {
-				uiNotificationServiceV8.showError('IP address and User ID are required for risk evaluation');
+				uiNotificationServiceV8.showError(
+					'IP address and User ID are required for risk evaluation'
+				);
 				return;
 			}
 
-			const data = await makeApiCall('POST', '/risk-evaluations', { event: evaluationEvent }, 'Create Risk Evaluation');
+			const data = await makeApiCall(
+				'POST',
+				'/risk-evaluations',
+				{ event: evaluationEvent },
+				'Create Risk Evaluation'
+			);
 			setRiskEvaluation(data as RiskEvaluationResult);
-			
+
 			const riskLevel = (data as RiskEvaluationResult).result.level;
 			uiNotificationServiceV8.showSuccess(`Risk evaluation completed: ${riskLevel} risk`);
 		} catch (error) {
@@ -344,29 +369,45 @@ export const PingOneProtectFlowV8: React.FC = () => {
 		}
 	}, [makeApiCall, evaluationEvent]);
 
-	const updateRiskEvaluation = useCallback(async (evaluationId: string, completionStatus: 'SUCCESS' | 'FAILED') => {
-		try {
-			const data = await makeApiCall('PATCH', `/risk-evaluations/${evaluationId}`, { completionStatus }, 'Update Risk Evaluation');
-			uiNotificationServiceV8.showSuccess(`Risk evaluation updated: ${completionStatus}`);
-			return data;
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to update risk evaluation:`, error);
-			uiNotificationServiceV8.showError('Failed to update risk evaluation');
-			return null;
-		}
-	}, [makeApiCall]);
+	const updateRiskEvaluation = useCallback(
+		async (evaluationId: string, completionStatus: 'SUCCESS' | 'FAILED') => {
+			try {
+				const data = await makeApiCall(
+					'PATCH',
+					`/risk-evaluations/${evaluationId}`,
+					{ completionStatus },
+					'Update Risk Evaluation'
+				);
+				uiNotificationServiceV8.showSuccess(`Risk evaluation updated: ${completionStatus}`);
+				return data;
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to update risk evaluation:`, error);
+				uiNotificationServiceV8.showError('Failed to update risk evaluation');
+				return null;
+			}
+		},
+		[makeApiCall]
+	);
 
-	const provideFeedback = useCallback(async (evaluationId: string, feedback: 'POSITIVE' | 'NEGATIVE') => {
-		try {
-			const data = await makeApiCall('POST', `/risk-evaluations/${evaluationId}/feedback`, { feedback }, 'Provide Risk Evaluation Feedback');
-			uiNotificationServiceV8.showSuccess(`Feedback provided: ${feedback}`);
-			return data;
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to provide feedback:`, error);
-			uiNotificationServiceV8.showError('Failed to provide feedback');
-			return null;
-		}
-	}, [makeApiCall]);
+	const provideFeedback = useCallback(
+		async (evaluationId: string, feedback: 'POSITIVE' | 'NEGATIVE') => {
+			try {
+				const data = await makeApiCall(
+					'POST',
+					`/risk-evaluations/${evaluationId}/feedback`,
+					{ feedback },
+					'Provide Risk Evaluation Feedback'
+				);
+				uiNotificationServiceV8.showSuccess(`Feedback provided: ${feedback}`);
+				return data;
+			} catch (error) {
+				console.error(`${MODULE_TAG} Failed to provide feedback:`, error);
+				uiNotificationServiceV8.showError('Failed to provide feedback');
+				return null;
+			}
+		},
+		[makeApiCall]
+	);
 
 	// Step handlers
 	const handleNext = () => {
@@ -385,7 +426,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 	const renderRiskLevelBadge = (level: RiskLevel) => {
 		const config = RISK_LEVEL_CONFIG[level];
 		const Icon = config.icon;
-		
+
 		return (
 			<div
 				style={{
@@ -412,7 +453,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				<FiSettings size={24} />
 				Configuration
 			</h3>
-			
+
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '600px' }}>
 				<div>
 					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
@@ -421,7 +462,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 					<input
 						type="text"
 						value={credentials.environmentId}
-						onChange={(e) => setCredentials(prev => ({ ...prev, environmentId: e.target.value }))}
+						onChange={(e) => setCredentials((prev) => ({ ...prev, environmentId: e.target.value }))}
 						placeholder="your-environment-id"
 						style={{
 							width: '100%',
@@ -434,12 +475,15 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				</div>
 
 				<div>
-					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
-						Region
-					</label>
+					<label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>Region</label>
 					<select
 						value={credentials.region}
-						onChange={(e) => setCredentials(prev => ({ ...prev, region: e.target.value as ProtectCredentials['region'] }))}
+						onChange={(e) =>
+							setCredentials((prev) => ({
+								...prev,
+								region: e.target.value as ProtectCredentials['region'],
+							}))
+						}
 						style={{
 							width: '100%',
 							padding: '12px',
@@ -456,7 +500,14 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				</div>
 
 				<div>
-					<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							justifyContent: 'space-between',
+							marginBottom: '8px',
+						}}
+					>
 						<label style={{ fontWeight: '600' }}>Worker Token Status</label>
 						<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
 							{tokenStatus.isValid ? (
@@ -464,14 +515,19 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							) : (
 								<FiXCircle color="#ef4444" size={16} />
 							)}
-							<span style={{ fontSize: '14px', color: tokenStatus.isValid ? '#10b981' : '#ef4444' }}>
+							<span
+								style={{ fontSize: '14px', color: tokenStatus.isValid ? '#10b981' : '#ef4444' }}
+							>
 								{tokenStatus.isValid ? 'Valid' : 'Invalid'}
 							</span>
 						</div>
 					</div>
 					<button
 						type="button"
-						onClick={() => setShowWorkerTokenModal(true)}
+						onClick={async () => {
+							const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+							await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
+						}}
 						style={{
 							padding: '12px 16px',
 							background: tokenStatus.isValid ? '#10b981' : '#3b82f6',
@@ -496,7 +552,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				<FiDatabase size={24} />
 				Risk Policies
 			</h3>
-			
+
 			<div style={{ marginBottom: '24px' }}>
 				<button
 					type="button"
@@ -531,7 +587,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								background: 'white',
 							}}
 						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+							<div
+								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
+							>
 								<div>
 									<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>{policy.name}</h5>
 									{policy.description && (
@@ -548,9 +606,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										</span>
 									</div>
 								</div>
-								<div style={{ fontSize: '12px', color: '#6b7280' }}>
-									ID: {policy.id}
-								</div>
+								<div style={{ fontSize: '12px', color: '#6b7280' }}>ID: {policy.id}</div>
 							</div>
 						</div>
 					))}
@@ -565,7 +621,7 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				<FiActivity size={24} />
 				Risk Evaluation
 			</h3>
-			
+
 			<div style={{ display: 'grid', gap: '20px', maxWidth: '800px' }}>
 				<div>
 					<h4 style={{ marginBottom: '16px' }}>Event Configuration</h4>
@@ -578,10 +634,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								<input
 									type="text"
 									value={evaluationEvent.ip || ''}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										ip: e.target.value,
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											ip: e.target.value,
+										}))
+									}
 									placeholder="192.168.1.100"
 									style={{
 										width: '100%',
@@ -599,10 +657,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								<input
 									type="text"
 									value={evaluationEvent.user?.id || ''}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										user: { ...prev.user!, id: e.target.value },
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											user: { ...prev.user!, id: e.target.value },
+										}))
+									}
 									placeholder="user-12345"
 									style={{
 										width: '100%',
@@ -623,10 +683,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								<input
 									type="text"
 									value={evaluationEvent.user?.name || ''}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										user: { ...prev.user!, name: e.target.value },
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											user: { ...prev.user!, name: e.target.value },
+										}))
+									}
 									placeholder="John Doe"
 									style={{
 										width: '100%',
@@ -643,10 +705,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								</label>
 								<select
 									value={evaluationEvent.user?.type || 'EXTERNAL'}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										user: { ...prev.user!, type: e.target.value as 'PING_ONE' | 'EXTERNAL' },
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											user: { ...prev.user!, type: e.target.value as 'PING_ONE' | 'EXTERNAL' },
+										}))
+									}
 									style={{
 										width: '100%',
 										padding: '12px',
@@ -668,10 +732,15 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								</label>
 								<select
 									value={evaluationEvent.flow?.type || 'AUTHENTICATION'}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										flow: { ...prev.flow!, type: e.target.value as RiskEvaluationEvent['flow']['type'] },
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											flow: {
+												...prev.flow!,
+												type: e.target.value as RiskEvaluationEvent['flow']['type'],
+											},
+										}))
+									}
 									style={{
 										width: '100%',
 										padding: '12px',
@@ -694,10 +763,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								<input
 									type="text"
 									value={evaluationEvent.targetResource?.name || ''}
-									onChange={(e) => setEvaluationEvent(prev => ({
-										...prev,
-										targetResource: { ...prev.targetResource!, name: e.target.value },
-									}))}
+									onChange={(e) =>
+										setEvaluationEvent((prev) => ({
+											...prev,
+											targetResource: { ...prev.targetResource!, name: e.target.value },
+										}))
+									}
 									placeholder="My Application"
 									style={{
 										width: '100%',
@@ -716,10 +787,12 @@ export const PingOneProtectFlowV8: React.FC = () => {
 							</label>
 							<textarea
 								value={evaluationEvent.browser?.userAgent || ''}
-								onChange={(e) => setEvaluationEvent(prev => ({
-									...prev,
-									browser: { ...prev.browser!, userAgent: e.target.value },
-								}))}
+								onChange={(e) =>
+									setEvaluationEvent((prev) => ({
+										...prev,
+										browser: { ...prev.browser!, userAgent: e.target.value },
+									}))
+								}
 								placeholder={navigator.userAgent}
 								rows={3}
 								style={{
@@ -767,7 +840,14 @@ export const PingOneProtectFlowV8: React.FC = () => {
 								background: 'white',
 							}}
 						>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '16px' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'start',
+									marginBottom: '16px',
+								}}
+							>
 								<div>
 									<div style={{ marginBottom: '12px' }}>
 										{renderRiskLevelBadge(riskEvaluation.result.level)}
@@ -779,11 +859,9 @@ export const PingOneProtectFlowV8: React.FC = () => {
 										<strong>Recommended Action:</strong> {riskEvaluation.result.recommendedAction}
 									</p>
 								</div>
-								<div style={{ fontSize: '12px', color: '#6b7280' }}>
-									ID: {riskEvaluation.id}
-								</div>
+								<div style={{ fontSize: '12px', color: '#6b7280' }}>ID: {riskEvaluation.id}</div>
 							</div>
-							
+
 							<div style={{ display: 'flex', gap: '12px' }}>
 								<button
 									type="button"
@@ -859,27 +937,33 @@ export const PingOneProtectFlowV8: React.FC = () => {
 				<FiTrendingUp size={24} />
 				Integration Patterns
 			</h3>
-			
+
 			<div style={{ display: 'grid', gap: '24px' }}>
 				<div>
 					<h4>Real-World Integration Examples</h4>
 					<div style={{ display: 'grid', gap: '16px' }}>
-						<div style={{
-							padding: '16px',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							background: '#f9fafb',
-						}}>
-							<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>Authentication Flow Integration</h5>
-							<pre style={{
-								background: '#f3f4f6',
-								padding: '12px',
-								borderRadius: '4px',
-								fontSize: '12px',
-								overflow: 'auto',
-								margin: '0',
-							}}>
-{`// Before authentication
+						<div
+							style={{
+								padding: '16px',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								background: '#f9fafb',
+							}}
+						>
+							<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>
+								Authentication Flow Integration
+							</h5>
+							<pre
+								style={{
+									background: '#f3f4f6',
+									padding: '12px',
+									borderRadius: '4px',
+									fontSize: '12px',
+									overflow: 'auto',
+									margin: '0',
+								}}
+							>
+								{`// Before authentication
 const riskResult = await evaluateRisk({
   ip: request.ip,
   user: { id: userId, type: 'EXTERNAL' },
@@ -899,25 +983,30 @@ if (riskResult.result.level === 'HIGH') {
 // After authentication (success/failed)
 await updateRiskEvaluation(riskResult.id, 
   authSuccess ? 'SUCCESS' : 'FAILED'
-);`}</pre>
+);`}
+							</pre>
 						</div>
 
-						<div style={{
-							padding: '16px',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							background: '#f9fafb',
-						}}>
+						<div
+							style={{
+								padding: '16px',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								background: '#f9fafb',
+							}}
+						>
 							<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>Transaction Protection</h5>
-							<pre style={{
-								background: '#f3f4f6',
-								padding: '12px',
-								borderRadius: '4px',
-								fontSize: '12px',
-								overflow: 'auto',
-								margin: '0',
-							}}>
-{`// Before high-value transaction
+							<pre
+								style={{
+									background: '#f3f4f6',
+									padding: '12px',
+									borderRadius: '4px',
+									fontSize: '12px',
+									overflow: 'auto',
+									margin: '0',
+								}}
+							>
+								{`// Before high-value transaction
 const transactionRisk = await evaluateRisk({
   ip: request.ip,
   user: { id: userId, type: 'PING_ONE' },
@@ -934,25 +1023,32 @@ if (transactionRisk.result.level === 'HIGH') {
 }
 
 // Process transaction...
-await updateRiskEvaluation(transactionRisk.id, 'SUCCESS');`}</pre>
+await updateRiskEvaluation(transactionRisk.id, 'SUCCESS');`}
+							</pre>
 						</div>
 
-						<div style={{
-							padding: '16px',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							background: '#f9fafb',
-						}}>
-							<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>Account Registration Protection</h5>
-							<pre style={{
-								background: '#f3f4f6',
-								padding: '12px',
-								borderRadius: '4px',
-								fontSize: '12px',
-								overflow: 'auto',
-								margin: '0',
-							}}>
-{`// During user registration
+						<div
+							style={{
+								padding: '16px',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								background: '#f9fafb',
+							}}
+						>
+							<h5 style={{ margin: '0 0 8px 0', color: '#374151' }}>
+								Account Registration Protection
+							</h5>
+							<pre
+								style={{
+									background: '#f3f4f6',
+									padding: '12px',
+									borderRadius: '4px',
+									fontSize: '12px',
+									overflow: 'auto',
+									margin: '0',
+								}}
+							>
+								{`// During user registration
 const registrationRisk = await evaluateRisk({
   ip: request.ip,
   user: { 
@@ -972,7 +1068,8 @@ if (registrationRisk.result.level === 'HIGH') {
 }
 
 // After successful registration
-await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
+await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}
+							</pre>
 						</div>
 					</div>
 				</div>
@@ -994,11 +1091,16 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
 
 	const renderCurrentStep = () => {
 		switch (currentStep) {
-			case 0: return renderStep1();
-			case 1: return renderStep2();
-			case 2: return renderStep3();
-			case 3: return renderStep4();
-			default: return renderStep1();
+			case 0:
+				return renderStep1();
+			case 1:
+				return renderStep2();
+			case 2:
+				return renderStep3();
+			case 3:
+				return renderStep4();
+			default:
+				return renderStep1();
 		}
 	};
 
@@ -1016,34 +1118,45 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
 
 			{/* Progress Bar */}
 			<div style={{ marginBottom: '32px' }}>
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-					{['Configuration', 'Risk Policies', 'Risk Evaluation', 'Integration'].map((label, index) => (
-						<div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-							<div
-								style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '50%',
-									background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
-									color: index <= currentStep ? 'white' : '#6b7280',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									fontSize: '14px',
-									fontWeight: '600',
-								}}
-							>
-								{index + 1}
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '16px',
+					}}
+				>
+					{['Configuration', 'Risk Policies', 'Risk Evaluation', 'Integration'].map(
+						(label, index) => (
+							<div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+								<div
+									style={{
+										width: '32px',
+										height: '32px',
+										borderRadius: '50%',
+										background: index <= currentStep ? '#3b82f6' : '#e5e7eb',
+										color: index <= currentStep ? 'white' : '#6b7280',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '14px',
+										fontWeight: '600',
+									}}
+								>
+									{index + 1}
+								</div>
+								<span
+									style={{
+										fontSize: '14px',
+										fontWeight: index === currentStep ? '600' : '400',
+										color: index <= currentStep ? '#1f2937' : '#6b7280',
+									}}
+								>
+									{label}
+								</span>
 							</div>
-							<span style={{ 
-								fontSize: '14px', 
-								fontWeight: index === currentStep ? '600' : '400',
-								color: index <= currentStep ? '#1f2937' : '#6b7280'
-							}}>
-								{label}
-							</span>
-						</div>
-					))}
+						)
+					)}
 				</div>
 				<div style={{ height: '4px', background: '#e5e7eb', borderRadius: '2px' }}>
 					<div
@@ -1059,12 +1172,14 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
 			</div>
 
 			{/* Main Content */}
-			<div style={{
-				background: 'white',
-				border: '1px solid #e5e7eb',
-				borderRadius: '12px',
-				marginBottom: '24px',
-			}}>
+			<div
+				style={{
+					background: 'white',
+					border: '1px solid #e5e7eb',
+					borderRadius: '12px',
+					marginBottom: '24px',
+				}}
+			>
 				{renderCurrentStep()}
 			</div>
 
@@ -1087,7 +1202,7 @@ await updateRiskEvaluation(registrationRisk.id, 'SUCCESS');`}</pre>
 				>
 					Previous
 				</button>
-				
+
 				<button
 					type="button"
 					onClick={handleNext}

@@ -69,14 +69,24 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		: 'https://localhost:3000/user-login-callback';
 	const previousRedirectUriRef = useRef<string>(defaultRedirectUri);
 
+	// Track if success page was set (to prevent clearing it prematurely when parent closes modal)
+	const successPageSetRef = React.useRef(false);
+
 	// Reset success page state and processing state when modal closes
+	// BUT: Don't reset if we're showing the success page (keep it visible even if modal appears closed)
+	// CRITICAL: Only reset if success page was never set OR user explicitly closed it
 	useEffect(() => {
-		if (!isOpen) {
+		// Only reset if modal is closed AND success page is not showing AND success page was never set
+		if (!isOpen && !showSuccessPage && !successPageSetRef.current) {
 			setShowSuccessPage(false);
 			setSessionInfo(null);
 			setIsProcessingCallback(false);
 		}
-	}, [isOpen]);
+		// If success page is showing, keep it visible even if modal closes
+		if (showSuccessPage && sessionInfo) {
+			successPageSetRef.current = true;
+		}
+	}, [isOpen, showSuccessPage, sessionInfo]);
 
 	// Lock body scroll when modal is open
 	useEffect(() => {
@@ -194,11 +204,18 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
+		console.log(`${MODULE_TAG} [DEBUG] Callback processing useEffect running`, {
+			isOpen,
+			locationSearch: location.search,
+			showSuccessPage,
+			hasSessionInfo: !!sessionInfo,
+		});
+
 		// #region agent log
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:189',
 			message: 'Callback processing useEffect running',
-			data: { isOpen, locationSearch: location.search },
+			data: { isOpen, locationSearch: location.search, showSuccessPage, hasSessionInfo: !!sessionInfo },
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			runId: 'run3',
@@ -363,7 +380,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
 
 					// Store session info for success page
-					setSessionInfo({
+					const newSessionInfo: SessionInfo = {
 						accessToken: tokenResponse.access_token,
 						...(tokenResponse.id_token && { idToken: tokenResponse.id_token }),
 						tokenType: tokenResponse.token_type || 'Bearer',
@@ -371,10 +388,38 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						...(tokenResponse.scope && { scope: tokenResponse.scope }),
 						...(credentials.scopes && { requestedScopes: credentials.scopes }),
 						environmentId: credentials.environmentId,
+					};
+
+					console.log(`${MODULE_TAG} [DEBUG] Setting session info and showing success page`, {
+						hasAccessToken: !!newSessionInfo.accessToken,
+						hasIdToken: !!newSessionInfo.idToken,
+						tokenType: newSessionInfo.tokenType,
+						environmentId: newSessionInfo.environmentId,
+						sessionInfoKeys: Object.keys(newSessionInfo),
 					});
 
-					// Show success page
+					setSessionInfo(newSessionInfo);
+
+					// Show success page - CRITICAL: Set this AFTER sessionInfo to ensure both are set
+					console.log(`${MODULE_TAG} [DEBUG] Setting showSuccessPage to true`);
 					setShowSuccessPage(true);
+
+					// #region agent log
+					sendAnalyticsLog({
+						location: 'UserLoginModalV8.tsx:377',
+						message: 'Success page state set',
+						data: {
+							showSuccessPage: true,
+							hasSessionInfo: !!newSessionInfo,
+							hasAccessToken: !!newSessionInfo.accessToken,
+							hasIdToken: !!newSessionInfo.idToken,
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'run3',
+						hypothesisId: 'F',
+					});
+					// #endregion
 
 					// Use access token (callback for parent components)
 					// #region agent log
@@ -393,7 +438,47 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					});
 					// #endregion
 
-					handleTokenReceived(tokenResponse.access_token);
+					// CRITICAL: Mark success page as set BEFORE calling onTokenReceived
+					// This prevents the useEffect from clearing it if parent closes modal
+					successPageSetRef.current = true;
+
+					// Call onTokenReceived callback but DON'T close modal yet - let success page show
+					// The modal will close when user clicks "Continue" on the success page
+					// NOTE: Even if parent component closes modal in onTokenReceived, success page will still show
+					console.log(`${MODULE_TAG} [DEBUG] Calling onTokenReceived callback`, {
+						hasCallback: !!onTokenReceived,
+						tokenLength: tokenResponse.access_token?.length,
+						showSuccessPage: true,
+						hasSessionInfo: !!newSessionInfo,
+						sessionInfoSet: true,
+						successPageSetRef: successPageSetRef.current,
+					});
+
+					// IMPORTANT: Call onTokenReceived AFTER setting success page state
+					// Even if parent closes modal, success page should still show because:
+					// 1. successPageSetRef.current = true prevents useEffect from clearing it
+					// 2. Success page check happens BEFORE isOpen check in render
+					onTokenReceived?.(tokenResponse.access_token);
+
+					console.log(`${MODULE_TAG} [DEBUG] After onTokenReceived callback`, {
+						showSuccessPage: true,
+						hasSessionInfo: !!newSessionInfo,
+						isOpen,
+						successPageSetRef: successPageSetRef.current,
+					});
+
+					// Use setTimeout to verify state after all updates
+					setTimeout(() => {
+						console.log(`${MODULE_TAG} [DEBUG] State check after setTimeout`, {
+							showSuccessPage,
+							hasSessionInfo: !!sessionInfo,
+							isOpen,
+							sessionInfoKeys: sessionInfo ? Object.keys(sessionInfo) : [],
+							successPageSetRef: successPageSetRef.current,
+						});
+					}, 200);
+
+					toastV8.success('Access token received successfully!');
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
 
@@ -889,10 +974,17 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		}
 	};
 
-	if (!isOpen) return null;
-
+	// CRITICAL: Check for success page FIRST, before checking isOpen
+	// This ensures the success page can render even if isOpen becomes false
 	// Show success page if authentication was successful
 	if (showSuccessPage && sessionInfo) {
+		console.log(`${MODULE_TAG} [DEBUG] Rendering success page`, {
+			showSuccessPage,
+			hasSessionInfo: !!sessionInfo,
+			isOpen,
+			sessionInfoKeys: sessionInfo ? Object.keys(sessionInfo) : [],
+		});
+
 		return (
 			<div
 				style={{
@@ -918,6 +1010,8 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					<UserAuthenticationSuccessPageV8
 						sessionInfo={sessionInfo}
 						onClose={() => {
+							console.log(`${MODULE_TAG} [DEBUG] Success page onClose called`);
+							successPageSetRef.current = false; // Reset ref when user closes success page
 							setShowSuccessPage(false);
 							setSessionInfo(null);
 							onClose();
@@ -926,6 +1020,16 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				</div>
 			</div>
 		);
+	}
+
+	// Only return null if modal is not open AND we're not showing success page
+	if (!isOpen) {
+		console.log(`${MODULE_TAG} [DEBUG] Modal not open, returning null`, {
+			isOpen,
+			showSuccessPage,
+			hasSessionInfo: !!sessionInfo,
+		});
+		return null;
 	}
 
 	return (

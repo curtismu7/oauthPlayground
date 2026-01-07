@@ -51,11 +51,11 @@ export const generateClientSecret = (
 	const entropy = length * 8; // 8 bits per byte
 
 	console.log(`${MODULE_TAG} ✅ Generated client secret (${entropy} bits entropy)`);
-	
+
 	return {
 		secret,
 		entropy,
-		encoding
+		encoding,
 	};
 };
 
@@ -64,7 +64,9 @@ export const generateClientSecret = (
  * @param keySize - RSA key size in bits (2048 or 4096)
  * @returns Generated RSA key pair with key ID
  */
-export const generateRSAKeyPair = async (keySize: 2048 | 4096 = 2048): Promise<GeneratedKeyPair> => {
+export const generateRSAKeyPair = async (
+	keySize: 2048 | 4096 = 2048
+): Promise<GeneratedKeyPair> => {
 	console.log(`${MODULE_TAG} Generating RSA key pair (${keySize} bits)`);
 
 	try {
@@ -85,7 +87,7 @@ export const generateRSAKeyPair = async (keySize: 2048 | 4096 = 2048): Promise<G
 		const privateKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(privateKeyBuffer)));
 		const privateKey = `-----BEGIN PRIVATE KEY-----\n${formatBase64(privateKeyBase64)}\n-----END PRIVATE KEY-----`;
 
-		// Export public key in SPKI format  
+		// Export public key in SPKI format
 		const publicKeyBuffer = await window.crypto.subtle.exportKey('spki', keyPair.publicKey);
 		const publicKeyBase64 = btoa(String.fromCharCode(...new Uint8Array(publicKeyBuffer)));
 		const publicKey = `-----BEGIN PUBLIC KEY-----\n${formatBase64(publicKeyBase64)}\n-----END PUBLIC KEY-----`;
@@ -99,11 +101,13 @@ export const generateRSAKeyPair = async (keySize: 2048 | 4096 = 2048): Promise<G
 			privateKey,
 			publicKey,
 			keyId,
-			algorithm: 'RS256'
+			algorithm: 'RS256',
 		};
 	} catch (error) {
 		console.error(`${MODULE_TAG} ❌ Failed to generate RSA key pair:`, error);
-		throw new Error(`Failed to generate RSA key pair: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		throw new Error(
+			`Failed to generate RSA key pair: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
 	}
 };
 
@@ -114,9 +118,10 @@ export const generateRSAKeyPair = async (keySize: 2048 | 4096 = 2048): Promise<G
  */
 export const generateKeyId = (prefix: string = 'key'): string => {
 	const timestamp = Date.now().toString(36);
-	const random = window.crypto.getRandomValues(new Uint8Array(4))
+	const random = window.crypto
+		.getRandomValues(new Uint8Array(4))
 		.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
-	
+
 	return `${prefix}_${timestamp}_${random}`;
 };
 
@@ -132,7 +137,7 @@ export const generateRandomString = (
 	customChars?: string
 ): string => {
 	let chars: string;
-	
+
 	switch (charset) {
 		case 'alphanumeric':
 			chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -155,12 +160,12 @@ export const generateRandomString = (
 
 	const array = new Uint8Array(length);
 	window.crypto.getRandomValues(array);
-	
+
 	let result = '';
 	for (let i = 0; i < length; i++) {
 		result += chars[array[i] % chars.length];
 	}
-	
+
 	return result;
 };
 
@@ -205,18 +210,20 @@ export const validatePrivateKey = (privateKey: string): boolean => {
 		}
 
 		// Try to import as key (basic validation)
-		window.crypto.subtle.importKey(
-			'pkcs8',
-			bytes.buffer,
-			{
-				name: 'RSASSA-PKCS1-v1_5',
-				hash: 'SHA-256',
-			},
-			false, // not extractable for validation
-			['sign']
-		).catch(() => {
-			// Import failed, but that's ok for validation
-		});
+		window.crypto.subtle
+			.importKey(
+				'pkcs8',
+				bytes.buffer,
+				{
+					name: 'RSASSA-PKCS1-v1_5',
+					hash: 'SHA-256',
+				},
+				false, // not extractable for validation
+				['sign']
+			)
+			.catch(() => {
+				// Import failed, but that's ok for validation
+			});
 
 		return true;
 	} catch (error) {
@@ -264,7 +271,9 @@ export const extractPublicKey = async (privateKey: string): Promise<string> => {
 		return publicKey;
 	} catch (error) {
 		console.error(`${MODULE_TAG} Failed to extract public key:`, error);
-		throw new Error(`Failed to extract public key: ${error instanceof Error ? error.message : 'Unknown error'}`);
+		throw new Error(
+			`Failed to extract public key: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
 	}
 };
 
@@ -279,12 +288,7 @@ export const generateFormattedClientSecret = (options: {
 	includeSymbols?: boolean;
 	length?: number;
 }): string => {
-	const {
-		prefix = '',
-		includeNumbers = true,
-		includeSymbols = false,
-		length = 32
-	} = options;
+	const { prefix = '', includeNumbers = true, includeSymbols = false, length = 32 } = options;
 
 	let charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 	if (includeNumbers) charset += '0123456789';
@@ -303,7 +307,9 @@ export const assessSecurityStrength = {
 	 * @param secret - Client secret to assess
 	 * @returns Security strength assessment
 	 */
-	clientSecret: (secret: string): {
+	clientSecret: (
+		secret: string
+	): {
 		strength: 'weak' | 'medium' | 'strong' | 'very-strong';
 		score: number;
 		recommendations: string[];
@@ -345,7 +351,9 @@ export const assessSecurityStrength = {
 	 * @param keySize - RSA key size
 	 * @returns Security strength assessment
 	 */
-	keyPair: (keySize: number): {
+	keyPair: (
+		keySize: number
+	): {
 		strength: 'weak' | 'medium' | 'strong' | 'very-strong';
 		recommendation: string;
 		bitsOfSecurity: number;
@@ -354,21 +362,22 @@ export const assessSecurityStrength = {
 			case 2048:
 				return {
 					strength: 'strong',
-					recommendation: '2048-bit RSA provides ~112 bits of security, suitable for most applications',
-					bitsOfSecurity: 112
+					recommendation:
+						'2048-bit RSA provides ~112 bits of security, suitable for most applications',
+					bitsOfSecurity: 112,
 				};
 			case 4096:
 				return {
 					strength: 'very-strong',
 					recommendation: '4096-bit RSA provides ~144 bits of security, maximum security',
-					bitsOfSecurity: 144
+					bitsOfSecurity: 144,
 				};
 			default:
 				return {
 					strength: 'weak',
 					recommendation: 'Use at least 2048-bit RSA keys for security',
-					bitsOfSecurity: keySize >= 2048 ? 80 : 0
+					bitsOfSecurity: keySize >= 2048 ? 80 : 0,
 				};
 		}
-	}
+	},
 };
