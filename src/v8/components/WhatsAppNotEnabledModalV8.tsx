@@ -2,8 +2,8 @@
 // Modal for displaying WhatsApp MFA not enabled errors
 
 import React, { useId } from 'react';
+import { FiAlertCircle, FiExternalLink, FiInfo, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertCircle, FiInfo, FiX, FiExternalLink } from 'react-icons/fi';
 
 interface WhatsAppNotEnabledModalV8Props {
 	isOpen: boolean;
@@ -222,8 +222,8 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 				</ModalHeader>
 				<ModalBody>
 					<p style={{ marginTop: 0 }}>
-						Your PingOne environment does not have WhatsApp MFA enabled. To register WhatsApp devices,
-						you need to enable WhatsApp MFA in the PingOne Admin Console.
+						Your PingOne environment does not have WhatsApp MFA enabled. To register WhatsApp
+						devices, you need to enable WhatsApp MFA in the PingOne Admin Console.
 					</p>
 
 					<InfoCallout>
@@ -272,13 +272,20 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 							marginTop: '1rem',
 						}}
 					>
-						<p style={{ margin: '0 0 0.5rem 0', fontWeight: '600', color: '#374151', fontSize: '0.9rem' }}>
+						<p
+							style={{
+								margin: '0 0 0.5rem 0',
+								fontWeight: '600',
+								color: '#374151',
+								fontSize: '0.9rem',
+							}}
+						>
 							💡 Note:
 						</p>
 						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
-							WhatsApp MFA requires a WhatsApp Business API account and proper configuration in PingOne.
-							Once enabled, you can register WhatsApp devices and receive OTP codes via WhatsApp
-							messages.
+							WhatsApp MFA requires a WhatsApp Business API account and proper configuration in
+							PingOne. Once enabled, you can register WhatsApp devices and receive OTP codes via
+							WhatsApp messages.
 						</p>
 					</div>
 				</ModalBody>
@@ -291,4 +298,3 @@ export const WhatsAppNotEnabledModalV8: React.FC<WhatsAppNotEnabledModalV8Props>
 		</ModalOverlay>
 	);
 };
-

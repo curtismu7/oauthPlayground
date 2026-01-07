@@ -3,7 +3,7 @@
  * @module v8/utils
  * @description Phone number validation and normalization utilities
  * @version 8.0.0
- * 
+ *
  * Accepts multiple phone number formats:
  * - +1.5125201234
  * - +15125201234
@@ -22,7 +22,7 @@ export interface PhoneValidationResult {
 /**
  * Normalize and validate phone number
  * Handles phone numbers that may include country code in various formats
- * 
+ *
  * @param phoneNumber - Phone number input (may include country code)
  * @param countryCode - Expected country code (e.g., "+1")
  * @returns Validation result with normalized phone numbers
@@ -40,18 +40,18 @@ export function validateAndNormalizePhone(
 
 	// Remove all whitespace
 	const trimmed = phoneNumber.trim();
-	
+
 	// Check if phone number starts with + (includes country code)
 	const hasCountryCode = trimmed.startsWith('+');
-	
+
 	// Extract all digits
 	const allDigits = trimmed.replace(/[^\d]/g, '');
-	
+
 	// For US/Canada (+1)
 	if (countryCode === '+1') {
 		let phoneDigits: string;
 		let detectedCountryCode = '+1';
-		
+
 		if (hasCountryCode) {
 			// Phone number includes country code
 			if (allDigits.startsWith('1') && allDigits.length === 11) {
@@ -88,17 +88,17 @@ export function validateAndNormalizePhone(
 				};
 			}
 		}
-		
+
 		if (phoneDigits.length !== 10) {
 			return {
 				isValid: false,
 				error: `US/Canada phone numbers must be exactly 10 digits (you have ${phoneDigits.length})`,
 			};
 		}
-		
+
 		// Normalize to PingOne format: +1.5125201234
 		const normalizedFullPhone = `${detectedCountryCode}.${phoneDigits}`;
-		
+
 		return {
 			isValid: true,
 			normalizedPhone: phoneDigits,
@@ -109,7 +109,7 @@ export function validateAndNormalizePhone(
 		// International numbers
 		let phoneDigits: string;
 		let detectedCountryCode = countryCode;
-		
+
 		if (hasCountryCode) {
 			// Extract country code from phone number
 			// For simplicity, assume country code is at the start
@@ -127,7 +127,7 @@ export function validateAndNormalizePhone(
 		} else {
 			phoneDigits = allDigits;
 		}
-		
+
 		if (phoneDigits.length < 6) {
 			return {
 				isValid: false,
@@ -139,10 +139,10 @@ export function validateAndNormalizePhone(
 				error: 'Phone number is too long (maximum 15 digits)',
 			};
 		}
-		
+
 		// Normalize to PingOne format: +countryCode.phonedigits
 		const normalizedFullPhone = `${detectedCountryCode}.${phoneDigits}`;
-		
+
 		return {
 			isValid: true,
 			normalizedPhone: phoneDigits,
@@ -159,4 +159,3 @@ export function isValidPhoneFormat(phoneNumber: string, countryCode: string = '+
 	const result = validateAndNormalizePhone(phoneNumber, countryCode);
 	return result.isValid;
 }
-

@@ -26,7 +26,12 @@ export interface OAuthCredentials {
 	clientSecret?: string;
 	redirectUri: string;
 	scopes: string;
-	clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
 	privateKey?: string; // For private_key_jwt authentication
 }
 
@@ -70,7 +75,6 @@ export class OAuthIntegrationServiceV8 {
 	 * @returns PKCE codes (verifier and challenge)
 	 */
 	static async generatePKCECodes(): Promise<PKCECodes> {
-
 		// Generate random code verifier (43-128 characters)
 		const codeVerifier = OAuthIntegrationServiceV8.generateRandomString(128);
 
@@ -94,7 +98,6 @@ export class OAuthIntegrationServiceV8 {
 		credentials: OAuthCredentials,
 		pkceCodes?: PKCECodes
 	): Promise<AuthorizationUrlParams> {
-
 		// Validate required fields
 		if (!credentials.redirectUri) {
 			throw new Error('Redirect URI is required but not provided in credentials');
@@ -164,7 +167,6 @@ export class OAuthIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code: string; state: string } {
-
 		try {
 			const url = new URL(callbackUrl);
 			const code = url.searchParams.get('code');
@@ -264,7 +266,7 @@ export class OAuthIntegrationServiceV8 {
 				try {
 					const { createClientAssertion } = await import('../../utils/clientAuthentication');
 					const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-					
+
 					let assertion: string;
 					if (authMethod === 'client_secret_jwt') {
 						if (!credentials.clientSecret) {
@@ -288,8 +290,9 @@ export class OAuthIntegrationServiceV8 {
 							'RS256'
 						);
 					}
-					
-					bodyParams.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+
+					bodyParams.client_assertion_type =
+						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
 					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
 				} catch (error) {
@@ -304,7 +307,9 @@ export class OAuthIntegrationServiceV8 {
 					if (credentials.clientSecret) {
 						if (authMethod === 'client_secret_post') {
 							bodyParams.client_secret = credentials.clientSecret;
-							console.log(`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`);
+							console.log(
+								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
+							);
 						} else {
 							// client_secret_basic - will be handled in Authorization header
 							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);
@@ -345,12 +350,12 @@ export class OAuthIntegrationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
-			
+
 			const trackedHeaders: Record<string, string> = { ...headers };
 			if (trackedHeaders.Authorization) {
 				trackedHeaders.Authorization = '***REDACTED***';
 			}
-			
+
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,

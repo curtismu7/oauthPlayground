@@ -21,8 +21,9 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFADeviceManagerV8 } from '@/v8/components/MFADeviceManagerV8';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
@@ -75,22 +76,9 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
 	const [isReady, setIsReady] = useState(false);
-	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
 
-	// Subscribe to API display visibility changes
-	useEffect(() => {
-		const checkVisibility = () => {
-			setIsApiDisplayVisible(apiDisplayServiceV8.isVisible());
-		};
-
-		// Check initial state
-		checkVisibility();
-
-		// Subscribe to visibility changes
-		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
-
-		return () => unsubscribe();
-	}, []);
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
 
 	// Check token status periodically
 	useEffect(() => {
@@ -123,7 +111,7 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	useEffect(() => {
 		console.log(`${MODULE_TAG} Credentials changed, saving`, credentials);
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
-		
+
 		// Save environment ID globally so it's shared across all flows
 		if (credentials.environmentId) {
 			EnvironmentIdServiceV8.saveEnvironmentId(credentials.environmentId);
@@ -151,7 +139,9 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				toastV8.success('Worker token removed');
 			}
 		} else {
-			setShowWorkerTokenModal(true);
+			// Use helper to check silentApiRetrieval before showing modal
+			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
 		}
 	};
 
@@ -180,14 +170,14 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	};
 
 	return (
-		<div 
+		<div
 			className="mfa-device-mgmt-flow-v8"
-			style={{ 
-				paddingBottom: isApiDisplayVisible ? '450px' : '0',
+			style={{
+				paddingBottom: paddingBottom !== '0' ? paddingBottom : '0',
 				transition: 'padding-bottom 0.3s ease',
+				minHeight: '100vh',
 			}}
 		>
-
 			<MFAHeaderV8
 				title="MFA Device Management"
 				description="View and manage user MFA devices"
@@ -199,7 +189,6 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			/>
 
 			<div className="flow-container">
-
 				{!isReady ? (
 					<div className="setup-section">
 						<h2>Setup</h2>
@@ -470,7 +459,6 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			`}</style>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
 		</div>
 	);
 };

@@ -20,7 +20,8 @@ export function extractPhoneFromUser(user: UserLookupResult): string | null {
 		// PingOne user object can have phoneNumbers as an array of objects
 		// Each object has: { number: string, type?: string }
 		// Types can be: "MOBILE", "MAIN", "HOME", "WORK", etc.
-		const phoneNumbers = (user as { phoneNumbers?: Array<{ number?: string; type?: string }> }).phoneNumbers;
+		const phoneNumbers = (user as { phoneNumbers?: Array<{ number?: string; type?: string }> })
+			.phoneNumbers;
 
 		if (!phoneNumbers || !Array.isArray(phoneNumbers) || phoneNumbers.length === 0) {
 			return null;
@@ -69,4 +70,3 @@ export async function fetchPhoneFromPingOne(
 		return null;
 	}
 }
-

@@ -95,7 +95,7 @@ export const StepActionButtonsV8: React.FC<
 			role="group"
 			aria-label="Step navigation buttons"
 		>
-			{/* Previous Button - Hidden for now as it's broken */}
+			{/* Previous Button */}
 			{!hidePreviousButton && (
 				<button
 					type="button"
