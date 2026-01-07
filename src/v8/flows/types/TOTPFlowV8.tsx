@@ -22,7 +22,7 @@ import { TOTPExpiredModalV8 } from '@/v8/components/TOTPExpiredModalV8';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
+import { MFAConfigurationServiceV8, type MFAConfiguration } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAServiceV8, type SendOTPParams, type DeviceRegistrationResult } from '@/v8/services/mfaServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -480,9 +480,17 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 	// Listen for configuration updates
 	useEffect(() => {
-		const handleConfigUpdate = () => {
-			const config = MFAConfigurationServiceV8.loadConfiguration();
-			setOtpLength(config.otpCodeLength);
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<MFAConfiguration>;
+			const newConfig = customEvent.detail || MFAConfigurationServiceV8.loadConfiguration();
+			const newOtpLength = newConfig.otpCodeLength;
+			// Only update if the value actually changed to prevent unnecessary re-renders
+			setOtpLength((prev) => {
+				if (prev !== newOtpLength) {
+					return newOtpLength;
+				}
+				return prev;
+			});
 		};
 
 		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
@@ -2070,22 +2078,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// - secret and keyUri expire after 30 minutes from device creation
 			// - We always show QR code if data is available, regardless of device status
 
-			// Debug logging for QR code modal rendering
-			if (nav.currentStep === 3) {
-				console.log(`${MODULE_TAG} Rendering QR code modal (Step 3):`, {
-					hasDeviceId: !!mfaState.deviceId,
-					deviceId: mfaState.deviceId,
-					deviceStatus: mfaState.deviceStatus,
-					currentQrCodeUrl: currentQrCodeUrl ? `${currentQrCodeUrl.substring(0, 50)}...` : 'empty',
-					currentTotpSecret: currentTotpSecret ? `${currentTotpSecret.substring(0, 20)}...` : 'empty',
-					shouldShowQrCode,
-					isActivationRequired,
-					showQrModal,
-					qrCodeUrlState: qrCodeUrl,
-					totpSecretState: totpSecret,
-					mfaStateKeys: Object.keys(mfaState),
-				});
-			}
+			// Debug logging for QR code modal rendering (only log once per step change to prevent spam)
+			// Removed verbose logging that was causing console spam
+			// If debugging is needed, uncomment and add a ref to track if we've already logged for this step
 
 			// Removed verbose debug logging - only log once per session if needed
 			// if (nav.currentStep === 3 && !shouldShowQrCode && !hasLoggedQrWarning) {
