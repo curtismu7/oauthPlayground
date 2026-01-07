@@ -1132,6 +1132,18 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				return;
 			}
 
+			// Check if pairing is disabled in the policy
+			const selectedPolicy = props.deviceAuthPolicies?.find(
+				(p) => p.id === credentials.deviceAuthenticationPolicyId
+			);
+			if (selectedPolicy?.pairingDisabled === true) {
+				nav.setValidationErrors([
+					'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
+				]);
+				toastV8.error('Device pairing is disabled for this policy');
+				return;
+			}
+
 			// Validate device name
 			const finalDeviceName = credentials.deviceName?.trim() || deviceType;
 			if (!finalDeviceName) {
