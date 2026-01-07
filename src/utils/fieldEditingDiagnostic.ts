@@ -331,7 +331,6 @@ if (typeof window !== 'undefined') {
 	(window as any).fixFields = () => FieldEditingDiagnostic.getInstance().fixCommonIssues();
 	(window as any).monitorFields = () => FieldEditingDiagnostic.getInstance().startMonitoring();
 	(window as any).stopMonitorFields = () => FieldEditingDiagnostic.getInstance().stopMonitoring();
-
 }
 
 export default FieldEditingDiagnostic;

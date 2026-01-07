@@ -351,9 +351,11 @@
 
 ### 7. Validate OTP via Device Authentication (MFA v1)
 
-**Backend Endpoint:** `POST /api/pingone/mfa/complete`  
-**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp/check`  
-**Content-Type:** `application/vnd.pingidentity.otp.check+json`
+**Backend Endpoint:** `POST /api/pingone/mfa/validate-otp-for-device` (if using backend proxy)  
+**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp`  
+**API Reference:** https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device  
+**Content-Type:** `application/vnd.pingidentity.otp.check+json` (when using `_links.otp.check` URL)  
+**Content-Type:** `application/json` (when constructing endpoint manually)
 
 **Request Body (Frontend → Backend):**
 ```json
@@ -401,8 +403,9 @@
 ### 8. Check FIDO2 Assertion
 
 **Backend Endpoint:** `POST /api/pingone/mfa/check-fido2-assertion`  
-**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/assertion`  
-**Content-Type:** `application/vnd.pingidentity.assertion.check+json`
+**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}`  
+**Content-Type:** `application/vnd.pingidentity.assertion.check+json`  
+**Note:** The Content-Type header indicates this is an assertion check operation, not the URL path
 
 **Request Body (Frontend → Backend):**
 ```json

@@ -5,7 +5,6 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
 	FiAlertTriangle,
 	FiArrowLeft,
@@ -15,6 +14,7 @@ import {
 	FiRefreshCw,
 	FiShield,
 } from 'react-icons/fi';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
@@ -67,7 +67,9 @@ const formatDate = (input?: string | number): string => {
 	return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 };
 
-const getStatusBadge = (status?: string): { label: string; color: string; background: string; icon: React.ReactNode } => {
+const getStatusBadge = (
+	status?: string
+): { label: string; color: string; background: string; icon: React.ReactNode } => {
 	if (!status) {
 		return {
 			label: 'Unknown',
@@ -116,7 +118,10 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 
-	const initialEnvironmentId = useMemo(() => searchParams.get('environmentId') || '', [searchParams]);
+	const initialEnvironmentId = useMemo(
+		() => searchParams.get('environmentId') || '',
+		[searchParams]
+	);
 	const initialAuthId = useMemo(() => searchParams.get('authenticationId') || '', [searchParams]);
 	const initialRegion = useMemo(() => searchParams.get('region') || DEFAULT_REGION, [searchParams]);
 
@@ -163,19 +168,19 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 			try {
 				const requestParams: {
-				environmentId: string;
-				authenticationId: string;
-				region?: string;
-			} = {
-				environmentId: trimmedEnv,
-				authenticationId: trimmedAuth,
-			};
+					environmentId: string;
+					authenticationId: string;
+					region?: string;
+				} = {
+					environmentId: trimmedEnv,
+					authenticationId: trimmedAuth,
+				};
 
-			if (region?.trim()) {
-				requestParams.region = region.trim();
-			}
+				if (region?.trim()) {
+					requestParams.region = region.trim();
+				}
 
-			const response = await MFAServiceV8.readDeviceAuthentication(requestParams);
+				const response = await MFAServiceV8.readDeviceAuthentication(requestParams);
 
 				setResult(response);
 				if (!options?.suppressToast) {
@@ -202,12 +207,22 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 
 	const summary = useMemo(() => {
 		const record = result?.response as Record<string, unknown> | undefined;
-		const status = (record?.status as string | undefined) || (record?.state as string | undefined) || '';
+		const status =
+			(record?.status as string | undefined) || (record?.state as string | undefined) || '';
 		const device = record?.device as Record<string, unknown> | undefined;
-		const deviceType = (device?.type as string | undefined) || (record?.authenticationType as string | undefined) || '';
+		const deviceType =
+			(device?.type as string | undefined) ||
+			(record?.authenticationType as string | undefined) ||
+			'';
 		const channel = (record?.channel as string | undefined) || '';
-		const step = (record?.nextStep as string | undefined) || ((record?.next as Record<string, unknown>)?.status as string | undefined) || '';
-		const updated = (record?.updatedAt as string | undefined) || (record?.lastUpdated as string | undefined) || (record?.modifiedAt as string | undefined);
+		const step =
+			(record?.nextStep as string | undefined) ||
+			((record?.next as Record<string, unknown>)?.status as string | undefined) ||
+			'';
+		const updated =
+			(record?.updatedAt as string | undefined) ||
+			(record?.lastUpdated as string | undefined) ||
+			(record?.modifiedAt as string | undefined);
 		const created = (record?.createdAt as string | undefined) || '';
 
 		return {
@@ -283,11 +298,19 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 						boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
 					}}
 				>
-					<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+					<header
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '16px',
+						}}
+					>
 						<div>
 							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>Lookup Parameters</h2>
 							<p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-								Provide the environment ID and device authentication ID returned from the initialization step.
+								Provide the environment ID and device authentication ID returned from the
+								initialization step.
 							</p>
 						</div>
 						{!hasWorkerToken && (
@@ -323,7 +346,15 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 								gap: '16px',
 							}}
 						>
-							<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+							<label
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '6px',
+									fontSize: '14px',
+									color: '#374151',
+								}}
+							>
 								Environment ID
 								<input
 									type="text"
@@ -341,7 +372,15 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 								/>
 							</label>
 
-							<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+							<label
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '6px',
+									fontSize: '14px',
+									color: '#374151',
+								}}
+							>
 								Device Authentication ID
 								<input
 									type="text"
@@ -359,7 +398,15 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 								/>
 							</label>
 
-							<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+							<label
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '6px',
+									fontSize: '14px',
+									color: '#374151',
+								}}
+							>
 								Region (optional)
 								<select
 									value={region}
@@ -471,9 +518,18 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 						boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
 					}}
 				>
-					<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+					<header
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '16px',
+						}}
+					>
 						<div>
-							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>Authentication Summary</h2>
+							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>
+								Authentication Summary
+							</h2>
 							<p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
 								Quick view of the authentication session returned by PingOne.
 							</p>
@@ -497,7 +553,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Environment ID
 									</span>
 									<p style={{ margin: '6px 0 0', fontFamily: 'monospace', color: '#111827' }}>
@@ -512,7 +575,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Authentication ID
 									</span>
 									<p style={{ margin: '6px 0 0', fontFamily: 'monospace', color: '#111827' }}>
@@ -527,7 +597,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Status
 									</span>
 									{(() => {
@@ -561,14 +638,23 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Device
 									</span>
 									<p style={{ margin: '6px 0 0', fontFamily: 'monospace', color: '#111827' }}>
 										{summary.deviceId || '—'}
 									</p>
 									{summary.deviceType && (
-										<p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6b7280' }}>{summary.deviceType}</p>
+										<p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6b7280' }}>
+											{summary.deviceType}
+										</p>
 									)}
 								</div>
 								<div
@@ -579,7 +665,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Next Step
 									</span>
 									<p style={{ margin: '6px 0 0', color: '#111827', fontWeight: 600 }}>
@@ -594,7 +687,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 										border: '1px solid #e5e7eb',
 									}}
 								>
-									<span style={{ fontSize: '12px', textTransform: 'uppercase', color: '#6b7280', fontWeight: 600 }}>
+									<span
+										style={{
+											fontSize: '12px',
+											textTransform: 'uppercase',
+											color: '#6b7280',
+											fontWeight: 600,
+										}}
+									>
 										Last Updated
 									</span>
 									<p style={{ margin: '6px 0 0', color: '#111827' }}>
@@ -622,11 +722,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 							>
 								<FiClock style={{ color: '#1d4ed8', marginTop: '2px' }} />
 								<div style={{ fontSize: '14px', color: '#1d4ed8' }}>
-									<strong style={{ display: 'block', marginBottom: '4px' }}>Why this matters</strong>
+									<strong style={{ display: 'block', marginBottom: '4px' }}>
+										Why this matters
+									</strong>
 									<span>
-										The <code>Read Device Authentication</code> endpoint provides the authoritative status of the MFA step after
-										you call initialize. Use it to confirm whether PingOne sent an OTP, requires device selection, or has already
-										completed the authentication.
+										The <code>Read Device Authentication</code> endpoint provides the authoritative
+										status of the MFA step after you call initialize. Use it to confirm whether
+										PingOne sent an OTP, requires device selection, or has already completed the
+										authentication.
 									</span>
 								</div>
 							</div>
@@ -659,7 +762,14 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 						boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
 					}}
 				>
-					<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+					<header
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '16px',
+						}}
+					>
 						<div>
 							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>Full Response Body</h2>
 							<p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
@@ -675,4 +785,3 @@ export const DeviceAuthenticationDetailsV8: React.FC = () => {
 };
 
 export default DeviceAuthenticationDetailsV8;
-

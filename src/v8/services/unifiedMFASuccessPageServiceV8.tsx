@@ -3,11 +3,11 @@
  * @module v8/services
  * @description Unified success page service for all MFA flows (registration and authentication)
  * @version 8.4.0
- * 
+ *
  * This service provides a unified success page component that works for:
  * - All device types: SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP, etc.
  * - Both registration and authentication flows
- * 
+ *
  * Features:
  * - Device type display
  * - Contact info (email, phone)
@@ -16,22 +16,35 @@
  * - FIDO policy information (if applicable)
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiBook,
+	FiCheck,
+	FiChevronDown,
+	FiChevronUp,
+	FiCopy,
+	FiHome,
+	FiInfo,
+	FiShield,
+} from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiCheck, FiCopy, FiHome, FiInfo, FiChevronDown, FiChevronUp, FiShield, FiBook } from 'react-icons/fi';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { ApiDisplayCheckbox, SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 export interface UnifiedMFASuccessPageData {
 	// Flow type
 	flowType: 'registration' | 'authentication';
-	
+
 	// User information
 	username?: string;
 	userId?: string;
 	environmentId?: string;
-	
+
 	// Device information
 	deviceId?: string;
 	deviceType?: DeviceType | string;
@@ -40,7 +53,7 @@ export interface UnifiedMFASuccessPageData {
 	deviceName?: string;
 	phone?: string;
 	email?: string;
-	
+
 	// Policy information
 	policyId?: string;
 	policyName?: string;
@@ -49,7 +62,7 @@ export interface UnifiedMFASuccessPageData {
 		name?: string;
 		[key: string]: unknown;
 	};
-	
+
 	// Authentication/Registration result
 	completionResult?: {
 		accessToken?: string;
@@ -60,23 +73,23 @@ export interface UnifiedMFASuccessPageData {
 		message?: string;
 		[key: string]: unknown;
 	};
-	
+
 	// Verification result (for registration flows)
 	verificationResult?: {
 		status: string;
 		message?: string;
 		[key: string]: unknown;
 	};
-	
+
 	// Transaction details
 	authenticationId?: string | null;
 	challengeId?: string | null;
 	timestamp?: string;
 	deviceSelectionBehavior?: string;
-	
+
 	// Additional response data (for JSON display)
 	responseData?: Record<string, unknown>;
-	
+
 	// Flow-specific context for documentation
 	registrationFlowType?: 'admin' | 'user';
 	adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
@@ -94,7 +107,7 @@ export interface UnifiedMFASuccessPageProps {
  */
 export const getDeviceTypeDisplay = (deviceType?: DeviceType | string): string => {
 	if (!deviceType) return 'Unknown';
-	
+
 	const displayNames: Record<string, string> = {
 		SMS: 'SMS (Text Message)',
 		EMAIL: 'Email',
@@ -112,10 +125,14 @@ export const getDeviceTypeDisplay = (deviceType?: DeviceType | string): string =
  * Unified MFA Success Page Component
  * Works for all device types and both registration/authentication flows
  */
-export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ data, onStartAgain }) => {
+export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
+	data,
+	onStartAgain,
+}) => {
 	const navigate = useNavigate();
 	const [jsonExpanded, setJsonExpanded] = useState(false);
-	
+	const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+
 	const {
 		flowType,
 		username,
@@ -139,18 +156,31 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 		deviceSelectionBehavior,
 		responseData,
 	} = data;
-	
+
 	const deviceTypeDisplay = getDeviceTypeDisplay(deviceType);
 	const contactInfo = phone || email;
 	const contactLabel = phone ? 'Phone' : email ? 'Email' : null;
-	
+
+	// Subscribe to API display visibility changes to adjust bottom padding
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+			setApiDisplayVisible(isVisible);
+		});
+		return unsubscribe;
+	}, []);
+
+	// Calculate bottom padding based on API display visibility
+	// API display max height is 400px (when there are calls) or 180px (when empty)
+	// Add extra padding to ensure buttons are fully visible
+	const bottomPadding = apiDisplayVisible ? '500px' : '24px';
+
 	const handleCopyToken = () => {
 		if (completionResult?.accessToken) {
 			navigator.clipboard.writeText(completionResult.accessToken);
 			toastV8.success('Access token copied to clipboard');
 		}
 	};
-	
+
 	const handleGoHome = () => {
 		if (onStartAgain) {
 			onStartAgain();
@@ -158,7 +188,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 			navigate('/v8/mfa-hub');
 		}
 	};
-	
+
 	const handleGoToAuthentication = () => {
 		navigate('/v8/mfa-hub');
 	};
@@ -174,7 +204,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 		};
 
 		const route = docsRouteMap[deviceType as string] || '/v8/mfa/register/sms/docs';
-		
+
 		// Pass flow-specific data via location.state for documentation page
 		navigate(route, {
 			state: {
@@ -191,26 +221,72 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 				phone: data.phone,
 				email: data.email,
 				deviceName: data.deviceName || data.deviceNickname,
-			}
+			},
 		});
 	};
 
 	// Show documentation button for all registration flows that have documentation
-	const hasDocumentation = deviceType && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceType as string);
-	const showDocumentationButton = flowType === 'registration' && hasDocumentation;
+	// Also show for FIDO2 authentication flows (FIDO2 has both registration and authentication docs)
+	// Normalize deviceType to string for comparison
+	const deviceTypeStr = String(deviceType || '').toUpperCase();
+	const hasDocumentation =
+		deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
+	// Show button for registration flows OR FIDO2 authentication flows
+	const showDocumentationButton = hasDocumentation && (flowType === 'registration' || (flowType === 'authentication' && deviceTypeStr === 'FIDO2'));
 	
+	// Debug logging for FIDO2 documentation button
+	if (deviceTypeStr === 'FIDO2' || deviceType === 'FIDO2') {
+		console.log('[UnifiedMFASuccessPageV8] FIDO2 documentation button check:', {
+			deviceType,
+			deviceTypeStr,
+			flowType,
+			hasDocumentation,
+			showDocumentationButton,
+			deviceTypeIncluded: ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr),
+		});
+	}
+
 	// Build JSON response for display
 	const jsonResponse = responseData || completionResult || verificationResult || {};
-	
+
 	return (
-		<div style={{ padding: '24px', maxWidth: '900px', margin: '0 auto' }}>
-			{/* API Display Toggle - Top */}
-			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'flex-end' }}>
+		<div
+			style={{
+				padding: '24px',
+				paddingBottom: bottomPadding,
+				maxWidth: '900px',
+				margin: '0 auto',
+				minHeight: '100vh',
+			}}
+		>
+			{/* Top Navigation - Back to Hub Button */}
+			<div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+				<button
+					type="button"
+					onClick={handleGoHome}
+					style={{
+						padding: '10px 20px',
+						fontSize: '14px',
+						fontWeight: '600',
+						borderRadius: '8px',
+						border: '1px solid #10b981',
+						background: '#10b981',
+						color: 'white',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+					}}
+				>
+					<FiHome />
+					Back to MFA Hub
+				</button>
 				<ApiDisplayCheckbox />
 			</div>
-			
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
+
 			{/* Celebratory Header */}
 			<div
 				style={{
@@ -232,7 +308,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						color: 'white',
 					}}
 				>
-					{flowType === 'authentication' ? 'Authentication Successful!' : 'Registration Successful!'}
+					{flowType === 'authentication'
+						? 'Authentication Successful!'
+						: 'Registration Successful!'}
 				</h1>
 				<p
 					style={{
@@ -242,10 +320,11 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						fontWeight: '500',
 					}}
 				>
-					Your MFA {flowType === 'authentication' ? 'authentication' : 'device registration'} has been completed successfully
+					Your MFA {flowType === 'authentication' ? 'authentication' : 'device registration'} has
+					been completed successfully
 				</p>
 			</div>
-			
+
 			{/* Success Confirmation Card */}
 			<div
 				style={{
@@ -283,7 +362,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</div>
 				</div>
 			</div>
-			
+
 			{/* Device Summary Card */}
 			{(deviceType || deviceId || contactInfo) && (
 				<div
@@ -320,41 +399,103 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 							</p>
 						</div>
 					</div>
-					
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+							gap: '16px',
+						}}
+					>
 						{deviceType && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+										marginBottom: '6px',
+									}}
+								>
 									Device Type
 								</div>
-								<div style={{ background: '#f9fafb', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e5e7eb', fontWeight: 600 }}>
+								<div
+									style={{
+										background: '#f9fafb',
+										padding: '10px 12px',
+										borderRadius: '8px',
+										border: '1px solid #e5e7eb',
+										fontWeight: 600,
+									}}
+								>
 									{deviceTypeDisplay}
 								</div>
 							</div>
 						)}
 						{contactInfo && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+										marginBottom: '6px',
+									}}
+								>
 									{contactLabel}
 								</div>
-								<div style={{ background: '#eef2ff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #c7d2fe', fontWeight: 600 }}>
+								<div
+									style={{
+										background: '#eef2ff',
+										padding: '10px 12px',
+										borderRadius: '8px',
+										border: '1px solid #c7d2fe',
+										fontWeight: 600,
+									}}
+								>
 									{contactInfo}
 								</div>
 							</div>
 						)}
 						{(deviceNickname || deviceName) && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+										marginBottom: '6px',
+									}}
+								>
 									Device Name
 								</div>
-								<div style={{ background: '#f9fafb', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e5e7eb', fontWeight: 600 }}>
+								<div
+									style={{
+										background: '#f9fafb',
+										padding: '10px 12px',
+										borderRadius: '8px',
+										border: '1px solid #e5e7eb',
+										fontWeight: 600,
+									}}
+								>
 									{deviceNickname || deviceName}
 								</div>
 							</div>
 						)}
 						{deviceStatus && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+										marginBottom: '6px',
+									}}
+								>
 									Device Status
 								</div>
 								<div
@@ -374,7 +515,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</div>
 				</div>
 			)}
-			
+
 			{/* Token Information Card (for authentication flows) */}
 			{completionResult && (
 				<div
@@ -400,7 +541,13 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					>
 						🔑 Access Token Information
 					</h4>
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+							gap: '16px',
+						}}
+					>
 						{completionResult.accessToken && (
 							<div
 								style={{
@@ -411,8 +558,23 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 									gridColumn: '1 / -1',
 								}}
 							>
-								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-									<span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+										alignItems: 'center',
+										marginBottom: '8px',
+									}}
+								>
+									<span
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											fontWeight: '600',
+											textTransform: 'uppercase',
+											letterSpacing: '0.5px',
+										}}
+									>
 										Access Token
 									</span>
 									<button
@@ -461,10 +623,25 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 									border: '1px solid #e5e7eb',
 								}}
 							>
-								<span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+								<span
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										fontWeight: '600',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+									}}
+								>
 									Token Type
 								</span>
-								<div style={{ fontSize: '16px', color: '#1f2937', fontWeight: '500', marginTop: '8px' }}>
+								<div
+									style={{
+										fontSize: '16px',
+										color: '#1f2937',
+										fontWeight: '500',
+										marginTop: '8px',
+									}}
+								>
 									{completionResult.tokenType}
 								</div>
 							</div>
@@ -478,15 +655,33 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 									border: '1px solid #e5e7eb',
 								}}
 							>
-								<span style={{ fontSize: '12px', color: '#6b7280', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+								<span
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										fontWeight: '600',
+										textTransform: 'uppercase',
+										letterSpacing: '0.5px',
+									}}
+								>
 									Expires In
 								</span>
-								<div style={{ fontSize: '16px', color: '#1f2937', fontWeight: '500', marginTop: '8px' }}>
+								<div
+									style={{
+										fontSize: '16px',
+										color: '#1f2937',
+										fontWeight: '500',
+										marginTop: '8px',
+									}}
+								>
 									{completionResult.expiresIn} seconds
 								</div>
 								{timestamp && (
 									<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-										Expires: {new Date(new Date(timestamp).getTime() + (completionResult.expiresIn * 1000)).toLocaleString()}
+										Expires:{' '}
+										{new Date(
+											new Date(timestamp).getTime() + completionResult.expiresIn * 1000
+										).toLocaleString()}
 									</div>
 								)}
 							</div>
@@ -494,7 +689,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</div>
 				</div>
 			)}
-			
+
 			{/* User and Authentication Details Card */}
 			{(username || userId || environmentId || policyName || fidoPolicy) && (
 				<div
@@ -520,10 +715,23 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					>
 						👤 {flowType === 'authentication' ? 'Authentication Details' : 'Registration Details'}
 					</h4>
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+							gap: '16px',
+						}}
+					>
 						{username && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Username
 								</div>
 								<div
@@ -543,7 +751,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{userId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									User ID
 								</div>
 								<div
@@ -565,7 +780,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{environmentId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Environment ID
 								</div>
 								<div
@@ -587,7 +809,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{policyName && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Policy Used
 								</div>
 								<div
@@ -607,7 +836,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{policyId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Policy ID
 								</div>
 								<div
@@ -629,7 +865,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{fidoPolicy && (
 							<div style={{ gridColumn: '1 / -1' }}>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									FIDO Policy
 								</div>
 								<div
@@ -645,7 +888,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 								>
 									{fidoPolicy.name || fidoPolicy.id || 'FIDO Policy'}
 									{fidoPolicy.id && (
-										<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px', fontFamily: 'monospace' }}>
+										<div
+											style={{
+												fontSize: '12px',
+												color: '#6b7280',
+												marginTop: '4px',
+												fontFamily: 'monospace',
+											}}
+										>
 											ID: {fidoPolicy.id}
 										</div>
 									)}
@@ -655,7 +905,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</div>
 				</div>
 			)}
-			
+
 			{/* Transaction Details Card */}
 			{(authenticationId || challengeId || timestamp || deviceId) && (
 				<div
@@ -694,7 +944,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					>
 						{deviceId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Device ID
 								</div>
 								<div
@@ -715,7 +972,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{authenticationId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Authentication ID
 								</div>
 								<div
@@ -736,7 +1000,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{challengeId && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Challenge ID
 								</div>
 								<div
@@ -757,7 +1028,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{timestamp && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Transaction Time
 								</div>
 								<div
@@ -776,16 +1054,29 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{(completionResult?.status || verificationResult?.status) && (
 							<div>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Status
 								</div>
 								<div
 									style={{
 										fontSize: '14px',
-										color: (completionResult?.status || verificationResult?.status) === 'COMPLETED' ? '#166534' : '#92400e',
+										color:
+											(completionResult?.status || verificationResult?.status) === 'COMPLETED'
+												? '#166534'
+												: '#92400e',
 										fontWeight: '500',
 										padding: '8px 12px',
-										background: (completionResult?.status || verificationResult?.status) === 'COMPLETED' ? '#dcfce7' : '#fef3c7',
+										background:
+											(completionResult?.status || verificationResult?.status) === 'COMPLETED'
+												? '#dcfce7'
+												: '#fef3c7',
 										borderRadius: '6px',
 										border: `1px solid ${(completionResult?.status || verificationResult?.status) === 'COMPLETED' ? '#86efac' : '#fbbf24'}`,
 									}}
@@ -796,7 +1087,14 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						)}
 						{(completionResult?.message || verificationResult?.message) && (
 							<div style={{ gridColumn: '1 / -1' }}>
-								<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '500' }}>
+								<div
+									style={{
+										fontSize: '12px',
+										color: '#6b7280',
+										marginBottom: '6px',
+										fontWeight: '500',
+									}}
+								>
 									Message
 								</div>
 								<div
@@ -818,7 +1116,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</div>
 				</div>
 			)}
-			
+
 			{/* JSON Response Card (Collapsed) */}
 			{Object.keys(jsonResponse).length > 0 && (
 				<div
@@ -888,7 +1186,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					)}
 				</div>
 			)}
-			
+
 			{/* Device Selection Behavior (for authentication flows) */}
 			{deviceSelectionBehavior && flowType === 'authentication' && (
 				<div
@@ -923,7 +1221,16 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						}}
 					>
 						<div style={{ marginBottom: '12px' }}>
-							<div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '6px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+							<div
+								style={{
+									fontSize: '12px',
+									color: '#6b7280',
+									marginBottom: '6px',
+									fontWeight: '600',
+									textTransform: 'uppercase',
+									letterSpacing: '0.5px',
+								}}
+							>
 								Policy Setting
 							</div>
 							<div
@@ -941,15 +1248,27 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 								{deviceSelectionBehavior === 'DEFAULT_TO_FIRST' && 'Default to First Device'}
 								{deviceSelectionBehavior === 'PROMPT_TO_SELECT_DEVICE' && 'Prompt to Select Device'}
 								{deviceSelectionBehavior === 'ALWAYS_DISPLAY_DEVICES' && 'Always Display Devices'}
-								{!['DEFAULT_TO_FIRST', 'PROMPT_TO_SELECT_DEVICE', 'ALWAYS_DISPLAY_DEVICES'].includes(deviceSelectionBehavior) && deviceSelectionBehavior}
+								{![
+									'DEFAULT_TO_FIRST',
+									'PROMPT_TO_SELECT_DEVICE',
+									'ALWAYS_DISPLAY_DEVICES',
+								].includes(deviceSelectionBehavior) && deviceSelectionBehavior}
 							</div>
 						</div>
 					</div>
 				</div>
 			)}
-			
+
 			{/* Action Buttons */}
-			<div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '32px', flexWrap: 'wrap' }}>
+			<div
+				style={{
+					display: 'flex',
+					gap: '12px',
+					justifyContent: 'center',
+					marginTop: '32px',
+					flexWrap: 'wrap',
+				}}
+			>
 				<button
 					type="button"
 					onClick={handleGoHome}
@@ -958,19 +1277,20 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 						fontSize: '16px',
 						fontWeight: '600',
 						borderRadius: '8px',
-						border: '1px solid #d1d5db',
-						background: 'white',
-						color: '#374151',
+						border: '1px solid #10b981',
+						background: '#10b981',
+						color: 'white',
 						cursor: 'pointer',
 						display: 'flex',
 						alignItems: 'center',
 						gap: '8px',
+						boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
 					}}
 				>
 					<FiHome />
 					Back to MFA Hub
 				</button>
-				{/* Show Documentation button for OTP registration flows */}
+				{/* Show Documentation button for registration flows and FIDO2 authentication flows */}
 				{showDocumentationButton && (
 					<button
 						type="button"
@@ -1017,7 +1337,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 					</button>
 				)}
 			</div>
-			
+
 			{/* API Display Toggle - Bottom */}
 			<div style={{ marginTop: '48px', display: 'flex', justifyContent: 'flex-end' }}>
 				<ApiDisplayCheckbox />
@@ -1025,4 +1345,3 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({ 
 		</div>
 	);
 };
-

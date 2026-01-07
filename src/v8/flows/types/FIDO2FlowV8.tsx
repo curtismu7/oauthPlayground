@@ -13,6 +13,7 @@ import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -596,9 +597,12 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 						>
+							{/* Worker Token Status Gauge */}
+							<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={60} />
+							
 							<button
 								type="button"
-								onClick={() => {
+								onClick={async () => {
 									if (tokenStatus.isValid) {
 										import('@/v8/services/workerTokenServiceV8').then(
 											({ workerTokenServiceV8 }) => {
@@ -609,13 +613,16 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 											}
 										);
 									} else {
-										props.setShowWorkerTokenModal(true);
+										// Use helper to check silentApiRetrieval before showing modal
+										// forceShowModal=true because user explicitly clicked the button - always show modal
+										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+										await handleShowWorkerTokenModal(props.setShowWorkerTokenModal, undefined, undefined, undefined, true);
 									}
 								}}
 								className="token-button"
 								style={{
 									padding: '10px 16px',
-									background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+									background: tokenStatus.isValid ? '#10b981' : '#6366f1',
 									color: 'white',
 									border: 'none',
 									borderRadius: '6px',
@@ -625,10 +632,26 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 									display: 'flex',
 									alignItems: 'center',
 									gap: '8px',
+									boxShadow: tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.transform = 'translateY(-1px)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 4px 8px rgba(16, 185, 129, 0.3)'
+										: '0 4px 8px rgba(59, 130, 246, 0.3)';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)';
 								}}
 							>
 								<span>🔑</span>
-								<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
+								<span>Get Worker Token</span>
 							</button>
 
 							<button
@@ -1239,6 +1262,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					...mfaState,
 					deviceId: deviceResult.deviceId,
 					deviceStatus: fido2Result.status || 'ACTIVE',
+					nickname: registrationCredentials.deviceName || deviceType || 'FIDO2',
+					userId: mfaState.userId || credentials.username,
+					environmentId: mfaState.environmentId || credentials.environmentId,
+					createdAt: new Date().toISOString(),
+					updatedAt: new Date().toISOString(),
 					verificationResult: {
 						status: 'COMPLETED',
 						message: 'FIDO2 device registered and activated successfully',
@@ -1646,15 +1674,6 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								onClick={handleRegisterDevice}
 								style={{
 									background:
-										isLoading ||
-										isRegistering ||
-										!credentials.deviceName?.trim() ||
-										!credentials.username?.trim() ||
-										!credentials.environmentId?.trim() ||
-										!tokenStatus.isValid
-											? '#9ca3af'
-											: '#10b981',
-									borderColor:
 										isLoading ||
 										isRegistering ||
 										!credentials.deviceName?.trim() ||
@@ -2131,18 +2150,53 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { mfaState, credentials } = props;
 
+			// Ensure deviceType is set to FIDO2 for success page
+			// Pass modified credentials to buildSuccessPageData but keep original in props
+			const credentialsWithDeviceType = {
+				...credentials,
+				deviceType: 'FIDO2' as DeviceType,
+			};
+
+			// Ensure mfaState has all required fields for success page
+			// FIDO2 registration should have deviceId, nickname, deviceStatus, etc.
+			const enrichedMfaState = {
+				...mfaState,
+				deviceId: mfaState.deviceId || '',
+				deviceStatus: mfaState.deviceStatus || 'ACTIVE',
+				nickname: mfaState.nickname || credentials.deviceName || 'FIDO2',
+				environmentId: mfaState.environmentId || credentials.environmentId,
+				userId: mfaState.userId || '',
+			};
+
 			// Use shared success page service
 			// FIDO2 flow doesn't use useUnifiedOTPFlow hook, so default to admin flow
 			const successData = buildSuccessPageData(
-				credentials,
-				mfaState,
+				credentialsWithDeviceType,
+				enrichedMfaState,
 				'admin',
 				'ACTIVE',
 				credentials.tokenType || 'worker'
 			);
+			
+			// Ensure successData has FIDO2 deviceType explicitly set
+			successData.deviceType = 'FIDO2' as DeviceType;
+			
+			// Debug logging to verify data is being passed correctly
+			console.log('[FIDO2FlowV8] renderStep3 - Success page data:', {
+				deviceId: successData.deviceId,
+				deviceType: successData.deviceType,
+				deviceStatus: successData.deviceStatus,
+				nickname: successData.nickname,
+				username: successData.username,
+				userId: successData.userId,
+			});
+			
+			// Pass modified credentials with deviceType to ensure documentation button shows
+			// The original credentials from props might not have deviceType set
 			return (
 				<MFASuccessPageV8
 					{...props}
+					credentials={credentialsWithDeviceType}
 					successData={successData}
 					onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 				/>
@@ -2215,7 +2269,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 			style={{
 				minHeight: '100vh',
 				paddingBottom:
-					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
+					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '0',
 				transition: 'padding-bottom 0.3s ease',
 				overflow: 'visible',
 			}}

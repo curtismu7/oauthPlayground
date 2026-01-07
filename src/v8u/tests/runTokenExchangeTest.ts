@@ -8,15 +8,14 @@
 
 import TokenExchangeFlowTest, { TestResult } from './tokenExchangeFlowTest';
 
-
 /**
  * Initialize and run token exchange flow tests
  */
 export function initializeTokenExchangeTests(): void {
-
 	// Make test available globally
 	if (typeof window !== 'undefined') {
-		(window as { TokenExchangeFlowTest?: typeof TokenExchangeFlowTest }).TokenExchangeFlowTest = TokenExchangeFlowTest;
+		(window as { TokenExchangeFlowTest?: typeof TokenExchangeFlowTest }).TokenExchangeFlowTest =
+			TokenExchangeFlowTest;
 
 		// Create convenience function
 		(window as { runTokenExchangeTests?: () => TestResult[] }).runTokenExchangeTests = () => {
@@ -24,8 +23,7 @@ export function initializeTokenExchangeTests(): void {
 			test.runAllTests();
 			return test.getResults();
 		};
-
-		}
+	}
 }
 
 // Auto-initialize when imported

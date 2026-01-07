@@ -1200,7 +1200,7 @@ curl -X POST https://auth.example.com/oauth/token \\
         }
 
         // Auto-expand first few services on load
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             toggleService('credentials-input');
             toggleService('token-display');
             toggleService('step-navigation');

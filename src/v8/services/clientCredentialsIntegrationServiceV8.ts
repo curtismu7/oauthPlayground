@@ -119,10 +119,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// - Client credentials tokens are for generic M2M scenarios, not PingOne Admin operations
 			// - Worker tokens are specifically for PingOne Admin/Management operations
 			const scopeList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
-			
+
 			// Note: "openid" scope is now allowed - user can include it if their PingOne configuration supports it
 			// We no longer automatically remove it
-			
+
 			// User authentication scopes (require user context)
 			const userAuthScopes = ['offline_access', 'profile', 'email', 'address', 'phone'];
 			const foundUserAuthScopes = scopeList.filter((scope) =>
@@ -157,7 +157,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 						`See https://apidocs.pingidentity.com/pingone/main/v1/api/#pingone-self-management-scopes for details.`
 				);
 			}
-
 
 			proxyRequestBody.scope = credentials.scopes;
 
@@ -345,7 +344,9 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 			if (!response.ok) {
 				const errorData = responseData as Record<string, unknown>;
-				const errorMessage = (errorData.error_description || errorData.error || 'Unknown error') as string;
+				const errorMessage = (errorData.error_description ||
+					errorData.error ||
+					'Unknown error') as string;
 				const errorCode = (errorData.error || 'unknown_error') as string;
 
 				// Log the FULL error response for debugging
@@ -488,12 +489,12 @@ export class ClientCredentialsIntegrationServiceV8 {
 					});
 
 					const scopesList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
-					
+
 					// Check for problematic scopes
-					const hasUserAuthScopes = scopesList.some(s => 
+					const hasUserAuthScopes = scopesList.some((s) =>
 						['profile', 'email', 'address', 'phone', 'offline_access'].includes(s)
 					);
-					
+
 					// Check if error indicates scopes are not granted (common issue)
 					const isScopeNotGranted =
 						errorMessage.toLowerCase().includes('at least one scope must be granted') ||
@@ -504,28 +505,30 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 					if (isScopeNotGranted) {
 						let errorMsg = `Scope Configuration Error: The scope(s) "${scopesList.join(', ')}" are not enabled/granted to your application in PingOne.\n\n`;
-						
+
 						// Check for invalid scopes for client credentials
 						const invalidScopes = [];
-						const openIdScope = scopesList.find(s => s.toLowerCase() === 'openid');
+						const openIdScope = scopesList.find((s) => s.toLowerCase() === 'openid');
 						if (openIdScope) {
 							invalidScopes.push(openIdScope);
 						}
-						
+
 						// Check for self-management scopes (singular "user")
-						const selfManagementScopes = scopesList.filter(s => /^p1:(read|update|delete|create):user$/i.test(s));
+						const selfManagementScopes = scopesList.filter((s) =>
+							/^p1:(read|update|delete|create):user$/i.test(s)
+						);
 						if (selfManagementScopes.length > 0) {
 							invalidScopes.push(...selfManagementScopes);
 						}
-						
+
 						// Warn about user authentication scopes
 						if (hasUserAuthScopes) {
-							const userScopes = scopesList.filter(s => 
+							const userScopes = scopesList.filter((s) =>
 								['profile', 'email', 'address', 'phone', 'offline_access'].includes(s)
 							);
 							invalidScopes.push(...userScopes);
 						}
-						
+
 						if (invalidScopes.length > 0) {
 							errorMsg += `❌ INVALID SCOPES FOR CLIENT CREDENTIALS:\n`;
 							errorMsg += `The following scope(s) cannot be used with Client Credentials flow:\n`;
@@ -538,15 +541,17 @@ export class ClientCredentialsIntegrationServiceV8 {
 							errorMsg += `✅ You MUST use custom resource server scopes instead.\n`;
 							errorMsg += `Examples: custom:scope, CLAIM_IC_FACILITY, or other scopes defined in your resource server.\n\n`;
 						}
-						
+
 						// Check for Management API scopes (plural "users") - these might be valid if available
-						const managementApiScopes = scopesList.filter(s => s.startsWith('p1:') && !/^p1:(read|update|delete|create):user$/i.test(s));
+						const managementApiScopes = scopesList.filter(
+							(s) => s.startsWith('p1:') && !/^p1:(read|update|delete|create):user$/i.test(s)
+						);
 						if (managementApiScopes.length > 0) {
 							errorMsg += `📋 For Management API scopes (${managementApiScopes.join(', ')}):\n`;
 							errorMsg += `⚠️ NOTE: Management API scopes (p1:*) may not be available in all PingOne environments.\n`;
 							errorMsg += `If the "PingOne API" resource is not visible in your Resources tab, use custom resource server scopes instead.\n\n`;
 						}
-						
+
 						errorMsg += `🔧 How to Fix:\n`;
 						errorMsg += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
 						errorMsg += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
@@ -555,18 +560,18 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `5. Under "Scopes", check the boxes for your custom scopes\n`;
 						errorMsg += `6. Click "Save"\n`;
 						errorMsg += `7. Wait a few seconds for changes to propagate, then try the request again\n\n`;
-						
+
 						errorMsg += `💡 Important: For Client Credentials flow, you MUST use custom resource server scopes.\n`;
 						errorMsg += `- ✅ Valid: Custom resource scopes (custom:scope, CLAIM_IC_FACILITY, or other scopes defined in your resource server)\n`;
 						errorMsg += `- ❌ Invalid: "openid" (OIDC scope)\n`;
 						errorMsg += `- ❌ Invalid: Self-management scopes like "p1:read:user" (singular "user")\n`;
 						errorMsg += `- ❌ Invalid: User authentication scopes (profile, email, address, phone, offline_access)\n\n`;
-						
+
 						errorMsg += `📚 Documentation:\n`;
 						errorMsg += `- Custom Scopes: https://apidocs.pingidentity.com/pingone/main/v1/api/#custom-scopes\n`;
 						errorMsg += `- Roles, Scopes, and Permissions: https://apidocs.pingidentity.com/pingone/main/v1/api/#roles-scopes-and-permissions\n`;
 						errorMsg += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
-						
+
 						throw new Error(errorMsg);
 					}
 

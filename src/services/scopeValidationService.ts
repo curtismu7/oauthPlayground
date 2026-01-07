@@ -571,5 +571,4 @@ if (typeof window !== 'undefined') {
 	(window as any).getScopeCacheStats = () => scopeValidationService.getCacheStats();
 	(window as any).clearScopeCache = () => scopeValidationService.clearCache();
 	(window as any).resetScopeMetrics = () => scopeValidationService.resetMetrics();
-
 }
