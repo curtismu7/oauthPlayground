@@ -160,41 +160,44 @@ import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
+import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
+import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
 import { ImplicitFlowV8 } from './v8/flows/ImplicitFlowV8';
+import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
+import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
 import MFADeviceManagementFlowV8 from './v8/flows/MFADeviceManagementFlowV8';
 import { MFADeviceOrderingFlowV8 } from './v8/flows/MFADeviceOrderingFlowV8';
 import { MFAFlowV8 } from './v8/flows/MFAFlowV8';
-import { MFAAuthenticationMainPageV8 } from './v8/flows/MFAAuthenticationMainPageV8';
-import { MFAAuthenticationSuccessPage } from './v8/components/MFAAuthenticationSuccessPage';
-import { MFAConfigurationPageV8 } from './v8/flows/MFAConfigurationPageV8';
-import { EmailMFASignOnFlowV8 } from './v8/flows/EmailMFASignOnFlowV8';
-import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
-import { FIDO2FlowV8 } from './v8/flows/types/FIDO2FlowV8';
-import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
-import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
-import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
-import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
-import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
-import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
-import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
-import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
 import MFAReportingFlowV8 from './v8/flows/MFAReportingFlowV8';
 import OAuthAuthorizationCodeFlowV8 from './v8/flows/OAuthAuthorizationCodeFlowV8';
-import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
 import PingOneProtectFlowV8 from './v8/flows/PingOneProtectFlowV8';
+import ResourcesAPIFlowV8 from './v8/flows/ResourcesAPIFlowV8';
+import { EmailFlowV8 } from './v8/flows/types/EmailFlowV8';
+import { EmailOTPConfigurationPageV8 } from './v8/flows/types/EmailOTPConfigurationPageV8';
+import { FIDO2ConfigurationPageV8 } from './v8/flows/types/FIDO2ConfigurationPageV8';
+import { FIDO2FlowV8 } from './v8/flows/types/FIDO2FlowV8';
+import { MobileFlowV8 } from './v8/flows/types/MobileFlowV8';
+import { MobileOTPConfigurationPageV8 } from './v8/flows/types/MobileOTPConfigurationPageV8';
+import { SMSFlowV8 } from './v8/flows/types/SMSFlowV8';
+import { SMSOTPConfigurationPageV8 } from './v8/flows/types/SMSOTPConfigurationPageV8';
+import { TOTPConfigurationPageV8 } from './v8/flows/types/TOTPConfigurationPageV8';
+import { TOTPFlowV8 } from './v8/flows/types/TOTPFlowV8';
+import { WhatsAppFlowV8 } from './v8/flows/types/WhatsAppFlowV8';
+import { WhatsAppOTPConfigurationPageV8 } from './v8/flows/types/WhatsAppOTPConfigurationPageV8';
+import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
 import DeviceAuthenticationDetailsV8 from './v8/pages/DeviceAuthenticationDetailsV8';
-import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
-import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
 import { EmailRegistrationDocsPageV8 } from './v8/pages/EmailRegistrationDocsPageV8';
-import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
-import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
 import { FIDO2RegistrationDocsPageV8 } from './v8/pages/FIDO2RegistrationDocsPageV8';
+import MFADeviceCreateDemoV8 from './v8/pages/MFADeviceCreateDemoV8';
+import { MobileRegistrationDocsPageV8 } from './v8/pages/MobileRegistrationDocsPageV8';
+import { SMSRegistrationDocsPageV8 } from './v8/pages/SMSRegistrationDocsPageV8';
+import UnifiedCredentialsMockupV8 from './v8/pages/UnifiedCredentialsMockupV8';
+import { WhatsAppRegistrationDocsPageV8 } from './v8/pages/WhatsAppRegistrationDocsPageV8';
 import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import SpiffeSpireFlowV8U from './v8u/flows/SpiffeSpireFlowV8U';
-import SpiffeSpireTokenDisplayV8U from './v8u/pages/SpiffeSpireTokenDisplayV8U';
 import UnifiedOAuthFlowV8U from './v8u/flows/UnifiedOAuthFlowV8U';
-import DeleteAllDevicesUtilityV8 from './v8/pages/DeleteAllDevicesUtilityV8';
+import SpiffeSpireTokenDisplayV8U from './v8u/pages/SpiffeSpireTokenDisplayV8U';
 
 // Import test pages
 const PingOneApiTest = lazy(() => import('./pages/test/PingOneApiTest'));
@@ -385,7 +388,6 @@ const AppRoutes: React.FC = () => {
 
 	// Scroll to top on route change - scroll main content only, not entire window
 	useEffect(() => {
-
 		// Skip auto-scroll for certain flows to prevent menu jumping
 		const skipAutoScroll: string[] = [
 			// Add flows that should preserve scroll position
@@ -535,35 +537,72 @@ const AppRoutes: React.FC = () => {
 							<Route path="/flows/mfa-v8" element={<MFAFlowV8 />} />
 							<Route path="/v8/mfa" element={<Navigate to="/v8/mfa-hub" replace />} />
 							<Route path="/v8/mfa-hub" element={<MFAAuthenticationMainPageV8 />} />
-							<Route path="/v8/mfa/authentication/success" element={<MFAAuthenticationSuccessPage />} />
+							<Route
+								path="/v8/mfa/authentication/success"
+								element={<MFAAuthenticationSuccessPage />}
+							/>
 							<Route path="/v8/mfa/register/sms" element={<SMSOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/sms/device" element={<SMSFlowV8 />} />
 							<Route path="/v8/mfa/register/sms/docs" element={<SMSRegistrationDocsPageV8 />} />
 							<Route path="/v8/mfa/register/email" element={<EmailOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/email/device" element={<EmailFlowV8 />} />
 							<Route path="/v8/mfa/register/email/docs" element={<EmailRegistrationDocsPageV8 />} />
-							<Route path="/v8/mfa/register/whatsapp" element={<WhatsAppOTPConfigurationPageV8 />} />
+							<Route
+								path="/v8/mfa/register/whatsapp"
+								element={<WhatsAppOTPConfigurationPageV8 />}
+							/>
 							<Route path="/v8/mfa/register/whatsapp/device" element={<WhatsAppFlowV8 />} />
-							<Route path="/v8/mfa/register/whatsapp/docs" element={<WhatsAppRegistrationDocsPageV8 />} />
+							<Route
+								path="/v8/mfa/register/whatsapp/docs"
+								element={<WhatsAppRegistrationDocsPageV8 />}
+							/>
 							<Route path="/v8/mfa/register/totp" element={<TOTPConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/totp/device" element={<TOTPFlowV8 />} />
 							<Route path="/v8/mfa/register/fido2" element={<FIDO2ConfigurationPageV8 />} />
 							<Route path="/v8/mfa/register/fido2/device" element={<FIDO2FlowV8 />} />
 							<Route path="/v8/mfa/register/fido2/docs" element={<FIDO2RegistrationDocsPageV8 />} />
 							{/* Platform and Security Key routes redirect to FIDO2 (they use the same flow) */}
-							<Route path="/v8/mfa/register/platform" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
-							<Route path="/v8/mfa/register/platform/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
-							<Route path="/v8/mfa/register/security_key" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
-							<Route path="/v8/mfa/register/security_key/device" element={<Navigate to="/v8/mfa/register/fido2/device" replace />} />
+							<Route
+								path="/v8/mfa/register/platform"
+								element={<Navigate to="/v8/mfa/register/fido2" replace />}
+							/>
+							<Route
+								path="/v8/mfa/register/platform/device"
+								element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
+							/>
+							<Route
+								path="/v8/mfa/register/security_key"
+								element={<Navigate to="/v8/mfa/register/fido2" replace />}
+							/>
+							<Route
+								path="/v8/mfa/register/security_key/device"
+								element={<Navigate to="/v8/mfa/register/fido2/device" replace />}
+							/>
 							{/* Voice routes redirect to SMS (Voice uses the same phone-based flow as SMS) */}
-							<Route path="/v8/mfa/register/voice" element={<Navigate to="/v8/mfa/register/sms" replace />} />
-							<Route path="/v8/mfa/register/voice/device" element={<Navigate to="/v8/mfa/register/sms/device" replace />} />
-							<Route path="/v8/mfa/configure/fido2" element={<Navigate to="/v8/mfa/register/fido2" replace />} />
+							<Route
+								path="/v8/mfa/register/voice"
+								element={<Navigate to="/v8/mfa/register/sms" replace />}
+							/>
+							<Route
+								path="/v8/mfa/register/voice/device"
+								element={<Navigate to="/v8/mfa/register/sms/device" replace />}
+							/>
+							{/* Mobile routes - separate app from SMS */}
+							<Route path="/v8/mfa/register/mobile" element={<MobileOTPConfigurationPageV8 />} />
+							<Route path="/v8/mfa/register/mobile/device" element={<MobileFlowV8 />} />
+							<Route path="/v8/mfa/register/mobile/docs" element={<MobileRegistrationDocsPageV8 />} />
+							<Route
+								path="/v8/mfa/configure/fido2"
+								element={<Navigate to="/v8/mfa/register/fido2" replace />}
+							/>
 							<Route path="/v8/mfa-config" element={<MFAConfigurationPageV8 />} />
 							<Route path="/v8/mfa-device-management" element={<MFADeviceManagementFlowV8 />} />
 							<Route path="/v8/mfa-device-ordering" element={<MFADeviceOrderingFlowV8 />} />
 							<Route path="/v8/mfa-reporting" element={<MFAReportingFlowV8 />} />
-							<Route path="/v8/mfa/device-authentication-details" element={<DeviceAuthenticationDetailsV8 />} />
+							<Route
+								path="/v8/mfa/device-authentication-details"
+								element={<DeviceAuthenticationDetailsV8 />}
+							/>
 							<Route path="/v8/mfa/create-device" element={<MFADeviceCreateDemoV8 />} />
 							<Route path="/v8/email-mfa-signon" element={<EmailMFASignOnFlowV8 />} />
 							<Route path="/v8/resources-api" element={<ResourcesAPIFlowV8 />} />
@@ -682,10 +721,8 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
 							<Route path="/v8u/unified/:flowType?/:step?" element={<UnifiedOAuthFlowV8U />} />
-							
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
-							
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
 							<Route
 								path="/v8u/spiffe-spire"

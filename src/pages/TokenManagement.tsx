@@ -1150,8 +1150,7 @@ const TokenManagement = () => {
 
 		const nativeEvent = e.nativeEvent as InputEvent | undefined;
 		const inputType = nativeEvent?.inputType;
-		const pasted =
-			inputType === 'insertFromPaste' || inputType === 'insertReplacementText';
+		const pasted = inputType === 'insertFromPaste' || inputType === 'insertReplacementText';
 
 		if (pasted) {
 			const trimmed = value.trim();

@@ -645,7 +645,14 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 	return (
 		<Container $mode={displayMode} className={className}>
 			<Header $mode={displayMode}>
-				<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'flex-start',
+						gap: '1rem',
+					}}
+				>
 					<div>
 						<Title $mode={displayMode}>
 							<FiShield size={20} />
@@ -686,10 +693,22 @@ export const UltimateTokenDisplay: React.FC<UltimateTokenDisplayProps> = ({
 				>
 					<strong>Token viewer primer:</strong>
 					<ul style={{ margin: '8px 0 0 20px' }}>
-						<li>Each colored card represents a different token returned from PingOne (access, ID, refresh).</li>
-						<li>Use the copy, decode, and analyze buttons to inspect JWT structure, scopes, and expiry.</li>
-						<li>Masking is off by default so you can see the raw string—use the toggle if you need to hide secrets before screensharing.</li>
-						<li>The metadata grid at the bottom summarizes token type, expiry, and scopes for quick reference.</li>
+						<li>
+							Each colored card represents a different token returned from PingOne (access, ID,
+							refresh).
+						</li>
+						<li>
+							Use the copy, decode, and analyze buttons to inspect JWT structure, scopes, and
+							expiry.
+						</li>
+						<li>
+							Masking is off by default so you can see the raw string—use the toggle if you need to
+							hide secrets before screensharing.
+						</li>
+						<li>
+							The metadata grid at the bottom summarizes token type, expiry, and scopes for quick
+							reference.
+						</li>
 					</ul>
 				</div>
 			)}

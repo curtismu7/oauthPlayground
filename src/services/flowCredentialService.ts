@@ -493,7 +493,6 @@ export const loadFlowCredentialsIsolated = async <T = unknown>(
 }> => {
 	const { flowKey, defaultCredentials, useSharedFallback = false } = config;
 
-
 	// Load from isolated storage (per-flow-first)
 	const isolatedResult = flowCredentialIsolationService.loadFlowCredentials({
 		flowKey,
@@ -503,7 +502,6 @@ export const loadFlowCredentialsIsolated = async <T = unknown>(
 
 	// Load flow-specific state from localStorage (for backward compatibility)
 	const flowState = loadFlowState<T>(flowKey);
-
 
 	return {
 		credentials: isolatedResult.credentials,

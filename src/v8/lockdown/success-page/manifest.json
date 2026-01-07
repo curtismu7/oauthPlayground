@@ -1,0 +1,23 @@
+{
+  "flow": "success-page",
+  "description": "Unified MFA Success Page lockdown - protects success page UI for all device types and flows",
+  "version": "1.0.0",
+  "updated": "2025-01-27T00:00:00.000Z",
+  "files": [
+    {
+      "path": "src/v8/services/unifiedMFASuccessPageServiceV8.tsx",
+      "hash": "TO_BE_COMPUTED",
+      "description": "Main unified success page component - handles all device types (SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP) and both registration/authentication flows"
+    },
+    {
+      "path": "src/v8/flows/shared/mfaSuccessPageServiceV8.tsx",
+      "hash": "TO_BE_COMPUTED",
+      "description": "Shared success page service - converts MFA flow data to unified format and provides MFASuccessPageV8 wrapper component"
+    },
+    {
+      "path": "src/v8/components/MFAAuthenticationSuccessPage.tsx",
+      "hash": "TO_BE_COMPUTED",
+      "description": "Authentication success page wrapper - converts authentication flow state to unified format for UnifiedMFASuccessPageV8"
+    }
+  ]
+}

@@ -54,4 +54,3 @@ export const StartupWrapper: React.FC<StartupWrapperProps> = ({ children }) => {
 };
 
 export default StartupWrapper;
-

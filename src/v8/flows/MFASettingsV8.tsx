@@ -109,114 +109,114 @@ const ToggleSlider = styled.span`
 `;
 
 interface SettingItem {
-  label: string;
-  value: string | 'toggle';
-  enabled?: boolean;
+	label: string;
+	value: string | 'toggle';
+	enabled?: boolean;
 }
 
 export const MFASettingsV8: React.FC = () => {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const settings = [
-    {
-      title: 'Pairing Settings',
-      description: 'Configure device pairing requirements and policies',
-      items: [
-        { label: 'Require device verification', value: 'toggle', enabled: true },
-        { label: 'Auto-approve trusted devices', value: 'toggle', enabled: false },
-        { label: 'Pairing timeout (minutes)', value: '15' },
-        { label: 'Maximum paired devices', value: '5' },
-      ],
-    },
-    {
-      title: 'Lockout Policies',
-      description: 'Set up account lockout and security policies',
-      items: [
-        { label: 'Failed attempts threshold', value: '5' },
-        { label: 'Lockout duration (minutes)', value: '30' },
-        { label: 'Progressive lockout', value: 'toggle', enabled: true },
-        { label: 'Admin override allowed', value: 'toggle', enabled: false },
-      ],
-    },
-    {
-      title: 'Device Limits',
-      description: 'Manage device registration and usage limits',
-      items: [
-        { label: 'Devices per user', value: '10' },
-        { label: 'Concurrent sessions', value: '3' },
-        { label: 'Device expiration (days)', value: '90' },
-        { label: 'Require device re-auth', value: 'toggle', enabled: true },
-      ],
-    },
-    {
-      title: 'OTP Configuration',
-      description: 'Configure one-time password settings',
-      items: [
-        { label: 'OTP length', value: '6' },
-        { label: 'OTP validity (seconds)', value: '300' },
-        { label: 'Allow backup codes', value: 'toggle', enabled: true },
-        { label: 'Hash algorithm', value: 'SHA256' },
-      ],
-    },
-    {
-      title: 'Security Policies',
-      description: 'Define security requirements and enforcement',
-      items: [
-        { label: 'Minimum password strength', value: 'Medium' },
-        { label: 'Require biometric fallback', value: 'toggle', enabled: false },
-        { label: 'Geolocation verification', value: 'toggle', enabled: false },
-        { label: 'Risk-based authentication', value: 'toggle', enabled: true },
-      ],
-    },
-  ];
+	const settings = [
+		{
+			title: 'Pairing Settings',
+			description: 'Configure device pairing requirements and policies',
+			items: [
+				{ label: 'Require device verification', value: 'toggle', enabled: true },
+				{ label: 'Auto-approve trusted devices', value: 'toggle', enabled: false },
+				{ label: 'Pairing timeout (minutes)', value: '15' },
+				{ label: 'Maximum paired devices', value: '5' },
+			],
+		},
+		{
+			title: 'Lockout Policies',
+			description: 'Set up account lockout and security policies',
+			items: [
+				{ label: 'Failed attempts threshold', value: '5' },
+				{ label: 'Lockout duration (minutes)', value: '30' },
+				{ label: 'Progressive lockout', value: 'toggle', enabled: true },
+				{ label: 'Admin override allowed', value: 'toggle', enabled: false },
+			],
+		},
+		{
+			title: 'Device Limits',
+			description: 'Manage device registration and usage limits',
+			items: [
+				{ label: 'Devices per user', value: '10' },
+				{ label: 'Concurrent sessions', value: '3' },
+				{ label: 'Device expiration (days)', value: '90' },
+				{ label: 'Require device re-auth', value: 'toggle', enabled: true },
+			],
+		},
+		{
+			title: 'OTP Configuration',
+			description: 'Configure one-time password settings',
+			items: [
+				{ label: 'OTP length', value: '6' },
+				{ label: 'OTP validity (seconds)', value: '300' },
+				{ label: 'Allow backup codes', value: 'toggle', enabled: true },
+				{ label: 'Hash algorithm', value: 'SHA256' },
+			],
+		},
+		{
+			title: 'Security Policies',
+			description: 'Define security requirements and enforcement',
+			items: [
+				{ label: 'Minimum password strength', value: 'Medium' },
+				{ label: 'Require biometric fallback', value: 'toggle', enabled: false },
+				{ label: 'Geolocation verification', value: 'toggle', enabled: false },
+				{ label: 'Risk-based authentication', value: 'toggle', enabled: true },
+			],
+		},
+	];
 
-  const renderSettingValue = (item: SettingItem) => {
-    if (item.value === 'toggle') {
-      return (
-        <ToggleSwitch>
-          <ToggleInput type="checkbox" defaultChecked={item.enabled} />
-          <ToggleSlider />
-        </ToggleSwitch>
-      );
-    }
-    return <SettingValue>{item.value}</SettingValue>;
-  };
+	const renderSettingValue = (item: SettingItem) => {
+		if (item.value === 'toggle') {
+			return (
+				<ToggleSwitch>
+					<ToggleInput type="checkbox" defaultChecked={item.enabled} />
+					<ToggleSlider />
+				</ToggleSwitch>
+			);
+		}
+		return <SettingValue>{item.value}</SettingValue>;
+	};
 
-  return (
-    <Container>
-      <MFAHeaderV8
-        title="MFA Settings"
-        description="Configure multi-factor authentication policies and settings"
-        versionTag="V8"
-        currentPage="settings"
-        showRestartFlow={false}
-        showBackToMain={true}
-        headerColor="blue"
-      />
+	return (
+		<Container>
+			<MFAHeaderV8
+				title="MFA Settings"
+				description="Configure multi-factor authentication policies and settings"
+				versionTag="V8"
+				currentPage="settings"
+				showRestartFlow={false}
+				showBackToMain={true}
+				headerColor="blue"
+			/>
 
-      <SettingsGrid>
-        {settings.map((section, index) => (
-          <SettingsCard key={index}>
-            <CardTitle>{section.title}</CardTitle>
-            <CardDescription>{section.description}</CardDescription>
-            {section.items.map((item: SettingItem, itemIndex: number) => (
-              <SettingItem key={itemIndex}>
-                <SettingLabel>{item.label}</SettingLabel>
-                {renderSettingValue(item)}
-              </SettingItem>
-            ))}
-          </SettingsCard>
-        ))}
-      </SettingsGrid>
+			<SettingsGrid>
+				{settings.map((section, index) => (
+					<SettingsCard key={index}>
+						<CardTitle>{section.title}</CardTitle>
+						<CardDescription>{section.description}</CardDescription>
+						{section.items.map((item: SettingItem, itemIndex: number) => (
+							<SettingItem key={itemIndex}>
+								<SettingLabel>{item.label}</SettingLabel>
+								{renderSettingValue(item)}
+							</SettingItem>
+						))}
+					</SettingsCard>
+				))}
+			</SettingsGrid>
 
-      <StepNavigationV8
-        steps={['Configuration', 'Testing', 'Deployment']}
-        currentStep={0}
-        onStepChange={() => {}}
-        showNext={false}
-        showPrevious={true}
-        onPrevious={() => navigate('/v8/mfa-hub')}
-      />
-    </Container>
-  );
+			<StepNavigationV8
+				steps={['Configuration', 'Testing', 'Deployment']}
+				currentStep={0}
+				onStepChange={() => {}}
+				showNext={false}
+				showPrevious={true}
+				onPrevious={() => navigate('/v8/mfa-hub')}
+			/>
+		</Container>
+	);
 };

@@ -1,7 +1,14 @@
 # MFA FIDO2 UI Contract
 
-**Last Updated:** 2025-01-XX  
-**Version:** 1.0.0  
+## Related Documentation
+
+- [MFA Worker Token UI Contract](./MFA_WORKER_TOKEN_UI_CONTRACT.md) - Detailed worker token configuration and modal behavior contracts
+- [MFA FIDO2 UI Documentation](./MFA_FIDO2_UI_DOC.md) - FIDO2 UI structure and components
+
+---
+
+**Last Updated:** 2026-01-06 14:30:00  
+**Version:** 1.1.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -36,6 +43,8 @@ This document defines the UI contract for FIDO2 (WebAuthn) device registration a
    - Must display token status (Valid/Expired/Missing)
    - Must show "Get Worker Token" button if token is invalid
    - Must prevent proceeding if token is invalid
+   - Must respect "Silent API Token Retrieval" and "Show Token After Generation" settings
+   - See [MFA Worker Token UI Contract](./MFA_WORKER_TOKEN_UI_CONTRACT.md) for detailed worker token configuration contracts
 
 2. **FIDO2 Configuration Settings**
    - Attestation dropdown (none/direct/indirect)
@@ -437,6 +446,109 @@ return 'An error occurred. Please try again.';
 - [ ] Progress indicators show during WebAuthn
 - [ ] Auto-advance works after registration
 - [ ] State persists during navigation
+
+---
+
+## Lockdown and Regression Protection
+
+### FIDO2 UI Contract Lockdown
+
+**Purpose:** Protect FIDO2 UI contracts and behavior from accidental modification or regression.
+
+**Locked Contract Files:**
+- `src/v8/flows/types/FIDO2FlowV8.tsx` - Registration flow contract implementation
+- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page contract
+- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication flow contract
+- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal contract
+
+**Contract Verification:**
+The lockdown system ensures UI contracts are maintained:
+- Error handling contracts (user-friendly messages)
+- State management contracts (persistence, navigation)
+- WebAuthn integration contracts (prompt handling, cancellation)
+- Modal display contracts (existing device, errors)
+
+**Verification:**
+```bash
+npm run verify:fido2-lockdown
+```
+
+**Restoring Contracts from Regression:**
+If FIDO2 UI contracts break:
+1. Run `npm run verify:fido2-lockdown` to see what changed
+2. Choose option 1 in the restart script to restore from snapshots
+3. Review contract violations in restored files
+
+**See Also:**
+- `docs/MFA_FIDO2_MASTER.md` - Complete lockdown documentation
+- `docs/MFA_FIDO2_UI_DOC.md` - UI structure documentation
+
+---
+
+## Success Page Contract
+
+### Success Page UI Contract
+
+**Component:** `MFASuccessPageV8` / `UnifiedMFASuccessPageV8`  
+**Location:** Step 3 of FIDO2 registration flow
+
+#### Required UI Elements
+
+1. **Documentation Button**
+   - **MUST be visible** on success page for all FIDO2 registration flows
+   - **MUST NOT** be visible for authentication flows
+   - **MUST** navigate to `/v8/mfa/register/fido2/docs` when clicked
+   - **MUST** pass flow data via `location.state`:
+     - `registrationFlowType`
+     - `adminDeviceStatus`
+     - `tokenType`
+     - `environmentId`
+     - `userId`
+     - `deviceId`
+     - `policyId`
+   - **MUST** have orange/yellow color (`#f59e0b`) with book icon
+   - **MUST** appear in both top and bottom button sections
+   - **MUST** be conditionally rendered based on `deviceType === 'FIDO2'` and `flowType === 'registration'`
+
+2. **Back to Hub Button**
+   - **MUST** have green color (`#10b981`) with home icon
+   - **MUST** have subtle box shadow for better visibility
+   - **MUST** appear in both top and bottom button sections
+   - **MUST** navigate to `/v8/mfa-hub` when clicked
+
+3. **Dynamic Padding**
+   - **MUST** have dynamic bottom padding based on API display visibility
+   - **MUST** use `500px` bottom padding when API display is visible
+   - **MUST** use `24px` bottom padding when API display is hidden
+   - **MUST** ensure `minHeight: '100vh'` for scrollability
+   - **MUST** subscribe to `apiDisplayServiceV8` for real-time visibility updates
+     - `deviceStatus`
+     - `username`
+     - `deviceName`
+
+2. **Button Styling**
+   - Orange/yellow background (`#f59e0b`)
+   - White text
+   - Book icon (📚)
+   - Text: "View Documentation"
+
+3. **Implementation Contract**
+   - `deviceType` **MUST** be set to `'FIDO2'` when building success page data
+   - `flowType` **MUST** be set to `'registration'` for registration flows
+   - Documentation button visibility: `flowType === 'registration' && deviceType === 'FIDO2'`
+
+#### Documentation Page Contract
+
+**Route:** `/v8/mfa/register/fido2/docs`  
+**Component:** `FIDO2RegistrationDocsPageV8`
+
+**MUST:**
+- Display all FIDO2 API calls in correct order
+- Show request/response examples
+- Support both Admin and User flows
+- Show activation calls for `ACTIVATION_REQUIRED` devices
+- Include "Back to Hub" button at top and bottom
+- Display PingOne API URLs in orange color
 
 ---
 

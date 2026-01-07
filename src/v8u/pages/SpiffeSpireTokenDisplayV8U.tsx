@@ -1,9 +1,9 @@
 import React from 'react';
+import { FiArrowLeft, FiKey, FiShield } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiArrowLeft, FiKey, FiShield } from 'react-icons/fi';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import TokenDisplayV8U, { type TokenDisplayV8UProps } from '@/v8u/components/TokenDisplayV8U';
 
 const PageContainer = styled.div`
@@ -138,29 +138,33 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 					<FiShield /> SPIFFE → PingOne Token Viewer
 				</h1>
 				<p>
-					View and explore the OAuth/OIDC tokens issued after exchanging a SPIFFE SVID. Decode JWTs, inspect
-					claims, and copy tokens for testing.
+					View and explore the OAuth/OIDC tokens issued after exchanging a SPIFFE SVID. Decode JWTs,
+					inspect claims, and copy tokens for testing.
 				</p>
 			</Header>
 
 			{/* Navigation */}
-			<MFANavigationV8
-				currentPage="hub"
-				showRestartFlow={false}
-				showBackToMain={true}
-			/>
+			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
 
 			{normalizedTokens ? (
 				<Card>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							marginBottom: '0.75rem',
+						}}
+					>
 						<FiKey size={18} color="#1f2937" />
 						<span style={{ fontWeight: 600, fontSize: '0.95rem', color: '#1f2937' }}>
 							Tokens issued for your SPIFFE-identified workload
 						</span>
 					</div>
 					<p style={{ fontSize: '0.85rem', color: '#6b7280', marginBottom: '1rem' }}>
-						These tokens are not long-lived secrets baked into your app. They were issued after SPIRE attested
-						your workload using its SPIFFE ID and then exchanged the SVID for OAuth/OIDC tokens.
+						These tokens are not long-lived secrets baked into your app. They were issued after
+						SPIRE attested your workload using its SPIFFE ID and then exchanged the SVID for
+						OAuth/OIDC tokens.
 					</p>
 					<TokenDisplayV8U
 						tokens={normalizedTokens}
@@ -172,7 +176,9 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 			) : (
 				<Card>
 					<EmptyState>
-						<p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>No tokens available to display</p>
+						<p style={{ marginBottom: '0.5rem', fontWeight: 600 }}>
+							No tokens available to display
+						</p>
 						<p style={{ marginBottom: '0.75rem', fontSize: '0.9rem' }}>
 							Run the SPIFFE/SPIRE flow first to generate tokens. After the token exchange step,
 							you'll be sent here automatically with fresh tokens.

@@ -15,7 +15,12 @@ const variantClasses: Record<NonNullable<BadgeProps['variant']>, string> = {
 	secondary: 'bg-gray-200 text-gray-800',
 };
 
-export const Badge: React.FC<BadgeProps> = ({ children, className, variant = 'default', ...props }) => (
+export const Badge: React.FC<BadgeProps> = ({
+	children,
+	className,
+	variant = 'default',
+	...props
+}) => (
 	<span
 		className={classNames(
 			'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
@@ -29,5 +34,3 @@ export const Badge: React.FC<BadgeProps> = ({ children, className, variant = 'de
 );
 
 export default Badge;
-
-

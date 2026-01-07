@@ -22,6 +22,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -86,22 +87,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const needsUsername =
 		selectedReport === 'fido2' || selectedReport === 'email' || selectedReport === 'totp';
 	const isMfaEnabledReport = selectedReport === 'mfa-enabled';
-	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
-
-	// Subscribe to API display visibility changes
-	useEffect(() => {
-		const checkVisibility = () => {
-			setIsApiDisplayVisible(apiDisplayServiceV8.isVisible());
-		};
-
-		// Check initial state
-		checkVisibility();
-
-		// Subscribe to visibility changes
-		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
-
-		return () => unsubscribe();
-	}, []);
+	
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
 
 	// Check token status periodically
 	useEffect(() => {
@@ -157,7 +145,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 				toastV8.success('Worker token removed');
 			}
 		} else {
-			setShowWorkerTokenModal(true);
+			// Use helper to check silentApiRetrieval before showing modal
+			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
 		}
 	};
 
@@ -341,8 +331,9 @@ export const MFAReportingFlowV8: React.FC = () => {
 		<div
 			className="mfa-reporting-flow-v8"
 			style={{
-				paddingBottom: isApiDisplayVisible ? '450px' : '0',
+				paddingBottom: paddingBottom !== '0' ? paddingBottom : '0',
 				transition: 'padding-bottom 0.3s ease',
+				minHeight: '100vh',
 			}}
 		>
 			<MFAHeaderV8
