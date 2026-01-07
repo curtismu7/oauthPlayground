@@ -10,6 +10,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { CreatePolicyModalV8 } from '@/v8/components/CreatePolicyModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
@@ -282,6 +283,68 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			);
 		} finally {
 			setIsSavingPolicy(false);
+		}
+	};
+
+	const handleCreatePolicy = async (name: string, description: string) => {
+		if (!environmentId) {
+			toastV8.error('Environment ID is required to create a policy.');
+			return;
+		}
+		if (!name.trim()) {
+			toastV8.error('Policy Name is required.');
+			return;
+		}
+
+		setIsCreatingPolicy(true);
+		try {
+			const credentials = await workerTokenServiceV8.loadCredentials();
+			const region = (credentials?.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us';
+
+			const newPolicy = await MFAServiceV8.createDeviceAuthenticationPolicy(
+				environmentId,
+				{
+					name: name.trim(),
+					description: description.trim() || undefined,
+					// Default policy settings (can be expanded)
+					type: 'DEFAULT',
+					authentication: {
+						deviceSelection: 'USER_CHOICE',
+					},
+					otp: {
+						failure: {
+							count: 5,
+							coolDown: {
+								duration: 5,
+								timeUnit: 'MINUTES',
+							},
+						},
+					},
+					pairingDisabled: false,
+					promptForNicknameOnPairing: true,
+					skipUserLockVerification: false,
+					// Include all device type configurations (required by PingOne)
+					email: {},
+					totp: {},
+					mobile: {},
+					sms: {},
+					voice: {},
+					name: {},
+				},
+				region
+			);
+			toastV8.success(`Policy "${newPolicy.name}" created successfully!`);
+			setShowCreatePolicyModal(false);
+			setNewPolicyName('');
+			setNewPolicyDescription('');
+			await loadDeviceAuthPolicies(environmentId); // Refresh policy list
+			setSelectedPolicyId(newPolicy.id); // Select the newly created policy
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to create policy:`, error);
+			toastV8.error(error instanceof Error ? error.message : 'Failed to create policy.');
+			throw error; // Re-throw so modal can handle it
+		} finally {
+			setIsCreatingPolicy(false);
 		}
 	};
 
@@ -578,6 +641,211 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					experience
 				</p>
 			</div>
+
+
+			{/* Device Type Settings - Collapsible Sections */}
+
+
+			<div style={ marginTop: '20px' }>
+
+
+				<h4
+
+
+					style={
+
+
+						margin: '0 0 16px 0',
+
+
+						fontSize: '16px',
+
+
+						fontWeight: '600',
+
+
+						color: '#374151',
+
+
+					}
+
+
+				>
+
+
+					Device Type Settings
+
+
+				</h4>
+
+
+				<p style={ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }>
+
+
+					Configure settings for each device type. Each section can be expanded to view and edit device-specific options.
+
+
+				</p>
+
+
+			
+
+
+				{/* Device Types: Email, TOTP, Mobile, SMS, Voice, FIDO2, WhatsApp */}
+
+
+				{['EMAIL', 'TOTP', 'MOBILE', 'SMS', 'VOICE', 'FIDO2', 'WHATSAPP'].map((deviceType) => {
+
+
+					const deviceKey = deviceType.toLowerCase() as keyof DeviceAuthenticationPolicy;
+
+
+					const deviceConfig = selectedPolicy[deviceKey] as Record<string, unknown> | undefined;
+
+
+					// Track expansion state using details element (no useState needed)
+
+
+			
+
+
+					return (
+
+
+						<details
+
+
+							key={deviceType}
+
+
+							open={isExpanded}
+
+
+							onToggle={e => setIsExpanded(e.currentTarget.open)}
+
+
+							style={
+
+
+								marginBottom: '12px',
+
+
+								padding: '12px',
+
+
+								background: '#f9fafb',
+
+
+								borderRadius: '8px',
+
+
+								border: '1px solid #e5e7eb',
+
+
+							}
+
+
+						>
+
+
+							<summary
+
+
+								style={
+
+
+									cursor: 'pointer',
+
+
+									fontWeight: '600',
+
+
+									fontSize: '14px',
+
+
+									color: '#374151',
+
+
+									listStyle: 'none',
+
+
+									display: 'flex',
+
+
+									alignItems: 'center',
+
+
+									justifyContent: 'space-between',
+
+
+								}
+
+
+							>
+
+
+								<span>{deviceType} Settings</span>
+
+
+								<span style={ fontSize: '12px', color: '#6b7280' }>
+
+
+									{isExpanded ? '▼' : '▶'}
+
+
+								</span>
+
+
+							</summary>
+
+
+							<div style={ marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }>
+
+
+								<p style={ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }>
+
+
+									{deviceType} device configuration options. These settings are part of the policy and will be saved to PingOne.
+
+
+								</p>
+
+
+								{/* Placeholder for device-specific settings */}
+
+
+								<div style={ padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }>
+
+
+									Device-specific settings for {deviceType} will be displayed here.
+
+
+									<br />
+
+
+									<small>Policy currently has: {deviceConfig ? JSON.stringify(deviceConfig, null, 2) : 'No specific settings'}</small>
+
+
+								</div>
+
+
+							</div>
+
+
+						</details>
+
+
+					);
+
+
+				})}
+
+
+			</div>
+
+
+			
+
 
 			{/* Action Buttons */}
 			<div
@@ -1296,7 +1564,2659 @@ export const MFAConfigurationPageV8: React.FC = () => {
 												<FiCheck size={16} />
 												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
 											</button>
+										</div>{/* Action Buttons - Multiple Save Options */}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div><div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	{/* Save All Policy Settings */}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	<button
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		type="button"
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		onClick={handleSavePolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		disabled={!hasPolicyChanges || isSavingPolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		style={{
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			display: 'flex',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			alignItems: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			justifyContent: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			gap: '8px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			padding: '12px 24px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			color: 'white',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			border: 'none',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			borderRadius: '8px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			fontSize: '15px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			fontWeight: '600',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			width: '100%',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		}}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		<FiCheck size={18} />
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		{isSavingPolicy ? 'Saving All Policy Settings...' : 'Save All Policy Settings'}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	</button>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
 										</div>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	{/* Section-specific save buttons */}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		<button
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			type="button"
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			onClick={handleSavePolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			disabled={!hasPolicyChanges || isSavingPolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			style={{
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				flex: 1,
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				minWidth: '150px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				display: 'flex',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				alignItems: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				justifyContent: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				gap: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				padding: '10px 16px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				color: 'white',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				border: 'none',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				borderRadius: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontSize: '13px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontWeight: '600',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			}}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			<FiCheck size={14} />
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			Save OTP Settings
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		</button>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		<button
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			type="button"
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			onClick={handleSavePolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			disabled={!hasPolicyChanges || isSavingPolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			style={{
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				flex: 1,
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				minWidth: '150px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				display: 'flex',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				alignItems: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				justifyContent: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				gap: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				padding: '10px 16px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				color: 'white',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				border: 'none',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				borderRadius: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontSize: '13px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontWeight: '600',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			}}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			<FiCheck size={14} />
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			Save Pairing Settings
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		</button>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		<button
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			type="button"
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			onClick={handleSavePolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			disabled={!hasPolicyChanges || isSavingPolicy}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			style={{
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				flex: 1,
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				minWidth: '150px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				display: 'flex',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				alignItems: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				justifyContent: 'center',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				gap: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				padding: '10px 16px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				color: 'white',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				border: 'none',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				borderRadius: '6px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontSize: '13px',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				fontWeight: '600',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>				cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			}}
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			<FiCheck size={14} />
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>			Save Device Settings
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>		</button>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>	</div>
+
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div></div>
 									</>
 								) : (
 									<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
@@ -1912,6 +4832,18 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					/>
 				</ConfigSection>
 			</div>
+
+			{/* Create Policy Modal */}
+			<CreatePolicyModalV8
+				isOpen={showCreatePolicyModal}
+				onClose={() => {
+					setShowCreatePolicyModal(false);
+					setNewPolicyName('');
+					setNewPolicyDescription('');
+				}}
+				onSave={handleCreatePolicy}
+				isSaving={isCreatingPolicy}
+			/>
 		</div>
 	);
 };
