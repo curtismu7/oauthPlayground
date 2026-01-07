@@ -56,7 +56,6 @@ export class CredentialStorageManager {
 			encryptSecrets: false, // TODO: Implement encryption
 			...config,
 		};
-
 	}
 
 	/**

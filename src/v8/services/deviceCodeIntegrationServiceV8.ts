@@ -108,7 +108,6 @@ export class DeviceCodeIntegrationServiceV8 {
 							`Consider adding 'openid' to your scopes (e.g., 'openid profile email').`
 					);
 				}
-
 			} else {
 				// Suggest default scopes if none provided
 				console.warn(
@@ -186,7 +185,9 @@ export class DeviceCodeIntegrationServiceV8 {
 			if (!response.ok) {
 				// Use already parsed responseData instead of parsing again
 				const errorData = responseData as Record<string, unknown>;
-				const errorMessage = (errorData.error_description || errorData.error || 'Unknown error') as string;
+				const errorMessage = (errorData.error_description ||
+					errorData.error ||
+					'Unknown error') as string;
 				const errorCode = (errorData.error || 'unknown_error') as string;
 
 				// Extract correlation ID from error data or error message
@@ -207,8 +208,9 @@ export class DeviceCodeIntegrationServiceV8 {
 				// Check for 403 Forbidden - often means missing client authentication or grant type
 				if (response.status === 403) {
 					const hasClientSecret = !!credentials.clientSecret;
-					const authMethod = credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
-					
+					const authMethod =
+						credentials.clientAuthMethod || (hasClientSecret ? 'client_secret_basic' : 'none');
+
 					console.error(`${MODULE_TAG} 403 Forbidden - Possible causes:`, {
 						errorCode,
 						errorMessage,
@@ -217,7 +219,9 @@ export class DeviceCodeIntegrationServiceV8 {
 						hasClientSecret,
 						authMethod,
 						possibleCauses: [
-							!hasClientSecret && authMethod !== 'none' ? 'Missing client secret (app may require authentication)' : null,
+							!hasClientSecret && authMethod !== 'none'
+								? 'Missing client secret (app may require authentication)'
+								: null,
 							'Device Code grant type not enabled in PingOne application',
 							'Invalid client credentials',
 							'Application configuration mismatch',
@@ -225,7 +229,7 @@ export class DeviceCodeIntegrationServiceV8 {
 					});
 
 					let helpfulMessage = `403 Forbidden: ${errorMessage}\n\n`;
-					
+
 					if (!hasClientSecret && authMethod !== 'none') {
 						helpfulMessage += `🔐 Client Authentication Issue:\n`;
 						helpfulMessage += `Your PingOne application appears to require client authentication, but no client secret was provided.\n\n`;
@@ -234,7 +238,7 @@ export class DeviceCodeIntegrationServiceV8 {
 						helpfulMessage += `2. If yes, enter your Client Secret in the configuration section above\n`;
 						helpfulMessage += `3. If your application is a public client, set Client Auth Method to "None"\n\n`;
 					}
-					
+
 					helpfulMessage += `📋 Grant Type Configuration:\n`;
 					helpfulMessage += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
 					helpfulMessage += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
@@ -306,13 +310,12 @@ export class DeviceCodeIntegrationServiceV8 {
 		interval: number = 5,
 		maxAttempts: number = 60
 	): Promise<TokenResponse> {
-
 		// Use backend proxy to avoid CORS issues
-			// Use relative URL for development (same origin), absolute for production
-			const tokenEndpoint =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app/api/token-exchange'
-					: '/api/token-exchange';
+		// Use relative URL for development (same origin), absolute for production
+		const tokenEndpoint =
+			process.env.NODE_ENV === 'production'
+				? 'https://oauth-playground.vercel.app/api/token-exchange'
+				: '/api/token-exchange';
 
 		// Track API call for display
 		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
@@ -425,7 +428,6 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * @returns Decoded token with header, payload, and signature
 	 */
 	static decodeToken(token: string): DecodedToken {
-
 		try {
 			const parts = token.split('.');
 
@@ -436,7 +438,6 @@ export class DeviceCodeIntegrationServiceV8 {
 			const header = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[0]));
 			const payload = JSON.parse(DeviceCodeIntegrationServiceV8.base64UrlDecode(parts[1]));
 			const signature = parts[2];
-
 
 			return { header, payload, signature };
 		} catch (error) {

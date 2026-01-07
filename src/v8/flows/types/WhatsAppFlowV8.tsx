@@ -678,6 +678,9 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	const [isUpdatingNickname, setIsUpdatingNickname] = useState(false);
 	const [showWhatsAppNotEnabledModal, setShowWhatsAppNotEnabledModal] = useState(false);
 
+	// Track if user explicitly closed validation modal (prevent auto-reopen)
+	const [userClosedValidationModal, setUserClosedValidationModal] = useState(false);
+
 	// State to track tokenType changes (for triggering effects)
 	const [lastTokenType, setLastTokenType] = useState<string | undefined>(undefined);
 
@@ -888,6 +891,32 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 	// Draggable modal hooks
 	const step2ModalDrag = useDraggableModal(showModal);
 	const step4ModalDrag = useDraggableModal(showValidationModal);
+
+	// Ref to store nav object for ESC key handler
+	const navRef = React.useRef<ReturnType<typeof useStepNavigationV8> | null>(null);
+
+	// Handle ESC key to close modals
+	React.useEffect(() => {
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				if (showValidationModal) {
+					setShowValidationModal(false);
+					// Navigate back to previous step when closing validation modal
+					if (navRef.current) {
+						navRef.current.goToPrevious();
+					}
+				} else if (showModal) {
+					setShowModal(false);
+				}
+			}
+		};
+
+		if (showModal || showValidationModal) {
+			window.addEventListener('keydown', handleEscape);
+			return () => window.removeEventListener('keydown', handleEscape);
+		}
+		return undefined;
+	}, [showModal, showValidationModal, setShowModal, setShowValidationModal]);
 
 	// Step 2: Register Device (using controller) - Modal structure matching SMS
 	// Use useCallback to capture adminDeviceStatus and registrationFlowType in closure
@@ -1772,7 +1801,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading } = props;
 
-			// Store props in ref for potential use at component level
+			// Store nav in ref for ESC key handler
+			navRef.current = nav;
 			step4PropsRef.current = props;
 
 			// Close modal when verification is complete (handled in render, not useEffect to avoid Rules of Hooks violation)
@@ -1789,11 +1819,17 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			}
 
 			// Auto-open validation modal when on step 4 (handled in render, not useEffect to avoid Rules of Hooks violation)
-			if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult) {
+			// But respect if user explicitly closed it
+			if (!showValidationModal && nav.currentStep === 4 && !mfaState.verificationResult && !userClosedValidationModal) {
 				// Use setTimeout to avoid state updates during render
 				setTimeout(() => {
 					setShowValidationModal(true);
 				}, 0);
+			}
+
+			// Reset closed flag when step changes away from 4
+			if (nav.currentStep !== 4 && userClosedValidationModal) {
+				setUserClosedValidationModal(false);
 			}
 
 			// If validation is complete, show success screen using shared service
@@ -2006,7 +2042,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 								onMouseDown={(e) => e.stopPropagation()}
 								onClick={() => {
 									setShowValidationModal(false);
-									// Previous button removed - just close modal
+									setUserClosedValidationModal(true); // Track that user explicitly closed modal
 								}}
 								style={{
 									position: 'absolute',
@@ -2398,7 +2434,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 			style={{
 				minHeight: '100vh',
 				paddingBottom:
-					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
+					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '0',
 				transition: 'padding-bottom 0.3s ease',
 				overflow: 'visible',
 			}}

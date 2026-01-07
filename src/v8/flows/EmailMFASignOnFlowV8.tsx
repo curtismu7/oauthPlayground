@@ -3,7 +3,7 @@
  * @module v8/flows
  * @description Email MFA Sign-On Flow - Complete workflow implementation
  * @version 8.0.0
- * 
+ *
  * This flow demonstrates how to:
  * 1. Create an application
  * 2. Create a sign-on policy with Email MFA action
@@ -13,18 +13,30 @@
  * 6. Exchange authorization code for tokens
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiBook,
+	FiCheckCircle,
+	FiKey,
+	FiLoader,
+	FiMail,
+	FiPackage,
+	FiSend,
+	FiSettings,
+	FiShield,
+	FiUser,
+} from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiMail, FiCheckCircle, FiAlertCircle, FiLoader, FiSettings, FiSend, FiBook, FiPackage, FiUser, FiShield, FiKey } from 'react-icons/fi';
+import styled from 'styled-components';
+import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { usePageScroll } from '@/hooks/usePageScroll';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { EmailMFASignOnFlowServiceV8 } from '@/v8/services/emailMfaSignOnFlowServiceV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import styled from 'styled-components';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[📧 EMAIL-MFA-SIGNON-FLOW-V8]';
 
@@ -50,11 +62,16 @@ const StepHeader = styled.div<{ $theme?: string }>`
 	padding: 1rem;
 	background: ${(props) => {
 		switch (props.$theme) {
-			case 'orange': return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
-			case 'blue': return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-			case 'yellow': return 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)';
-			case 'green': return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-			default: return 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
+			case 'orange':
+				return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
+			case 'blue':
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+			case 'yellow':
+				return 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)';
+			case 'green':
+				return 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+			default:
+				return 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)';
 		}
 	}};
 	border-radius: 0.5rem;
@@ -80,10 +97,14 @@ const StepStatus = styled.div<{ $status: 'pending' | 'success' | 'error' | 'load
 	
 	${(props) => {
 		switch (props.$status) {
-			case 'success': return 'color: #10b981;';
-			case 'error': return 'color: #ef4444;';
-			case 'loading': return 'color: #fbbf24;';
-			default: return 'color: rgba(255, 255, 255, 0.8);';
+			case 'success':
+				return 'color: #10b981;';
+			case 'error':
+				return 'color: #ef4444;';
+			case 'loading':
+				return 'color: #fbbf24;';
+			default:
+				return 'color: rgba(255, 255, 255, 0.8);';
 		}
 	}}
 `;
@@ -403,7 +424,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						// Ignore errors
 					}
 				}
-				
+
 				const token = await workerTokenServiceV8.getToken();
 				if (token) {
 					setWorkerToken(token);
@@ -431,7 +452,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			...prev,
 			[step]: { ...prev[step], ...updates },
 		}));
-		
+
 		// Mark step as completed if successful
 		if (updates.status === 'success') {
 			setCompletedSteps((prev) => {
@@ -472,13 +493,18 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			setResourceData(resourcesResult);
 
 			// Get first resource and its scopes
-			const resources = (resourcesResult as { _embedded?: { resources?: Array<{ id: string }> } })?._embedded?.resources;
+			const resources = (resourcesResult as { _embedded?: { resources?: Array<{ id: string }> } })
+				?._embedded?.resources;
 			if (resources && resources.length > 0) {
 				const resourceId = resources[0].id;
-				const scopesResult = await EmailMFASignOnFlowServiceV8.getResourceScopes(environmentId, resourceId);
-				
+				const scopesResult = await EmailMFASignOnFlowServiceV8.getResourceScopes(
+					environmentId,
+					resourceId
+				);
+
 				// Get scope names
-				const scopes = (scopesResult as { _embedded?: { scopes?: Array<{ name: string }> } })?._embedded?.scopes;
+				const scopes = (scopesResult as { _embedded?: { scopes?: Array<{ name: string }> } })
+					?._embedded?.scopes;
 				const scopeNames = scopes?.map((s) => s.name) || [];
 
 				// Create resource grant
@@ -541,7 +567,8 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			setCurrentStep(2);
 			toastV8.success('Sign-on policy created and assigned successfully');
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to create sign-on policy';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to create sign-on policy';
 			updateStepState(1, { status: 'error', error: errorMessage });
 			toastV8.error(errorMessage);
 		}
@@ -634,9 +661,14 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 			updateStepState(3, { status: 'success', result: deviceResult });
 			setCurrentStep(4);
-			toastV8.success('Email device registered successfully! Device is ready to use (ACTIVE status).');
+			toastV8.success(
+				'Email device registered successfully! Device is ready to use (ACTIVE status).'
+			);
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to create device policy or register device';
+			const errorMessage =
+				error instanceof Error
+					? error.message
+					: 'Failed to create device policy or register device';
 			updateStepState(3, { status: 'error', error: errorMessage });
 			toastV8.error(errorMessage);
 		}
@@ -667,10 +699,15 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			setFlowData(authResult);
 
 			// Get flow status
-			const flowId = (authResult as { flowId?: string })?.flowId || (authResult as { id?: string })?.id;
+			const flowId =
+				(authResult as { flowId?: string })?.flowId || (authResult as { id?: string })?.id;
 			if (flowId) {
 				const cookies = (authResult as { cookies?: string[] })?.cookies || [];
-				const flowStatus = await EmailMFASignOnFlowServiceV8.getFlowStatus(environmentId, flowId, cookies);
+				const flowStatus = await EmailMFASignOnFlowServiceV8.getFlowStatus(
+					environmentId,
+					flowId,
+					cookies
+				);
 				setFlowData((prev) => ({ ...prev, ...flowStatus }));
 			}
 
@@ -678,7 +715,8 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			setCurrentStep(5);
 			toastV8.success('Authorization initiated successfully');
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to initiate authorization';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to initiate authorization';
 			updateStepState(4, { status: 'error', error: errorMessage });
 			toastV8.error(errorMessage);
 		}
@@ -686,7 +724,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 	// Step 5: Complete MFA Action (User Lookup + OTP Validation)
 	const handleStep5 = useCallback(async () => {
-		if (!environmentId || !flowData.id && !flowData.flowId) {
+		if (!environmentId || (!flowData.id && !flowData.flowId)) {
 			toastV8.error('Please complete Step 4 first');
 			return;
 		}
@@ -738,7 +776,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 
 	// Step 6: Resume Flow and Exchange Auth Code for Token
 	const handleStep6 = useCallback(async () => {
-		if (!environmentId || !flowData.id && !flowData.flowId) {
+		if (!environmentId || (!flowData.id && !flowData.flowId)) {
 			toastV8.error('Please complete Step 5 first');
 			return;
 		}
@@ -754,7 +792,9 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 				flowId,
 			});
 
-			const authCode = (resumeResult as { code?: string })?.code || (resumeResult as { authorizationCode?: string })?.authorizationCode;
+			const authCode =
+				(resumeResult as { code?: string })?.code ||
+				(resumeResult as { authorizationCode?: string })?.authorizationCode;
 
 			if (!authCode) {
 				throw new Error('No authorization code received from resume flow');
@@ -786,7 +826,8 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 			updateStepState(6, { status: 'success', result: tokenResult });
 			toastV8.success('Authorization code exchanged for token successfully');
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to resume flow or exchange code';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to resume flow or exchange code';
 			updateStepState(6, { status: 'error', error: errorMessage });
 			toastV8.error(errorMessage);
 		}
@@ -814,11 +855,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 					</StepStatus>
 				);
 			default:
-				return (
-					<StepStatus $status="pending">
-						Pending
-					</StepStatus>
-				);
+				return <StepStatus $status="pending">Pending</StepStatus>;
 		}
 	};
 
@@ -904,11 +941,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						</FormGroup>
 						<FormGroup>
 							<Label>Application Name</Label>
-							<Input
-								type="text"
-								value={appName}
-								onChange={(e) => setAppName(e.target.value)}
-							/>
+							<Input type="text" value={appName} onChange={(e) => setAppName(e.target.value)} />
 						</FormGroup>
 						<FormGroup>
 							<Label>Redirect URI</Label>
@@ -918,7 +951,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setRedirectUri(e.target.value)}
 							/>
 						</FormGroup>
-						<Button $variant="primary" onClick={handleStep0} disabled={stepStates[0]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep0}
+							disabled={stepStates[0]?.status === 'loading'}
+						>
 							Create Application
 						</Button>
 						{stepStates[0]?.result && (
@@ -939,7 +976,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(1)}
 					</StepHeader>
 					<StepContent>
-						<Button $variant="primary" onClick={handleStep1} disabled={stepStates[1]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep1}
+							disabled={stepStates[1]?.status === 'loading'}
+						>
 							Create Sign-On Policy
 						</Button>
 						{stepStates[1]?.result && (
@@ -962,11 +1003,7 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 					<StepContent>
 						<FormGroup>
 							<Label>Username</Label>
-							<Input
-								type="text"
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-							/>
+							<Input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
 						</FormGroup>
 						<FormGroup>
 							<Label>Email</Label>
@@ -984,7 +1021,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setPassword(e.target.value)}
 							/>
 						</FormGroup>
-						<Button $variant="primary" onClick={handleStep2} disabled={stepStates[2]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep2}
+							disabled={stepStates[2]?.status === 'loading'}
+						>
 							Create User and Enable MFA
 						</Button>
 						{stepStates[2]?.result && (
@@ -1013,7 +1054,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								onChange={(e) => setDeviceEmail(e.target.value)}
 							/>
 						</FormGroup>
-						<Button $variant="primary" onClick={handleStep3} disabled={stepStates[3]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep3}
+							disabled={stepStates[3]?.status === 'loading'}
+						>
 							Create Policy and Register Device
 						</Button>
 						{stepStates[3]?.result && (
@@ -1034,7 +1079,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(4)}
 					</StepHeader>
 					<StepContent>
-						<Button $variant="primary" onClick={handleStep4} disabled={stepStates[4]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep4}
+							disabled={stepStates[4]?.status === 'loading'}
+						>
 							Initiate Authorization
 						</Button>
 						{stepStates[4]?.result && (
@@ -1064,7 +1113,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 								placeholder="Enter OTP code from email"
 							/>
 						</FormGroup>
-						<Button $variant="primary" onClick={handleStep5} disabled={stepStates[5]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep5}
+							disabled={stepStates[5]?.status === 'loading'}
+						>
 							Complete MFA Action
 						</Button>
 						{stepStates[5]?.result && (
@@ -1085,7 +1138,11 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 						{renderStepStatus(6)}
 					</StepHeader>
 					<StepContent>
-						<Button $variant="primary" onClick={handleStep6} disabled={stepStates[6]?.status === 'loading'}>
+						<Button
+							$variant="primary"
+							onClick={handleStep6}
+							disabled={stepStates[6]?.status === 'loading'}
+						>
 							Resume Flow and Exchange Code
 						</Button>
 						{stepStates[6]?.result && (
@@ -1100,4 +1157,3 @@ export const EmailMFASignOnFlowV8: React.FC = () => {
 		</div>
 	);
 };
-

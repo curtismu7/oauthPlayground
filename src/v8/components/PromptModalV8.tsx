@@ -4,19 +4,19 @@
  * @description Prompt modal component - replaces window.prompt()
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * Features:
  * - Accessible modal dialog with input
  * - Keyboard support (ESC to cancel, Enter to submit)
  * - Input validation
  * - Integrates with UINotificationServiceV8
- * 
+ *
  * @example
  * <PromptModalV8 />
  */
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { uiNotificationServiceV8, type PromptOptions } from '@/v8/services/uiNotificationServiceV8';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { type PromptOptions, uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
 
 const MODULE_TAG = '[📝 PROMPT-MODAL-V8]';
 

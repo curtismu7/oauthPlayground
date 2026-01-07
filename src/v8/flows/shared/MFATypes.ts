@@ -4,14 +4,14 @@
  * @description Shared types and interfaces for MFA flows
  */
 
-export type DeviceType = 
-	| 'SMS' 
-	| 'EMAIL' 
-	| 'TOTP' 
-	| 'FIDO2' 
-	| 'MOBILE' 
-	| 'OATH_TOKEN' 
-	| 'VOICE' 
+export type DeviceType =
+	| 'SMS'
+	| 'EMAIL'
+	| 'TOTP'
+	| 'FIDO2'
+	| 'MOBILE'
+	| 'OATH_TOKEN'
+	| 'VOICE'
 	| 'WHATSAPP';
 
 export type TokenType = 'worker' | 'user'; // Worker token (admin) or User token (access token from implicit flow)
@@ -45,6 +45,15 @@ export interface DeviceAuthenticationPolicy {
 	pairingDisabled?: boolean; // If true, device pairing is disabled for this policy
 	promptForNicknameOnPairing?: boolean; // If true, prompt user to set nickname after pairing
 	skipUserLockVerification?: boolean; // If true, skip lock verification; if false, check user lock status and block if locked
+	otp?: {
+		failure?: {
+			count?: number; // Maximum number of OTP entry failures (1-7)
+			coolDown?: {
+				duration?: number; // Duration (0-30, or 2-30 depending on device type)
+				timeUnit?: 'MINUTES' | 'SECONDS'; // Time unit for duration
+			};
+		};
+	};
 	authentication?: {
 		deviceSelection?: string;
 		[key: string]: unknown;
@@ -90,11 +99,12 @@ export interface MFAFlowProps {
 	setCredentials: (credentials: MFACredentials) => void;
 	mfaState: MFAState;
 	setMfaState: (state: MFAState | ((prev: MFAState) => MFAState)) => void;
-	tokenStatus: ReturnType<typeof import('@/v8/services/workerTokenStatusServiceV8').WorkerTokenStatusServiceV8.checkWorkerTokenStatus>;
+	tokenStatus: ReturnType<
+		typeof import('@/v8/services/workerTokenStatusServiceV8').WorkerTokenStatusServiceV8.checkWorkerTokenStatus
+	>;
 	isLoading: boolean;
 	setIsLoading: (loading: boolean) => void;
 	nav: import('@/v8/hooks/useStepNavigationV8').UseStepNavigationV8Return;
 	showDeviceLimitModal: boolean;
 	setShowDeviceLimitModal: (show: boolean) => void;
 }
-

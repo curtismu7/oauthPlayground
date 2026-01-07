@@ -114,7 +114,7 @@ export class ProtectServiceV8 {
 	 * Get the base URL for the specified region
 	 */
 	private static getBaseUrl(region: ProtectCredentials['region']): string {
-		return this.API_BASE_URLS[region];
+		return ProtectServiceV8.API_BASE_URLS[region];
 	}
 
 	/**
@@ -131,11 +131,11 @@ export class ProtectServiceV8 {
 			throw new Error('Environment ID and worker token are required');
 		}
 
-		const baseUrl = this.getBaseUrl(credentials.region);
+		const baseUrl = ProtectServiceV8.getBaseUrl(credentials.region);
 		const url = `${baseUrl}/v1/environments/${credentials.environmentId}${endpoint}`;
-		
+
 		const startTime = Date.now();
-		
+
 		try {
 			const callId = apiCallTrackerService.trackApiCall({
 				method,
@@ -159,14 +159,14 @@ export class ProtectServiceV8 {
 
 			const responseClone = response.clone();
 			let data: T;
-			
+
 			try {
-				data = await responseClone.json() as T;
+				data = (await responseClone.json()) as T;
 			} catch {
 				const text = await response.text();
-				data = { 
-					error: 'Failed to parse response', 
-					rawResponse: text.substring(0, 500) 
+				data = {
+					error: 'Failed to parse response',
+					rawResponse: text.substring(0, 500),
 				} as T;
 			}
 
@@ -183,7 +183,9 @@ export class ProtectServiceV8 {
 
 			if (!response.ok) {
 				const errorData = data as Record<string, unknown>;
-				throw new Error(`Protect API Error: ${response.status} ${response.statusText} - ${errorData.message || errorData.error || 'Unknown error'}`);
+				throw new Error(
+					`Protect API Error: ${response.status} ${response.statusText} - ${errorData.message || errorData.error || 'Unknown error'}`
+				);
 			}
 
 			return {
@@ -205,17 +207,13 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Fetching risk policies for environment:`, credentials.environmentId);
 
 		try {
-			const response = await this.makeApiCall<{ _embedded: { riskPolicySets: RiskPolicy[] } }>(
-				credentials,
-				'GET',
-				'/riskPolicySets',
-				undefined,
-				'Fetch Risk Policies'
-			);
+			const response = await ProtectServiceV8.makeApiCall<{
+				_embedded: { riskPolicySets: RiskPolicy[] };
+			}>(credentials, 'GET', '/riskPolicySets', undefined, 'Fetch Risk Policies');
 
 			const policies = response.data._embedded?.riskPolicySets || [];
 			console.log(`${MODULE_TAG} Retrieved ${policies.length} risk policies`);
-			
+
 			return policies;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to fetch risk policies:`, error);
@@ -238,7 +236,7 @@ export class ProtectServiceV8 {
 		}
 
 		try {
-			const response = await this.makeApiCall<RiskEvaluationResult>(
+			const response = await ProtectServiceV8.makeApiCall<RiskEvaluationResult>(
 				credentials,
 				'POST',
 				'/riskEvaluations',
@@ -268,10 +266,13 @@ export class ProtectServiceV8 {
 		evaluationId: string,
 		completionStatus: 'SUCCESS' | 'FAILED'
 	): Promise<RiskEvaluationResult> {
-		console.log(`${MODULE_TAG} Updating risk evaluation ${evaluationId} with status:`, completionStatus);
+		console.log(
+			`${MODULE_TAG} Updating risk evaluation ${evaluationId} with status:`,
+			completionStatus
+		);
 
 		try {
-			const response = await this.makeApiCall<RiskEvaluationResult>(
+			const response = await ProtectServiceV8.makeApiCall<RiskEvaluationResult>(
 				credentials,
 				'PATCH',
 				`/riskEvaluations/${evaluationId}`,
@@ -299,7 +300,7 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Providing feedback for evaluation ${evaluationId}:`, feedback);
 
 		try {
-			const response = await this.makeApiCall<{ message: string }>(
+			const response = await ProtectServiceV8.makeApiCall<{ message: string }>(
 				credentials,
 				'POST',
 				`/riskEvaluations/${evaluationId}/feedback`,
@@ -325,7 +326,7 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Fetching risk evaluation details for:`, evaluationId);
 
 		try {
-			const response = await this.makeApiCall<RiskEvaluationResult>(
+			const response = await ProtectServiceV8.makeApiCall<RiskEvaluationResult>(
 				credentials,
 				'GET',
 				`/riskEvaluations/${evaluationId}`,
@@ -351,7 +352,9 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Fetching risk history for user:`, userId);
 
 		try {
-			const response = await this.makeApiCall<{ _embedded: { riskEvaluations: RiskEvaluationResult[] } }>(
+			const response = await ProtectServiceV8.makeApiCall<{
+				_embedded: { riskEvaluations: RiskEvaluationResult[] };
+			}>(
 				credentials,
 				'GET',
 				`/riskEvaluations?filter=user.id%20eq%20"${userId}"&size=${limit}`,
@@ -361,7 +364,7 @@ export class ProtectServiceV8 {
 
 			const evaluations = response.data._embedded?.riskEvaluations || [];
 			console.log(`${MODULE_TAG} Retrieved ${evaluations.length} risk evaluations for user`);
-			
+
 			return evaluations;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to fetch user risk history:`, error);
@@ -395,7 +398,7 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Creating targeted risk policy:`, policyData.name);
 
 		try {
-			const response = await this.makeApiCall<RiskPolicy>(
+			const response = await ProtectServiceV8.makeApiCall<RiskPolicy>(
 				credentials,
 				'POST',
 				'/riskPolicySets',
@@ -414,27 +417,25 @@ export class ProtectServiceV8 {
 	/**
 	 * Get available risk predictors for the environment
 	 */
-	static async getRiskPredictors(credentials: ProtectCredentials): Promise<Array<{
-		id: string;
-		name: string;
-		type: 'BASE' | 'COMPOSITE' | 'TRAFFIC_ANOMALY' | 'VELOCITY' | 'CUSTOM';
-		enabled: boolean;
-		description?: string;
-	}>> {
+	static async getRiskPredictors(credentials: ProtectCredentials): Promise<
+		Array<{
+			id: string;
+			name: string;
+			type: 'BASE' | 'COMPOSITE' | 'TRAFFIC_ANOMALY' | 'VELOCITY' | 'CUSTOM';
+			enabled: boolean;
+			description?: string;
+		}>
+	> {
 		console.log(`${MODULE_TAG} Fetching risk predictors`);
 
 		try {
-			const response = await this.makeApiCall<{ _embedded: { riskPredictors: unknown[] } }>(
-				credentials,
-				'GET',
-				'/riskPredictors',
-				undefined,
-				'Get Risk Predictors'
-			);
+			const response = await ProtectServiceV8.makeApiCall<{
+				_embedded: { riskPredictors: unknown[] };
+			}>(credentials, 'GET', '/riskPredictors', undefined, 'Get Risk Predictors');
 
 			const predictors = response.data._embedded?.riskPredictors || [];
 			console.log(`${MODULE_TAG} Retrieved ${predictors.length} risk predictors`);
-			
+
 			return predictors as Array<{
 				id: string;
 				name: string;
@@ -456,7 +457,7 @@ export class ProtectServiceV8 {
 
 		try {
 			// Try to fetch risk policies as a simple connectivity test
-			await this.fetchRiskPolicies(credentials);
+			await ProtectServiceV8.fetchRiskPolicies(credentials);
 			console.log(`${MODULE_TAG} Credentials validated successfully`);
 			return true;
 		} catch (error) {
@@ -497,8 +498,8 @@ export class ProtectServiceV8 {
 		console.log(`${MODULE_TAG} Starting risk evaluation workflow`);
 
 		// Step 1: Create risk evaluation
-		const evaluation = await this.createRiskEvaluation(credentials, event);
-		
+		const evaluation = await ProtectServiceV8.createRiskEvaluation(credentials, event);
+
 		// Step 2: Determine action based on risk level
 		let action: 'ALLOW' | 'CHALLENGE' | 'BLOCK';
 		let reason: string;

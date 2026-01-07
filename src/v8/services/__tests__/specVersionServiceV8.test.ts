@@ -5,12 +5,12 @@
  * @version 8.0.0
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	SpecVersionServiceV8,
-	type SpecVersion,
-	type FlowType,
 	type ComplianceRules,
+	type FlowType,
+	type SpecVersion,
+	SpecVersionServiceV8,
 } from '../specVersionServiceV8';
 
 describe('SpecVersionServiceV8', () => {
@@ -179,10 +179,11 @@ describe('SpecVersionServiceV8', () => {
 		it('should return correct labels for all flow types', () => {
 			expect(SpecVersionServiceV8.getFlowLabel('oauth-authz')).toBe('Authorization Code Flow');
 			expect(SpecVersionServiceV8.getFlowLabel('implicit')).toBe('Implicit Flow');
-			expect(SpecVersionServiceV8.getFlowLabel('client-credentials')).toBe('Client Credentials Flow');
+			expect(SpecVersionServiceV8.getFlowLabel('client-credentials')).toBe(
+				'Client Credentials Flow'
+			);
 			expect(SpecVersionServiceV8.getFlowLabel('device-code')).toBe('Device Authorization Flow');
 			expect(SpecVersionServiceV8.getFlowLabel('hybrid')).toBe('Hybrid Flow');
 		});
 	});
 });
-

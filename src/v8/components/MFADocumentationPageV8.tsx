@@ -58,7 +58,7 @@ interface ApiCall {
 	notes?: string[];
 }
 
-const DEVICE_DOCS: Record<
+export const DEVICE_DOCS: Record<
 	DeviceType,
 	{
 		registrationApiDocs: string;
@@ -137,7 +137,7 @@ const substituteValues = (template: string, values: Record<string, string | unde
 	return result;
 };
 
-const getApiCalls = (
+export const getApiCalls = (
 	deviceType: DeviceType,
 	flowType: 'registration' | 'authentication',
 	flowSpecificData?: {
@@ -350,31 +350,75 @@ const getApiCalls = (
 		// Determine step number based on flow type
 		const registrationStepNumber = registrationFlowType === 'user' ? '6' : '3';
 
-		// For user flow, status is always ACTIVATION_REQUIRED
-		// For admin flow, status depends on adminDeviceStatus
+		// Determine device status:
+		// 1. Use actual deviceStatus from flow data if available (this is what was actually sent to PingOne)
+		// 2. For user flow, status is always ACTIVATION_REQUIRED
+		// 3. For admin flow, status depends on adminDeviceStatus (defaults to ACTIVE if not provided)
+		const actualDeviceStatus = flowSpecificData?.deviceStatus;
 		const deviceStatus =
-			registrationFlowType === 'user' ? 'ACTIVATION_REQUIRED' : adminDeviceStatus;
+			actualDeviceStatus === 'ACTIVE' || actualDeviceStatus === 'ACTIVATION_REQUIRED'
+				? actualDeviceStatus
+				: registrationFlowType === 'user'
+					? 'ACTIVATION_REQUIRED'
+					: adminDeviceStatus;
 
-		// Build device-specific request body
+		// Build device-specific request body per PingOne MFA API documentation
+		// Always include all valid fields for educational completeness (even with defaults)
+		// Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/
 		const deviceRequestBody: Record<string, unknown> = {
-			type: deviceType,
-			nickname: valueMap.deviceName,
-			status: deviceStatus,
+			type: deviceType, // Required for all device types
 		};
 
-		// Add device-specific fields
-		if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
-			deviceRequestBody.phone = { number: valueMap.phone };
-		} else if (deviceType === 'EMAIL') {
-			deviceRequestBody.email = valueMap.email;
-		}
+		// FIDO2-specific: Only include type, rp, and policy (per API docs)
+		// Do NOT include status, name, nickname, or notification for FIDO2
+		// See: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-fido2
+		if (deviceType === 'FIDO2') {
+			deviceRequestBody.rp = {
+				id: 'localhost',
+				name: 'Local Development',
+			};
+			// Add policy if available
+			if (
+				valueMap.deviceAuthenticationPolicyId &&
+				!valueMap.deviceAuthenticationPolicyId.startsWith('{')
+			) {
+				deviceRequestBody.policy = { id: valueMap.deviceAuthenticationPolicyId };
+			}
+		} else {
+			// For SMS/Email/Voice/WhatsApp/TOTP: include status, phone/email, policy, notification
+			// Valid fields per PingOne API:
+			// - type (required)
+			// - status (required: ACTIVE or ACTIVATION_REQUIRED)
+			// - phone (required for SMS/Voice/WhatsApp) or email (required for Email)
+			// - policy (optional: { id: "..." })
+			// - notification (optional: { message: "", variant: "" }, only when status is ACTIVATION_REQUIRED)
+			// NOTE: name and nickname are NOT valid in device creation request
+			deviceRequestBody.status = deviceStatus;
 
-		// Add policy ID (always included for both flows, as worker tokens are always used)
-		if (
-			valueMap.deviceAuthenticationPolicyId &&
-			!valueMap.deviceAuthenticationPolicyId.startsWith('{')
-		) {
-			deviceRequestBody.policy = { id: valueMap.deviceAuthenticationPolicyId };
+			// Add device-specific contact field
+			if (deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'VOICE') {
+				deviceRequestBody.phone = valueMap.phone || '+1.5125201234';
+			} else if (deviceType === 'EMAIL') {
+				deviceRequestBody.email = valueMap.email || 'user@example.com';
+			}
+
+			// Add policy ID (optional but recommended)
+			if (
+				valueMap.deviceAuthenticationPolicyId &&
+				!valueMap.deviceAuthenticationPolicyId.startsWith('{')
+			) {
+				deviceRequestBody.policy = { id: valueMap.deviceAuthenticationPolicyId };
+			}
+
+			// Always include notification object for educational completeness when status is ACTIVATION_REQUIRED
+			// This shows users the complete data model structure, even with empty values
+			// Per API docs: notification is only applicable when status is ACTIVATION_REQUIRED
+			if (deviceStatus === 'ACTIVATION_REQUIRED') {
+				deviceRequestBody.notification = {
+					message: '',
+					variant: '',
+				};
+			}
 		}
 
 		// Build response body with actual values
@@ -813,7 +857,7 @@ const getApiCalls = (
 	return calls;
 };
 
-const generateMarkdown = (
+export const generateMarkdown = (
 	deviceType: DeviceType,
 	flowType: 'registration' | 'authentication',
 	apiCalls: ApiCall[],
@@ -928,7 +972,7 @@ const generateMarkdown = (
 	return md;
 };
 
-const downloadAsMarkdown = (content: string, filename: string): void => {
+export const downloadAsMarkdown = (content: string, filename: string): void => {
 	const blob = new Blob([content], { type: 'text/markdown' });
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');
@@ -1076,7 +1120,7 @@ const escapeHtml = (text: string): string => {
 	return text.replace(/[&<>"']/g, (m) => map[m] || m);
 };
 
-const downloadAsPDF = (content: string, title: string): void => {
+export const downloadAsPDF = (content: string, title: string): void => {
 	// Create a new window with the content
 	const printWindow = window.open('', '_blank');
 	if (!printWindow) {
@@ -1393,6 +1437,51 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
 					Complete API documentation with examples and rules
 				</p>
+			</div>
+
+			{/* Data Model Documentation Link */}
+			<div
+				style={{
+					marginBottom: '24px',
+					padding: '16px',
+					background: '#eff6ff',
+					borderRadius: '8px',
+					border: '1px solid #bfdbfe',
+				}}
+			>
+				<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+					<FiInfo size={18} color="#3b82f6" />
+					<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
+						Complete Data Model Reference
+					</span>
+				</div>
+				<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
+					This documentation shows all available fields in the request body, including optional fields with
+					default values. For the complete data model specification, see:
+				</p>
+				<a
+					href={deviceInfo.registrationApiDocs}
+					target="_blank"
+					rel="noopener noreferrer"
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '6px',
+						color: '#3b82f6',
+						textDecoration: 'none',
+						fontSize: '13px',
+						fontWeight: '500',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.textDecoration = 'underline';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.textDecoration = 'none';
+					}}
+				>
+					<FiInfo size={14} />
+					View {deviceInfo.deviceName} Device Registration Data Model →
+				</a>
 			</div>
 
 			{/* Download Buttons and Navigation */}

@@ -262,7 +262,7 @@ Description: ${errorDesc || 'No description provided'}
             const hasError = params.has('error');
             const flowContext = sessionStorage.getItem('flowContext');
 
-            let fixes = [];
+            const fixes = [];
 
             if (hasError) {
                 const error = params.get('error');
@@ -355,7 +355,7 @@ Description: ${errorDesc || 'No description provided'}
                 '/callback'
             ];
 
-            let html = `
+            const html = `
                 <h3>Common Redirect URIs for OAuth Playground:</h3>
                 <div class="code-block">${commonCallbackPaths.map(path => `${currentOrigin}${path}`).join('\n')}</div>
                 
@@ -393,7 +393,7 @@ Description: ${errorDesc || 'No description provided'}
         }
 
         // Auto-run analysis on page load
-        window.addEventListener('load', function() {
+        window.addEventListener('load', () => {
             analyzeCurrentUrl();
             analyzeSessionStorage();
             analyzeLocalStorage();

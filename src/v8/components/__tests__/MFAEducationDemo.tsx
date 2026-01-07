@@ -4,20 +4,20 @@
  * @description Demo component showing MFA educational UI patterns
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * This is a demo/example component showing how to use MFAInfoButtonV8
  * and MFAEducationServiceV8 in the MFA Flow.
- * 
+ *
  * NOT FOR PRODUCTION - This is a reference implementation only.
  */
 
 import React from 'react';
-import { MFAInfoButtonV8 } from '../MFAInfoButtonV8';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAInfoButtonV8 } from '../MFAInfoButtonV8';
 
 /**
  * MFA Education Demo Component
- * 
+ *
  * Shows examples of:
  * - Info buttons in tooltip mode
  * - Info buttons in modal mode
@@ -339,7 +339,15 @@ export const MFAEducationDemo: React.FC = () => {
 				<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#1e40af' }}>
 					💡 How to Use in MFA Flow
 				</h3>
-				<ol style={{ margin: 0, paddingLeft: '20px', fontSize: '14px', color: '#1e40af', lineHeight: '1.8' }}>
+				<ol
+					style={{
+						margin: 0,
+						paddingLeft: '20px',
+						fontSize: '14px',
+						color: '#1e40af',
+						lineHeight: '1.8',
+					}}
+				>
 					<li>Import MFAInfoButtonV8 and MFAEducationServiceV8</li>
 					<li>Add info buttons next to form labels</li>
 					<li>Use tooltip mode for quick reference</li>

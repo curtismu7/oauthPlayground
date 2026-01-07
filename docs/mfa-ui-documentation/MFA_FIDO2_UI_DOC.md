@@ -1,7 +1,7 @@
 # MFA FIDO2 UI Documentation
 
-**Last Updated:** 2025-01-XX  
-**Version:** 1.0.0  
+**Last Updated:** 2026-01-06 14:30:00  
+**Version:** 1.1.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -42,6 +42,8 @@ This document defines the UI structure, components, and user experience for FIDO
 │  │  Worker Token Status Section                    │  │
 │  │  - Status indicator (Valid/Expired/Missing)     │  │
 │  │  - "Get Worker Token" button if invalid         │  │
+│  │  - Respects "Silent API Token Retrieval"        │  │
+│  │    and "Show Token After Generation" settings    │  │
 │  └─────────────────────────────────────────────────┘  │
 │                                                         │
 │  ┌─────────────────────────────────────────────────┐  │
@@ -374,10 +376,78 @@ This document defines the UI structure, components, and user experience for FIDO
 
 ---
 
+## Lockdown and Regression Protection
+
+### FIDO2 UI Lockdown
+
+**Purpose:** Protect critical FIDO2 UI components from accidental modification or regression.
+
+**Locked UI Files:**
+- `src/v8/flows/types/FIDO2FlowV8.tsx` - Main registration flow UI
+- `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page UI
+- `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication page UI (FIDO2 sections)
+- `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal UI
+
+**Verification:**
+```bash
+npm run verify:fido2-lockdown
+```
+
+**Restoring UI from Regression:**
+If FIDO2 UI breaks, restore from snapshots:
+1. Run `npm run verify:fido2-lockdown` to see what changed
+2. Choose option 1 in the restart script to restore from snapshots
+3. Or manually copy UI files from `src/v8/lockdown/fido2/snapshot/`
+
+**See Also:**
+- `docs/MFA_FIDO2_MASTER.md` - Complete lockdown documentation
+- `src/v8/lockdown/fido2/manifest.json` - Lockdown manifest
+
+---
+
+## Success Page
+
+**Location:** Step 3 of FIDO2 registration flow  
+**Component:** `MFASuccessPageV8` (wraps `UnifiedMFASuccessPageV8`)
+
+### Required UI Elements
+
+1. **Success Header**
+   - Green gradient background
+   - Celebration emoji (🎉)
+   - "Registration Successful!" title
+   - Success message
+
+2. **Device Information Card**
+   - Device ID
+   - Device Type: "FIDO2 (Security Key / Passkey)"
+   - Device Status: "ACTIVE"
+   - Device Nickname (if set)
+
+3. **Action Buttons** (Bottom of page)
+   - **"View Documentation"** button (orange/yellow, with 📚 icon)
+     - **MUST be visible** for all FIDO2 registration flows
+     - Navigates to `/v8/mfa/register/fido2/docs`
+     - Passes flow data via `location.state`
+   - **"Back to MFA Hub"** button (gray, with 🏠 icon)
+   - **"Go to Authentication"** button (blue, for registration flows)
+
+### Documentation Button Implementation
+
+**Condition:** Button is shown when:
+- `flowType === 'registration'`
+- `deviceType === 'FIDO2'`
+- Device has documentation (FIDO2 is in the documentation list)
+
+**Implementation Note:** The FIDO2 flow ensures `deviceType` is set to `'FIDO2'` when building success page data to ensure the documentation button appears.
+
+---
+
 ## Related Documentation
 
-- `docs/MFA_FIDO2_UI_CONTRACT.md` - UI Contract for FIDO2 flows
-- `docs/MFA_FIDO2_MASTER.md` - Comprehensive FIDO2 master document
+- [MFA FIDO2 UI Contract](./MFA_FIDO2_UI_CONTRACT.md) - UI Contract for FIDO2 flows
+- [MFA FIDO2 Master Document](./MFA_FIDO2_MASTER.md) - Comprehensive FIDO2 master document
+- [MFA Worker Token UI Contract](./MFA_WORKER_TOKEN_UI_CONTRACT.md) - Worker token configuration and modal behavior contracts
 - `docs/MFA_API_REFERENCE.md` - API reference for FIDO2 endpoints
 - `docs/MFA_STATE_PRESERVATION_UI_CONTRACT.md` - State preservation contract
 
@@ -399,6 +469,12 @@ This document defines the UI structure, components, and user experience for FIDO
 ---
 
 ## Version History
+
+- **v1.1.0** (2025-01-27): 
+  - Added Success Page section with documentation button implementation
+  - Added Back to Hub button styling (green color)
+  - Added dynamic padding for API display overlay
+  - Updated deviceType preservation documentation
 
 - **v1.0.0** (2025-01-XX): Initial FIDO2 UI documentation
 

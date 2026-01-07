@@ -13,7 +13,6 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
 	FiBook,
 	FiCheckCircle,
@@ -24,10 +23,11 @@ import {
 	FiServer,
 	FiShield,
 } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 
@@ -649,7 +649,7 @@ const buildSpiffeId = (trustDomain: SpiffeTrustDomain, workload: Workload): stri
 const buildRegistrationEntry = (
 	trustDomain: SpiffeTrustDomain,
 	workload: Workload,
-	ttlSeconds: number = 3600,
+	ttlSeconds: number = 3600
 ): SpireRegistrationEntry => ({
 	spiffeId: buildSpiffeId(trustDomain, workload),
 	parentId: `spiffe://${trustDomain}/spire/server`,
@@ -957,7 +957,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		const trackerId = apiCallTrackerService.trackApiCall({
 			method: 'POST',
 			url: tokenExchangeApiCall.url,
-			headers: tokenExchangeApiCall.headers || { 'Content-Type': 'application/x-www-form-urlencoded' },
+			headers: tokenExchangeApiCall.headers || {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
 			body: tokenExchangeApiCall.body ?? null,
 			step: 'spiffe-spire-token-exchange',
 		});
@@ -980,17 +982,21 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			tokenExchangeApiCall.duration = 1300;
 
 			// Update shared API call tracker with mock response so MFA-style viewer can render it
-			apiCallTrackerService.updateApiCallResponse(trackerId, {
-				status: 200,
-				statusText: 'OK',
-				data: {
-					access_token: token.accessToken,
-					id_token: token.idToken,
-					token_type: token.tokenType,
-					expires_in: token.expiresIn,
-					scope: token.scope,
+			apiCallTrackerService.updateApiCallResponse(
+				trackerId,
+				{
+					status: 200,
+					statusText: 'OK',
+					data: {
+						access_token: token.accessToken,
+						id_token: token.idToken,
+						token_type: token.tokenType,
+						expires_in: token.expiresIn,
+						scope: token.scope,
+					},
 				},
-			}, tokenExchangeApiCall.duration);
+				tokenExchangeApiCall.duration
+			);
 
 			setPingOneToken(token);
 			setShowPhaseTransition(false);
@@ -1052,11 +1058,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 			</Header>
 
 			{/* Navigation */}
-			<MFANavigationV8
-				currentPage="hub"
-				showRestartFlow={false}
-				showBackToMain={true}
-			/>
+			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
 
 			<Alert $type="info">
 				<FiExternalLink />
@@ -1302,7 +1304,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 						)}
 
 						<FormGroup>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+							<div
+								style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+							>
 								<Label>Trust Domain</Label>
 								<button
 									type="button"
@@ -1336,8 +1340,8 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							</HelperText>
 							{showTrustDomainInfo && (
 								<HelperText>
-									<strong>Trust domain</strong> is the root of your SPIFFE identity namespace and trust
-										bundle. All SVIDs in this domain chain back to a CA owned by this name.
+									<strong>Trust domain</strong> is the root of your SPIFFE identity namespace and
+									trust bundle. All SVIDs in this domain chain back to a CA owned by this name.
 									<br />
 									Examples: <code>example.org</code>, <code>internal.ping.local</code>,
 									<code>prod.bank.internal</code>.
@@ -1511,7 +1515,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 							</Alert>
 
 							<FormGroup>
-								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<div
+									style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+								>
 									<Label>SPIFFE ID</Label>
 									<button
 										type="button"
@@ -1542,9 +1548,10 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								</HelperText>
 								{showSpiffeIdInfo && (
 									<HelperText>
-										<strong>SPIFFE ID</strong> is a globally unique name for your workload in the form
-											<code>spiffe://trust-domain/path/to/workload</code>. It is not a secret; security
-											comes from proving possession of an SVID that contains this ID.
+										<strong>SPIFFE ID</strong> is a globally unique name for your workload in the
+										form
+										<code>spiffe://trust-domain/path/to/workload</code>. It is not a secret;
+										security comes from proving possession of an SVID that contains this ID.
 										<br />
 										Examples: <code>spiffe://example.org/ns/orders/sa/orders-api</code>
 									</HelperText>
@@ -1591,22 +1598,22 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 									selectors:
 										workloadConfig.workloadType === 'kubernetes'
 											? [
-												{
-													type: 'k8s',
-													value: `sa:${workloadConfig.serviceAccount || 'frontend-sa'}`,
-												},
-											]
+													{
+														type: 'k8s',
+														value: `sa:${workloadConfig.serviceAccount || 'frontend-sa'}`,
+													},
+												]
 											: [
-												{
-													type: workloadConfig.workloadType,
-													value: `path:${workloadConfig.workloadPath}`,
-												},
-											],
+													{
+														type: workloadConfig.workloadType,
+														value: `path:${workloadConfig.workloadPath}`,
+													},
+												],
 								};
 
 								const entry = buildRegistrationEntry(
 									workloadConfig.trustDomain as SpiffeTrustDomain,
-									derivedWorkload,
+									derivedWorkload
 								);
 
 								return (
@@ -1644,8 +1651,9 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 											</HelperText>
 											{showRegistrationInfo && (
 												<HelperText>
-													<strong>Registration entry</strong> is a rule on the SPIRE Server that says
-														"for workloads with these selectors, issue this SPIFFE ID from this parent".
+													<strong>Registration entry</strong> is a rule on the SPIRE Server that
+													says "for workloads with these selectors, issue this SPIFFE ID from this
+													parent".
 													<br />
 													Key fields:
 													<ul>
@@ -1654,15 +1662,15 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 														</li>
 														<li>
 															<strong>parentId</strong>: who is allowed to sign SVIDs for this
-																workload (often the SPIRE Server).
+															workload (often the SPIRE Server).
 														</li>
 														<li>
 															<strong>selectors</strong>: platform attributes that identify which
-																workloads this entry applies to (e.g., Kubernetes service account).
+															workloads this entry applies to (e.g., Kubernetes service account).
 														</li>
 														<li>
-															<strong>ttlSeconds</strong>: how long each SVID is valid before it must
-																be rotated.
+															<strong>ttlSeconds</strong>: how long each SVID is valid before it
+															must be rotated.
 														</li>
 													</ul>
 												</HelperText>

@@ -575,7 +575,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 		// Try to extract flow type from formData or selectedAppType
 		const grantTypes = formData.grantTypes as string[] | undefined;
 
-
 		// If grant types include client_credentials, it's a client credentials flow
 		if (grantTypes?.some((gt) => gt.toLowerCase() === 'client_credentials')) {
 			return 'client-credentials';
@@ -819,7 +818,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				);
 			}
 		}
-
 
 		setLoading('check');
 		logger.info('CONFIG-CHECKER', 'Starting configuration check', {
@@ -1102,7 +1100,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 				return;
 			}
 
-
 			const result = await pingOneAppCreationService.updateApplication(app.id, updatePayload);
 
 			if (result.success) {
@@ -1170,7 +1167,6 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 			if (selectedDiffs.has('responseTypes')) {
 				updatePayload.responseTypes = diffs.normalizedRemote.responseTypes || [];
 			}
-
 
 			// Use the existing onImportConfig callback to update our app
 			if (onImportConfig) {

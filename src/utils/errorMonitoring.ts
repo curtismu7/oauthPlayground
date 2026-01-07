@@ -298,7 +298,9 @@ export class ErrorMonitoring {
 	 */
 	private triggerImmediateAlert(error: ErrorEvent): void {
 		console.error(`[CRITICAL ALERT] ${error.message}`, error.context);
-		console.log(`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical error detected: ${error.message}`);
+		console.log(
+			`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Critical error detected: ${error.message}`
+		);
 
 		// In a real implementation, this would send alerts to monitoring systems
 		// For now, we'll log to console

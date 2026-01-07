@@ -171,9 +171,9 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 							lineHeight: '1.5',
 						}}
 					>
-						The <strong>Issuer URL</strong> (also called the <strong>Issuer Identifier</strong>) is the
-						base URL of your OIDC/OAuth 2.0 provider. It uniquely identifies your authorization server
-						and is used for:
+						The <strong>Issuer URL</strong> (also called the <strong>Issuer Identifier</strong>) is
+						the base URL of your OIDC/OAuth 2.0 provider. It uniquely identifies your authorization
+						server and is used for:
 					</p>
 
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -213,7 +213,11 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 								}}
 							>
 								Used to automatically discover OIDC endpoints (authorization, token, userinfo, etc.)
-								via the <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>.well-known/openid-configuration</code> endpoint.
+								via the{' '}
+								<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>
+									.well-known/openid-configuration
+								</code>{' '}
+								endpoint.
 							</div>
 							<div
 								style={{
@@ -278,7 +282,11 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 									marginBottom: '8px',
 								}}
 							>
-								Used to validate ID tokens by checking the <code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>iss</code> (issuer) claim matches the issuer URL.
+								Used to validate ID tokens by checking the{' '}
+								<code style={{ background: '#f3f4f6', padding: '2px 4px', borderRadius: '3px' }}>
+									iss
+								</code>{' '}
+								(issuer) claim matches the issuer URL.
 							</div>
 							<div
 								style={{
@@ -355,9 +363,7 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 								}}
 							>
 								<span>💡</span>
-								<span>
-									If you provide an Environment ID, the issuer URL can be auto-generated
-								</span>
+								<span>If you provide an Environment ID, the issuer URL can be auto-generated</span>
 							</div>
 						</div>
 					</div>
@@ -379,9 +385,9 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Note:</strong> The issuer URL is <strong>optional</strong>. If not provided,
-							the application will use the Environment ID to construct the issuer URL automatically.
-							However, providing it explicitly can be useful for:
+							<strong>💡 Note:</strong> The issuer URL is <strong>optional</strong>. If not
+							provided, the application will use the Environment ID to construct the issuer URL
+							automatically. However, providing it explicitly can be useful for:
 						</div>
 						<ul
 							style={{
@@ -432,4 +438,3 @@ export const IssuerURLInputV8: React.FC<IssuerURLInputV8Props> = ({
 };
 
 export default IssuerURLInputV8;
-

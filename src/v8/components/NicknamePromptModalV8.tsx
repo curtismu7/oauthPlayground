@@ -1,9 +1,9 @@
 // src/v8/components/NicknamePromptModalV8.tsx
 // Modal for prompting user to set device nickname after pairing
 
-import React, { useState, useId, useEffect } from 'react';
+import React, { useEffect, useId, useState } from 'react';
+import { FiCheck, FiInfo, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiX, FiCheck } from 'react-icons/fi';
 
 interface NicknamePromptModalV8Props {
 	isOpen: boolean;
@@ -212,6 +212,20 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 	deviceType,
 	isLoading = false,
 }) => {
+	// Handle ESC key to close modal
+	useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	const modalTitleId = useId();
 	const [nickname, setNickname] = useState(currentNickname || '');
 	const [error, setError] = useState<string | null>(null);
@@ -232,7 +246,7 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 
 	const handleSave = async () => {
 		const trimmedNickname = nickname.trim();
-		
+
 		if (!trimmedNickname) {
 			setError('Nickname is required');
 			return;
@@ -256,19 +270,18 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 	const deviceTypeDisplay = getDeviceTypeDisplay(deviceType);
 
 	return (
-		<ModalOverlay role="presentation" onClick={isLoading ? undefined : onClose} onKeyDown={handleKeyDown}>
+		<ModalOverlay
+			role="presentation"
+			onClick={isLoading ? undefined : onClose}
+			onKeyDown={handleKeyDown}
+		>
 			<ModalContent
 				role="dialog"
 				aria-modal="true"
 				aria-labelledby={modalTitleId}
 				onClick={(event) => event.stopPropagation()}
 			>
-				<CloseButton
-					type="button"
-					aria-label="Close modal"
-					onClick={onClose}
-					disabled={isLoading}
-				>
+				<CloseButton type="button" aria-label="Close modal" onClick={onClose} disabled={isLoading}>
 					<FiX size={18} />
 				</CloseButton>
 				<ModalHeader>
@@ -283,7 +296,8 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 								fontWeight: 'normal',
 							}}
 						>
-							Your {deviceTypeDisplay} device has been registered. Please set a nickname for easy identification.
+							Your {deviceTypeDisplay} device has been registered. Please set a nickname for easy
+							identification.
 						</p>
 					</div>
 				</ModalHeader>
@@ -337,7 +351,8 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 						<InfoContent>
 							<strong>Why set a nickname?</strong>
 							<br />
-							Nicknames help you identify your devices easily. For example: "Work Phone", "Personal Email", or "Backup TOTP".
+							Nicknames help you identify your devices easily. For example: "Work Phone", "Personal
+							Email", or "Backup TOTP".
 						</InfoContent>
 					</InfoCallout>
 				</ModalBody>
@@ -345,7 +360,11 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 					<SecondaryButton type="button" onClick={onClose} disabled={isLoading}>
 						Skip
 					</SecondaryButton>
-					<PrimaryButton type="button" onClick={handleSave} disabled={isLoading || !nickname.trim()}>
+					<PrimaryButton
+						type="button"
+						onClick={handleSave}
+						disabled={isLoading || !nickname.trim()}
+					>
 						{isLoading ? (
 							<>
 								<span style={{ display: 'inline-block', marginRight: '0.5rem' }}>⏳</span>
@@ -363,4 +382,3 @@ export const NicknamePromptModalV8: React.FC<NicknamePromptModalV8Props> = ({
 		</ModalOverlay>
 	);
 };
-

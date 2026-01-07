@@ -6,7 +6,6 @@
  * @since 2024-11-18
  */
 
-
 interface TestResult {
 	testName: string;
 	passed: boolean;
@@ -70,7 +69,6 @@ class TokenExchangeFlowTest {
 	 * Test 1: Initial state - no tokens, no authorization code
 	 */
 	private testInitialState(): TestResult {
-
 		const shouldShowButton =
 			!this.mockFlowState.tokens?.accessToken && !!this.mockFlowState.authorizationCode;
 		const shouldShowWarning = !this.mockFlowState.authorizationCode;
@@ -97,7 +95,6 @@ class TokenExchangeFlowTest {
 	 * Test 2: After callback - authorization code received
 	 */
 	private testAfterCallback(): TestResult {
-
 		// Simulate callback with authorization code
 		this.mockFlowState.authorizationCode = '00b1a38e-6d40-4bb1-98ee-4177c0471ec4';
 		this.mockFlowState.codeVerifier =
@@ -132,7 +129,6 @@ class TokenExchangeFlowTest {
 	 * Test 3: During token exchange - loading state
 	 */
 	private testDuringExchange(): TestResult {
-
 		const isLoading = true;
 		const shouldShowButton =
 			!this.mockFlowState.tokens?.accessToken && !!this.mockFlowState.authorizationCode;
@@ -160,7 +156,6 @@ class TokenExchangeFlowTest {
 	 * Test 4: After successful exchange - tokens received
 	 */
 	private testAfterSuccessfulExchange(): TestResult {
-
 		// Simulate successful token exchange
 		this.mockFlowState.tokens = {
 			accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -197,7 +192,6 @@ class TokenExchangeFlowTest {
 	 * Test 5: Attempt to reuse authorization code (should be prevented by UI)
 	 */
 	private testReuseAttempt(): TestResult {
-
 		// User tries to click button again (but it should be hidden)
 		const shouldShowButton =
 			!this.mockFlowState.tokens?.accessToken && !!this.mockFlowState.authorizationCode;
@@ -226,7 +220,6 @@ class TokenExchangeFlowTest {
 	 * Test 6: Error handling - expired/invalid authorization code
 	 */
 	private testErrorHandling(): TestResult {
-
 		// Reset to state before exchange
 		this.mockFlowState.tokens = null;
 
@@ -262,7 +255,6 @@ class TokenExchangeFlowTest {
 	 * Test 7: PKCE validation
 	 */
 	private testPKCEValidation(): TestResult {
-
 		// Reset state
 		this.mockFlowState.tokens = null;
 		this.mockFlowState.authorizationCode = 'test-auth-code';
@@ -298,7 +290,6 @@ class TokenExchangeFlowTest {
 	 * Test 8: Credentials validation
 	 */
 	private testCredentialsValidation(): TestResult {
-
 		const validations = [
 			{
 				field: 'clientId',
@@ -340,7 +331,6 @@ class TokenExchangeFlowTest {
 	 * Test 9: UI state transitions
 	 */
 	private testUIStateTransitions(): TestResult {
-
 		const states = [
 			{
 				name: 'Initial',
@@ -408,7 +398,6 @@ class TokenExchangeFlowTest {
 	 * Test 10: Storage persistence
 	 */
 	private testStoragePersistence(): TestResult {
-
 		// Simulate storage operations
 		const storageKey = 'v8u_flow_oauth-authz-v8u_pkce';
 		const mockPKCEData = {
@@ -475,18 +464,18 @@ class TokenExchangeFlowTest {
 /**
  * Get test results
  */
-public getResults(): TestResult[] {
-  return this.results;
-}
+	public getResults(): TestResult[] {
+		return this.results;
+	}
 }
 
 // Export for use in browser console
 if (typeof window !== 'undefined') {
-  (window as { runTokenExchangeTests?: () => TestResult[] }).runTokenExchangeTests = () => {
-    const test = new TokenExchangeFlowTest();
-    test.runAllTests();
-    return test.getResults();
-  };
+	(window as { runTokenExchangeTests?: () => TestResult[] }).runTokenExchangeTests = () => {
+		const test = new TokenExchangeFlowTest();
+		test.runAllTests();
+		return test.getResults();
+	};
 }
 
 export default TokenExchangeFlowTest;

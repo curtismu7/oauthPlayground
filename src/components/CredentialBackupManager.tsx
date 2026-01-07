@@ -5,8 +5,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiDownload, FiInfo, FiRefreshCw, FiShield, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialBackupService, type EnvBackupData } from '../services/credentialBackupService';
-import ConfirmationModal from './ConfirmationModal';
 import { v4ToastManager } from '../utils/v4ToastManager';
+import ConfirmationModal from './ConfirmationModal';
 
 const Container = styled.div`
 	background: #ffffff;
@@ -209,7 +209,9 @@ export const CredentialBackupManager: React.FC<CredentialBackupManagerProps> = (
 		loadBackupData();
 		onRefresh?.();
 		v4ToastManager.showSuccess('All credential backups cleared successfully');
-		console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credential backups cleared successfully in CredentialBackupManager`);
+		console.log(
+			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credential backups cleared successfully in CredentialBackupManager`
+		);
 		setShowClearModal(false);
 	};
 

@@ -943,6 +943,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		fetchUserPhone();
 	}, []);
 
+	// Close validation modal when verification completes
+	// This is handled in renderStep4Validate, not here, to avoid accessing mfaState outside of render props
+
 	// Step 2: Register Device (closure to capture adminDeviceStatus and registrationFlowType)
 	// Ping Identity Logo Component
 	const PingIdentityLogo: React.FC<{ size?: number }> = ({ size = 40 }) => (
@@ -986,6 +989,32 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 	// Draggable modal hooks
 	const step2ModalDrag = useDraggableModal(showModal);
 	const step4ModalDrag = useDraggableModal(showValidationModal);
+
+	// Ref to store nav object for ESC key handler
+	const navRef = React.useRef<ReturnType<typeof useStepNavigationV8> | null>(null);
+
+	// Handle ESC key to close modals
+	React.useEffect(() => {
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				if (showValidationModal) {
+					setShowValidationModal(false);
+					// Navigate back to previous step when closing validation modal
+					if (navRef.current) {
+						navRef.current.goToPrevious();
+					}
+				} else if (showModal) {
+					setShowModal(false);
+				}
+			}
+		};
+
+		if (showModal || showValidationModal) {
+			window.addEventListener('keydown', handleEscape);
+			return () => window.removeEventListener('keydown', handleEscape);
+		}
+		return undefined;
+	}, [showModal, showValidationModal, setShowModal, setShowValidationModal]);
 
 	// Step 2: Register Device (using controller) - Now as a Modal
 	// Use useCallback to capture adminDeviceStatus and registrationFlowType in closure
@@ -1071,6 +1100,12 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					: 'SMS';
 			const isPhoneBased = currentDeviceType === 'SMS' || currentDeviceType === 'VOICE';
 
+			// Get selected policy to check promptForNicknameOnPairing
+			const selectedPolicy = props.deviceAuthPolicies?.find(
+				(p) => p.id === credentials.deviceAuthenticationPolicyId
+			);
+			const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
+
 			// Handle device registration
 			const handleRegisterDevice = async () => {
 				// Guardrail: Ensure all required credentials are present before registration
@@ -1146,9 +1181,17 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						return;
 					}
 				}
-				// Use the device name exactly as entered by the user
-				const userEnteredDeviceName = credentials.deviceName?.trim();
-				if (!userEnteredDeviceName) {
+				// Get selected policy to check promptForNicknameOnPairing
+				const selectedPolicy = props.deviceAuthPolicies?.find(
+					(p) => p.id === credentials.deviceAuthenticationPolicyId
+				);
+				const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
+
+				// Use the device name exactly as entered by the user, or default to device type if not prompted
+				const userEnteredDeviceName = shouldPromptForNickname
+					? credentials.deviceName?.trim()
+					: currentDeviceType;
+				if (shouldPromptForNickname && !userEnteredDeviceName) {
 					nav.setValidationErrors([
 						'Device name is required. Please enter a name for this device.',
 					]);
@@ -1454,8 +1497,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
 						toastV8.error('Device limit exceeded. Please delete an existing device first.');
 					} else if (isWorkerTokenError) {
-						// Show worker token modal for token errors
-						setShowWorkerTokenModal(true);
+						// Use helper to show worker token modal (respects silent API retrieval setting)
+						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+						await handleShowWorkerTokenModal(setShowWorkerTokenModal);
 						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
 						toastV8.error(`Registration failed: ${errorMessage}`);
 					} else {
@@ -1477,9 +1521,10 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				isValidPhoneFormat(credentials.phoneNumber, credentials.countryCode);
 			const isValidEmail =
 				credentials.email?.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email);
-			const isValidForm =
-				credentials.deviceName?.trim() &&
-				((isPhoneBased && isValidPhone) || (isEMAIL && isValidEmail));
+			const isValidForm = shouldPromptForNickname
+				? credentials.deviceName?.trim() &&
+					((isPhoneBased && isValidPhone) || (isEMAIL && isValidEmail))
+				: (isPhoneBased && isValidPhone) || (isEMAIL && isValidEmail);
 
 			// If device was just registered with ACTIVE status, show success page using unified service
 			// Only show success page for ACTIVE devices - ACTIVATION_REQUIRED devices go to Step 4 (validation)
@@ -1624,12 +1669,22 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						bottom: 0,
 						background: 'rgba(0, 0, 0, 0.5)',
 						display: hasPosition ? 'block' : 'flex',
-						alignItems: hasPosition ? 'normal' : 'center',
+						alignItems: hasPosition ? 'normal' : 'flex-start',
 						justifyContent: hasPosition ? 'normal' : 'center',
+						paddingTop: hasPosition ? '0' : '5vh',
+						paddingBottom: hasPosition ? '0' : '5vh',
+						overflowY: 'auto',
 						zIndex: 1000,
+						pointerEvents: 'auto',
 					}}
 					onClick={() => {
 						// Don't close on backdrop click - require explicit cancel
+					}}
+					onMouseDown={(e) => {
+						// Prevent overlay from interfering with drag
+						if (e.target === e.currentTarget) {
+							e.preventDefault();
+						}
 					}}
 				>
 					<div
@@ -1640,9 +1695,13 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							padding: '0',
 							maxWidth: '550px',
 							width: '90%',
+							maxHeight: '85vh',
+							display: 'flex',
+							flexDirection: 'column',
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 							overflow: 'hidden',
 							...step2ModalDrag.modalStyle,
+							pointerEvents: 'auto',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
@@ -1707,8 +1766,16 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							</p>
 						</div>
 
-						{/* Modal Body */}
-						<div style={{ padding: '16px 20px' }}>
+						{/* Modal Body - Scrollable */}
+						<div
+							style={{
+								padding: '16px 20px',
+								overflowY: 'auto',
+								flex: 1,
+								minHeight: 0,
+								maxHeight: 'calc(85vh - 200px)', // Reserve space for header (~100px) and footer (~100px)
+							}}
+						>
 							{/* Username Display */}
 							<div
 								style={{
@@ -1985,69 +2052,114 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								</div>
 							)}
 
-							{/* Device Name Field */}
-							<div style={{ marginBottom: '12px' }}>
-								<label
-									htmlFor="mfa-device-name-register"
+							{/* Device Name Field - Only show if promptForNicknameOnPairing is true */}
+							{shouldPromptForNickname ? (
+								<div style={{ marginBottom: '12px' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '6px',
+										}}
+									>
+										<label
+											htmlFor="mfa-device-name-register"
+											style={{
+												display: 'block',
+												fontSize: '13px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
+											Device Name <span style={{ color: '#ef4444' }}>*</span>
+										</label>
+										<MFAInfoButtonV8
+											contentKey="device.nickname"
+											displayMode="tooltip"
+										/>
+									</div>
+									<input
+										id="mfa-device-name-register"
+										type="text"
+										value={credentials.deviceName || currentDeviceType || 'SMS'}
+										onChange={(e) => {
+											setCredentials({ ...credentials, deviceName: e.target.value });
+										}}
+										onFocus={(e) => {
+											const currentName = credentials.deviceName?.trim() || '';
+											if (
+												!currentName ||
+												currentName === currentDeviceType ||
+												currentName === 'SMS' ||
+												currentName === 'EMAIL' ||
+												currentName === 'VOICE'
+											) {
+												e.target.select();
+											}
+											if (!credentials.deviceName) {
+												e.target.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
+											}
+										}}
+										onBlur={(e) => {
+											if (!credentials.deviceName) {
+												e.target.style.boxShadow = 'none';
+											}
+										}}
+										placeholder={currentDeviceType || 'Device Name'}
+										style={{
+											padding: '12px 16px',
+											border: `1px solid ${credentials.deviceName?.trim() ? '#10b981' : '#ef4444'}`,
+											boxShadow: credentials.deviceName?.trim()
+												? 'none'
+												: '0 0 0 3px rgba(239, 68, 68, 0.25)',
+											outline: 'none',
+											borderRadius: '8px',
+											fontSize: '15px',
+											color: '#1f2937',
+											background: 'white',
+											width: '100%',
+										}}
+									/>
+									<small
+										style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
+									>
+										Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal
+										Email")
+									</small>
+								</div>
+							) : (
+								<div
 									style={{
-										display: 'block',
-										fontSize: '13px',
-										fontWeight: '600',
-										color: '#374151',
-										marginBottom: '6px',
-									}}
-								>
-									Device Name <span style={{ color: '#ef4444' }}>*</span>
-								</label>
-								<input
-									id="mfa-device-name-register"
-									type="text"
-									value={credentials.deviceName || currentDeviceType || 'SMS'}
-									onChange={(e) => {
-										setCredentials({ ...credentials, deviceName: e.target.value });
-									}}
-									onFocus={(e) => {
-										const currentName = credentials.deviceName?.trim() || '';
-										if (
-											!currentName ||
-											currentName === currentDeviceType ||
-											currentName === 'SMS' ||
-											currentName === 'EMAIL' ||
-											currentName === 'VOICE'
-										) {
-											e.target.select();
-										}
-										if (!credentials.deviceName) {
-											e.target.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.25)';
-										}
-									}}
-									onBlur={(e) => {
-										if (!credentials.deviceName) {
-											e.target.style.boxShadow = 'none';
-										}
-									}}
-									placeholder={currentDeviceType || 'Device Name'}
-									style={{
-										padding: '12px 16px',
-										border: `1px solid ${credentials.deviceName?.trim() ? '#10b981' : '#ef4444'}`,
-										boxShadow: credentials.deviceName?.trim()
-											? 'none'
-											: '0 0 0 3px rgba(239, 68, 68, 0.25)',
-										outline: 'none',
+										marginBottom: '12px',
+										padding: '12px',
+										background: '#f9fafb',
+										border: '1px solid #e5e7eb',
 										borderRadius: '8px',
-										fontSize: '15px',
-										color: '#1f2937',
-										background: 'white',
-										width: '100%',
 									}}
-								/>
-								<small
-									style={{ display: 'block', marginTop: '4px', fontSize: '11px', color: '#6b7280' }}
 								>
-									Enter a friendly name to identify this device (e.g., "My Work Phone", "Personal
-									Email")
-								</small>
-							</div>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '4px',
+										}}
+									>
+										<span style={{ fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+											Device Name
+										</span>
+										<MFAInfoButtonV8
+											contentKey="policy.promptForNicknameOnPairing.explanation"
+											displayMode="tooltip"
+										/>
+									</div>
+									<p style={{ margin: 0, fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
+										Device name will be set automatically during registration. Your policy's "Prompt for Nickname on
+										Pairing" setting is disabled, so you cannot enter a custom nickname at this time. You can rename this device later through device management.
+									</p>
+								</div>
+							)}
 
 							{/* Worker Token Status */}
 							<div
@@ -2083,8 +2195,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									</div>
 									<button
 										type="button"
-										onClick={() => {
-											setShowWorkerTokenModal(true);
+										onClick={async () => {
+											const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+											await handleShowWorkerTokenModal(setShowWorkerTokenModal);
 										}}
 										style={{
 											padding: '8px 16px',
@@ -2156,70 +2269,80 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 								</label>
 							</div>
 
-							{/* Action Buttons */}
-							<div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
-								<button
-									type="button"
-									onClick={() => {
-										setShowModal(false);
-										nav.goToPrevious();
-									}}
-									style={{
-										flex: 1,
-										padding: '12px 20px',
-										background: '#f3f4f6',
-										color: '#374151',
-										border: '1px solid #d1d5db',
-										borderRadius: '8px',
-										fontSize: '15px',
-										fontWeight: '600',
-										cursor: 'pointer',
-									}}
-								>
-									Cancel
-								</button>
-								<button
-									type="button"
-									disabled={isLoading || !isValidForm || !tokenStatus.isValid}
-									onClick={handleRegisterDevice}
-									style={{
-										flex: 2,
-										padding: '12px 20px',
-										background:
-											isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
-										color: 'white',
-										border: 'none',
-										borderRadius: '8px',
-										fontSize: '15px',
-										fontWeight: '600',
-										cursor:
-											isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
-										boxShadow:
-											isValidForm && !isLoading && tokenStatus.isValid
-												? '0 4px 12px rgba(16, 185, 129, 0.3)'
-												: 'none',
-										transition: 'all 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										if (isValidForm && !isLoading && tokenStatus.isValid) {
-											e.currentTarget.style.background = '#059669';
-											e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
-										}
-									}}
-									onMouseLeave={(e) => {
-										if (isValidForm && !isLoading && tokenStatus.isValid) {
-											e.currentTarget.style.background = '#10b981';
-											e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
-										}
-									}}
-								>
-									{isLoading ? (
-										<>🔄 Registering...</>
-									) : (
-										<>Register {currentDeviceType === 'SMS' ? 'SMS' : 'Email'} Device →</>
-									)}
-								</button>
-							</div>
+						</div>
+
+						{/* Action Buttons - Sticky Footer */}
+						<div
+							style={{
+								display: 'flex',
+								gap: '12px',
+								padding: '16px 20px',
+								background: 'white',
+								borderTop: '1px solid #e5e7eb',
+								flexShrink: 0,
+							}}
+						>
+							<button
+								type="button"
+								onClick={() => {
+									setShowModal(false);
+									nav.goToPrevious();
+								}}
+								style={{
+									flex: 1,
+									padding: '12px 20px',
+									background: '#f3f4f6',
+									color: '#374151',
+									border: '1px solid #d1d5db',
+									borderRadius: '8px',
+									fontSize: '15px',
+									fontWeight: '600',
+									cursor: 'pointer',
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								disabled={isLoading || !isValidForm || !tokenStatus.isValid}
+								onClick={handleRegisterDevice}
+								style={{
+									flex: 2,
+									padding: '12px 20px',
+									background:
+										isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
+									color: 'white',
+									border: 'none',
+									borderRadius: '8px',
+									fontSize: '15px',
+									fontWeight: '600',
+									cursor:
+										isValidForm && !isLoading && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+									boxShadow:
+										isValidForm && !isLoading && tokenStatus.isValid
+											? '0 4px 12px rgba(16, 185, 129, 0.3)'
+											: 'none',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									if (isValidForm && !isLoading && tokenStatus.isValid) {
+										e.currentTarget.style.background = '#059669';
+										e.currentTarget.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (isValidForm && !isLoading && tokenStatus.isValid) {
+										e.currentTarget.style.background = '#10b981';
+										e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+									}
+								}}
+							>
+								{isLoading ? (
+									<>🔄 Registering...</>
+								) : (
+									<>Register {currentDeviceType === 'SMS' ? 'SMS' : 'Email'} Device →</>
+								)}
+							</button>
 						</div>
 					</div>
 				</div>
@@ -2459,6 +2582,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
 				props;
+			
+			// Store nav in ref for ESC key handler
+			navRef.current = nav;
 
 			// Helper function to update OTP state
 			const updateOtpState = (
@@ -2489,11 +2615,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				(mfaState.verificationResult.status === 'COMPLETED' ||
 					mfaState.verificationResult.status === 'SUCCESS')
 			) {
-				// Close modal if it's open
-				if (showValidationModal) {
-					setShowValidationModal(false);
-				}
-
+				// Don't set state during render - useEffect will handle closing the modal
 				const successData = buildSuccessPageData(
 					credentials,
 					mfaState,
@@ -2892,7 +3014,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 												const errorMessage =
 													error instanceof Error ? error.message : 'Unknown error';
 												console.error(`${MODULE_TAG} Failed to activate device:`, error);
-												setValidationState({
+												updateValidationState({
 													validationAttempts: validationState.validationAttempts + 1,
 													lastValidationError: errorMessage,
 												});
@@ -3130,7 +3252,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			style={{
 				minHeight: '100vh',
 				paddingBottom:
-					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '0',
+					isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '0',
 				transition: 'padding-bottom 0.3s ease',
 				overflow: 'visible',
 			}}

@@ -14,6 +14,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { usePageScroll } from '@/hooks/usePageScroll';
+import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
+import {
+	ApiDisplayCheckbox,
+	SuperSimpleApiDisplayV8,
+} from '@/v8/components/SuperSimpleApiDisplayV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -27,21 +32,16 @@ import {
 	type SpecVersion,
 	SpecVersionServiceV8,
 } from '@/v8/services/specVersionServiceV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { reloadCredentialsAfterReset } from '@/v8u/services/credentialReloadServiceV8U';
 import CredentialsFormV8U from '../components/CredentialsFormV8U';
 // FlowNotAvailableModal removed - dropdown already filters flows by spec version
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
-import {
-	ApiDisplayCheckbox,
-	SuperSimpleApiDisplayV8,
-} from '@/v8/components/SuperSimpleApiDisplayV8';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -591,7 +591,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 */
 	const lastSpecVersionRef = useRef<SpecVersion | null>(null);
 	const isUserChangingFlowRef = useRef(false);
-	
+
 	useEffect(() => {
 		// Only auto-correct when spec version changes, not when flow type changes
 		if (lastSpecVersionRef.current === specVersion) {
@@ -1300,9 +1300,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				console.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
-				toastV8.error(
-					`${newFlowType} flow is not supported. Please select a different flow type.`
-				);
+				toastV8.error(`${newFlowType} flow is not supported. Please select a different flow type.`);
 				return;
 			}
 		}
@@ -1346,7 +1344,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// CRITICAL: Mark that user is changing flow type to prevent auto-correct from interfering
 		isUserChangingFlowRef.current = true;
-		
+
 		// CRITICAL: Mark URL as synced BEFORE updating flow type and URL
 		// This prevents the URL sync effect from resetting the flow type
 		lastSyncedUrlFlowTypeRef.current = newFlowType;
@@ -1462,11 +1460,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			</div>
 
 			{/* Navigation */}
-			<MFANavigationV8
-				currentPage="hub"
-				showRestartFlow={false}
-				showBackToMain={false}
-			/>
+			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={false} />
 
 			{/* Compact Selectors Row with API Docs Link */}
 			<div

@@ -90,7 +90,6 @@ export class AppDiscoveryServiceV8 {
 	 * const token = await AppDiscoveryServiceV8.getWorkerToken();
 	 */
 	static async getWorkerToken(): Promise<string | null> {
-
 		// Try to get from storage (async)
 		const stored = await AppDiscoveryServiceV8.getStoredWorkerToken();
 		if (stored) {
@@ -339,7 +338,6 @@ export class AppDiscoveryServiceV8 {
 
 			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
 
-
 			// Fetch from backend proxy
 			const response = await fetch(proxyUrl, {
 				method: 'GET',
@@ -360,9 +358,7 @@ export class AppDiscoveryServiceV8 {
 
 			const data = await response.json();
 
-
 			const applications = data._embedded?.applications || [];
-
 
 			return applications as DiscoveredApplication[];
 		} catch (error) {
@@ -476,7 +472,11 @@ export class AppDiscoveryServiceV8 {
 		region: string = 'na'
 	): Promise<DiscoveredApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching application with secret`, { environmentId, appId, region });
+			console.log(`${MODULE_TAG} Fetching application with secret`, {
+				environmentId,
+				appId,
+				region,
+			});
 
 			// Use backend proxy to avoid CORS
 			const searchParams = new URLSearchParams({
@@ -538,9 +538,12 @@ export class AppDiscoveryServiceV8 {
 				responseTypes: app.responseTypes || [],
 				redirectUris: app.redirectUris || [],
 				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || 'client_secret_post',
-				clientSecret: app.clientSecret && typeof app.clientSecret === 'string' && app.clientSecret.trim().length > 0 
-					? app.clientSecret 
-					: undefined, // Only set if it's a non-empty string
+				clientSecret:
+					app.clientSecret &&
+					typeof app.clientSecret === 'string' &&
+					app.clientSecret.trim().length > 0
+						? app.clientSecret
+						: undefined, // Only set if it's a non-empty string
 				pkceRequired: app.pkceRequired,
 				pkceEnforced: app.pkceEnforced,
 				accessTokenDuration: app.accessTokenDuration,
@@ -553,7 +556,9 @@ export class AppDiscoveryServiceV8 {
 				appName: discoveredApp.name,
 				hasSecret: !!discoveredApp.clientSecret,
 				secretLength: discoveredApp.clientSecret?.length || 0,
-				secretValue: discoveredApp.clientSecret ? `${discoveredApp.clientSecret.substring(0, 10)}...` : 'none',
+				secretValue: discoveredApp.clientSecret
+					? `${discoveredApp.clientSecret.substring(0, 10)}...`
+					: 'none',
 			});
 
 			return discoveredApp;

@@ -4,20 +4,20 @@
  * @description Centralized UI notification service - replaces all system modals (alert/confirm/prompt)
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * This service provides a unified interface for all user-facing notifications:
  * - Toast messages (non-blocking)
  * - Confirmation dialogs (blocking)
  * - Prompt dialogs (blocking with input)
  * - All notifications are logged for debugging
- * 
+ *
  * @example
  * // Show toast
  * uiNotificationServiceV8.showSuccess('Operation completed');
- * 
+ *
  * // Show confirmation
  * const confirmed = await uiNotificationServiceV8.confirm('Delete this item?');
- * 
+ *
  * // Show prompt
  * const value = await uiNotificationServiceV8.prompt('Enter name:');
  */
@@ -63,7 +63,7 @@ interface NotificationLog {
 
 /**
  * UINotificationServiceV8
- * 
+ *
  * Centralized service for all user-facing notifications.
  * Replaces system modals (alert/confirm/prompt) with app-level UI.
  */
@@ -130,9 +130,8 @@ class UINotificationServiceV8 {
 	 * @returns Promise that resolves to true if confirmed, false if cancelled
 	 */
 	async confirm(options: string | ConfirmOptions): Promise<boolean> {
-		const confirmOptions: ConfirmOptions = typeof options === 'string' 
-			? { message: options }
-			: options;
+		const confirmOptions: ConfirmOptions =
+			typeof options === 'string' ? { message: options } : options;
 
 		console.log(`${MODULE_TAG} 🤔 Confirm requested:`, confirmOptions.message);
 
@@ -159,9 +158,8 @@ class UINotificationServiceV8 {
 	 * @returns Promise that resolves to user input string, or null if cancelled
 	 */
 	async prompt(options: string | PromptOptions): Promise<string | null> {
-		const promptOptions: PromptOptions = typeof options === 'string'
-			? { message: options }
-			: options;
+		const promptOptions: PromptOptions =
+			typeof options === 'string' ? { message: options } : options;
 
 		console.log(`${MODULE_TAG} 📝 Prompt requested:`, promptOptions.message);
 

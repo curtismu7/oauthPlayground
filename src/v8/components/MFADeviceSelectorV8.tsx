@@ -73,7 +73,13 @@ export const MFADeviceSelectorV8: React.FC<MFADeviceSelectorV8Props> = ({
 					marginBottom: '16px',
 				}}
 			>
-				<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' /* Dark text on light background */ }}>
+				<p
+					style={{
+						margin: 0,
+						fontSize: '14px',
+						color: '#6b7280' /* Dark text on light background */,
+					}}
+				>
 					🔄 Loading existing devices...
 				</p>
 			</div>
@@ -176,7 +182,13 @@ export const MFADeviceSelectorV8: React.FC<MFADeviceSelectorV8Props> = ({
 						marginBottom: '16px',
 					}}
 				>
-					<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' /* Dark text on light background */ }}>
+					<p
+						style={{
+							margin: 0,
+							fontSize: '14px',
+							color: '#6b7280' /* Dark text on light background */,
+						}}
+					>
 						No existing devices found. Register a new device below.
 					</p>
 				</div>

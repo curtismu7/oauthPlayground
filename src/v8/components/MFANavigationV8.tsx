@@ -3,25 +3,33 @@
  * @module v8/components
  * @description Shared navigation component for all MFA flows
  * @version 8.1.0
- * 
+ *
  * Reusable navigation bar component that can be added to any MFA page for consistency.
  * Includes navigation links, Back to Main button, and Show API Calls toggle.
  * All buttons are displayed on one line within a bordered container box.
- * 
+ *
  * @example
  * // Add to any MFA page at the top
  * <MFANavigationV8 currentPage="hub" showBackToMain={true} />
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
-import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { ApiDisplayCheckbox } from './SuperSimpleApiDisplayV8';
+import { MFADocumentationModalV8 } from './MFADocumentationModalV8';
 
 interface MFANavigationV8Props {
 	/** Current page identifier for highlighting */
-	currentPage?: 'hub' | 'registration' | 'management' | 'ordering' | 'reporting' | 'settings' | undefined;
+	currentPage?:
+		| 'hub'
+		| 'registration'
+		| 'management'
+		| 'ordering'
+		| 'reporting'
+		| 'settings'
+		| undefined;
 	/** Show restart flow button (only for flows that can be restarted) */
 	showRestartFlow?: boolean;
 	/** Handler for restart flow action */
@@ -37,10 +45,11 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 	showBackToMain = true,
 }) => {
 	const navigate = useNavigate();
+	const [showDocsModal, setShowDocsModal] = useState(false);
 
 	const handleRestartFlow = async () => {
 		if (!onRestartFlow) return;
-		
+
 		const confirmed = await uiNotificationServiceV8.confirm({
 			message: 'Are you sure you want to restart the flow? All progress will be lost.',
 			title: 'Restart Flow',
@@ -48,7 +57,7 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 			confirmText: 'Restart',
 			cancelText: 'Cancel',
 		});
-		
+
 		if (confirmed) {
 			onRestartFlow();
 		}
@@ -69,7 +78,17 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 				}}
 			>
-				<div className="mfa-nav-links" style={{ marginBottom: 0, display: 'flex', gap: '0', flex: 1, justifyContent: 'space-between', alignItems: 'center' }}>
+				<div
+					className="mfa-nav-links"
+					style={{
+						marginBottom: 0,
+						display: 'flex',
+						gap: '0',
+						flex: 1,
+						justifyContent: 'space-between',
+						alignItems: 'center',
+					}}
+				>
 					<button
 						type="button"
 						onClick={() => navigateToMfaHubWithCleanup(navigate)}
@@ -135,18 +154,9 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					</button>
 					<button
 						type="button"
-						onClick={() => {
-							// Determine documentation route based on current page
-							const currentPath = window.location.pathname;
-							if (currentPath.includes('/register/email')) {
-								navigate('/v8/mfa/register/email/docs');
-							} else {
-								// Default to Email docs for now
-								navigate('/v8/mfa/register/email/docs');
-							}
-						}}
+						onClick={() => setShowDocsModal(true)}
 						className="nav-link-btn"
-						title="View API Documentation"
+						title="Download MFA Documentation"
 						style={{
 							fontWeight: '500',
 							flex: 1,
@@ -197,6 +207,10 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					</div>
 				</div>
 			</div>
+			<MFADocumentationModalV8
+				isOpen={showDocsModal}
+				onClose={() => setShowDocsModal(false)}
+			/>
 			<style>{`
 				.mfa-nav-links {
 					display: flex;
@@ -271,4 +285,3 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 		</>
 	);
 };
-

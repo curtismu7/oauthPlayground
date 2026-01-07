@@ -175,6 +175,59 @@ Uses `AppDiscoveryServiceV8` for:
 
 ---
 
-**Version**: 8.0.0  
+## Token-Only Mode
+
+**Version 8.1.0 Feature**
+
+When both "Silent API Token Retrieval" and "Show Token After Generation" settings are enabled, the `WorkerTokenModalV8` can display in **token-only mode**.
+
+### When Token-Only Mode Activates
+
+Token-only mode is activated when:
+1. Both configuration settings are ON:
+   - `silentApiRetrieval: true`
+   - `showTokenAtEnd: true`
+2. A valid token exists or was just retrieved silently
+3. The modal is opened to display the token
+
+### Token-Only Mode UI
+
+**Shown:**
+- ✅ Token display with copy/decode buttons
+- ✅ "Close" button
+
+**Hidden:**
+- ❌ All credential input fields
+- ❌ Info boxes and educational content
+- ❌ Form validation
+- ❌ Generate Token button
+- ❌ Export/Import buttons
+
+### Implementation
+
+```typescript
+<WorkerTokenModalV8
+  isOpen={showModal}
+  onClose={() => setShowModal(false)}
+  showTokenOnly={true}  // Enables token-only mode
+/>
+```
+
+The `showTokenOnly` prop is automatically set based on configuration settings when the modal is opened via `handleShowWorkerTokenModal()` helper function.
+
+### User Experience
+
+1. User has both settings enabled
+2. Token is missing or expired
+3. System automatically fetches token using stored credentials (silent)
+4. Modal opens showing only the token
+5. User can copy/decode token
+6. User clicks "Close" to dismiss
+
+This provides a streamlined experience for users who want to see their token without the full credential management interface.
+
+---
+
+**Version**: 8.1.0  
 **Status**: Complete  
-**Last Updated**: 2024-11-16
+**Last Updated**: 2025-01-27

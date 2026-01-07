@@ -6,7 +6,6 @@
  * @since 2024-11-18
  */
 
-
 interface IntegrationTestResult {
 	testName: string;
 	passed: boolean;
@@ -26,7 +25,6 @@ class TokenExchangeIntegrationTest {
 	 * Test 1: Check if success message appears after token exchange
 	 */
 	private async testSuccessMessageDisplay(): Promise<IntegrationTestResult> {
-
 		try {
 			// Check if we're on the OAuth flow page
 			const onFlowPage = window.location.pathname.includes('/v8u/unified/oauth-authz');
@@ -101,7 +99,6 @@ class TokenExchangeIntegrationTest {
 	 * Test 2: Check if exchange button is hidden after success
 	 */
 	private async testButtonHiddenAfterSuccess(): Promise<IntegrationTestResult> {
-
 		try {
 			// Look for exchange button
 			const buttons = Array.from(document.querySelectorAll('button')).filter((btn) => {
@@ -151,19 +148,16 @@ class TokenExchangeIntegrationTest {
 	 * Test 3: Check if error is hidden after success
 	 */
 	private async testErrorHiddenAfterSuccess(): Promise<IntegrationTestResult> {
-
 		try {
 			// Look for error messages
-			const errorElements = Array.from(document.querySelectorAll('div, p, span')).filter(
-				(el) => {
-					const text = el.textContent || '';
-					return (
-						text.includes('invalid_grant') ||
-						text.includes('authorization code is expired') ||
-						text.includes('Token exchange failed')
-					);
-				}
-			);
+			const errorElements = Array.from(document.querySelectorAll('div, p, span')).filter((el) => {
+				const text = el.textContent || '';
+				return (
+					text.includes('invalid_grant') ||
+					text.includes('authorization code is expired') ||
+					text.includes('Token exchange failed')
+				);
+			});
 
 			const errorVisible =
 				errorElements.length > 0 &&
@@ -207,7 +201,6 @@ class TokenExchangeIntegrationTest {
 	 * Test 4: Check sessionStorage for PKCE codes
 	 */
 	private async testPKCEStoragePersistence(): Promise<IntegrationTestResult> {
-
 		try {
 			const flowKey = 'oauth-authz-v8u';
 			const storageKey = `v8u_flow_${flowKey}_pkce`;
@@ -267,7 +260,6 @@ class TokenExchangeIntegrationTest {
 	 * Test 5: Check if tokens are stored
 	 */
 	private async testTokenStorage(): Promise<IntegrationTestResult> {
-
 		try {
 			const flowKey = 'oauth-authz-v8u';
 			const storageKey = `v8u_flow_${flowKey}_tokens`;
@@ -326,7 +318,6 @@ class TokenExchangeIntegrationTest {
 	 * Test 6: Check current step indicator
 	 */
 	private async testStepIndicator(): Promise<IntegrationTestResult> {
-
 		try {
 			// Check if we're on the OAuth flow page
 			const onFlowPage = window.location.pathname.includes('/v8u/unified/oauth-authz');
@@ -531,14 +522,17 @@ function _checkTokenExchangeState() {
 
 // Export for use in browser console
 if (typeof window !== 'undefined') {
-	(window as { TokenExchangeIntegrationTest?: typeof TokenExchangeIntegrationTest }).TokenExchangeIntegrationTest = TokenExchangeIntegrationTest;
-	(window as { runIntegrationTests?: () => Promise<IntegrationTestResult[]> }).runIntegrationTests = async () => {
-		const test = new TokenExchangeIntegrationTest();
-		await test.runAllTests();
-		return test.getResults();
-	};
-	(window as { checkTokenExchangeState?: () => void }).checkTokenExchangeState = _checkTokenExchangeState;
-
+	(
+		window as { TokenExchangeIntegrationTest?: typeof TokenExchangeIntegrationTest }
+	).TokenExchangeIntegrationTest = TokenExchangeIntegrationTest;
+	(window as { runIntegrationTests?: () => Promise<IntegrationTestResult[]> }).runIntegrationTests =
+		async () => {
+			const test = new TokenExchangeIntegrationTest();
+			await test.runAllTests();
+			return test.getResults();
+		};
+	(window as { checkTokenExchangeState?: () => void }).checkTokenExchangeState =
+		_checkTokenExchangeState;
 }
 
 export default TokenExchangeIntegrationTest;

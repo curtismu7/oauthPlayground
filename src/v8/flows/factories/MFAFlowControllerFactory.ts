@@ -11,13 +11,13 @@
  * - Dependency injection support
  */
 
-import type { DeviceType } from '../shared/MFATypes';
+import { EmailFlowController } from '../controllers/EmailFlowController';
+import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import type { FlowControllerCallbacks } from '../controllers/MFAFlowController';
 import { SMSFlowController } from '../controllers/SMSFlowController';
-import { EmailFlowController } from '../controllers/EmailFlowController';
 import { TOTPFlowController } from '../controllers/TOTPFlowController';
-import { FIDO2FlowController } from '../controllers/FIDO2FlowController';
 import { WhatsAppFlowController } from '../controllers/WhatsAppFlowController';
+import type { DeviceType } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🏭 MFA-CONTROLLER-FACTORY]';
 
@@ -28,7 +28,7 @@ export interface ControllerFactoryConfig {
 
 /**
  * Factory for creating MFA flow controllers
- * 
+ *
  * This factory centralizes controller creation, making it easy to:
  * - Add new device types
  * - Configure controllers consistently
@@ -38,10 +38,10 @@ export interface ControllerFactoryConfig {
 export class MFAFlowControllerFactory {
 	/**
 	 * Create a controller for the specified device type
-	 * 
+	 *
 	 * @param config - Factory configuration
 	 * @returns Controller instance for the device type
-	 * 
+	 *
 	 * @example
 	 * const controller = MFAFlowControllerFactory.create({
 	 *   deviceType: 'SMS',
@@ -58,19 +58,22 @@ export class MFAFlowControllerFactory {
 		switch (deviceType) {
 			case 'SMS':
 				return new SMSFlowController(callbacks);
-			
+
+			case 'MOBILE':
+				return new SMSFlowController(callbacks); // MOBILE uses SMS controller
+
 			case 'EMAIL':
 				return new EmailFlowController(callbacks);
-			
+
 			case 'TOTP':
 				return new TOTPFlowController(callbacks);
-			
+
 			case 'FIDO2':
 				return new FIDO2FlowController(callbacks);
-			
+
 			case 'WHATSAPP':
 				return new WhatsAppFlowController(callbacks);
-			
+
 			default:
 				console.warn(`${MODULE_TAG} Unknown device type: ${deviceType}, defaulting to SMS`);
 				return new SMSFlowController(callbacks);
@@ -81,7 +84,7 @@ export class MFAFlowControllerFactory {
 	 * Check if a device type is supported (has a dedicated controller)
 	 */
 	static isSupported(deviceType: DeviceType): boolean {
-		const supportedTypes: DeviceType[] = ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
+		const supportedTypes: DeviceType[] = ['SMS', 'MOBILE', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
 		return supportedTypes.includes(deviceType);
 	}
 
@@ -89,7 +92,7 @@ export class MFAFlowControllerFactory {
 	 * Get all supported device types (with dedicated controllers)
 	 */
 	static getSupportedTypes(): DeviceType[] {
-		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
+		return ['SMS', 'MOBILE', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP'];
 	}
 
 	/**
@@ -99,4 +102,3 @@ export class MFAFlowControllerFactory {
 		return ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'MOBILE', 'OATH_TOKEN', 'VOICE', 'WHATSAPP'];
 	}
 }
-

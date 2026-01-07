@@ -29,16 +29,15 @@ import { DraggableModal } from '@/components/DraggableModal';
 import { JWTConfigV8 } from '@/components/JWTConfigV8';
 import type { ResponseMode } from '@/services/responseModeService';
 import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
-import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ClientTypeRadioV8 } from '@/v8/components/ClientTypeRadioV8';
 import { type DisplayMode, DisplayModeDropdownV8 } from '@/v8/components/DisplayModeDropdownV8';
+import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { LoginHintInputV8 } from '@/v8/components/LoginHintInputV8';
 import { MaxAgeInputV8 } from '@/v8/components/MaxAgeInputV8';
 import {
 	OidcDiscoveryModalV8,
 	type OidcDiscoveryResult,
 } from '@/v8/components/OidcDiscoveryModalV8';
-import { IssuerURLInputV8 } from '@/v8/components/IssuerURLInputV8';
 import { PKCEEnforcementDropdownV8 } from '@/v8/components/PKCEEnforcementDropdownV8';
 import { PKCEInputV8, type PKCEMode } from '@/v8/components/PKCEInputV8';
 import { ResponseModeDropdownV8 } from '@/v8/components/ResponseModeDropdownV8';
@@ -47,6 +46,7 @@ import { TokenEndpointAuthMethodDropdownV8 } from '@/v8/components/TokenEndpoint
 import { TooltipV8 } from '@/v8/components/TooltipV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
@@ -181,15 +181,21 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [pkceEnforcement, setPkceEnforcement] = useState<'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED'>(
 		(): 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' => {
 			// Priority: credentials.pkceEnforcement > appConfig > legacy usePKCE > default OPTIONAL
-			if (credentials.pkceEnforcement && 
-				(credentials.pkceEnforcement === 'OPTIONAL' || 
-				 credentials.pkceEnforcement === 'REQUIRED' || 
-				 credentials.pkceEnforcement === 'S256_REQUIRED')) {
+			if (
+				credentials.pkceEnforcement &&
+				(credentials.pkceEnforcement === 'OPTIONAL' ||
+					credentials.pkceEnforcement === 'REQUIRED' ||
+					credentials.pkceEnforcement === 'S256_REQUIRED')
+			) {
 				return credentials.pkceEnforcement;
 			}
 			// Check app config from PingOne
 			if (appConfig) {
-				const appConfigExtended = appConfig as { pkceEnforced?: boolean; pkceRequired?: boolean; [key: string]: unknown };
+				const appConfigExtended = appConfig as {
+					pkceEnforced?: boolean;
+					pkceRequired?: boolean;
+					[key: string]: unknown;
+				};
 				if (appConfigExtended.pkceEnforced === true) {
 					return 'S256_REQUIRED'; // pkceEnforced typically means S256_REQUIRED
 				}
@@ -377,7 +383,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	 * - ROPC: Always confidential (requires client secret)
 	 * - Implicit: Always public (no client secret)
 	 * - Device Authorization: Usually public (but can be confidential)
-	 * - Authorization Code: 
+	 * - Authorization Code:
 	 *   - OAuth 2.1: Typically public with PKCE (best practice)
 	 *   - OAuth 2.0/OIDC: Can be either, default to public
 	 * - Hybrid: Usually public
@@ -538,24 +544,32 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	useEffect(() => {
 		// If flow doesn't support PKCE, clear PKCE enforcement
 		if (!supportsPKCE && pkceEnforcement !== 'OPTIONAL') {
-			console.log(`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`);
+			console.log(
+				`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
+			);
 			setPkceEnforcement('OPTIONAL');
 			onChange({ ...credentials, pkceEnforcement: 'OPTIONAL', usePKCE: false });
 		}
 
 		// Load pkceEnforcement from credentials if available (priority over legacy usePKCE)
 		// Only load if flow supports PKCE
-		if (supportsPKCE && 
-			credentials.pkceEnforcement && 
-			(credentials.pkceEnforcement === 'OPTIONAL' || 
-			 credentials.pkceEnforcement === 'REQUIRED' || 
-			 credentials.pkceEnforcement === 'S256_REQUIRED') &&
-			credentials.pkceEnforcement !== pkceEnforcement) {
+		if (
+			supportsPKCE &&
+			credentials.pkceEnforcement &&
+			(credentials.pkceEnforcement === 'OPTIONAL' ||
+				credentials.pkceEnforcement === 'REQUIRED' ||
+				credentials.pkceEnforcement === 'S256_REQUIRED') &&
+			credentials.pkceEnforcement !== pkceEnforcement
+		) {
 			console.log(`${MODULE_TAG} Syncing pkceEnforcement from credentials`, {
 				pkceEnforcement: credentials.pkceEnforcement,
 			});
 			setPkceEnforcement(credentials.pkceEnforcement);
-		} else if (supportsPKCE && !credentials.pkceEnforcement && typeof credentials.usePKCE === 'boolean') {
+		} else if (
+			supportsPKCE &&
+			!credentials.pkceEnforcement &&
+			typeof credentials.usePKCE === 'boolean'
+		) {
 			// Legacy: sync from usePKCE boolean if pkceEnforcement is not set
 			const legacyEnforcement = credentials.usePKCE ? 'REQUIRED' : 'OPTIONAL';
 			if (legacyEnforcement !== pkceEnforcement) {
@@ -626,9 +640,10 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 		// Auto-update client type when flow type or spec version changes
 		const recommendedClientType = getRecommendedClientType(effectiveFlowType, specVersion);
-		const requiresConfidential = effectiveFlowType === 'client-credentials' || effectiveFlowType === 'ropc';
+		const requiresConfidential =
+			effectiveFlowType === 'client-credentials' || effectiveFlowType === 'ropc';
 		const requiresPublic = effectiveFlowType === 'implicit';
-		
+
 		// Only auto-update if:
 		// 1. Flow requires a specific type (client-credentials/ropc = confidential, implicit = public), OR
 		// 2. No clientType is set in credentials and we have a recommendation
@@ -641,7 +656,11 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				specVersion,
 				recommendedClientType,
 				currentClientType: clientType,
-				reason: requiresConfidential ? 'flow requires confidential' : requiresPublic ? 'flow requires public' : 'recommended for flow/spec',
+				reason: requiresConfidential
+					? 'flow requires confidential'
+					: requiresPublic
+						? 'flow requires public'
+						: 'recommended for flow/spec',
 			});
 			setClientType(recommendedClientType);
 			onChange({ ...credentials, clientType: recommendedClientType });
@@ -1246,7 +1265,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 			console.log(`${MODULE_TAG} App selected`, { appId: app.id, appName: app.name });
 			setHasDiscoveredApps(true);
 			setHighlightEmptyFields(true); // Enable highlighting for empty required fields
-			
+
 			// Fetch the application with its client secret from PingOne API
 			// According to PingOne Workflow Library: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#get-step-19-get-the-application-secret
 			let appWithSecret = app;
@@ -1265,9 +1284,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 								hasClientSecret: 'clientSecret' in fetchedApp,
 								clientSecretType: typeof fetchedApp.clientSecret,
 								clientSecretLength: fetchedApp.clientSecret?.length || 0,
-								clientSecretValue: fetchedApp.clientSecret ? `${fetchedApp.clientSecret.substring(0, 10)}...` : 'none',
+								clientSecretValue: fetchedApp.clientSecret
+									? `${fetchedApp.clientSecret.substring(0, 10)}...`
+									: 'none',
 							});
-							if (fetchedApp.clientSecret && typeof fetchedApp.clientSecret === 'string' && fetchedApp.clientSecret.trim().length > 0) {
+							if (
+								fetchedApp.clientSecret &&
+								typeof fetchedApp.clientSecret === 'string' &&
+								fetchedApp.clientSecret.trim().length > 0
+							) {
 								appWithSecret = fetchedApp;
 								console.log(`${MODULE_TAG} ✅ Application secret fetched successfully`);
 								toastV8.success('Application secret retrieved from PingOne');
@@ -1290,20 +1315,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 					// Continue with app data even if secret fetch fails
 				}
 			}
-			
+
 			const updated = {
 				...credentials,
 				clientId: appWithSecret.id,
 				// Set client secret if available from PingOne API
-				...(('clientSecret' in appWithSecret && 
-					appWithSecret.clientSecret && 
-					typeof appWithSecret.clientSecret === 'string' && 
-					appWithSecret.clientSecret.trim().length > 0)
+				...('clientSecret' in appWithSecret &&
+				appWithSecret.clientSecret &&
+				typeof appWithSecret.clientSecret === 'string' &&
+				appWithSecret.clientSecret.trim().length > 0
 					? { clientSecret: appWithSecret.clientSecret as string }
 					: {}),
 				// Note: redirectUri is NOT applied - app dictates this (as user mentioned)
 			};
-			
+
 			console.log(`${MODULE_TAG} Updated credentials`, {
 				hasClientSecret: !!updated.clientSecret,
 				clientSecretLength: updated.clientSecret?.length || 0,
@@ -1312,18 +1337,25 @@ Why it matters: Backend services communicate server-to-server without user conte
 			// Use appWithSecret for tokenEndpointAuthMethod if available, otherwise fall back to app
 			// Type assertion needed because DiscoveredApp interface doesn't include all PingOne app properties
 			type AppWithExtendedProps = DiscoveredApp & {
-				tokenEndpointAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+				tokenEndpointAuthMethod?:
+					| 'none'
+					| 'client_secret_basic'
+					| 'client_secret_post'
+					| 'client_secret_jwt'
+					| 'private_key_jwt';
 				scopes?: string[];
 				pkceEnforced?: boolean;
 				pkceRequired?: boolean;
 			};
-			
+
 			const appWithSecretExtended = appWithSecret as AppWithExtendedProps;
 			const appExtended = app as AppWithExtendedProps;
-			
+
 			// Type assertion for updated to include pkceEnforcement
-			const updatedWithPKCE = updated as typeof updated & { pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' };
-			
+			const updatedWithPKCE = updated as typeof updated & {
+				pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
+			};
+
 			if (appWithSecretExtended.tokenEndpointAuthMethod) {
 				updated.clientAuthMethod = appWithSecretExtended.tokenEndpointAuthMethod;
 			} else if (appExtended.tokenEndpointAuthMethod) {
@@ -1335,7 +1367,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 				updated.scopes = appExtended.scopes.join(' ');
 			}
 			// Set PKCE enforcement from PingOne app configuration
-			if (appWithSecretExtended.pkceEnforced !== undefined || appWithSecretExtended.pkceRequired !== undefined) {
+			if (
+				appWithSecretExtended.pkceEnforced !== undefined ||
+				appWithSecretExtended.pkceRequired !== undefined
+			) {
 				if (appWithSecretExtended.pkceEnforced === true) {
 					updatedWithPKCE.pkceEnforcement = 'S256_REQUIRED';
 				} else if (appWithSecretExtended.pkceRequired === true) {
@@ -1458,7 +1493,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 		},
 		[credentials, onChange]
 	);
-
 
 	const defaultTitle = title || 'OAuth 2.0 Configure App & Environment';
 	const defaultSubtitle = subtitle || `Configure credentials for ${flowType} flow`;
@@ -2314,7 +2348,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
 														<span>✅</span>
 														<span>
-															<strong>UserInfo endpoint</strong> - Where user information is retrieved
+															<strong>UserInfo endpoint</strong> - Where user information is
+															retrieved
 														</span>
 													</div>
 													<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -2425,8 +2460,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												>
 													<span>💡</span>
 													<span>
-														If you provide an Environment ID, the issuer URL will be
-														auto-generated
+														If you provide an Environment ID, the issuer URL will be auto-generated
 													</span>
 												</div>
 											</div>
@@ -2793,7 +2827,6 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 
-
 								{/* Sign Off URLs (Post-Logout Redirect URIs) */}
 								{flowOptions.supportsPostLogoutRedirectUri && (
 									<div className="form-group">
@@ -2828,7 +2861,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 								{/* Scopes */}
 								{config.includeScopes && (
 									<div className="form-group">
-										<label style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+										<label
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												flexWrap: 'wrap',
+											}}
+										>
 											<span style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
 												<span>
 													Scopes <span className="required">*</span>
@@ -2870,8 +2910,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 										<input
 											type="text"
 											placeholder={
-												providedFlowType === 'client-credentials' 
-													? 'api:read api:write custom:scope (space-separated)' 
+												providedFlowType === 'client-credentials'
+													? 'api:read api:write custom:scope (space-separated)'
 													: 'openid'
 											}
 											value={
@@ -2883,7 +2923,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												// Allow users to type freely - no filtering during typing
 												// All custom scopes are allowed and preserved exactly as typed
 												const newValue = e.target.value;
-												
+
 												// Update scopes immediately - allows any custom scope to be entered
 												handleChange('scopes', newValue);
 											}}
@@ -3129,11 +3169,11 @@ Why it matters: Backend services communicate server-to-server without user conte
 																			color: '#92400e',
 																		}}
 																	>
-																		<strong>Important:</strong> Client credentials flow should only use{' '}
-																		<strong>custom resource server scopes</strong> (e.g.,{' '}
-																		<code>api:read</code>, <code>api:write</code>, <code>custom:scope</code>).
-																		Management API scopes (p1:*) are for Worker tokens only, not client_credentials.
-																		See{' '}
+																		<strong>Important:</strong> Client credentials flow should only
+																		use <strong>custom resource server scopes</strong> (e.g.,{' '}
+																		<code>api:read</code>, <code>api:write</code>,{' '}
+																		<code>custom:scope</code>). Management API scopes (p1:*) are for
+																		Worker tokens only, not client_credentials. See{' '}
 																		<a
 																			href="https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles"
 																			target="_blank"
@@ -3267,9 +3307,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 											if (providedFlowType === 'client-credentials') {
 												// Only show custom scopes from allowedScopes (if any)
 												// Filter out any p1: scopes as they're not for client_credentials
-												const customScopesToShow = allowedScopes.length > 0
-													? allowedScopes.filter((s) => !s.startsWith('p1:'))
-													: [];
+												const customScopesToShow =
+													allowedScopes.length > 0
+														? allowedScopes.filter((s) => !s.startsWith('p1:'))
+														: [];
 
 												// If no custom scopes available, don't show any scope buttons
 												// User should type custom scopes manually
@@ -3876,7 +3917,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 												onChange={(mode) => {
 													console.log(`${MODULE_TAG} PKCE mode changed to ${mode}`);
 													// Map PKCEMode to PKCEEnforcement (filter out DISABLED)
-													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' = 
+													const enforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED' =
 														mode === 'DISABLED' ? 'OPTIONAL' : mode;
 													setPkceEnforcement(enforcement);
 													handleChange('pkceEnforcement', enforcement);
@@ -4312,9 +4353,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 					>
 						<div style={{ padding: '24px' }}>
 							<p style={{ marginBottom: '16px', color: '#4b5563', lineHeight: '1.6' }}>
-								<strong>PAR (Pushed Authorization Requests)</strong> is an OAuth 2.0 extension (RFC 9126)
-								that allows clients to push authorization parameters to the Authorization Server via an
-								authenticated POST request before redirecting the user to the authorization endpoint.
+								<strong>PAR (Pushed Authorization Requests)</strong> is an OAuth 2.0 extension (RFC
+								9126) that allows clients to push authorization parameters to the Authorization
+								Server via an authenticated POST request before redirecting the user to the
+								authorization endpoint.
 							</p>
 
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -4326,10 +4368,19 @@ Why it matters: Backend services communicate server-to-server without user conte
 										border: '1px solid #86efac',
 									}}
 								>
-									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#166534' }}>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#166534',
+										}}
+									>
 										🔒 Security Benefits
 									</h3>
-									<ul style={{ margin: 0, paddingLeft: '20px', color: '#15803d', lineHeight: '1.8' }}>
+									<ul
+										style={{ margin: 0, paddingLeft: '20px', color: '#15803d', lineHeight: '1.8' }}
+									>
 										<li>
 											<strong>Prevents Parameter Tampering:</strong> Parameters are sent via
 											authenticated POST, not exposed in browser URL
@@ -4357,17 +4408,26 @@ Why it matters: Backend services communicate server-to-server without user conte
 										border: '1px solid #e2e8f0',
 									}}
 								>
-									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
+									>
 										📋 How PAR Works
 									</h3>
-									<ol style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}>
+									<ol
+										style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}
+									>
 										<li>
 											<strong>Push Request:</strong> Client sends authorization parameters to{' '}
 											<code>/as/par</code> endpoint via POST
 										</li>
 										<li>
-											<strong>Receive Request URI:</strong> Server validates parameters and returns a
-											short-lived <code>request_uri</code> (e.g.,{' '}
+											<strong>Receive Request URI:</strong> Server validates parameters and returns
+											a short-lived <code>request_uri</code> (e.g.,{' '}
 											<code>urn:ietf:params:oauth:request_uri:abc123</code>)
 										</li>
 										<li>
@@ -4389,20 +4449,40 @@ Why it matters: Backend services communicate server-to-server without user conte
 										border: '1px solid #fbbf24',
 									}}
 								>
-									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#92400e' }}>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#92400e',
+										}}
+									>
 										⚠️ Requirements
 									</h3>
-									<ul style={{ margin: 0, paddingLeft: '20px', color: '#78350f', lineHeight: '1.8' }}>
-										<li>PAR is only supported for <strong>Authorization Code</strong> and <strong>Hybrid</strong> flows</li>
-										<li>Client authentication is required (<code>client_secret_basic</code> or <code>client_secret_post</code>)</li>
+									<ul
+										style={{ margin: 0, paddingLeft: '20px', color: '#78350f', lineHeight: '1.8' }}
+									>
+										<li>
+											PAR is only supported for <strong>Authorization Code</strong> and{' '}
+											<strong>Hybrid</strong> flows
+										</li>
+										<li>
+											Client authentication is required (<code>client_secret_basic</code> or{' '}
+											<code>client_secret_post</code>)
+										</li>
 										<li>PingOne application must have PAR enabled in its configuration</li>
 										<li>
-											<strong>Important:</strong> Some PingOne applications are configured to <strong>require</strong> PAR. 
-											If you see an error like <code>"PAR is required for this client"</code>, you must enable PAR 
-											and use <code>request_uri</code> in your authorization URL instead of individual parameters.
+											<strong>Important:</strong> Some PingOne applications are configured to{' '}
+											<strong>require</strong> PAR. If you see an error like{' '}
+											<code>"PAR is required for this client"</code>, you must enable PAR and use{' '}
+											<code>request_uri</code> in your authorization URL instead of individual
+											parameters.
 										</li>
 										<li>Request URIs typically expire within 60-90 seconds</li>
-										<li>Works with both standard redirect flows and redirectless flows (<code>pi.flow</code>)</li>
+										<li>
+											Works with both standard redirect flows and redirectless flows (
+											<code>pi.flow</code>)
+										</li>
 									</ul>
 								</div>
 
@@ -4414,15 +4494,36 @@ Why it matters: Backend services communicate server-to-server without user conte
 										border: '1px solid #e2e8f0',
 									}}
 								>
-									<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+									<h3
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
+									>
 										💡 Real-World Example
 									</h3>
-									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+									<p
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '14px',
+											color: '#6b7280',
+											lineHeight: '1.6',
+										}}
+									>
 										Here's a complete, working example you can use with PingOne:
 									</p>
 
 									<div style={{ marginBottom: '12px' }}>
-										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+										<strong
+											style={{
+												fontSize: '13px',
+												color: '#374151',
+												display: 'block',
+												marginBottom: '6px',
+											}}
+										>
 											1. PAR Request (POST to /as/par)
 										</strong>
 										<div
@@ -4442,18 +4543,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 												https://auth.pingone.com/
 												<span style={{ color: '#fbbf24' }}>{'{environment-id}'}</span>/as/par
 											</div>
-											<div style={{ marginTop: '8px', color: '#a78bfa' }}>
-												Headers:
-											</div>
+											<div style={{ marginTop: '8px', color: '#a78bfa' }}>Headers:</div>
 											<div style={{ marginLeft: '12px' }}>
 												<div>Content-Type: application/x-www-form-urlencoded</div>
 												<div>Authorization: Basic {'{base64(client_id:client_secret)}'}</div>
 											</div>
-											<div style={{ marginTop: '8px', color: '#a78bfa' }}>
-												Body:
-											</div>
+											<div style={{ marginTop: '8px', color: '#a78bfa' }}>Body:</div>
 											<div style={{ marginLeft: '12px', whiteSpace: 'pre-wrap' }}>
-{`client_id=your-client-id
+												{`client_id=your-client-id
 &response_type=code
 &redirect_uri=https://your-app.com/callback
 &scope=openid profile email
@@ -4466,7 +4563,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 
 									<div style={{ marginBottom: '12px' }}>
-										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+										<strong
+											style={{
+												fontSize: '13px',
+												color: '#374151',
+												display: 'block',
+												marginBottom: '6px',
+											}}
+										>
 											2. PAR Response
 										</strong>
 										<div
@@ -4486,7 +4590,8 @@ Why it matters: Backend services communicate server-to-server without user conte
 													<span style={{ color: '#f87171' }}>"request_uri"</span>:
 													<span style={{ color: '#34d399' }}>
 														"urn:ietf:params:oauth:request_uri:abc123def456"
-													</span>,
+													</span>
+													,
 												</div>
 												<div>
 													<span style={{ color: '#f87171' }}>"expires_in"</span>:
@@ -4498,7 +4603,14 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 
 									<div>
-										<strong style={{ fontSize: '13px', color: '#374151', display: 'block', marginBottom: '6px' }}>
+										<strong
+											style={{
+												fontSize: '13px',
+												color: '#374151',
+												display: 'block',
+												marginBottom: '6px',
+											}}
+										>
 											3. Authorization URL (using request_uri)
 										</strong>
 										<div
@@ -4547,13 +4659,21 @@ Why it matters: Backend services communicate server-to-server without user conte
 										border: '1px solid #93c5fd',
 									}}
 								>
-									<h3 style={{ margin: '0 0 8px 0', fontSize: '16px', fontWeight: '600', color: '#1e40af' }}>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1e40af',
+										}}
+									>
 										📚 RFC Reference
 									</h3>
 									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
-										PAR is defined in <strong>RFC 9126 - OAuth 2.0 Pushed Authorization Requests</strong>.
-										It's an extension to OAuth 2.0 that enhances security and supports complex
-										authorization scenarios.
+										PAR is defined in{' '}
+										<strong>RFC 9126 - OAuth 2.0 Pushed Authorization Requests</strong>. It's an
+										extension to OAuth 2.0 that enhances security and supports complex authorization
+										scenarios.
 									</p>
 									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
 										<a
