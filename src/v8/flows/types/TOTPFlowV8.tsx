@@ -1252,6 +1252,18 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 			// Handle device registration
 			const handleRegisterDevice = async () => {
+				// Check if pairing is disabled in the policy
+				const selectedPolicy = props.deviceAuthPolicies?.find(
+					(p) => p.id === credentials.deviceAuthenticationPolicyId
+				);
+				if (selectedPolicy?.pairingDisabled === true) {
+					nav.setValidationErrors([
+						'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
+					]);
+					toastV8.error('Device pairing is disabled for this policy');
+					return;
+				}
+
 				const userEnteredDeviceName = credentials.deviceName?.trim();
 				if (!userEnteredDeviceName) {
 					nav.setValidationErrors([
@@ -1898,10 +1910,19 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 				// Trigger auto-registration asynchronously
 				Promise.resolve().then(async () => {
 					try {
-						// Get selected policy to check promptForNicknameOnPairing
+						// Get selected policy to check policy settings
 						const selectedPolicy = props.deviceAuthPolicies?.find(
 							(p) => p.id === credentials.deviceAuthenticationPolicyId
 						);
+						
+						// Check if pairing is disabled in the policy
+						if (selectedPolicy?.pairingDisabled === true) {
+							console.warn(`${MODULE_TAG} Auto-registration blocked: pairing is disabled for policy ${selectedPolicy.id}`);
+							toastV8.error('Device pairing is disabled for this policy. Please select a different policy.');
+							autoRegistrationTriggeredRef.current = false; // Allow retry
+							return;
+						}
+
 						const shouldPromptForNickname = selectedPolicy?.promptForNicknameOnPairing === true;
 						
 						// Use device name from credentials if prompted, otherwise use default
