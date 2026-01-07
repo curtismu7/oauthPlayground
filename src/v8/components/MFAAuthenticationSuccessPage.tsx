@@ -10,7 +10,10 @@
 
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { UnifiedMFASuccessPageV8, type UnifiedMFASuccessPageData } from '@/v8/services/unifiedMFASuccessPageServiceV8';
+import {
+	type UnifiedMFASuccessPageData,
+	UnifiedMFASuccessPageV8,
+} from '@/v8/services/unifiedMFASuccessPageServiceV8';
 
 interface LocationState {
 	completionResult?: {
@@ -88,4 +91,3 @@ export const MFAAuthenticationSuccessPage: React.FC = () => {
 };
 
 export default MFAAuthenticationSuccessPage;
-

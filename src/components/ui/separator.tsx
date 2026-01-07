@@ -11,5 +11,3 @@ export const Separator: React.FC<SeparatorProps> = ({ className, ...props }) => 
 );
 
 export default Separator;
-
-

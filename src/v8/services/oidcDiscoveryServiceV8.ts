@@ -67,14 +67,19 @@ export class OidcDiscoveryServiceV8 {
 				const errorText = await response.text();
 				let errorBody: { error?: string; message?: string; details?: string };
 				try {
-					errorBody = JSON.parse(errorText) as { error?: string; message?: string; details?: string };
+					errorBody = JSON.parse(errorText) as {
+						error?: string;
+						message?: string;
+						details?: string;
+					};
 				} catch {
 					errorBody = { error: errorText };
 				}
 
 				// Provide more helpful error messages
-				let errorMessage = errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`;
-				
+				let errorMessage =
+					errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`;
+
 				if (response.status === 403) {
 					errorMessage = `OIDC Discovery forbidden (403). This may indicate:
 - The issuer URL is incorrect or the environment doesn't exist

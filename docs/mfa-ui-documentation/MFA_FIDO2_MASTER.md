@@ -1,7 +1,7 @@
 # MFA FIDO2 Master Document
 
-**Last Updated:** 2025-01-XX  
-**Version:** 1.0.0  
+**Last Updated:** 2026-01-06 14:30:00  
+**Version:** 1.1.0  
 **Purpose:** Comprehensive reference for FIDO2 registration and authentication implementation  
 **Usage:** Use this document to restore correct implementations when FIDO2 flows break or regress
 
@@ -412,8 +412,9 @@ if (authResponse.publicKeyCredentialRequestOptions) {
 ### 3. Check FIDO2 Assertion (Authentication)
 
 **Backend Endpoint:** `POST /api/pingone/mfa/check-fido2-assertion`  
-**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/assertion`  
-**Content-Type:** `application/vnd.pingidentity.assertion.check+json`
+**PingOne API:** `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}`  
+**Content-Type:** `application/vnd.pingidentity.assertion.check+json`  
+**Note:** The Content-Type header indicates this is an assertion check operation, not the URL path
 
 **Request Body (Frontend → Backend):**
 ```json
@@ -459,7 +460,7 @@ Accept: application/json
 - All base64 values must be in **base64url format** (WebAuthn standard)
 - Do NOT convert base64url to standard base64
 - Content-Type header must be `application/vnd.pingidentity.assertion.check+json`
-- Endpoint must include `/assertion` at the end: `.../deviceAuthentications/{deviceAuthId}/assertion`
+- **Endpoint must NOT include `/assertion` suffix:** `.../deviceAuthentications/{deviceAuthId}` (the Content-Type header indicates this is an assertion check)
 
 ---
 
@@ -556,21 +557,22 @@ const requestBody = {
 ### Error 4: Incorrect Endpoint URL
 
 **Problem:**
-- Endpoint URL was missing `/assertion` at the end
-- This caused 404 Not Found errors
+- Endpoint URL incorrectly included `/assertion` at the end
+- PingOne API expects: `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}` (NO `/assertion`)
+- The `/assertion` suffix was causing 400 Bad Request errors
 
 **Solution:**
 ```typescript
-// ❌ WRONG - Missing /assertion
-const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAuthId}`;
-
-// ✅ CORRECT - Include /assertion
+// ❌ WRONG - Including /assertion (incorrect)
 const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAuthId}/assertion`;
+
+// ✅ CORRECT - NO /assertion suffix
+const endpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAuthId}`;
 ```
 
-**Location:** `server.js` → `/api/pingone/mfa/check-fido2-assertion`
+**Location:** `server.js` → `/api/pingone/mfa/check-fido2-assertion` and `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
 
-**Fixed:** Endpoint now correctly includes `/assertion` at the end.
+**Fixed:** Endpoint now correctly excludes `/assertion` suffix. The Content-Type header (`application/vnd.pingidentity.assertion.check+json`) indicates this is an assertion check operation, not the URL path.
 
 ---
 
@@ -692,6 +694,160 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 ---
 
+### Error 9: Documentation Button Not Showing on Success Page
+
+**Problem:**
+- Documentation button was not appearing on FIDO2 success page
+- `deviceType` wasn't being passed correctly through the success page component chain
+- Button condition check was failing due to type/case mismatches
+
+**Solution:**
+```typescript
+// ✅ CORRECT - Multiple fixes to ensure deviceType is preserved
+// 1. Set deviceType in credentials
+const credentialsWithDeviceType = {
+  ...credentials,
+  deviceType: 'FIDO2' as DeviceType,
+};
+
+// 2. Explicitly set in successData
+successData.deviceType = 'FIDO2' as DeviceType;
+
+// 3. Pass modified credentials to MFASuccessPageV8
+<MFASuccessPageV8
+  {...props}
+  credentials={credentialsWithDeviceType} // Pass modified credentials
+  successData={successData}
+/>
+
+// 4. In UnifiedMFASuccessPageV8, normalize deviceType check
+const deviceTypeStr = String(deviceType || '').toUpperCase();
+const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
+const showDocumentationButton = flowType === 'registration' && hasDocumentation;
+
+// 5. Add fallback condition
+{(showDocumentationButton || (flowType === 'registration' && deviceTypeStr === 'FIDO2')) && (
+  <button onClick={handleGoToDocumentation}>View Documentation</button>
+)}
+```
+
+**Location:** 
+- `src/v8/flows/types/FIDO2FlowV8.tsx` → `renderStep3`
+- `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx` → `convertToUnifiedData`
+- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx` → Documentation button rendering
+
+**Fixed:** Documentation button now appears correctly on FIDO2 success page with proper deviceType preservation and fallback logic.
+
+---
+
+### Error 10: API Display Covering Success Page Buttons
+
+**Problem:**
+- API display is `position: fixed` at the bottom of the screen
+- It was covering the success page buttons, making them inaccessible
+- Users couldn't scroll down to see all buttons
+
+**Solution:**
+```typescript
+// ✅ CORRECT - Add dynamic bottom padding based on API display visibility
+const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+
+useEffect(() => {
+  const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
+    setApiDisplayVisible(isVisible);
+  });
+  return unsubscribe;
+}, []);
+
+// Calculate bottom padding based on API display visibility
+// API display max height is 400px (when there are calls) or 180px (when empty)
+// Add extra padding to ensure buttons are fully visible
+const bottomPadding = apiDisplayVisible ? '500px' : '24px';
+
+return (
+  <div
+    style={{
+      padding: '24px',
+      paddingBottom: bottomPadding, // Dynamic padding
+      maxWidth: '900px',
+      margin: '0 auto',
+      minHeight: '100vh', // Ensure page is scrollable
+    }}
+  >
+    {/* Success page content */}
+  </div>
+);
+```
+
+**Location:** `src/v8/services/unifiedMFASuccessPageServiceV8.tsx`
+
+**Fixed:** Success page now has dynamic bottom padding that adjusts based on API display visibility, ensuring all buttons are accessible via scrolling.
+
+---
+
+### Error 11: Worker Token Validation (JWT Format Check)
+
+**Problem:**
+- Worker token was sometimes corrupted or invalid (hash instead of JWT)
+- Invalid tokens caused 403 Forbidden errors with cryptic messages
+- No validation before sending to PingOne API
+
+**Solution:**
+```typescript
+// ✅ CORRECT - Validate token format before sending
+const cleanToken = await MfaAuthenticationServiceV8.getWorkerTokenWithAutoRenew();
+
+// Validate token format (JWT should have 3 parts)
+const tokenParts = cleanToken.split('.');
+if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+  throw new Error('Invalid worker token format. The token must be a valid JWT (3 dot-separated parts).');
+}
+
+// Additional validation: JWT tokens are typically 200+ characters
+if (cleanToken.length < 100) {
+  throw new Error('Invalid worker token. The token appears to be too short to be a valid JWT.');
+}
+```
+
+**Location:** 
+- `src/v8/services/mfaAuthenticationServiceV8.ts` → `checkFIDO2Assertion()`
+- `server.js` → `/api/pingone/mfa/check-fido2-assertion`
+
+**Fixed:** Worker token is now validated before sending to PingOne, providing clear error messages if the token is invalid.
+
+---
+
+### Error 12: DeviceType Not Preserved in Success Page Chain
+
+**Problem:**
+- `deviceType` was being lost when passing through `MFASuccessPageV8` → `UnifiedMFASuccessPageV8`
+- Original `credentials` from props didn't have `deviceType` set
+- `convertToUnifiedData` was using wrong fallback
+
+**Solution:**
+```typescript
+// ✅ CORRECT - Preserve deviceType through entire chain
+// In convertToUnifiedData:
+const deviceType = successData.deviceType || credentials.deviceType || 'SMS';
+
+return {
+  deviceType: deviceType as DeviceType, // Use preserved deviceType
+  // ... other fields
+};
+
+// In UnifiedMFASuccessPageV8:
+const deviceTypeStr = String(deviceType || '').toUpperCase();
+const hasDocumentation = deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
+```
+
+**Location:** 
+- `src/v8/flows/shared/mfaSuccessPageServiceV8.tsx` → `convertToUnifiedData`
+- `src/v8/services/unifiedMFASuccessPageServiceV8.tsx` → Documentation button check
+
+**Fixed:** DeviceType is now properly preserved through the entire success page component chain with proper fallback logic.
+
+---
+
 ## Implementation Files
 
 ### Frontend Files
@@ -721,6 +877,135 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 ---
 
+## Lockdown and Regression Protection
+
+### FIDO2 Lockdown System
+
+**Purpose:** Protect critical FIDO2 files from accidental modification or regression.
+
+**Location:**
+- Manifest: `src/v8/lockdown/fido2/manifest.json`
+- Snapshots: `src/v8/lockdown/fido2/snapshot/`
+- Script: `scripts/lockdown/lockdown.mjs`
+
+**Locked Files:**
+1. `src/v8/flows/types/FIDO2FlowV8.tsx` - Main registration flow
+2. `src/v8/flows/types/FIDO2ConfigurationPageV8.tsx` - Configuration page
+3. `src/v8/flows/MFAAuthenticationMainPageV8.tsx` - Authentication page
+4. `src/v8/components/FIDODeviceExistsModalV8.tsx` - Error modal
+5. `src/v8/services/mfaServiceV8.ts` - Registration/activation methods
+6. `src/v8/services/mfaAuthenticationServiceV8.ts` - Authentication/assertion check
+7. `src/v8/flows/controllers/FIDO2FlowController.ts` - Flow controller
+8. `src/v8/services/mfaConfigurationServiceV8.ts` - Configuration storage
+9. `server.js` - Backend FIDO2 API endpoints
+
+**Verification:**
+```bash
+npm run verify:fido2-lockdown
+```
+
+**Approval (Update Snapshots):**
+```bash
+npm run fido2:lockdown:approve
+```
+
+**Automatic Verification:**
+The FIDO2 lockdown is automatically verified during server restart (`./run.sh`). If files have been modified, you'll be prompted to:
+1. Restore files from snapshots (recommended)
+2. Approve current changes (updates snapshots)
+3. Abort restart
+4. Continue anyway (unsafe)
+
+**Restoring from Regression:**
+If FIDO2 breaks due to file modifications:
+1. Run `npm run verify:fido2-lockdown` to see what changed
+2. Choose option 1 in the restart script to restore from snapshots
+3. Or manually copy files from `src/v8/lockdown/fido2/snapshot/` to their original locations
+
+---
+
+## Success Page and Documentation
+
+### Success Page
+
+**Location:** `src/v8/flows/types/FIDO2FlowV8.tsx` → `renderStep3`
+
+**Features:**
+- Displays after successful FIDO2 device registration
+- Shows device information (device ID, status, nickname, username, etc.)
+- Includes "View Documentation" button (orange/yellow button with book icon)
+- Includes "Back to MFA Hub" button (green button with home icon)
+- Includes "Go to Authentication" button (blue button with shield icon)
+- **Dynamic bottom padding** to account for API display overlay (500px when API display is visible)
+- **Scrollable content** - users can scroll down to see all buttons even when API display is visible
+
+**Documentation Button:**
+- **Route:** `/v8/mfa/register/fido2/docs`
+- **Component:** `FIDO2RegistrationDocsPageV8`
+- **Condition:** Only shown for registration flows (not authentication)
+- **Implementation:** The success page ensures `deviceType` is set to `'FIDO2'` when building success data, which enables the documentation button to appear
+- **Button Color:** Orange/yellow (`#f59e0b`) with book icon
+- **Location:** Appears between "Back to MFA Hub" and "Authentication" buttons
+
+**Code:**
+```typescript
+// Ensure deviceType is set to FIDO2 for success page
+const credentialsWithDeviceType = {
+  ...credentials,
+  deviceType: 'FIDO2' as DeviceType,
+};
+
+const successData = buildSuccessPageData(
+  credentialsWithDeviceType,
+  enrichedMfaState,
+  'admin',
+  'ACTIVE',
+  credentials.tokenType || 'worker'
+);
+
+// Explicitly set deviceType in successData
+successData.deviceType = 'FIDO2' as DeviceType;
+
+// Pass modified credentials to ensure deviceType is preserved
+return (
+  <MFASuccessPageV8
+    {...props}
+    credentials={credentialsWithDeviceType}
+    successData={successData}
+    onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
+  />
+);
+```
+
+**Error Fixed:** Previously, the documentation button was not appearing because `deviceType` wasn't being passed correctly through the success page chain. Now we:
+1. Set `deviceType` in `credentialsWithDeviceType`
+2. Explicitly set `successData.deviceType = 'FIDO2'`
+3. Pass `credentialsWithDeviceType` to `MFASuccessPageV8`
+4. Normalize deviceType check in `UnifiedMFASuccessPageV8` with fallback logic
+
+### Documentation Page
+
+**Location:** `src/v8/pages/FIDO2RegistrationDocsPageV8.tsx`
+
+**Route:** `/v8/mfa/register/fido2/docs`
+
+**Features:**
+- Displays complete FIDO2 API documentation
+- Shows all PingOne API calls in correct order
+- Includes request/response examples
+- Supports both Admin and User registration flows
+- Shows activation calls for `ACTIVATION_REQUIRED` devices
+- Includes "Back to Hub" button at top and bottom
+
+**API Calls Documented:**
+1. Device Registration (`POST /environments/{envId}/users/{userId}/devices`)
+2. Device Activation (`POST /environments/{envId}/users/{userId}/devices/{deviceId}`)
+3. Device Authentication Initialization (`POST /environments/{envId}/deviceAuthentications`)
+4. Device Selection (`POST /environments/{envId}/deviceAuthentications/{authId}/selectDevice`)
+5. FIDO2 Assertion Check (`POST /environments/{envId}/deviceAuthentications/{authId}`)
+
+---
+
 ## Testing and Verification
 
 ### Manual Testing Checklist
@@ -732,6 +1017,9 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 - [ ] Step 2 registers device via WebAuthn
 - [ ] Step 3 confirms activation
 - [ ] Success page displays correctly
+- [ ] **Success page shows "View Documentation" button**
+- [ ] **Documentation button navigates to FIDO2 docs page**
+- [ ] **Documentation page displays all API calls correctly**
 
 **Authentication Flow:**
 - [ ] Device selection works correctly
@@ -749,7 +1037,7 @@ if (existingDevices.length > 0 && existingDevices.some(d => d.deviceType === 'FI
 
 **Test Assertion Check Request:**
 ```bash
-curl -X POST https://auth.pingone.com/{envId}/deviceAuthentications/{deviceAuthId}/assertion \
+curl -X POST https://auth.pingone.com/{envId}/deviceAuthentications/{deviceAuthId} \
   -H "Authorization: Bearer {workerToken}" \
   -H "Content-Type: application/vnd.pingidentity.assertion.check+json" \
   -d '{
@@ -801,8 +1089,9 @@ Accept: application/json
 
 **Endpoint:**
 ```
-POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/assertion
+POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}
 ```
+**Note:** The endpoint does NOT include `/assertion` suffix. The Content-Type header (`application/vnd.pingidentity.assertion.check+json`) indicates this is an assertion check operation.
 
 ---
 
@@ -817,7 +1106,7 @@ POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/assertion
 - **Base64url vs Base64:** WebAuthn uses base64url encoding (URL-safe base64). Do NOT convert to standard base64. Use values directly from WebAuthn API.
 - **Assertion Format:** Assertion must be a JSON string when sent to PingOne, not an object. Stringify the assertion object before sending.
 - **Required Fields:** `origin` and `compatibility` are REQUIRED in the assertion check request body.
-- **Endpoint Path:** The assertion check endpoint must include `/assertion` at the end.
+- **Endpoint Path:** The assertion check endpoint must NOT include `/assertion` suffix. Use: `POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}`. The Content-Type header indicates this is an assertion check.
 - **Content-Type:** Must be `application/vnd.pingidentity.assertion.check+json` for assertion check.
 - **Device Limit:** Only one FIDO2 device is allowed per user. Check before registration.
 

@@ -36,5 +36,3 @@ const CardDescription: React.FC<ParagraphProps> = ({ children, className, ...pro
 
 export { Card, CardHeader, CardContent, CardTitle, CardDescription };
 export default Card;
-
-

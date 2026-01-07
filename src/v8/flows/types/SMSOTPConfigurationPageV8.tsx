@@ -705,7 +705,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					margin: '0 auto',
 					padding: '32px 20px',
 					paddingBottom:
-						isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '32px',
+						isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '32px',
 					transition: 'padding-bottom 0.3s ease',
 					overflow: 'visible',
 				}}

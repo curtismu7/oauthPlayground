@@ -4,7 +4,7 @@
  * @description Tests for API Display Service V8
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { apiDisplayServiceV8 } from '../apiDisplayServiceV8';
 
 describe('ApiDisplayServiceV8', () => {

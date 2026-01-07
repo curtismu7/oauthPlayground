@@ -11,17 +11,28 @@
  * - Type-safe component access
  */
 
-import React, { lazy, ComponentType } from 'react';
+import React, { ComponentType, lazy } from 'react';
 import type { DeviceType } from '../shared/MFATypes';
 
 const MODULE_TAG = '[🏭 MFA-COMPONENT-FACTORY]';
 
 // Lazy load flow components for code splitting
 const SMSFlowV8 = lazy(() => import('../types/SMSFlowV8').then((m) => ({ default: m.SMSFlowV8 })));
-const EmailFlowV8 = lazy(() => import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 })));
-const TOTPFlowV8 = lazy(() => import('../types/TOTPFlowV8').then((m) => ({ default: m.TOTPFlowV8 })));
-const FIDO2FlowV8 = lazy(() => import('../types/FIDO2FlowV8').then((m) => ({ default: m.FIDO2FlowV8 })));
-const WhatsAppFlowV8 = lazy(() => import('../types/WhatsAppFlowV8').then((m) => ({ default: m.WhatsAppFlowV8 })));
+const MobileFlowV8 = lazy(() =>
+	import('../types/MobileFlowV8').then((m) => ({ default: m.MobileFlowV8 }))
+);
+const EmailFlowV8 = lazy(() =>
+	import('../types/EmailFlowV8').then((m) => ({ default: m.EmailFlowV8 }))
+);
+const TOTPFlowV8 = lazy(() =>
+	import('../types/TOTPFlowV8').then((m) => ({ default: m.TOTPFlowV8 }))
+);
+const FIDO2FlowV8 = lazy(() =>
+	import('../types/FIDO2FlowV8').then((m) => ({ default: m.FIDO2FlowV8 }))
+);
+const WhatsAppFlowV8 = lazy(() =>
+	import('../types/WhatsAppFlowV8').then((m) => ({ default: m.WhatsAppFlowV8 }))
+);
 
 // Placeholder component for unsupported types
 const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType }) => {
@@ -29,13 +40,17 @@ const ComingSoonComponent: React.FC<{ deviceType: DeviceType }> = ({ deviceType 
 		'div',
 		{ style: { padding: '40px', textAlign: 'center' } },
 		React.createElement('h2', null, `${deviceType} Flow - Coming Soon`),
-		React.createElement('p', null, `${deviceType} device flow is not yet implemented. Please use SMS flow for now.`)
+		React.createElement(
+			'p',
+			null,
+			`${deviceType} device flow is not yet implemented. Please use SMS flow for now.`
+		)
 	);
 };
 
 /**
  * Factory for creating MFA flow React components
- * 
+ *
  * Provides centralized component creation with:
  * - Lazy loading for better performance
  * - Type-safe component access
@@ -49,6 +64,7 @@ export class MFAFlowComponentFactory {
 	 */
 	static initialize(): void {
 		MFAFlowComponentFactory.register('SMS', SMSFlowV8);
+		MFAFlowComponentFactory.register('MOBILE', MobileFlowV8);
 		MFAFlowComponentFactory.register('EMAIL', EmailFlowV8);
 		MFAFlowComponentFactory.register('TOTP', TOTPFlowV8);
 		MFAFlowComponentFactory.register('FIDO2', FIDO2FlowV8);
@@ -64,17 +80,17 @@ export class MFAFlowComponentFactory {
 
 	/**
 	 * Create a flow component for the specified device type
-	 * 
+	 *
 	 * @param deviceType - Device type to create component for
 	 * @returns React component for the device type
-	 * 
+	 *
 	 * @example
 	 * const Component = MFAFlowComponentFactory.create('SMS');
 	 * return <Component />;
 	 */
 	static create(deviceType: DeviceType): ComponentType {
 		const component = MFAFlowComponentFactory.componentRegistry.get(deviceType);
-		
+
 		if (component) {
 			return component;
 		}
@@ -101,4 +117,3 @@ export class MFAFlowComponentFactory {
 
 // Initialize on module load
 MFAFlowComponentFactory.initialize();
-
