@@ -14,6 +14,7 @@ import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
@@ -63,6 +64,15 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	const [sessionInfo, setSessionInfo] = useState<SessionInfo | null>(null);
 	// Track if we're processing a callback (returning from PingOne authentication)
 	const [isProcessingCallback, setIsProcessingCallback] = useState(false);
+	// Worker token settings state (for consistency with other pages)
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return config.workerToken.silentApiRetrieval;
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return config.workerToken.showTokenAtEnd;
+	});
 	// Use different default redirect URI for MFA flows
 	const defaultRedirectUri = isMfaFlow
 		? 'https://localhost:3000/user-mfa-login-callback'
@@ -215,7 +225,12 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 		sendAnalyticsLog({
 			location: 'UserLoginModalV8.tsx:189',
 			message: 'Callback processing useEffect running',
-			data: { isOpen, locationSearch: location.search, showSuccessPage, hasSessionInfo: !!sessionInfo },
+			data: {
+				isOpen,
+				locationSearch: location.search,
+				showSuccessPage,
+				hasSessionInfo: !!sessionInfo,
+			},
 			timestamp: Date.now(),
 			sessionId: 'debug-session',
 			runId: 'run3',
@@ -1549,6 +1564,147 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										: 'Space-separated list of OAuth scopes (openid is required for OIDC)'}
 								</small>
 							)}
+						</div>
+					</div>
+
+					{/* Worker Token Settings Checkboxes */}
+					<div
+						style={{
+							marginTop: '24px',
+							padding: '16px',
+							background: '#f9fafb',
+							borderRadius: '8px',
+							border: '1px solid #e5e7eb',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 12px 0',
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#374151',
+							}}
+						>
+							Token Display Settings
+						</h3>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={silentApiRetrieval}
+									onChange={(e) => {
+										const newValue = e.target.checked;
+										setSilentApiRetrieval(newValue);
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.silentApiRetrieval = newValue;
+										if (newValue) {
+											config.workerToken.showTokenAtEnd = false;
+											setShowTokenAtEnd(false);
+											toastV8.info(
+												'Show Token After Generation automatically turned OFF for silent retrieval.'
+											);
+										}
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
+										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Silent API Token Retrieval
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Automatically fetch worker token in the background without showing modals
+									</span>
+								</div>
+							</label>
+
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={showTokenAtEnd}
+									onChange={(e) => {
+										const newValue = e.target.checked;
+										setShowTokenAtEnd(newValue);
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.showTokenAtEnd = newValue;
+										if (newValue) {
+											config.workerToken.silentApiRetrieval = false;
+											setSilentApiRetrieval(false);
+											toastV8.info(
+												'Silent API Token Retrieval automatically turned OFF to show token.'
+											);
+										}
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										window.dispatchEvent(
+											new CustomEvent('mfaConfigurationUpdated', {
+												detail: { workerToken: config.workerToken },
+											})
+										);
+										toastV8.info(`Show Token After Generation set to: ${newValue}`);
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Show Token After Generation
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Display the generated user token in a success page after successful login
+									</span>
+								</div>
+							</label>
 						</div>
 					</div>
 
