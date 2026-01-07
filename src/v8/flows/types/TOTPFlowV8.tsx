@@ -128,7 +128,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 					marginBottom: '28px',
 					padding: '20px',
 					background: '#ffffff',
-					borderRadius: '8px',
+					borderRadius: '6px',
 					border: '1px solid #e5e7eb',
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 				}}
@@ -153,7 +153,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 							flex: 1,
 							padding: '16px',
 							border: `2px solid ${registrationFlowType === 'admin' ? '#3b82f6' : '#d1d5db'}`,
-							borderRadius: '8px',
+							borderRadius: '6px',
 							background: registrationFlowType === 'admin' ? '#eff6ff' : 'white',
 							cursor: 'pointer',
 							transition: 'all 0.2s ease',
@@ -238,7 +238,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 							flex: 1,
 							padding: '16px',
 							border: `2px solid ${registrationFlowType === 'user' ? '#3b82f6' : '#d1d5db'}`,
-							borderRadius: '8px',
+							borderRadius: '6px',
 							background: registrationFlowType === 'user' ? '#eff6ff' : 'white',
 							cursor: 'pointer',
 							transition: 'all 0.2s ease',
@@ -292,7 +292,7 @@ const TOTPConfigureStep: React.FC<TOTPConfigureStepProps> = (props) => {
 				<small
 					style={{
 						display: 'block',
-						marginTop: '12px',
+						marginTop: '8px',
 						fontSize: '12px',
 						color: '#6b7280',
 						lineHeight: '1.5',
@@ -436,7 +436,7 @@ const PingIdentityLogo: React.FC<{ size?: number }> = ({ size = 40 }) => (
 				justifyContent: 'center',
 				width: size,
 				height: size,
-				borderRadius: '8px',
+				borderRadius: '6px',
 				background: '#E31837',
 				boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
 				marginRight: '12px',
@@ -1466,7 +1466,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						style={{
 							padding: '24px',
 							background: 'white',
-							borderRadius: '8px',
+							borderRadius: '6px',
 							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
 							maxWidth: '600px',
 							margin: '0 auto',
@@ -1489,11 +1489,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								navigate('/v8/mfa-hub');
 							}}
 							style={{
-								padding: '12px 20px',
+								padding: '8px 16px',
 								background: '#10b981',
 								color: 'white',
 								border: 'none',
-								borderRadius: '8px',
+								borderRadius: '6px',
 								fontSize: '15px',
 								fontWeight: '600',
 								cursor: 'pointer',
@@ -1588,13 +1588,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 									style={{
 										position: 'absolute',
-										top: '16px',
-										right: '16px',
+										top: '10px',
+										right: '10px',
 										background: 'rgba(255, 255, 255, 0.2)',
 										border: 'none',
 										borderRadius: '50%',
-										width: '32px',
-										height: '32px',
+										width: '28px',
+										height: '28px',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -1602,13 +1602,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<FiX size={18} />
+									<FiX size={16} />
 								</button>
-								<PingIdentityLogo size={36} />
+								<PingIdentityLogo size={28} />
 								<h3
 									style={{
-										margin: '6px 0 0 0',
-										fontSize: '18px',
+										margin: '4px 0 0 0',
+										fontSize: '16px',
 										fontWeight: '600',
 										color: 'white',
 										textAlign: 'center',
@@ -1631,7 +1631,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							{/* Modal Body */}
 							<div
 								style={{
-									padding: '16px 20px',
+									padding: '12px 16px',
 									overflowY: 'auto',
 									flex: 1,
 									minHeight: 0,
@@ -1668,7 +1668,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												style={{
 													padding: '12px 16px',
 													background: '#f3f4f6',
-													borderRadius: '8px',
+													borderRadius: '6px',
 													border: '1px solid #e5e7eb',
 													color: '#4b5563',
 													fontSize: '14px',
@@ -1677,7 +1677,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 													gap: '8px',
 												}}
 											>
-												<FiInfo size={18} color="#6b7280" />
+												<FiInfo size={16} color="#6b7280" />
 												<span>
 													Device name will be set automatically during registration. You can rename this device later through device management.
 													<MFAInfoButtonV8
@@ -1717,7 +1717,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 														? 'none'
 														: '0 0 0 3px rgba(239, 68, 68, 0.25)',
 													outline: 'none',
-													borderRadius: '8px',
+													borderRadius: '6px',
 													fontSize: '15px',
 													color: '#1f2937',
 													background: 'white',
@@ -1771,7 +1771,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								style={{
 									display: 'flex',
 									gap: '12px',
-									padding: '16px 20px',
+									padding: '12px 16px',
 									background: 'white',
 									borderTop: '1px solid #e5e7eb',
 									flexShrink: 0,
@@ -1792,11 +1792,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 									style={{
 										flex: 1,
-										padding: '12px 20px',
+										padding: '8px 16px',
 										background: '#f3f4f6',
 										color: '#374151',
 										border: '1px solid #d1d5db',
-										borderRadius: '8px',
+										borderRadius: '6px',
 										fontSize: '15px',
 										fontWeight: '600',
 										cursor: 'pointer',
@@ -1810,12 +1810,12 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									onClick={handleRegisterDevice}
 									style={{
 										flex: 2,
-										padding: '12px 20px',
+										padding: '8px 16px',
 										background:
 											isValidForm && !isLoading && tokenStatus.isValid ? '#10b981' : '#d1d5db',
 										color: 'white',
 										border: 'none',
-										borderRadius: '8px',
+										borderRadius: '6px',
 										fontSize: '15px',
 										fontWeight: '600',
 										cursor:
@@ -2174,7 +2174,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						style={{
 							padding: '24px',
 							background: 'white',
-							borderRadius: '8px',
+							borderRadius: '6px',
 							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
 							maxWidth: '600px',
 							margin: '0 auto',
@@ -2196,11 +2196,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								setShowQrModal(true);
 							}}
 							style={{
-								padding: '12px 20px',
+								padding: '8px 16px',
 								background: '#10b981',
 								color: 'white',
 								border: 'none',
-								borderRadius: '8px',
+								borderRadius: '6px',
 								fontSize: '15px',
 								fontWeight: '600',
 								cursor: 'pointer',
@@ -2291,13 +2291,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 									style={{
 										position: 'absolute',
-										top: '16px',
-										right: '16px',
+										top: '10px',
+										right: '10px',
 										background: 'rgba(255, 255, 255, 0.2)',
 										border: 'none',
 										borderRadius: '50%',
-										width: '32px',
-										height: '32px',
+										width: '28px',
+										height: '28px',
 										display: 'flex',
 										alignItems: 'center',
 										justifyContent: 'center',
@@ -2305,13 +2305,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										color: 'white',
 									}}
 								>
-									<FiX size={18} />
+									<FiX size={16} />
 								</button>
-								<PingIdentityLogo size={36} />
+								<PingIdentityLogo size={28} />
 								<h3
 									style={{
-										margin: '6px 0 0 0',
-										fontSize: '18px',
+										margin: '4px 0 0 0',
+										fontSize: '16px',
 										fontWeight: '600',
 										color: 'white',
 										textAlign: 'center',
@@ -2334,11 +2334,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							{/* Modal Body - Scrollable */}
 							<div
 								style={{
-									padding: '16px 20px',
+									padding: '12px 16px',
 									overflowY: 'auto',
 									flex: 1,
 									minHeight: 0,
-									maxHeight: 'calc(85vh - 200px)', // Reserve space for header (~100px) and footer (~100px)
+									maxHeight: 'calc(90vh - 140px)', // Reserve space for header (~100px) and footer (~100px)
 								}}
 							>
 								{/* Show loading state while auto-registering device */}
@@ -2395,7 +2395,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											padding: '20px',
 											background: '#fef2f2',
 											border: '1px solid #fca5a5',
-											borderRadius: '8px',
+											borderRadius: '6px',
 											marginBottom: '20px',
 											textAlign: 'center',
 										}}
@@ -2426,11 +2426,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												nav.goToStep(2);
 											}}
 											style={{
-												padding: '12px 20px',
+												padding: '8px 16px',
 												background: '#10b981',
 												color: 'white',
 												border: 'none',
-												borderRadius: '8px',
+												borderRadius: '6px',
 												fontSize: '15px',
 												fontWeight: '600',
 												cursor: 'pointer',
@@ -2444,7 +2444,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								{/* QR Code Display */}
 								{/* Show QR code if we have the URL and device ID (even if loading) */}
 								{currentQrCodeUrl && mfaState.deviceId && (
-									<div style={{ marginBottom: '20px', textAlign: 'center' }}>
+									<div style={{ marginBottom: '12px', textAlign: 'center' }}>
 										<p
 											style={{
 												margin: '0 0 12px 0',
@@ -2467,16 +2467,16 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										<div
 											style={{
 												display: 'inline-block',
-												padding: '12px',
+												padding: '8px',
 												background: 'white',
 												border: '1px solid #e5e7eb',
-												borderRadius: '8px',
+												borderRadius: '6px',
 												boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
 											}}
 										>
 											<QRCodeSVG
 												value={currentQrCodeUrl}
-												size={180}
+												size={140}
 												level="M"
 												includeMargin={true}
 											/>
@@ -2491,11 +2491,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											marginBottom: '20px',
 											padding: '16px',
 											background: '#f9fafb',
-											borderRadius: '8px',
+											borderRadius: '6px',
 											border: '1px solid #e5e7eb',
 										}}
 									>
-										<details open>
+										<details>
 											<summary
 												style={{
 													cursor: 'pointer',
@@ -2506,10 +2506,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 													listStyle: 'none',
 												}}
 											>
-												<span style={{ marginRight: '8px' }}>📱</span>
+												<span style={{ marginRight: '6px' }}>📱</span>
 												Can't scan? Use manual setup
 											</summary>
-											<div style={{ marginTop: '12px' }}>
+											<div style={{ marginTop: '8px' }}>
 												<p
 													style={{
 														margin: '0 0 8px 0',
@@ -2559,7 +2559,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															}
 														}}
 														style={{
-															padding: '6px 12px',
+															padding: '4px 8px',
 															background: secretCopied ? '#10b981' : '#f3f4f6',
 															color: secretCopied ? 'white' : '#374151',
 															border: '1px solid #d1d5db',
@@ -2571,20 +2571,20 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 															transition: 'all 0.2s',
 														}}
 													>
-														{secretCopied ? '✓ Copied!' : '📋 Copy'}
+														{secretCopied ? '✓' : '📋'}
 													</button>
 												</div>
-												<div style={{ marginTop: '12px', fontSize: '12px', color: '#6b7280' }}>
-													<p style={{ margin: '0 0 4px 0' }}>
-														<strong>Manual setup instructions:</strong>
+												<div style={{ marginTop: '8px', fontSize: '10px', color: '#6b7280' }}>
+													<p style={{ margin: '0 0 2px 0' }}>
+														Instructions:
 													</p>
-													<ol style={{ margin: '0 0 0 20px', padding: 0 }}>
-														<li>Open your authenticator app (Google Authenticator, Authy, Microsoft Authenticator, etc.)</li>
-														<li>Select "Add account" or "Set up account"</li>
-														<li>Choose "Enter a setup key" or "Manual entry"</li>
-														<li>Enter the secret key above (or paste it if you copied it)</li>
+													<ol style={{ margin: '0 0 0 16px', padding: 0 }}>
+														<li>Open authenticator app</li>
+														<li>Select "Add account"</li>
+														<li>Choose "Enter setup key"</li>
+														<li>Enter secret key above</li>
 														<li>Select "Time-based" and "6 digits"</li>
-														<li>Save the account</li>
+														<li>Save</li>
 													</ol>
 												</div>
 											</div>
@@ -2594,18 +2594,18 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 								{/* Activation Button (only shown if ACTIVATION_REQUIRED) */}
 								{isActivationRequired && (
-									<div style={{ marginBottom: '20px', textAlign: 'center' }}>
+									<div style={{ marginBottom: '12px', textAlign: 'center' }}>
 										<button
 											type="button"
 											onClick={() => {
 												setShowActivationModal(true);
 											}}
 											style={{
-												padding: '12px 24px',
+												padding: '8px 16px',
 												background: '#10b981',
 												color: 'white',
 												border: 'none',
-												borderRadius: '8px',
+												borderRadius: '6px',
 												fontSize: '15px',
 												fontWeight: '600',
 												cursor: 'pointer',
@@ -2625,12 +2625,12 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										</button>
 										<p
 											style={{
-												marginTop: '12px',
+												marginTop: '8px',
 												fontSize: '13px',
 												color: '#6b7280',
 											}}
 										>
-											After scanning the QR code, click this button to enter the 6-digit code from your authenticator app.
+											After scanning, click to enter the 6-digit code
 										</p>
 									</div>
 								)}
@@ -2638,7 +2638,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								{/* Info Note */}
 								<p
 									style={{
-										marginTop: '12px',
+										marginTop: '8px',
 										marginBottom: '0',
 										fontSize: '11px',
 										color: '#9ca3af',
@@ -2660,7 +2660,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											padding: '16px',
 											background: '#fef2f2',
 											border: '1px solid #fecaca',
-											borderRadius: '8px',
+											borderRadius: '6px',
 										}}
 									>
 										<div
@@ -2862,7 +2862,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								style={{
 									display: 'flex',
 									gap: '12px',
-									padding: '16px 20px',
+									padding: '12px 16px',
 									background: 'white',
 									borderTop: '1px solid #e5e7eb',
 									flexShrink: 0,
@@ -2877,11 +2877,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 									style={{
 										flex: 1,
-										padding: '12px 20px',
+										padding: '8px 16px',
 										background: '#f3f4f6',
 										color: '#374151',
 										border: '1px solid #d1d5db',
-										borderRadius: '8px',
+										borderRadius: '6px',
 										fontSize: '15px',
 										fontWeight: '600',
 										cursor: 'pointer',
@@ -2895,11 +2895,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											onClick={handleContinue}
 											style={{
 												width: '100%',
-												padding: '12px 20px',
+												padding: '8px 16px',
 												background: '#10b981',
 												color: 'white',
 												border: 'none',
-												borderRadius: '8px',
+												borderRadius: '6px',
 												fontSize: '15px',
 												fontWeight: '600',
 												cursor: 'pointer',
@@ -3045,7 +3045,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						style={{
 							padding: '24px',
 							background: 'white',
-							borderRadius: '8px',
+							borderRadius: '6px',
 							boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
 							maxWidth: '600px',
 							margin: '0 auto',
@@ -3067,11 +3067,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								setShowValidationModal(true);
 							}}
 							style={{
-								padding: '12px 20px',
+								padding: '8px 16px',
 								background: '#10b981',
 								color: 'white',
 								border: 'none',
-								borderRadius: '8px',
+								borderRadius: '6px',
 								fontSize: '15px',
 								fontWeight: '600',
 								cursor: 'pointer',
@@ -3149,13 +3149,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								}}
 								style={{
 									position: 'absolute',
-									top: '16px',
-									right: '16px',
+									top: '10px',
+									right: '10px',
 									background: 'rgba(255, 255, 255, 0.2)',
 									border: 'none',
 									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
+									width: '28px',
+									height: '28px',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
@@ -3163,13 +3163,13 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'white',
 								}}
 							>
-								<FiX size={18} />
+								<FiX size={16} />
 							</button>
-							<PingIdentityLogo size={36} />
+							<PingIdentityLogo size={28} />
 							<h3
 								style={{
-									margin: '6px 0 0 0',
-									fontSize: '18px',
+									margin: '4px 0 0 0',
+									fontSize: '16px',
 									fontWeight: '600',
 									color: 'white',
 									textAlign: 'center',
@@ -3190,7 +3190,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 						</div>
 
 						{/* Modal Body */}
-						<div style={{ padding: '16px 20px' }}>
+						<div style={{ padding: '12px 16px' }}>
 							{/* Device Info */}
 							<div
 								style={{
@@ -3203,7 +3203,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							>
 								<p
 									style={{
-										margin: '0 0 4px 0',
+										margin: '0 0 2px 0',
 										fontSize: '12px',
 										color: '#1e40af',
 										fontWeight: '600',
@@ -3224,7 +3224,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								</p>
 								<p
 									style={{
-										margin: '0 0 4px 0',
+										margin: '0 0 2px 0',
 										fontSize: '12px',
 										color: '#1e40af',
 										fontWeight: '600',
@@ -3351,11 +3351,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									}}
 									style={{
 										flex: 1,
-										padding: '12px 20px',
+										padding: '8px 16px',
 										background: isLoading || mfaState.otpCode.length !== 6 ? '#d1d5db' : '#3b82f6',
 										color: 'white',
 										border: 'none',
-										borderRadius: '8px',
+										borderRadius: '6px',
 										fontSize: '14px',
 										fontWeight: '600',
 										cursor: isLoading || mfaState.otpCode.length !== 6 ? 'not-allowed' : 'pointer',
@@ -3370,7 +3370,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							{(validationState.validationAttempts > 0 || validationState.lastValidationError) && (
 								<div
 									style={{
-										marginTop: '12px',
+										marginTop: '8px',
 										padding: '10px 12px',
 										background: validationState.validationAttempts >= 3 ? '#fef2f2' : '#fffbeb',
 										border: `1px solid ${validationState.validationAttempts >= 3 ? '#fecaca' : '#fed7aa'}`,
@@ -3379,7 +3379,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								>
 									<p
 										style={{
-											margin: '0 0 4px 0',
+											margin: '0 0 2px 0',
 											fontSize: '12px',
 											fontWeight: '600',
 											color: validationState.validationAttempts >= 3 ? '#991b1b' : '#92400e',
@@ -3733,10 +3733,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							{limitExceededError.coolDownExpiresAt && (
 								<div
 									style={{
-										marginTop: '12px',
-										padding: '12px',
+										marginTop: '8px',
+										padding: '8px',
 										backgroundColor: '#fef3c7',
-										borderRadius: '8px',
+										borderRadius: '6px',
 										borderLeft: '4px solid #f59e0b',
 									}}
 								>
@@ -3754,7 +3754,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									backgroundColor: '#dc2626',
 									color: 'white',
 									border: 'none',
-									borderRadius: '8px',
+									borderRadius: '6px',
 									padding: '10px 20px',
 									fontSize: '14px',
 									fontWeight: 600,
@@ -3863,19 +3863,19 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								}}
 								style={{
 									position: 'absolute',
-									top: '16px',
-									right: '16px',
+									top: '10px',
+									right: '10px',
 									background: 'rgba(255, 255, 255, 0.2)',
 									border: 'none',
 									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
+									width: '28px',
+									height: '28px',
 									display: 'flex',
 									alignItems: 'center',
 									justifyContent: 'center',
 									cursor: 'pointer',
 									color: 'white',
-									fontSize: '18px',
+									fontSize: '16px',
 								}}
 							>
 								<FiX />
@@ -3934,11 +3934,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								{activationError && (
 									<div
 										style={{
-											marginTop: '12px',
-											padding: '12px',
+											marginTop: '8px',
+											padding: '8px',
 											background: '#fef2f2',
 											border: '1px solid #fecaca',
-											borderRadius: '8px',
+											borderRadius: '6px',
 											color: '#991b1b',
 											fontSize: '14px',
 										}}
@@ -3951,10 +3951,10 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							{/* Info */}
 							<div
 								style={{
-									padding: '12px',
+									padding: '8px',
 									background: '#eff6ff',
 									border: '1px solid #bfdbfe',
-									borderRadius: '8px',
+									borderRadius: '6px',
 									marginBottom: '20px',
 								}}
 							>
@@ -3991,11 +3991,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								}}
 								style={{
 									flex: 1,
-									padding: '12px 20px',
+									padding: '8px 16px',
 									background: '#f3f4f6',
 									color: '#374151',
 									border: '1px solid #d1d5db',
-									borderRadius: '8px',
+									borderRadius: '6px',
 									fontSize: '15px',
 									fontWeight: '600',
 									cursor: 'pointer',
@@ -4009,14 +4009,14 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								onClick={handleActivateDevice}
 								style={{
 									flex: 2,
-									padding: '12px 20px',
+									padding: '8px 16px',
 									background:
 										activationOtp.length === otpLength && !isActivating
 											? '#10b981'
 											: '#d1d5db',
 									color: 'white',
 									border: 'none',
-									borderRadius: '8px',
+									borderRadius: '6px',
 									fontSize: '15px',
 									fontWeight: '600',
 									cursor:
