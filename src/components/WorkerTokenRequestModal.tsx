@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import {
 	FiCheck,
 	FiCheckCircle,
+	FiCode,
 	FiCopy,
 	FiEye,
 	FiEyeOff,
@@ -12,7 +13,6 @@ import {
 	FiKey,
 	FiShield,
 	FiX,
-	FiCode,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
@@ -562,7 +562,8 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										<FiInfo size={14} />
 									</InfoIcon>
 									<InfoText>
-										<strong>Token Generated Successfully!</strong> This token will be used for API calls.
+										<strong>Token Generated Successfully!</strong> This token will be used for API
+										calls.
 									</InfoText>
 								</InfoBox>
 
@@ -593,11 +594,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 										<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
 									</CodeBlock>
 									<ButtonGroup>
-										<ActionButton 
-											$variant="secondary" 
-											onClick={handleCopyToken}
-											size="small"
-										>
+										<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
 											<FiCopy size={12} />
 											Copy Token
 										</ActionButton>
@@ -617,102 +614,102 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								</InfoText>
 							</InfoBox>
 
-					<Section>
-						<SectionTitle>
-							<FiShield size={14} />
-							Token Endpoint URL
-						</SectionTitle>
-						<ColoredUrlDisplay
-							url={tokenEndpoint}
-							label="PingOne Token Endpoint"
-							showInfoButton={false}
-							showCopyButton={true}
-							showOpenButton={false}
-						/>
-						<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-							<strong>Region:</strong> {getRegionDisplayName(region)}
-						</div>
-					</Section>
+							<Section>
+								<SectionTitle>
+									<FiShield size={14} />
+									Token Endpoint URL
+								</SectionTitle>
+								<ColoredUrlDisplay
+									url={tokenEndpoint}
+									label="PingOne Token Endpoint"
+									showInfoButton={false}
+									showCopyButton={true}
+									showOpenButton={false}
+								/>
+								<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+									<strong>Region:</strong> {getRegionDisplayName(region)}
+								</div>
+							</Section>
 
-					<Section>
-						<SectionTitle>
-							<FiCheckCircle size={14} />
-							Request Parameters
-						</SectionTitle>
-						<ParameterGrid>
-							<ParameterLabel>Grant Type</ParameterLabel>
-							<ParameterValue>client_credentials</ParameterValue>
+							<Section>
+								<SectionTitle>
+									<FiCheckCircle size={14} />
+									Request Parameters
+								</SectionTitle>
+								<ParameterGrid>
+									<ParameterLabel>Grant Type</ParameterLabel>
+									<ParameterValue>client_credentials</ParameterValue>
 
-							<ParameterLabel>Client ID</ParameterLabel>
-							<ParameterValue>{requestParams.client_id}</ParameterValue>
+									<ParameterLabel>Client ID</ParameterLabel>
+									<ParameterValue>{requestParams.client_id}</ParameterValue>
 
-							<ParameterLabel>Client Secret</ParameterLabel>
-							<ParameterValue>
-								<span style={{ flex: 1 }}>
-									{showSecret
-										? requestParams.client_secret
-										: '•'.repeat(Math.min(requestParams.client_secret.length, 40))}
-								</span>
-								<ToggleSecretButton
-									onClick={() => setShowSecret(!showSecret)}
-									title={showSecret ? 'Hide secret' : 'Show secret'}
-								>
-									{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-								</ToggleSecretButton>
-							</ParameterValue>
+									<ParameterLabel>Client Secret</ParameterLabel>
+									<ParameterValue>
+										<span style={{ flex: 1 }}>
+											{showSecret
+												? requestParams.client_secret
+												: '•'.repeat(Math.min(requestParams.client_secret.length, 40))}
+										</span>
+										<ToggleSecretButton
+											onClick={() => setShowSecret(!showSecret)}
+											title={showSecret ? 'Hide secret' : 'Show secret'}
+										>
+											{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+										</ToggleSecretButton>
+									</ParameterValue>
 
-							<ParameterLabel>Auth Method</ParameterLabel>
-							<ParameterValue>
-								{authMethod === 'client_secret_basic'
-									? 'Basic (Authorization header)'
-									: 'Post (Request body)'}
-							</ParameterValue>
+									<ParameterLabel>Auth Method</ParameterLabel>
+									<ParameterValue>
+										{authMethod === 'client_secret_basic'
+											? 'Basic (Authorization header)'
+											: 'Post (Request body)'}
+									</ParameterValue>
 
-							{requestParams.scope && (
-								<>
-									<ParameterLabel>Scopes</ParameterLabel>
-									<ParameterValue>{requestParams.scope}</ParameterValue>
-								</>
-							)}
-						</ParameterGrid>
-					</Section>
+									{requestParams.scope && (
+										<>
+											<ParameterLabel>Scopes</ParameterLabel>
+											<ParameterValue>{requestParams.scope}</ParameterValue>
+										</>
+									)}
+								</ParameterGrid>
+							</Section>
 
-					<Section>
-						<SectionTitle>
-							<FiKey size={14} />
-							cURL Command
-						</SectionTitle>
-						<CodeBlock>{generateCurlCommand()}</CodeBlock>
-						<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
-							{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
-							{copiedCurl ? 'Copied!' : 'Copy cURL'}
-						</CopyButton>
-						</Section>
+							<Section>
+								<SectionTitle>
+									<FiKey size={14} />
+									cURL Command
+								</SectionTitle>
+								<CodeBlock>{generateCurlCommand()}</CodeBlock>
+								<CopyButton $copied={copiedCurl} onClick={handleCopyCurl}>
+									{copiedCurl ? <FiCheck size={12} /> : <FiCopy size={12} />}
+									{copiedCurl ? 'Copied!' : 'Copy cURL'}
+								</CopyButton>
+							</Section>
 
-						<InfoBox
-							style={{
-								background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-								border: '1px solid #f59e0b',
-								marginBottom: 0,
-							}}
-						>
-							<InfoIcon style={{ color: '#d97706' }}>
-								<FiInfo size={14} />
-							</InfoIcon>
-							<InfoText style={{ color: '#92400e' }}>
-								<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
-							</InfoText>
-						</InfoBox>
-					</>
-				)}
+							<InfoBox
+								style={{
+									background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+									border: '1px solid #f59e0b',
+									marginBottom: 0,
+								}}
+							>
+								<InfoIcon style={{ color: '#d97706' }}>
+									<FiInfo size={14} />
+								</InfoIcon>
+								<InfoText style={{ color: '#92400e' }}>
+									<strong>Security:</strong> Sent securely over HTTPS. Credentials never logged.
+								</InfoText>
+							</InfoBox>
+						</>
+					)}
 				</ModalContent>
 
 				<ModalActions>
 					<ActionButton $variant="secondary" onClick={onClose}>
 						Cancel
 					</ActionButton>
-					<ActionButton 
-						$variant="primary" 
+					<ActionButton
+						$variant="primary"
 						onClick={isTokenStep ? handleUseToken : handleSendRequest}
 						disabled={isLoading}
 					>
@@ -722,15 +719,15 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 								Generating...
 							</>
 						) : isTokenStep ? (
-						<>
-							<FiCheck size={14} />
-							Use Token
-						</>
+							<>
+								<FiCheck size={14} />
+								Use Token
+							</>
 						) : (
-						<>
-							<FiKey size={14} />
-							Send Request
-						</>
+							<>
+								<FiKey size={14} />
+								Send Request
+							</>
 						)}
 					</ActionButton>
 				</ModalActions>

@@ -172,7 +172,6 @@ export class CredentialsServiceV8 {
 			});
 		}
 
-
 		const defaults: Credentials = {
 			environmentId: '',
 			clientId: '',
@@ -194,7 +193,6 @@ export class CredentialsServiceV8 {
 	 * const defaults = CredentialsServiceV8.getDefaultCredentials('oauth-authz-v8', config);
 	 */
 	static getDefaultCredentials(flowKey: string, config: CredentialsConfig): Credentials {
-
 		const defaults: Credentials = {
 			environmentId: '',
 			clientId: '',
@@ -226,7 +224,6 @@ export class CredentialsServiceV8 {
 	 * const creds = CredentialsServiceV8.loadWithAppDiscovery('oauth-authz-v8', appConfig);
 	 */
 	static loadWithAppDiscovery(flowKey: string, appConfig: AppConfig): Credentials {
-
 		const config = FLOW_FIELD_CONFIG[flowKey];
 		if (!config) {
 			console.warn(`${MODULE_TAG} Unknown flow key, loading without app discovery`, { flowKey });
@@ -386,7 +383,6 @@ export class CredentialsServiceV8 {
 	 * CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
 	 */
 	static saveCredentials(flowKey: string, credentials: Credentials): void {
-
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			localStorage.setItem(storageKey, JSON.stringify(credentials));
@@ -416,7 +412,6 @@ export class CredentialsServiceV8 {
 	 * CredentialsServiceV8.clearCredentials('oauth-authz-v8');
 	 */
 	static clearCredentials(flowKey: string): void {
-
 		try {
 			const storageKey = `${CredentialsServiceV8.STORAGE_PREFIX}${flowKey}`;
 			localStorage.removeItem(storageKey);
@@ -443,7 +438,6 @@ export class CredentialsServiceV8 {
 		errors: Array<{ message: string; field?: string }>;
 		warnings: Array<{ message: string; field?: string }>;
 	} {
-
 		const errors: Array<{ message: string; field?: string }> = [];
 		const warnings: Array<{ message: string; field?: string }> = [];
 
@@ -505,7 +499,6 @@ export class CredentialsServiceV8 {
 			warnings.push({ message: 'Issuer URL should be a valid URL', field: 'issuerUrl' });
 		}
 
-
 		return { errors, warnings };
 	}
 
@@ -553,7 +546,6 @@ export class CredentialsServiceV8 {
 	 * const creds = CredentialsServiceV8.importCredentials(jsonString);
 	 */
 	static importCredentials(json: string): Credentials {
-
 		try {
 			const parsed = JSON.parse(json);
 			if (!parsed.environmentId || !parsed.clientId) {

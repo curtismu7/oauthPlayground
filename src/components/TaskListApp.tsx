@@ -462,7 +462,11 @@ const TaskListApp: React.FC = () => {
 			prev.map((task) => {
 				if (task.id !== id) return task;
 				const nextStatus: TaskStatus =
-					task.status === 'completed' ? 'in-progress' : task.status === 'in-progress' ? 'completed' : 'in-progress';
+					task.status === 'completed'
+						? 'in-progress'
+						: task.status === 'in-progress'
+							? 'completed'
+							: 'in-progress';
 				return { ...task, status: nextStatus };
 			})
 		);
@@ -494,9 +498,7 @@ const TaskListApp: React.FC = () => {
 								>
 									{filterKey === 'all'
 										? 'All Work'
-										: filterKey
-											.replace('-', ' ')
-											.replace(/\b\w/g, (char) => char.toUpperCase())}
+										: filterKey.replace('-', ' ').replace(/\b\w/g, (char) => char.toUpperCase())}
 								</FilterChip>
 							))}
 						</FiltersRow>
@@ -599,12 +601,19 @@ const TaskListApp: React.FC = () => {
 							<TextArea
 								placeholder="Add context, links, or next steps"
 								value={newTask.description}
-								onChange={(event) => setNewTask((prev) => ({ ...prev, description: event.target.value }))}
+								onChange={(event) =>
+									setNewTask((prev) => ({ ...prev, description: event.target.value }))
+								}
 							/>
 							<SelectRow>
 								<Select
 									value={newTask.priority}
-									onChange={(event) => setNewTask((prev) => ({ ...prev, priority: event.target.value as TaskPriority }))}
+									onChange={(event) =>
+										setNewTask((prev) => ({
+											...prev,
+											priority: event.target.value as TaskPriority,
+										}))
+									}
 								>
 									<option value="high">High priority</option>
 									<option value="medium">Medium priority</option>
@@ -613,13 +622,17 @@ const TaskListApp: React.FC = () => {
 								<Input
 									type="date"
 									value={newTask.dueDate}
-									onChange={(event) => setNewTask((prev) => ({ ...prev, dueDate: event.target.value }))}
+									onChange={(event) =>
+										setNewTask((prev) => ({ ...prev, dueDate: event.target.value }))
+									}
 								/>
 								<Input
 									type="text"
 									placeholder="Estimate"
 									value={newTask.estimate}
-									onChange={(event) => setNewTask((prev) => ({ ...prev, estimate: event.target.value }))}
+									onChange={(event) =>
+										setNewTask((prev) => ({ ...prev, estimate: event.target.value }))
+									}
 								/>
 							</SelectRow>
 							<SubmitButton type="submit">

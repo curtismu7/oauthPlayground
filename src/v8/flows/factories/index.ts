@@ -4,8 +4,6 @@
  * @description Factory exports
  */
 
-export { MFAFlowControllerFactory } from './MFAFlowControllerFactory';
-export type { ControllerFactoryConfig } from './MFAFlowControllerFactory';
-
 export { MFAFlowComponentFactory } from './MFAFlowComponentFactory';
-
+export type { ControllerFactoryConfig } from './MFAFlowControllerFactory';
+export { MFAFlowControllerFactory } from './MFAFlowControllerFactory';

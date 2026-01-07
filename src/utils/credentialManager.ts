@@ -993,7 +993,7 @@ class CredentialManager {
 		if (
 			this.cache.all &&
 			this.cache.timestamp &&
-			now - 			this.cache.timestamp < this.CACHE_DURATION
+			now - this.cache.timestamp < this.CACHE_DURATION
 		) {
 			return this.cache.all;
 		}

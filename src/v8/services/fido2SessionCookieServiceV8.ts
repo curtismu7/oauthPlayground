@@ -1,12 +1,12 @@
 /**
  * FIDO2 Session Cookie Service
- * 
+ *
  * Detects PingOne session cookies and determines if FIDO2 platform devices
  * should be preferred for authentication, even if they are not the default device.
- * 
+ *
  * Per PingOne MFA API documentation:
- * "If the user is paired with a FIDO2 platform device and a session token cookie 
- * exists on the browser, the FIDO2 platform device is used for authentication 
+ * "If the user is paired with a FIDO2 platform device and a session token cookie
+ * exists on the browser, the FIDO2 platform device is used for authentication
  * even if it is not the default device."
  */
 
@@ -35,10 +35,14 @@ export function hasPingOneSessionCookie(): boolean {
 
 	// Check for cookies in document.cookie (non-HTTP-only cookies)
 	const cookies = document.cookie.split(';').map((c) => c.trim());
-	
+
 	for (const cookie of cookies) {
 		const [name] = cookie.split('=');
-		if (PINGONE_SESSION_COOKIE_NAMES.some((pingOneName) => name.toLowerCase().includes(pingOneName.toLowerCase()))) {
+		if (
+			PINGONE_SESSION_COOKIE_NAMES.some((pingOneName) =>
+				name.toLowerCase().includes(pingOneName.toLowerCase())
+			)
+		) {
 			console.log(`${MODULE_TAG} ✅ Found PingOne session cookie: ${name}`);
 			return true;
 		}
@@ -80,7 +84,7 @@ export function isNativeAppContext(): boolean {
 
 	// Check for common native app indicators
 	const userAgent = navigator.userAgent || '';
-	const isNativeApp = 
+	const isNativeApp =
 		// React Native
 		userAgent.includes('ReactNative') ||
 		// Cordova/PhoneGap
@@ -142,7 +146,7 @@ export function isDeviceAuthorizationEnabled(): boolean {
 
 /**
  * Determine if FIDO2 platform device should be preferred
- * 
+ *
  * Returns true if:
  * 1. Session cookie exists AND user has FIDO2 platform device (even if not default)
  * 2. Native app context AND device authorization is enabled
@@ -164,13 +168,15 @@ export function shouldPreferFIDO2PlatformDevice(): {
 	// Case 1: Session cookie exists - prefer FIDO2 platform device even if not default
 	if (hasSessionCookie) {
 		prefer = true;
-		reason = 'Session token cookie exists - FIDO2 platform device should be used even if not default';
+		reason =
+			'Session token cookie exists - FIDO2 platform device should be used even if not default';
 	}
 
 	// Case 2: Native app with device authorization enabled
 	if (isNative && hasDeviceAuth) {
 		prefer = true;
-		reason = 'Native app with device authorization enabled - native device should be used for seamless authentication';
+		reason =
+			'Native app with device authorization enabled - native device should be used for seamless authentication';
 	}
 
 	const result = {
@@ -190,7 +196,7 @@ export function shouldPreferFIDO2PlatformDevice(): {
 
 /**
  * Get WebAuthn authenticator selection preferences based on context
- * 
+ *
  * When session cookies exist or native app device auth is enabled,
  * prefer platform authenticators (Touch ID, Face ID, Windows Hello)
  */
@@ -213,4 +219,3 @@ export function getAuthenticatorSelectionPreferences(): {
 		userVerification: 'preferred',
 	};
 }
-

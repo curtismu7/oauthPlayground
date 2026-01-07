@@ -3,7 +3,7 @@
  * @module v8/utils
  * @description Cleanup utilities for MFA flows when navigating away
  * @version 8.0.0
- * 
+ *
  * Cleans up temporary flow state (sessionStorage) when navigating away from MFA flows.
  * Preserves credentials and tokens as requested.
  */
@@ -24,33 +24,35 @@ const SESSION_STORAGE_KEYS_TO_CLEAN = [
 
 /**
  * Clean up temporary MFA flow state from sessionStorage
- * 
+ *
  * This clears:
  * - OAuth callback state (user login flow)
  * - PKCE verifiers
  * - Temporary credentials
  * - Return path markers (ONLY if not in the middle of an OAuth callback)
  * - Flow state after OAuth
- * 
+ *
  * This does NOT clear:
  * - Credentials (stored in localStorage)
  * - Tokens (worker tokens, user tokens)
  * - API display preferences
- * 
+ *
  * @param logCleanup - Whether to log cleanup actions (default: true)
  * @param preserveOAuthCallback - If true, preserves return path during OAuth callback (default: false)
  */
-export function cleanupMfaFlowState(logCleanup: boolean = true, preserveOAuthCallback: boolean = false): void {
+export function cleanupMfaFlowState(
+	logCleanup: boolean = true,
+	preserveOAuthCallback: boolean = false
+): void {
 	if (typeof window === 'undefined' || !window.sessionStorage) {
 		return;
 	}
 
 	// Check if we're in the middle of an OAuth callback
 	// If we have a code in the URL and user_login_state_v8, we're in a callback
-	const isOAuthCallback = preserveOAuthCallback || (
-		window.location.search.includes('code=') && 
-		sessionStorage.getItem('user_login_state_v8')
-	);
+	const isOAuthCallback =
+		preserveOAuthCallback ||
+		(window.location.search.includes('code=') && sessionStorage.getItem('user_login_state_v8'));
 
 	let cleanedCount = 0;
 
@@ -62,7 +64,7 @@ export function cleanupMfaFlowState(logCleanup: boolean = true, preserveOAuthCal
 			}
 			return;
 		}
-		
+
 		if (sessionStorage.getItem(key)) {
 			sessionStorage.removeItem(key);
 			cleanedCount++;
@@ -89,9 +91,8 @@ export function cleanupUrlParameters(): void {
 	}
 
 	const url = new URL(window.location.href);
-	const hasOAuthParams = url.searchParams.has('code') || 
-	                      url.searchParams.has('state') || 
-	                      url.searchParams.has('error');
+	const hasOAuthParams =
+		url.searchParams.has('code') || url.searchParams.has('state') || url.searchParams.has('error');
 
 	if (hasOAuthParams) {
 		// Remove OAuth callback parameters
@@ -109,7 +110,7 @@ export function cleanupUrlParameters(): void {
 /**
  * Complete cleanup: sessionStorage + URL parameters
  * Call this when navigating away from MFA flows
- * 
+ *
  * @param logCleanup - Whether to log cleanup actions (default: true)
  */
 export function cleanupMfaFlowComplete(logCleanup: boolean = true): void {
@@ -120,7 +121,7 @@ export function cleanupMfaFlowComplete(logCleanup: boolean = true): void {
 /**
  * Navigate to MFA hub with cleanup
  * Helper function to ensure cleanup happens when navigating away
- * 
+ *
  * @param navigate - React Router navigate function
  * @param logCleanup - Whether to log cleanup actions (default: true)
  */
@@ -131,4 +132,3 @@ export function navigateToMfaHubWithCleanup(
 	cleanupMfaFlowComplete(logCleanup);
 	navigate('/v8/mfa-hub');
 }
-
