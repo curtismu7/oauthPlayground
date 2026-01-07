@@ -472,9 +472,24 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
 	const credentialsUpdatedRef = React.useRef(false);
 
-	// Get configured OTP length
-	const config = useMemo(() => MFAConfigurationServiceV8.loadConfiguration(), []);
-	const otpLength = config.otpCodeLength;
+	// Get configured OTP length - reload on config updates
+	const [otpLength, setOtpLength] = useState(() => {
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return config.otpCodeLength;
+	});
+
+	// Listen for configuration updates
+	useEffect(() => {
+		const handleConfigUpdate = () => {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			setOtpLength(config.otpCodeLength);
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+		};
+	}, []);
 
 	// Initialize controller using factory
 	const controller = useMemo(() => MFAFlowControllerFactory.create({ deviceType: 'TOTP' }), []);
