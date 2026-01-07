@@ -2245,11 +2245,11 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							ref={step3ModalDrag.modalRef}
 							style={{
 								background: 'white',
-								borderRadius: '16px',
+								borderRadius: '12px',
 								padding: '0',
-								maxWidth: '500px',
+								maxWidth: '450px',
 								width: '90%',
-								maxHeight: '85vh',
+								maxHeight: '90vh',
 								display: 'flex',
 								flexDirection: 'column',
 								boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
@@ -2264,7 +2264,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								onMouseDown={step3ModalDrag.handleMouseDown}
 								style={{
 									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-									padding: '16px 20px 12px 20px',
+									padding: '12px 16px 8px 16px',
 									textAlign: 'center',
 									position: 'relative',
 									cursor: 'grab',
