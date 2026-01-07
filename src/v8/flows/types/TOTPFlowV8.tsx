@@ -2462,7 +2462,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#6b7280',
 											}}
 										>
-											Then enter the 6-digit code below to complete setup
+											Then enter the {otpLength}-digit code below to complete setup
 										</p>
 										<div
 											style={{
@@ -2630,7 +2630,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#6b7280',
 											}}
 										>
-											After scanning, click to enter the 6-digit code
+											After scanning, click to enter the {otpLength}-digit code
 										</p>
 									</div>
 								)}
@@ -3896,7 +3896,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'rgba(255, 255, 255, 0.9)',
 								}}
 							>
-								Enter the 6-digit code from your authenticator app
+								Enter the {otpLength}-digit code from your authenticator app
 							</p>
 						</div>
 
@@ -3965,7 +3965,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										lineHeight: '1.5',
 									}}
 								>
-									💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator, Authy, etc.) and enter the 6-digit code shown there.
+									💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator, Authy, etc.) and enter the {otpLength}-digit code shown there.
 								</p>
 							</div>
 						</div>
