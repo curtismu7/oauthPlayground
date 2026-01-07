@@ -57,7 +57,9 @@
 		"verify:email-lockdown": "node scripts/lockdown/lockdown.mjs verify email",
 		"email:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve email",
 		"verify:whatsapp-lockdown": "node scripts/lockdown/lockdown.mjs verify whatsapp",
-		"whatsapp:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve whatsapp"
+		"whatsapp:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve whatsapp",
+		"verify:success-page-lockdown": "node scripts/lockdown/lockdown.mjs verify success-page",
+		"success-page:lockdown:approve": "node scripts/lockdown/lockdown.mjs approve success-page"
 	},
 	"keywords": [
 		"oauth",

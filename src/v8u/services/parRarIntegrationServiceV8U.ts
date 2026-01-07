@@ -12,10 +12,10 @@
  * - Request URI management
  */
 
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
 /**
  * PAR Request Interface (RFC 9126)
@@ -217,7 +217,7 @@ export class PARRARIntegrationServiceV8U {
 			try {
 				const { createClientAssertion } = await import('../../utils/clientAuthentication');
 				const parEndpointUrl = `https://auth.pingone.com/${parRequest.environmentId}/as/par`;
-				
+
 				let assertion: string;
 				if (authMethod === 'client_secret_jwt') {
 					if (!parRequest.clientSecret) {
@@ -242,10 +242,11 @@ export class PARRARIntegrationServiceV8U {
 						'RS256'
 					);
 				}
-				
-				requestBody.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+
+				requestBody.client_assertion_type =
+					'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 				requestBody.client_assertion = assertion;
-				
+
 				UnifiedFlowLoggerService.debug('Generated JWT assertion for PAR', {
 					authMethod,
 					assertionLength: assertion.length,
@@ -301,9 +302,13 @@ export class PARRARIntegrationServiceV8U {
 				actualPingOneUrl,
 				authMethod,
 				hasClientSecret: !!requestBody.client_secret,
-				clientSecretLength: typeof requestBody.client_secret === 'string' ? requestBody.client_secret.length : 0,
+				clientSecretLength:
+					typeof requestBody.client_secret === 'string' ? requestBody.client_secret.length : 0,
 				hasClientAssertion: !!requestBody.client_assertion,
-				clientAssertionLength: typeof requestBody.client_assertion === 'string' ? requestBody.client_assertion.length : 0,
+				clientAssertionLength:
+					typeof requestBody.client_assertion === 'string'
+						? requestBody.client_assertion.length
+						: 0,
 				clientId: requestBody.client_id,
 				environmentId: requestBody.environment_id,
 			});
@@ -407,7 +412,11 @@ export class PARRARIntegrationServiceV8U {
 			return result;
 		} catch (error) {
 			startPerformance();
-			UnifiedFlowLoggerService.error('Failed to push PAR request', {}, error instanceof Error ? error : undefined);
+			UnifiedFlowLoggerService.error(
+				'Failed to push PAR request',
+				{},
+				error instanceof Error ? error : undefined
+			);
 			throw error;
 		}
 	}
@@ -532,4 +541,3 @@ export class PARRARIntegrationServiceV8U {
 		return false;
 	}
 }
-

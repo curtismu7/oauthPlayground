@@ -160,10 +160,7 @@ export class AuthorizationUrlBuilderService {
 	/**
 	 * Add response mode to URL params
 	 */
-	private static addResponseModeParams(
-		params: URLSearchParams,
-		responseMode: ResponseMode
-	): void {
+	private static addResponseModeParams(params: URLSearchParams, responseMode: ResponseMode): void {
 		params.set('response_mode', responseMode);
 		UnifiedFlowLoggerService.debug('Response mode set', {
 			responseMode,
@@ -195,7 +192,12 @@ export class AuthorizationUrlBuilderService {
 			: AuthorizationUrlBuilderService.prefixState('implicit', `state-${Date.now()}`);
 
 		// Build base parameters
-		const urlParams = AuthorizationUrlBuilderService.buildBaseParams('implicit', credentials, prefixedState, redirectUri);
+		const urlParams = AuthorizationUrlBuilderService.buildBaseParams(
+			'implicit',
+			credentials,
+			prefixedState,
+			redirectUri
+		);
 
 		// Set response type for implicit flow
 		urlParams.set('response_type', 'token id_token');
@@ -243,7 +245,12 @@ export class AuthorizationUrlBuilderService {
 		const prefixedState = AuthorizationUrlBuilderService.prefixState('oauth-authz', baseState);
 
 		// Build base parameters
-		const urlParams = AuthorizationUrlBuilderService.buildBaseParams('oauth-authz', credentials, prefixedState, redirectUri);
+		const urlParams = AuthorizationUrlBuilderService.buildBaseParams(
+			'oauth-authz',
+			credentials,
+			prefixedState,
+			redirectUri
+		);
 
 		// Set response type for authorization code flow
 		urlParams.set('response_type', 'code');
@@ -292,7 +299,12 @@ export class AuthorizationUrlBuilderService {
 		const prefixedState = AuthorizationUrlBuilderService.prefixState('hybrid', baseState);
 
 		// Build base parameters
-		const urlParams = AuthorizationUrlBuilderService.buildBaseParams('hybrid', credentials, prefixedState, redirectUri);
+		const urlParams = AuthorizationUrlBuilderService.buildBaseParams(
+			'hybrid',
+			credentials,
+			prefixedState,
+			redirectUri
+		);
 
 		// Set response type for hybrid flow (default to 'code id_token')
 		const responseType =
@@ -337,7 +349,10 @@ export class AuthorizationUrlBuilderService {
 			flowType: params.flowType,
 			specVersion: params.specVersion,
 			hasPKCE: !!params.pkceCodes,
-			responseMode: AuthorizationUrlBuilderService.getResponseMode(params.flowType, params.credentials),
+			responseMode: AuthorizationUrlBuilderService.getResponseMode(
+				params.flowType,
+				params.credentials
+			),
 		});
 
 		switch (params.flowType) {
@@ -363,4 +378,3 @@ export class AuthorizationUrlBuilderService {
 		}
 	}
 }
-

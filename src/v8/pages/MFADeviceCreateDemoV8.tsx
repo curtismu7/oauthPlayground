@@ -5,11 +5,18 @@
  */
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiAlertTriangle, FiCheckCircle, FiMail, FiPhone, FiRefreshCw, FiUser } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiMail,
+	FiPhone,
+	FiRefreshCw,
+	FiUser,
+} from 'react-icons/fi';
 import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import SimplePingOneApiDisplayV8 from '@/v8/components/SimplePingOneApiDisplayV8';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import deviceCreateDemoServiceV8 from '@/v8/services/deviceCreateDemoServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import workerTokenServiceV8 from '@/v8/services/workerTokenServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
@@ -241,11 +248,19 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 						boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
 					}}
 				>
-					<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+					<header
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '16px',
+						}}
+					>
 						<div>
 							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>Device Context</h2>
 							<p style={{ margin: '6px 0 0', color: '#6b7280', fontSize: '14px' }}>
-								Provide the environment, user, and optional worker token override. The JSON cards reuse these values.
+								Provide the environment, user, and optional worker token override. The JSON cards
+								reuse these values.
 							</p>
 						</div>
 						<div
@@ -258,7 +273,9 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 							}}
 						>
 							{savedWorkerToken ? <FiCheckCircle /> : <FiAlertTriangle />}
-							<span>{savedWorkerToken ? 'Saved worker token detected' : 'No saved worker token'}</span>
+							<span>
+								{savedWorkerToken ? 'Saved worker token detected' : 'No saved worker token'}
+							</span>
 						</div>
 					</header>
 
@@ -269,7 +286,15 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 							gap: '16px',
 						}}
 					>
-						<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+						<label
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '6px',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
 							Environment ID
 							<input
 								type="text"
@@ -285,7 +310,15 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 							/>
 						</label>
 
-						<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+						<label
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '6px',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
 							Username (for lookup)
 							<div style={{ display: 'flex', gap: '8px' }}>
 								<input
@@ -336,7 +369,15 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 							</div>
 						</label>
 
-						<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+						<label
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '6px',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
 							User ID (required)
 							<input
 								type="text"
@@ -352,7 +393,15 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 							/>
 						</label>
 
-						<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '14px', color: '#374151' }}>
+						<label
+							style={{
+								display: 'flex',
+								flexDirection: 'column',
+								gap: '6px',
+								fontSize: '14px',
+								color: '#374151',
+							}}
+						>
 							Worker Token (optional override)
 							<textarea
 								value={workerTokenOverride}
@@ -427,7 +476,9 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 								flexDirection: 'column',
 							}}
 						>
-							<header style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+							<header
+								style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}
+							>
 								<div
 									style={{
 										width: '40px',
@@ -451,7 +502,16 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 								</div>
 							</header>
 
-							<label style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '13px', color: '#374151', flex: 1 }}>
+							<label
+								style={{
+									display: 'flex',
+									flexDirection: 'column',
+									gap: '6px',
+									fontSize: '13px',
+									color: '#374151',
+									flex: 1,
+								}}
+							>
 								Request Body (editable JSON)
 								<textarea
 									value={card.body}
@@ -534,7 +594,9 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 						boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
 					}}
 				>
-					<header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<header
+						style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+					>
 						<div>
 							<h2 style={{ margin: 0, fontSize: '20px', color: '#111827' }}>Latest Response</h2>
 							<p style={{ margin: '4px 0 0', color: '#6b7280', fontSize: '14px' }}>
@@ -566,5 +628,3 @@ export const MFADeviceCreateDemoV8: React.FC = () => {
 };
 
 export default MFADeviceCreateDemoV8;
-
-

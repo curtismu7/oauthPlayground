@@ -8,42 +8,51 @@
  * - WhatsApp/OTP education and information
  * - Device Authentication Policy selection
  * - Configuration before device registration
- * 
+ *
  * WhatsApp MFA is implemented as an SMS-like MFA factor via PingOne MFA with type = "WHATSAPP".
  * All outbound WhatsApp messages are sent by PingOne using its configured sender.
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiArrowRight,
+	FiBook,
+	FiCheckCircle,
+	FiInfo,
+	FiMessageSquare,
+	FiSettings,
+	FiShield,
+	FiX,
+} from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { FiMessageSquare, FiShield, FiInfo, FiArrowRight, FiSettings, FiBook, FiCheckCircle, FiX } from 'react-icons/fi';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
-import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
-import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
-import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[📲 WHATSAPP-OTP-CONFIG-V8]';
 
 export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
-	
+
 	// Get auth context to check for user tokens from Authorization Code Flow
 	const authContext = useAuth();
-	
+
 	// Load saved credentials
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
@@ -72,25 +81,29 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	});
 
 	// Token and modal state
-	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
-	
+
 	// Registration flow type state
 	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
-	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>('ACTIVE');
+	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
+		'ACTIVE'
+	);
 
 	// Ref to prevent infinite loops in bidirectional sync
 	const isSyncingRef = React.useRef(false);
-	
+
 	// Auto-populate user token from auth context if available
 	// This handles the case where user logged in via Authorization Code Flow and was redirected back
 	const hasAutoPopulatedRef = React.useRef(false);
 	React.useEffect(() => {
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
-		
+
 		// Debug logging
 		console.log(`${MODULE_TAG} Checking auth context for auto-population`, {
 			isAuthenticated,
@@ -100,7 +113,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			registrationFlowType,
 			hasAutoPopulated: hasAutoPopulatedRef.current,
 		});
-		
+
 		// Only auto-populate if:
 		// 1. User is authenticated and has an access token
 		// 2. We haven't already auto-populated (prevent re-running)
@@ -114,14 +127,14 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				currentTokenType: credentials.tokenType,
 				registrationFlowType: registrationFlowType,
 			});
-			
+
 			hasAutoPopulatedRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
 				userToken: authToken,
 				tokenType: 'user' as const,
 			}));
-			
+
 			toastV8.success('User token automatically loaded from your recent login!');
 		} else if (isAuthenticated && authToken && !credentials.userToken) {
 			console.log(`${MODULE_TAG} ⚠️ Auth token available but not populating`, {
@@ -131,12 +144,18 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				tokenType: credentials.tokenType,
 			});
 		}
-		
+
 		// Reset the ref if auth token is cleared (user logged out) or if user token was manually cleared
 		if (!isAuthenticated || !authToken || (!credentials.userToken && hasAutoPopulatedRef.current)) {
 			hasAutoPopulatedRef.current = false;
 		}
-	}, [authContext.tokens?.access_token, authContext.isAuthenticated, credentials.userToken, credentials.tokenType, registrationFlowType]);
+	}, [
+		authContext.tokens?.access_token,
+		authContext.isAuthenticated,
+		credentials.userToken,
+		credentials.tokenType,
+		registrationFlowType,
+	]);
 
 	// Process callback code directly if modal isn't open (fallback processing)
 	const isProcessingCallbackRef = React.useRef(false);
@@ -145,16 +164,16 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		const error = searchParams.get('error');
 		const state = searchParams.get('state');
 		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
-		
+
 		// Only process if we have a code/error AND stored state (confirms this is from our user login flow)
 		if (!hasUserLoginState) return;
-		
+
 		// If modal is open, let it handle the callback
 		if (showUserLoginModal) return;
-		
+
 		// Prevent concurrent processing
 		if (isProcessingCallbackRef.current) return;
-		
+
 		const processCallback = async () => {
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
@@ -166,7 +185,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				window.history.replaceState({}, document.title, window.location.pathname);
 				return;
 			}
-			
+
 			if (code && state) {
 				// Validate state
 				if (state !== hasUserLoginState) {
@@ -175,13 +194,13 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}
-				
+
 				isProcessingCallbackRef.current = true;
-				
+
 				try {
 					const storedCodeVerifier = sessionStorage.getItem('user_login_code_verifier_v8');
 					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
-					
+
 					if (!storedCodeVerifier || !storedCredentials) {
 						toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
 						sessionStorage.removeItem('user_login_state_v8');
@@ -191,9 +210,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						window.history.replaceState({}, document.title, window.location.pathname);
 						return;
 					}
-					
+
 					const credentials = JSON.parse(storedCredentials);
-					
+
 					// Exchange authorization code for tokens
 					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 						{
@@ -202,37 +221,47 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							clientSecret: credentials.clientSecret,
 							redirectUri: credentials.redirectUri,
 							scopes: credentials.scopes,
-							clientAuthMethod: credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post',
+							clientAuthMethod:
+								credentials.clientAuthMethod ||
+								credentials.tokenEndpointAuthMethod ||
+								'client_secret_post',
 						},
 						code,
 						storedCodeVerifier
 					);
-					
+
 					// Clean up session storage and URL
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
 					window.history.replaceState({}, document.title, window.location.pathname);
-					
+
 					// Update credentials with the token
-					console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ Token received from callback, updating credentials`);
-					setCredentials((prev) => ({ 
-						...prev, 
-						userToken: tokenResponse.access_token, 
-						tokenType: 'user' as const 
+					console.log(
+						`[📱 SMS-CONFIG-PAGE-V8] ✅ Token received from callback, updating credentials`
+					);
+					setCredentials((prev) => ({
+						...prev,
+						userToken: tokenResponse.access_token,
+						tokenType: 'user' as const,
 					}));
-					
+
 					toastV8.success('User token received and saved!');
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to exchange code for tokens`, error);
-					const errorMessage = error instanceof Error ? error.message : 'Failed to exchange authorization code for tokens';
+					const errorMessage =
+						error instanceof Error
+							? error.message
+							: 'Failed to exchange authorization code for tokens';
 					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-						toastV8.error('Authorization code expired or already used. Please try logging in again.');
+						toastV8.error(
+							'Authorization code expired or already used. Please try logging in again.'
+						);
 					} else {
 						toastV8.error(errorMessage);
 					}
-					
+
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
@@ -242,7 +271,7 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				}
 			}
 		};
-		
+
 		if (code || error) {
 			processCallback();
 		}
@@ -253,14 +282,17 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	React.useEffect(() => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
-		
+
 		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
 			// User selected "User Flow" - sync to tokenType dropdown
-			console.log(`${MODULE_TAG} Registration Flow Type changed to 'user' - syncing tokenType dropdown`, {
-				currentTokenType: credentials.tokenType,
-				hasUserToken: !!credentials.userToken,
-				userTokenLength: credentials.userToken?.length || 0,
-			});
+			console.log(
+				`${MODULE_TAG} Registration Flow Type changed to 'user' - syncing tokenType dropdown`,
+				{
+					currentTokenType: credentials.tokenType,
+					hasUserToken: !!credentials.userToken,
+					userTokenLength: credentials.userToken?.length || 0,
+				}
+			);
 			isSyncingRef.current = true;
 			setCredentials((prev) => {
 				const updated = {
@@ -282,7 +314,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
 			// User selected "Admin Flow" - sync to tokenType dropdown
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`);
+			console.log(
+				`[📱 SMS-CONFIG-PAGE-V8] Registration Flow Type changed to 'admin' - syncing tokenType dropdown`
+			);
 			isSyncingRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
@@ -300,10 +334,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	React.useEffect(() => {
 		// Skip if we're in the middle of syncing from the other direction
 		if (isSyncingRef.current) return;
-		
+
 		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
 			// User changed dropdown to "User Token" - sync to Registration Flow Type
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`);
+			console.log(
+				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'user' - syncing Registration Flow Type`
+			);
 			isSyncingRef.current = true;
 			setRegistrationFlowType('user');
 			// Reset flag after state update
@@ -312,7 +348,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 			}, 0);
 		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
 			// User changed dropdown to "Worker Token" - sync to Registration Flow Type
-			console.log(`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`);
+			console.log(
+				`[📱 SMS-CONFIG-PAGE-V8] Token type dropdown changed to 'worker' - syncing Registration Flow Type`
+			);
 			isSyncingRef.current = true;
 			setRegistrationFlowType('admin');
 			// Reset flag after state update
@@ -349,7 +387,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 
 		try {
 			// Always use worker token for loading policies (even when tokenType is 'user')
-			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(credentials.environmentId);
+			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(
+				credentials.environmentId
+			);
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -440,72 +480,82 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 	}, [credentials]);
 
 	// Handle proceed to registration
-	const handleProceedToRegistration = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		e.stopPropagation();
+	const handleProceedToRegistration = useCallback(
+		(e: React.MouseEvent<HTMLButtonElement>) => {
+			e.preventDefault();
+			e.stopPropagation();
 
-		const tokenType = credentials.tokenType || 'worker';
-		const isTokenValid = tokenType === 'worker' 
-			? tokenStatus.isValid 
-			: !!credentials.userToken?.trim();
+			const tokenType = credentials.tokenType || 'worker';
+			const isTokenValid =
+				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 
-		if (!credentials.deviceAuthenticationPolicyId) {
-			toastV8.warning('Please select a Device Authentication Policy before proceeding');
-			return;
-		}
-		
-		if (!isTokenValid) {
-			toastV8.warning(`Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`);
-			return;
-		}
+			if (!credentials.deviceAuthenticationPolicyId) {
+				toastV8.warning('Please select a Device Authentication Policy before proceeding');
+				return;
+			}
 
-		if (!credentials.environmentId) {
-			toastV8.warning('Please enter an Environment ID before proceeding');
-			return;
-		}
+			if (!isTokenValid) {
+				toastV8.warning(
+					`Please provide a valid ${tokenType === 'worker' ? 'Worker Token' : 'User Token'} before proceeding`
+				);
+				return;
+			}
 
-		if (!credentials.username) {
-			toastV8.warning('Please enter a Username before proceeding');
-			return;
-		}
-		
-		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, credentials.deviceAuthenticationPolicyId);
-		console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
-			'Registration Flow Type': registrationFlowType,
-			'Admin Device Status': adminDeviceStatus,
-			'Will pass to flow': { registrationFlowType, adminDeviceStatus },
-		});
-		
-		// Navigate to actual WhatsApp registration flow device route
-		navigate('/v8/mfa/register/whatsapp/device', {
-			replace: false,
-			state: {
-				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-				environmentId: credentials.environmentId,
-				username: credentials.username,
-				tokenType: credentials.tokenType,
-				userToken: credentials.userToken,
-				registrationFlowType: registrationFlowType,
-				adminDeviceStatus: adminDeviceStatus,
-				configured: true, // Flag to indicate configuration is complete
-			},
-		});
-	}, [navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]);
+			if (!credentials.environmentId) {
+				toastV8.warning('Please enter an Environment ID before proceeding');
+				return;
+			}
+
+			if (!credentials.username) {
+				toastV8.warning('Please enter a Username before proceeding');
+				return;
+			}
+
+			console.log(
+				`${MODULE_TAG} Proceeding to registration with policy:`,
+				credentials.deviceAuthenticationPolicyId
+			);
+			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
+				'Registration Flow Type': registrationFlowType,
+				'Admin Device Status': adminDeviceStatus,
+				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
+			});
+
+			// Navigate to actual WhatsApp registration flow device route
+			navigate('/v8/mfa/register/whatsapp/device', {
+				replace: false,
+				state: {
+					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+					environmentId: credentials.environmentId,
+					username: credentials.username,
+					tokenType: credentials.tokenType,
+					userToken: credentials.userToken,
+					registrationFlowType: registrationFlowType,
+					adminDeviceStatus: adminDeviceStatus,
+					configured: true, // Flag to indicate configuration is complete
+				},
+			});
+		},
+		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
+	);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
 			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
-			
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
-			
-			<div style={{ 
-				maxWidth: '1200px', 
-				margin: '0 auto', 
-				padding: '32px 20px',
-				paddingBottom: isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 40}px` : '32px',
-				transition: 'padding-bottom 0.3s ease',
-				overflow: 'visible',
-			}}>
+
+			<div
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					padding: '32px 20px',
+					paddingBottom:
+						isApiDisplayVisible && apiDisplayHeight > 0 ? `${apiDisplayHeight + 60}px` : '32px',
+					transition: 'padding-bottom 0.3s ease',
+					overflow: 'visible',
+				}}
+			>
 				{/* Header */}
 				<div
 					style={{
@@ -523,7 +573,8 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						</h1>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Configure WhatsApp device registration, learn about OTP verification, and prepare for device setup
+						Configure WhatsApp device registration, learn about OTP verification, and prepare for
+						device setup
 					</p>
 				</div>
 
@@ -561,7 +612,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							}}
 							onClick={() => setRegistrationFlowType('admin')}
 						>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+							>
 								<input
 									type="radio"
 									name="registration-flow-type"
@@ -571,15 +624,33 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 									style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
 								/>
 								<div style={{ flex: 1 }}>
-									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>Admin Flow</span>
-									<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+										Admin Flow
+									</span>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginTop: '2px',
+											fontStyle: 'italic',
+										}}
+									>
 										Using worker token
 									</div>
 								</div>
 							</div>
 							{/* Device status options for Admin Flow */}
-							<div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}>
-								<div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+							<div
+								style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}
+							>
+								<div
+									style={{
+										fontSize: '13px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+								>
 									Device Status:
 								</div>
 								<div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
@@ -615,7 +686,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 											}}
 											onClick={(e) => e.stopPropagation()}
 											disabled={registrationFlowType !== 'admin'}
-											style={{ margin: 0, cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed', width: '16px', height: '16px' }}
+											style={{
+												margin: 0,
+												cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+												width: '16px',
+												height: '16px',
+											}}
 										/>
 										<span style={{ fontSize: '13px', color: '#374151' }}>
 											<strong>ACTIVE</strong> - Device created as ready to use, no activation needed
@@ -653,7 +729,12 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 											}}
 											onClick={(e) => e.stopPropagation()}
 											disabled={registrationFlowType !== 'admin'}
-											style={{ margin: 0, cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed', width: '16px', height: '16px' }}
+											style={{
+												margin: 0,
+												cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+												width: '16px',
+												height: '16px',
+											}}
 										/>
 										<span style={{ fontSize: '13px', color: '#374151' }}>
 											<strong>ACTIVATION_REQUIRED</strong> - OTP will be sent for device activation
@@ -674,7 +755,9 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							}}
 							onClick={() => setRegistrationFlowType('user')}
 						>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+							>
 								<input
 									type="radio"
 									name="registration-flow-type"
@@ -684,19 +767,49 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 									style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
 								/>
 								<div style={{ flex: 1 }}>
-									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>User Flow</span>
-									<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px', fontStyle: 'italic' }}>
+									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+										User Flow
+									</span>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginTop: '2px',
+											fontStyle: 'italic',
+										}}
+									>
 										Using access token from User Authentication
 									</div>
 								</div>
 							</div>
-							<div style={{ fontSize: '13px', color: '#6b7280', marginLeft: '28px', lineHeight: '1.5', padding: '8px 12px', background: '#f9fafb', borderRadius: '6px', border: '1px solid #e5e7eb' }}>
-								<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP will be sent for device activation
+							<div
+								style={{
+									fontSize: '13px',
+									color: '#6b7280',
+									marginLeft: '28px',
+									lineHeight: '1.5',
+									padding: '8px 12px',
+									background: '#f9fafb',
+									borderRadius: '6px',
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP will be sent
+								for device activation
 							</div>
 						</label>
 					</div>
-					<small style={{ display: 'block', marginTop: '12px', fontSize: '12px', color: '#6b7280', lineHeight: '1.5' }}>
-						Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow always requires activation.
+					<small
+						style={{
+							display: 'block',
+							marginTop: '12px',
+							fontSize: '12px',
+							color: '#6b7280',
+							lineHeight: '1.5',
+						}}
+					>
+						Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow
+						always requires activation.
 					</small>
 				</div>
 
@@ -733,7 +846,17 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 						setMfaState={() => {}}
 						isLoading={false}
 						setIsLoading={() => {}}
-						nav={{ currentStep: 0, goToNext: () => {}, goToPrevious: () => {}, goToStep: () => {}, reset: () => {}, setValidationErrors: () => {}, setValidationWarnings: () => {} } as any}
+						nav={
+							{
+								currentStep: 0,
+								goToNext: () => {},
+								goToPrevious: () => {},
+								goToStep: () => {},
+								reset: () => {},
+								setValidationErrors: () => {},
+								setValidationWarnings: () => {},
+							} as any
+						}
 						showDeviceLimitModal={false}
 						setShowDeviceLimitModal={() => {}}
 					/>
@@ -757,7 +880,8 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					</div>
 					<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
 						<p style={{ margin: '0 0 12px 0' }}>
-							<strong>WhatsApp-based OTP (One-Time Password)</strong> authentication sends a temporary code to your WhatsApp number via WhatsApp messages.
+							<strong>WhatsApp-based OTP (One-Time Password)</strong> authentication sends a
+							temporary code to your WhatsApp number via WhatsApp messages.
 						</p>
 						<ul style={{ margin: '0 0 12px 0', paddingLeft: '20px' }}>
 							<li>Secure: Each code is unique and expires after a short time</li>
@@ -766,13 +890,17 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							<li>User-friendly: Simple code entry process</li>
 						</ul>
 						<p style={{ margin: 0 }}>
-							After registering your phone number, you'll receive a 6-digit code via WhatsApp whenever you need to authenticate. All WhatsApp messages are sent by PingOne using its configured sender.
+							After registering your phone number, you'll receive a 6-digit code via WhatsApp
+							whenever you need to authenticate. All WhatsApp messages are sent by PingOne using its
+							configured sender.
 						</p>
 					</div>
 				</div>
 
 				{/* Navigation Button - Only show Cancel, navigation happens via flow */}
-				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}>
+				<div
+					style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '24px' }}
+				>
 					<button
 						type="button"
 						onClick={() => navigateToMfaHubWithCleanup(navigate)}
@@ -796,28 +924,34 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 							!credentials.deviceAuthenticationPolicyId ||
 							!credentials.environmentId ||
 							!credentials.username ||
-							((credentials.tokenType || 'worker') === 'worker' ? !tokenStatus.isValid : !credentials.userToken?.trim())
+							((credentials.tokenType || 'worker') === 'worker'
+								? !tokenStatus.isValid
+								: !credentials.userToken?.trim())
 						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
-							background: 
+							background:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
 								credentials.username &&
-								((credentials.tokenType || 'worker') === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim())
-									? '#10b981' 
+								((credentials.tokenType || 'worker') === 'worker'
+									? tokenStatus.isValid
+									: !!credentials.userToken?.trim())
+									? '#10b981'
 									: '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: 
+							cursor:
 								credentials.deviceAuthenticationPolicyId &&
 								credentials.environmentId &&
 								credentials.username &&
-								((credentials.tokenType || 'worker') === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim())
-									? 'pointer' 
+								((credentials.tokenType || 'worker') === 'worker'
+									? tokenStatus.isValid
+									: !!credentials.userToken?.trim())
+									? 'pointer'
 									: 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
@@ -854,8 +988,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 					environmentId={credentials.environmentId}
 				/>
 			)}
-			
 		</div>
 	);
 };
-

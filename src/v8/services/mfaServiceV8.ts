@@ -91,6 +91,7 @@ export interface RegisterDeviceParams extends MFACredentials {
 	};
 	policy?: string | { id: string }; // Device Authentication Policy ID as string or object with id (required for TOTP to get secret and keyUri)
 	// See: totp.md section 1.1 and https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-create-mfa-user-device-fido2
+	promptForNicknameOnPairing?: boolean; // Whether to prompt for nickname on pairing (from Device Authentication Policy)
 	// FIDO2-specific fields
 	rp?: {
 		id: string; // Relying Party ID (e.g., "localhost" for localhost:3000, or "example.com" for production)
@@ -769,27 +770,49 @@ export class MFAServiceV8 {
 					}
 				}
 			} else {
-				// For non-FIDO2 devices, include standard fields
-				// Include both name and nickname in request body so server can use either for nickname update
-				// The server will use nickname || name to get the device name
+				// For non-FIDO2 devices, include standard fields per PingOne MFA API documentation
+				// Valid fields for SMS/Email/Voice/WhatsApp/TOTP:
+				// - type (required)
+				// - status (required: ACTIVE or ACTIVATION_REQUIRED)
+				// - phone (required for SMS/Voice/WhatsApp) or email (required for Email)
+				// - policy (optional: { id: "..." })
+				// - notification (optional: { message: "", variant: "" }, only when status is ACTIVATION_REQUIRED)
+				// NOTE: name and nickname are NOT valid in device creation request
+				// They are sent to backend for separate PUT /devices/{deviceId}/nickname call after device creation
+				// The backend will remove them before sending to PingOne
 				const deviceNickname = devicePayload.nickname || devicePayload.name;
 				if (deviceNickname) {
+					// Send to backend for nickname update (backend will remove before sending to PingOne)
 					requestBody.nickname = deviceNickname;
 					requestBody.name = deviceNickname; // Also send as name for compatibility
 				}
 
 				// Always include status explicitly (ACTIVE or ACTIVATION_REQUIRED)
 				// This ensures PingOne receives the status we want, not its default
+				// Per PingOne API: status is required for all OTP device types
 				requestBody.status = devicePayload.status;
 
-				// Include notification if provided (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+				// Always include notification object for educational completeness
+				// Include notification even if empty (only applicable when status is ACTIVATION_REQUIRED for SMS, Voice, Email)
+				// This shows users the complete data model structure
 				if (devicePayload.notification) {
-					requestBody.notification = devicePayload.notification;
+					requestBody.notification = {
+						message: devicePayload.notification.message || '',
+						variant: devicePayload.notification.variant || '',
+					};
+				} else if (requestBody.status === 'ACTIVATION_REQUIRED') {
+					// Include empty notification object for educational purposes when status is ACTIVATION_REQUIRED
+					requestBody.notification = {
+						message: '',
+						variant: '',
+					};
 				}
 
 				// Include policy if provided (required for TOTP to get secret and keyUri)
 				// According to API docs: policy should be an object with id property
 				// Format: { "policy": { "id": "policy-id-string" } }
+				// CRITICAL for TOTP: Policy MUST be included for properties.secret and properties.keyUri to be returned
+				// Per totp.md line 69-72: Request must include policy object with id
 				if (params.policy) {
 					// If policy is already an object, use it; otherwise wrap string in object
 					if (typeof params.policy === 'object' && 'id' in params.policy) {
@@ -798,7 +821,26 @@ export class MFAServiceV8 {
 						// Convert string policy ID to object format
 						requestBody.policy = { id: String(params.policy) };
 					}
+					
+					// Log policy for TOTP devices to ensure it's being sent
+					if (params.type === 'TOTP') {
+						console.log(`${MODULE_TAG} 🔍 TOTP device registration - Policy included:`, {
+							policyId: typeof params.policy === 'object' ? params.policy.id : params.policy,
+							policyObject: requestBody.policy,
+							status: devicePayload.status,
+							note: 'Per totp.md: Policy MUST be included for properties.secret and properties.keyUri to be returned',
+						});
+					}
+				} else if (params.type === 'TOTP') {
+					console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device registration missing policy!`, {
+						note: 'Per totp.md line 69-72: Policy MUST be included in request body for TOTP devices. Without policy, properties.secret and properties.keyUri will NOT be returned by PingOne API.',
+					});
 				}
+
+				// NOTE: promptForNicknameOnPairing is a Device Authentication Policy setting, NOT a device creation field
+				// It should NOT be included in the device registration request body
+				// The policy setting controls whether users are prompted for a nickname during pairing
+				// Device nickname is set via separate PUT /devices/{deviceId}/nickname endpoint after device creation
 			}
 
 			const startTime = Date.now();
@@ -1031,6 +1073,75 @@ export class MFAServiceV8 {
 				});
 			}
 
+			// TOTP-specific: Extract secret and keyUri from properties
+			// According to totp.md: properties.secret and properties.keyUri are returned when status is ACTIVATION_REQUIRED
+			// Per totp.md line 83-86: Response should include:
+			// {
+			//   "id": "{{deviceID}}",
+			//   "type": "TOTP",
+			//   "status": "ACTIVATION_REQUIRED",
+			//   "properties": {
+			//     "secret": "BASE32SECRET...",
+			//     "keyUri": "otpauth://totp/example:user@example.com?secret=BASE32SECRET..."
+			//   }
+			// }
+			
+			// Extract from properties (primary location per totp.md)
+			const secretFromProperties = dd.properties?.secret;
+			const keyUriFromProperties = dd.properties?.keyUri;
+			
+			// Also check root level as fallback (in case API structure differs)
+			const secretFromRoot = (dd as Record<string, unknown>).secret as string | undefined;
+			const keyUriFromRoot = (dd as Record<string, unknown>).keyUri as string | undefined;
+			
+			// Use properties first, fallback to root level
+			const secret = secretFromProperties || secretFromRoot;
+			const keyUri = keyUriFromProperties || keyUriFromRoot;
+			
+			// Log raw device data structure for TOTP devices to debug missing properties
+			if (dd.type === 'TOTP') {
+				console.error(`${MODULE_TAG} 🔍 TOTP device raw response structure (FULL DETAILS):`, {
+					deviceId: dd.id,
+					status: dd.status,
+					requestedStatus: params.status,
+					hasProperties: !!dd.properties,
+					propertiesType: typeof dd.properties,
+					propertiesValue: dd.properties,
+					propertiesKeys: dd.properties ? Object.keys(dd.properties) : [],
+					allDeviceKeys: Object.keys(dd),
+					hasLinks: !!dd._links,
+					linksKeys: dd._links ? Object.keys(dd._links) : [],
+					hasEnvironment: !!dd.environment,
+					hasUser: !!dd.user,
+					rawDeviceData: JSON.stringify(dd, null, 2),
+					note: 'Per totp.md: properties.secret and properties.keyUri should be present when status is ACTIVATION_REQUIRED',
+				});
+				
+				// Check alternative locations where secret/keyUri might be
+				if (secretFromRoot || keyUriFromRoot) {
+					console.warn(`${MODULE_TAG} ⚠️ Found secret/keyUri in alternative location (not in properties):`, {
+						hasSecretAtRoot: !!secretFromRoot,
+						hasKeyUriAtRoot: !!keyUriFromRoot,
+						secretValue: secretFromRoot ? `${secretFromRoot.substring(0, 20)}...` : 'none',
+						keyUriValue: keyUriFromRoot ? `${keyUriFromRoot.substring(0, 50)}...` : 'none',
+					});
+				}
+			}
+			
+			if (dd.type === 'TOTP' && dd.status === 'ACTIVATION_REQUIRED' && !secret && !keyUri) {
+				console.error(`${MODULE_TAG} ❌ CRITICAL: TOTP device with ACTIVATION_REQUIRED status missing secret and keyUri!`, {
+					deviceId: dd.id,
+					status: dd.status,
+					requestedStatus: params.status,
+					hasProperties: !!dd.properties,
+					checkedProperties: !!dd.properties?.secret || !!dd.properties?.keyUri,
+					checkedRoot: !!secretFromRoot || !!keyUriFromRoot,
+					allKeys: Object.keys(dd),
+					fullResponse: JSON.stringify(dd, null, 2),
+					note: 'This is required per totp.md. Check: 1) Status is ACTIVATION_REQUIRED, 2) Policy is included in request, 3) PingOne environment has TOTP enabled',
+				});
+			}
+
 			// Build return object - include publicKeyCredentialCreationOptions in initial construction
 			// This ensures it's properly included in the returned object
 			const result: DeviceRegistrationResult = {
@@ -1047,10 +1158,9 @@ export class MFAServiceV8 {
 				// Per rightOTP.md: Extract device.activate URI from _links
 				// This URI must be used for OTP activation (SMS/EMAIL)
 				...(deviceActivateUri ? { deviceActivateUri } : {}),
-				// TOTP-specific: Extract secret and keyUri from properties
-				// According to totp.md: properties.secret and properties.keyUri are returned when status is ACTIVATION_REQUIRED
-				...(dd.properties?.secret ? { secret: dd.properties.secret } : {}),
-				...(dd.properties?.keyUri ? { keyUri: dd.properties.keyUri } : {}),
+				// TOTP-specific: Include secret and keyUri if present
+				...(secret ? { secret } : {}),
+				...(keyUri ? { keyUri } : {}),
 				// FIDO2-specific: Include publicKeyCredentialCreationOptions if present
 				// Include it in the initial object construction to ensure it's not lost
 				...(hasPublicKeyOptionsValue && publicKeyOptions
@@ -1072,6 +1182,24 @@ export class MFAServiceV8 {
 						actualValueType: typeof result.publicKeyCredentialCreationOptions,
 					}
 				);
+			}
+			
+			// Log TOTP secret/keyUri confirmation
+			if (dd.type === 'TOTP') {
+				const resultSecret = (result as { secret?: string }).secret;
+				const resultKeyUri = (result as { keyUri?: string }).keyUri;
+				console.log(`${MODULE_TAG} 🔍 TOTP result check (after extraction):`, {
+					hasSecretInResult: !!resultSecret,
+					hasKeyUriInResult: !!resultKeyUri,
+					secretLength: resultSecret?.length || 0,
+					keyUriLength: resultKeyUri?.length || 0,
+					secretPreview: resultSecret ? `${resultSecret.substring(0, 20)}...` : 'NOT FOUND',
+					keyUriPreview: resultKeyUri ? `${resultKeyUri.substring(0, 50)}...` : 'NOT FOUND',
+					resultKeys: Object.keys(result),
+					status: dd.status,
+					requestedStatus: params.status,
+					note: 'Per totp.md: secret and keyUri should be in result when status is ACTIVATION_REQUIRED',
+				});
 			}
 
 			// Final verification before returning - EXPAND THIS TO SEE FULL OBJECT
@@ -2262,24 +2390,22 @@ export class MFAServiceV8 {
 	 * Content-Type: application/vnd.pingidentity.device.unlock+json
 	 * @param params - Device parameters
 	 */
-	static async unlockDevice(
-		environmentId: string,
-		userId: string,
-		deviceId: string,
-		_credentials?: { tokenType?: 'worker' | 'user'; userToken?: string }
-	): Promise<void> {
+	static async unlockDevice(params: SendOTPParams): Promise<void> {
 		console.log(`${MODULE_TAG} Unlocking device`, {
-			userId,
-			deviceId,
+			username: params.username,
+			deviceId: params.deviceId,
 		});
 
 		try {
+			// Look up user by username
+			const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+
 			// CRITICAL: Unlocking device ALWAYS uses worker tokens (API calls to PingOne always use worker tokens)
 			const accessToken = await MFAServiceV8.getWorkerToken();
 
 			// Unlock device via proxy endpoint to avoid CORS
 			const proxyEndpoint = '/api/pingone/mfa/unlock-device';
-			const deviceEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}`;
+			const deviceEndpoint = `https://api.pingone.com/v1/environments/${params.environmentId}/users/${user.id}/devices/${params.deviceId}`;
 
 			const startTime = Date.now();
 			const callId = apiCallTrackerService.trackApiCall({
@@ -2300,9 +2426,9 @@ export class MFAServiceV8 {
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					environmentId,
-					userId,
-					deviceId,
+					environmentId: params.environmentId,
+					userId: user.id,
+					deviceId: params.deviceId,
 					workerToken: accessToken.trim(),
 				}),
 			});
@@ -4409,10 +4535,11 @@ export class MFAServiceV8 {
 
 	/**
 	 * Validate OTP for Device Authentication (Auth Server endpoint)
-	 * POST https://auth.pingone.com/{ENV_ID}/deviceAuthentications/{DEVICE_AUTHENTICATION_ID}/passcode
-	 * Per master-sms.md: Use /passcode endpoint, NOT /otp
-	 * Request body: { otp, deviceAuthenticationId }
+	 * POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
 	 * API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
+	 * Request body: { otp }
+	 * Content-Type: application/vnd.pingidentity.otp.check+json (when using _links.otp.check URL)
+	 *              or application/json (when constructing endpoint manually)
 	 * @param params - Authentication parameters with OTP
 	 * @returns Validation result
 	 */
@@ -5151,6 +5278,252 @@ export class MFAServiceV8 {
 			return policy;
 		} catch (error) {
 			console.error(`${MODULE_TAG} [DEVICE_SELECTION] Read device authentication policy error:`, {
+				error: error instanceof Error ? error.message : String(error),
+				errorDetails: error instanceof Error ? error.stack : undefined,
+				policyId,
+				environmentId,
+			});
+			throw error;
+		}
+	}
+
+	/**
+	 * Create a new device authentication policy
+	 * POST /v1/environments/{environmentId}/deviceAuthenticationPolicies
+	 * @param environmentId - Environment ID
+	 * @param policy - Policy object with required fields (name, type, etc.)
+	 * @param region - Optional PingOne region (defaults to 'us' if not provided)
+	 * @returns Created device authentication policy
+	 */
+	static async createDeviceAuthenticationPolicy(
+		environmentId: string,
+		policy: Partial<DeviceAuthenticationPolicy> & { name: string; type?: string },
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
+	): Promise<DeviceAuthenticationPolicy> {
+		console.log(`${MODULE_TAG} Creating device authentication policy`, {
+			environmentId,
+			policyName: policy.name,
+			updateKeys: Object.keys(policy),
+			region: region || 'us',
+		});
+
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// PingOne API requires either 'id' or 'type' field, with valid 'type' being 'DEFAULT'
+			// If type is not provided, we'll use 'DEFAULT'
+			const requestBody = {
+				environmentId,
+				workerToken: accessToken.trim(),
+				policy: {
+					...policy,
+					type: policy.type || 'DEFAULT',
+				},
+				region: region || 'us',
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/device-authentication-policies',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: requestBody,
+				step: 'mfa-Create Device Authentication Policy',
+				flowType: 'mfa',
+			});
+
+			let response: Response;
+			try {
+				response = await pingOneFetch('/api/pingone/mfa/device-authentication-policies', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as { message?: string; error?: string; details?: unknown };
+				const errorMessage =
+					errorData.message || errorData.error || response.statusText || 'Unknown error';
+				console.error(`${MODULE_TAG} Create policy error:`, {
+					status: response.status,
+					error: errorMessage,
+					details: errorData.details,
+				});
+				throw new Error(`Failed to create device authentication policy: ${errorMessage}`);
+			}
+
+			const createdPolicy = responseData as DeviceAuthenticationPolicy;
+			console.log(`${MODULE_TAG} Created device authentication policy:`, {
+				id: createdPolicy.id,
+				name: createdPolicy.name,
+			});
+			return createdPolicy;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Create device authentication policy error:`, {
+				error: error instanceof Error ? error.message : String(error),
+				errorDetails: error instanceof Error ? error.stack : undefined,
+				environmentId,
+			});
+			throw error;
+		}
+	}
+
+	/**
+	 * Update a device authentication policy
+	 * PUT /v1/environments/{environmentId}/deviceAuthenticationPolicies/{policyId}
+	 * @param environmentId - Environment ID
+	 * @param policyId - Policy ID
+	 * @param policy - Policy object with updates (only include fields to update)
+	 * @param region - Optional PingOne region (defaults to 'us' if not provided)
+	 * @returns Updated device authentication policy
+	 */
+	static async updateDeviceAuthenticationPolicy(
+		environmentId: string,
+		policyId: string,
+		policy: Partial<DeviceAuthenticationPolicy>,
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
+	): Promise<DeviceAuthenticationPolicy> {
+		console.log(`${MODULE_TAG} [DEVICE_SELECTION] Updating device authentication policy`, {
+			environmentId,
+			policyId,
+			updateKeys: Object.keys(policy),
+			region: region || 'us',
+		});
+
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			const requestBody = {
+				environmentId,
+				workerToken: accessToken.trim(),
+				policy,
+				region: region || 'us',
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'PUT',
+				url: `/api/pingone/mfa/device-authentication-policies/${policyId}`,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: requestBody,
+				step: 'mfa-Update Device Authentication Policy',
+				flowType: 'mfa',
+			});
+
+			let response: Response;
+			try {
+				response = await pingOneFetch(
+					`/api/pingone/mfa/device-authentication-policies/${policyId}`,
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify(requestBody),
+						retry: { maxAttempts: 3 },
+					}
+				);
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as { message?: string; error?: string };
+				const errorMessage =
+					errorData.message || errorData.error || response.statusText || 'Unknown error';
+				console.error(`${MODULE_TAG} [DEVICE_SELECTION] Update policy error:`, {
+					status: response.status,
+					error: errorMessage,
+				});
+				throw new Error(`Failed to update device authentication policy: ${errorMessage}`);
+			}
+
+			const updatedPolicy = responseData as DeviceAuthenticationPolicy;
+			console.log(`${MODULE_TAG} [DEVICE_SELECTION] Updated device authentication policy:`, {
+				id: updatedPolicy.id,
+				name: updatedPolicy.name,
+			});
+			return updatedPolicy;
+		} catch (error) {
+			console.error(`${MODULE_TAG} [DEVICE_SELECTION] Update device authentication policy error:`, {
 				error: error instanceof Error ? error.message : String(error),
 				errorDetails: error instanceof Error ? error.stack : undefined,
 				policyId,

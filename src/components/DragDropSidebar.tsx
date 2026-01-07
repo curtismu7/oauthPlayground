@@ -451,7 +451,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								<FiSmartphone />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">NEW</MigrationBadge>,
+						badge: (
+							<MigrationBadge title="V8: PingOne MFA Playground with SMS, Email, TOTP, and FIDO2">
+								NEW
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'delete-all-devices-utility-v8',
@@ -462,7 +466,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								<FiTrash2 />
 							</ColoredIcon>
 						),
-						badge: <MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">UTILITY</MigrationBadge>,
+						badge: (
+							<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
+								UTILITY
+							</MigrationBadge>
+						),
 					},
 				],
 			},

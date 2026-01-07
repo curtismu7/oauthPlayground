@@ -159,4 +159,3 @@ export const MFADeviceSelector: React.FC<MFADeviceSelectorProps> = ({
 		</>
 	);
 };
-

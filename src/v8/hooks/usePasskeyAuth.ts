@@ -11,24 +11,35 @@
  * - Handles loading states and errors
  */
 
-import { useState, useCallback } from 'react';
-import { PasskeyServiceV8, PasskeyAuthOptions, PasskeyRegistrationOptions } from '@/v8/services/passkeyServiceV8';
+import { useCallback, useState } from 'react';
+import {
+	PasskeyAuthOptions,
+	PasskeyRegistrationOptions,
+	PasskeyServiceV8,
+} from '@/v8/services/passkeyServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 export interface UsePasskeyAuthResult {
 	isLoading: boolean;
 	error: string | null;
-	authenticate: (options: PasskeyAuthOptions) => Promise<{ success: boolean; userId?: string; username?: string; requiresRegistration?: boolean }>;
-	register: (options: PasskeyRegistrationOptions) => Promise<{ success: boolean; deviceId?: string; userId?: string }>;
+	authenticate: (options: PasskeyAuthOptions) => Promise<{
+		success: boolean;
+		userId?: string;
+		username?: string;
+		requiresRegistration?: boolean;
+	}>;
+	register: (
+		options: PasskeyRegistrationOptions
+	) => Promise<{ success: boolean; deviceId?: string; userId?: string }>;
 	reset: () => void;
 }
 
 /**
  * React hook for username-less passkey authentication
- * 
+ *
  * @example
  * const { isLoading, error, authenticate, register } = usePasskeyAuth();
- * 
+ *
  * // Try authentication first
  * const result = await authenticate({ environmentId, deviceAuthenticationPolicyId });
  * if (!result.success && result.requiresRegistration) {
@@ -47,7 +58,8 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 		try {
 			// Check WebAuthn support
 			if (!PasskeyServiceV8.isSupported()) {
-				const errorMsg = 'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
+				const errorMsg =
+					'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
 				setError(errorMsg);
 				toastV8.error(errorMsg);
 				return { success: false, requiresRegistration: false };
@@ -85,7 +97,8 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 		try {
 			// Check WebAuthn support
 			if (!PasskeyServiceV8.isSupported()) {
-				const errorMsg = 'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
+				const errorMsg =
+					'WebAuthn is not supported in this browser. Please use a modern browser that supports passkeys.';
 				setError(errorMsg);
 				toastV8.error(errorMsg);
 				return { success: false };
@@ -125,4 +138,3 @@ export function usePasskeyAuth(): UsePasskeyAuthResult {
 		reset,
 	};
 }
-

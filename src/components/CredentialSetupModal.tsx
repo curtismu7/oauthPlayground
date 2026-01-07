@@ -1,15 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiEye, FiEyeOff, FiLoader, FiLock, FiDownload, FiUpload } from 'react-icons/fi';
+import { FiDownload, FiEye, FiEyeOff, FiLoader, FiLock, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
-import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
-import { credentialManager } from '../utils/credentialManager';
-import StandardMessage from './StandardMessage';
 import {
+	type AuthzCredentials,
 	exportAuthzCredentials,
 	importCredentials,
 	triggerFileImport,
-	type AuthzCredentials,
 } from '../services/credentialExportImportService';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
+import { credentialManager } from '../utils/credentialManager';
+import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -414,7 +414,11 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								allCredentials.redirectUri ||
 								oldCredentials?.redirectUri ||
 								`${window.location.origin}/authz-callback`,
-							region: (allCredentials.region || oldCredentials?.region || 'us') as 'us' | 'eu' | 'ap' | 'ca',
+							region: (allCredentials.region || oldCredentials?.region || 'us') as
+								| 'us'
+								| 'eu'
+								| 'ap'
+								| 'ca',
 							customDomain: allCredentials.customDomain || oldCredentials?.customDomain || '',
 						};
 						setFormData(newFormData);
@@ -449,7 +453,6 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		formData, // Load from environment variables as fallback
 		loadFromEnvironmentVariables,
 	]);
-
 
 	// Validate Environment ID format (more flexible for PingOne)
 	const validateEnvironmentId = (envId: string): boolean => {
@@ -535,17 +538,17 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			console.log(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
 
 			// Build base URL - use custom domain if provided, otherwise use region-based domain
-			const baseUrl = formData.customDomain.trim() 
+			const baseUrl = formData.customDomain.trim()
 				? `https://${formData.customDomain.trim()}`
 				: (() => {
-					const regionDomains = {
-						us: 'auth.pingone.com',
-						eu: 'auth.pingone.eu',
-						ap: 'auth.pingone.asia',
-						ca: 'auth.pingone.ca',
-					};
-					return `https://${regionDomains[formData.region]}`;
-				})();
+						const regionDomains = {
+							us: 'auth.pingone.com',
+							eu: 'auth.pingone.eu',
+							ap: 'auth.pingone.asia',
+							ca: 'auth.pingone.ca',
+						};
+						return `https://${regionDomains[formData.region]}`;
+					})();
 
 			const v7Credentials = {
 				environmentId: formData.environmentId,
@@ -706,7 +709,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 					setSaveStatus({
 						type: 'success',
 						title: 'Credentials imported!',
-						message: 'Your credentials have been imported. Click "Save Configuration" to save them.',
+						message:
+							'Your credentials have been imported. Click "Save Configuration" to save them.',
 					});
 				} else {
 					setSaveStatus({
@@ -901,7 +905,13 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								value={formData.region}
 								onChange={(e) => handleChange(e as React.ChangeEvent<HTMLInputElement>)}
 								disabled={isLoading}
-								style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+								style={{
+									width: '100%',
+									padding: '0.75rem',
+									fontSize: '0.875rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '0.375rem',
+								}}
 							>
 								<option value="us">North America (US)</option>
 								<option value="eu">Europe (EU)</option>
@@ -921,10 +931,17 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								onChange={handleChange}
 								disabled={isLoading}
 								placeholder="auth.yourcompany.com"
-								style={{ width: '100%', padding: '0.75rem', fontSize: '0.875rem', border: '1px solid #d1d5db', borderRadius: '0.375rem' }}
+								style={{
+									width: '100%',
+									padding: '0.75rem',
+									fontSize: '0.875rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '0.375rem',
+								}}
 							/>
 							<div className="form-text">
-								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the region-based domain. Leave empty to use the default region domain.
+								Your custom PingOne domain (e.g., auth.yourcompany.com). If set, this overrides the
+								region-based domain. Leave empty to use the default region domain.
 							</div>
 						</FormGroup>
 
@@ -937,19 +954,19 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 								value={
 									formData.environmentId
 										? (() => {
-											const baseUrl = formData.customDomain.trim() 
-												? `https://${formData.customDomain.trim()}`
-												: (() => {
-													const regionDomains = {
-														us: 'auth.pingone.com',
-														eu: 'auth.pingone.eu',
-														ap: 'auth.pingone.asia',
-														ca: 'auth.pingone.ca',
-													};
-													return `https://${regionDomains[formData.region]}`;
-												})();
-											return `${baseUrl}/${formData.environmentId}/as/authorize`;
-										})()
+												const baseUrl = formData.customDomain.trim()
+													? `https://${formData.customDomain.trim()}`
+													: (() => {
+															const regionDomains = {
+																us: 'auth.pingone.com',
+																eu: 'auth.pingone.eu',
+																ap: 'auth.pingone.asia',
+																ca: 'auth.pingone.ca',
+															};
+															return `https://${regionDomains[formData.region]}`;
+														})();
+												return `${baseUrl}/${formData.environmentId}/as/authorize`;
+											})()
 										: ''
 								}
 								readOnly

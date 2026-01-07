@@ -4,19 +4,22 @@
  * @description Confirmation modal component - replaces window.confirm()
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * Features:
  * - Accessible modal dialog
  * - Keyboard support (ESC to cancel, Enter to confirm)
  * - Customizable buttons and severity
  * - Integrates with UINotificationServiceV8
- * 
+ *
  * @example
  * <ConfirmationModalV8 />
  */
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { uiNotificationServiceV8, type ConfirmOptions } from '@/v8/services/uiNotificationServiceV8';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	type ConfirmOptions,
+	uiNotificationServiceV8,
+} from '@/v8/services/uiNotificationServiceV8';
 
 const MODULE_TAG = '[✅ CONFIRMATION-MODAL-V8]';
 

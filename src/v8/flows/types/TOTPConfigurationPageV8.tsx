@@ -11,25 +11,31 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiClock, FiArrowRight } from 'react-icons/fi';
-import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import { FiArrowRight, FiClock } from 'react-icons/fi';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
-import type { MFACredentials } from '../shared/MFATypes';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
+import type { MFACredentials } from '../shared/MFATypes';
 
 const MODULE_TAG = '[⏱️ TOTP-CONFIG-V8]';
 
 export const TOTPConfigurationPageV8: React.FC = () => {
 	const navigate = useNavigate();
-	
+	const [searchParams] = useSearchParams();
+
+	// Get auth context to check for user tokens from Authorization Code Flow
+	const authContext = useAuth();
+
 	// Load saved credentials
 	const [credentials, setCredentials] = useState<MFACredentials>(() => {
 		const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
@@ -58,10 +64,21 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 	});
 
 	// Token and modal state
-	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+	const [tokenStatus, setTokenStatus] = useState(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showUserLoginModal, setShowUserLoginModal] = useState(false);
 	const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+	// Registration flow type state
+	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>('user');
+	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
+		'ACTIVE'
+	);
+
+	// Ref to prevent infinite loops in bidirectional sync
+	const isSyncingRef = React.useRef(false);
 
 	// Policy state
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState([]);
@@ -91,6 +108,188 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 		toastV8.success('User token received and set!');
 	}, []);
 
+	// Auto-populate user token from auth context if available
+	const hasAutoPopulatedRef = React.useRef(false);
+	React.useEffect(() => {
+		const authToken = authContext.tokens?.access_token;
+		const isAuthenticated = authContext.isAuthenticated;
+
+		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
+			hasAutoPopulatedRef.current = true;
+			setCredentials((prev) => ({
+				...prev,
+				userToken: authToken,
+				tokenType: 'user' as const,
+			}));
+			toastV8.success('User token automatically loaded from your recent login!');
+		}
+
+		if (!isAuthenticated || !authToken || (!credentials.userToken && hasAutoPopulatedRef.current)) {
+			hasAutoPopulatedRef.current = false;
+		}
+	}, [
+		authContext.tokens?.access_token,
+		authContext.isAuthenticated,
+		credentials.userToken,
+		credentials.tokenType,
+		registrationFlowType,
+	]);
+
+	// Process callback code directly if modal isn't open (fallback processing)
+	const isProcessingCallbackRef = React.useRef(false);
+	useEffect(() => {
+		const code = searchParams.get('code');
+		const error = searchParams.get('error');
+		const state = searchParams.get('state');
+		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
+
+		if (!hasUserLoginState) return;
+		if (showUserLoginModal) return;
+		if (isProcessingCallbackRef.current) return;
+
+		const processCallback = async () => {
+			if (error) {
+				const errorDescription = searchParams.get('error_description') || '';
+				toastV8.error(`Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
+				sessionStorage.removeItem('user_login_state_v8');
+				sessionStorage.removeItem('user_login_code_verifier_v8');
+				sessionStorage.removeItem('user_login_credentials_temp_v8');
+				sessionStorage.removeItem('user_login_redirect_uri_v8');
+				window.history.replaceState({}, document.title, window.location.pathname);
+				return;
+			}
+
+			if (code && state) {
+				if (state !== hasUserLoginState) {
+					console.warn(`[⏱️ TOTP-CONFIG-V8] State mismatch - possible CSRF attack`);
+					toastV8.error('Security validation failed. Please try again.');
+					window.history.replaceState({}, document.title, window.location.pathname);
+					return;
+				}
+
+				isProcessingCallbackRef.current = true;
+
+				try {
+					const storedCodeVerifier = sessionStorage.getItem('user_login_code_verifier_v8');
+					const storedCredentials = sessionStorage.getItem('user_login_credentials_temp_v8');
+
+					if (!storedCodeVerifier || !storedCredentials) {
+						toastV8.error('Missing PKCE verifier or credentials. Please try logging in again.');
+						sessionStorage.removeItem('user_login_state_v8');
+						sessionStorage.removeItem('user_login_code_verifier_v8');
+						sessionStorage.removeItem('user_login_credentials_temp_v8');
+						sessionStorage.removeItem('user_login_redirect_uri_v8');
+						window.history.replaceState({}, document.title, window.location.pathname);
+						return;
+					}
+
+					const credentials = JSON.parse(storedCredentials);
+
+					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
+						{
+							environmentId: credentials.environmentId,
+							clientId: credentials.clientId,
+							clientSecret: credentials.clientSecret,
+							redirectUri: credentials.redirectUri,
+							scopes: credentials.scopes,
+							clientAuthMethod:
+								credentials.clientAuthMethod ||
+								credentials.tokenEndpointAuthMethod ||
+								'client_secret_post',
+						},
+						code,
+						storedCodeVerifier
+					);
+
+					sessionStorage.removeItem('user_login_state_v8');
+					sessionStorage.removeItem('user_login_code_verifier_v8');
+					sessionStorage.removeItem('user_login_credentials_temp_v8');
+					sessionStorage.removeItem('user_login_redirect_uri_v8');
+					window.history.replaceState({}, document.title, window.location.pathname);
+
+					console.log(`[⏱️ TOTP-CONFIG-V8] ✅ OAuth token exchange successful`);
+					setCredentials((prev) => ({
+						...prev,
+						userToken: 'oauth_completed',
+						tokenType: 'user' as const,
+					}));
+
+					toastV8.success('Authentication successful! You can now proceed.');
+				} catch (error) {
+					console.error(`[⏱️ TOTP-CONFIG-V8] Failed to exchange code for tokens`, error);
+					const errorMessage =
+						error instanceof Error
+							? error.message
+							: 'Failed to exchange authorization code for tokens';
+					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
+						toastV8.error(
+							'Authorization code expired or already used. Please try logging in again.'
+						);
+					} else {
+						toastV8.error(errorMessage);
+					}
+
+					sessionStorage.removeItem('user_login_state_v8');
+					sessionStorage.removeItem('user_login_code_verifier_v8');
+					sessionStorage.removeItem('user_login_credentials_temp_v8');
+					sessionStorage.removeItem('user_login_redirect_uri_v8');
+				} finally {
+					isProcessingCallbackRef.current = false;
+				}
+			}
+		};
+
+		if (code || error) {
+			processCallback();
+		}
+	}, [searchParams, showUserLoginModal]);
+
+	// Bidirectional sync between Registration Flow Type and tokenType dropdown
+	React.useEffect(() => {
+		if (isSyncingRef.current) return;
+
+		if (registrationFlowType === 'user' && credentials.tokenType !== 'user') {
+			isSyncingRef.current = true;
+			setCredentials((prev) => ({
+				...prev,
+				tokenType: 'user' as const,
+				userToken: prev.userToken || '',
+			}));
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		} else if (registrationFlowType === 'admin' && credentials.tokenType !== 'worker') {
+			isSyncingRef.current = true;
+			setCredentials((prev) => ({
+				...prev,
+				tokenType: 'worker',
+				userToken: '',
+			}));
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		}
+	}, [registrationFlowType, credentials.tokenType, credentials.userToken]);
+
+	// When tokenType dropdown changes, sync to Registration Flow Type
+	React.useEffect(() => {
+		if (isSyncingRef.current) return;
+
+		if (credentials.tokenType === 'user' && registrationFlowType !== 'user') {
+			isSyncingRef.current = true;
+			setRegistrationFlowType('user');
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		} else if (credentials.tokenType === 'worker' && registrationFlowType !== 'admin') {
+			isSyncingRef.current = true;
+			setRegistrationFlowType('admin');
+			setTimeout(() => {
+				isSyncingRef.current = false;
+			}, 0);
+		}
+	}, [credentials.tokenType, registrationFlowType]);
+
 	useEffect(() => {
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
 			setIsApiDisplayVisible(visible);
@@ -98,34 +297,50 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 		return () => unsubscribe();
 	}, []);
 
-	const handleProceedToRegistration = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		e.stopPropagation();
+	const handleProceedToRegistration = useCallback(
+		(e: React.MouseEvent<HTMLButtonElement>) => {
+			e.preventDefault();
+			e.stopPropagation();
 
-		const tokenType = credentials.tokenType || 'worker';
-		const isTokenValid = tokenType === 'worker'
-			? tokenStatus.isValid 
-			: !!credentials.userToken?.trim();
+			const tokenType = credentials.tokenType || 'worker';
+			const isTokenValid =
+				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 
-		if (!credentials.environmentId?.trim() || !credentials.username?.trim() || !credentials.deviceAuthenticationPolicyId?.trim() || !isTokenValid) {
-			toastV8.warning('Please fill in all required configuration fields and ensure a valid token is provided.');
-			return;
-		}
+			if (
+				!credentials.environmentId?.trim() ||
+				!credentials.username?.trim() ||
+				!credentials.deviceAuthenticationPolicyId?.trim() ||
+				!isTokenValid
+			) {
+				toastV8.warning(
+					'Please fill in all required configuration fields and ensure a valid token is provided.'
+				);
+				return;
+			}
 
-		console.log(`${MODULE_TAG} Proceeding to registration with credentials:`, credentials);
+			console.log(`${MODULE_TAG} Proceeding to registration with credentials:`, credentials);
+			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
+				'Registration Flow Type': registrationFlowType,
+				'Admin Device Status': adminDeviceStatus,
+				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
+			});
 
-		navigate('/v8/mfa/register/totp/device', {
-			replace: false,
-			state: {
-				deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
-				environmentId: credentials.environmentId,
-				username: credentials.username,
-				tokenType: credentials.tokenType,
-				userToken: credentials.userToken,
-				configured: true, // Flag to indicate configuration is complete
-			},
-		});
-	}, [navigate, credentials, tokenStatus.isValid]);
+			navigate('/v8/mfa/register/totp/device', {
+				replace: false,
+				state: {
+					deviceAuthenticationPolicyId: credentials.deviceAuthenticationPolicyId,
+					environmentId: credentials.environmentId,
+					username: credentials.username,
+					tokenType: credentials.tokenType,
+					userToken: credentials.userToken,
+					registrationFlowType: registrationFlowType,
+					adminDeviceStatus: adminDeviceStatus,
+					configured: true, // Flag to indicate configuration is complete
+				},
+			});
+		},
+		[navigate, credentials, tokenStatus.isValid, registrationFlowType, adminDeviceStatus]
+	);
 
 	return (
 		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
@@ -133,13 +348,15 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
-			<div style={{
-				maxWidth: '1200px',
-				margin: '0 auto',
-				padding: '32px 20px',
-				paddingBottom: isApiDisplayVisible ? '450px' : '32px',
-				transition: 'padding-bottom 0.3s ease',
-			}}>
+			<div
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					padding: '32px 20px',
+					paddingBottom: isApiDisplayVisible ? '450px' : '32px',
+					transition: 'padding-bottom 0.3s ease',
+				}}
+			>
 				{/* Header */}
 				<div
 					style={{
@@ -157,24 +374,268 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						</h1>
 					</div>
 					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
-						Configure TOTP device registration, learn about authenticator apps, and prepare for device setup
+						Configure TOTP device registration, learn about authenticator apps, and prepare for
+						device setup
 					</p>
 				</div>
 
+				{/* Registration Flow Type Selection - TOTP specific */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					{/* biome-ignore lint/a11y/noLabelWithoutControl: Label is for visual grouping, inputs are inside */}
+					<label
+						style={{
+							display: 'block',
+							fontSize: '14px',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '16px',
+						}}
+					>
+						Registration Flow Type <span style={{ color: '#dc2626' }}>*</span>
+					</label>
+					<div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
+						<label
+							style={{
+								flex: 1,
+								padding: '16px',
+								border: `2px solid ${registrationFlowType === 'admin' ? '#3b82f6' : '#d1d5db'}`,
+								borderRadius: '8px',
+								background: registrationFlowType === 'admin' ? '#eff6ff' : 'white',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+							}}
+							onClick={() => setRegistrationFlowType('admin')}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+							>
+								<input
+									type="radio"
+									name="registration-flow-type"
+									value="admin"
+									checked={registrationFlowType === 'admin'}
+									onChange={() => setRegistrationFlowType('admin')}
+									style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
+								/>
+								<div style={{ flex: 1 }}>
+									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+										Admin Flow
+									</span>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginTop: '2px',
+											fontStyle: 'italic',
+										}}
+									>
+										Using worker token
+									</div>
+								</div>
+							</div>
+							{/* Device status options for Admin Flow */}
+							<div
+								style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e5e7eb' }}
+							>
+								<div
+									style={{
+										fontSize: '13px',
+										fontWeight: '600',
+										color: '#374151',
+										marginBottom: '8px',
+									}}
+								>
+									Device Status:
+								</div>
+								<div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
+									<label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '8px 12px',
+											border: `1px solid ${adminDeviceStatus === 'ACTIVE' ? '#10b981' : '#d1d5db'}`,
+											borderRadius: '6px',
+											background: adminDeviceStatus === 'ACTIVE' ? '#f0fdf4' : 'white',
+											cursor: registrationFlowType === 'admin' ? 'pointer' : 'default',
+											transition: 'all 0.2s ease',
+											opacity: registrationFlowType === 'admin' ? 1 : 0.7,
+										}}
+										onClick={(e) => {
+											e.stopPropagation();
+											if (registrationFlowType === 'admin') {
+												setAdminDeviceStatus('ACTIVE');
+											}
+										}}
+									>
+										<input
+											type="radio"
+											name="admin-device-status"
+											value="ACTIVE"
+											checked={adminDeviceStatus === 'ACTIVE'}
+											onChange={() => {
+												if (registrationFlowType === 'admin') {
+													setAdminDeviceStatus('ACTIVE');
+												}
+											}}
+											onClick={(e) => e.stopPropagation()}
+											disabled={registrationFlowType !== 'admin'}
+											style={{
+												margin: 0,
+												cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+												width: '16px',
+												height: '16px',
+											}}
+										/>
+										<span style={{ fontSize: '13px', color: '#374151' }}>
+											<strong>ACTIVE</strong> - Device created as ready to use, no activation needed
+										</span>
+									</label>
+									{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
+									<label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											padding: '8px 12px',
+											border: `1px solid ${adminDeviceStatus === 'ACTIVATION_REQUIRED' ? '#f59e0b' : '#d1d5db'}`,
+											borderRadius: '6px',
+											background: adminDeviceStatus === 'ACTIVATION_REQUIRED' ? '#fffbeb' : 'white',
+											cursor: registrationFlowType === 'admin' ? 'pointer' : 'default',
+											transition: 'all 0.2s ease',
+											opacity: registrationFlowType === 'admin' ? 1 : 0.7,
+										}}
+										onClick={(e) => {
+											e.stopPropagation();
+											if (registrationFlowType === 'admin') {
+												setAdminDeviceStatus('ACTIVATION_REQUIRED');
+											}
+										}}
+									>
+										<input
+											type="radio"
+											name="admin-device-status"
+											value="ACTIVATION_REQUIRED"
+											checked={adminDeviceStatus === 'ACTIVATION_REQUIRED'}
+											onChange={() => {
+												if (registrationFlowType === 'admin') {
+													setAdminDeviceStatus('ACTIVATION_REQUIRED');
+												}
+											}}
+											onClick={(e) => e.stopPropagation()}
+											disabled={registrationFlowType !== 'admin'}
+											style={{
+												margin: 0,
+												cursor: registrationFlowType === 'admin' ? 'pointer' : 'not-allowed',
+												width: '16px',
+												height: '16px',
+											}}
+										/>
+										<span style={{ fontSize: '13px', color: '#374151' }}>
+											<strong>ACTIVATION_REQUIRED</strong> - OTP will be sent for device activation
+										</span>
+									</label>
+								</div>
+							</div>
+						</label>
+						{/* biome-ignore lint/a11y/useKeyWithClickEvents: Radio button selection, keyboard handled by input */}
+						<label
+							style={{
+								flex: 1,
+								padding: '16px',
+								border: `2px solid ${registrationFlowType === 'user' ? '#3b82f6' : '#d1d5db'}`,
+								borderRadius: '8px',
+								background: registrationFlowType === 'user' ? '#eff6ff' : 'white',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+							}}
+							onClick={() => setRegistrationFlowType('user')}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}
+							>
+								<input
+									type="radio"
+									name="registration-flow-type"
+									value="user"
+									checked={registrationFlowType === 'user'}
+									onChange={() => setRegistrationFlowType('user')}
+									style={{ margin: 0, cursor: 'pointer', width: '18px', height: '18px' }}
+								/>
+								<div style={{ flex: 1 }}>
+									<span style={{ fontSize: '15px', fontWeight: '600', color: '#1f2937' }}>
+										User Flow
+									</span>
+									<div
+										style={{
+											fontSize: '12px',
+											color: '#6b7280',
+											marginTop: '2px',
+											fontStyle: 'italic',
+										}}
+									>
+										Using access token from User Authentication
+									</div>
+								</div>
+							</div>
+							<div
+								style={{
+									fontSize: '13px',
+									color: '#6b7280',
+									marginLeft: '28px',
+									lineHeight: '1.5',
+									padding: '8px 12px',
+									background: '#f9fafb',
+									borderRadius: '6px',
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								<strong style={{ color: '#f59e0b' }}>ACTIVATION_REQUIRED</strong> - OTP will be sent
+								for device activation
+							</div>
+						</label>
+					</div>
+					<small
+						style={{
+							display: 'block',
+							marginTop: '12px',
+							fontSize: '12px',
+							color: '#6b7280',
+							lineHeight: '1.5',
+						}}
+					>
+						Admin Flow allows choosing device status (ACTIVE or ACTIVATION_REQUIRED). User Flow
+						always requires activation.
+					</small>
+				</div>
+
 				{/* Shared Configuration Step */}
-				<div style={{
-					background: 'white',
-					borderRadius: '8px',
-					padding: '24px',
-					marginBottom: '24px',
-					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-				}}>
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
 					<MFAConfigurationStepV8
 						credentials={credentials}
 						setCredentials={setCredentials}
 						tokenStatus={tokenStatus}
 						deviceAuthPolicies={deviceAuthPolicies}
 						isLoadingPolicies={isLoadingPolicies}
+						registrationFlowType={registrationFlowType}
 						policiesError={policiesError}
 						refreshDeviceAuthPolicies={fetchDeviceAuthPolicies}
 						showWorkerTokenModal={showWorkerTokenModal}
@@ -190,7 +651,17 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						setMfaState={() => {}}
 						isLoading={false}
 						setIsLoading={() => {}}
-						nav={{ currentStep: 0, goToNext: () => {}, goToPrevious: () => {}, goToStep: () => {}, reset: () => {}, setValidationErrors: () => {}, setValidationWarnings: () => {} } as any}
+						nav={
+							{
+								currentStep: 0,
+								goToNext: () => {},
+								goToPrevious: () => {},
+								goToStep: () => {},
+								reset: () => {},
+								setValidationErrors: () => {},
+								setValidationWarnings: () => {},
+							} as any
+						}
 						showDeviceLimitModal={false}
 						setShowDeviceLimitModal={() => {}}
 					/>
@@ -221,17 +692,35 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 							!credentials.environmentId?.trim() ||
 							!credentials.username?.trim() ||
 							!credentials.deviceAuthenticationPolicyId?.trim() ||
-							!(credentials.tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim())
+							!(credentials.tokenType === 'worker'
+								? tokenStatus.isValid
+								: !!credentials.userToken?.trim())
 						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
 							borderRadius: '6px',
-							background: (credentials.environmentId?.trim() && credentials.username?.trim() && credentials.deviceAuthenticationPolicyId?.trim() && (credentials.tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim())) ? '#f59e0b' : '#9ca3af',
+							background:
+								credentials.environmentId?.trim() &&
+								credentials.username?.trim() &&
+								credentials.deviceAuthenticationPolicyId?.trim() &&
+								(credentials.tokenType === 'worker'
+									? tokenStatus.isValid
+									: !!credentials.userToken?.trim())
+									? '#f59e0b'
+									: '#9ca3af',
 							color: 'white',
 							fontSize: '16px',
 							fontWeight: '600',
-							cursor: (credentials.environmentId?.trim() && credentials.username?.trim() && credentials.deviceAuthenticationPolicyId?.trim() && (credentials.tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim())) ? 'pointer' : 'not-allowed',
+							cursor:
+								credentials.environmentId?.trim() &&
+								credentials.username?.trim() &&
+								credentials.deviceAuthenticationPolicyId?.trim() &&
+								(credentials.tokenType === 'worker'
+									? tokenStatus.isValid
+									: !!credentials.userToken?.trim())
+									? 'pointer'
+									: 'not-allowed',
 							display: 'flex',
 							alignItems: 'center',
 							gap: '8px',

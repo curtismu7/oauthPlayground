@@ -5,11 +5,16 @@
  * @version 8.2.0
  */
 
-import { useEffect, useState, useMemo } from 'react';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { useEffect, useMemo, useState } from 'react';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import type {
+	DeviceSelectionState,
+	MFAFlowController,
+	OTPState,
+	ValidationState,
+} from '../controllers/MFAFlowController';
 import type { MFACredentials, MFAState } from '../shared/MFATypes';
-import type { MFAFlowController, OTPState, ValidationState, DeviceSelectionState } from '../controllers/MFAFlowController';
 
 export interface UseMFAFlowControllerOptions {
 	controller: MFAFlowController;
@@ -25,22 +30,26 @@ export interface UseMFAFlowControllerOptions {
 export interface UseMFAFlowControllerReturn {
 	// Device selection state
 	deviceSelection: DeviceSelectionState;
-	setDeviceSelection: (state: Partial<DeviceSelectionState> | ((prev: DeviceSelectionState) => DeviceSelectionState)) => void;
+	setDeviceSelection: (
+		state: Partial<DeviceSelectionState> | ((prev: DeviceSelectionState) => DeviceSelectionState)
+	) => void;
 	loadDevices: () => Promise<void>;
-	
+
 	// OTP state
 	otpState: OTPState;
 	setOtpState: (state: Partial<OTPState> | ((prev: OTPState) => OTPState)) => void;
 	sendOTP: () => Promise<void>;
-	
+
 	// Validation state
 	validationState: ValidationState;
-	setValidationState: (state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => void;
+	setValidationState: (
+		state: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
+	) => void;
 	validateOTP: () => Promise<boolean>;
-	
+
 	// Registration
 	registerDevice: () => Promise<void>;
-	
+
 	// Navigation
 	nav: ReturnType<typeof useStepNavigationV8>;
 }
@@ -48,9 +57,20 @@ export interface UseMFAFlowControllerReturn {
 /**
  * Hook for managing MFA flow state and operations using a controller
  */
-export const useMFAFlowController = (options: UseMFAFlowControllerOptions): UseMFAFlowControllerReturn => {
-	const { controller, credentials, tokenStatus, mfaState, setMfaState, isLoading, setIsLoading, currentStep } = options;
-	
+export const useMFAFlowController = (
+	options: UseMFAFlowControllerOptions
+): UseMFAFlowControllerReturn => {
+	const {
+		controller,
+		credentials,
+		tokenStatus,
+		mfaState,
+		setMfaState,
+		isLoading,
+		setIsLoading,
+		currentStep,
+	} = options;
+
 	const nav = useStepNavigationV8();
 
 	// Device selection state
@@ -80,7 +100,11 @@ export const useMFAFlowController = (options: UseMFAFlowControllerOptions): UseM
 			return;
 		}
 
-		if (currentStep === 1 && deviceSelection.existingDevices.length === 0 && !deviceSelection.loadingDevices) {
+		if (
+			currentStep === 1 &&
+			deviceSelection.existingDevices.length === 0 &&
+			!deviceSelection.loadingDevices
+		) {
 			setDeviceSelection((prev) => ({ ...prev, loadingDevices: true }));
 
 			try {
@@ -109,7 +133,14 @@ export const useMFAFlowController = (options: UseMFAFlowControllerOptions): UseM
 			console.error('[useMFAFlowController] No device ID available');
 			return;
 		}
-		await controller.sendOTP(credentials, mfaState.deviceId, otpState, setOtpState, nav, setIsLoading);
+		await controller.sendOTP(
+			credentials,
+			mfaState.deviceId,
+			otpState,
+			setOtpState,
+			nav,
+			setIsLoading
+		);
 	};
 
 	// Validate OTP
@@ -142,7 +173,7 @@ export const useMFAFlowController = (options: UseMFAFlowControllerOptions): UseM
 		try {
 			const params = controller.getDeviceRegistrationParams(credentials);
 			const result = await controller.registerDevice(credentials, params);
-			
+
 			setMfaState({
 				deviceId: result.deviceId,
 				deviceStatus: result.status,
@@ -183,4 +214,3 @@ export const useMFAFlowController = (options: UseMFAFlowControllerOptions): UseM
 		nav,
 	};
 };
-

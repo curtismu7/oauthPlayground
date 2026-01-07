@@ -17,8 +17,7 @@
  */
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { FiArrowRight, FiRefreshCw, FiInfo } from 'react-icons/fi';
-import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
+import { FiArrowRight, FiInfo, FiRefreshCw } from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
 import DeviceTypeSelector from '@/components/DeviceTypeSelector';
@@ -26,6 +25,7 @@ import DynamicDeviceFlow from '@/components/DynamicDeviceFlow';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { TokenOperationsEducationModalV8 } from '@/v8/components/TokenOperationsEducationModalV8';
+import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import type { TokenResponse } from '@/v8/services/oauthIntegrationServiceV8';
 import { OidcDiscoveryServiceV8 } from '@/v8/services/oidcDiscoveryServiceV8';
@@ -401,7 +401,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
 	const [showPollingTimeoutModal, setShowPollingTimeoutModal] = useState(false);
-	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] = useState(false);
+	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] =
+		useState(false);
 	const [callbackDetails, setCallbackDetails] = useState<{
 		url: string;
 		code?: string;
@@ -542,7 +543,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	}, [currentStep]); // Re-run cleanup when step changes
 	const [introspectionData, setIntrospectionData] = useState<Record<string, unknown> | null>(null);
 	const [selectedTokenType, setSelectedTokenType] = useState<'access' | 'refresh' | 'id'>('access');
-	const [introspectionTokenType, setIntrospectionTokenType] = useState<'access' | 'refresh' | 'id' | null>(null); // Track which token type was introspected
+	const [introspectionTokenType, setIntrospectionTokenType] = useState<
+		'access' | 'refresh' | 'id' | null
+	>(null); // Track which token type was introspected
 
 	// Generate unique IDs for form inputs and modals (accessibility)
 	const callbackUrlDisplayId = useId();
@@ -1958,9 +1961,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							marginBottom: '12px',
 						}}
 					>
-						<span style={{ fontSize: '20px' }}>
-							{allConfigured ? '✅' : '⚙️'}
-						</span>
+						<span style={{ fontSize: '20px' }}>{allConfigured ? '✅' : '⚙️'}</span>
 						<h3
 							style={{
 								margin: 0,
@@ -2222,7 +2223,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					authCode = (resumeData.authorizeResponse as Record<string, unknown>).code as string;
 				}
 				// Fourth try: alternative field names
-				else if (resumeData.authorization_code && typeof resumeData.authorization_code === 'string') {
+				else if (
+					resumeData.authorization_code &&
+					typeof resumeData.authorization_code === 'string'
+				) {
 					authCode = resumeData.authorization_code;
 				} else if (resumeData.authCode && typeof resumeData.authCode === 'string') {
 					authCode = resumeData.authCode;
@@ -2408,10 +2412,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Close modal and show success
 				setShowRedirectlessModal(false);
 				setIsRedirectlessAuthenticating(false);
-				
+
 				// Mark this as a redirectless flow to prevent dashboard redirects
 				sessionStorage.setItem('v8u_redirectless_flow_active', 'true');
-				
+
 				toastV8.success('✅ Tokens obtained successfully via redirectless authentication!');
 
 				// Navigate to tokens step
@@ -2641,13 +2645,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const handleStartRedirectlessAuth = useCallback(async () => {
 		const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
 		if (!isRedirectless || !flowState.authorizationUrl) {
-			console.warn(`${MODULE_TAG} ⚠️ Cannot start redirectless auth - missing URL or not in redirectless mode`);
+			console.warn(
+				`${MODULE_TAG} ⚠️ Cannot start redirectless auth - missing URL or not in redirectless mode`
+			);
 			return;
 		}
 
 		// Ensure we have PKCE codes for redirectless flow
 		if (!flowState.codeVerifier || !flowState.codeChallenge) {
-			toastV8.error('PKCE codes are required for redirectless flow. Please generate PKCE parameters first.');
+			toastV8.error(
+				'PKCE codes are required for redirectless flow. Please generate PKCE parameters first.'
+			);
 			return;
 		}
 
@@ -2682,41 +2690,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			authorizeRequestBody.clientSecret = credentials.clientSecret;
 		}
 
-			// Show modal with request details before making the request
-			// Build the actual request body that will be sent to PingOne (including response_mode=pi.flow)
-			const pingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
-			// Note: The backend converts this to form-encoded URLSearchParams, but we show it as JSON for readability
-			const pingOneRequestBody: Record<string, unknown> = {
-				response_type: 'code',
-				response_mode: 'pi.flow', // CRITICAL: This is what makes it redirectless
-				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri,
-				scope: credentials.scopes || 'openid profile email',
-				code_challenge: flowState.codeChallenge,
-				code_challenge_method: 'S256',
-				state: stateValue,
-			};
+		// Show modal with request details before making the request
+		// Build the actual request body that will be sent to PingOne (including response_mode=pi.flow)
+		const pingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+		// Note: The backend converts this to form-encoded URLSearchParams, but we show it as JSON for readability
+		const pingOneRequestBody: Record<string, unknown> = {
+			response_type: 'code',
+			response_mode: 'pi.flow', // CRITICAL: This is what makes it redirectless
+			client_id: credentials.clientId,
+			redirect_uri: credentials.redirectUri,
+			scope: credentials.scopes || 'openid profile email',
+			code_challenge: flowState.codeChallenge,
+			code_challenge_method: 'S256',
+			state: stateValue,
+		};
 
-			// Add optional OIDC parameters
-			if (credentials.prompt) {
-				pingOneRequestBody.prompt = credentials.prompt;
-			}
-			if (credentials.loginHint) {
-				pingOneRequestBody.login_hint = credentials.loginHint;
-			}
-			if (credentials.maxAge !== undefined) {
-				pingOneRequestBody.max_age = credentials.maxAge;
-			}
-			if (credentials.display) {
-				pingOneRequestBody.display = credentials.display;
-			}
+		// Add optional OIDC parameters
+		if (credentials.prompt) {
+			pingOneRequestBody.prompt = credentials.prompt;
+		}
+		if (credentials.loginHint) {
+			pingOneRequestBody.login_hint = credentials.loginHint;
+		}
+		if (credentials.maxAge !== undefined) {
+			pingOneRequestBody.max_age = credentials.maxAge;
+		}
+		if (credentials.display) {
+			pingOneRequestBody.display = credentials.display;
+		}
 
-			setPendingPingOneRequest({
-				url: pingOneUrl,
-				method: 'POST',
-				body: pingOneRequestBody,
-			});
-			setShowPingOneRequestModal(true);
+		setPendingPingOneRequest({
+			url: pingOneUrl,
+			method: 'POST',
+			body: pingOneRequestBody,
+		});
+		setShowPingOneRequestModal(true);
 	}, [credentials, flowState, flowType, toastV8]);
 
 	// Handler for actually making the PingOne request (called after user confirms in modal)
@@ -2743,12 +2751,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const url = new URL(flowState.authorizationUrl);
 					parRequestUri = url.searchParams.get('request_uri') || undefined;
 					if (parRequestUri) {
-						console.log(`${MODULE_TAG} 🔌 PAR request_uri found in authorization URL (already pushed):`, parRequestUri.substring(0, 50) + '...');
+						console.log(
+							`${MODULE_TAG} 🔌 PAR request_uri found in authorization URL (already pushed):`,
+							parRequestUri.substring(0, 50) + '...'
+						);
 					} else {
-						console.warn(`${MODULE_TAG} ⚠️ PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`);
+						console.warn(
+							`${MODULE_TAG} ⚠️ PAR enabled but no request_uri in authorization URL - PAR may not have been pushed during URL generation`
+						);
 					}
 				} catch (error) {
-					console.warn(`${MODULE_TAG} ⚠️ Failed to parse authorization URL for PAR request_uri:`, error);
+					console.warn(
+						`${MODULE_TAG} ⚠️ Failed to parse authorization URL for PAR request_uri:`,
+						error
+					);
 				}
 			}
 
@@ -2826,8 +2842,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				flowId,
 				flowStatus,
 				hasSessionId: !!sessionId,
-				willShowModal:
-					flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS',
+				willShowModal: flowStatus === 'USERNAME_PASSWORD_REQUIRED' || flowStatus === 'IN_PROGRESS',
 				rawStatus: flowData.status,
 			});
 
@@ -2884,9 +2899,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowStatus === 'READY_TO_RESUME' || flowData.resumeUrl) {
 				// Flow is ready to resume - proceed directly (skip modal)
 				const resumeUrl = flowData.resumeUrl as string | undefined;
-				console.log(
-					`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`
-				);
+				console.log(`${MODULE_TAG} 🔌 Flow ready to resume - skipping modal, resuming directly`);
 				await handleResumeRedirectlessFlow(flowId || '', stateValue, resumeUrl);
 				return;
 			}
@@ -2904,11 +2917,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// If we don't have a flowId, something went wrong
 			console.error(`${MODULE_TAG} ❌ No flowId in redirectless response:`, flowData);
-			throw new Error(
-				`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`
-			);
+			throw new Error(`Unexpected flow response: No flow ID. Status: ${flowStatus || 'UNKNOWN'}`);
 		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to start redirectless authentication';
+			const message =
+				err instanceof Error ? err.message : 'Failed to start redirectless authentication';
 			setError(message);
 			nav.setValidationErrors([message]);
 			toastV8.error(message);
@@ -3010,12 +3022,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							!flowState.codeChallenge && { codeChallenge: urlResultWithExtras.codeChallenge }),
 					};
 					setFlowState(updatedStateWithUrl);
-					
-					console.log(`${MODULE_TAG} 🔌 Authorization URL generated for redirectless flow (display only):`, {
-						url: urlResult.authorizationUrl.substring(0, 100) + '...',
-						hasState: !!urlResult.state,
-					});
-					
+
+					console.log(
+						`${MODULE_TAG} 🔌 Authorization URL generated for redirectless flow (display only):`,
+						{
+							url: urlResult.authorizationUrl.substring(0, 100) + '...',
+							hasState: !!urlResult.state,
+						}
+					);
+
 					toastV8.authUrlGenerated();
 					setIsLoading(false);
 					// Don't make POST request yet - wait for user to click "Start Redirectless Authentication"
@@ -3072,7 +3087,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				setIsLoading(false);
 			}
 		};
-
 
 		// Step number - always Step 2 for oauth-authz and hybrid (after PKCE step)
 		// Step 1 is always PKCE generation for these flows
@@ -3144,7 +3158,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									color: '#92400e',
 								}}
 							>
-								<strong>📤 PAR Enabled:</strong> This will push authorization parameters to PingOne via PAR request first, then generate the authorization URL with <code>request_uri</code>.
+								<strong>📤 PAR Enabled:</strong> This will push authorization parameters to PingOne
+								via PAR request first, then generate the authorization URL with{' '}
+								<code>request_uri</code>.
 							</div>
 						)}
 					</div>
@@ -3192,12 +3208,28 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									marginBottom: '16px',
 								}}
 							>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										marginBottom: '12px',
+									}}
+								>
 									<span style={{ fontSize: '20px' }}>📤</span>
-									<strong style={{ color: '#065f46', fontSize: '15px' }}>PAR Request Completed</strong>
+									<strong style={{ color: '#065f46', fontSize: '15px' }}>
+										PAR Request Completed
+									</strong>
 								</div>
 								<div style={{ marginBottom: '12px' }}>
-									<div style={{ fontSize: '13px', color: '#047857', marginBottom: '4px', fontWeight: '500' }}>
+									<div
+										style={{
+											fontSize: '13px',
+											color: '#047857',
+											marginBottom: '4px',
+											fontWeight: '500',
+										}}
+									>
 										PAR Request URI:
 									</div>
 									<div
@@ -3221,8 +3253,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									</div>
 								)}
 								<div style={{ marginTop: '8px', fontSize: '12px', color: '#059669' }}>
-									💡 The authorization URL below uses this <code>request_uri</code> instead of individual parameters.
-									Check the <strong>⚡ Show API Calls</strong> section to see the full PAR request details.
+									💡 The authorization URL below uses this <code>request_uri</code> instead of
+									individual parameters. Check the <strong>⚡ Show API Calls</strong> section to see
+									the full PAR request details.
 								</div>
 							</div>
 						)}
@@ -3245,7 +3278,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						/>
 
 						{/* Show different buttons based on redirectless mode */}
-						{(credentials.responseMode === 'pi.flow' || credentials.useRedirectless) ? (
+						{credentials.responseMode === 'pi.flow' || credentials.useRedirectless ? (
 							// Redirectless mode: Show button to start redirectless authentication
 							<div
 								style={{
@@ -3268,8 +3301,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									}}
 								>
 									<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
-										<strong>Redirectless Mode:</strong> This URL shows what would be used in standard redirect mode. 
-										In redirectless mode, we'll make a POST request instead of redirecting and add response_mode=pi.flow to the Authorization URL.
+										<strong>Redirectless Mode:</strong> This URL shows what would be used in
+										standard redirect mode. In redirectless mode, we'll make a POST request instead
+										of redirecting and add response_mode=pi.flow to the Authorization URL.
 									</p>
 								</div>
 								<button
@@ -3639,7 +3673,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 									{/* Request Body */}
 									<div style={{ marginBottom: '16px' }}>
-										<strong style={{ color: '#374151', fontSize: '13px', marginBottom: '8px', display: 'block' }}>
+										<strong
+											style={{
+												color: '#374151',
+												fontSize: '13px',
+												marginBottom: '8px',
+												display: 'block',
+											}}
+										>
 											Request Body (JSON):
 										</strong>
 										<pre
@@ -3702,17 +3743,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<strong>Parameters:</strong>
 										<ul style={{ margin: '4px 0 0 20px', padding: 0 }}>
 											<li>
-												<strong style={{ color: '#dc2626' }}>environment_id</strong>: Your
-												PingOne environment ID (required)
+												<strong style={{ color: '#dc2626' }}>environment_id</strong>: Your PingOne
+												environment ID (required)
 											</li>
 											<li>
-												<strong style={{ color: '#dc2626' }}>client_id</strong>: Your
-												application's client ID (required)
+												<strong style={{ color: '#dc2626' }}>client_id</strong>: Your application's
+												client ID (required)
 											</li>
 											{credentials.scopes?.trim() && (
 												<li>
-													<strong style={{ color: '#dc2626' }}>scope</strong>: Space-separated
-													list of requested scopes
+													<strong style={{ color: '#dc2626' }}>scope</strong>: Space-separated list
+													of requested scopes
 												</li>
 											)}
 											{credentials.clientSecret && (
@@ -3723,7 +3764,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											)}
 											{credentials.clientSecret && (
 												<li>
-													<strong style={{ color: '#dc2626' }}>client_auth_method</strong>: Authentication method ({authMethod})
+													<strong style={{ color: '#dc2626' }}>client_auth_method</strong>:
+													Authentication method ({authMethod})
 												</li>
 											)}
 										</ul>
@@ -4990,8 +5032,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			nav.markStepComplete();
 			toastV8.success('Device authorization request successful');
 		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : 'Failed to request device authorization';
+			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
 			nav.setValidationErrors([message]);
 			toastV8.error(message);
@@ -6692,183 +6733,191 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	]);
 
 	// Introspect token (access, refresh, or ID token)
-	const handleIntrospectToken = useCallback(async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
-		console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
-		console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
-		console.log(`${MODULE_TAG} Credentials check:`, {
-			hasEnvironmentId: !!credentials.environmentId,
-			hasClientId: !!credentials.clientId,
-			hasClientSecret: !!credentials.clientSecret,
-			hasAccessToken: !!flowState.tokens?.accessToken,
-			hasRefreshToken: !!flowState.tokens?.refreshToken,
-			hasIdToken: !!flowState.tokens?.idToken,
-			clientAuthMethod: credentials.clientAuthMethod,
-		});
-
-		// Check if introspection is allowed for this flow
-		const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
-			flowType,
-			credentials.scopes,
-			'introspect-access'
-		);
-
-		if (!canIntrospect) {
-			const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
-			const errorMsg = `Token introspection is not available for this flow. ${rules.introspectionReason}`;
-			console.warn(`${MODULE_TAG} ${errorMsg}`);
-			toastV8.error(errorMsg);
-			setIntrospectionError(errorMsg);
-			return;
-		}
-
-		// Check for public client (no authentication)
-		if (credentials.clientAuthMethod === 'none') {
-			const errorMsg =
-				'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
-			console.warn(`${MODULE_TAG} ${errorMsg}`);
-			toastV8.error(errorMsg);
-			setIntrospectionError(errorMsg);
-			return;
-		}
-
-		// Get the token to introspect based on token type
-		let tokenToIntrospect: string | undefined;
-		let tokenName: string;
-		switch (tokenType) {
-			case 'access':
-				tokenToIntrospect = flowState.tokens?.accessToken;
-				tokenName = 'Access Token';
-				break;
-			case 'refresh':
-				tokenToIntrospect = flowState.tokens?.refreshToken;
-				tokenName = 'Refresh Token';
-				break;
-			case 'id':
-				tokenToIntrospect = flowState.tokens?.idToken;
-				tokenName = 'ID Token';
-				break;
-		}
-
-		if (
-			!credentials.environmentId ||
-			!credentials.clientId ||
-			!credentials.clientSecret ||
-			!tokenToIntrospect
-		) {
-			const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
-			console.error(`${MODULE_TAG} ${errorMsg}`, {
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret ? 'present' : 'missing',
-				tokenType,
-				tokenAvailable: !!tokenToIntrospect,
-			});
-			toastV8.error(errorMsg);
-			return;
-		}
-
-		setIntrospectionLoading(true);
-		setIntrospectionError(null);
-
-		try {
-			// Discover the introspection endpoint from OIDC well-known configuration
-			const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
-			console.log(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
-
-			const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
-			console.log(`${MODULE_TAG} Discovery result:`, {
-				success: discoveryResult.success,
-				hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
-				introspectionEndpoint: discoveryResult.data?.introspectionEndpoint,
-				discoveryError: discoveryResult.error,
+	const handleIntrospectToken = useCallback(
+		async (tokenType: 'access' | 'refresh' | 'id' = selectedTokenType) => {
+			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION START ==========`);
+			console.log(`${MODULE_TAG} Introspecting ${tokenType} token`);
+			console.log(`${MODULE_TAG} Credentials check:`, {
+				hasEnvironmentId: !!credentials.environmentId,
+				hasClientId: !!credentials.clientId,
+				hasClientSecret: !!credentials.clientSecret,
+				hasAccessToken: !!flowState.tokens?.accessToken,
+				hasRefreshToken: !!flowState.tokens?.refreshToken,
+				hasIdToken: !!flowState.tokens?.idToken,
+				clientAuthMethod: credentials.clientAuthMethod,
 			});
 
-			let introspectionEndpoint: string;
+			// Check if introspection is allowed for this flow
+			const canIntrospect = TokenOperationsServiceV8.isOperationAllowed(
+				flowType,
+				credentials.scopes,
+				'introspect-access'
+			);
 
-			// Fallback to standard endpoint if discovery fails or endpoint not found
-			if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
-				introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-				console.warn(
-					`${MODULE_TAG} Discovery failed or no introspection endpoint, using fallback`,
-					{
-						introspectionEndpoint,
-						discoveryError: discoveryResult.error,
-					}
-				);
-			} else {
-				introspectionEndpoint = discoveryResult.data.introspectionEndpoint;
+			if (!canIntrospect) {
+				const rules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
+				const errorMsg = `Token introspection is not available for this flow. ${rules.introspectionReason}`;
+				console.warn(`${MODULE_TAG} ${errorMsg}`);
+				toastV8.error(errorMsg);
+				setIntrospectionError(errorMsg);
+				return;
 			}
 
-			console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
-
-			// Use backend proxy to avoid CORS issues
-			// Use relative URL in development to go through Vite proxy (avoids SSL errors)
-			const proxyEndpoint =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app/api/introspect-token'
-					: '/api/introspect-token';
-
-			console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
-				tokenType,
-				tokenLength: tokenToIntrospect.length,
-				clientId: credentials.clientId,
-				introspectionEndpoint,
-				proxyEndpoint,
-			});
-
-			const response = await fetch(proxyEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					token: tokenToIntrospect,
-					token_type_hint: tokenType === 'refresh' ? 'refresh_token' : tokenType === 'id' ? 'id_token' : 'access_token',
-					client_id: credentials.clientId,
-					client_secret: credentials.clientSecret,
-					introspection_endpoint: introspectionEndpoint,
-					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				}),
-			});
-
-			console.log(`${MODULE_TAG} Introspection response status:`, {
-				status: response.status,
-				statusText: response.statusText,
-				ok: response.ok,
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error(`${MODULE_TAG} Introspection error response:`, errorText);
-				throw new Error(
-					`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
-				);
+			// Check for public client (no authentication)
+			if (credentials.clientAuthMethod === 'none') {
+				const errorMsg =
+					'Token introspection requires client authentication. Public clients (clientAuthMethod: "none") cannot authenticate to the introspection endpoint. To use introspection, configure your application with client_secret_basic or client_secret_post authentication.';
+				console.warn(`${MODULE_TAG} ${errorMsg}`);
+				toastV8.error(errorMsg);
+				setIntrospectionError(errorMsg);
+				return;
 			}
 
-			const data = await response.json();
-			console.log(`${MODULE_TAG} Introspection data received:`, data);
+			// Get the token to introspect based on token type
+			let tokenToIntrospect: string | undefined;
+			let tokenName: string;
+			switch (tokenType) {
+				case 'access':
+					tokenToIntrospect = flowState.tokens?.accessToken;
+					tokenName = 'Access Token';
+					break;
+				case 'refresh':
+					tokenToIntrospect = flowState.tokens?.refreshToken;
+					tokenName = 'Refresh Token';
+					break;
+				case 'id':
+					tokenToIntrospect = flowState.tokens?.idToken;
+					tokenName = 'ID Token';
+					break;
+			}
 
-			setIntrospectionData(data);
-			setIntrospectionTokenType(tokenType);
-			toastV8.success(`${tokenName} introspected successfully!`);
-			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
-		} catch (err) {
-			const message = err instanceof Error ? err.message : 'Failed to introspect token';
-			console.error(`${MODULE_TAG} Introspection error:`, err);
-			setIntrospectionError(message);
-			toastV8.error(message);
-			console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
-		} finally {
-			setIntrospectionLoading(false);
-		}
-	}, [
-		selectedTokenType,
-		credentials.environmentId,
-		credentials.clientId,
-		credentials.clientSecret,
-		credentials.clientAuthMethod,
-		flowState.tokens?.accessToken,
-	]);
+			if (
+				!credentials.environmentId ||
+				!credentials.clientId ||
+				!credentials.clientSecret ||
+				!tokenToIntrospect
+			) {
+				const errorMsg = `Missing required ${tokenName.toLowerCase()} for token introspection`;
+				console.error(`${MODULE_TAG} ${errorMsg}`, {
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret ? 'present' : 'missing',
+					tokenType,
+					tokenAvailable: !!tokenToIntrospect,
+				});
+				toastV8.error(errorMsg);
+				return;
+			}
+
+			setIntrospectionLoading(true);
+			setIntrospectionError(null);
+
+			try {
+				// Discover the introspection endpoint from OIDC well-known configuration
+				const issuerUrl = `https://auth.pingone.com/${credentials.environmentId}`;
+				console.log(`${MODULE_TAG} Discovering endpoints from`, { issuerUrl });
+
+				const discoveryResult = await OidcDiscoveryServiceV8.discover(issuerUrl);
+				console.log(`${MODULE_TAG} Discovery result:`, {
+					success: discoveryResult.success,
+					hasIntrospectionEndpoint: !!discoveryResult.data?.introspectionEndpoint,
+					introspectionEndpoint: discoveryResult.data?.introspectionEndpoint,
+					discoveryError: discoveryResult.error,
+				});
+
+				let introspectionEndpoint: string;
+
+				// Fallback to standard endpoint if discovery fails or endpoint not found
+				if (!discoveryResult.success || !discoveryResult.data?.introspectionEndpoint) {
+					introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+					console.warn(
+						`${MODULE_TAG} Discovery failed or no introspection endpoint, using fallback`,
+						{
+							introspectionEndpoint,
+							discoveryError: discoveryResult.error,
+						}
+					);
+				} else {
+					introspectionEndpoint = discoveryResult.data.introspectionEndpoint;
+				}
+
+				console.log(`${MODULE_TAG} Introspecting token at endpoint`, { introspectionEndpoint });
+
+				// Use backend proxy to avoid CORS issues
+				// Use relative URL in development to go through Vite proxy (avoids SSL errors)
+				const proxyEndpoint =
+					process.env.NODE_ENV === 'production'
+						? 'https://oauth-playground.vercel.app/api/introspect-token'
+						: '/api/introspect-token';
+
+				console.log(`${MODULE_TAG} Sending introspection request via proxy:`, {
+					tokenType,
+					tokenLength: tokenToIntrospect.length,
+					clientId: credentials.clientId,
+					introspectionEndpoint,
+					proxyEndpoint,
+				});
+
+				const response = await fetch(proxyEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						token: tokenToIntrospect,
+						token_type_hint:
+							tokenType === 'refresh'
+								? 'refresh_token'
+								: tokenType === 'id'
+									? 'id_token'
+									: 'access_token',
+						client_id: credentials.clientId,
+						client_secret: credentials.clientSecret,
+						introspection_endpoint: introspectionEndpoint,
+						token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+					}),
+				});
+
+				console.log(`${MODULE_TAG} Introspection response status:`, {
+					status: response.status,
+					statusText: response.statusText,
+					ok: response.ok,
+				});
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					console.error(`${MODULE_TAG} Introspection error response:`, errorText);
+					throw new Error(
+						`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
+					);
+				}
+
+				const data = await response.json();
+				console.log(`${MODULE_TAG} Introspection data received:`, data);
+
+				setIntrospectionData(data);
+				setIntrospectionTokenType(tokenType);
+				toastV8.success(`${tokenName} introspected successfully!`);
+				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION SUCCESS ==========`);
+			} catch (err) {
+				const message = err instanceof Error ? err.message : 'Failed to introspect token';
+				console.error(`${MODULE_TAG} Introspection error:`, err);
+				setIntrospectionError(message);
+				toastV8.error(message);
+				console.log(`${MODULE_TAG} ========== TOKEN INTROSPECTION FAILED ==========`);
+			} finally {
+				setIntrospectionLoading(false);
+			}
+		},
+		[
+			selectedTokenType,
+			credentials.environmentId,
+			credentials.clientId,
+			credentials.clientSecret,
+			credentials.clientAuthMethod,
+			flowState.tokens?.accessToken,
+		]
+	);
 
 	// Step 3: Display Tokens (all flows - final step)
 	const renderStep3Tokens = () => {
@@ -7023,9 +7072,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						<div>
 							<strong style={{ color: '#1e40af' }}>Next Step:</strong>
 							<p style={{ margin: '4px 0 0 0', fontSize: '14px', color: '#1e3a8a' }}>
-								Click "Next Step" or "View Introspection" to proceed to Token Introspection & UserInfo step. 
-							The introspection step will show you what operations are available for your flow, even if 
-							introspection or UserInfo cannot be used.
+								Click "Next Step" or "View Introspection" to proceed to Token Introspection &
+								UserInfo step. The introspection step will show you what operations are available
+								for your flow, even if introspection or UserInfo cannot be used.
 							</p>
 						</div>
 					</div>
@@ -7077,7 +7126,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			<div className="step-content">
 				<h2>Step {introspectionStepNumber + 1}: Token Introspection & UserInfo</h2>
 				<p>
-					Validate your access token and retrieve user information (optional). This step is always 
+					Validate your access token and retrieve user information (optional). This step is always
 					available to show you what operations are supported for your flow type and configuration.
 				</p>
 
@@ -7424,7 +7473,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								color: selectedTokenType === 'refresh' ? 'white' : '#6b7280',
 								border: `2px solid ${selectedTokenType === 'refresh' ? '#d97706' : '#d1d5db'}`,
 								borderRadius: '6px',
-								cursor: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 'not-allowed' : 'pointer',
+								cursor:
+									!hasRefreshToken || !operationRules.canIntrospectRefreshToken
+										? 'not-allowed'
+										: 'pointer',
 								fontSize: '14px',
 								fontWeight: selectedTokenType === 'refresh' ? '600' : '400',
 								opacity: !hasRefreshToken || !operationRules.canIntrospectRefreshToken ? 0.5 : 1,
@@ -7453,7 +7505,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								color: selectedTokenType === 'id' ? 'white' : '#6b7280',
 								border: `2px solid ${selectedTokenType === 'id' ? '#d97706' : '#d1d5db'}`,
 								borderRadius: '6px',
-								cursor: !hasIdToken || !operationRules.canIntrospectIdToken ? 'not-allowed' : 'pointer',
+								cursor:
+									!hasIdToken || !operationRules.canIntrospectIdToken ? 'not-allowed' : 'pointer',
 								fontSize: '14px',
 								fontWeight: selectedTokenType === 'id' ? '600' : '400',
 								opacity: !hasIdToken || !operationRules.canIntrospectIdToken ? 0.5 : 1,
@@ -7496,7 +7549,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									marginBottom: '12px',
 								}}
 							>
-								✅ {introspectionTokenType === 'access' ? 'Access Token' : introspectionTokenType === 'refresh' ? 'Refresh Token' : 'ID Token'} introspected successfully
+								✅{' '}
+								{introspectionTokenType === 'access'
+									? 'Access Token'
+									: introspectionTokenType === 'refresh'
+										? 'Refresh Token'
+										: 'ID Token'}{' '}
+								introspected successfully
 							</div>
 							{introspectionTokenType !== selectedTokenType && (
 								<div
@@ -7510,7 +7569,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										fontSize: '13px',
 									}}
 								>
-									💡 Showing introspection for {introspectionTokenType === 'access' ? 'Access Token' : introspectionTokenType === 'refresh' ? 'Refresh Token' : 'ID Token'}. Select a different token type above to introspect it.
+									💡 Showing introspection for{' '}
+									{introspectionTokenType === 'access'
+										? 'Access Token'
+										: introspectionTokenType === 'refresh'
+											? 'Refresh Token'
+											: 'ID Token'}
+									. Select a different token type above to introspect it.
 								</div>
 							)}
 							<div
@@ -7555,34 +7620,46 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							type="button"
 							onClick={() => handleIntrospectToken(selectedTokenType)}
 							disabled={
-								(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-								(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-								(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken)) ||
+								(selectedTokenType === 'access' &&
+									(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+								(selectedTokenType === 'refresh' &&
+									(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+								(selectedTokenType === 'id' &&
+									(!hasIdToken || !operationRules.canIntrospectIdToken)) ||
 								introspectionLoading
 							}
 							style={{
 								padding: '10px 16px',
 								background:
-									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
+									(selectedTokenType === 'access' &&
+										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' &&
+										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' &&
+										(!hasIdToken || !operationRules.canIntrospectIdToken))
 										? '#9ca3af'
 										: '#22c55e', // Green color when enabled
 								color: 'white',
 								border: 'none',
 								borderRadius: '6px',
 								cursor:
-									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
+									(selectedTokenType === 'access' &&
+										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' &&
+										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' &&
+										(!hasIdToken || !operationRules.canIntrospectIdToken))
 										? 'not-allowed'
 										: 'pointer',
 								fontSize: '14px',
 								fontWeight: '600',
 								opacity:
-									(selectedTokenType === 'access' && (!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
-									(selectedTokenType === 'refresh' && (!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
-									(selectedTokenType === 'id' && (!hasIdToken || !operationRules.canIntrospectIdToken))
+									(selectedTokenType === 'access' &&
+										(!hasAccessToken || !operationRules.canIntrospectAccessToken)) ||
+									(selectedTokenType === 'refresh' &&
+										(!hasRefreshToken || !operationRules.canIntrospectRefreshToken)) ||
+									(selectedTokenType === 'id' &&
+										(!hasIdToken || !operationRules.canIntrospectIdToken))
 										? 0.6
 										: 1,
 							}}
@@ -7595,14 +7672,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											? 'ID token not available'
 											: selectedTokenType === 'access' && !operationRules.canIntrospectAccessToken
 												? operationRules.introspectionReason
-												: selectedTokenType === 'refresh' && !operationRules.canIntrospectRefreshToken
+												: selectedTokenType === 'refresh' &&
+														!operationRules.canIntrospectRefreshToken
 													? 'Refresh token introspection not supported'
 													: selectedTokenType === 'id' && !operationRules.canIntrospectIdToken
 														? 'ID token introspection not recommended'
 														: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`
 							}
 						>
-							{introspectionLoading ? 'Introspecting...' : `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`}
+							{introspectionLoading
+								? 'Introspecting...'
+								: `Introspect ${selectedTokenType === 'access' ? 'Access' : selectedTokenType === 'refresh' ? 'Refresh' : 'ID'} Token`}
 						</button>
 					)}
 				</div>
@@ -8032,7 +8112,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									const name =
 										payload.name || payload.given_name || payload.preferred_username || payload.sub;
 									const email = typeof payload.email === 'string' ? payload.email : undefined;
-									const username = typeof payload.preferred_username === 'string' ? payload.preferred_username : undefined;
+									const username =
+										typeof payload.preferred_username === 'string'
+											? payload.preferred_username
+											: undefined;
 
 									return (
 										<div style={{ marginBottom: '12px' }}>
@@ -8075,14 +8158,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 															{String(name || 'User')}
 														</div>
 														{email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>
-																📧 {email}
-															</div>
+															<div style={{ fontSize: '12px', opacity: 0.9 }}>📧 {email}</div>
 														)}
 														{username && username !== email && (
-															<div style={{ fontSize: '12px', opacity: 0.9 }}>
-																🔑 {username}
-															</div>
+															<div style={{ fontSize: '12px', opacity: 0.9 }}>🔑 {username}</div>
 														)}
 													</div>
 												</div>
@@ -8304,9 +8383,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 				// For oauth-authz and hybrid, Step 1 is PKCE generation
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-					console.log(
-						`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`
-					);
+					console.log(`${MODULE_TAG} [STEP ROUTING] Showing PKCE step (Step 1) for ${flowType}`);
 					return renderStep1PKCE();
 				}
 				// For implicit flow, show Authorization URL step
@@ -8735,8 +8812,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>PingOne Authorization Request</h2>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '16px',
+							}}
+						>
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								PingOne Authorization Request
+							</h2>
 							<button
 								type="button"
 								onClick={() => setShowPingOneRequestModal(false)}
@@ -8752,16 +8838,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							</button>
 						</div>
 
-						<div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#eff6ff', borderRadius: '6px' }}>
+						<div
+							style={{
+								marginBottom: '16px',
+								padding: '12px',
+								backgroundColor: '#eff6ff',
+								borderRadius: '6px',
+							}}
+						>
 							<p style={{ margin: 0, fontSize: '14px', color: '#1e40af' }}>
-								<strong>What happens next?</strong> You're about to make a POST request to PingOne's authorization endpoint.
-								This modal shows the request details that will be sent. After you click "Proceed", the request will be made
-								and you may be prompted to enter your credentials.
+								<strong>What happens next?</strong> You're about to make a POST request to PingOne's
+								authorization endpoint. This modal shows the request details that will be sent.
+								After you click "Proceed", the request will be made and you may be prompted to enter
+								your credentials.
 							</p>
 						</div>
 
 						<div style={{ marginBottom: '16px' }}>
-							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Request URL</h3>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+								Request URL
+							</h3>
 							<div
 								style={{
 									padding: '12px',
@@ -8777,7 +8873,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						</div>
 
 						<div style={{ marginBottom: '16px' }}>
-							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>Request Body</h3>
+							<h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+								Request Body
+							</h3>
 							<div
 								style={{
 									padding: '12px',
@@ -8795,7 +8893,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							</div>
 						</div>
 
-						<div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '24px' }}>
+						<div
+							style={{
+								display: 'flex',
+								gap: '12px',
+								justifyContent: 'flex-end',
+								marginTop: '24px',
+							}}
+						>
 							<button
 								type="button"
 								onClick={() => setShowPingOneRequestModal(false)}
