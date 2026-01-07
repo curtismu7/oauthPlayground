@@ -4,23 +4,23 @@
  * @description Service to manage SuperSimpleAPIDisplay visibility state across all pages
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * Features:
  * - Centralized visibility state management
  * - Persistent state across page navigation
  * - Event-based updates for reactive UI
- * 
+ *
  * @example
  * import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
- * 
+ *
  * // Show/hide the display
  * apiDisplayServiceV8.show();
  * apiDisplayServiceV8.hide();
  * apiDisplayServiceV8.toggle();
- * 
+ *
  * // Get current state
  * const isVisible = apiDisplayServiceV8.isVisible();
- * 
+ *
  * // Subscribe to changes
  * const unsubscribe = apiDisplayServiceV8.subscribe((isVisible) => {
  *   console.log('Visibility changed:', isVisible);
@@ -92,7 +92,7 @@ class ApiDisplayServiceV8 {
 	 */
 	subscribe(listener: VisibilityChangeListener): () => void {
 		this.listeners.add(listener);
-		
+
 		// Return unsubscribe function
 		return () => {
 			this.listeners.delete(listener);

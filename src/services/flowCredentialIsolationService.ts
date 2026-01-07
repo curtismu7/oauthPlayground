@@ -104,7 +104,6 @@ class FlowCredentialIsolationService {
 	loadFlowCredentials(config: FlowCredentialConfig): FlowCredentialResult {
 		const { flowKey, defaultCredentials = {}, useSharedFallback = false } = config;
 
-
 		// Try flow-specific storage FIRST (PRIMARY SOURCE)
 		const flowStorageKey = this.getFlowStorageKey(flowKey);
 		const flowData = localStorage.getItem(flowStorageKey);

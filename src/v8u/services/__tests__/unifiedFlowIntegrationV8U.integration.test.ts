@@ -5,10 +5,14 @@
  * @version 8.0.0
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { UnifiedFlowIntegrationV8U } from '../unifiedFlowIntegrationV8U';
-import { SpecVersionServiceV8, type SpecVersion, type FlowType } from '@/v8/services/specVersionServiceV8';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+	type FlowType,
+	type SpecVersion,
+	SpecVersionServiceV8,
+} from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../unifiedFlowIntegrationV8U';
+import { UnifiedFlowIntegrationV8U } from '../unifiedFlowIntegrationV8U';
 
 describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 	const mockCredentials: UnifiedFlowCredentials = {
@@ -110,16 +114,12 @@ describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 		});
 
 		it('should include PKCE parameters when usePKCE is true', () => {
-			const url = UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
-				'oauth2.1',
-				'oauth-authz',
-				{
-					...mockCredentials,
-					usePKCE: true,
-					codeChallenge: 'test-challenge',
-					codeChallengeMethod: 'S256',
-				}
-			);
+			const url = UnifiedFlowIntegrationV8U.generateAuthorizationUrl('oauth2.1', 'oauth-authz', {
+				...mockCredentials,
+				usePKCE: true,
+				codeChallenge: 'test-challenge',
+				codeChallengeMethod: 'S256',
+			});
 			expect(url).toBeTruthy();
 			expect(url).toContain('code_challenge=');
 			expect(url).toContain('code_challenge_method=S256');
@@ -190,4 +190,3 @@ describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 		});
 	});
 });
-

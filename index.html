@@ -81,7 +81,7 @@
   <script type="module" src="/src/main.tsx"></script>
   <script>
     // Capture OAuth callback code immediately on page load (before React mounts)
-    (function() {
+    (() => {
       const urlParams = new URLSearchParams(window.location.search);
       const code = urlParams.get('code');
       const state = urlParams.get('state');
@@ -112,19 +112,19 @@
             runId: 'run3',
             hypothesisId: 'F'
           })
-        }).catch(function() {});
+        }).catch(() => {});
       }
     })();
   </script>
   <script>
     // Remove initial spinner once React has loaded
-    window.addEventListener('load', function() {
-      setTimeout(function() {
+    window.addEventListener('load', () => {
+      setTimeout(() => {
         const spinner = document.getElementById('initial-spinner');
         if (spinner) {
           spinner.style.opacity = '0';
           spinner.style.transition = 'opacity 0.3s ease-out';
-          setTimeout(function() {
+          setTimeout(() => {
             spinner.remove();
           }, 300);
         }
@@ -134,7 +134,7 @@
   
   <script>
     // Disable autofill and extension noise
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
       // Disable autofill on all form elements
       const inputs = document.querySelectorAll('input, textarea, select');
       inputs.forEach(input => {
@@ -146,10 +146,10 @@
       });
       
       // Prevent extension injection
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
           if (mutation.type === 'childList') {
-            mutation.addedNodes.forEach(function(node) {
+            mutation.addedNodes.forEach((node) => {
               if (node.nodeType === 1) { // Element node
                 // Remove extension overlays
                 if (node.hasAttribute && (

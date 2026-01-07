@@ -29,7 +29,12 @@ export interface HybridFlowCredentials {
 	redirectUri: string;
 	scopes: string;
 	responseType?: 'code id_token' | 'code token' | 'code token id_token';
-	clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
 }
 
 export interface HybridAuthorizationUrlParams {
@@ -150,11 +155,11 @@ export class HybridFlowIntegrationServiceV8 {
 			state,
 			nonce,
 		};
-		
+
 		if (codeChallenge) result.codeChallenge = codeChallenge;
 		if (codeChallengeMethod) result.codeChallengeMethod = codeChallengeMethod;
 		if (codeVerifier) result.codeVerifier = codeVerifier;
-		
+
 		return result;
 	}
 
@@ -212,11 +217,11 @@ export class HybridFlowIntegrationServiceV8 {
 			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {
 				state,
 			};
-			
+
 			if (code) result.code = code;
 			if (accessToken) result.access_token = accessToken;
 			if (idToken) result.id_token = idToken;
-			
+
 			return result;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error parsing callback fragment`, { error });
@@ -271,7 +276,7 @@ export class HybridFlowIntegrationServiceV8 {
 				try {
 					const { createClientAssertion } = await import('../../utils/clientAuthentication');
 					const actualTokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-					
+
 					let assertion: string;
 					if (authMethod === 'client_secret_jwt') {
 						if (!credentials.clientSecret) {
@@ -295,8 +300,9 @@ export class HybridFlowIntegrationServiceV8 {
 							'RS256'
 						);
 					}
-					
-					bodyParams.client_assertion_type = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+
+					bodyParams.client_assertion_type =
+						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
 					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
 				} catch (error) {
@@ -311,7 +317,9 @@ export class HybridFlowIntegrationServiceV8 {
 					if (credentials.clientSecret) {
 						if (authMethod === 'client_secret_post') {
 							bodyParams.client_secret = credentials.clientSecret;
-							console.log(`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`);
+							console.log(
+								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
+							);
 						} else {
 							// client_secret_basic - will be handled in Authorization header
 							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);

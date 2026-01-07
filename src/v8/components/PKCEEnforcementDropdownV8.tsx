@@ -399,8 +399,8 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 								lineHeight: '1.5',
 							}}
 						>
-							PKCE (RFC 7636) is a security extension for OAuth 2.0 that protects authorization codes
-							from interception attacks. It works by:
+							PKCE (RFC 7636) is a security extension for OAuth 2.0 that protects authorization
+							codes from interception attacks. It works by:
 						</div>
 						<ul
 							style={{
@@ -465,4 +465,3 @@ export const PKCEEnforcementDropdownV8: React.FC<PKCEEnforcementDropdownV8Props>
 };
 
 export default PKCEEnforcementDropdownV8;
-

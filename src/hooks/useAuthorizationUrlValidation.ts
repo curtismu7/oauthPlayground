@@ -204,5 +204,4 @@ if (typeof window !== 'undefined') {
 	(window as any).useAuthorizationUrlValidation = useAuthorizationUrlValidation;
 	(window as any).usePreSendUrlValidation = usePreSendUrlValidation;
 	(window as any).useRealtimeUrlValidation = useRealtimeUrlValidation;
-
 }

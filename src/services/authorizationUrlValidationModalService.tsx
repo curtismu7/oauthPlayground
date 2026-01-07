@@ -413,5 +413,4 @@ export { AuthorizationUrlValidationModalService };
 // Global access for debugging
 if (typeof window !== 'undefined') {
 	(window as any).authorizationUrlValidationModalService = authorizationUrlValidationModalService;
-
 }

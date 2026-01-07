@@ -71,6 +71,11 @@ client.log
 api-log.log
 pingone-api.log
 
+# Process ID files
+*.pid
+.backend.pid
+.frontend.pid
+
 # Large files
 *.dmg
 *.iso

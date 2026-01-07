@@ -89,7 +89,9 @@ export default defineConfig(({ mode }) => {
 				port: 3000,
 				host: 'localhost',
 				protocol: 'wss',
+				clientPort: 3000,
 			},
+			logLevel: 'warn', // Reduce Vite connection logs (suppresses "connecting..." and "connected" messages)
 			proxy: {
 				'/api': {
 					target: 'http://localhost:3001', // Backend server (HTTP, not HTTPS)
