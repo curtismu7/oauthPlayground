@@ -218,46 +218,52 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			const credentials = await workerTokenServiceV8.loadCredentials();
 			const region = (credentials?.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us';
 
-			// Prepare policy update with only the fields we're updating
-			// Explicitly construct the policy update to ensure all updated fields are included
-			// This ensures cooldown variables (duration, timeUnit) are properly included in the request
-			const policyUpdate: Partial<DeviceAuthenticationPolicy> = {};
-
-			// Include OTP failure settings if they exist
-			if (selectedPolicy.otp?.failure) {
-				policyUpdate.otp = {
-					failure: {
-						...(selectedPolicy.otp.failure.count !== undefined && {
-							count: selectedPolicy.otp.failure.count,
-						}),
-						...(selectedPolicy.otp.failure.coolDown && {
-							coolDown: {
-								...(selectedPolicy.otp.failure.coolDown.duration !== undefined && {
-									duration: selectedPolicy.otp.failure.coolDown.duration,
-								}),
-								...(selectedPolicy.otp.failure.coolDown.timeUnit && {
-									timeUnit: selectedPolicy.otp.failure.coolDown.timeUnit,
-								}),
-							},
-						}),
+			// PingOne requires ALL device type configurations (email, totp, mobile, name, voice, sms) 
+			// to be present when updating a policy, even if we're only changing a subset of fields.
+			// Start with the full existing policy and merge in our updates.
+			const policyUpdate: Partial<DeviceAuthenticationPolicy> = {
+				// Include all device type configurations from existing policy (required by PingOne)
+				...(selectedPolicy.email && { email: selectedPolicy.email }),
+				...(selectedPolicy.totp && { totp: selectedPolicy.totp }),
+				...(selectedPolicy.mobile && { mobile: selectedPolicy.mobile }),
+				...(selectedPolicy.name && { name: selectedPolicy.name }),
+				...(selectedPolicy.voice && { voice: selectedPolicy.voice }),
+				...(selectedPolicy.sms && { sms: selectedPolicy.sms }),
+				
+				// Include OTP failure settings (our updates)
+				...(selectedPolicy.otp?.failure && {
+					otp: {
+						failure: {
+							...(selectedPolicy.otp.failure.count !== undefined && {
+								count: selectedPolicy.otp.failure.count,
+							}),
+							...(selectedPolicy.otp.failure.coolDown && {
+								coolDown: {
+									...(selectedPolicy.otp.failure.coolDown.duration !== undefined && {
+										duration: selectedPolicy.otp.failure.coolDown.duration,
+									}),
+									...(selectedPolicy.otp.failure.coolDown.timeUnit && {
+										timeUnit: selectedPolicy.otp.failure.coolDown.timeUnit,
+									}),
+								},
+							}),
+						},
 					},
-				};
-			}
+				}),
 
-			// Include pairing settings if they exist
-			// Always include these fields (even if false) for educational completeness
-			policyUpdate.promptForNicknameOnPairing = selectedPolicy.promptForNicknameOnPairing ?? false;
-			policyUpdate.pairingDisabled = selectedPolicy.pairingDisabled ?? false;
-			policyUpdate.skipUserLockVerification = selectedPolicy.skipUserLockVerification ?? false;
+				// Include pairing settings (our updates)
+				promptForNicknameOnPairing: selectedPolicy.promptForNicknameOnPairing ?? false,
+				pairingDisabled: selectedPolicy.pairingDisabled ?? false,
+				skipUserLockVerification: selectedPolicy.skipUserLockVerification ?? false,
 
-			// Include authentication device selection if it exists
-			// Always include if deviceSelection is set (even if authentication object doesn't exist yet)
-			if (selectedPolicy.authentication?.deviceSelection) {
-				policyUpdate.authentication = {
-					...(selectedPolicy.authentication || {}),
-					deviceSelection: selectedPolicy.authentication.deviceSelection,
-				};
-			}
+				// Include authentication device selection (our updates)
+				...(selectedPolicy.authentication?.deviceSelection && {
+					authentication: {
+						...(selectedPolicy.authentication || {}),
+						deviceSelection: selectedPolicy.authentication.deviceSelection,
+					},
+				}),
+			};
 
 			await MFAServiceV8.updateDeviceAuthenticationPolicy(
 				environmentId,
