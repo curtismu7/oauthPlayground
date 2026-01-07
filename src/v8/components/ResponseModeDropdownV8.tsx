@@ -65,7 +65,8 @@ const RESPONSE_MODE_OPTIONS: Record<ResponseMode, ResponseModeOption> = {
 		label: 'Redirectless (PingOne)',
 		icon: '⚡',
 		description: 'PingOne pi.flow - no redirect, returns flow object via POST',
-		useCase: 'For companies who want to control the UI themselves. Perfect for embedded auth, mobile apps, and headless flows where you need full control over the authentication user experience.',
+		useCase:
+			'For companies who want to control the UI themselves. Perfect for embedded auth, mobile apps, and headless flows where you need full control over the authentication user experience.',
 	},
 };
 
@@ -296,9 +297,7 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 
 							if (mode === 'query') {
 								example = 'https://app.com/callback?code=abc123&state=xyz';
-								usageInfo = [
-									{ icon: '✅', text: 'Used by: Authorization Code Flow (default)' },
-								];
+								usageInfo = [{ icon: '✅', text: 'Used by: Authorization Code Flow (default)' }];
 							} else if (mode === 'fragment') {
 								example = 'https://app.com/callback#access_token=xyz&token_type=Bearer';
 								usageInfo = [
@@ -312,10 +311,14 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 									{ icon: '🔒', text: 'Most secure - no data in URL at all' },
 								];
 							} else if (mode === 'pi.flow') {
-								example = 'POST /flows\n{"status": "USERNAME_PASSWORD_REQUIRED", "resumeUrl": "..."}';
+								example =
+									'POST /flows\n{"status": "USERNAME_PASSWORD_REQUIRED", "resumeUrl": "..."}';
 								usageInfo = [
 									{ icon: '🎨', text: 'For companies who want to control the UI themselves' },
-									{ icon: '✅', text: 'Perfect for embedded auth, mobile apps, and headless flows' },
+									{
+										icon: '✅',
+										text: 'Perfect for embedded auth, mobile apps, and headless flows',
+									},
 									{ icon: '🔒', text: 'No redirect - returns flow object via POST' },
 								];
 							}
@@ -433,7 +436,12 @@ export const ResponseModeDropdownV8: React.FC<ResponseModeDropdownV8Props> = ({
 							}}
 						>
 							This flow uses: {RESPONSE_MODE_OPTIONS[value]?.label || 'query'} (default for{' '}
-							{flowType === 'oauth-authz' ? 'authorization code' : flowType === 'implicit' ? 'implicit' : 'hybrid'})
+							{flowType === 'oauth-authz'
+								? 'authorization code'
+								: flowType === 'implicit'
+									? 'implicit'
+									: 'hybrid'}
+							)
 						</span>
 					</div>
 				</div>

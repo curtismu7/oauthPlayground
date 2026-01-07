@@ -128,4 +128,3 @@ export const StartupLoader: React.FC<StartupLoaderProps> = ({
 };
 
 export default StartupLoader;
-

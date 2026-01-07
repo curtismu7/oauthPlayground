@@ -3,7 +3,7 @@
  * @module v8/utils
  * @description Shared error handling utilities for consistent error management
  * @version 8.0.0
- * 
+ *
  * Provides standardized functions for handling, formatting, and displaying errors
  * across all MFA and OAuth flows.
  */
@@ -20,7 +20,7 @@ export interface ErrorDetails {
 
 /**
  * Extract error message from various error types
- * 
+ *
  * @param error - Error object (Error, string, or unknown)
  * @returns Human-readable error message
  */
@@ -28,11 +28,11 @@ export function extractErrorMessage(error: unknown): string {
 	if (error instanceof Error) {
 		return error.message;
 	}
-	
+
 	if (typeof error === 'string') {
 		return error;
 	}
-	
+
 	if (error && typeof error === 'object') {
 		// Try common error message properties
 		const errorObj = error as Record<string, unknown>;
@@ -46,13 +46,13 @@ export function extractErrorMessage(error: unknown): string {
 			return errorObj.error_description;
 		}
 	}
-	
+
 	return 'An unknown error occurred';
 }
 
 /**
  * Extract error code from error object
- * 
+ *
  * @param error - Error object
  * @returns Error code if available, null otherwise
  */
@@ -66,13 +66,13 @@ export function extractErrorCode(error: unknown): string | null {
 			return errorObj.error;
 		}
 	}
-	
+
 	return null;
 }
 
 /**
  * Extract HTTP status code from error
- * 
+ *
  * @param error - Error object (may be a fetch Response or error with status property)
  * @returns Status code if available, null otherwise
  */
@@ -86,13 +86,13 @@ export function extractStatusCode(error: unknown): number | null {
 			return errorObj.statusCode;
 		}
 	}
-	
+
 	return null;
 }
 
 /**
  * Create standardized error details object
- * 
+ *
  * @param error - Error object
  * @param context - Additional context information
  * @returns Standardized error details
@@ -112,7 +112,7 @@ export function createErrorDetails(
 
 /**
  * Check if error is a network error
- * 
+ *
  * @param error - Error object
  * @returns True if error appears to be a network error
  */
@@ -127,13 +127,13 @@ export function isNetworkError(error: unknown): boolean {
 			message.includes('failed to fetch')
 		);
 	}
-	
+
 	return false;
 }
 
 /**
  * Check if error is an authentication/authorization error
- * 
+ *
  * @param error - Error object
  * @returns True if error appears to be an auth error
  */
@@ -141,17 +141,17 @@ export function isAuthError(error: unknown): boolean {
 	const statusCode = extractStatusCode(error);
 	const code = extractErrorCode(error);
 	const message = extractErrorMessage(error).toLowerCase();
-	
+
 	// Check status codes
 	if (statusCode === 401 || statusCode === 403) {
 		return true;
 	}
-	
+
 	// Check error codes
 	if (code === 'unauthorized' || code === 'forbidden' || code === 'invalid_token') {
 		return true;
 	}
-	
+
 	// Check message content
 	if (
 		message.includes('unauthorized') ||
@@ -162,13 +162,13 @@ export function isAuthError(error: unknown): boolean {
 	) {
 		return true;
 	}
-	
+
 	return false;
 }
 
 /**
  * Format error for user display
- * 
+ *
  * @param error - Error object
  * @param options - Formatting options
  * @returns User-friendly error message
@@ -181,26 +181,26 @@ export function formatErrorForUser(
 	}
 ): string {
 	const { includeDetails = false, maxLength = 200 } = options || {};
-	
+
 	const errorDetails = createErrorDetails(error);
 	let message = errorDetails.message;
-	
+
 	// Add status code if available and details requested
 	if (includeDetails && errorDetails.statusCode) {
 		message = `[${errorDetails.statusCode}] ${message}`;
 	}
-	
+
 	// Truncate if too long
 	if (message.length > maxLength) {
 		message = message.substring(0, maxLength - 3) + '...';
 	}
-	
+
 	return message;
 }
 
 /**
  * Log error with context
- * 
+ *
  * @param error - Error object
  * @param context - Additional context
  * @param level - Log level ('error' | 'warn' | 'info')
@@ -211,7 +211,7 @@ export function logError(
 	level: 'error' | 'warn' | 'info' = 'error'
 ): void {
 	const errorDetails = createErrorDetails(error, context);
-	
+
 	const logData = {
 		message: errorDetails.message,
 		code: errorDetails.code,
@@ -220,7 +220,7 @@ export function logError(
 		isNetworkError: isNetworkError(error),
 		isAuthError: isAuthError(error),
 	};
-	
+
 	if (level === 'error') {
 		console.error(`${MODULE_TAG} Error:`, logData);
 	} else if (level === 'warn') {
@@ -229,4 +229,3 @@ export function logError(
 		console.log(`${MODULE_TAG} Info:`, logData);
 	}
 }
-

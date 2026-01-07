@@ -188,4 +188,3 @@ export const MFAHeaderV8: React.FC<MFAHeaderV8Props> = ({
 		</>
 	);
 };
-

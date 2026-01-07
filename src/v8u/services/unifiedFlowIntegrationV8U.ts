@@ -332,11 +332,11 @@ export class UnifiedFlowIntegrationV8U {
 					hasClientSecret: !!credentials.clientSecret,
 					clientAuthMethod: credentials.clientAuthMethod,
 				});
-				
+
 				try {
 					// Import PAR service
 					const { PARRARIntegrationServiceV8U } = await import('./parRarIntegrationServiceV8U');
-					
+
 					// Build PAR request
 					const parRequest = PARRARIntegrationServiceV8U.buildPARRequest(
 						specVersion,
@@ -358,11 +358,11 @@ export class UnifiedFlowIntegrationV8U {
 					});
 
 					// Determine auth method for PAR request
-					const parAuthMethod = 
-						(credentials.clientAuthMethod === 'client_secret_basic' || 
-						 credentials.clientAuthMethod === 'client_secret_post' ||
-						 credentials.clientAuthMethod === 'private_key_jwt' ||
-						 credentials.clientAuthMethod === 'client_secret_jwt')
+					const parAuthMethod =
+						credentials.clientAuthMethod === 'client_secret_basic' ||
+						credentials.clientAuthMethod === 'client_secret_post' ||
+						credentials.clientAuthMethod === 'private_key_jwt' ||
+						credentials.clientAuthMethod === 'client_secret_jwt'
 							? credentials.clientAuthMethod
 							: 'client_secret_post';
 
@@ -371,7 +371,11 @@ export class UnifiedFlowIntegrationV8U {
 					// Push PAR request
 					const parResponse = await PARRARIntegrationServiceV8U.pushPARRequest(
 						parRequest,
-						parAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'private_key_jwt' | 'client_secret_jwt'
+						parAuthMethod as
+							| 'client_secret_basic'
+							| 'client_secret_post'
+							| 'private_key_jwt'
+							| 'client_secret_jwt'
 					);
 
 					if (!parResponse.requestUri) {
@@ -426,7 +430,9 @@ export class UnifiedFlowIntegrationV8U {
 						},
 					});
 					// Re-throw the error so the UI can display it
-					throw new Error(`PAR request failed: ${errorMsg}. This client requires PAR. Please ensure your client secret is correct and PAR is enabled in PingOne.`);
+					throw new Error(
+						`PAR request failed: ${errorMsg}. This client requires PAR. Please ensure your client secret is correct and PAR is enabled in PingOne.`
+					);
 				}
 			}
 
@@ -1022,7 +1028,7 @@ export class UnifiedFlowIntegrationV8U {
 				scopes: credentials.scopes || 'openid profile email',
 				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
 			};
-			
+
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
 				console.log(
@@ -1031,14 +1037,16 @@ export class UnifiedFlowIntegrationV8U {
 			} else {
 				console.log(`${MODULE_TAG} No client secret provided`);
 			}
-			
+
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				oauthCredentials.privateKey = credentials.privateKey;
 				console.log(`${MODULE_TAG} Private key included for private_key_jwt authentication`);
 			}
-			
-			console.log(`${MODULE_TAG} OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`);
+
+			console.log(
+				`${MODULE_TAG} OAuth credentials created with auth method: ${oauthCredentials.clientAuthMethod}`
+			);
 
 			console.log(`${MODULE_TAG} OAuth credentials prepared:`, {
 				environmentId: oauthCredentials.environmentId,
@@ -1094,7 +1102,9 @@ export class UnifiedFlowIntegrationV8U {
 			// Add private key for private_key_jwt authentication
 			if (credentials.clientAuthMethod === 'private_key_jwt' && credentials.privateKey) {
 				hybridCredentials.privateKey = credentials.privateKey;
-				console.log(`${MODULE_TAG} Private key included for hybrid flow private_key_jwt authentication`);
+				console.log(
+					`${MODULE_TAG} Private key included for hybrid flow private_key_jwt authentication`
+				);
 			}
 			return HybridFlowIntegrationServiceV8.exchangeCodeForTokens(
 				hybridCredentials,

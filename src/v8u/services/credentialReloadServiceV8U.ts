@@ -228,7 +228,12 @@ export function saveCredentialsBeforeReset(
 			clientId: string;
 			clientSecret?: string;
 			issuerUrl?: string;
-			clientAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+			clientAuthMethod?:
+				| 'none'
+				| 'client_secret_basic'
+				| 'client_secret_post'
+				| 'client_secret_jwt'
+				| 'private_key_jwt';
 		} = {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,

@@ -5,11 +5,11 @@
  * @version 8.2.0
  */
 
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import type { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import type { MFACredentials } from '../shared/MFATypes';
-import { MFAFlowController, type FlowControllerCallbacks } from './MFAFlowController';
 import type { RegisterDeviceParams } from '@/v8/services/mfaServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import type { MFACredentials } from '../shared/MFATypes';
+import { type FlowControllerCallbacks, MFAFlowController } from './MFAFlowController';
 
 const MODULE_TAG = '[📧 EMAIL-CONTROLLER]';
 
@@ -30,7 +30,9 @@ export class EmailFlowController extends MFAFlowController {
 		super('EMAIL', callbacks);
 	}
 
-	protected filterDevicesByType(devices: Array<Record<string, unknown>>): Array<Record<string, unknown>> {
+	protected filterDevicesByType(
+		devices: Array<Record<string, unknown>>
+	): Array<Record<string, unknown>> {
 		return devices.filter((d: Record<string, unknown>) => d.type === 'EMAIL');
 	}
 
@@ -58,20 +60,25 @@ export class EmailFlowController extends MFAFlowController {
 
 		// Per rightTOTP.md: Check token validity based on token type (worker or user)
 		const tokenType = credentials.tokenType || 'worker';
-		const isTokenValid = tokenType === 'worker' 
-			? tokenStatus.isValid 
-			: !!credentials.userToken?.trim();
+		const isTokenValid =
+			tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
 		if (!isTokenValid) {
-			errors.push(`${tokenType === 'worker' ? 'Worker' : 'User'} token is required - please add a token first`);
+			errors.push(
+				`${tokenType === 'worker' ? 'Worker' : 'User'} token is required - please add a token first`
+			);
 		}
 
 		nav.setValidationErrors(errors);
 		return errors.length === 0;
 	}
 
-	getDeviceRegistrationParams(credentials: MFACredentials, status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'): Partial<RegisterDeviceParams> {
+	getDeviceRegistrationParams(
+		credentials: MFACredentials,
+		status: 'ACTIVE' | 'ACTIVATION_REQUIRED' = 'ACTIVE'
+	): Partial<RegisterDeviceParams> {
 		// Use device name from credentials if provided
-		const deviceName = credentials.deviceName?.trim() || `Email Device - ${new Date().toLocaleDateString()}`;
+		const deviceName =
+			credentials.deviceName?.trim() || `Email Device - ${new Date().toLocaleDateString()}`;
 		const params: Partial<RegisterDeviceParams> = {
 			email: credentials.email,
 			name: deviceName,
@@ -95,4 +102,3 @@ export class EmailFlowController extends MFAFlowController {
 		return params;
 	}
 }
-

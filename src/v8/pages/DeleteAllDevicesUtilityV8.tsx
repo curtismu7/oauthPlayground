@@ -13,19 +13,28 @@
  * - Shows device count before deletion
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
-import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
-import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiLoader, FiTrash2, FiX } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { StorageServiceV8 } from '@/v8/services/storageServiceV8';
-import { FiTrash2, FiLoader, FiAlertCircle, FiCheckCircle, FiX } from 'react-icons/fi';
+import { uiNotificationServiceV8 } from '@/v8/services/uiNotificationServiceV8';
+import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 const MODULE_TAG = '[🗑️ DELETE-DEVICES-V8]';
 
 type DeviceType = 'ALL' | 'SMS' | 'EMAIL' | 'FIDO2' | 'TOTP' | 'WHATSAPP' | 'VOICE' | 'OATH';
-type DeviceStatus = 'ALL' | 'ACTIVE' | 'ACTIVATION_REQUIRED' | 'BLOCKED' | 'LOCKED' | 'PENDING' | 'SUSPENDED' | 'EXPIRED';
+type DeviceStatus =
+	| 'ALL'
+	| 'ACTIVE'
+	| 'ACTIVATION_REQUIRED'
+	| 'BLOCKED'
+	| 'LOCKED'
+	| 'PENDING'
+	| 'SUSPENDED'
+	| 'EXPIRED';
 
 const DEVICE_TYPES: Array<{ value: DeviceType; label: string }> = [
 	{ value: 'ALL', label: 'All Device Types' },
@@ -60,7 +69,19 @@ interface DeleteAllDevicesPageState {
 }
 
 export const DeleteAllDevicesUtilityV8: React.FC = () => {
+	const location = useLocation();
+	const locationState = location.state as {
+		environmentId?: string;
+		username?: string;
+		deviceType?: DeviceType;
+		deviceStatus?: DeviceStatus;
+	} | null;
+
 	const [environmentId, setEnvironmentId] = useState(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.environmentId) {
+			return locationState.environmentId;
+		}
 		try {
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
 			if (stored?.environmentId) {
@@ -76,6 +97,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		return '';
 	});
 	const [username, setUsername] = useState(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.username) {
+			return locationState.username;
+		}
 		try {
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
 			return stored?.username || '';
@@ -85,6 +110,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		}
 	});
 	const [selectedDeviceType, setSelectedDeviceType] = useState<DeviceType>(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.deviceType && locationState.deviceType !== 'ALL') {
+			return locationState.deviceType;
+		}
 		try {
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
 			if (stored?.selectedDeviceType) {
@@ -96,6 +125,10 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 		return 'ALL';
 	});
 	const [selectedDeviceStatus, setSelectedDeviceStatus] = useState<DeviceStatus>(() => {
+		// Check location.state first (passed from TOTP flow)
+		if (locationState?.deviceStatus && locationState.deviceStatus !== 'ALL') {
+			return locationState.deviceStatus;
+		}
 		try {
 			const stored = StorageServiceV8.load<DeleteAllDevicesPageState>(PAGE_STORAGE_KEY);
 			if (stored?.selectedDeviceStatus) {
@@ -165,7 +198,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			// Filter by device type if not 'ALL'
 			let filteredDevices = allDevices;
 			if (selectedDeviceType !== 'ALL') {
-				filteredDevices = filteredDevices.filter((d) => (d.type as string)?.toUpperCase() === selectedDeviceType);
+				filteredDevices = filteredDevices.filter(
+					(d) => (d.type as string)?.toUpperCase() === selectedDeviceType
+				);
 			}
 
 			// Filter by device status if not 'ALL'
@@ -184,13 +219,17 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					toastV8.info('No devices found for this user');
 				} else {
 					const typeFilter = selectedDeviceType !== 'ALL' ? ` ${selectedDeviceType}` : '';
-					const statusFilter = selectedDeviceStatus !== 'ALL' ? ` with status ${selectedDeviceStatus}` : '';
+					const statusFilter =
+						selectedDeviceStatus !== 'ALL' ? ` with status ${selectedDeviceStatus}` : '';
 					toastV8.info(`No${typeFilter} devices${statusFilter} found for this user`);
 				}
 			} else {
 				const typeFilter = selectedDeviceType !== 'ALL' ? ` ${selectedDeviceType}` : '';
-				const statusFilter = selectedDeviceStatus !== 'ALL' ? ` with status ${selectedDeviceStatus}` : '';
-				toastV8.success(`Found ${filteredDevices.length}${typeFilter} device(s)${statusFilter} to delete`);
+				const statusFilter =
+					selectedDeviceStatus !== 'ALL' ? ` with status ${selectedDeviceStatus}` : '';
+				toastV8.success(
+					`Found ${filteredDevices.length}${typeFilter} device(s)${statusFilter} to delete`
+				);
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to load devices';
@@ -228,9 +267,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 			return;
 		}
 
-		const devicesToDelete = devices.filter((device) =>
-			selectedDeviceIds.has(device.id as string)
-		);
+		const devicesToDelete = devices.filter((device) => selectedDeviceIds.has(device.id as string));
 
 		if (devicesToDelete.length === 0) {
 			toastV8.warning('No devices selected for deletion');
@@ -281,8 +318,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					console.log(`${MODULE_TAG} ✅ Deleted device: ${deviceNickname} (${deviceType})`);
 				} catch (deleteError) {
 					results.failed++;
-					const errorMessage =
-						deleteError instanceof Error ? deleteError.message : 'Unknown error';
+					const errorMessage = deleteError instanceof Error ? deleteError.message : 'Unknown error';
 					results.errors.push({ deviceId, error: errorMessage });
 					console.error(`${MODULE_TAG} ❌ Failed to delete device ${deviceNickname}:`, deleteError);
 				}
@@ -497,7 +533,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					<button
 						type="button"
 						onClick={handleLoadDevices}
-						disabled={isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid}
+						disabled={
+							isLoading || !environmentId.trim() || !username.trim() || !tokenStatus.isValid
+						}
 						style={{
 							padding: '12px 24px',
 							border: 'none',
@@ -525,9 +563,7 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								Loading Devices...
 							</>
 						) : (
-							<>
-								🔍 Load Devices
-							</>
+							<>🔍 Load Devices</>
 						)}
 					</button>
 				</div>
@@ -549,7 +585,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 				>
 					<FiAlertCircle style={{ color: '#dc2626', fontSize: '20px', flexShrink: 0 }} />
 					<div style={{ flex: 1 }}>
-						<strong style={{ color: '#991b1b', display: 'block', marginBottom: '4px' }}>Error</strong>
+						<strong style={{ color: '#991b1b', display: 'block', marginBottom: '4px' }}>
+							Error
+						</strong>
 						<span style={{ color: '#991b1b' }}>{error}</span>
 					</div>
 					<button
@@ -719,7 +757,9 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 					}}
 				>
-					<h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
+					<h2
+						style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600', color: '#1f2937' }}
+					>
 						Deletion Results
 					</h2>
 
@@ -733,7 +773,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 								flex: 1,
 							}}
 						>
-							<div style={{ fontSize: '24px', fontWeight: '700', color: '#16a34a', marginBottom: '4px' }}>
+							<div
+								style={{
+									fontSize: '24px',
+									fontWeight: '700',
+									color: '#16a34a',
+									marginBottom: '4px',
+								}}
+							>
 								{deletionResults.success}
 							</div>
 							<div style={{ fontSize: '14px', color: '#365314' }}>Successfully Deleted</div>
@@ -748,7 +795,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 									flex: 1,
 								}}
 							>
-								<div style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626', marginBottom: '4px' }}>
+								<div
+									style={{
+										fontSize: '24px',
+										fontWeight: '700',
+										color: '#dc2626',
+										marginBottom: '4px',
+									}}
+								>
 									{deletionResults.failed}
 								</div>
 								<div style={{ fontSize: '14px', color: '#991b1b' }}>Failed</div>
@@ -758,7 +812,14 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 
 					{deletionResults.errors.length > 0 && (
 						<div>
-							<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+							<h3
+								style={{
+									margin: '0 0 12px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#1f2937',
+								}}
+							>
 								Errors:
 							</h3>
 							<div style={{ display: 'grid', gap: '8px' }}>
@@ -795,13 +856,12 @@ export const DeleteAllDevicesUtilityV8: React.FC = () => {
 					color: '#1e40af',
 				}}
 			>
-				<strong>💡 Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure you have
-				the appropriate permissions and that the worker token has the necessary scopes. Deleted devices cannot
-				be recovered.
+				<strong>💡 Note:</strong> This utility uses the PingOne MFA API to delete devices. Make sure
+				you have the appropriate permissions and that the worker token has the necessary scopes.
+				Deleted devices cannot be recovered.
 			</div>
 		</div>
 	);
 };
 
 export default DeleteAllDevicesUtilityV8;
-

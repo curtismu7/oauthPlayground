@@ -9,8 +9,12 @@
  * compatibility, reducing complexity in the main UnifiedOAuthFlowV8U component.
  */
 
+import {
+	type FlowType,
+	type SpecVersion,
+	SpecVersionServiceV8,
+} from '@/v8/services/specVersionServiceV8';
 import { UnifiedFlowIntegrationV8U } from '../services/unifiedFlowIntegrationV8U';
-import { SpecVersionServiceV8, type SpecVersion, type FlowType } from '@/v8/services/specVersionServiceV8';
 
 const MODULE_TAG = '[🔄 FLOW-TYPE-MANAGER-V8U]';
 
@@ -160,4 +164,3 @@ export default {
 	validateFlowTypeSpecCombination,
 	getAvailableFlowsWithLabels,
 };
-

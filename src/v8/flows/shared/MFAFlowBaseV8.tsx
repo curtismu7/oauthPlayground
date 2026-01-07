@@ -7,7 +7,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiX } from 'react-icons/fi';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFADeviceLimitModalV8 } from '@/v8/components/MFADeviceLimitModalV8';
@@ -83,6 +83,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	stepLabels = ['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate'],
 	shouldHideNextButton,
 }) => {
+	const location = useLocation();
 	const [searchParams] = useSearchParams();
 	// Track API display visibility for padding
 	const [apiDisplayVisible, setApiDisplayVisible] = useState(false);
@@ -115,7 +116,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 	const nav = useStepNavigationV8(totalSteps, {
 		onStepChange: (step) => {
-			console.log(`${MODULE_TAG} Step changed to`, { step });
+			// Removed verbose logging
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 			document.documentElement.scrollTop = 0;
 			document.body.scrollTop = 0;
@@ -427,128 +428,22 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					);
 					const config = MFAConfigurationServiceV8.loadConfiguration();
 					const silentApiRetrieval = config.workerToken.silentApiRetrieval;
+					const showTokenAtEnd = config.workerToken.showTokenAtEnd;
 
 					console.log(`${MODULE_TAG} Worker token error detected`, {
 						silentApiRetrieval,
+						showTokenAtEnd,
 						hasWorkerTokenError,
 					});
 
-					if (silentApiRetrieval) {
-						// Attempt to silently fetch token using stored credentials
-						console.log(
-							`${MODULE_TAG} Silent API retrieval enabled, attempting to fetch token automatically...`
-						);
-						try {
-							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
-							const credentials = await workerTokenServiceV8.loadCredentials();
-
-							if (credentials) {
-								// Try to automatically fetch token using stored credentials
-								const region = credentials.region || 'us';
-								const apiBase =
-									region === 'eu'
-										? 'https://auth.pingone.eu'
-										: region === 'ap'
-											? 'https://auth.pingone.asia'
-											: region === 'ca'
-												? 'https://auth.pingone.ca'
-												: 'https://auth.pingone.com';
-
-								const proxyEndpoint = '/api/pingone/token';
-								const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
-								const scopeList = credentials.scopes;
-								const normalizedScopes: string[] =
-									Array.isArray(scopeList) && scopeList.length > 0 ? scopeList : defaultScopes;
-
-								const params = new URLSearchParams({
-									grant_type: 'client_credentials',
-									client_id: credentials.clientId,
-									scope: normalizedScopes.join(' '),
-								});
-
-								const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
-								if (authMethod === 'client_secret_post') {
-									params.set('client_secret', credentials.clientSecret);
-								}
-
-								const headers: Record<string, string> = {
-									'Content-Type': 'application/json',
-								};
-
-								// Use the same format as getWorkerTokenWithAutoRenew
-								const requestBody: Record<string, unknown> = {
-									environment_id: credentials.environmentId,
-									region,
-									body: params.toString(),
-									auth_method: authMethod,
-								};
-
-								if (authMethod === 'client_secret_basic') {
-									const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
-									requestBody.headers = { Authorization: `Basic ${basicAuth}` };
-								}
-
-								const response = await fetch(proxyEndpoint, {
-									method: 'POST',
-									headers,
-									body: JSON.stringify(requestBody),
-								});
-
-								if (response.ok) {
-									const data = (await response.json()) as {
-										access_token: string;
-										expires_in?: number;
-									};
-
-									if (data.access_token) {
-										const expiresIn = data.expires_in || 3600; // Default to 1 hour
-										const expiresAt = Date.now() + expiresIn * 1000;
-
-										await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
-
-										console.log(
-											`${MODULE_TAG} Token automatically fetched and saved via silent API retrieval`
-										);
-										window.dispatchEvent(new Event('workerTokenUpdated'));
-										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-										setTokenStatus(newStatus);
-										nav.setValidationErrors([]);
-										toastV8.success('Worker token automatically retrieved!');
-										silentRetrievalSucceeded = true;
-										return; // Success - don't show modal
-									}
-								}
-
-								// If we get here, silent retrieval failed
-								console.warn(
-									`${MODULE_TAG} Silent API retrieval failed (status: ${response.status}), will show modal`
-								);
-							} else {
-								console.warn(`${MODULE_TAG} No stored credentials for silent API retrieval`);
-							}
-						} catch (silentError) {
-							console.error(`${MODULE_TAG} Silent API retrieval error:`, silentError);
-							// Fall through to show modal
-						}
-					}
-
-					// Show modal only if silent retrieval didn't succeed
-					if (!silentRetrievalSucceeded && !showWorkerTokenPromptModal) {
-						if (!silentApiRetrieval) {
-							console.log(
-								`${MODULE_TAG} Silent API retrieval disabled, showing worker token prompt modal`
-							);
-						} else {
-							console.log(
-								`${MODULE_TAG} Silent API retrieval failed, showing worker token prompt modal as fallback`
-							);
-						}
-						setShowWorkerTokenPromptModal(true);
-					}
+					// Use helper function to attempt silent retrieval (respects silentApiRetrieval setting)
+					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
 				} catch (configError) {
 					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
-					// Default to showing modal if config can't be loaded
-					setShowWorkerTokenPromptModal(true);
+					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
+					// Default to not showing modal to be safe (user can manually trigger if needed)
+					console.warn(`${MODULE_TAG} Config error - not showing modal automatically`);
 				}
 			})();
 		}
@@ -691,9 +586,21 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					</div>
 					<div className="header-right">
 						<div className="step-badge">
-							<span className="step-number">{nav.currentStep + 1}</span>
-							<span className="step-divider">/</span>
-							<span className="step-total">{stepLabels.length}</span>
+							{(() => {
+								// Count visible steps (non-empty labels) up to current step
+								const visibleSteps = stepLabels.filter((label) => label && label.trim() !== '');
+								const currentVisibleStep = stepLabels
+									.slice(0, nav.currentStep + 1)
+									.filter((label) => label && label.trim() !== '').length;
+								const totalVisibleSteps = visibleSteps.length;
+								return (
+									<>
+										<span className="step-number">{currentVisibleStep}</span>
+										<span className="step-divider">/</span>
+										<span className="step-total">{totalVisibleSteps}</span>
+									</>
+								);
+							})()}
 						</div>
 					</div>
 				</div>
@@ -704,16 +611,19 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 			<div className="flow-container">
 				<div className="step-breadcrumb">
-					{stepLabels.map((label, idx) => (
-						<div key={label} className="breadcrumb-item">
-							<span
-								className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
-							>
-								{label}
-							</span>
-							{idx < stepLabels.length - 1 && <span className="breadcrumb-arrow">→</span>}
-						</div>
-					))}
+					{stepLabels
+						.map((label, idx) => ({ label, idx }))
+						.filter(({ label }) => label && label.trim() !== '') // Filter out empty labels
+						.map(({ label, idx }) => (
+							<div key={`${label}-${idx}`} className="breadcrumb-item">
+								<span
+									className={`breadcrumb-text ${idx === nav.currentStep ? 'active' : ''} ${nav.completedSteps.includes(idx) ? 'completed' : ''}`}
+								>
+									{label}
+								</span>
+								{idx < stepLabels.length - 1 && <span className="breadcrumb-arrow">→</span>}
+							</div>
+						))}
 				</div>
 
 				<div className="step-content-wrapper" style={{ paddingBottom: '12px' }}>
@@ -814,11 +724,25 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					totalSteps={totalSteps}
 					isNextDisabled={isNextDisabled()}
 					hideNextButton={shouldHideNext()}
-					hidePreviousButton={true}
+					hidePreviousButton={false}
 					onPrevious={() => {
 						nav.setValidationErrors([]);
 						nav.setValidationWarnings([]);
-						nav.goToPrevious();
+						
+						// For TOTP, close modals before navigating
+						if (deviceType === 'TOTP') {
+							// Close any open modals first
+							// Note: Modal state is managed in TOTPFlowV8, so we just navigate
+							// The modal close handlers will handle cleanup
+						}
+						
+						// Navigate to previous step
+						if (nav.canGoPrevious) {
+							nav.goToPrevious();
+						} else {
+							// No valid previous step, this shouldn't happen (Previous button should be disabled)
+							console.warn(`${MODULE_TAG} Previous button clicked but canGoPrevious is false`);
+						}
 					}}
 					onNext={() => {
 						if (nav.currentStep === 0) {
@@ -864,6 +788,23 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 							}
 							// If no device selected or new device selected, allow navigation to registration
 							nav.goToNext();
+						} else if (nav.currentStep === 3 && deviceType === 'TOTP') {
+							// Step 3: QR Code page for TOTP
+							// For TOTP registration flow, Step 3 is the QR code page and should never navigate to Step 4
+							// Step 4 is only for authentication flow validation
+							// Check if this is a registration flow (configured flag in location state)
+							const locationState = location.state as { configured?: boolean } | undefined;
+							const isRegistrationFlow = locationState?.configured === true;
+							
+							if (isRegistrationFlow) {
+								// For registration flow, don't navigate to Step 4
+								// The QR code page (Step 3) should stay on Step 3
+								// Success page will be shown after device activation
+								console.log(`${MODULE_TAG} TOTP registration flow: Preventing navigation from Step 3 to Step 4`);
+								return;
+							}
+							// For authentication flow, allow navigation to Step 4
+							nav.goToNext();
 						} else {
 							nav.goToNext();
 						}
@@ -891,8 +832,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 					// Clear the error when user dismisses the modal
 					nav.setValidationErrors([]);
 				}}
-				onGetToken={() => {
-					setShowWorkerTokenModal(true);
+				onGetToken={async () => {
+					// Use helper to show worker token modal (respects silent API retrieval setting)
+					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
 				}}
 			/>
 

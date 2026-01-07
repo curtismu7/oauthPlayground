@@ -13,9 +13,10 @@ console.warn = (...args) => {
 		typeof args[0] === 'string' &&
 		(args[0].includes('Support for defaultProps will be removed from memo components') ||
 			args[0].includes('Connect(Droppable)') ||
-			args[0].includes('Connect(Draggable)'))
+			args[0].includes('Connect(Draggable)') ||
+			args[0].includes('Download the React DevTools'))
 	) {
-		// Suppress react-beautiful-dnd defaultProps warnings
+		// Suppress react-beautiful-dnd defaultProps warnings and React DevTools message
 		return;
 	}
 	originalWarn.apply(console, args);

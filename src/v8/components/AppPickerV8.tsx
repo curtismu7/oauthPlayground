@@ -69,13 +69,14 @@ export const AppPickerV8: React.FC<AppPickerV8Props> = ({ environmentId, onAppSe
 		};
 	}, []);
 
-	const handleManageWorkerToken = () => {
+	const handleManageWorkerToken = async () => {
 		if (tokenStatus.isValid) {
 			// Show confirmation modal instead of system confirm
 			setShowConfirmModal(true);
 		} else {
-			// Open the worker token modal
-			setShowWorkerTokenModal(true);
+			// Use helper to check silentApiRetrieval before showing modal
+			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
 		}
 	};
 

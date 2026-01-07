@@ -93,7 +93,7 @@ export const checkWorkerTokenStatus = (
 	if (!resolvedToken) {
 		return {
 			status: 'missing',
-			message: 'No worker token. Click "Add Token" to generate one.',
+			message: 'No worker token. Click "Get Worker Token" to generate one.',
 			isValid: false,
 		};
 	}

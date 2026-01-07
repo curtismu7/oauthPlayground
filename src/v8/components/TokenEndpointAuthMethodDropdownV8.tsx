@@ -17,11 +17,11 @@
 
 import React, { useState } from 'react';
 import { FiChevronDown, FiInfo } from 'react-icons/fi';
-import {
-	TokenEndpointAuthMethodServiceV8,
-	type TokenEndpointAuthMethod,
-} from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import {
+	type TokenEndpointAuthMethod,
+	TokenEndpointAuthMethodServiceV8,
+} from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 
 const MODULE_TAG = '[🔐 TOKEN-AUTH-METHOD-V8]';
 
@@ -51,7 +51,8 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 		value: 'none',
 		label: 'None (Public Client)',
 		icon: '🌐',
-		description: 'No client authentication. Used for public clients (SPAs, mobile apps) when using PKCE.',
+		description:
+			'No client authentication. Used for public clients (SPAs, mobile apps) when using PKCE.',
 		security: 'Medium - Requires PKCE for security',
 		useCase: 'Public clients (SPAs, mobile apps) with PKCE',
 		rfc: 'RFC 6749, Section 2.3.1',
@@ -102,7 +103,15 @@ const AUTH_METHOD_OPTIONS: Record<TokenEndpointAuthMethod, AuthMethodOption> = {
 
 export const TokenEndpointAuthMethodDropdownV8: React.FC<
 	TokenEndpointAuthMethodDropdownV8Props
-> = ({ value, onChange, flowType, specVersion, usePKCE = false, disabled = false, className = '' }) => {
+> = ({
+	value,
+	onChange,
+	flowType,
+	specVersion,
+	usePKCE = false,
+	disabled = false,
+	className = '',
+}) => {
 	const [showInfo, setShowInfo] = useState(false);
 	const availableMethods = TokenEndpointAuthMethodServiceV8.getAuthMethods(
 		flowType,
@@ -448,8 +457,8 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 								lineHeight: '1.5',
 							}}
 						>
-							<strong>💡 Quick Tip:</strong> Use <strong>Client Secret Post</strong> for most
-							web applications, <strong>None</strong> for public clients with PKCE, or{' '}
+							<strong>💡 Quick Tip:</strong> Use <strong>Client Secret Post</strong> for most web
+							applications, <strong>None</strong> for public clients with PKCE, or{' '}
 							<strong>Private Key JWT</strong> for the highest security requirements.
 						</div>
 					</div>
@@ -460,4 +469,3 @@ export const TokenEndpointAuthMethodDropdownV8: React.FC<
 };
 
 export default TokenEndpointAuthMethodDropdownV8;
-

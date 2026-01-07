@@ -48,7 +48,13 @@ export interface PasskeyAuthResult {
 	error?: string;
 	requiresRegistration?: boolean;
 	errorCode?: string;
-	unavailableDevices?: Array<{ id: string; type?: string; status?: string; nickname?: string; reason?: string }>;
+	unavailableDevices?: Array<{
+		id: string;
+		type?: string;
+		status?: string;
+		nickname?: string;
+		reason?: string;
+	}>;
 }
 
 export interface PasskeyRegistrationOptions {
@@ -64,7 +70,13 @@ export interface PasskeyRegistrationResult {
 	userId?: string;
 	error?: string;
 	errorCode?: string;
-	unavailableDevices?: Array<{ id: string; type?: string; status?: string; nickname?: string; reason?: string }>;
+	unavailableDevices?: Array<{
+		id: string;
+		type?: string;
+		status?: string;
+		nickname?: string;
+		reason?: string;
+	}>;
 }
 
 /**
@@ -88,9 +100,7 @@ export class PasskeyServiceV8 {
 	 * 4. Initialize PingOne MFA authentication
 	 * 5. Complete authentication with PingOne
 	 */
-	static async authenticateUsernameless(
-		options: PasskeyAuthOptions
-	): Promise<PasskeyAuthResult> {
+	static async authenticateUsernameless(options: PasskeyAuthOptions): Promise<PasskeyAuthResult> {
 		console.log(`${MODULE_TAG} Starting username-less passkey authentication`, {
 			environmentId: options.environmentId,
 		});
@@ -131,10 +141,15 @@ export class PasskeyServiceV8 {
 
 			if (!authOptionsResponse.ok) {
 				const errorData = await authOptionsResponse.json().catch(() => ({}));
-				const errorMessage = errorData.error || errorData.message || 'Failed to get authentication options';
-				
+				const errorMessage =
+					errorData.error || errorData.message || 'Failed to get authentication options';
+
 				// If 404 or "no credentials", this means user needs to register
-				if (authOptionsResponse.status === 404 || errorMessage.includes('no credentials') || errorMessage.includes('not found')) {
+				if (
+					authOptionsResponse.status === 404 ||
+					errorMessage.includes('no credentials') ||
+					errorMessage.includes('not found')
+				) {
 					return {
 						success: false,
 						error: 'No passkey found. Please register a passkey first.',
@@ -202,7 +217,9 @@ export class PasskeyServiceV8 {
 				publicKey: processedPublicKey,
 			};
 
-			const credential = (await navigator.credentials.get(getOptions)) as PublicKeyCredential | null;
+			const credential = (await navigator.credentials.get(
+				getOptions
+			)) as PublicKeyCredential | null;
 
 			if (!credential) {
 				return {
@@ -214,15 +231,14 @@ export class PasskeyServiceV8 {
 
 			// Step 3: Extract userHandle from response (this identifies the user)
 			const response = credential.response as AuthenticatorAssertionResponse;
-			const userHandle = response.userHandle
-				? arrayBufferToBase64(response.userHandle)
-				: null;
+			const userHandle = response.userHandle ? arrayBufferToBase64(response.userHandle) : null;
 
 			if (!userHandle) {
 				// No userHandle means this is not a discoverable credential
 				return {
 					success: false,
-					error: 'This passkey is not a discoverable credential. Please use username-based authentication.',
+					error:
+						'This passkey is not a discoverable credential. Please use username-based authentication.',
 					requiresRegistration: false,
 				};
 			}
@@ -262,15 +278,22 @@ export class PasskeyServiceV8 {
 
 			if (!verifyResponse.ok) {
 				const errorData = await verifyResponse.json().catch(() => ({}));
-				
+
 				// Check for NO_USABLE_DEVICES error
-				if (errorData.error === 'NO_USABLE_DEVICES' || errorData.error?.code === 'NO_USABLE_DEVICES') {
+				if (
+					errorData.error === 'NO_USABLE_DEVICES' ||
+					errorData.error?.code === 'NO_USABLE_DEVICES'
+				) {
 					return {
 						success: false,
-						error: errorData.message || errorData.error?.message || 'No usable devices found for authentication',
+						error:
+							errorData.message ||
+							errorData.error?.message ||
+							'No usable devices found for authentication',
 						requiresRegistration: false,
 						errorCode: 'NO_USABLE_DEVICES',
-						unavailableDevices: errorData.unavailableDevices || errorData.error?.unavailableDevices || [],
+						unavailableDevices:
+							errorData.unavailableDevices || errorData.error?.unavailableDevices || [],
 					};
 				}
 
@@ -380,8 +403,9 @@ export class PasskeyServiceV8 {
 
 			if (!regOptionsResponse.ok) {
 				const errorData = await regOptionsResponse.json().catch(() => ({}));
-				const errorMessage = errorData.error || errorData.message || 'Failed to get registration options';
-				
+				const errorMessage =
+					errorData.error || errorData.message || 'Failed to get registration options';
+
 				// Check for NO_USABLE_DEVICES error
 				if (errorData.code === 'NO_USABLE_DEVICES' || errorData.errorCode === 'NO_USABLE_DEVICES') {
 					return {
@@ -391,7 +415,7 @@ export class PasskeyServiceV8 {
 						unavailableDevices: errorData.unavailableDevices || [],
 					};
 				}
-				
+
 				return {
 					success: false,
 					error: errorMessage,
@@ -426,24 +450,26 @@ export class PasskeyServiceV8 {
 			const processedPublicKey: PublicKeyCredentialCreationOptions = {
 				...publicKeyOptions,
 				// Convert challenge to ArrayBuffer if it's a string
-				challenge: typeof publicKeyOptions.challenge === 'string'
-					? base64ToArrayBuffer(publicKeyOptions.challenge)
-					: publicKeyOptions.challenge instanceof ArrayBuffer
-						? publicKeyOptions.challenge
-						: publicKeyOptions.challenge instanceof Uint8Array
-							? publicKeyOptions.challenge.buffer
-							: publicKeyOptions.challenge,
+				challenge:
+					typeof publicKeyOptions.challenge === 'string'
+						? base64ToArrayBuffer(publicKeyOptions.challenge)
+						: publicKeyOptions.challenge instanceof ArrayBuffer
+							? publicKeyOptions.challenge
+							: publicKeyOptions.challenge instanceof Uint8Array
+								? publicKeyOptions.challenge.buffer
+								: publicKeyOptions.challenge,
 				// Convert user.id to ArrayBuffer if it's a string
 				user: publicKeyOptions.user
 					? {
 							...publicKeyOptions.user,
-							id: typeof publicKeyOptions.user.id === 'string'
-								? base64ToArrayBuffer(publicKeyOptions.user.id)
-								: publicKeyOptions.user.id instanceof ArrayBuffer
-									? publicKeyOptions.user.id
-									: publicKeyOptions.user.id instanceof Uint8Array
-										? publicKeyOptions.user.id.buffer
-										: publicKeyOptions.user.id,
+							id:
+								typeof publicKeyOptions.user.id === 'string'
+									? base64ToArrayBuffer(publicKeyOptions.user.id)
+									: publicKeyOptions.user.id instanceof ArrayBuffer
+										? publicKeyOptions.user.id
+										: publicKeyOptions.user.id instanceof Uint8Array
+											? publicKeyOptions.user.id.buffer
+											: publicKeyOptions.user.id,
 						}
 					: publicKeyOptions.user,
 			};
@@ -484,8 +510,9 @@ export class PasskeyServiceV8 {
 
 			if (!verifyResponse.ok) {
 				const errorData = await verifyResponse.json().catch(() => ({}));
-				const errorMessage = errorData.error || errorData.message || 'Registration verification failed';
-				
+				const errorMessage =
+					errorData.error || errorData.message || 'Registration verification failed';
+
 				// Check for NO_USABLE_DEVICES error
 				if (errorData.code === 'NO_USABLE_DEVICES' || errorData.errorCode === 'NO_USABLE_DEVICES') {
 					return {
@@ -495,7 +522,7 @@ export class PasskeyServiceV8 {
 						unavailableDevices: errorData.unavailableDevices || [],
 					};
 				}
-				
+
 				return {
 					success: false,
 					error: errorMessage,
@@ -530,10 +557,13 @@ export class PasskeyServiceV8 {
 				}
 			} else if (error instanceof Error) {
 				errorMessage = error.message;
-				
+
 				// Check if error has NO_USABLE_DEVICES error code
 				if ((error as Error & { errorCode?: string }).errorCode === 'NO_USABLE_DEVICES') {
-					const errorWithDevices = error as Error & { errorCode?: string; unavailableDevices?: Array<{ id: string }> };
+					const errorWithDevices = error as Error & {
+						errorCode?: string;
+						unavailableDevices?: Array<{ id: string }>;
+					};
 					return {
 						success: false,
 						error: errorMessage,
@@ -550,4 +580,3 @@ export class PasskeyServiceV8 {
 		}
 	}
 }
-

@@ -113,7 +113,9 @@ export async function importCredentials(
 				});
 			} catch (error) {
 				console.error('[CredentialExportImport] Error parsing credential file:', error);
-				reject(new Error('Failed to parse credential file. Please ensure it is a valid JSON file.'));
+				reject(
+					new Error('Failed to parse credential file. Please ensure it is a valid JSON file.')
+				);
 			}
 		};
 
@@ -128,10 +130,7 @@ export async function importCredentials(
 /**
  * Create a file input element and trigger file selection
  */
-export function triggerFileImport(
-	onFileSelected: (file: File) => void,
-	accept = '.json'
-): void {
+export function triggerFileImport(onFileSelected: (file: File) => void, accept = '.json'): void {
 	const input = document.createElement('input');
 	input.type = 'file';
 	input.accept = accept;
@@ -148,4 +147,3 @@ export function triggerFileImport(
 	input.click();
 	document.body.removeChild(input);
 }
-

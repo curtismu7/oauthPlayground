@@ -48,11 +48,9 @@ export function testExportImportFunctionality() {
 		const testFile = new File([blob], 'test-config.json', { type: 'application/json' });
 
 		// Simulate import validation
-		exportImportService
-			.importConfiguration(testFile)
-			.catch((error) => {
-				console.error('❌ Import test failed:', error);
-			});
+		exportImportService.importConfiguration(testFile).catch((error) => {
+			console.error('❌ Import test failed:', error);
+		});
 
 		return true;
 	} catch (error) {

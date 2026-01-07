@@ -25,5 +25,3 @@ export const AlertDescription: React.FC<DivProps> = ({ children, className, ...p
 );
 
 export default Alert;
-
-

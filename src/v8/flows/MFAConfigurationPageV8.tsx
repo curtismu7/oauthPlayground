@@ -9,10 +9,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft, FiCheck, FiDownload, FiInfo, FiRefreshCw, FiUpload } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { usePageScroll } from '@/hooks/usePageScroll';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import {
 	type MFAConfiguration,
@@ -40,7 +43,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	);
 	const [hasChanges, setHasChanges] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
-	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
 	const [isRefreshingToken, setIsRefreshingToken] = useState(false);
 
 	// PingOne MFA Settings state
@@ -49,6 +51,25 @@ export const MFAConfigurationPageV8: React.FC = () => {
 	const [isSavingPingOneSettings, setIsSavingPingOneSettings] = useState(false);
 	const [hasPingOneSettingsChanges, setHasPingOneSettingsChanges] = useState(false);
 	const [environmentId, setEnvironmentId] = useState<string>('');
+
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'MFA Configuration V8', force: true });
+
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
+
+	// Device Authentication Policy state
+	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [selectedPolicyId, setSelectedPolicyId] = useState<string>('');
+	const [selectedPolicy, setSelectedPolicy] = useState<DeviceAuthenticationPolicy | null>(null);
+	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [isLoadingPolicy, setIsLoadingPolicy] = useState(false);
+	const [isSavingPolicy, setIsSavingPolicy] = useState(false);
+	const [hasPolicyChanges, setHasPolicyChanges] = useState(false);
+	const [showCreatePolicyModal, setShowCreatePolicyModal] = useState(false);
+	const [newPolicyName, setNewPolicyName] = useState('');
+	const [newPolicyDescription, setNewPolicyDescription] = useState('');
+	const [isCreatingPolicy, setIsCreatingPolicy] = useState(false);
 
 	// Get return path from location state
 	const locationState = location.state as { returnPath?: string; returnState?: unknown } | null;
@@ -78,13 +99,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		};
 	}, []);
 
-	// Subscribe to API display visibility changes
-	useEffect(() => {
-		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
-			setIsApiDisplayVisible(visible);
-		});
-		return () => unsubscribe();
-	}, []);
 
 	// Define loadPingOneSettings before useEffect that uses it
 	const loadPingOneSettings = useCallback(async (envId: string) => {
@@ -103,6 +117,46 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		}
 	}, []);
 
+	// Load device authentication policies
+	const loadDeviceAuthPolicies = useCallback(async (envId: string) => {
+		setIsLoadingPolicies(true);
+		try {
+			const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(envId);
+			setDeviceAuthPolicies(policies);
+			if (policies.length > 0 && !selectedPolicyId) {
+				setSelectedPolicyId(policies[0].id);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
+			toastV8.error(
+				'Failed to load device authentication policies. Please ensure you have a valid worker token.'
+			);
+		} finally {
+			setIsLoadingPolicies(false);
+		}
+	}, [selectedPolicyId]);
+
+	// Load selected policy details
+	const loadSelectedPolicy = useCallback(async (envId: string, policyId: string) => {
+		if (!policyId) {
+			setSelectedPolicy(null);
+			return;
+		}
+		setIsLoadingPolicy(true);
+		try {
+			const policy = await MFAServiceV8.readDeviceAuthenticationPolicy(envId, policyId);
+			setSelectedPolicy(policy);
+			setHasPolicyChanges(false);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load device authentication policy:`, error);
+			toastV8.error(
+				'Failed to load device authentication policy. Please ensure you have a valid worker token.'
+			);
+		} finally {
+			setIsLoadingPolicy(false);
+		}
+	}, []);
+
 	// Load environment ID and PingOne MFA Settings
 	useEffect(() => {
 		const loadEnvironmentAndSettings = async () => {
@@ -110,14 +164,32 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				const credentials = await workerTokenServiceV8.loadCredentials();
 				if (credentials?.environmentId) {
 					setEnvironmentId(credentials.environmentId);
-					await loadPingOneSettings(credentials.environmentId);
+					
+					// Only try to load PingOne settings if worker token is available
+					// This prevents error spam when worker token hasn't been configured yet
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					if (tokenStatus.isValid) {
+						await loadPingOneSettings(credentials.environmentId);
+						await loadDeviceAuthPolicies(credentials.environmentId);
+					} else {
+						// Silently skip loading settings if no worker token is available
+						// User can configure worker token and settings will load automatically
+						console.log(`${MODULE_TAG} Skipping PingOne MFA settings load - worker token not available`);
+					}
 				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Failed to load environment ID:`, error);
 			}
 		};
 		loadEnvironmentAndSettings();
-	}, [loadPingOneSettings]);
+	}, [loadPingOneSettings, loadDeviceAuthPolicies]);
+
+	// Load selected policy when policy ID changes
+	useEffect(() => {
+		if (environmentId && selectedPolicyId) {
+			loadSelectedPolicy(environmentId, selectedPolicyId);
+		}
+	}, [environmentId, selectedPolicyId, loadSelectedPolicy]);
 
 	const handleSavePingOneSettings = async () => {
 		if (!environmentId || !pingOneSettings) return;
@@ -134,6 +206,76 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			);
 		} finally {
 			setIsSavingPingOneSettings(false);
+		}
+	};
+
+	const handleSavePolicy = async () => {
+		if (!environmentId || !selectedPolicyId || !selectedPolicy) return;
+
+		setIsSavingPolicy(true);
+		try {
+			// Load credentials to get region
+			const credentials = await workerTokenServiceV8.loadCredentials();
+			const region = (credentials?.region as 'us' | 'eu' | 'ap' | 'ca' | 'na') || 'us';
+
+			// Prepare policy update with only the fields we're updating
+			// Explicitly construct the policy update to ensure all updated fields are included
+			// This ensures cooldown variables (duration, timeUnit) are properly included in the request
+			const policyUpdate: Partial<DeviceAuthenticationPolicy> = {};
+
+			// Include OTP failure settings if they exist
+			if (selectedPolicy.otp?.failure) {
+				policyUpdate.otp = {
+					failure: {
+						...(selectedPolicy.otp.failure.count !== undefined && {
+							count: selectedPolicy.otp.failure.count,
+						}),
+						...(selectedPolicy.otp.failure.coolDown && {
+							coolDown: {
+								...(selectedPolicy.otp.failure.coolDown.duration !== undefined && {
+									duration: selectedPolicy.otp.failure.coolDown.duration,
+								}),
+								...(selectedPolicy.otp.failure.coolDown.timeUnit && {
+									timeUnit: selectedPolicy.otp.failure.coolDown.timeUnit,
+								}),
+							},
+						}),
+					},
+				};
+			}
+
+			// Include pairing settings if they exist
+			// Always include these fields (even if false) for educational completeness
+			policyUpdate.promptForNicknameOnPairing = selectedPolicy.promptForNicknameOnPairing ?? false;
+			policyUpdate.pairingDisabled = selectedPolicy.pairingDisabled ?? false;
+			policyUpdate.skipUserLockVerification = selectedPolicy.skipUserLockVerification ?? false;
+
+			// Include authentication device selection if it exists
+			// Always include if deviceSelection is set (even if authentication object doesn't exist yet)
+			if (selectedPolicy.authentication?.deviceSelection) {
+				policyUpdate.authentication = {
+					...(selectedPolicy.authentication || {}),
+					deviceSelection: selectedPolicy.authentication.deviceSelection,
+				};
+			}
+
+			await MFAServiceV8.updateDeviceAuthenticationPolicy(
+				environmentId,
+				selectedPolicyId,
+				policyUpdate,
+				region
+			);
+			setHasPolicyChanges(false);
+			toastV8.success('Device authentication policy updated successfully');
+			// Reload the policy to get the latest from server
+			await loadSelectedPolicy(environmentId, selectedPolicyId);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to save device authentication policy:`, error);
+			toastV8.error(
+				error instanceof Error ? error.message : 'Failed to update device authentication policy'
+			);
+		} finally {
+			setIsSavingPolicy(false);
 		}
 	};
 
@@ -367,9 +509,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 		<div
 			style={{
 				padding: '24px',
-				paddingBottom: isApiDisplayVisible ? '450px' : '24px',
+				paddingBottom: paddingBottom !== '0' ? paddingBottom : '24px',
 				maxWidth: '1200px',
 				margin: '0 auto',
+				minHeight: '100vh',
 				transition: 'padding-bottom 0.3s ease',
 			}}
 		>
@@ -550,11 +693,619 @@ export const MFAConfigurationPageV8: React.FC = () => {
 
 			{/* Configuration Sections */}
 			<div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-				{/* PingOne MFA Settings */}
+				{/* Runtime/App Configuration Section */}
+				<div
+					style={{
+						padding: '20px',
+						background: '#f0f9ff',
+						borderRadius: '12px',
+						border: '2px solid #0ea5e9',
+						marginBottom: '8px',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+						<span
+							style={{
+								padding: '4px 12px',
+								background: '#0ea5e9',
+								color: 'white',
+								borderRadius: '6px',
+								fontSize: '12px',
+								fontWeight: '700',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+							}}
+						>
+							Runtime Configuration
+						</span>
+						<span style={{ fontSize: '13px', color: '#0369a1', fontWeight: '500' }}>
+							Controls app behavior and UI settings
+						</span>
+					</div>
+					<p style={{ margin: 0, fontSize: '13px', color: '#075985', lineHeight: '1.5' }}>
+						These settings control how the OAuth Playground app behaves at runtime. They are stored locally
+						and do not affect your PingOne environment. Changes take effect immediately.
+					</p>
+				</div>
+
+				{/* Worker Token Settings - Runtime Configuration */}
+				<ConfigSection
+					title="Worker Token Settings"
+					description="Configure automatic renewal of worker tokens during MFA flows. These are runtime settings that control app behavior."
+				>
+					<ToggleSetting
+						label="Auto-Renewal"
+						value={config.workerToken.autoRenewal}
+						onChange={(value) => updateNestedConfig('workerToken', 'autoRenewal', value)}
+						description="Automatically renew worker tokens when they expire or are about to expire"
+					/>
+					<NumberSetting
+						label="Renewal Threshold (seconds)"
+						value={config.workerToken.renewalThreshold}
+						onChange={(value) => updateNestedConfig('workerToken', 'renewalThreshold', value)}
+						min={60}
+						max={3600}
+						description="How many seconds before token expiry to trigger auto-renewal"
+					/>
+					<NumberSetting
+						label="Retry Attempts"
+						value={config.workerToken.retryAttempts}
+						onChange={(value) => updateNestedConfig('workerToken', 'retryAttempts', value)}
+						min={1}
+						max={10}
+						description="Number of times to retry token renewal if it fails"
+					/>
+					<NumberSetting
+						label="Retry Delay (milliseconds)"
+						value={config.workerToken.retryDelay}
+						onChange={(value) => updateNestedConfig('workerToken', 'retryDelay', value)}
+						min={500}
+						max={10000}
+						description="Base delay between retry attempts (uses exponential backoff)"
+					/>
+					<ToggleSetting
+						label="Show Token After Generation"
+						value={config.workerToken.showTokenAtEnd}
+						onChange={(value) => {
+							updateNestedConfig('workerToken', 'showTokenAtEnd', value);
+							// If Show Token is ON, Silent must be OFF (showing token means not silent)
+							if (value) {
+								updateNestedConfig('workerToken', 'silentApiRetrieval', false);
+							}
+						}}
+						description="Display the generated worker token at the end of the generation process"
+					/>
+					<ToggleSetting
+						label="Silent API Token Retrieval"
+						value={config.workerToken.silentApiRetrieval}
+						onChange={(value) => {
+							updateNestedConfig('workerToken', 'silentApiRetrieval', value);
+							// If Silent is ON, Show Token must be OFF (silent means no modals)
+							if (value) {
+								updateNestedConfig('workerToken', 'showTokenAtEnd', false);
+							}
+						}}
+						description="Automatically fetch worker token via API in the background without showing modals or UI prompts"
+					/>
+				</ConfigSection>
+
+				{/* PingOne Policy Section */}
+				<div
+					style={{
+						padding: '20px',
+						background: '#fef3c7',
+						borderRadius: '12px',
+						border: '2px solid #f59e0b',
+						marginTop: '16px',
+						marginBottom: '8px',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+						<span
+							style={{
+								padding: '4px 12px',
+								background: '#f59e0b',
+								color: 'white',
+								borderRadius: '6px',
+								fontSize: '12px',
+								fontWeight: '700',
+								textTransform: 'uppercase',
+								letterSpacing: '0.5px',
+							}}
+						>
+							PingOne Policy
+						</span>
+						<span style={{ fontSize: '13px', color: '#92400e', fontWeight: '500' }}>
+							Updates your PingOne environment
+						</span>
+					</div>
+					<p style={{ margin: 0, fontSize: '13px', color: '#78350f', lineHeight: '1.5' }}>
+						These settings directly modify Device Authentication Policies in your PingOne environment. Changes
+						are saved to PingOne and affect all users and devices using this policy. You must click "Save
+						Policy Settings" to apply changes.
+					</p>
+				</div>
+
+				{/* Device Authentication Policy Settings - PingOne Policy Editor */}
+				<ConfigSection
+					title="Device Authentication Policy Settings"
+					description="Configure device authentication policies from PingOne. Select a policy from the dropdown to view and edit its settings, or create a new policy. Changes are saved directly to your PingOne environment."
+				>
+					{!environmentId ? (
+						<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+							<p style={{ margin: '0 0 8px 0', fontSize: '14px', fontWeight: '500' }}>
+								Environment ID not found. Please configure worker token credentials first.
+							</p>
+							<p style={{ margin: 0, fontSize: '13px', color: '#9ca3af' }}>
+								The environment ID is loaded from your worker token credentials.
+							</p>
+						</div>
+					) : isLoadingPolicies ? (
+						<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+							Loading device authentication policies...
+						</div>
+					) : (
+							<div>
+								{/* Policy Selector and Create Button */}
+								<div style={{ marginBottom: '20px' }}>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+										<label
+											style={{
+												display: 'block',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+												flex: 1,
+											}}
+										>
+											Select Policy
+										</label>
+										<button
+											type="button"
+											onClick={() => {
+												setShowCreatePolicyModal(true);
+											}}
+											style={{
+												padding: '8px 16px',
+												background: '#10b981',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '13px',
+												fontWeight: '600',
+												cursor: 'pointer',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '6px',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											<FiRefreshCw size={14} />
+											Create New Policy
+										</button>
+									</div>
+									{deviceAuthPolicies.length === 0 ? (
+										<div style={{ padding: '16px', background: '#fef3c7', borderRadius: '6px', border: '1px solid #fbbf24' }}>
+											<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#92400e', fontWeight: '500' }}>
+												No device authentication policies found.
+											</p>
+											<p style={{ margin: 0, fontSize: '13px', color: '#78350f' }}>
+												Click "Create New Policy" above to create one, or create one in PingOne Admin Console.
+											</p>
+										</div>
+									) : (
+										<>
+											<select
+												value={selectedPolicyId}
+												onChange={(e) => {
+													setSelectedPolicyId(e.target.value);
+													setHasPolicyChanges(false);
+												}}
+												style={{
+													width: '100%',
+													padding: '10px 12px',
+													border: '2px solid #3b82f6',
+													borderRadius: '6px',
+													fontSize: '14px',
+													background: 'white',
+													fontWeight: '500',
+												}}
+											>
+												{deviceAuthPolicies.map((policy) => (
+													<option key={policy.id} value={policy.id}>
+														{policy.name} {policy.description ? `- ${policy.description}` : ''}
+													</option>
+												))}
+											</select>
+											<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+												Select a policy to view and edit its settings. Changes will be saved to PingOne.
+											</p>
+										</>
+									)}
+								</div>
+
+								<div
+									style={{
+										marginBottom: '20px',
+										padding: '12px',
+										background: '#eff6ff',
+										borderRadius: '8px',
+										border: '1px solid #bfdbfe',
+									}}
+								>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '8px',
+											marginBottom: '8px',
+										}}
+									>
+										<FiInfo size={16} color="#3b82f6" />
+										<span style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af' }}>
+											About Device Authentication Policies
+										</span>
+									</div>
+									<div style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
+										Device Authentication Policies control policy-specific settings like OTP failure
+										cooldown periods, device selection behavior, and pairing options. Select a policy above to configure its settings.
+										<MFAInfoButtonV8 contentKey="device.authentication.policy" displayMode="tooltip" />
+									</div>
+									<div style={{ marginTop: '8px' }}>
+										<a
+											href="https://apidocs.pingidentity.com/pingone/mfa/v1/api/#device-authentication-policies"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '6px',
+												color: '#3b82f6',
+												textDecoration: 'none',
+												fontSize: '12px',
+												fontWeight: '500',
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.textDecoration = 'underline';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.textDecoration = 'none';
+											}}
+										>
+											<FiInfo size={14} />
+											View Device Authentication Policy Data Model →
+										</a>
+									</div>
+								</div>
+
+								{/* Policy Settings */}
+								{isLoadingPolicy ? (
+									<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+										Loading policy details...
+									</div>
+								) : selectedPolicy ? (
+									<>
+										{/* OTP Failure Cooldown Settings */}
+										<div
+											style={{
+												marginTop: '20px',
+												padding: '16px',
+												background: '#f9fafb',
+												borderRadius: '8px',
+												border: '1px solid #e5e7eb',
+											}}
+										>
+											<h4
+												style={{
+													margin: '0 0 12px 0',
+													fontSize: '16px',
+													fontWeight: '600',
+													color: '#374151',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+												}}
+											>
+												OTP Failure Cooldown
+												<MFAInfoButtonV8
+													contentKey="otp.failure.coolDown.duration"
+													displayMode="tooltip"
+												/>
+											</h4>
+
+											{/* Cooldown Duration */}
+											<div style={{ marginBottom: '16px' }}>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<label
+														style={{
+															fontSize: '14px',
+															fontWeight: '500',
+															color: '#374151',
+														}}
+													>
+														Cooldown Duration
+													</label>
+													<MFAInfoButtonV8
+														contentKey="otp.failure.coolDown.duration"
+														displayMode="tooltip"
+													/>
+												</div>
+												<input
+													type="number"
+													value={
+														selectedPolicy.otp?.failure?.coolDown?.duration !== undefined
+															? selectedPolicy.otp.failure.coolDown.duration
+															: 0
+													}
+													onChange={(e) => {
+														const num = parseInt(e.target.value, 10);
+														if (!Number.isNaN(num)) {
+															const clamped = Math.max(0, Math.min(30, num));
+															setSelectedPolicy({
+																...selectedPolicy,
+																otp: {
+																	...selectedPolicy.otp,
+																	failure: {
+																		...selectedPolicy.otp?.failure,
+																		coolDown: {
+																			...selectedPolicy.otp?.failure?.coolDown,
+																			duration: clamped,
+																		},
+																	},
+																},
+															});
+															setHasPolicyChanges(true);
+														}
+													}}
+													min={0}
+													max={30}
+													style={{
+														width: '100%',
+														padding: '8px 12px',
+														border: '1px solid #d1d5db',
+														borderRadius: '6px',
+														fontSize: '14px',
+													}}
+												/>
+												<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+													Range: 0-30 (0 disables cooldown)
+												</p>
+											</div>
+
+											{/* Cooldown Time Unit */}
+											<div>
+												<div
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '8px',
+														marginBottom: '8px',
+													}}
+												>
+													<label
+														style={{
+															fontSize: '14px',
+															fontWeight: '500',
+															color: '#374151',
+														}}
+													>
+														Time Unit
+													</label>
+													<MFAInfoButtonV8
+														contentKey="otp.failure.coolDown.timeUnit"
+														displayMode="tooltip"
+													/>
+												</div>
+												<select
+													value={
+														selectedPolicy.otp?.failure?.coolDown?.timeUnit || 'MINUTES'
+													}
+													onChange={(e) => {
+														setSelectedPolicy({
+															...selectedPolicy,
+															otp: {
+																...selectedPolicy.otp,
+																failure: {
+																	...selectedPolicy.otp?.failure,
+																	coolDown: {
+																		...selectedPolicy.otp?.failure?.coolDown,
+																		timeUnit: e.target.value as 'MINUTES' | 'SECONDS',
+																	},
+																},
+															},
+														});
+														setHasPolicyChanges(true);
+													}}
+													style={{
+														width: '100%',
+														padding: '8px 12px',
+														border: '1px solid #d1d5db',
+														borderRadius: '6px',
+														fontSize: '14px',
+														background: 'white',
+													}}
+												>
+													<option value="MINUTES">Minutes</option>
+													<option value="SECONDS">Seconds</option>
+												</select>
+												<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+													Time unit for the cooldown duration
+												</p>
+											</div>
+										</div>
+
+										{/* Authentication Device Selection */}
+										<div
+											style={{
+												marginTop: '20px',
+												padding: '16px',
+												background: '#f9fafb',
+												borderRadius: '8px',
+												border: '1px solid #e5e7eb',
+											}}
+										>
+											<h4
+												style={{
+													margin: '0 0 12px 0',
+													fontSize: '16px',
+													fontWeight: '600',
+													color: '#374151',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+												}}
+											>
+												Method Selection
+												<MFAInfoButtonV8
+													contentKey="policy.authentication.deviceSelection"
+													displayMode="tooltip"
+												/>
+											</h4>
+											<div style={{ marginBottom: '16px' }}>
+												<select
+													value={
+														selectedPolicy.authentication?.deviceSelection ||
+														'PROMPT_TO_SELECT_DEVICE'
+													}
+													onChange={(e) => {
+														setSelectedPolicy({
+															...selectedPolicy,
+															authentication: {
+																...selectedPolicy.authentication,
+																deviceSelection: e.target.value,
+															},
+														});
+														setHasPolicyChanges(true);
+													}}
+													style={{
+														width: '100%',
+														padding: '8px 12px',
+														border: '1px solid #d1d5db',
+														borderRadius: '6px',
+														fontSize: '14px',
+														background: 'white',
+													}}
+												>
+													<option value="DEFAULT_TO_FIRST">User selected default</option>
+													<option value="PROMPT_TO_SELECT_DEVICE">Prompt user to select</option>
+													<option value="ALWAYS_DISPLAY_DEVICES">Always display devices</option>
+												</select>
+												<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#6b7280' }}>
+													Controls how users select devices during authentication in PingOne
+												</p>
+											</div>
+										</div>
+
+										{/* Pairing Settings */}
+										<div
+											style={{
+												marginTop: '20px',
+												padding: '16px',
+												background: '#f9fafb',
+												borderRadius: '8px',
+												border: '1px solid #e5e7eb',
+											}}
+										>
+											<h4
+												style={{
+													margin: '0 0 12px 0',
+													fontSize: '16px',
+													fontWeight: '600',
+													color: '#374151',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+												}}
+											>
+												Pairing Settings
+											</h4>
+											<ToggleSetting
+												label="Pairing Disabled"
+												value={selectedPolicy.pairingDisabled ?? false}
+												onChange={(value) => {
+													setSelectedPolicy({
+														...selectedPolicy,
+														pairingDisabled: value,
+													});
+													setHasPolicyChanges(true);
+												}}
+												description="If enabled, device pairing/registration is disabled for this policy. Users will not be able to register new devices."
+												infoContentKey="policy.pairingDisabled"
+											/>
+											<ToggleSetting
+												label="Prompt for Nickname on Pairing"
+												value={selectedPolicy.promptForNicknameOnPairing ?? false}
+												onChange={(value) => {
+													setSelectedPolicy({
+														...selectedPolicy,
+														promptForNicknameOnPairing: value,
+													});
+													setHasPolicyChanges(true);
+												}}
+												description="If enabled (Y), users will be prompted to enter a custom nickname for their device during registration/pairing. If disabled (N), the device name is set automatically during registration, but users can still rename the device later through device management."
+												infoContentKey="policy.promptForNicknameOnPairing.explanation"
+											/>
+											<ToggleSetting
+												label="Skip User Lock Verification"
+												value={selectedPolicy.skipUserLockVerification ?? false}
+												onChange={(value) => {
+													setSelectedPolicy({
+														...selectedPolicy,
+														skipUserLockVerification: value,
+													});
+													setHasPolicyChanges(true);
+												}}
+												description="If enabled, skip lock verification during authentication. If disabled, check user lock status and block if locked."
+												infoContentKey="policy.skipUserLockVerification"
+											/>
+										</div>
+
+										{/* Action Buttons */}
+										<div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+											<button
+												type="button"
+												onClick={handleSavePolicy}
+												disabled={!hasPolicyChanges || isSavingPolicy}
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '8px',
+													padding: '10px 20px',
+													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+													color: 'white',
+													border: 'none',
+													borderRadius: '8px',
+													fontSize: '14px',
+													fontWeight: '600',
+													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+												}}
+											>
+												<FiCheck size={16} />
+												{isSavingPolicy ? 'Saving...' : 'Save Policy Settings'}
+											</button>
+										</div>
+									</>
+								) : (
+									<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+										Select a policy to configure its settings.
+									</div>
+								)}
+							</div>
+						)}
+					</ConfigSection>
+
+				{/* PingOne MFA Settings - Also a PingOne Policy */}
 				{environmentId && (
 					<ConfigSection
 						title="PingOne MFA Settings"
-						description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment."
+						description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment. Changes are saved directly to your PingOne environment."
 					>
 						{isLoadingPingOneSettings ? (
 							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
@@ -584,12 +1335,12 @@ export const MFAConfigurationPageV8: React.FC = () => {
 											About PingOne MFA Settings
 										</span>
 									</div>
-									<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
+									<div style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
 										These are environment-level settings that control MFA behavior across all
 										policies. For policy-specific settings (like pairing and lockout), configure
 										them in Device Authentication Policies.
 										<MFAInfoButtonV8 contentKey="mfa.settings" displayMode="tooltip" />
-									</p>
+									</div>
 								</div>
 
 								{/* Pairing Settings */}
@@ -857,55 +1608,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					</ConfigSection>
 				)}
 
-				{/* Worker Token Settings */}
-				<ConfigSection
-					title="Worker Token Settings"
-					description="Configure automatic renewal of worker tokens during MFA flows"
-				>
-					<ToggleSetting
-						label="Auto-Renewal"
-						value={config.workerToken.autoRenewal}
-						onChange={(value) => updateNestedConfig('workerToken', 'autoRenewal', value)}
-						description="Automatically renew worker tokens when they expire or are about to expire"
-					/>
-					<NumberSetting
-						label="Renewal Threshold (seconds)"
-						value={config.workerToken.renewalThreshold}
-						onChange={(value) => updateNestedConfig('workerToken', 'renewalThreshold', value)}
-						min={60}
-						max={3600}
-						description="How many seconds before token expiry to trigger auto-renewal"
-					/>
-					<NumberSetting
-						label="Retry Attempts"
-						value={config.workerToken.retryAttempts}
-						onChange={(value) => updateNestedConfig('workerToken', 'retryAttempts', value)}
-						min={1}
-						max={10}
-						description="Number of times to retry token renewal if it fails"
-					/>
-					<NumberSetting
-						label="Retry Delay (milliseconds)"
-						value={config.workerToken.retryDelay}
-						onChange={(value) => updateNestedConfig('workerToken', 'retryDelay', value)}
-						min={500}
-						max={10000}
-						description="Base delay between retry attempts (uses exponential backoff)"
-					/>
-					<ToggleSetting
-						label="Show Token After Generation"
-						value={config.workerToken.showTokenAtEnd}
-						onChange={(value) => updateNestedConfig('workerToken', 'showTokenAtEnd', value)}
-						description="Display the generated worker token at the end of the generation process"
-					/>
-					<ToggleSetting
-						label="Silent API Token Retrieval"
-						value={config.workerToken.silentApiRetrieval}
-						onChange={(value) => updateNestedConfig('workerToken', 'silentApiRetrieval', value)}
-						description="Automatically fetch worker token via API in the background without showing modals or UI prompts"
-					/>
-				</ConfigSection>
-
 				{/* Default Policies */}
 				<ConfigSection
 					title="Default Policies"
@@ -919,32 +1621,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					/>
 				</ConfigSection>
 
-				{/* Device Selection Behavior */}
-				<ConfigSection
-					title="Device Selection Behavior"
-					description="Control how users select devices during authentication"
-				>
-					<ToggleSetting
-						label="Auto-Select First Device"
-						value={config.autoSelectFirstDevice}
-						onChange={(value) => updateConfig('autoSelectFirstDevice', value)}
-						description="Automatically select the first available device when only one device exists"
-					/>
-					<ToggleSetting
-						label="Always Show Device Selection"
-						value={config.alwaysShowDeviceSelection}
-						onChange={(value) => updateConfig('alwaysShowDeviceSelection', value)}
-						description="Always display device selection modal, even when policy suggests auto-selection"
-					/>
-					<NumberSetting
-						label="Device Selection Timeout (seconds)"
-						value={config.deviceSelectionTimeout}
-						onChange={(value) => updateConfig('deviceSelectionTimeout', value)}
-						min={10}
-						max={300}
-						description="Maximum time to wait for user to select a device"
-					/>
-				</ConfigSection>
 
 				{/* OTP Settings */}
 				<ConfigSection

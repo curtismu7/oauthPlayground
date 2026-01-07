@@ -4,16 +4,16 @@
  * @description Info button component for MFA educational content
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * Provides "What's this?" style info buttons that display educational
  * content from MFAEducationServiceV8 in a modal or tooltip.
- * 
+ *
  * @example
  * <MFAInfoButtonV8 contentKey="factor.sms" />
  * <MFAInfoButtonV8 contentKey="device.enrollment" displayMode="modal" />
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FiExternalLink, FiInfo, FiX } from 'react-icons/fi';
 import { MFAEducationServiceV8 } from '@/v8/services/mfaEducationServiceV8';
 
@@ -137,7 +137,7 @@ export interface MFAInfoButtonV8Props {
 
 /**
  * MFA Info Button V8
- * 
+ *
  * Displays educational content from MFAEducationServiceV8 in either:
  * - Tooltip mode: Shows on hover (for quick reference)
  * - Modal mode: Shows on click (for detailed information)
@@ -269,7 +269,14 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 
 					{/* Title with security level */}
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-						<h4 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#1f2937' /* Dark text */ }}>
+						<h4
+							style={{
+								margin: 0,
+								fontSize: '16px',
+								fontWeight: '600',
+								color: '#1f2937' /* Dark text */,
+							}}
+						>
 							{content.title}
 						</h4>
 						{content.securityLevel && (
@@ -286,7 +293,14 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 					</div>
 
 					{/* Description */}
-					<div style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280' /* Dark text on light background */, lineHeight: '1.6' }}>
+					<div
+						style={{
+							margin: '0 0 12px 0',
+							fontSize: '14px',
+							color: '#6b7280' /* Dark text on light background */,
+							lineHeight: '1.6',
+						}}
+					>
 						{renderFormattedDescription(content.description)}
 					</div>
 
@@ -301,7 +315,14 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 								marginBottom: '12px',
 							}}
 						>
-							<p style={{ margin: 0, fontSize: '13px', color: '#92400e' /* Dark text on light background */, fontWeight: '500' }}>
+							<p
+								style={{
+									margin: 0,
+									fontSize: '13px',
+									color: '#92400e' /* Dark text on light background */,
+									fontWeight: '500',
+								}}
+							>
 								🔒 {content.securityNote}
 							</p>
 						</div>
@@ -370,10 +391,26 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 						`}</style>
 
 						{/* Header */}
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'flex-start',
+								marginBottom: '16px',
+							}}
+						>
 							<div style={{ flex: 1 }}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-									<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' /* Dark text */ }}>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}
+								>
+									<h3
+										style={{
+											margin: 0,
+											fontSize: '20px',
+											fontWeight: '600',
+											color: '#1f2937' /* Dark text */,
+										}}
+									>
 										{content.title}
 									</h3>
 									{content.securityLevel && (
@@ -393,7 +430,9 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 										style={{
 											display: 'inline-block',
 											padding: '4px 8px',
-											background: MFAEducationServiceV8.getSecurityLevelColor(content.securityLevel),
+											background: MFAEducationServiceV8.getSecurityLevelColor(
+												content.securityLevel
+											),
 											color: 'white',
 											borderRadius: '4px',
 											fontSize: '11px',
@@ -426,7 +465,14 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 						</div>
 
 						{/* Description */}
-						<div style={{ margin: '0 0 16px 0', fontSize: '15px', color: '#374151' /* Dark text */, lineHeight: '1.7' }}>
+						<div
+							style={{
+								margin: '0 0 16px 0',
+								fontSize: '15px',
+								color: '#374151' /* Dark text */,
+								lineHeight: '1.7',
+							}}
+						>
 							{renderFormattedDescription(content.description)}
 						</div>
 
@@ -441,7 +487,15 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 									marginBottom: '16px',
 								}}
 							>
-								<p style={{ margin: 0, fontSize: '14px', color: '#92400e' /* Dark text */, fontWeight: '500', lineHeight: '1.6' }}>
+								<p
+									style={{
+										margin: 0,
+										fontSize: '14px',
+										color: '#92400e' /* Dark text */,
+										fontWeight: '500',
+										lineHeight: '1.6',
+									}}
+								>
 									🔒 <strong>Security Note:</strong> {content.securityNote}
 								</p>
 							</div>
@@ -449,7 +503,9 @@ export const MFAInfoButtonV8: React.FC<MFAInfoButtonV8Props> = ({
 
 						{/* Learn more link */}
 						{content.learnMoreUrl && (
-							<div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}>
+							<div
+								style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #e5e7eb' }}
+							>
 								<a
 									href={content.learnMoreUrl}
 									target="_blank"

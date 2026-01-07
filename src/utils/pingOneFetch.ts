@@ -76,25 +76,30 @@ const fetchBackendCallsById = async (callId: string) => {
 	} catch (error) {
 		// Suppress connection refused errors when server is down
 		const errorMessage = error instanceof Error ? error.message : String(error);
-		if (!errorMessage.includes('ERR_CONNECTION_REFUSED') && !errorMessage.includes('Failed to fetch')) {
+		if (
+			!errorMessage.includes('ERR_CONNECTION_REFUSED') &&
+			!errorMessage.includes('Failed to fetch')
+		) {
 			console.warn('[pingOneFetch] Failed to fetch backend call metadata', error);
 		}
 		return null;
 	}
 };
 
-const processBackendCalls = (calls: Array<{
-	url: string;
-	method: string;
-	status: number;
-	statusText?: string;
-	requestId?: string;
-	duration?: number;
-	timestamp?: number;
-	responseBodyBase64?: string;
-	requestBodyBase64?: string;
-	requestHeaders?: Record<string, string>;
-}>) => {
+const processBackendCalls = (
+	calls: Array<{
+		url: string;
+		method: string;
+		status: number;
+		statusText?: string;
+		requestId?: string;
+		duration?: number;
+		timestamp?: number;
+		responseBodyBase64?: string;
+		requestBodyBase64?: string;
+		requestHeaders?: Record<string, string>;
+	}>
+) => {
 	if (!Array.isArray(calls)) {
 		return;
 	}
@@ -123,7 +128,9 @@ const processBackendCalls = (calls: Array<{
 		const trackedId = apiCallTrackerService.trackApiCall({
 			method: call.method as 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH',
 			url: call.url,
-			headers: call.requestHeaders || (call.requestId ? { 'pingone-request-id': call.requestId } : undefined),
+			headers:
+				call.requestHeaders ||
+				(call.requestId ? { 'pingone-request-id': call.requestId } : undefined),
 			body,
 			source: 'backend',
 			isProxy: false,
@@ -168,7 +175,10 @@ const logBackendPingOneCalls = async (response: Response) => {
  *  - Automatic retries for transient PingOne responses
  *  - Respect for Retry-After headers
  */
-export async function pingOneFetch(input: RequestInfo | URL, init: PingOneFetchOptions = {}): Promise<Response> {
+export async function pingOneFetch(
+	input: RequestInfo | URL,
+	init: PingOneFetchOptions = {}
+): Promise<Response> {
 	const headers = normalizeHeaders(init.headers);
 
 	// Forward compatibility guidance: Accept both JSON and HAL without failing on future formats.
@@ -225,5 +235,3 @@ export async function pingOneFetch(input: RequestInfo | URL, init: PingOneFetchO
 }
 
 export default pingOneFetch;
-
-

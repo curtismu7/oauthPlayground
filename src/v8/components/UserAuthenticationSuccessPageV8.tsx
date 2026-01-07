@@ -3,13 +3,15 @@
  * @module v8/components
  * @description Success page component displayed after successful user authentication
  * @version 8.0.0
- * 
+ *
  * Shows user information and session details after OAuth login
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiShield, FiUser } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiCheckCircle, FiUser, FiShield } from 'react-icons/fi';
+import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 export interface UserInfo {
 	sub?: string;
@@ -62,12 +64,15 @@ const decodeJWT = (token: string): Record<string, unknown> | null => {
 /**
  * Fetch user info from PingOne userinfo endpoint via backend proxy
  */
-const fetchUserInfo = async (environmentId: string, accessToken: string): Promise<UserInfo | null> => {
+const fetchUserInfo = async (
+	environmentId: string,
+	accessToken: string
+): Promise<UserInfo | null> => {
 	try {
 		// Use backend proxy endpoint to avoid CORS and ensure all calls go through proxy
 		const userInfoEndpoint = `https://auth.pingone.com/${environmentId}/as/userinfo`;
 		const proxyEndpoint = '/api/pingone/userinfo';
-		
+
 		const response = await fetch(proxyEndpoint, {
 			method: 'POST',
 			headers: {
@@ -81,7 +86,11 @@ const fetchUserInfo = async (environmentId: string, accessToken: string): Promis
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
-			console.warn('UserInfo request failed:', response.status, errorData.message || errorData.error);
+			console.warn(
+				'UserInfo request failed:',
+				response.status,
+				errorData.message || errorData.error
+			);
 			return null;
 		}
 
@@ -95,7 +104,7 @@ const fetchUserInfo = async (environmentId: string, accessToken: string): Promis
 
 /**
  * User Authentication Success Page V8
- * 
+ *
  * Displays user information and session details after successful OAuth login
  */
 export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccessPageV8Props> = ({
@@ -106,6 +115,7 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 	const navigate = useNavigate();
 	const [userInfo, setUserInfo] = useState<UserInfo | null>(initialUserInfo || null);
 	const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(!initialUserInfo);
+	const [tokenCopied, setTokenCopied] = useState(false);
 
 	// Try to get user info from ID token if available, otherwise fetch from userinfo endpoint
 	useEffect(() => {
@@ -189,7 +199,9 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					>
 						<FiCheckCircle size={32} color="#10b981" />
 					</div>
-					<h1 style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '600', color: '#1f2937' }}>
+					<h1
+						style={{ margin: '0 0 8px 0', fontSize: '28px', fontWeight: '600', color: '#1f2937' }}
+					>
 						Authentication Successful
 					</h1>
 					<p style={{ margin: 0, fontSize: '16px', color: '#6b7280' }}>
@@ -296,6 +308,116 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					</div>
 
 					<div style={{ display: 'grid', gap: '12px' }}>
+						{/* Access Token Display */}
+						<div
+							style={{
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '8px',
+								gridColumn: '1 / -1',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '12px',
+								}}
+							>
+								<strong style={{ color: '#374151', fontSize: '14px' }}>🔑 Access Token</strong>
+								<button
+									type="button"
+									onClick={async () => {
+										const success = await TokenDisplayServiceV8.copyToClipboard(
+											sessionInfo.accessToken,
+											'Access Token'
+										);
+										if (success) {
+											setTokenCopied(true);
+											toastV8.success('Access token copied to clipboard!');
+											setTimeout(() => setTokenCopied(false), 2000);
+										} else {
+											toastV8.error('Failed to copy access token');
+										}
+									}}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '6px 12px',
+										background: tokenCopied ? '#10b981' : '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+										transition: 'background 0.2s',
+									}}
+									onMouseEnter={(e) => {
+										if (!tokenCopied) {
+											e.currentTarget.style.background = '#2563eb';
+										}
+									}}
+									onMouseLeave={(e) => {
+										if (!tokenCopied) {
+											e.currentTarget.style.background = '#3b82f6';
+										}
+									}}
+								>
+									<FiCopy size={14} />
+									{tokenCopied ? '✓ Copied!' : 'Copy Token'}
+								</button>
+							</div>
+							<div
+								style={{
+									fontSize: '12px',
+									color: '#1f2937',
+									fontFamily: 'monospace',
+									wordBreak: 'break-all',
+									background: 'white',
+									padding: '12px',
+									borderRadius: '6px',
+									border: '1px solid #d1d5db',
+									maxHeight: '150px',
+									overflowY: 'auto',
+									lineHeight: '1.5',
+								}}
+							>
+								{sessionInfo.accessToken}
+							</div>
+							{TokenDisplayServiceV8.isJWT(sessionInfo.accessToken) && (
+								<button
+									type="button"
+									onClick={() => {
+										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.accessToken);
+										if (decoded) {
+											const payload = JSON.stringify(decoded.payload, null, 2);
+											alert(`Token Payload:\n\n${payload}`);
+										} else {
+											toastV8.error('Failed to decode token');
+										}
+									}}
+									style={{
+										marginTop: '8px',
+										padding: '6px 12px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+									}}
+								>
+									🔍 Decode Token
+								</button>
+							)}
+						</div>
+
 						<div>
 							<strong style={{ color: '#374151' }}>Token Type:</strong>{' '}
 							<span style={{ color: '#6b7280' }}>{sessionInfo.tokenType || 'Bearer'}</span>
@@ -360,7 +482,8 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 								</div>
 								{requestedScopes.some((scope) => !grantedScopes.includes(scope)) && (
 									<p style={{ marginTop: '8px', fontSize: '12px', color: '#991b1b' }}>
-										⚠️ Some requested scopes were not granted. Verify your OAuth application has these scopes available in PingOne Admin Console.
+										⚠️ Some requested scopes were not granted. Verify your OAuth application has
+										these scopes available in PingOne Admin Console.
 									</p>
 								)}
 							</div>
@@ -403,6 +526,127 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 					</div>
 				</div>
 
+				{/* ID Token Display (if available) */}
+				{sessionInfo.idToken && (
+					<div
+						style={{
+							background: '#eff6ff',
+							border: '1px solid #93c5fd',
+							borderRadius: '8px',
+							padding: '20px',
+							marginBottom: '20px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+							<FiShield size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#1e40af' }}>
+								ID Token (OIDC)
+							</h2>
+						</div>
+
+						<div
+							style={{
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								padding: '16px',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '12px',
+								}}
+							>
+								<strong style={{ color: '#374151', fontSize: '14px' }}>🆔 ID Token</strong>
+								<button
+									type="button"
+									onClick={async () => {
+										const success = await TokenDisplayServiceV8.copyToClipboard(
+											sessionInfo.idToken!,
+											'ID Token'
+										);
+										if (success) {
+											toastV8.success('ID token copied to clipboard!');
+										} else {
+											toastV8.error('Failed to copy ID token');
+										}
+									}}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '6px',
+										padding: '6px 12px',
+										background: '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+										transition: 'background 0.2s',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.background = '#2563eb';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = '#3b82f6';
+									}}
+								>
+									<FiCopy size={14} />
+									Copy Token
+								</button>
+							</div>
+							<div
+								style={{
+									fontSize: '12px',
+									color: '#1f2937',
+									fontFamily: 'monospace',
+									wordBreak: 'break-all',
+									background: 'white',
+									padding: '12px',
+									borderRadius: '6px',
+									border: '1px solid #d1d5db',
+									maxHeight: '150px',
+									overflowY: 'auto',
+									lineHeight: '1.5',
+								}}
+							>
+								{sessionInfo.idToken}
+							</div>
+							{TokenDisplayServiceV8.isJWT(sessionInfo.idToken) && (
+								<button
+									type="button"
+									onClick={() => {
+										const decoded = TokenDisplayServiceV8.decodeJWT(sessionInfo.idToken!);
+										if (decoded) {
+											const payload = JSON.stringify(decoded.payload, null, 2);
+											alert(`ID Token Payload:\n\n${payload}`);
+										} else {
+											toastV8.error('Failed to decode ID token');
+										}
+									}}
+									style={{
+										marginTop: '8px',
+										padding: '6px 12px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '12px',
+										fontWeight: '600',
+									}}
+								>
+									🔍 Decode Token
+								</button>
+							)}
+						</div>
+					</div>
+				)}
+
 				{/* What's Next Section */}
 				<div
 					style={{
@@ -413,7 +657,9 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 						marginBottom: '24px',
 					}}
 				>
-					<h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#92400e' }}>
+					<h3
+						style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600', color: '#92400e' }}
+					>
 						What's Next?
 					</h3>
 					<ul style={{ margin: 0, paddingLeft: '20px', color: '#78350f' }}>
@@ -460,4 +706,3 @@ export const UserAuthenticationSuccessPageV8: React.FC<UserAuthenticationSuccess
 		</div>
 	);
 };
-

@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { FiAlertCircle, FiX, FiUnlock, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertCircle, FiRefreshCw, FiUnlock, FiX } from 'react-icons/fi';
 
 export interface UnavailableDevice {
 	id: string;
@@ -43,6 +43,20 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 	onTryAnotherDevice,
 	onRetry,
 }) => {
+	// Handle ESC key to close modal
+	React.useEffect(() => {
+		if (!isOpen) return undefined;
+
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape') {
+				onClose();
+			}
+		};
+
+		window.addEventListener('keydown', handleEscape);
+		return () => window.removeEventListener('keydown', handleEscape);
+	}, [isOpen, onClose]);
+
 	if (!isOpen) return null;
 
 	// Determine the primary reason for the failure
@@ -234,12 +248,8 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 													flexWrap: 'wrap',
 												}}
 											>
-												{device.type && (
-													<span>{getDeviceTypeDisplay(device.type)}</span>
-												)}
-												{device.status && (
-													<span>{getDeviceStatusDisplay(device.status)}</span>
-												)}
+												{device.type && <span>{getDeviceTypeDisplay(device.type)}</span>}
+												{device.status && <span>{getDeviceStatusDisplay(device.status)}</span>}
 												{device.reason && <span>• {device.reason}</span>}
 											</div>
 											<div
@@ -302,26 +312,30 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 							<br />
 							{failureReason === 'Device Locked' && (
 								<>
-									Your device has been temporarily locked due to too many failed authentication attempts.
-									You can unlock it using the "Unlock" button above, or try again later.
+									Your device has been temporarily locked due to too many failed authentication
+									attempts. You can unlock it using the "Unlock" button above, or try again later.
 								</>
 							)}
 							{failureReason === 'Daily Limit Exceeded' && (
 								<>
-									You've exceeded the daily limit for SMS authentication attempts. Please try again tomorrow
-									or use a different authentication method.
+									You've exceeded the daily limit for SMS authentication attempts. Please try again
+									tomorrow or use a different authentication method.
 								</>
 							)}
 							{failureReason === 'No Authenticating Device Found' && (
 								<>
-									No active devices were found for authentication. Please register a new device or contact
-									your administrator.
+									No active devices were found for authentication. Please register a new device or
+									contact your administrator.
 								</>
 							)}
-							{!['Device Locked', 'Daily Limit Exceeded', 'No Authenticating Device Found'].includes(failureReason) && (
+							{![
+								'Device Locked',
+								'Daily Limit Exceeded',
+								'No Authenticating Device Found',
+							].includes(failureReason) && (
 								<>
-									One or more of your devices are temporarily unavailable. Please try another device or
-									contact your administrator for assistance.
+									One or more of your devices are temporarily unavailable. Please try another device
+									or contact your administrator for assistance.
 								</>
 							)}
 						</div>
@@ -398,4 +412,3 @@ export const DeviceFailureModalV8: React.FC<DeviceFailureModalProps> = ({
 		</div>
 	);
 };
-

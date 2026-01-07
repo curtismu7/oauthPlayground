@@ -15,10 +15,10 @@ import {
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import ConfirmationModal from '../components/ConfirmationModal';
 import { credentialStorageManager } from '../services/credentialStorageManager';
 import { FlowHeader } from '../services/flowHeaderService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import ConfirmationModal from '../components/ConfirmationModal';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -525,9 +525,14 @@ export const CredentialManagement: React.FC = () => {
 			// Reload credentials to show updated state
 			await loadFlowCredentials();
 
-			console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`);
+			console.log(
+				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] All credentials cleared successfully. Count: ${clearedCount}`
+			);
 		} catch (error) {
-			console.error(`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`, error);
+			console.error(
+				`[${new Date().toISOString()}] [⚠️ ERROR-HANDLER] Failed to clear all credentials:`,
+				error
+			);
 			v4ToastManager.showError('Failed to clear all credentials');
 		} finally {
 			setIsClearingAll(false);

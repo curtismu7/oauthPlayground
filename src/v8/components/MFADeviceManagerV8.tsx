@@ -21,9 +21,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { FiInfo } from 'react-icons/fi';
+import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
-import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 
 const MODULE_TAG = '[🔧 DEVICE-MANAGER-V8]';
 
@@ -134,7 +134,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 
 	const handleCopyDeviceId = async (deviceId: string) => {
 		try {
-			if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+			if (
+				typeof navigator !== 'undefined' &&
+				navigator.clipboard &&
+				navigator.clipboard.writeText
+			) {
 				await navigator.clipboard.writeText(deviceId);
 			} else if (typeof document !== 'undefined') {
 				const textarea = document.createElement('textarea');
@@ -339,7 +343,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 		console.log(`${MODULE_TAG} Unlocking device`, { deviceId });
 		setProcessingDeviceId(deviceId);
 		try {
-			await MFAServiceV8.unblockDevice({
+			await MFAServiceV8.unlockDevice({
 				environmentId,
 				username,
 				deviceId,
@@ -484,7 +488,7 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 								flexWrap: 'wrap',
 								gap: '8px',
 								alignItems: 'center',
-						}}
+							}}
 						>
 							<div
 								style={{
@@ -626,12 +630,19 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 				>
 					<strong>How to use this console:</strong>
 					<ul style={{ margin: '8px 0 0 18px' }}>
-						<li>Use <em>Refresh</em> to pull the latest devices directly from PingOne before making changes.</li>
+						<li>
+							Use <em>Refresh</em> to pull the latest devices directly from PingOne before making
+							changes.
+						</li>
 						<li>Each card lists the factor type, nickname, contact details, and current status.</li>
 						<li>
-							Action buttons let you rename, block/unblock, or delete devices—mirroring what PingOne admins do in production.
+							Action buttons let you rename, block/unblock, or delete devices—mirroring what PingOne
+							admins do in production.
 						</li>
-						<li>SMS/Email entries show the destination so you can confirm the correct phone or inbox is configured.</li>
+						<li>
+							SMS/Email entries show the destination so you can confirm the correct phone or inbox
+							is configured.
+						</li>
 					</ul>
 				</div>
 			)}
@@ -667,16 +678,18 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 						const block = device.block;
 						const isSecurityExpanded = expandedSecurityDevices.has(device.id);
 						const isRawExpanded = expandedRawDevices.has(device.id);
-						const securityStateLabel = lock?.status === 'LOCKED'
-							? 'Locked'
-							: block?.status === 'BLOCKED'
-								? 'Blocked'
-								: device.status || 'Unknown';
-						const effectiveStatus = lock?.status === 'LOCKED'
-							? 'LOCKED'
-							: block?.status === 'BLOCKED'
-								? 'BLOCKED'
-								: device.status || 'UNKNOWN';
+						const securityStateLabel =
+							lock?.status === 'LOCKED'
+								? 'Locked'
+								: block?.status === 'BLOCKED'
+									? 'Blocked'
+									: device.status || 'Unknown';
+						const effectiveStatus =
+							lock?.status === 'LOCKED'
+								? 'LOCKED'
+								: block?.status === 'BLOCKED'
+									? 'BLOCKED'
+									: device.status || 'UNKNOWN';
 						const securityColor = getStatusColor(effectiveStatus);
 						let securityBackground = '#e5e7eb';
 						switch (effectiveStatus) {
@@ -791,15 +804,11 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 										</p>
 										<p style={{ margin: '4px 0' }}>
 											<strong>Created:</strong>{' '}
-											{device.createdAt
-												? new Date(device.createdAt).toLocaleString()
-												: 'N/A'}
+											{device.createdAt ? new Date(device.createdAt).toLocaleString() : 'N/A'}
 										</p>
 										<p style={{ margin: '4px 0' }}>
 											<strong>Updated:</strong>{' '}
-											{device.updatedAt
-												? new Date(device.updatedAt).toLocaleString()
-												: 'N/A'}
+											{device.updatedAt ? new Date(device.updatedAt).toLocaleString() : 'N/A'}
 										</p>
 										<div
 											style={{
@@ -928,7 +937,9 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 													cursor: 'pointer',
 												}}
 											>
-												{isRawExpanded ? 'Hide advanced details' : 'Show advanced details (raw JSON)'}
+												{isRawExpanded
+													? 'Hide advanced details'
+													: 'Show advanced details (raw JSON)'}
 											</button>
 											{isRawExpanded && (
 												<div
@@ -1043,80 +1054,124 @@ export const MFADeviceManagerV8: React.FC<MFADeviceManagerV8Props> = ({
 											✏️ Rename
 										</button>
 
-										{device.status === 'ACTIVE' ? (
-											<button
-												type="button"
-												onClick={() => handleBlock(device.id)}
-												disabled={isProcessing}
-												style={{
-													padding: '8px 16px',
-													background: isProcessing
-														? '#d97706'
+										{/* Unlock Device Button - Always visible */}
+										<button
+											type="button"
+											onClick={() => handleUnlock(device.id)}
+											disabled={isProcessing || lock?.status !== 'LOCKED'}
+											style={{
+												padding: '8px 16px',
+												background:
+													isProcessing || lock?.status !== 'LOCKED'
+														? '#9ca3af'
+														: wasRecentlyChanged && lock?.status === 'LOCKED'
+															? '#2563eb'
+															: '#3b82f6',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '13px',
+												fontWeight: '500',
+												cursor:
+													isProcessing || lock?.status !== 'LOCKED'
+														? 'not-allowed'
+														: 'pointer',
+												opacity: isProcessing || lock?.status !== 'LOCKED' ? 0.5 : 1,
+												transition: 'all 0.3s ease',
+											}}
+											title={
+												isProcessing
+													? 'Unlocking device...'
+													: lock?.status === 'LOCKED'
+														? 'Unlock device - Current status: LOCKED (locked due to too many failed attempts)'
+														: 'Unlock device - Device is not locked'
+											}
+										>
+											{isProcessing ? '⏳ Unlocking...' : '🔓 Unlock'}
+										</button>
+
+										{/* Block Device Button - Always visible */}
+										<button
+											type="button"
+											onClick={() => handleBlock(device.id)}
+											disabled={isProcessing || block?.status === 'BLOCKED' || device.status === 'BLOCKED'}
+											style={{
+												padding: '8px 16px',
+												background:
+													isProcessing || block?.status === 'BLOCKED' || device.status === 'BLOCKED'
+														? '#9ca3af'
 														: wasRecentlyChanged && isBlocked
-														? '#ef4444'
-														: '#f59e0b',
-													color: 'white',
-													border: 'none',
-													borderRadius: '6px',
-													fontSize: '13px',
-													fontWeight: '500',
-													cursor: isProcessing ? 'wait' : 'pointer',
-													opacity: isProcessing ? 0.7 : 1,
-													transition: 'all 0.3s ease',
-													transform: wasRecentlyChanged && isBlocked ? 'scale(1.05)' : 'scale(1)',
-												}}
-												title={isProcessing ? 'Blocking device...' : 'Block device - Current status: ACTIVE'}
-											>
-												{isProcessing ? '⏳ Blocking...' : '🚫 Block (ACTIVE)'}
-											</button>
-										) : device.status === 'BLOCKED' ? (
-											<button
-												type="button"
-												onClick={() => handleUnblock(device.id)}
-												disabled={isProcessing}
-												style={{
-													padding: '8px 16px',
-													background: isProcessing
-														? '#059669'
+															? '#ef4444'
+															: '#f59e0b',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '13px',
+												fontWeight: '500',
+												cursor:
+													isProcessing || block?.status === 'BLOCKED' || device.status === 'BLOCKED'
+														? 'not-allowed'
+														: 'pointer',
+												opacity:
+													isProcessing || block?.status === 'BLOCKED' || device.status === 'BLOCKED'
+														? 0.5
+														: 1,
+												transition: 'all 0.3s ease',
+												transform: wasRecentlyChanged && isBlocked ? 'scale(1.05)' : 'scale(1)',
+											}}
+											title={
+												isProcessing
+													? 'Blocking device...'
+													: block?.status === 'BLOCKED' || device.status === 'BLOCKED'
+														? 'Block device - Device is already blocked'
+														: 'Block device - Current status: ACTIVE'
+											}
+										>
+											{isProcessing ? '⏳ Blocking...' : '🚫 Block'}
+										</button>
+
+										{/* Unblock Device Button - Always visible */}
+										<button
+											type="button"
+											onClick={() => handleUnblock(device.id)}
+											disabled={isProcessing || (block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')}
+											style={{
+												padding: '8px 16px',
+												background:
+													isProcessing ||
+													(block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')
+														? '#9ca3af'
 														: wasRecentlyChanged && isActive
-														? '#10b981'
-														: '#10b981',
-													color: 'white',
-													border: 'none',
-													borderRadius: '6px',
-													fontSize: '13px',
-													fontWeight: '500',
-													cursor: isProcessing ? 'wait' : 'pointer',
-													opacity: isProcessing ? 0.7 : 1,
-													transition: 'all 0.3s ease',
-													transform: wasRecentlyChanged && isActive ? 'scale(1.05)' : 'scale(1)',
-												}}
-												title={isProcessing ? 'Unblocking device...' : 'Unblock device - Current status: BLOCKED'}
-											>
-												{isProcessing ? '⏳ Unblocking...' : '✅ Unblock (BLOCKED)'}
-											</button>
-										) : device.status === 'LOCKED' ? (
-											<button
-												type="button"
-												onClick={() => handleUnlock(device.id)}
-												disabled={isProcessing}
-												style={{
-													padding: '8px 16px',
-													background: isProcessing ? '#2563eb' : '#3b82f6',
-													color: 'white',
-													border: 'none',
-													borderRadius: '6px',
-													fontSize: '13px',
-													fontWeight: '500',
-													cursor: isProcessing ? 'wait' : 'pointer',
-													opacity: isProcessing ? 0.7 : 1,
-													transition: 'all 0.3s ease',
-												}}
-												title={isProcessing ? 'Unlocking device...' : 'Unlock device - Current status: LOCKED (locked due to too many failed attempts)'}
-											>
-												{isProcessing ? '⏳ Unlocking...' : '🔓 Unlock'}
-											</button>
-										) : null}
+															? '#10b981'
+															: '#10b981',
+												color: 'white',
+												border: 'none',
+												borderRadius: '6px',
+												fontSize: '13px',
+												fontWeight: '500',
+												cursor:
+													isProcessing ||
+													(block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')
+														? 'not-allowed'
+														: 'pointer',
+												opacity:
+													isProcessing ||
+													(block?.status !== 'BLOCKED' && device.status !== 'BLOCKED')
+														? 0.5
+														: 1,
+												transition: 'all 0.3s ease',
+												transform: wasRecentlyChanged && isActive ? 'scale(1.05)' : 'scale(1)',
+											}}
+											title={
+												isProcessing
+													? 'Unblocking device...'
+													: block?.status === 'BLOCKED' || device.status === 'BLOCKED'
+														? 'Unblock device - Current status: BLOCKED'
+														: 'Unblock device - Device is not blocked'
+											}
+										>
+											{isProcessing ? '⏳ Unblocking...' : '✅ Unblock'}
+										</button>
 
 										<button
 											type="button"

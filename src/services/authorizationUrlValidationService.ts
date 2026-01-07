@@ -571,5 +571,4 @@ if (typeof window !== 'undefined') {
 		authorizationUrlValidationService.validateAuthorizationUrl(url, { flowType: flowType as any });
 	(window as any).quickValidateAuthUrl = (url: string) =>
 		authorizationUrlValidationService.quickValidate(url);
-
 }
