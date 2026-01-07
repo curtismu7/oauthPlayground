@@ -4,11 +4,14 @@
  * @description Controller exports
  */
 
-export { MFAFlowController } from './MFAFlowController';
-export type { OTPState, ValidationState, DeviceSelectionState, FlowControllerCallbacks } from './MFAFlowController';
-
-export { SMSFlowController, getFullPhoneNumber } from './SMSFlowController';
 export { EmailFlowController, isValidEmail } from './EmailFlowController';
-export { TOTPFlowController } from './TOTPFlowController';
 export { FIDO2FlowController } from './FIDO2FlowController';
-
+export type {
+	DeviceSelectionState,
+	FlowControllerCallbacks,
+	OTPState,
+	ValidationState,
+} from './MFAFlowController';
+export { MFAFlowController } from './MFAFlowController';
+export { getFullPhoneNumber, SMSFlowController } from './SMSFlowController';
+export { TOTPFlowController } from './TOTPFlowController';

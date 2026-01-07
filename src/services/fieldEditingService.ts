@@ -86,7 +86,6 @@ class FieldEditingService {
 	 * Scans for input, textarea, and select elements and removes disabled/readonly states
 	 */
 	applyProtection(): void {
-
 		// Get all form input elements from the document
 		const allInputs = this.getAllInputElements();
 		let protectedCount = 0;
@@ -97,7 +96,6 @@ class FieldEditingService {
 				protectedCount++;
 			}
 		});
-
 	}
 
 	/**
@@ -207,7 +205,6 @@ class FieldEditingService {
 	 * Stop monitoring DOM changes and disconnect all MutationObservers
 	 */
 	stopMonitoring(): void {
-
 		// Disconnect all active observers
 		this.observers.forEach((observer) => observer.disconnect());
 		this.observers.clear();
@@ -387,7 +384,6 @@ if (typeof window !== 'undefined') {
 	(window as unknown as WindowWithFieldEditingService).stopFieldMonitoring = () =>
 		service.stopMonitoring();
 	(window as unknown as WindowWithFieldEditingService).getFieldState = () => service.getState();
-
 }
 
 export default FieldEditingService;

@@ -78,11 +78,7 @@ export const UserInfoDisplayV8: React.FC<UserInfoDisplayV8Props> = ({
 							{fullName}
 						</div>
 					)}
-					{username && (
-						<div style={{ fontSize: '14px', opacity: 0.9 }}>
-							@{username}
-						</div>
-					)}
+					{username && <div style={{ fontSize: '14px', opacity: 0.9 }}>@{username}</div>}
 				</div>
 			</div>
 			{userId && (

@@ -951,7 +951,7 @@ const ApplicationGenerator: React.FC = () => {
 		}
 
 		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
-		
+
 		const presetName = await uiNotificationServiceV8.prompt({
 			title: 'Save Preset',
 			message: 'Enter a name for this preset:',
@@ -979,13 +979,14 @@ const ApplicationGenerator: React.FC = () => {
 			if (!shouldUpdate) return;
 		}
 
-		const presetDescription = await uiNotificationServiceV8.prompt({
-			title: 'Preset Description',
-			message: 'Enter a description for this preset (optional):',
-			placeholder: 'Description...',
-			confirmText: 'Save',
-			cancelText: 'Skip',
-		}) || '';
+		const presetDescription =
+			(await uiNotificationServiceV8.prompt({
+				title: 'Preset Description',
+				message: 'Enter a description for this preset (optional):',
+				placeholder: 'Description...',
+				confirmText: 'Save',
+				cancelText: 'Skip',
+			})) || '';
 
 		try {
 			const savedPreset = presetManagerService.saveCustomPreset({

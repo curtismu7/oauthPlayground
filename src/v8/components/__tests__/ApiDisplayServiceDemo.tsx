@@ -4,7 +4,7 @@
  * @description Interactive demo showing how API Display Service V8 works
  * @version 8.0.0
  * @since 2024-11-23
- * 
+ *
  * This demo shows:
  * - How to control API display visibility from anywhere
  * - How multiple components stay in sync
@@ -13,9 +13,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 const MODULE_TAG = '[🎨 API-DISPLAY-DEMO]';
 
@@ -28,7 +28,7 @@ const ControlPanel: React.FC = () => {
 
 	useEffect(() => {
 		console.log(`${MODULE_TAG} ControlPanel mounted`);
-		
+
 		// Subscribe to visibility changes
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
 			console.log(`${MODULE_TAG} ControlPanel received update:`, visible);
@@ -52,10 +52,8 @@ const ControlPanel: React.FC = () => {
 				marginBottom: '20px',
 			}}
 		>
-			<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>
-				🎛️ Control Panel
-			</h3>
-			
+			<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>🎛️ Control Panel</h3>
+
 			<div style={{ marginBottom: '16px' }}>
 				<strong style={{ color: '#374151' }}>Current State:</strong>{' '}
 				<span
@@ -149,7 +147,7 @@ const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
 
 	useEffect(() => {
 		console.log(`${MODULE_TAG} StatusMonitor #${id} mounted`);
-		
+
 		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
 			console.log(`${MODULE_TAG} StatusMonitor #${id} received update:`, visible);
 			setIsVisible(visible);
@@ -172,9 +170,7 @@ const StatusMonitor: React.FC<{ id: number }> = ({ id }) => {
 				fontSize: '13px',
 			}}
 		>
-			<div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#1f2937' }}>
-				Monitor #{id}
-			</div>
+			<div style={{ fontWeight: 'bold', marginBottom: '4px', color: '#1f2937' }}>Monitor #{id}</div>
 			<div style={{ color: '#374151' }}>
 				Status: <strong>{isVisible ? 'Visible' : 'Hidden'}</strong>
 			</div>
@@ -194,7 +190,7 @@ const ApiCallGenerator: React.FC = () => {
 	const generateApiCall = (type: 'success' | 'error') => {
 		const timestamp = new Date();
 		const id = `demo-${Date.now()}-${Math.random()}`;
-		
+
 		const call = {
 			id,
 			method: 'POST',
@@ -205,9 +201,10 @@ const ApiCallGenerator: React.FC = () => {
 			},
 			response: {
 				status: type === 'success' ? 200 : 400,
-				data: type === 'success' 
-					? { id, status: 'ACTIVE', type: 'SMS' }
-					: { code: 'INVALID_REQUEST', message: 'Invalid phone number' },
+				data:
+					type === 'success'
+						? { id, status: 'ACTIVE', type: 'SMS' }
+						: { code: 'INVALID_REQUEST', message: 'Invalid phone number' },
 			},
 			timestamp,
 		};
@@ -227,16 +224,12 @@ const ApiCallGenerator: React.FC = () => {
 				marginBottom: '20px',
 			}}
 		>
-			<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>
-				🧪 API Call Generator
-			</h3>
-			
+			<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>🧪 API Call Generator</h3>
+
 			<div style={{ marginBottom: '12px', color: '#374151' }}>
 				Generate sample API calls to see them in the display below.
 				<br />
-				<span style={{ fontSize: '12px', color: '#6b7280' }}>
-					Calls generated: {callCount}
-				</span>
+				<span style={{ fontSize: '12px', color: '#6b7280' }}>Calls generated: {callCount}</span>
 			</div>
 
 			<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -324,9 +317,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 					color: 'white', // White text on gradient background
 				}}
 			>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '28px' }}>
-					🎛️ API Display Service Demo
-				</h1>
+				<h1 style={{ margin: '0 0 8px 0', fontSize: '28px' }}>🎛️ API Display Service Demo</h1>
 				<p style={{ margin: 0, fontSize: '14px', opacity: 0.9 }}>
 					Interactive demonstration of the centralized API display visibility service
 				</p>
@@ -342,9 +333,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 					marginBottom: '24px',
 				}}
 			>
-				<h3 style={{ margin: '0 0 12px 0', color: '#1e40af' }}>
-					📖 How to Use This Demo
-				</h3>
+				<h3 style={{ margin: '0 0 12px 0', color: '#1e40af' }}>📖 How to Use This Demo</h3>
 				<ol style={{ margin: 0, paddingLeft: '20px', color: '#1f2937' }}>
 					<li style={{ marginBottom: '8px' }}>
 						Use the <strong>Control Panel</strong> to show/hide the API display
@@ -358,9 +347,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 					<li style={{ marginBottom: '8px' }}>
 						Try the <strong>✕ Close</strong> button in the API display header
 					</li>
-					<li>
-						Check the browser console for detailed logging
-					</li>
+					<li>Check the browser console for detailed logging</li>
 				</ol>
 			</div>
 
@@ -384,9 +371,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 						marginBottom: '12px',
 					}}
 				>
-					<h3 style={{ margin: 0, color: '#1f2937' }}>
-						📊 Status Monitors (Multiple Subscribers)
-					</h3>
+					<h3 style={{ margin: 0, color: '#1f2937' }}>📊 Status Monitors (Multiple Subscribers)</h3>
 					<button
 						type="button"
 						onClick={() => setShowMonitors(!showMonitors)}
@@ -431,9 +416,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 					marginBottom: '20px',
 				}}
 			>
-				<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>
-					✨ Key Features
-				</h3>
+				<h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>✨ Key Features</h3>
 				<div
 					style={{
 						display: 'grid',
@@ -482,9 +465,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 					marginBottom: '100px',
 				}}
 			>
-				<h3 style={{ margin: '0 0 16px 0', color: '#f9fafb' }}>
-					💻 Code Example
-				</h3>
+				<h3 style={{ margin: '0 0 16px 0', color: '#f9fafb' }}>💻 Code Example</h3>
 				<pre
 					style={{
 						margin: 0,
@@ -497,7 +478,7 @@ export const ApiDisplayServiceDemo: React.FC = () => {
 						fontFamily: 'monospace',
 					}}
 				>
-{`import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+					{`import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 
 // Show/hide the API display
 apiDisplayServiceV8.show();

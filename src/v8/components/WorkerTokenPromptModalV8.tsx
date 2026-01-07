@@ -7,8 +7,8 @@
 
 import React from 'react';
 import { FiAlertTriangle, FiKey, FiX } from 'react-icons/fi';
-import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 import { PINGONE_WORKER_MFA_SCOPE_STRING } from '@/v8/config/constants';
+import { WorkerTokenModalV8 } from './WorkerTokenModalV8';
 
 const MODULE_TAG = '[🔑 WORKER-TOKEN-PROMPT-MODAL-V8]';
 
@@ -150,13 +150,20 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 						</p>
 						<p style={{ margin: '0 0 12px 0' }}>
 							<strong>Note:</strong> For MFA device management, your worker token must include:
-							<code style={{ display: 'block', marginTop: '8px', padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px' }}>
+							<code
+								style={{
+									display: 'block',
+									marginTop: '8px',
+									padding: '8px',
+									background: '#f3f4f6',
+									borderRadius: '4px',
+									fontSize: '12px',
+								}}
+							>
 								{PINGONE_WORKER_MFA_SCOPE_STRING}
 							</code>
 						</p>
-						<p style={{ margin: 0 }}>
-							Would you like to get a new worker token now?
-						</p>
+						<p style={{ margin: 0 }}>Would you like to get a new worker token now?</p>
 					</div>
 
 					{/* Buttons */}
@@ -219,4 +226,3 @@ export const WorkerTokenPromptModalV8: React.FC<WorkerTokenPromptModalV8Props> =
 		</>
 	);
 };
-
