@@ -93,8 +93,9 @@ const createPopOutWindow = (
 			border-radius: 4px;
 			font-size: 12px;
 			overflow-x: auto;
-			max-height: 400px;
+			max-height: min(50vh, 600px);
 			overflow-y: auto;
+			min-height: 100px;
 		}
 		pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; }
 	</style>
@@ -598,6 +599,8 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 	const [height, setHeight] = useState(300);
 	const [isResizing, setIsResizing] = useState(false);
 	const [showClearConfirm, setShowClearConfirm] = useState(false);
+	const headerRef = useRef<HTMLDivElement>(null);
+	const [headerHeight, setHeaderHeight] = useState(34);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [sidebarWidth, setSidebarWidth] = useState(280);
 	const [previousCallCount, setPreviousCallCount] = useState(0);
@@ -610,6 +613,29 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			return 12;
 		}
 	});
+
+	// Measure header height dynamically
+	useEffect(() => {
+		const measureHeader = () => {
+			if (headerRef.current) {
+				const height = headerRef.current.offsetHeight;
+				setHeaderHeight(height);
+			}
+		};
+
+		// Measure on mount and when visibility changes
+		if (isVisible) {
+			measureHeader();
+			// Also measure after a short delay to account for rendering
+			const timeout = setTimeout(measureHeader, 100);
+			// Measure again after a longer delay to catch any dynamic content
+			const timeout2 = setTimeout(measureHeader, 500);
+			return () => {
+				clearTimeout(timeout);
+				clearTimeout(timeout2);
+			};
+		}
+	}, [isVisible, fontSize, apiCalls.length]);
 	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
 	const [showP1Only, setShowP1Only] = useState(false); // Filter toggle state
 
@@ -790,7 +816,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 			let backendCalls: ApiCall[] = [];
 			if (serverHealth.isOnline) {
 				try {
-					const response = await fetch('/api/pingone/api-calls');
+					const response = await fetch('/api/pingone/api-calls', {
+						signal: AbortSignal.timeout(5000), // 5 second timeout
+					});
 					if (response.ok) {
 						const data = (await response.json()) as {
 							calls: Array<{
@@ -834,12 +862,19 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					}
 				} catch (error) {
 					// Silently fail - backend calls are optional
-					// Only log if it's not a connection refused error (server down)
+					// Ignore connection errors (ERR_CONNECTION_REFUSED, ERR_EMPTY_RESPONSE, network errors)
 					const errorMessage = error instanceof Error ? error.message : String(error);
-					if (
-						!errorMessage.includes('ERR_CONNECTION_REFUSED') &&
-						!errorMessage.includes('Failed to fetch')
-					) {
+					const isConnectionError =
+						errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+						errorMessage.includes('ERR_EMPTY_RESPONSE') ||
+						errorMessage.includes('Failed to fetch') ||
+						errorMessage.includes('NetworkError') ||
+						errorMessage.includes('AbortError') ||
+						errorMessage.includes('timeout') ||
+						error instanceof TypeError ||
+						error instanceof DOMException;
+					// Only log non-connection errors (actual API errors, not network issues)
+					if (!isConnectionError) {
 						console.warn(`${MODULE_TAG} Failed to fetch backend API calls:`, error);
 					}
 				}
@@ -1347,6 +1382,11 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 
 					{/* Scrollable Content */}
 					<div
+						ref={(el) => {
+							if (el) {
+								// Store ref for potential scroll operations
+							}
+						}}
 						style={{
 							flex: 1,
 							overflowY: 'auto',
@@ -1355,6 +1395,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 					>
 						{/* Header */}
 						<div
+							ref={headerRef}
 							style={{
 								padding: '6px 12px',
 								background: '#f9fafb', // Light grey background
@@ -1364,7 +1405,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 								alignItems: 'center',
 								position: 'sticky',
 								top: 0,
-								zIndex: 1,
+								zIndex: 2,
 							}}
 						>
 							<div style={{ color: '#10b981', fontWeight: 'bold', fontSize: `${fontSize}px` }}>
@@ -1530,17 +1571,25 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 						</div>
 
 						{/* Table */}
-						<table
+						<div
 							style={{
+								overflowX: 'auto',
 								width: '100%',
-								borderCollapse: 'collapse',
+								maxWidth: '100%',
 							}}
 						>
+							<table
+								style={{
+									width: '100%',
+									borderCollapse: 'collapse',
+									minWidth: '600px',
+								}}
+							>
 							<thead
 								style={{
 									background: '#f3f4f6',
 									position: 'sticky',
-									top: '34px',
+									top: `${headerHeight}px`,
 									zIndex: 1,
 								}}
 							>
@@ -1627,7 +1676,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 							<tbody>
 								{apiCalls.length === 0 && (
 									<tr>
-										<td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center' }}>
+										<td colSpan={6} style={{ padding: '40px 20px', textAlign: 'center', paddingTop: `${headerHeight + 40}px` }}>
 											<div style={{ color: '#9ca3af', fontSize: `${fontSize + 2}px` }}>
 												<div style={{ fontSize: `${fontSize * 2.5}px`, marginBottom: '12px' }}>
 													⚡
@@ -1650,7 +1699,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									</tr>
 								)}
 								{apiCalls.length > 0 &&
-									apiCalls.map((call) => {
+									apiCalls.map((call, index) => {
 										const apiType = getApiTypeIcon(
 											call as { url?: string; actualPingOneUrl?: string; isProxy?: boolean }
 										);
@@ -1677,7 +1726,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 												>
 													<td
 														style={{
-															padding: '12px 16px',
+															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
 															textAlign: 'center',
 															fontSize: `${fontSize + 4}px`,
 														}}
@@ -1685,10 +1734,13 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													>
 														{apiType.icon}
 													</td>
-													<td style={{ padding: '12px 16px', fontSize: `${fontSize + 4}px` }}>
+													<td style={{ 
+														padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px', 
+														fontSize: `${fontSize + 4}px` 
+													}}>
 														{getStatusDot(call.response?.status)}
 													</td>
-													<td style={{ padding: '12px 16px' }}>
+													<td style={{ padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px' }}>
 														<span
 															style={{
 																padding: '3px 8px',
@@ -1711,7 +1763,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 															{call.method}
 														</span>
 													</td>
-													<td style={{ padding: '8px' }}>
+													<td style={{ padding: index === 0 ? `${12 + headerHeight}px 8px 8px 8px` : '8px' }}>
 														<span
 															style={{
 																color: call.response?.status
@@ -1732,7 +1784,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													</td>
 													<td
 														style={{
-															padding: '12px 16px',
+															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
 															color: '#1f2937',
 															fontSize: `${fontSize}px`,
 														}}
@@ -1755,7 +1807,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													</td>
 													<td
 														style={{
-															padding: '12px 16px',
+															padding: index === 0 ? `${12 + headerHeight}px 16px 12px 16px` : '12px 16px',
 															color: '#6b7280',
 															fontSize: `${fontSize}px`,
 														}}
@@ -1769,9 +1821,21 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 													<tr key={`expanded-${call.id}`} style={{ background: '#f9fafb' }}>
 														<td
 															colSpan={6}
-															style={{ padding: '12px', borderBottom: '1px solid #e5e7eb' }}
+															style={{
+																padding: '12px',
+																borderBottom: '1px solid #e5e7eb',
+																maxWidth: '100%',
+																overflow: 'visible',
+															}}
 														>
-															<div style={{ display: 'grid', gap: '12px' }}>
+															<div
+																style={{
+																	display: 'grid',
+																	gap: '12px',
+																	maxWidth: '100%',
+																	overflow: 'visible',
+																}}
+															>
 																{/* API Call (Method + URL) - Quick Copy for Debugging */}
 																<div
 																	style={{
@@ -2041,8 +2105,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					borderRadius: '4px',
 																					fontSize: '12px',
 																					overflowX: 'auto',
-																					maxHeight: '400px',
+																					maxHeight: 'min(50vh, 600px)',
 																					overflowY: 'auto',
+																					minHeight: '100px',
 																				}}
 																			>
 																				<pre
@@ -2136,8 +2201,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					borderRadius: '4px',
 																					fontSize: '12px',
 																					overflowX: 'auto',
-																					maxHeight: '400px',
+																					maxHeight: 'min(50vh, 600px)',
 																					overflowY: 'auto',
+																					minHeight: '100px',
 																				}}
 																			>
 																				<pre
@@ -2228,8 +2294,9 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 																					borderRadius: '4px',
 																					fontSize: '12px',
 																					overflowX: 'auto',
-																					maxHeight: '400px',
+																					maxHeight: 'min(50vh, 600px)',
 																					overflowY: 'auto',
+																					minHeight: '100px',
 																				}}
 																			>
 																				<pre
@@ -2254,6 +2321,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 									})}
 							</tbody>
 						</table>
+						</div>
 					</div>
 				</div>
 			)}

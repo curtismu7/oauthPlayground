@@ -17,8 +17,8 @@
 
 import React, { Suspense, useState } from 'react';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
-import type { DeviceType } from './shared/MFATypes';
 import { MFAFlowComponentFactory } from './factories/MFAFlowComponentFactory';
+import type { DeviceType } from './shared/MFATypes';
 
 const MODULE_TAG = '[📱 MFA-FLOW-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -26,7 +26,7 @@ const FLOW_KEY = 'mfa-flow-v8';
 /**
  * Main MFA Flow Router Component
  * Routes to device-specific flow components using Factory pattern
- * 
+ *
  * Architecture:
  * - Router: Routes to device-specific components (this file)
  * - Factory: Creates components dynamically (MFAFlowComponentFactory)
@@ -71,7 +71,9 @@ export const MFAFlowV8: React.FC = () => {
 	const FlowComponent = MFAFlowComponentFactory.create(deviceType);
 
 	return (
-		<Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading flow...</div>}>
+		<Suspense
+			fallback={<div style={{ padding: '40px', textAlign: 'center' }}>Loading flow...</div>}
+		>
 			<FlowComponent />
 		</Suspense>
 	);

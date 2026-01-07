@@ -74,11 +74,7 @@ export class UnifiedFlowLoggerService {
 	/**
 	 * Format log message with context
 	 */
-	private static formatMessage(
-		level: LogLevel,
-		message: string,
-		context: LogContext
-	): string {
+	private static formatMessage(level: LogLevel, message: string, context: LogContext): string {
 		const parts: string[] = [MODULE_TAG];
 
 		// Add level indicator
@@ -113,11 +109,7 @@ export class UnifiedFlowLoggerService {
 	/**
 	 * Log a message with context
 	 */
-	static log(
-		level: LogLevel,
-		message: string,
-		context: LogContext = {}
-	): void {
+	static log(level: LogLevel, message: string, context: LogContext = {}): void {
 		// Sanitize credentials in context
 		const sanitizedContext = {
 			...context,
@@ -125,7 +117,11 @@ export class UnifiedFlowLoggerService {
 		};
 
 		// Format message
-		const formattedMessage = UnifiedFlowLoggerService.formatMessage(level, message, sanitizedContext);
+		const formattedMessage = UnifiedFlowLoggerService.formatMessage(
+			level,
+			message,
+			sanitizedContext
+		);
 
 		// Add to history
 		UnifiedFlowLoggerService.logHistory.push({
@@ -226,7 +222,9 @@ export class UnifiedFlowLoggerService {
 			UnifiedFlowLoggerService.performanceMetrics.push(metric);
 
 			// Enforce metrics limit
-			if (UnifiedFlowLoggerService.performanceMetrics.length > UnifiedFlowLoggerService.maxMetrics) {
+			if (
+				UnifiedFlowLoggerService.performanceMetrics.length > UnifiedFlowLoggerService.maxMetrics
+			) {
 				UnifiedFlowLoggerService.performanceMetrics.shift();
 			}
 
@@ -280,4 +278,3 @@ export class UnifiedFlowLoggerService {
 		);
 	}
 }
-

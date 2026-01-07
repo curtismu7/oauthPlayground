@@ -3,23 +3,26 @@
  * @module v8/flows/shared
  * @description Shared success page component and service for all MFA device types
  * @version 8.4.0
- * 
+ *
  * This service provides a unified success page component that works for all device types:
  * - SMS, EMAIL, TOTP, FIDO2, VOICE, WHATSAPP, etc.
- * 
+ *
  * The success page is displayed after:
  * - Device registration (for ACTIVE devices)
  * - Device activation/validation (for ACTIVATION_REQUIRED devices)
  * - Device authentication (for existing devices)
- * 
+ *
  * NOTE: This service now uses the UnifiedMFASuccessPageV8 component from unifiedMFASuccessPageServiceV8
  */
 
 import React from 'react';
-import type { DeviceType, MFACredentials } from './MFATypes';
-import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
+import {
+	type UnifiedMFASuccessPageData,
+	UnifiedMFASuccessPageV8,
+} from '@/v8/services/unifiedMFASuccessPageServiceV8';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
-import { UnifiedMFASuccessPageV8, type UnifiedMFASuccessPageData } from '@/v8/services/unifiedMFASuccessPageServiceV8';
+import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
+import type { DeviceType, MFACredentials } from './MFATypes';
 
 export interface MFASuccessPageData {
 	deviceId: string;
@@ -135,9 +138,7 @@ export const getWhatsNextContent = (deviceType: DeviceType): string[] => {
 			'Users will use their OATH token for authentication',
 		],
 	};
-	return content[deviceType] || [
-		'Device is ready for MFA challenges',
-	];
+	return content[deviceType] || ['Device is ready for MFA challenges'];
 };
 
 /**
@@ -150,17 +151,30 @@ const convertToUnifiedData = (
 	policyName?: string,
 	fidoPolicy?: { id?: string; name?: string; [key: string]: unknown }
 ): UnifiedMFASuccessPageData => {
+	// Ensure deviceType is preserved - use successData.deviceType first, fallback to credentials.deviceType
+	const deviceType = successData.deviceType || credentials.deviceType || 'SMS';
+	
+	// Debug logging for FIDO2
+	if (deviceType === 'FIDO2' || successData.deviceType === 'FIDO2') {
+		console.log('[MFASuccessPageV8] Converting FIDO2 success data:', {
+			successDataDeviceType: successData.deviceType,
+			credentialsDeviceType: credentials.deviceType,
+			finalDeviceType: deviceType,
+		});
+	}
+	
 	return {
 		flowType: 'registration',
 		username: successData.username || credentials.username,
 		userId: successData.userId,
 		environmentId: successData.environmentId || credentials.environmentId,
 		deviceId: successData.deviceId,
-		deviceType: successData.deviceType,
+		deviceType: deviceType as DeviceType,
 		deviceStatus: successData.deviceStatus,
 		deviceNickname: successData.nickname,
 		deviceName: successData.nickname,
-		phone: successData.phone || (credentials.phoneNumber ? getFullPhoneNumber(credentials) : undefined),
+		phone:
+			successData.phone || (credentials.phoneNumber ? getFullPhoneNumber(credentials) : undefined),
 		email: successData.email || credentials.email,
 		policyId: policyId || credentials.deviceAuthenticationPolicyId,
 		policyName: policyName,
@@ -168,7 +182,7 @@ const convertToUnifiedData = (
 		verificationResult: successData.verificationResult,
 		responseData: {
 			deviceId: successData.deviceId,
-			deviceType: successData.deviceType,
+			deviceType: deviceType as DeviceType,
 			deviceStatus: successData.deviceStatus,
 			nickname: successData.nickname,
 			createdAt: successData.createdAt,
@@ -191,14 +205,27 @@ const convertToUnifiedData = (
  * Works for all device types
  * Now uses the UnifiedMFASuccessPageV8 component
  */
-export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({ successData, credentials, onStartAgain, ...props }) => {
+export const MFASuccessPageV8: React.FC<MFASuccessPageProps> = ({
+	successData,
+	credentials,
+	onStartAgain,
+	...props
+}) => {
 	// Get policy information from credentials or props
 	const policyId = credentials.deviceAuthenticationPolicyId;
 	const policyName = (props as { policyName?: string }).policyName;
-	const fidoPolicy = (props as { fidoPolicy?: { id?: string; name?: string; [key: string]: unknown } }).fidoPolicy;
-	
-	const unifiedData = convertToUnifiedData(successData, credentials, policyId, policyName, fidoPolicy);
-	
+	const fidoPolicy = (
+		props as { fidoPolicy?: { id?: string; name?: string; [key: string]: unknown } }
+	).fidoPolicy;
+
+	const unifiedData = convertToUnifiedData(
+		successData,
+		credentials,
+		policyId,
+		policyName,
+		fidoPolicy
+	);
+
 	return <UnifiedMFASuccessPageV8 data={unifiedData} onStartAgain={onStartAgain} />;
 };
 
@@ -257,4 +284,3 @@ export const getSuccessPageStep = (deviceType: DeviceType): number => {
 	}
 	return 3;
 };
-

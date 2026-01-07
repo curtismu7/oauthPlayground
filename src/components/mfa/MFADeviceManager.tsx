@@ -4,8 +4,8 @@ import {
 	EnhancedPingOneMfaService,
 	type MfaDevice,
 } from '../../services/enhancedPingOneMfaService';
-import ConfirmationModal from '../ConfirmationModal';
 import { v4ToastManager } from '../../utils/v4ToastManager';
+import ConfirmationModal from '../ConfirmationModal';
 
 interface MFADeviceManagerProps {
 	credentials: {
@@ -107,7 +107,9 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 
 		// In a real app, you would show a modal with the QR code and secret
 		// For now, we'll just show a success message
-		v4ToastManager.showSuccess('TOTP device added. Please scan the QR code with your authenticator app.');
+		v4ToastManager.showSuccess(
+			'TOTP device added. Please scan the QR code with your authenticator app.'
+		);
 		console.log('TOTP Secret:', secret); // In a real app, show this to the user in a secure way
 		console.log('QR Code:', qrCode); // In a real app, display this image
 	};
@@ -152,7 +154,9 @@ export const MFADeviceManager: React.FC<MFADeviceManagerProps> = ({
 			v4ToastManager.showSuccess('Device removed successfully');
 			setDevices(devices.filter((d) => d.id !== deviceToRemove));
 			onDeviceRemoved?.(deviceToRemove);
-			console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Device removed successfully in MFADeviceManager: ${deviceToRemove}`);
+			console.log(
+				`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Device removed successfully in MFADeviceManager: ${deviceToRemove}`
+			);
 		} catch (error) {
 			console.error('Failed to remove device:', error);
 			v4ToastManager.showError(

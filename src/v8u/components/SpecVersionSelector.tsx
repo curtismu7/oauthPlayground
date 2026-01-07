@@ -7,8 +7,8 @@
  */
 
 import React, { useState } from 'react';
-import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { FiHelpCircle, FiX } from 'react-icons/fi';
+import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 
 const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
 
@@ -18,7 +18,10 @@ export interface SpecVersionSelectorProps {
 }
 
 // User guidance for each spec version
-const SPEC_GUIDANCE: Record<SpecVersion, { description: string; whenToUse: string[]; flows: string[] }> = {
+const SPEC_GUIDANCE: Record<
+	SpecVersion,
+	{ description: string; whenToUse: string[]; flows: string[] }
+> = {
 	oidc: {
 		description: 'Authentication layer on OAuth 2.0. Best for user authentication and identity.',
 		whenToUse: [
@@ -167,8 +170,8 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 							information (ID tokens, user claims)
 						</li>
 						<li>
-							<strong>OAuth 2.0:</strong> Use for maximum compatibility and flexibility (supports all
-							flow types)
+							<strong>OAuth 2.0:</strong> Use for maximum compatibility and flexibility (supports
+							all flow types)
 						</li>
 						<li>
 							<strong>OAuth 2.1:</strong> Use for new applications requiring highest security (PKCE
@@ -176,8 +179,9 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						</li>
 					</ul>
 					<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#1e40af' }}>
-						Click the <FiHelpCircle size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />{' '}
-						icon next to each option for detailed guidance.
+						Click the{' '}
+						<FiHelpCircle size={12} style={{ display: 'inline', verticalAlign: 'middle' }} /> icon
+						next to each option for detailed guidance.
 					</p>
 				</div>
 			)}

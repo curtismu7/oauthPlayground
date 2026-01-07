@@ -39,14 +39,17 @@ import { pingOneLogoutService } from '@/services/pingOneLogoutService';
 import { oauthStorage } from '@/utils/storage';
 import { ConfirmModalV8 } from '@/v8/components/ConfirmModalV8';
 import { DeviceFailureModalV8, UnavailableDevice } from '@/v8/components/DeviceFailureModalV8';
+import { MFACooldownModalV8 } from '@/v8/components/MFACooldownModalV8';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
@@ -215,6 +218,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	
+	// Worker Token Settings State - Load fresh from config service (no cache)
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		// Always load fresh from config service, don't rely on cached state
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return config.workerToken.silentApiRetrieval;
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		// Always load fresh from config service, don't rely on cached state
+		const config = MFAConfigurationServiceV8.loadConfiguration();
+		return config.workerToken.showTokenAtEnd;
+	});
 
 	// MFA Policy State
 	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
@@ -256,13 +271,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const [deviceFailureError, setDeviceFailureError] = useState<string>('');
 	const [unavailableDevices, setUnavailableDevices] = useState<UnavailableDevice[]>([]);
 
+	// Cooldown/lockout modal state
+	const [cooldownError, setCooldownError] = useState<{
+		message: string;
+		deliveryMethod?: string;
+		coolDownExpiresAt?: number;
+	} | null>(null);
+
 	// OTP state
 	const [otpCode, setOtpCode] = useState('');
 	const [isValidatingOTP, setIsValidatingOTP] = useState(false);
 	const [otpError, setOtpError] = useState<string | null>(null);
 
-	// API Display visibility state (for padding adjustment)
-	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'MFA Authentication Main V8', force: true });
+
+	// Get API display padding
+	const { paddingBottom } = useApiDisplayPadding();
 
 	// FIDO2 state
 	const [isAuthenticatingFIDO2, setIsAuthenticatingFIDO2] = useState(false);
@@ -281,6 +306,169 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	useEffect(() => {
 		setShowUsernameDecisionModal(false);
 	}, []);
+
+	// Auto-refresh worker token when it's about to expire
+	useEffect(() => {
+		const checkAndRefreshToken = async () => {
+			try {
+				const config = MFAConfigurationServiceV8.loadConfiguration();
+				const autoRenewalEnabled = config.workerToken.autoRenewal;
+				const renewalThreshold = config.workerToken.renewalThreshold; // seconds
+				const retryAttempts = config.workerToken.retryAttempts;
+				const retryDelay = config.workerToken.retryDelay;
+
+				if (!autoRenewalEnabled) {
+					return; // Auto-renewal disabled
+				}
+
+				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+
+				// Only refresh if token exists and is about to expire
+				if (!currentStatus.isValid || !currentStatus.expiresAt) {
+					return; // No token or no expiry info
+				}
+
+				const now = Date.now();
+				const timeRemaining = currentStatus.expiresAt - now;
+				const timeRemainingSeconds = Math.floor(timeRemaining / 1000);
+
+				// Check if token is about to expire (within renewalThreshold)
+				if (timeRemainingSeconds > renewalThreshold) {
+					return; // Token still has enough time
+				}
+
+				console.log(
+					`${MODULE_TAG} Worker token expires in ${timeRemainingSeconds}s (threshold: ${renewalThreshold}s), attempting auto-refresh...`
+				);
+
+				// Attempt to refresh token with retries
+				let lastError: Error | null = null;
+				for (let attempt = 1; attempt <= retryAttempts; attempt++) {
+					try {
+						// Load stored credentials for token refresh
+						const credentials = await workerTokenServiceV8.loadCredentials();
+						if (!credentials) {
+							console.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
+							return;
+						}
+
+						// Use the same logic as attemptSilentTokenRetrieval
+						const region = credentials.region || 'us';
+						const apiBase =
+							region === 'eu'
+								? 'https://auth.pingone.eu'
+								: region === 'ap'
+									? 'https://auth.pingone.asia'
+									: region === 'ca'
+										? 'https://auth.pingone.ca'
+										: 'https://auth.pingone.com';
+
+						const proxyEndpoint = '/api/pingone/token';
+						const defaultScopes = ['mfa:device:manage', 'mfa:device:read'];
+						const scopeList = credentials.scopes;
+						const normalizedScopes: string[] =
+							Array.isArray(scopeList) && scopeList.length > 0 ? scopeList : defaultScopes;
+
+						const params = new URLSearchParams({
+							grant_type: 'client_credentials',
+							client_id: credentials.clientId,
+							scope: normalizedScopes.join(' '),
+						});
+
+						const authMethod = credentials.tokenEndpointAuthMethod || 'client_secret_post';
+						if (authMethod === 'client_secret_post') {
+							params.set('client_secret', credentials.clientSecret);
+						}
+
+						const headers: Record<string, string> = {
+							'Content-Type': 'application/json',
+						};
+
+						const requestBody: Record<string, unknown> = {
+							environment_id: credentials.environmentId,
+							region,
+							body: params.toString(),
+							auth_method: authMethod,
+						};
+
+						if (authMethod === 'client_secret_basic') {
+							const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+							requestBody.headers = { Authorization: `Basic ${basicAuth}` };
+						}
+
+						const response = await fetch(proxyEndpoint, {
+							method: 'POST',
+							headers,
+							body: JSON.stringify(requestBody),
+						});
+
+						if (response.ok) {
+							const data = (await response.json()) as {
+								access_token: string;
+								expires_in?: number;
+							};
+
+							if (data.access_token) {
+								const expiresIn = data.expires_in || 3600;
+								const expiresAt = Date.now() + expiresIn * 1000;
+
+								await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
+
+								console.log(`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`);
+								window.dispatchEvent(new Event('workerTokenUpdated'));
+								
+								// Update token status
+								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+								setTokenStatus(newStatus);
+								
+								toastV8.success('Worker token automatically refreshed!');
+								return; // Success, exit retry loop
+							}
+						}
+
+						// If we get here, the request failed
+						throw new Error(`Token refresh failed with status ${response.status}`);
+					} catch (error) {
+						lastError = error instanceof Error ? error : new Error(String(error));
+						console.warn(
+							`${MODULE_TAG} ⚠️ Auto-refresh attempt ${attempt}/${retryAttempts} failed:`,
+							lastError.message
+						);
+
+						// Wait before retrying (exponential backoff)
+						if (attempt < retryAttempts) {
+							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+							await new Promise((resolve) => setTimeout(resolve, delay));
+						}
+					}
+				}
+
+				// All retries failed
+				if (lastError) {
+					console.error(
+						`${MODULE_TAG} ❌ Worker token auto-refresh failed after ${retryAttempts} attempts:`,
+						lastError.message
+					);
+					toastV8.warning(
+						`Worker token auto-refresh failed. Token expires in ${timeRemainingSeconds} seconds.`
+					);
+				}
+			} catch (error) {
+				console.error(`${MODULE_TAG} Error in auto-refresh check:`, error);
+			}
+		};
+
+		// Check immediately on mount
+		checkAndRefreshToken();
+
+		// Check every 10 seconds (more frequent to catch expiry sooner)
+		// This ensures we catch tokens that are about to expire based on renewalThreshold
+		const interval = setInterval(checkAndRefreshToken, 10000);
+
+		return () => {
+			clearInterval(interval);
+		};
+	}, [setTokenStatus]);
 
 	// Helper function to handle NO_USABLE_DEVICES errors
 	const handleDeviceFailureError = useCallback((error: unknown) => {
@@ -352,6 +540,32 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		setUserDevices([]);
 	}, [usernameInput]);
 
+	// Load worker token settings from config service (always fresh, no cache)
+	useEffect(() => {
+		const loadConfig = () => {
+			// Always load fresh from config service to avoid cache issues
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
+			setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+		};
+
+		loadConfig();
+
+		// Listen for config updates
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			// Always reload fresh from config service when event fires (no cache)
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
+			setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		};
+	}, []);
+
 	// Update token status
 	useEffect(() => {
 		const handleTokenUpdate = () => {
@@ -369,13 +583,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		};
 	}, []);
 
-	// Subscribe to API display visibility changes
-	useEffect(() => {
-		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
-			setIsApiDisplayVisible(visible);
-		});
-		return () => unsubscribe();
-	}, []);
 
 	// Poll Push authentication status
 	useEffect(() => {
@@ -1126,7 +1333,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		<div
 			style={{
 				padding: '32px 20px',
-				paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
+				paddingBottom: paddingBottom !== '0' ? paddingBottom : '32px',
 				maxWidth: '1400px',
 				margin: '0 auto',
 				minHeight: '100vh',
@@ -1359,7 +1566,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 						<button
 							type="button"
-							onClick={() => setShowWorkerTokenModal(true)}
+							onClick={async () => {
+								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								// Pass current checkbox values to override config (page checkboxes take precedence)
+								// forceShowModal=true because user explicitly clicked the button - always show modal
+								await handleShowWorkerTokenModal(
+									setShowWorkerTokenModal, 
+									setTokenStatus,
+									silentApiRetrieval,  // Page checkbox value takes precedence
+									showTokenAtEnd,      // Page checkbox value takes precedence
+									true                  // Force show modal - user clicked button
+								);
+							}}
 							style={{
 								padding: '8px 16px',
 								border: 'none',
@@ -1416,6 +1634,135 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								</>
 							)}
 						</div>
+					</div>
+					
+					{/* Worker Token Settings Checkboxes */}
+					<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '12px',
+								cursor: 'pointer',
+								userSelect: 'none',
+								padding: '8px',
+								borderRadius: '6px',
+								transition: 'background-color 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = '#f3f4f6';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = 'transparent';
+							}}
+						>
+							<input
+								type="checkbox"
+								checked={silentApiRetrieval}
+								onChange={async (e) => {
+									const newValue = e.target.checked;
+									setSilentApiRetrieval(newValue);
+									// Update config service immediately (no cache)
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.silentApiRetrieval = newValue;
+									// If Silent is ON, Show Token must be OFF (silent means no modals)
+									if (newValue) {
+										config.workerToken.showTokenAtEnd = false;
+										setShowTokenAtEnd(false);
+									}
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Silent API Token Retrieval set to: ${newValue}${newValue ? ' (Show Token disabled)' : ''}`);
+									
+									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+									if (newValue) {
+										const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										if (!currentStatus.isValid) {
+											console.log('[MFA-AUTHN-MAIN-V8] Silent API retrieval enabled, attempting to fetch token now...');
+											const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+											await handleShowWorkerTokenModal(
+												setShowWorkerTokenModal,
+												setTokenStatus,
+												newValue,  // Use new value
+												showTokenAtEnd,
+												false      // Not forced - respect silent setting
+											);
+										}
+									}
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									cursor: 'pointer',
+									accentColor: '#6366f1',
+									flexShrink: 0,
+								}}
+							/>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Silent API Token Retrieval
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Automatically fetch worker token in the background without showing modals
+								</span>
+							</div>
+						</label>
+
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '12px',
+								cursor: 'pointer',
+								userSelect: 'none',
+								padding: '8px',
+								borderRadius: '6px',
+								transition: 'background-color 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = '#f3f4f6';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = 'transparent';
+							}}
+						>
+							<input
+								type="checkbox"
+								checked={showTokenAtEnd}
+								onChange={(e) => {
+									const newValue = e.target.checked;
+									setShowTokenAtEnd(newValue);
+									// Update config service immediately (no cache)
+									const config = MFAConfigurationServiceV8.loadConfiguration();
+									config.workerToken.showTokenAtEnd = newValue;
+									// If Show Token is ON, Silent must be OFF (showing token means not silent)
+									if (newValue) {
+										config.workerToken.silentApiRetrieval = false;
+										setSilentApiRetrieval(false);
+									}
+									MFAConfigurationServiceV8.saveConfiguration(config);
+									// Dispatch event to notify other components
+									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+									toastV8.info(`Show Token After Generation set to: ${newValue}${newValue ? ' (Silent API disabled)' : ''}`);
+								}}
+								style={{
+									width: '20px',
+									height: '20px',
+									cursor: 'pointer',
+									accentColor: '#6366f1',
+									flexShrink: 0,
+								}}
+							/>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+								<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+									Show Token After Generation
+								</span>
+								<span style={{ fontSize: '12px', color: '#6b7280' }}>
+									Display the generated worker token in a modal after successful retrieval
+								</span>
+							</div>
+						</label>
 					</div>
 				</div>
 
@@ -3034,16 +3381,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Modals */}
-			{showWorkerTokenModal && (
-				<WorkerTokenModalV8
-					isOpen={showWorkerTokenModal}
-					onClose={() => {
-						setShowWorkerTokenModal(false);
-						// Refresh token status when modal closes
-						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-					}}
-				/>
-			)}
+			{showWorkerTokenModal && (() => {
+				// Check if we should show token only
+				// Token-only mode is shown when:
+				// 1. showTokenAtEnd is ON AND token is valid (regardless of silentApiRetrieval)
+				// 2. OR both silentApiRetrieval and showTokenAtEnd are ON AND token was just retrieved silently
+				try {
+					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					
+					// Show token-only if showTokenAtEnd is ON and token is valid
+					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+					
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => {
+								setShowWorkerTokenModal(false);
+								// Refresh token status when modal closes
+								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+							}}
+							showTokenOnly={showTokenOnly}
+						/>
+					);
+				} catch {
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => {
+								setShowWorkerTokenModal(false);
+								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+							}}
+						/>
+					);
+				}
+			})()}
 
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (
@@ -3948,9 +4321,27 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 															}
 														} catch (error) {
 															console.error(`${MODULE_TAG} Failed to select device:`, error);
-															toastV8.error(
-																error instanceof Error ? error.message : 'Failed to select device'
-															);
+															
+															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
+															const errorWithCode = error as Error & {
+																errorCode?: string;
+																deliveryMethod?: string;
+																coolDownExpiresAt?: number;
+															};
+															
+															if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
+																const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+																setCooldownError({
+																	message: errorMessage,
+																	...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
+																	...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+																});
+																toastV8.warning(errorMessage);
+															} else {
+																toastV8.error(
+																	error instanceof Error ? error.message : 'Failed to select device'
+																);
+															}
 															setAuthState((prev) => ({ ...prev, isLoading: false }));
 														}
 													}}
@@ -4149,7 +4540,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						<div style={{ padding: '32px', textAlign: 'center' }}>
 							{(() => {
 								// Try to find device in authState.devices first, then fallback to userDevices
-								const selectedDevice = authState.devices.find(
+								let selectedDevice = authState.devices.find(
 									(d) => d.id === authState.selectedDeviceId
 								);
 								if (!selectedDevice && authState.selectedDeviceId) {
@@ -4227,7 +4618,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 								/>
 								{(() => {
 									// Try to find device in authState.devices first, then fallback to userDevices
-									const selectedDevice = authState.devices.find(
+									let selectedDevice = authState.devices.find(
 										(d) => d.id === authState.selectedDeviceId
 									);
 									if (!selectedDevice && authState.selectedDeviceId) {
@@ -4473,10 +4864,28 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 											);
 										} catch (error) {
 											console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
-											const errorMessage =
-												error instanceof Error ? error.message : 'Failed to resend code';
-											setOtpError(errorMessage);
-											toastV8.error(`Failed to resend code: ${errorMessage}`);
+											
+											// Check for LIMIT_EXCEEDED error (cooldown/lockout)
+											const errorWithCode = error as Error & {
+												errorCode?: string;
+												deliveryMethod?: string;
+												coolDownExpiresAt?: number;
+											};
+											
+											if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
+												const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
+												setCooldownError({
+													message: errorMessage,
+													...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
+													...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
+												});
+												toastV8.warning(errorMessage);
+											} else {
+												const errorMessage =
+													error instanceof Error ? error.message : 'Failed to resend code';
+												setOtpError(errorMessage);
+												toastV8.error(`Failed to resend code: ${errorMessage}`);
+											}
 										} finally {
 											setIsValidatingOTP(false);
 										}
@@ -5959,6 +6368,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						handleUsernamelessFIDO2();
 					}
 				}}
+			/>
+
+			{/* Cooldown/Lockout Modal */}
+			<MFACooldownModalV8
+				isOpen={!!cooldownError}
+				onClose={() => setCooldownError(null)}
+				message={cooldownError?.message || 'Authentication temporarily locked'}
+				deliveryMethod={cooldownError?.deliveryMethod}
+				coolDownExpiresAt={cooldownError?.coolDownExpiresAt}
 			/>
 		</div>
 	);

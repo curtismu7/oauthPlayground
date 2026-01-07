@@ -16,10 +16,7 @@ export interface UseDraggableModalReturn {
  * @param isOpen - Whether the modal is open
  * @param initialCenter - Whether to center the modal initially (default: true)
  */
-export function useDraggableModal(
-	isOpen: boolean,
-	initialCenter = true
-): UseDraggableModalReturn {
+export function useDraggableModal(isOpen: boolean, initialCenter = true): UseDraggableModalReturn {
 	const modalRef = useRef<HTMLDivElement>(null);
 	const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
 	const [isDragging, setIsDragging] = useState(false);
@@ -63,14 +60,32 @@ export function useDraggableModal(
 
 		const rect = modalRef.current?.getBoundingClientRect();
 		if (rect) {
+			// Get current modal position (either from state or from getBoundingClientRect if centered)
+			let currentX = modalPosition.x;
+			let currentY = modalPosition.y;
+			
+			// If modal is centered (position is 0,0), use current rect position
+			if (currentX === 0 && currentY === 0) {
+				currentX = rect.left;
+				currentY = rect.top;
+				// Update position state immediately
+				setModalPosition({ x: currentX, y: currentY });
+			}
+			
+			// Calculate drag offset: mouse position relative to modal's current top-left corner
+			const offsetX = e.clientX - currentX;
+			const offsetY = e.clientY - currentY;
+			
 			setDragOffset({
-				x: e.clientX - rect.left,
-				y: e.clientY - rect.top,
+				x: offsetX,
+				y: offsetY,
 			});
+			
 			setIsDragging(true);
 			e.preventDefault();
+			e.stopPropagation();
 		}
-	}, []);
+	}, [modalPosition]);
 
 	// Handle drag movement
 	const handleMouseMove = useCallback(
@@ -114,17 +129,18 @@ export function useDraggableModal(
 
 	// Calculate modal style with position
 	const modalStyle: React.CSSProperties =
-		modalPosition.x !== 0 || modalPosition.y !== 0
+		modalPosition.x !== 0 || modalPosition.y !== 0 || isDragging
 			? {
 					position: 'fixed',
 					left: `${modalPosition.x}px`,
 					top: `${modalPosition.y}px`,
 					margin: 0,
 					cursor: isDragging ? 'grabbing' : 'default',
-			  }
+					zIndex: 1001, // Ensure modal stays above overlay
+				}
 			: {
 					cursor: isDragging ? 'grabbing' : 'default',
-			  };
+				};
 
 	return {
 		modalRef,
@@ -134,4 +150,3 @@ export function useDraggableModal(
 		modalStyle,
 	};
 }
-

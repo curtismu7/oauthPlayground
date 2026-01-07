@@ -651,7 +651,9 @@ export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
 	const confirmReset = () => {
 		setCode(initialCode);
 		v4ToastManager.showSuccess('Code reset to original');
-		console.log(`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`);
+		console.log(
+			`[${new Date().toISOString()}] [🧩 UI-NOTIFICATIONS] Code reset to original in InteractiveCodeEditor`
+		);
 		setShowResetModal(false);
 	};
 
