@@ -2645,8 +2645,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										textAlign: 'center',
 									}}
 								>
-									💡 <strong>Tip:</strong> The QR code and secret expire after ~30 minutes. If they
-									expire, delete the device and create a new one.
+									💡 QR code expires after ~30 minutes
 								</p>
 
 								{/* Stuck Device Warning - Show when device is in ACTIVATION_REQUIRED status and missing QR data */}
