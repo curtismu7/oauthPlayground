@@ -644,16 +644,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 			{/* Device Type Settings - Collapsible Sections */}
 
 
-			<div style={ marginTop: '20px' }>
+			<div style={{marginTop: '20px' }>
 
 
 				<h4
 
 
-					style={
-
-
-						margin: '0 0 16px 0',
+					style={{margin: '0 0 16px 0',
 
 
 						fontSize: '16px',
@@ -677,7 +674,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 				</h4>
 
 
-				<p style={ margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }>
+				<p style={{margin: '0 0 16px 0', fontSize: '13px', color: '#6b7280' }>
 
 
 					Configure settings for each device type. Each section can be expanded to view and edit device-specific options.
@@ -716,16 +713,13 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							key={deviceType}
 
 
-							open={isExpanded}
+							open={false}
 
 
-							onToggle={e => setIsExpanded(e.currentTarget.open)}
+							
 
 
-							style={
-
-
-								marginBottom: '12px',
+							style={{marginBottom: '12px',
 
 
 								padding: '12px',
@@ -749,10 +743,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							<summary
 
 
-								style={
-
-
-									cursor: 'pointer',
+								style={{cursor: 'pointer',
 
 
 									fontWeight: '600',
@@ -785,7 +776,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								<span>{deviceType} Settings</span>
 
 
-								<span style={ fontSize: '12px', color: '#6b7280' }>
+								<span style={{fontSize: '12px', color: '#6b7280' }>
 
 
 									{isExpanded ? '▼' : '▶'}
@@ -797,10 +788,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 							</summary>
 
 
-							<div style={ marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }>
+							<div style={{marginTop: '12px', padding: '12px', background: 'white', borderRadius: '6px' }>
 
 
-								<p style={ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }>
+								<p style={{margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }>
 
 
 									{deviceType} device configuration options. These settings are part of the policy and will be saved to PingOne.
@@ -812,7 +803,7 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								{/* Placeholder for device-specific settings */}
 
 
-								<div style={ padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }>
+								<div style={{padding: '8px', background: '#f3f4f6', borderRadius: '4px', fontSize: '12px', color: '#6b7280' }>
 
 
 									Device-specific settings for {deviceType} will be displayed here.
