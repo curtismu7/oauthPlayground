@@ -43,11 +43,12 @@ const SPEC_GUIDANCE: Record<
 		flows: ['Authorization Code', 'Implicit', 'Client Credentials', 'Device Authorization'],
 	},
 	'oauth2.1': {
-		description: 'Modern OAuth 2.0 with security best practices. PKCE required, HTTPS enforced.',
+		description:
+			'Modern OAuth 2.0 with security best practices. PKCE is required for Authorization Code; HTTPS enforced.',
 		whenToUse: [
 			'You are building new applications',
 			'You want the highest security standards',
-			'You can use PKCE (required)',
+			'You can use PKCE (required for Authorization Code)',
 			'You can use HTTPS for all redirect URIs',
 		],
 		flows: ['Authorization Code', 'Client Credentials', 'Device Authorization'],
