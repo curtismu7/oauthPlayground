@@ -279,65 +279,6 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 	const dropZoneRef = useRef<HTMLDivElement>(null);
 	const dropHandlerRef = useRef<FileDropHandler | null>(null);
 
-	// Initialize drop handler
-	React.useEffect(() => {
-		if (dropZoneRef.current && !disabled) {
-			dropHandlerRef.current = new FileDropHandler(
-				dropZoneRef.current,
-				{
-					accept: ['.json'],
-					maxSize: 1024 * 1024, // 1MB
-					multiple: false,
-				},
-				{
-					onFiles: handleFilesDropped,
-					onError: (error) => setDropError(error),
-				}
-			);
-
-			return () => {
-				dropHandlerRef.current?.destroy();
-			};
-		}
-	}, [disabled, handleFilesDropped]);
-
-	const handleExport = useCallback(() => {
-		if (!appType) {
-			v4ToastManager.showError('Please select an application type first');
-			return;
-		}
-
-		try {
-			exportUtils.quickExport(formData, appType, formData.name || 'app-config');
-			v4ToastManager.showSuccess('Configuration exported successfully!');
-		} catch (error) {
-			console.error('[ExportImport] Export failed:', error);
-			v4ToastManager.showError('Failed to export configuration');
-		}
-	}, [formData, appType]);
-
-	const handleFilesDropped = useCallback(
-		async (files: File[]) => {
-			if (files.length === 0) return;
-
-			const file = files[0];
-			setDropError(null);
-			await processImportFile(file);
-		},
-		[processImportFile]
-	);
-
-	const handleFileSelect = useCallback(
-		async (event: React.ChangeEvent<HTMLInputElement>) => {
-			const files = event.target.files;
-			if (files && files.length > 0) {
-				setDropError(null);
-				await processImportFile(files[0]);
-			}
-		},
-		[processImportFile]
-	);
-
 	const processImportFile = async (file: File) => {
 		setIsProcessing(true);
 		setImportResult(null);
@@ -374,6 +315,65 @@ export const ExportImportPanel: React.FC<ExportImportPanelProps> = ({
 			setIsProcessing(false);
 		}
 	};
+
+	const handleFilesDropped = useCallback(
+		async (files: File[]) => {
+			if (files.length === 0) return;
+
+			const file = files[0];
+			setDropError(null);
+			await processImportFile(file);
+		},
+		[processImportFile]
+	);
+
+	const handleFileSelect = useCallback(
+		async (event: React.ChangeEvent<HTMLInputElement>) => {
+			const files = event.target.files;
+			if (files && files.length > 0) {
+				setDropError(null);
+				await processImportFile(files[0]);
+			}
+		},
+		[processImportFile]
+	);
+
+	const handleExport = useCallback(() => {
+		if (!appType) {
+			v4ToastManager.showError('Please select an application type first');
+			return;
+		}
+
+		try {
+			exportUtils.quickExport(formData, appType, formData.name || 'app-config');
+			v4ToastManager.showSuccess('Configuration exported successfully!');
+		} catch (error) {
+			console.error('[ExportImport] Export failed:', error);
+			v4ToastManager.showError('Failed to export configuration');
+		}
+	}, [formData, appType]);
+
+	// Initialize drop handler
+	React.useEffect(() => {
+		if (dropZoneRef.current && !disabled) {
+			dropHandlerRef.current = new FileDropHandler(
+				dropZoneRef.current,
+				{
+					accept: ['.json'],
+					maxSize: 1024 * 1024, // 1MB
+					multiple: false,
+				},
+				{
+					onFiles: handleFilesDropped,
+					onError: (error) => setDropError(error),
+				}
+			);
+
+			return () => {
+				dropHandlerRef.current?.destroy();
+			};
+		}
+	}, [disabled, handleFilesDropped]);
 
 	const handleDropZoneClick = () => {
 		if (!disabled) {

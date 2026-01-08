@@ -733,7 +733,28 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 			</div>
 
 			{/* Modals */}
-			{showWorkerTokenModal && (
+			{showWorkerTokenModal && (() => {
+				// Check if we should show token only (matches MFA pattern)
+				try {
+					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					
+					// Show token-only if showTokenAtEnd is ON and token is valid
+					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+					
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => {
+								setShowWorkerTokenModal(false);
+								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+							}}
+							showTokenOnly={showTokenOnly}
+						/>
+					);
+				} catch {
+					return (
 				<WorkerTokenModalV8
 					isOpen={showWorkerTokenModal}
 					onClose={() => {
@@ -741,7 +762,9 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 					}}
 				/>
-			)}
+					);
+				}
+			})()}
 			{showUserLoginModal && (
 				<UserLoginModalV8
 					isOpen={showUserLoginModal}

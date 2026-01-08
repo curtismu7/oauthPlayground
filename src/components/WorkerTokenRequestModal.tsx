@@ -11,6 +11,7 @@ import {
 	FiEyeOff,
 	FiInfo,
 	FiKey,
+	FiRefreshCw,
 	FiShield,
 	FiX,
 } from 'react-icons/fi';
@@ -551,57 +552,55 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 				<ModalContent>
 					{isTokenStep ? (
-						<>
+						<Section>
+							<SectionTitle>
+								<FiKey size={14} />
+								Generated Access Token
+							</SectionTitle>
+							<InfoBox>
+								<InfoIcon>
+									<FiInfo size={14} />
+								</InfoIcon>
+								<InfoText>
+									<strong>Token Generated Successfully!</strong> This token will be used for API
+									calls.
+								</InfoText>
+							</InfoBox>
+
+							<FormField>
+								<FormLabel>Access Token</FormLabel>
+								<div style={{ position: 'relative' }}>
+									<FormInput
+										type={showToken ? 'text' : 'password'}
+										value={generatedToken}
+										readOnly
+										style={{ paddingRight: '2.5rem' }}
+									/>
+									<PasswordToggle
+										onClick={() => setShowToken(!showToken)}
+										title={showToken ? 'Hide token' : 'Show token'}
+									>
+										{showToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									</PasswordToggle>
+								</div>
+							</FormField>
+
 							<Section>
 								<SectionTitle>
-									<FiKey size={14} />
-									Generated Access Token
+									<FiCode size={14} />
+									Token Details
 								</SectionTitle>
-								<InfoBox>
-									<InfoIcon>
-										<FiInfo size={14} />
-									</InfoIcon>
-									<InfoText>
-										<strong>Token Generated Successfully!</strong> This token will be used for API
-										calls.
-									</InfoText>
-								</InfoBox>
-
-								<FormField>
-									<FormLabel>Access Token</FormLabel>
-									<div style={{ position: 'relative' }}>
-										<FormInput
-											type={showToken ? 'text' : 'password'}
-											value={generatedToken}
-											readOnly
-											style={{ paddingRight: '2.5rem' }}
-										/>
-										<PasswordToggle
-											onClick={() => setShowToken(!showToken)}
-											title={showToken ? 'Hide token' : 'Show token'}
-										>
-											{showToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-										</PasswordToggle>
-									</div>
-								</FormField>
-
-								<Section>
-									<SectionTitle>
-										<FiCode size={14} />
-										Token Details
-									</SectionTitle>
-									<CodeBlock>
-										<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
-									</CodeBlock>
-									<ButtonGroup>
-										<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
-											<FiCopy size={12} />
-											Copy Token
-										</ActionButton>
-									</ButtonGroup>
-								</Section>
+								<CodeBlock>
+									<pre>{JSON.stringify(decodeJWT(generatedToken), null, 2)}</pre>
+								</CodeBlock>
+								<ButtonGroup>
+									<ActionButton $variant="secondary" onClick={handleCopyToken} size="small">
+										<FiCopy size={12} />
+										Copy Token
+									</ActionButton>
+								</ButtonGroup>
 							</Section>
-						</>
+						</Section>
 					) : (
 						<>
 							<InfoBox>
