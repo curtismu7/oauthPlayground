@@ -735,9 +735,9 @@ export class UnifiedFlowIntegrationV8U {
 	 *
 	 * @param credentials - OAuth credentials (environmentId, clientId, clientSecret, scopes)
 	 * @param deviceCode - Device code from authorization response (used to poll token endpoint)
-	 * @param interval - Polling interval in seconds (default: 5, matches PingOne recommendation)
-	 * @param maxAttempts - Maximum polling attempts before giving up (default: 60)
-	 *                      At 5-second intervals, this is ~5 minutes total
+	 * @param interval - Polling interval in seconds (optional, from device authorization response, default: 5)
+	 *                   RFC 8628 Section 3.5: Use interval from device authorization response
+	 * @param maxAttempts - Maximum polling attempts before giving up (optional, calculated from expires_in if not provided)
 	 * @returns Promise resolving to token response when user completes authorization
 	 *
 	 * @throws Error if environmentId or clientId is missing
@@ -754,8 +754,8 @@ export class UnifiedFlowIntegrationV8U {
 	static async pollForTokens(
 		credentials: UnifiedFlowCredentials,
 		deviceCode: string,
-		interval: number = 5,
-		maxAttempts: number = 60
+		interval?: number, // Optional - from device authorization response
+		maxAttempts?: number // Optional - calculated from expires_in if not provided
 	) {
 		console.log(`${MODULE_TAG} Polling for tokens`, {
 			deviceCode: `${deviceCode.substring(0, 20)}...`,
