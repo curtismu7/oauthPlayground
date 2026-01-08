@@ -1314,6 +1314,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			requested_token_type,
 			audience,
 			resource,
+			device_code, // RFC 8628 Device Authorization Flow
 		} = req.body;
 
 		// Validate required parameters
@@ -1351,6 +1352,16 @@ app.post('/api/token-exchange', async (req, res) => {
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant only needs client_id and client_secret (handled by auth method)
 			console.log('🔑 [Server] Validating client_credentials grant type');
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
+			// RFC 8628 Device Authorization Flow
+			if (!device_code || device_code.trim() === '') {
+				console.error('❌ [Server] Missing device_code for device_code grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: device_code',
+				});
+			}
+			console.log('📱 [Server] Validating device_code grant type');
 		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
 			// RFC 8693 Token Exchange
 			if (!subject_token || subject_token.trim() === '') {
@@ -1454,6 +1465,23 @@ app.post('/api/token-exchange', async (req, res) => {
 			if (requested_token_type) params.requested_token_type = requested_token_type;
 			if (audience) params.audience = audience;
 			if (resource) params.resource = resource;
+			if (scope) params.scope = scope;
+			tokenRequestBody = new URLSearchParams(params);
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
+			// RFC 8628 Device Authorization Flow
+			if (!device_code || device_code.trim() === '') {
+				console.error('❌ [Server] Missing device_code for device_code grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: device_code',
+				});
+			}
+			console.log('📱 [Server] Building device code request body');
+			const params = {
+				grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+				client_id: client_id,
+				device_code: device_code,
+			};
 			if (scope) params.scope = scope;
 			tokenRequestBody = new URLSearchParams(params);
 		} else {
@@ -3181,6 +3209,44 @@ app.post('/api/validate-token', async (req, res) => {
 // Device Authorization Endpoint (proxy to PingOne)
 app.post('/api/device-authorization', async (req, res) => {
 	try {
+		// Log incoming request for debugging
+		console.log(`[Device Authorization] Request received:`, {
+			method: req.method,
+			contentType: req.get('Content-Type'),
+			bodyType: typeof req.body,
+			bodyKeys: req.body ? Object.keys(req.body) : [],
+			hasBody: !!req.body,
+			bodyPreview: req.body ? JSON.stringify(req.body).substring(0, 200) : 'no body',
+		});
+
+		// Ensure req.body is parsed correctly
+		let parsedBody = req.body;
+		if (!parsedBody || (typeof parsedBody === 'object' && Object.keys(parsedBody).length === 0)) {
+			// If body is empty or not parsed, try to parse it manually
+			console.warn(`[Device Authorization] Body appears empty or unparsed, checking raw body`);
+			if (req.body && typeof req.body === 'string') {
+				try {
+					parsedBody = JSON.parse(req.body);
+					console.log(`[Device Authorization] Manually parsed JSON body`);
+				} catch (parseError) {
+					console.error(`[Device Authorization] Failed to parse body as JSON:`, parseError);
+					return res.status(400).json({
+						error: 'invalid_request',
+						error_description: 'Invalid JSON body in request',
+					});
+				}
+			} else {
+				console.error(`[Device Authorization] Body is empty or invalid:`, {
+					bodyType: typeof req.body,
+					bodyValue: req.body,
+				});
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing or invalid request body',
+				});
+			}
+		}
+
 		const {
 			environment_id,
 			client_id,
@@ -3192,29 +3258,137 @@ app.post('/api/device-authorization', async (req, res) => {
 			ui_locales,
 			claims,
 			app_identifier,
-		} = req.body;
+		} = parsedBody;
 
-		if (!environment_id || !client_id) {
+		// Validate and sanitize required fields
+		const sanitizedEnvironmentId = environment_id ? String(environment_id).trim() : '';
+		const sanitizedClientId = client_id ? String(client_id).trim() : '';
+
+		if (!sanitizedEnvironmentId || !sanitizedClientId) {
+			console.error(`[Device Authorization] Missing or invalid required parameters:`, {
+				hasEnvironmentId: !!environment_id,
+				hasClientId: !!client_id,
+				environmentIdType: typeof environment_id,
+				clientIdType: typeof client_id,
+				environmentIdValue: environment_id ? `${String(environment_id).substring(0, 20)}...` : 'undefined',
+				clientIdValue: client_id ? `${String(client_id).substring(0, 20)}...` : 'undefined',
+				receivedBody: req.body,
+				bodyType: typeof req.body,
+				bodyKeys: req.body ? Object.keys(req.body) : [],
+			});
 			return res.status(400).json({
 				error: 'invalid_request',
 				error_description: 'Missing required parameters: environment_id, client_id',
+				debug: {
+					hasEnvironmentId: !!sanitizedEnvironmentId,
+					hasClientId: !!sanitizedClientId,
+					bodyKeys: req.body ? Object.keys(req.body) : [],
+				},
 			});
 		}
 
-		const deviceEndpoint = `https://auth.pingone.com/${environment_id}/as/device`;
+		// RFC 8628 Device Authorization endpoint: /as/device_authorization (with underscore)
+		// Per PingOne API documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/#device-code-grant-type
+		const deviceEndpoint = `https://auth.pingone.com/${sanitizedEnvironmentId}/as/device_authorization`;
 
-		console.log(`[Device Authorization] Starting device flow for client: ${client_id}`);
+		console.log(`[Device Authorization] Starting device flow for client: ${sanitizedClientId}`, {
+			environmentId: sanitizedEnvironmentId,
+			clientId: sanitizedClientId,
+			hasScope: !!scope,
+			deviceEndpoint,
+		});
 
+		// Build form data for PingOne (RFC 8628 requires application/x-www-form-urlencoded)
 		const formData = new URLSearchParams();
-		formData.append('client_id', client_id);
-		if (scope) formData.append('scope', scope);
-		if (audience) formData.append('audience', audience);
-		if (acr_values) formData.append('acr_values', acr_values);
-		if (prompt) formData.append('prompt', prompt);
-		if (max_age) formData.append('max_age', max_age.toString());
-		if (ui_locales) formData.append('ui_locales', ui_locales);
-		if (claims) formData.append('claims', claims);
-		if (app_identifier) formData.append('app_identifier', app_identifier);
+		formData.append('client_id', sanitizedClientId);
+		
+		// Add optional parameters only if they have valid values
+		if (scope && String(scope).trim()) {
+			formData.append('scope', String(scope).trim());
+		}
+		if (audience && String(audience).trim()) {
+			formData.append('audience', String(audience).trim());
+		}
+		if (acr_values && String(acr_values).trim()) {
+			formData.append('acr_values', String(acr_values).trim());
+		}
+		if (prompt && String(prompt).trim()) {
+			formData.append('prompt', String(prompt).trim());
+		}
+		if (max_age !== undefined && max_age !== null) {
+			formData.append('max_age', String(max_age));
+		}
+		if (ui_locales && String(ui_locales).trim()) {
+			formData.append('ui_locales', String(ui_locales).trim());
+		}
+		if (claims && String(claims).trim()) {
+			formData.append('claims', String(claims).trim());
+		}
+		if (app_identifier && String(app_identifier).trim()) {
+			formData.append('app_identifier', String(app_identifier).trim());
+		}
+
+		// Convert formData to string for logging and sending
+		// URLSearchParams.toString() gives the correct application/x-www-form-urlencoded format
+		const formDataString = formData.toString();
+		
+		// Validate formData string is not empty and contains client_id
+		if (!formDataString || !formDataString.includes('client_id=') || !formData.get('client_id')) {
+			console.error(`[Device Authorization] Invalid formData - client_id missing or empty:`, {
+				formDataString,
+				formDataLength: formDataString?.length || 0,
+				hasClientId: formDataString?.includes('client_id=') || false,
+				hasClientIdKey: formData.has('client_id'),
+				clientIdValue: formData.get('client_id'),
+			});
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Invalid request body: client_id is required and must not be empty',
+			});
+		}
+
+		// Log the form data being sent to PingOne (without sensitive data)
+		console.log(`[Device Authorization] Request body to PingOne:`, {
+			endpoint: deviceEndpoint,
+			formDataKeys: Array.from(formData.keys()),
+			clientIdPresent: formData.has('client_id'),
+			clientIdLength: formData.get('client_id')?.length || 0,
+			scopePresent: formData.has('scope'),
+			formDataString,
+			formDataLength: formDataString.length,
+			contentType: 'application/x-www-form-urlencoded',
+		});
+
+		// #region agent log - Debug instrumentation for 403 error
+		try {
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'server.js:3362',
+					message: 'About to send request to PingOne with FIXED endpoint',
+					data: {
+						endpoint: deviceEndpoint,
+						endpointPath: deviceEndpoint.includes('/as/device_authorization') ? 'CORRECT (/as/device_authorization)' : 'WRONG (/as/device)',
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/x-www-form-urlencoded',
+							Accept: 'application/json',
+						},
+						body: formDataString,
+						bodyLength: formDataString.length,
+						formDataKeys: Array.from(formData.keys()),
+						clientIdValue: formData.get('client_id') ? formData.get('client_id').substring(0, 15) + '...' : 'MISSING',
+						scopeValue: formData.get('scope') || 'NONE',
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'post-fix',
+					hypothesisId: 'B',
+				}),
+			}).catch(() => {});
+		} catch (e) {}
+		// #endregion
 
 		const response = await global.fetch(deviceEndpoint, {
 			method: 'POST',
@@ -3222,13 +3396,93 @@ app.post('/api/device-authorization', async (req, res) => {
 				'Content-Type': 'application/x-www-form-urlencoded',
 				Accept: 'application/json',
 			},
-			body: formData,
+			body: formDataString, // Send as string (URLSearchParams.toString() format)
 		});
 
-		const data = await response.json();
+		// #region agent log - Debug instrumentation for 403 error
+		try {
+			const responseText = await response.clone().text().catch(() => 'FAILED_TO_READ');
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'server.js:3380',
+					message: 'Received response from PingOne',
+					data: {
+						status: response.status,
+						statusText: response.statusText,
+						responseHeaders: Object.fromEntries(response.headers.entries()),
+						responseBody: responseText,
+						responseBodyLength: responseText.length,
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'pre-fix',
+					hypothesisId: 'C',
+				}),
+			}).catch(() => {});
+		} catch (e) {}
+		// #endregion
+
+		let data;
+		try {
+			const responseText = await response.text();
+			try {
+				data = JSON.parse(responseText);
+			} catch {
+				// If response is not JSON, create error object
+				data = {
+					error: 'invalid_response',
+					error_description: responseText || `HTTP ${response.status} ${response.statusText}`,
+					raw_response: responseText,
+				};
+			}
+		} catch (parseError) {
+			console.error(`[Device Authorization] Failed to parse response:`, parseError);
+			data = {
+				error: 'server_error',
+				error_description: 'Failed to parse response from PingOne',
+			};
+		}
 
 		if (!response.ok) {
-			console.error(`[Device Authorization] PingOne error:`, data);
+			console.error(`[Device Authorization] PingOne error:`, {
+				status: response.status,
+				statusText: response.statusText,
+				data,
+				headers: Object.fromEntries(response.headers.entries()),
+			});
+
+			// Provide more helpful error messages for common issues
+			if (response.status === 403) {
+				// Check if it's a grant type issue or authentication issue
+				const errorMsg = data?.error_description || data?.error || data?.message || 'Unknown error';
+				
+				// Enhance error message with helpful guidance
+				if (errorMsg.toLowerCase().includes('missing authentication token') || 
+				    errorMsg.toLowerCase().includes('authentication token')) {
+					return res.status(403).json({
+						error: data?.error || 'forbidden',
+						error_description: `403 Forbidden: ${errorMsg}\n\n` +
+							`This error typically indicates one of the following:\n` +
+							`1. Device Code grant type is not enabled in your PingOne application\n` +
+							`2. Application configuration mismatch\n` +
+							`3. Invalid client_id or environment_id\n\n` +
+							`📋 How to Fix:\n` +
+							`1. Go to PingOne Admin Console: https://admin.pingone.com\n` +
+							`2. Navigate to: Connections → Applications → Your Application (${client_id?.substring(0, 8)}...)\n` +
+							`3. Click the "Configuration" tab\n` +
+							`4. Under "Grant Types", ensure "Device Authorization" (urn:ietf:params:oauth:grant-type:device_code) is checked\n` +
+							`5. Under "Token Endpoint Authentication Method", verify it matches your selection\n` +
+							`6. Click "Save" and wait 30-60 seconds for changes to propagate\n` +
+							`7. Try the request again\n\n` +
+							`📚 Documentation: https://apidocs.pingidentity.com/pingone/main/v1/api/\n` +
+							`🔍 Correlation ID: ${data?.correlation_id || data?.correlationId || 'N/A'}`,
+						correlation_id: data?.correlation_id || data?.correlationId,
+					});
+				}
+			}
+
 			return res.status(response.status).json(data);
 		}
 
@@ -6091,7 +6345,7 @@ app.get('/api/oauth-metadata', async (req, res) => {
 				end_session_endpoint: `https://auth.pingone.com/${environment_id}/as/signoff`,
 				revocation_endpoint: `https://auth.pingone.com/${environment_id}/as/revoke`,
 				introspection_endpoint: `https://auth.pingone.com/${environment_id}/as/introspect`,
-				device_authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/device`,
+				device_authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/device_authorization`,
 				pushed_authorization_request_endpoint: `https://auth.pingone.com/${environment_id}/as/par`,
 			};
 
@@ -6245,7 +6499,7 @@ app.get('/api/discovery', async (req, res) => {
 				end_session_endpoint: `https://auth.pingone.com/${environment_id}/as/signoff`,
 				revocation_endpoint: `https://auth.pingone.com/${environment_id}/as/revoke`,
 				introspection_endpoint: `https://auth.pingone.com/${environment_id}/as/introspect`,
-				device_authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/device`,
+				device_authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/device_authorization`,
 				pushed_authorization_request_endpoint: `https://auth.pingone.com/${environment_id}/as/par`,
 			};
 

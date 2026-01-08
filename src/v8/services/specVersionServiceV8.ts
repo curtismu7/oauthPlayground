@@ -241,7 +241,7 @@ export class SpecVersionServiceV8 {
 			implicit: 'Implicit Flow',
 			'client-credentials': 'Client Credentials Flow',
 			ropc: 'Resource Owner Password Credentials',
-			'device-code': 'Device Authorization Flow',
+			'device-code': 'Device code grant type',
 			hybrid: 'Hybrid Flow',
 		};
 		return labels[flowType];

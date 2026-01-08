@@ -12,6 +12,7 @@ import {
 	FiKey,
 	FiLayers,
 	FiLock,
+	FiLogOut,
 	FiMove,
 	FiPackage,
 	FiRefreshCw,
@@ -965,6 +966,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						icon: (
 							<ColoredIcon $color="#10b981">
 								<FiUsers />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'pingone-logout-flow',
+						path: '/flows/pingone-logout',
+						label: 'PingOne Logout',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiLogOut />
 							</ColoredIcon>
 						),
 					},

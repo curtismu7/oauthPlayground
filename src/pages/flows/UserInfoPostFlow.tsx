@@ -227,7 +227,7 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
 		clientId: credentials?.clientId || '',
 		clientSecret: credentials?.clientSecret || '',
 		environmentId: credentials?.environmentId || '',
-		accessToken: 'mock_access_token_for_userinfo_demo_abcdef123456',
+		accessToken: '',
 		scope: 'openid profile email',
 		claims: '{"userinfo": {"email": null, "phone_number": null, "address": null}}',
 		uiLocales: 'en',
@@ -314,40 +314,57 @@ try {
 				setDemoStatus('loading');
 
 				try {
-					// Simulate UserInfo POST request
-					const mockUserInfo = {
-						sub: 'user_123456789',
-						name: 'John Doe',
-						given_name: 'John',
-						family_name: 'Doe',
-						email: 'john.doe@example.com',
-						email_verified: true,
-						phone_number: '+1-555-123-4567',
-						phone_number_verified: true,
-						address: {
-							street_address: '123 Main St',
-							locality: 'Anytown',
-							region: 'CA',
-							postal_code: '12345',
-							country: 'US',
-						},
-						locale: 'en-US',
-						updated_at: Math.floor(Date.now() / 1000),
-					};
+					if (!formData.accessToken || !formData.environmentId) {
+						throw new Error('Access token and environment ID are required');
+					}
 
-					const mockResponse = {
+					const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
+
+					console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
+					console.log('[UserInfoPostFlow] Token preview:', `${formData.accessToken.substring(0, 20)}...`);
+
+					const response = await fetch('/api/pingone/userinfo', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							userInfoEndpoint,
+							accessToken: formData.accessToken,
+						}),
+					});
+
+					if (!response.ok) {
+						const errorData = await response.json();
+						throw new Error(
+							errorData.message ||
+								errorData.error_description ||
+								`UserInfo request failed: ${response.status} ${response.statusText}`
+						);
+					}
+
+					const userInfo = await response.json();
+
+					console.log('[UserInfoPostFlow] UserInfo received:', {
+						hasSub: !!userInfo.sub,
+						hasEmail: !!userInfo.email,
+						hasName: !!userInfo.name,
+					});
+
+					const responseData = {
 						success: true,
 						message: 'UserInfo retrieved successfully',
-						userInfo: mockUserInfo,
-						method: 'POST',
-						endpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
+						userInfo,
+						method: 'GET',
+						endpoint: userInfoEndpoint,
 					};
 
-					setResponse(mockResponse);
-					setUserInfo(mockUserInfo);
+					setResponse(responseData);
+					setUserInfo(userInfo);
 					setDemoStatus('success');
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					console.error('[UserInfoPostFlow] Error:', errorMessage);
 					setError(errorMessage);
 					setDemoStatus('error');
 					throw error;
@@ -470,41 +487,57 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 			setDemoStatus('loading');
 			setError(null);
 
-			const userInfoUrl = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
+			if (!formData.accessToken || !formData.environmentId) {
+				throw new Error('Access token and environment ID are required');
+			}
 
-			const mockUserInfo = {
-				sub: 'user_123456789',
-				name: 'John Doe',
-				given_name: 'John',
-				family_name: 'Doe',
-				email: 'john.doe@example.com',
-				email_verified: true,
-				phone_number: '+1-555-123-4567',
-				phone_number_verified: true,
-				address: {
-					street_address: '123 Main St',
-					locality: 'Anytown',
-					region: 'CA',
-					postal_code: '12345',
-					country: 'US',
+			const userInfoEndpoint = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
+
+			console.log('[UserInfoPostFlow] Fetching user information from:', userInfoEndpoint);
+			console.log('[UserInfoPostFlow] Token preview:', `${formData.accessToken.substring(0, 20)}...`);
+
+			const response = await fetch('/api/pingone/userinfo', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
 				},
-				locale: 'en-US',
-				updated_at: Math.floor(Date.now() / 1000),
-			};
+				body: JSON.stringify({
+					userInfoEndpoint,
+					accessToken: formData.accessToken,
+				}),
+			});
 
-			const mockResponse = {
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(
+					errorData.message ||
+						errorData.error_description ||
+						`UserInfo request failed: ${response.status} ${response.statusText}`
+				);
+			}
+
+			const userInfo = await response.json();
+
+			console.log('[UserInfoPostFlow] UserInfo received:', {
+				hasSub: !!userInfo.sub,
+				hasEmail: !!userInfo.email,
+				hasName: !!userInfo.name,
+			});
+
+			const responseData = {
 				success: true,
 				message: 'UserInfo retrieved successfully',
-				userInfo: mockUserInfo,
-				method: 'POST',
-				endpoint: userInfoUrl,
+				userInfo,
+				method: 'GET',
+				endpoint: userInfoEndpoint,
 			};
 
-			setResponse(mockResponse);
-			setUserInfo(mockUserInfo);
+			setResponse(responseData);
+			setUserInfo(userInfo);
 			setDemoStatus('success');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			console.error('[UserInfoPostFlow] Error:', errorMessage);
 			setError(errorMessage);
 			setDemoStatus('error');
 		}
@@ -594,7 +627,15 @@ const retryUserInfoRequest = async (retryCount = 0) => {
 						</UserInfoDetail>
 						<UserInfoDetail>
 							<UserInfoLabel>Last Updated</UserInfoLabel>
-							<UserInfoValue>{new Date(userInfo.updated_at * 1000).toLocaleString()}</UserInfoValue>
+							<UserInfoValue>
+								{userInfo.updated_at
+									? new Date(
+											typeof userInfo.updated_at === 'number'
+												? userInfo.updated_at * 1000
+												: userInfo.updated_at
+										).toLocaleString()
+									: 'Not available'}
+							</UserInfoValue>
 						</UserInfoDetail>
 					</UserInfoDetails>
 				</UserInfoContainer>
