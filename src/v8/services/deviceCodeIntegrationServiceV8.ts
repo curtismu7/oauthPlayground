@@ -216,11 +216,17 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				startTime = Date.now();
 				callId = apiCallTrackerService.trackApiCall({
-					method: 'POST',
-					url: deviceAuthEndpoint,
-					body: requestBody,
-					step: 'unified-device-authorization',
-				});
+				method: 'POST',
+				url: deviceAuthEndpoint,
+					actualPingOneUrl: deviceAuthEndpoint,
+					isProxy: false,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				body: requestBody,
+				step: 'unified-device-authorization',
+					flowType: 'unified',
+			});
 			} catch (importError) {
 				// If import fails or times out, continue without tracking (non-blocking)
 				console.warn(
@@ -299,15 +305,15 @@ export class DeviceCodeIntegrationServiceV8 {
 			if (callId) {
 				try {
 					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-					apiCallTrackerService.updateApiCallResponse(
-						callId,
-						{
-							status: response.status,
-							statusText: response.statusText,
-							data: responseData,
-						},
-						Date.now() - startTime
-					);
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
 				} catch (e) {
 					// Ignore tracking errors - non-blocking
 					console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
@@ -325,8 +331,8 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Extract correlation ID from error data or error message
 				// Check multiple possible field names and locations
-				let correlationId: string | undefined =
-					(errorData.correlation_id as string) ||
+				let correlationId: string | undefined = 
+					(errorData.correlation_id as string) || 
 					(errorData.correlationId as string) ||
 					(errorData['correlation-id'] as string) ||
 					(errorData['correlationId'] as string) ||
@@ -334,7 +340,7 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				// Also check response headers
 				if (!correlationId && response.headers) {
-					const headerCorrelationId =
+					const headerCorrelationId = 
 						response.headers.get('X-Correlation-ID') ||
 						response.headers.get('x-correlation-id') ||
 						response.headers.get('Correlation-ID') ||
@@ -514,41 +520,49 @@ export class DeviceCodeIntegrationServiceV8 {
 
 		for (let attempt = 0; attempt < calculatedMaxAttempts; attempt++) {
 			try {
-				// Build request body for backend proxy (JSON format)
-				// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
-				// Client authentication happens at token endpoint (handled by backend)
-				const requestBody: Record<string, string> = {
-					grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-					client_id: credentials.clientId,
-					device_code: deviceCode,
-					environment_id: credentials.environmentId,
-				};
+			// Build request body for backend proxy (JSON format)
+			// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
+			// Client authentication happens at token endpoint (handled by backend)
+			const requestBody: Record<string, string> = {
+				grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+				client_id: credentials.clientId,
+				device_code: deviceCode,
+				environment_id: credentials.environmentId,
+			};
 
-				// Handle Client Authentication - pass to backend proxy
-				// RFC 8628: Client authentication is performed at token endpoint using standard OAuth 2.0 methods
-				if (credentials.clientSecret) {
-					requestBody.client_secret = credentials.clientSecret;
-					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_post';
-				} else if (credentials.clientAuthMethod === 'none') {
-					// Explicitly set to 'none' for public clients
-					requestBody.client_auth_method = 'none';
-				}
+			// Handle Client Authentication - pass to backend proxy
+			// RFC 8628: Client authentication is performed at token endpoint using standard OAuth 2.0 methods
+			if (credentials.clientSecret) {
+				requestBody.client_secret = credentials.clientSecret;
+				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_post';
+			} else if (credentials.clientAuthMethod === 'none') {
+				// Explicitly set to 'none' for public clients
+				requestBody.client_auth_method = 'none';
+			}
 
-				// Add scope if provided (optional per RFC 8628)
-				if (credentials.scopes?.trim()) {
-					requestBody.scope = credentials.scopes.trim();
-				}
+			// Add scope if provided (optional per RFC 8628)
+			if (credentials.scopes?.trim()) {
+				requestBody.scope = credentials.scopes.trim();
+			}
 
 				// Track API call for display
 				const pollStartTime = Date.now();
+				const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 				const pollCallId = apiCallTrackerService.trackApiCall({
 					method: 'POST',
 					url: tokenEndpoint,
+					actualPingOneUrl,
+					isProxy: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
 					body: {
 						...requestBody,
 						device_code: '***REDACTED***', // Don't expose device code in display
+						client_secret: requestBody.client_secret ? '***REDACTED***' : undefined,
 					},
 					step: 'unified-device-token-poll',
+					flowType: 'unified',
 				});
 
 				const response = await pingOneFetch(tokenEndpoint, {
@@ -579,11 +593,11 @@ export class DeviceCodeIntegrationServiceV8 {
 				);
 
 				if (response.ok) {
-					const tokens: TokenResponse = await response.json();
+					const tokens: TokenResponse = pollResponseData as TokenResponse;
 					return tokens;
 				}
 
-				const errorData = await response.json();
+				const errorData = pollResponseData as Record<string, unknown>;
 
 				// Check for authorization_pending (user hasn't approved yet) - RFC 8628 Section 3.5
 				if (errorData.error === 'authorization_pending') {

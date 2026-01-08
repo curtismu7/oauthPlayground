@@ -1,7 +1,7 @@
 // src/components/PresetSelector.tsx
 // Preset selection component for the Application Generator
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheck, FiInfo, FiSettings, FiStar, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
@@ -284,11 +284,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 	const [filter, setFilter] = useState<'all' | 'built-in' | 'custom'>('all');
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		loadPresets();
-	}, [loadPresets]);
-
-	const loadPresets = async () => {
+	const loadPresets = useCallback(async () => {
 		try {
 			setLoading(true);
 
@@ -306,7 +302,11 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		loadPresets();
+	}, [loadPresets]);
 
 	const filteredPresets = presets.filter((preset) => {
 		// Filter by app type if selected

@@ -195,138 +195,6 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 		[validateConfig]
 	);
 
-	// V7 Enhanced authentication request initiation - Real API call
-	const initiateAuthRequest = useCallback(
-		async (config: CibaConfig) => {
-			if (isLoading) return;
-
-			setIsLoading(true);
-			setError(null);
-			setStage('initiating');
-
-			try {
-				console.log('[CIBA-V7] Initiating CIBA backchannel authentication request...');
-				console.log('[CIBA-V7] Config:', {
-					environmentId: config.environmentId,
-					clientId: config.clientId,
-					hasClientSecret: !!config.clientSecret,
-					scope: config.scope,
-					loginHint: config.loginHint,
-					hasBindingMessage: !!config.bindingMessage,
-					hasRequestContext: !!config.requestContext,
-					authMethod: config.authMethod,
-				});
-
-				// Call real backend endpoint
-				const response = await fetch('/api/ciba-backchannel', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({
-						environment_id: config.environmentId,
-						client_id: config.clientId,
-						client_secret: config.clientSecret,
-						scope: config.scope,
-						login_hint: config.loginHint,
-						binding_message: config.bindingMessage,
-						requested_context: config.requestContext
-							? typeof config.requestContext === 'string'
-								? JSON.parse(config.requestContext)
-								: config.requestContext
-							: undefined,
-						auth_method: config.authMethod,
-					}),
-				});
-
-				let data;
-				try {
-					const text = await response.text();
-					try {
-						data = JSON.parse(text);
-					} catch {
-						// Response is not JSON
-						data = { error: 'Invalid response format', error_description: text };
-					}
-				} catch (err) {
-					console.error('[CIBA-V7] Failed to parse response:', err);
-					data = {
-						error: 'Network error',
-						error_description: 'Failed to read response from server',
-					};
-				}
-
-				if (!response.ok) {
-					const errorMsg =
-						data.error_description ||
-						data.error ||
-						`Failed to initiate CIBA request (HTTP ${response.status})`;
-					console.error('[CIBA-V7] Backchannel request failed:', {
-						status: response.status,
-						statusText: response.statusText,
-						url: response.url,
-						data: data,
-						fullResponse: data,
-					});
-					setError(errorMsg);
-					setStage('failed');
-					v4ToastManager.showError(errorMsg);
-					return;
-				}
-
-				// Extract auth_req_id and other response data (RFC 9436)
-				const auth_req_id = data.auth_req_id;
-				const expires_in = data.expires_in || 300; // Default 5 minutes
-				const interval = data.interval || 2; // Default 2 seconds
-
-				if (!auth_req_id) {
-					throw new Error('Missing auth_req_id in backchannel response');
-				}
-
-				console.log('[CIBA-V7] Backchannel request successful:', {
-					auth_req_id: `${auth_req_id.substring(0, 20)}...`,
-					expires_in,
-					interval,
-				});
-
-				// Create auth request object for tracking
-				const authRequest: CibaAuthRequest = {
-					auth_req_id, // RFC 9436: required for polling
-					stateId: `ciba_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Internal tracking
-					status: 'pending',
-					interval,
-					expiresIn: expires_in,
-					launchMode: 'poll',
-					bindingMessage: data.binding_message || config.bindingMessage,
-					expiresAt: Date.now() + expires_in * 1000,
-					...(config.requestContext ? { requestContext: config.requestContext } : {}),
-				};
-
-				setAuthRequest(authRequest);
-				setStage('awaiting-approval');
-				stepManager.next();
-
-				v4ToastManager.showSuccess('CIBA authentication request initiated successfully');
-
-				// Start real polling
-				startPolling(authRequest, config);
-			} catch (err) {
-				const errorMessage = err instanceof Error ? err.message : 'Failed to initiate CIBA request';
-				console.error('[CIBA-V7] Error initiating request:', err);
-				setError(errorMessage);
-				setStage('failed');
-				v4ToastManager.showError(errorMessage);
-			} finally {
-				setIsLoading(false);
-			}
-		},
-		[
-			isLoading,
-			stepManager, // Start real polling
-			startPolling,
-		]
-	);
-
 	// V7 Enhanced polling - Real API calls with proper error handling (RFC 9436)
 	const startPolling = useCallback(
 		(authRequest: CibaAuthRequest, config: CibaConfig) => {
@@ -502,6 +370,134 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 			}, authRequest.expiresIn * 1000);
 		},
 		[stepManager]
+	);
+
+	// V7 Enhanced authentication request initiation - Real API call
+	const initiateAuthRequest = useCallback(
+		async (config: CibaConfig) => {
+			if (isLoading) return;
+
+			setIsLoading(true);
+			setError(null);
+			setStage('initiating');
+
+			try {
+				console.log('[CIBA-V7] Initiating CIBA backchannel authentication request...');
+				console.log('[CIBA-V7] Config:', {
+					environmentId: config.environmentId,
+					clientId: config.clientId,
+					hasClientSecret: !!config.clientSecret,
+					scope: config.scope,
+					loginHint: config.loginHint,
+					hasBindingMessage: !!config.bindingMessage,
+					hasRequestContext: !!config.requestContext,
+					authMethod: config.authMethod,
+				});
+
+				// Call real backend endpoint
+				const response = await fetch('/api/ciba-backchannel', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environment_id: config.environmentId,
+						client_id: config.clientId,
+						client_secret: config.clientSecret,
+						scope: config.scope,
+						login_hint: config.loginHint,
+						binding_message: config.bindingMessage,
+						requested_context: config.requestContext
+							? typeof config.requestContext === 'string'
+								? JSON.parse(config.requestContext)
+								: config.requestContext
+							: undefined,
+						auth_method: config.authMethod,
+					}),
+				});
+
+				let data;
+				try {
+					const text = await response.text();
+					try {
+						data = JSON.parse(text);
+					} catch {
+						// Response is not JSON
+						data = { error: 'Invalid response format', error_description: text };
+					}
+				} catch (err) {
+					console.error('[CIBA-V7] Failed to parse response:', err);
+					data = {
+						error: 'Network error',
+						error_description: 'Failed to read response from server',
+					};
+				}
+
+				if (!response.ok) {
+					const errorMsg =
+						data.error_description ||
+						data.error ||
+						`Failed to initiate CIBA request (HTTP ${response.status})`;
+					console.error('[CIBA-V7] Backchannel request failed:', {
+						status: response.status,
+						statusText: response.statusText,
+						url: response.url,
+						data: data,
+						fullResponse: data,
+					});
+					setError(errorMsg);
+					setStage('failed');
+					v4ToastManager.showError(errorMsg);
+					return;
+				}
+
+				// Extract auth_req_id and other response data (RFC 9436)
+				const auth_req_id = data.auth_req_id;
+				const expires_in = data.expires_in || 300; // Default 5 minutes
+				const interval = data.interval || 2; // Default 2 seconds
+
+				if (!auth_req_id) {
+					throw new Error('Missing auth_req_id in backchannel response');
+				}
+
+				console.log('[CIBA-V7] Backchannel request successful:', {
+					auth_req_id: `${auth_req_id.substring(0, 20)}...`,
+					expires_in,
+					interval,
+				});
+
+				// Create auth request object for tracking
+				const authRequest: CibaAuthRequest = {
+					auth_req_id, // RFC 9436: required for polling
+					stateId: `ciba_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Internal tracking
+					status: 'pending',
+					interval,
+					expiresIn: expires_in,
+					launchMode: 'poll',
+					bindingMessage: data.binding_message || config.bindingMessage,
+					expiresAt: Date.now() + expires_in * 1000,
+					...(config.requestContext ? { requestContext: config.requestContext } : {}),
+				};
+
+				setAuthRequest(authRequest);
+				setStage('awaiting-approval');
+				stepManager.next();
+
+				v4ToastManager.showSuccess('CIBA authentication request initiated successfully');
+
+				// Start real polling
+				startPolling(authRequest, config);
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Failed to initiate CIBA request';
+				console.error('[CIBA-V7] Error initiating request:', err);
+				setError(errorMessage);
+				setStage('failed');
+				v4ToastManager.showError(errorMessage);
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[isLoading, stepManager, startPolling]
 	);
 
 	// V7 Enhanced flow control

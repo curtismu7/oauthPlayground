@@ -62,6 +62,7 @@ import {
 } from '@/v8/services/specVersionServiceV8';
 import { TokenEndpointAuthMethodServiceV8 } from '@/v8/services/tokenEndpointAuthMethodServiceV8';
 import { TooltipContentServiceV8 } from '@/v8/services/tooltipContentServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -498,6 +499,24 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [tokenStatus, setTokenStatus] = useState(() =>
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
+	
+	// Worker Token Settings
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.silentApiRetrieval;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			return config.workerToken.showTokenAtEnd;
+		} catch {
+			return false;
+		}
+	});
 
 	// Helper function to determine if a required field should have red outline
 	const shouldHighlightField = useCallback(
@@ -817,6 +836,27 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			clearInterval(interval);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 			window.removeEventListener('storage', handleTokenUpdate);
+		};
+	}, []);
+
+	// Listen for configuration updates
+	useEffect(() => {
+		const handleConfigUpdate = (event: Event) => {
+			const customEvent = event as CustomEvent<{ workerToken?: { silentApiRetrieval?: boolean; showTokenAtEnd?: boolean } }>;
+			if (customEvent.detail?.workerToken) {
+				if (customEvent.detail.workerToken.silentApiRetrieval !== undefined) {
+					setSilentApiRetrieval(customEvent.detail.workerToken.silentApiRetrieval);
+				}
+				if (customEvent.detail.workerToken.showTokenAtEnd !== undefined) {
+					setShowTokenAtEnd(customEvent.detail.workerToken.showTokenAtEnd);
+				}
+			}
+		};
+
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate);
+
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate);
 		};
 	}, []);
 
@@ -1750,7 +1790,18 @@ Why it matters: Backend services communicate server-to-server without user conte
 											<button
 												type="button"
 												className={tokenStatus.isValid ? 'btn-token-has' : 'btn-token-none'}
-												onClick={() => setShowWorkerTokenModal(true)}
+												onClick={async () => {
+													// Pass current checkbox values to override config (page checkboxes take precedence)
+													// forceShowModal=true because user explicitly clicked the button - always show modal
+													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														setTokenStatus,
+														silentApiRetrieval,  // Page checkbox value takes precedence
+														showTokenAtEnd,      // Page checkbox value takes precedence
+														true                  // Force show modal - user clicked button
+													);
+												}}
 												title={
 													tokenStatus.isValid
 														? 'Worker token is stored - click to manage'
@@ -1779,6 +1830,125 @@ Why it matters: Backend services communicate server-to-server without user conte
 											>
 												{hasDiscoveredApps ? '🔍 Discover Apps AGAIN' : '🔍 Discover Apps'}
 											</button>
+										</div>
+										
+										{/* Worker Token Settings Checkboxes */}
+										<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+													userSelect: 'none',
+													padding: '8px',
+													borderRadius: '6px',
+													transition: 'background-color 0.2s ease',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.backgroundColor = '#f3f4f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.backgroundColor = 'transparent';
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={silentApiRetrieval}
+													onChange={async (e) => {
+														const newValue = e.target.checked;
+														setSilentApiRetrieval(newValue);
+														// Update config service immediately (no cache)
+														const config = MFAConfigurationServiceV8.loadConfiguration();
+														config.workerToken.silentApiRetrieval = newValue;
+														MFAConfigurationServiceV8.saveConfiguration(config);
+														// Dispatch event to notify other components
+														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+														
+														// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+														if (newValue) {
+															const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+															if (!currentStatus.isValid) {
+																console.log('[CREDENTIALS-FORM-V8U] Silent API retrieval enabled, attempting to fetch token now...');
+																const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+																await handleShowWorkerTokenModal(
+																	setShowWorkerTokenModal,
+																	setTokenStatus,
+																	newValue,  // Use new value
+																	showTokenAtEnd,
+																	false      // Not forced - respect silent setting
+																);
+															}
+														}
+													}}
+													style={{
+														width: '20px',
+														height: '20px',
+														cursor: 'pointer',
+														accentColor: '#6366f1',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Silent API Token Retrieval
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Automatically fetch worker token in the background without showing modals
+													</span>
+												</div>
+											</label>
+
+											<label
+												style={{
+													display: 'flex',
+													alignItems: 'center',
+													gap: '12px',
+													cursor: 'pointer',
+													userSelect: 'none',
+													padding: '8px',
+													borderRadius: '6px',
+													transition: 'background-color 0.2s ease',
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.backgroundColor = '#f3f4f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.backgroundColor = 'transparent';
+												}}
+											>
+												<input
+													type="checkbox"
+													checked={showTokenAtEnd}
+													onChange={(e) => {
+														const newValue = e.target.checked;
+														setShowTokenAtEnd(newValue);
+														// Update config service immediately (no cache)
+														const config = MFAConfigurationServiceV8.loadConfiguration();
+														config.workerToken.showTokenAtEnd = newValue;
+														MFAConfigurationServiceV8.saveConfiguration(config);
+														// Dispatch event to notify other components
+														window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+														toastV8.info(`Show Token After Generation set to: ${newValue}`);
+													}}
+													style={{
+														width: '20px',
+														height: '20px',
+														cursor: 'pointer',
+														accentColor: '#6366f1',
+														flexShrink: 0,
+													}}
+												/>
+												<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+													<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+														Show Token After Generation
+													</span>
+													<span style={{ fontSize: '12px', color: '#6b7280' }}>
+														Display the generated worker token in a modal after successful retrieval
+													</span>
+												</div>
+											</label>
 										</div>
 									</div>
 
@@ -2957,45 +3127,13 @@ Why it matters: Backend services communicate server-to-server without user conte
 											}}
 											onBlur={(e) => {
 												// Optional: Only filter invalid scopes on blur (when user finishes typing)
-												// This allows free typing without interference
-												if (providedFlowType === 'client-credentials' && e.target.value) {
-													const scopesArray = e.target.value.split(/\s+/).filter((s) => s.trim());
-
-													// Remove only specific OIDC scopes that are invalid for client credentials
-													// Custom scopes (api:read, custom:scope, etc.) are preserved
-													const invalidOidcScopes = [
-														'offline_access',
-														'profile',
-														'email',
-														'address',
-														'phone',
-													];
-													const filteredScopes = scopesArray.filter(
-														(s) => !invalidOidcScopes.includes(s.toLowerCase())
-													);
-
-													// Only update if we actually removed something
-													if (filteredScopes.length < scopesArray.length) {
-														const newValue = filteredScopes.join(' ');
-														handleChange('scopes', newValue);
-														console.log(
-															`${MODULE_TAG} Removed invalid OIDC scopes for client credentials flow`,
-															{
-																original: e.target.value,
-																filtered: newValue,
-																removed: scopesArray.filter((s) =>
-																	invalidOidcScopes.includes(s.toLowerCase())
-																),
-															}
-														);
-													}
-												}
+												// Allow all scopes to be typed freely
 											}}
 											aria-label="Scopes"
 										/>
 										<small>
 											{providedFlowType === 'client-credentials'
-												? 'Type custom resource server scopes only (e.g., api:read, api:write, custom:scope, myapp:data:read). Space-separated. Must be enabled in PingOne app Resources tab. Note: Management API scopes (p1:read:user, etc.) are for Worker tokens only, not client_credentials flow. Use custom scopes for your resource server API.'
+												? 'Use resource server scopes (e.g., ClaimScope, custom:read, api:read). Space-separated. Must be enabled in PingOne app Resources tab under a resource server. Note: OIDC scopes (openid, profile, email) and self-management scopes (p1:read:user) do NOT work with client_credentials - you need resource server scopes like "ClaimScope".'
 												: providedFlowType === 'device-code'
 													? 'OIDC scopes for user authentication (e.g., openid profile email offline_access) - Device Flow is for user authorization, not machine-to-machine'
 													: 'Type space-separated scopes (e.g., openid profile email). Custom scopes are allowed. Must be enabled in PingOne app.'}
@@ -3329,21 +3467,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 													</div>
 												);
 											}
-											// For client credentials flow, do NOT show Management API scopes
-											// Client credentials flow should only use custom resource server scopes
-											// Management API scopes (p1:*) are for Worker tokens only
+											// For client credentials flow, filter out self-management scopes (p1:*)
+											// OIDC scopes (openid, profile, email, etc.) are allowed
+											// Self-management scopes (p1:read:user, etc.) cannot be granted on client_credentials
 											if (providedFlowType === 'client-credentials') {
-												// Only show custom scopes from allowedScopes (if any)
-												// Filter out any p1: scopes as they're not for client_credentials
-												const customScopesToShow =
+												// Filter out self-management scopes (p1:*)
+												// Allow OIDC scopes and custom scopes
+												const scopesToShow =
 													allowedScopes.length > 0
 														? allowedScopes.filter((s) => !s.startsWith('p1:'))
 														: [];
 
-												// If no custom scopes available, don't show any scope buttons
-												// User should type custom scopes manually
-												if (customScopesToShow.length === 0) {
-													return null; // Don't show any scope buttons for client-credentials
+												// Show OIDC scopes and custom scopes if available
+												if (scopesToShow.length === 0) {
+													return null; // Don't show any scope buttons if no scopes available
 												}
 
 												return (
@@ -3364,7 +3501,7 @@ Why it matters: Backend services communicate server-to-server without user conte
 																Loading allowed scopes...
 															</span>
 														) : (
-															customScopesToShow.map((scope) => {
+															scopesToShow.map((scope) => {
 																const currentScopes = (credentials.scopes || '')
 																	.split(/\s+/)
 																	.filter((s) => s.trim());
@@ -3543,7 +3680,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 														</span>
 													) : (
 														scopesToShow.map((scope) => {
-															const currentScopes = (credentials.scopes || 'openid')
+															// For client-credentials flow, don't default to 'openid'
+															const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
+															const currentScopes = (credentials.scopes || defaultScope)
 																.split(/\s+/)
 																.filter((s) => s.trim());
 															const isSelected = currentScopes.includes(scope);
@@ -3629,27 +3768,34 @@ Why it matters: Backend services communicate server-to-server without user conte
 																	<button
 																		type="button"
 																		onClick={() => {
-																			const scopesArray = (credentials.scopes || 'openid')
+																			// For client-credentials flow, don't default to 'openid'
+																			const defaultScope = providedFlowType === 'client-credentials' ? '' : 'openid';
+																			const scopesArray = (credentials.scopes || defaultScope)
 																				.split(/\s+/)
 																				.filter((s) => s.trim());
 																			let updatedScopes: string[];
 
 																			if (isSelected) {
-																				// Remove scope (but keep at least 'openid')
+																				// Remove scope
 																				updatedScopes = scopesArray.filter((s) => s !== scope);
+																				// For non-client-credentials flows, keep at least 'openid' if it was there
 																				if (
-																					updatedScopes.length === 0 ||
+																					providedFlowType !== 'client-credentials' &&
+																					(updatedScopes.length === 0 ||
 																					(updatedScopes.length === 1 &&
 																						updatedScopes[0] === 'openid' &&
-																						scope === 'openid')
+																							scope === 'openid'))
 																				) {
 																					updatedScopes = ['openid'];
 																				}
 																			} else {
 																				// Add scope
 																				updatedScopes = [...scopesArray, scope];
-																				// Ensure 'openid' is always present
-																				if (!updatedScopes.includes('openid')) {
+																				// For non-client-credentials flows, ensure 'openid' is always present
+																				if (
+																					providedFlowType !== 'client-credentials' &&
+																					!updatedScopes.includes('openid')
+																				) {
 																					updatedScopes = [
 																						'openid',
 																						...updatedScopes.filter((s) => s !== 'openid'),
@@ -4233,22 +4379,53 @@ Why it matters: Backend services communicate server-to-server without user conte
 						onApply={handleApplyDiscovery}
 					/>
 
+					{showWorkerTokenModal && (() => {
+						// Check if we should show token only (matches MFA pattern)
+						try {
+							const config = MFAConfigurationServiceV8.loadConfiguration();
+							const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+							
+							// Show token-only if showTokenAtEnd is ON and token is valid
+							const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+							
+							return (
 					<WorkerTokenModalV8
 						isOpen={showWorkerTokenModal}
-						onClose={() => setShowWorkerTokenModal(false)}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										// Refresh token status when modal closes (matches MFA pattern)
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
 						onTokenGenerated={() => {
-							// Force immediate refresh token status with a small delay to ensure storage is written
-							setTimeout(() => {
+										// Match MFA pattern exactly
+										window.dispatchEvent(new Event('workerTokenUpdated'));
 								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-								console.log(`${MODULE_TAG} Token generated, updating status`, newStatus);
 								setTokenStatus(newStatus);
-							}, 50);
-							// Dispatch event for other components (they will also check status)
+										toastV8.success('Worker token generated and saved!');
+									}}
+									environmentId={credentials.environmentId}
+									showTokenOnly={showTokenOnly}
+								/>
+							);
+						} catch {
+							return (
+								<WorkerTokenModalV8
+									isOpen={showWorkerTokenModal}
+									onClose={() => {
+										setShowWorkerTokenModal(false);
+										setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+									}}
+									onTokenGenerated={() => {
 							window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										setTokenStatus(newStatus);
 							toastV8.success('Worker token generated and saved!');
 						}}
 						environmentId={credentials.environmentId}
 					/>
+							);
+						}
+					})()}
 
 					<AppDiscoveryModalV8U
 						isOpen={showAppDiscoveryModal}

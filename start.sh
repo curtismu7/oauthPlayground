@@ -950,13 +950,12 @@ show_final_summary() {
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📝 Log files:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   - logs/server.log (server logs)${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   - logs/pingone-api.log (all PingOne API calls)${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   - logs/api-log.log (all API calls)${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   - logs/real-api.log (real API calls, no proxy)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/pingone-api.log (all PingOne API calls - proxy and direct)${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   - logs/real-api.log (direct PingOne API calls only - no proxy)${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📌 Quick tail commands (copy/paste):${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/api-log.log${NC}"
-    echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/api-log.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -f logs/pingone-api.log${NC}"
+    echo -e "${banner_color}║${NC} ${CYAN}   tail -n 200 logs/pingone-api.log${NC}"
     echo -e "${banner_color}║${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}📋 Usage:${NC}"
     echo -e "${banner_color}║${NC} ${CYAN}   ./run.sh - Restart servers (will prompt to tail logs)${NC}"
@@ -1075,24 +1074,23 @@ main() {
             print_info "📋 Which log file would you like to tail?"
             echo ""
             echo -e "${CYAN}Available log files:${NC}"
-            echo "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls"
-            echo "  2) ${GREEN}api-log.log${NC} - All API calls"
-            echo "  3) ${GREEN}real-api.log${NC} - Real API calls (no proxy)"
-            echo "  4) ${GREEN}server.log${NC} - Server logs"
+            echo "  1) ${GREEN}pingone-api.log${NC} - All PingOne API calls (proxy and direct)"
+            echo "  2) ${GREEN}real-api.log${NC} - Direct PingOne API calls only (no proxy)"
+            echo "  3) ${GREEN}server.log${NC} - Server logs"
             echo ""
             echo -e "${CYAN}Flow logs:${NC}"
-            echo "  5) ${GREEN}sms.log${NC} - SMS flow"
-            echo "  6) ${GREEN}email.log${NC} - Email flow"
-            echo "  7) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
-            echo "  8) ${GREEN}voice.log${NC} - Voice flow"
-            echo "  9) ${GREEN}fido.log${NC} - FIDO2 flow"
+            echo "  4) ${GREEN}sms.log${NC} - SMS flow"
+            echo "  5) ${GREEN}email.log${NC} - Email flow"
+            echo "  6) ${GREEN}whatsapp.log${NC} - WhatsApp flow"
+            echo "  7) ${GREEN}voice.log${NC} - Voice flow"
+            echo "  8) ${GREEN}fido.log${NC} - FIDO2 flow"
             echo ""
             echo -e "${CYAN}App logs:${NC}"
-            echo "  10) ${GREEN}backend.log${NC} - Backend log"
-            echo "  11) ${GREEN}frontend.log${NC} - Frontend log"
-            echo "  12) ${GREEN}startup.log${NC} - Startup log"
+            echo "  9) ${GREEN}backend.log${NC} - Backend log"
+            echo "  10) ${GREEN}frontend.log${NC} - Frontend log"
+            echo "  11) ${GREEN}startup.log${NC} - Startup log"
             echo ""
-            echo -n "Enter your choice (1-12, or press Enter for default): "
+            echo -n "Enter your choice (1-11, or press Enter for default): "
             read -r log_choice
             
             # Default to option 1 if no choice is made or invalid choice
@@ -1105,56 +1103,52 @@ main() {
             case "$log_choice" in
                 1)
                     LOG_FILE="logs/pingone-api.log"
-                    LOG_DESCRIPTION="PingOne API log"
+                    LOG_DESCRIPTION="PingOne API log (all calls)"
                     ;;
                 2)
-                    LOG_FILE="logs/api-log.log"
-                    LOG_DESCRIPTION="API log"
+                    LOG_FILE="logs/real-api.log"
+                    LOG_DESCRIPTION="Real API log (direct calls only, no proxy)"
                     ;;
                 3)
-                    LOG_FILE="logs/real-api.log"
-                    LOG_DESCRIPTION="Real API log (no proxy)"
-                    ;;
-                4)
                     LOG_FILE="logs/server.log"
                     LOG_DESCRIPTION="Server log"
                     ;;
-                5)
+                4)
                     LOG_FILE="logs/sms.log"
                     LOG_DESCRIPTION="SMS flow log"
                     ;;
-                6)
+                5)
                     LOG_FILE="logs/email.log"
                     LOG_DESCRIPTION="Email flow log"
                     ;;
-                7)
+                6)
                     LOG_FILE="logs/whatsapp.log"
                     LOG_DESCRIPTION="WhatsApp flow log"
                     ;;
-                8)
+                7)
                     LOG_FILE="logs/voice.log"
                     LOG_DESCRIPTION="Voice flow log"
                     ;;
-                9)
+                8)
                     LOG_FILE="logs/fido.log"
                     LOG_DESCRIPTION="FIDO2 flow log"
                     ;;
-                10)
+                9)
                     LOG_FILE="logs/backend.log"
                     LOG_DESCRIPTION="Backend log"
                     ;;
-                11)
+                10)
                     LOG_FILE="logs/frontend.log"
                     LOG_DESCRIPTION="Frontend log"
                     ;;
-                12)
+                11)
                     LOG_FILE="logs/startup.log"
                     LOG_DESCRIPTION="Startup log"
                     ;;
                 *)
                     print_warning "Invalid choice '$log_choice'. Defaulting to option 1 (PingOne API log)"
                     LOG_FILE="logs/pingone-api.log"
-                    LOG_DESCRIPTION="PingOne API log"
+                    LOG_DESCRIPTION="PingOne API log (all calls)"
                     ;;
             esac
             
@@ -1186,7 +1180,7 @@ main() {
                 fi
             else
                 print_warning "Log file not found: ${LOG_FILE}"
-                if [ "$LOG_FILE" = "logs/real-api.log" ] || [ "$LOG_FILE" = "logs/pingone-api.log" ] || [ "$LOG_FILE" = "logs/api-log.log" ]; then
+                if [ "$LOG_FILE" = "logs/real-api.log" ] || [ "$LOG_FILE" = "logs/pingone-api.log" ]; then
                     print_info "The file will be created when the first API call is made"
                 fi
                 print_info "Press Ctrl+C to exit"
