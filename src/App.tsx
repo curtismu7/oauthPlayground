@@ -130,6 +130,7 @@ import TokenIntrospectionFlow from './pages/flows/TokenIntrospectionFlow';
 import TokenRevocationFlow from './pages/flows/TokenRevocationFlow';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import UserInfoPostFlow from './pages/flows/UserInfoPostFlow';
+import PingOneLogoutFlow from './pages/flows/PingOneLogoutFlow';
 import V7RMCondensedMock from './pages/flows/V7RMCondensedMock';
 import V7RMOAuthAuthorizationCodeFlow_Condensed from './pages/flows/V7RMOAuthAuthorizationCodeFlow_Condensed';
 import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwnerPasswordFlow';
@@ -691,6 +692,7 @@ const AppRoutes: React.FC = () => {
 								}
 							/>
 							<Route path="/flows/userinfo" element={<UserInfoPostFlow />} />
+							<Route path="/flows/pingone-logout" element={<PingOneLogoutFlow />} />
 							{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
 							<Route
 								path="/flows/oauth2-compliant-authorization-code"
