@@ -1034,125 +1034,120 @@ export const MFAConfigurationPageV8: React.FC = () => {
 					);
 
 
-				})}										{/* Action Buttons - Multiple Save Options */}
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
-											{/* Save All Policy Settings */}
-											<button
-												type="button"
-												onClick={handleSavePolicy}
-												disabled={!hasPolicyChanges || isSavingPolicy}
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													gap: '8px',
-													padding: '12px 24px',
-													background: hasPolicyChanges ? '#10b981' : '#9ca3af',
-													color: 'white',
-													border: 'none',
-													borderRadius: '8px',
-													fontSize: '15px',
-													fontWeight: '600',
-													cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
-													width: '100%',
-												}}
-											>
-												<FiCheck size={18} />
-												{isSavingPolicy ? 'Saving All Policy Settings...' : 'Save All Policy Settings'}
-											</button>
+				})}
 
-											{/* Section-specific save buttons */}
-											<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-												<button
-													type="button"
-													onClick={handleSavePolicy}
-													disabled={!hasPolicyChanges || isSavingPolicy}
-													style={{
-														flex: 1,
-														minWidth: '150px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														gap: '6px',
-														padding: '10px 16px',
-														background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
-														color: 'white',
-														border: 'none',
-														borderRadius: '6px',
-														fontSize: '13px',
-														fontWeight: '600',
-														cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
-													}}
-												>
-													<FiCheck size={14} />
-													Save OTP Settings
-												</button>
-												<button
-													type="button"
-													onClick={handleSavePolicy}
-													disabled={!hasPolicyChanges || isSavingPolicy}
-													style={{
-														flex: 1,
-														minWidth: '150px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														gap: '6px',
-														padding: '10px 16px',
-														background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
-														color: 'white',
-														border: 'none',
-														borderRadius: '6px',
-														fontSize: '13px',
-														fontWeight: '600',
-														cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
-													}}
-												>
-													<FiCheck size={14} />
-													Save Pairing Settings
-												</button>
-												<button
-													type="button"
-													onClick={handleSavePolicy}
-													disabled={!hasPolicyChanges || isSavingPolicy}
-													style={{
-														flex: 1,
-														minWidth: '150px',
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'center',
-														gap: '6px',
-														padding: '10px 16px',
-														background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
-														color: 'white',
-														border: 'none',
-														borderRadius: '6px',
-														fontSize: '13px',
-														fontWeight: '600',
-														cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
-													}}
-												>
-													<FiCheck size={14} />
-													Save Device Settings
-												</button>
-											</div>
-										</div></div>
-									</>
-								) : (
-									<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
-										Select a policy to configure its settings.
-									</div>
-								)}
-							</div>
-						)}
-					</ConfigSection>
+					{/* Action Buttons - Multiple Save Options */}
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
+						{/* Save All Policy Settings */}
+						<button
+							type="button"
+							onClick={handleSavePolicy}
+							disabled={!hasPolicyChanges || isSavingPolicy}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+								padding: '12px 24px',
+								background: hasPolicyChanges ? '#10b981' : '#9ca3af',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+								width: '100%',
+							}}
+						>
+							<FiCheck size={18} />
+							{isSavingPolicy ? 'Saving All Policy Settings...' : 'Save All Policy Settings'}
+						</button>
 
-				{/* PingOne MFA Settings - Also a PingOne Policy */}
-				{environmentId && (
-					<ConfigSection
-						title="PingOne MFA Settings"
-						description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment. Changes are saved directly to your PingOne environment."
-					>
+						{/* Section-specific save buttons */}
+						<div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+							<button
+								type="button"
+								onClick={handleSavePolicy}
+								disabled={!hasPolicyChanges || isSavingPolicy}
+								style={{
+									flex: 1,
+									minWidth: '150px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '6px',
+									padding: '10px 16px',
+									background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '13px',
+									fontWeight: '600',
+									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+								}}
+							>
+								<FiCheck size={14} />
+								Save OTP Settings
+							</button>
+							<button
+								type="button"
+								onClick={handleSavePolicy}
+								disabled={!hasPolicyChanges || isSavingPolicy}
+								style={{
+									flex: 1,
+									minWidth: '150px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '6px',
+									padding: '10px 16px',
+									background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '13px',
+									fontWeight: '600',
+									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+								}}
+							>
+								<FiCheck size={14} />
+								Save Pairing Settings
+							</button>
+							<button
+								type="button"
+								onClick={handleSavePolicy}
+								disabled={!hasPolicyChanges || isSavingPolicy}
+								style={{
+									flex: 1,
+									minWidth: '150px',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									gap: '6px',
+									padding: '10px 16px',
+									background: hasPolicyChanges ? '#3b82f6' : '#9ca3af',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '13px',
+									fontWeight: '600',
+									cursor: hasPolicyChanges ? 'pointer' : 'not-allowed',
+								}}
+							>
+								<FiCheck size={14} />
+								Save Device Settings
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* PingOne MFA Settings - Also a PingOne Policy */}
+			{environmentId && (
+				<ConfigSection
+					title="PingOne MFA Settings"
+					description="Environment-level MFA settings from PingOne API. These settings apply to all MFA policies in your environment. Changes are saved directly to your PingOne environment."
+				>
 						{isLoadingPingOneSettings ? (
 							<div style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
 								Loading PingOne MFA settings...
@@ -1451,11 +1446,11 @@ export const MFAConfigurationPageV8: React.FC = () => {
 								environment ID.
 							</div>
 						)}
-					</ConfigSection>
-				)}
+				</ConfigSection>
+			)}
 
-				{/* Default Policies */}
-				<ConfigSection
+			{/* Default Policies */}
+			<ConfigSection
 					title="Default Policies"
 					description="Set default policies for authentication and device registration"
 				>
@@ -1465,11 +1460,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						onChange={(value) => updateConfig('autoSelectDefaultPolicies', value)}
 						description="Automatically select default policies when available"
 					/>
-				</ConfigSection>
+			</ConfigSection>
 
-
-				{/* OTP Settings */}
-				<ConfigSection
+			{/* OTP Settings */}
+			<ConfigSection
 					title="OTP Settings"
 					description="Configure OTP code handling and validation"
 				>
@@ -1514,10 +1508,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						max={300}
 						description="Minimum time between OTP resend requests"
 					/>
-				</ConfigSection>
+			</ConfigSection>
 
-				{/* FIDO2/WebAuthn Settings */}
-				<ConfigSection
+			{/* FIDO2/WebAuthn Settings */}
+			<ConfigSection
 					title="FIDO2/WebAuthn Settings"
 					description="Configure FIDO2 and WebAuthn authentication settings"
 				>
@@ -1652,10 +1646,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						onChange={(value) => updateNestedConfig('fido2', 'includeOrganizationName', value)}
 						description="Include organization name in display information"
 					/>
-				</ConfigSection>
+			</ConfigSection>
 
-				{/* Push Notification Settings */}
-				<ConfigSection
+			{/* Push Notification Settings */}
+			<ConfigSection
 					title="Push Notification Settings"
 					description="Configure push notification handling and polling"
 				>
@@ -1687,10 +1681,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						onChange={(value) => updateConfig('showPushNotificationInstructions', value)}
 						description="Display instructions for approving push notifications"
 					/>
-				</ConfigSection>
+			</ConfigSection>
 
-				{/* UI/UX Settings */}
-				<ConfigSection title="UI/UX Settings" description="Customize the user interface experience">
+			{/* UI/UX Settings */}
+			<ConfigSection title="UI/UX Settings" description="Customize the user interface experience">
 					<ToggleSetting
 						label="Show Device Icons"
 						value={config.ui.showDeviceIcons}
@@ -1717,10 +1711,10 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						onChange={(value) => updateNestedConfig('ui', 'showLoadingSpinners', value)}
 						description="Display loading spinners during async operations"
 					/>
-				</ConfigSection>
+			</ConfigSection>
 
-				{/* Security Settings */}
-				<ConfigSection
+			{/* Security Settings */}
+			<ConfigSection
 					title="Security Settings"
 					description="Security-related configuration options"
 				>
@@ -1751,7 +1745,6 @@ export const MFAConfigurationPageV8: React.FC = () => {
 						description="Sanitize device names to prevent XSS"
 					/>
 				</ConfigSection>
-			</div>
 
 			{/* Create Policy Modal */}
 			<CreatePolicyModalV8
