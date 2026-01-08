@@ -118,41 +118,141 @@ export class DeviceCodeIntegrationServiceV8 {
 			}
 
 			// Build request body for backend proxy
+			// RFC 8628 Section 3.1: Device authorization request includes client_id and optionally scope
+			// NOTE: Client credentials are NOT included in device authorization request
+			// Client authentication happens later at the token endpoint during polling
 			const requestBody: Record<string, string> = {
 				environment_id: credentials.environmentId,
 				client_id: credentials.clientId,
 			};
 
-			// Handle Client Authentication - pass to backend proxy
-			// Always send client_auth_method if client_secret is provided, or if explicitly set to 'none'
-			if (credentials.clientSecret) {
-				requestBody.client_secret = credentials.clientSecret;
-				requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
-			} else if (credentials.clientAuthMethod === 'none') {
-				// Explicitly set to 'none' for public clients
-				requestBody.client_auth_method = 'none';
-			} else {
-				// No client secret and no explicit 'none' - this might cause 403 if app requires auth
-				console.warn(`${MODULE_TAG} No client secret provided and auth method not set to 'none'`, {
-					clientAuthMethod: credentials.clientAuthMethod,
-					note: 'This may cause 403 Forbidden if your PingOne application requires client authentication',
-				});
-			}
+			// RFC 8628: Device authorization endpoint does NOT accept client credentials
+			// Client authentication is performed at token endpoint, not here
+			// Backend will correctly ignore client_secret and client_auth_method if sent
 
-			// Add scope if provided
+			// Add scope if provided (optional per RFC 8628)
 			if (finalScopes) {
 				requestBody.scope = finalScopes;
 			}
 
-			// Track API call for display
-			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-			const startTime = Date.now();
-			const callId = apiCallTrackerService.trackApiCall({
-				method: 'POST',
-				url: deviceAuthEndpoint,
-				body: requestBody,
-				step: 'unified-device-authorization',
-			});
+			// #region agent log - Debug instrumentation for 403 error
+			try {
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'deviceCodeIntegrationServiceV8.ts:124',
+						message: 'Frontend building request body for device authorization',
+						data: {
+							environmentId: credentials.environmentId,
+							clientId: credentials.clientId
+								? `${credentials.clientId.substring(0, 10)}...`
+								: 'MISSING',
+							hasScope: !!finalScopes,
+							scopeValue: finalScopes || 'NONE',
+							requestBodyKeys: Object.keys(requestBody),
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'pre-fix',
+						hypothesisId: 'D',
+					}),
+				}).catch(() => {});
+			} catch (_e) {}
+			// #endregion
+
+			// Track API call for display (with timeout to prevent hanging)
+			let callId: string | undefined;
+			let startTime = Date.now();
+			try {
+				// #region agent log - Debug instrumentation before dynamic import
+				try {
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							location: 'deviceCodeIntegrationServiceV8.ts:163-BEFORE-IMPORT',
+							message: 'About to dynamically import apiCallTrackerService',
+							data: {
+								timestamp: Date.now(),
+							},
+							timestamp: Date.now(),
+							sessionId: 'debug-session',
+							runId: 'request-hang',
+							hypothesisId: 'BEFORE-IMPORT',
+						}),
+					}).catch(() => {});
+				} catch (_e) {}
+				// #endregion
+
+				// Add timeout to dynamic import (5 seconds max)
+				const importPromise = import('@/services/apiCallTrackerService');
+				const timeoutPromise = new Promise<never>((_, reject) => {
+					setTimeout(() => reject(new Error('Import timeout')), 5000);
+				});
+
+				const { apiCallTrackerService } = await Promise.race([importPromise, timeoutPromise]);
+
+				// #region agent log - Debug instrumentation after dynamic import
+				try {
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							location: 'deviceCodeIntegrationServiceV8.ts:163-AFTER-IMPORT',
+							message: 'Dynamic import completed',
+							data: {
+								hasApiCallTrackerService: !!apiCallTrackerService,
+								timestamp: Date.now(),
+							},
+							timestamp: Date.now(),
+							sessionId: 'debug-session',
+							runId: 'request-hang',
+							hypothesisId: 'AFTER-IMPORT',
+						}),
+					}).catch(() => {});
+				} catch (_e) {}
+				// #endregion
+
+				startTime = Date.now();
+				callId = apiCallTrackerService.trackApiCall({
+					method: 'POST',
+					url: deviceAuthEndpoint,
+					body: requestBody,
+					step: 'unified-device-authorization',
+				});
+			} catch (importError) {
+				// If import fails or times out, continue without tracking (non-blocking)
+				console.warn(
+					`${MODULE_TAG} Failed to import apiCallTrackerService, continuing without tracking:`,
+					importError
+				);
+			}
+
+			// #region agent log - Debug instrumentation before pingOneFetch
+			try {
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'deviceCodeIntegrationServiceV8.ts:172-BEFORE-PINGONEFETCH',
+						message: 'About to call pingOneFetch for device authorization',
+						data: {
+							endpoint: deviceAuthEndpoint,
+							hasRequestBody: !!requestBody,
+							requestBodyKeys: Object.keys(requestBody),
+							environmentId: credentials.environmentId,
+							clientId: `${credentials.clientId?.substring(0, 10)}...`,
+							timestamp: Date.now(),
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'request-hang',
+						hypothesisId: 'BEFORE-PINGONEFETCH',
+					}),
+				}).catch(() => {});
+			} catch (_e) {}
+			// #endregion
 
 			const response = await pingOneFetch(deviceAuthEndpoint, {
 				method: 'POST',
@@ -161,6 +261,30 @@ export class DeviceCodeIntegrationServiceV8 {
 				},
 				body: JSON.stringify(requestBody),
 			});
+
+			// #region agent log - Debug instrumentation after pingOneFetch
+			try {
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'deviceCodeIntegrationServiceV8.ts:172-AFTER-PINGONEFETCH',
+						message: 'pingOneFetch completed',
+						data: {
+							status: response.status,
+							statusText: response.statusText,
+							ok: response.ok,
+							hasBody: !!response.body,
+							timestamp: Date.now(),
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'request-hang',
+						hypothesisId: 'AFTER-PINGONEFETCH',
+					}),
+				}).catch(() => {});
+			} catch (_e) {}
+			// #endregion
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -171,31 +295,67 @@ export class DeviceCodeIntegrationServiceV8 {
 				responseData = { error: 'Failed to parse response' };
 			}
 
-			// Update API call with response
-			apiCallTrackerService.updateApiCallResponse(
-				callId,
-				{
-					status: response.status,
-					statusText: response.statusText,
-					data: responseData,
-				},
-				Date.now() - startTime
-			);
+			// Update API call with response (only if tracking was successful)
+			if (callId) {
+				try {
+					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+					apiCallTrackerService.updateApiCallResponse(
+						callId,
+						{
+							status: response.status,
+							statusText: response.statusText,
+							data: responseData,
+						},
+						Date.now() - startTime
+					);
+				} catch (e) {
+					// Ignore tracking errors - non-blocking
+					console.warn(`${MODULE_TAG} Failed to update API call tracking:`, e);
+				}
+			}
 
 			if (!response.ok) {
 				// Use already parsed responseData instead of parsing again
 				const errorData = responseData as Record<string, unknown>;
 				const errorMessage = (errorData.error_description ||
 					errorData.error ||
+					errorData.message ||
 					'Unknown error') as string;
 				const errorCode = (errorData.error || 'unknown_error') as string;
 
 				// Extract correlation ID from error data or error message
-				let correlationId = errorData.correlation_id || errorData.correlationId;
+				// Check multiple possible field names and locations
+				let correlationId: string | undefined =
+					(errorData.correlation_id as string) ||
+					(errorData.correlationId as string) ||
+					(errorData['correlation-id'] as string) ||
+					(errorData['correlationId'] as string) ||
+					(errorData.correlationId_ as string);
+
+				// Also check response headers
+				if (!correlationId && response.headers) {
+					const headerCorrelationId =
+						response.headers.get('X-Correlation-ID') ||
+						response.headers.get('x-correlation-id') ||
+						response.headers.get('Correlation-ID') ||
+						response.headers.get('correlation-id');
+					if (headerCorrelationId) {
+						correlationId = headerCorrelationId;
+					}
+				}
+
+				// Extract from error message if still not found
 				if (!correlationId && typeof errorMessage === 'string') {
 					const correlationMatch = errorMessage.match(/\(Correlation ID:\s*([^)]+)\)/i);
 					if (correlationMatch) {
 						correlationId = correlationMatch[1].trim();
+					}
+					// Try alternative patterns
+					if (!correlationId) {
+						const altMatch = errorMessage.match(/correlation[_\s-]?id[:\s]+([a-f0-9-]+)/i);
+						if (altMatch) {
+							correlationId = altMatch[1].trim();
+						}
 					}
 				}
 
@@ -215,7 +375,7 @@ export class DeviceCodeIntegrationServiceV8 {
 						errorCode,
 						errorMessage,
 						correlationId,
-						clientId: credentials.clientId?.substring(0, 8) + '...',
+						clientId: `${credentials.clientId?.substring(0, 8)}...`,
 						hasClientSecret,
 						authMethod,
 						possibleCauses: [
@@ -291,6 +451,30 @@ export class DeviceCodeIntegrationServiceV8 {
 
 			return deviceAuth;
 		} catch (error) {
+			// #region agent log - Debug instrumentation for catch block
+			try {
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'deviceCodeIntegrationServiceV8.ts:385-CATCH',
+						message: 'Caught error in requestDeviceAuthorization',
+						data: {
+							errorMessage: error instanceof Error ? error.message : String(error),
+							errorType: error instanceof Error ? error.constructor.name : typeof error,
+							hasStack: error instanceof Error ? !!error.stack : false,
+							stackPreview: error instanceof Error ? error.stack?.substring(0, 300) : 'no stack',
+							timestamp: Date.now(),
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'request-hang',
+						hypothesisId: 'CATCH',
+					}),
+				}).catch(() => {});
+			} catch (_e) {}
+			// #endregion
+
 			console.error(`${MODULE_TAG} Error requesting device authorization`, { error });
 			throw error;
 		}
@@ -300,16 +484,19 @@ export class DeviceCodeIntegrationServiceV8 {
 	 * Poll token endpoint with device code
 	 * @param credentials - OAuth credentials
 	 * @param deviceCode - Device code from authorization response
-	 * @param interval - Polling interval in seconds (default: 5)
-	 * @param maxAttempts - Maximum polling attempts (default: 60)
+	 * @param interval - Polling interval in seconds (from device authorization response, default: 5)
+	 *                   RFC 8628 Section 3.5: Client SHOULD wait at least this many seconds between polls
+	 * @param maxAttempts - Maximum polling attempts (default: calculated from expires_in if provided)
 	 * @returns Token response
 	 */
 	static async pollForTokens(
 		credentials: DeviceCodeCredentials,
 		deviceCode: string,
-		interval: number = 5,
-		maxAttempts: number = 60
+		interval?: number, // Optional - from device authorization response
+		maxAttempts?: number // Optional - will be calculated from expires_in if not provided
 	): Promise<TokenResponse> {
+		// RFC 8628 Section 3.5: Default to 5 seconds minimum if interval not provided
+		const pollInterval = interval || 5;
 		// Use backend proxy to avoid CORS issues
 		// Use relative URL for development (same origin), absolute for production
 		const tokenEndpoint =
@@ -320,9 +507,16 @@ export class DeviceCodeIntegrationServiceV8 {
 		// Track API call for display
 		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-		for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		// Calculate max attempts if not provided (default to 10 minutes / interval)
+		const calculatedMaxAttempts = maxAttempts || Math.ceil(600 / pollInterval); // 10 minutes default
+
+		let currentInterval = pollInterval; // Track current interval (may be adjusted by slow_down)
+
+		for (let attempt = 0; attempt < calculatedMaxAttempts; attempt++) {
 			try {
 				// Build request body for backend proxy (JSON format)
+				// RFC 8628 Section 3.4: Token request includes grant_type, device_code, and client_id
+				// Client authentication happens at token endpoint (handled by backend)
 				const requestBody: Record<string, string> = {
 					grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
 					client_id: credentials.clientId,
@@ -331,9 +525,18 @@ export class DeviceCodeIntegrationServiceV8 {
 				};
 
 				// Handle Client Authentication - pass to backend proxy
+				// RFC 8628: Client authentication is performed at token endpoint using standard OAuth 2.0 methods
 				if (credentials.clientSecret) {
 					requestBody.client_secret = credentials.clientSecret;
-					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_basic';
+					requestBody.client_auth_method = credentials.clientAuthMethod || 'client_secret_post';
+				} else if (credentials.clientAuthMethod === 'none') {
+					// Explicitly set to 'none' for public clients
+					requestBody.client_auth_method = 'none';
+				}
+
+				// Add scope if provided (optional per RFC 8628)
+				if (credentials.scopes?.trim()) {
+					requestBody.scope = credentials.scopes.trim();
 				}
 
 				// Track API call for display
@@ -382,16 +585,18 @@ export class DeviceCodeIntegrationServiceV8 {
 
 				const errorData = await response.json();
 
-				// Check for authorization_pending (user hasn't approved yet)
+				// Check for authorization_pending (user hasn't approved yet) - RFC 8628 Section 3.5
 				if (errorData.error === 'authorization_pending') {
-					await DeviceCodeIntegrationServiceV8.sleep(interval * 1000); // Convert to milliseconds
+					await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000); // Use current interval
 					continue;
 				}
 
-				// Check for slow_down (rate limiting)
+				// Check for slow_down (rate limiting) - RFC 8628 Section 3.5
+				// On slow_down, client MUST wait the new interval seconds (minimum increase recommended)
 				if (errorData.error === 'slow_down' && errorData.interval) {
-					const newInterval = errorData.interval;
-					await DeviceCodeIntegrationServiceV8.sleep(newInterval * 1000);
+					const newInterval = Math.max(errorData.interval, currentInterval + 5); // RFC 8628: minimum increase
+					currentInterval = newInterval;
+					await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000);
 					continue;
 				}
 
@@ -411,11 +616,11 @@ export class DeviceCodeIntegrationServiceV8 {
 				});
 
 				// On last attempt, throw the error
-				if (attempt === maxAttempts - 1) {
+				if (attempt === calculatedMaxAttempts - 1) {
 					throw error;
 				}
 
-				await DeviceCodeIntegrationServiceV8.sleep(interval * 1000);
+				await DeviceCodeIntegrationServiceV8.sleep(currentInterval * 1000);
 			}
 		}
 
