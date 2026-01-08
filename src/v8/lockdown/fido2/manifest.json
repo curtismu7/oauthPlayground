@@ -2,11 +2,11 @@
   "flow": "fido2",
   "description": "FIDO2/WebAuthn registration and authentication flow lockdown",
   "version": "1.0.0",
-  "updated": "2026-01-07T13:03:55.458Z",
+  "updated": "2026-01-07T23:24:26.519Z",
   "files": [
     {
       "path": "src/v8/flows/types/FIDO2FlowV8.tsx",
-      "hash": "23708aeded01208a55e5ba6f24510f7b9f6a31540c7382c9bbab7ab84ae0a4d1",
+      "hash": "cb8d2bbe577858c2160bf356034936f419ed3d1e6dc7fcec3e95e48c278c6e1f",
       "description": "Main FIDO2 registration flow component - handles device registration, WebAuthn API calls, and activation"
     },
     {
@@ -16,7 +16,7 @@
     },
     {
       "path": "src/v8/flows/MFAAuthenticationMainPageV8.tsx",
-      "hash": "bf22d24285f3707d6cd15233251a21235ceffc21ca5c631720a6e22c22dc9491",
+      "hash": "bdf87c7e4f56fb2cd86cbeedc7e02f17ab3cdf633455dda74fe30c1d65029b18",
       "description": "FIDO2 authentication page - device selection, WebAuthn authentication, and assertion check"
     },
     {
@@ -26,7 +26,7 @@
     },
     {
       "path": "src/v8/services/mfaServiceV8.ts",
-      "hash": "8cd7b2d58298f0ed0eab1a9a2da7462eb49fb8c5060fc597b94144529cdcf6a8",
+      "hash": "46b98ff11abcbe38ef03aa8ff7c948f813ddf2ad6a8db61aecaf3ad7a4e7ffd7",
       "description": "FIDO2 device registration and activation service methods (registerFIDO2Device, activateFIDO2Device)"
     },
     {
@@ -46,7 +46,7 @@
     },
     {
       "path": "server.js",
-      "hash": "1d7b12e81af9ecb4f5398365ec67bf61840a77a2c08e6dc6c29ede66226700e4",
+      "hash": "1c89fc349add7ea80eea4632d4528fba3fb8a056cda9f33079ab8dc1d0250f1a",
       "description": "Backend FIDO2 API endpoints: /api/pingone/mfa/register-device, /api/pingone/mfa/activate-fido2-device, /api/pingone/mfa/check-fido2-assertion"
     }
   ]

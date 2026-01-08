@@ -26,6 +26,7 @@ import {
 	FiHome,
 	FiInfo,
 	FiShield,
+	FiUser,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -34,6 +35,7 @@ import {
 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
 import type { DeviceType } from '../flows/shared/MFATypes';
 
 export interface UnifiedMFASuccessPageData {
@@ -125,6 +127,66 @@ export const getDeviceTypeDisplay = (deviceType?: DeviceType | string): string =
  * Unified MFA Success Page Component
  * Works for all device types and both registration/authentication flows
  */
+/**
+ * Decode JWT token (without verification) to extract payload
+ */
+const decodeJWT = (token: string): Record<string, unknown> | null => {
+	try {
+		const base64Url = token.split('.')[1];
+		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+		const jsonPayload = decodeURIComponent(
+			atob(base64)
+				.split('')
+				.map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+				.join('')
+		);
+		return JSON.parse(jsonPayload);
+	} catch (error) {
+		console.error('Failed to decode JWT:', error);
+		return null;
+	}
+};
+
+/**
+ * Fetch user info from PingOne userinfo endpoint via backend proxy
+ */
+const fetchUserInfo = async (
+	environmentId: string,
+	accessToken: string
+): Promise<Record<string, unknown> | null> => {
+	try {
+		const userInfoEndpoint = `https://auth.pingone.com/${environmentId}/as/userinfo`;
+		const proxyEndpoint = '/api/pingone/userinfo';
+
+		const response = await fetch(proxyEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				userInfoEndpoint,
+				accessToken,
+			}),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			console.warn(
+				'UserInfo request failed:',
+				response.status,
+				errorData.message || errorData.error
+			);
+			return null;
+		}
+
+		const userInfo = await response.json();
+		return userInfo;
+	} catch (error) {
+		console.error('Failed to fetch user info:', error);
+		return null;
+	}
+};
+
 export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 	data,
 	onStartAgain,
@@ -132,6 +194,9 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 	const navigate = useNavigate();
 	const [jsonExpanded, setJsonExpanded] = useState(false);
 	const [apiDisplayVisible, setApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
+	const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(false);
+	const [tokenCopied, setTokenCopied] = useState(false);
 
 	const {
 		flowType,
@@ -174,10 +239,53 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 	// Add extra padding to ensure buttons are fully visible
 	const bottomPadding = apiDisplayVisible ? '500px' : '24px';
 
-	const handleCopyToken = () => {
+	// Fetch user info when access token is available (for authentication flows)
+	useEffect(() => {
+		const loadUserInfo = async () => {
+			// Only fetch for authentication flows with access token
+			if (flowType === 'authentication' && completionResult?.accessToken && environmentId) {
+				setIsLoadingUserInfo(true);
+				try {
+					// Try to decode ID token first if available (from completionResult)
+					const idToken = completionResult.idToken as string | undefined;
+					if (idToken) {
+						const decoded = decodeJWT(idToken);
+						if (decoded && decoded.sub) {
+							setUserInfo(decoded);
+							setIsLoadingUserInfo(false);
+							return;
+						}
+					}
+
+					// Fallback to userinfo endpoint
+					const info = await fetchUserInfo(environmentId, completionResult.accessToken);
+					if (info) {
+						setUserInfo(info);
+					}
+				} catch (error) {
+					console.error('Failed to load user info:', error);
+				} finally {
+					setIsLoadingUserInfo(false);
+				}
+			}
+		};
+
+		loadUserInfo();
+	}, [flowType, completionResult?.accessToken, completionResult?.idToken, environmentId]);
+
+	const handleCopyToken = async () => {
 		if (completionResult?.accessToken) {
-			navigator.clipboard.writeText(completionResult.accessToken);
-			toastV8.success('Access token copied to clipboard');
+			const success = await TokenDisplayServiceV8.copyToClipboard(
+				completionResult.accessToken,
+				'Access Token'
+			);
+			if (success) {
+				setTokenCopied(true);
+				toastV8.success('Access token copied to clipboard!');
+				setTimeout(() => setTokenCopied(false), 2000);
+			} else {
+				toastV8.error('Failed to copy access token');
+			}
 		}
 	};
 
@@ -361,7 +469,137 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 						</p>
 					</div>
 				</div>
+
+				{/* Callback Processed Section (for authentication flows) */}
+				{flowType === 'authentication' && completionResult?.accessToken && (
+					<div
+						style={{
+							background: '#dcfce7',
+							border: '1px solid #86efac',
+							borderRadius: '8px',
+							padding: '16px',
+							marginTop: '16px',
+						}}
+					>
+						<div
+							style={{
+								fontSize: '14px',
+								fontWeight: '600',
+								color: '#166534',
+								marginBottom: '12px',
+							}}
+						>
+							Callback Processed
+						</div>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+								<FiCheck size={16} color="#10b981" />
+								<span style={{ fontSize: '14px', color: '#166534' }}>
+									MFA authentication completed
+								</span>
+							</div>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+								<FiCheck size={16} color="#10b981" />
+								<span style={{ fontSize: '14px', color: '#166534' }}>
+									Access token received
+								</span>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
+
+			{/* User Information Section (for authentication flows with access token) */}
+			{flowType === 'authentication' && completionResult?.accessToken && (
+				<div
+					style={{
+						background: '#eff6ff',
+						border: '1px solid #93c5fd',
+						borderRadius: '12px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 2px 4px rgba(59, 130, 246, 0.1)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+						<FiUser size={24} color="#3b82f6" />
+						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1e40af' }}>
+							User Information
+						</h3>
+					</div>
+
+					{isLoadingUserInfo ? (
+						<p style={{ margin: 0, color: '#6b7280' }}>Loading user information...</p>
+					) : userInfo ? (
+						<div style={{ display: 'grid', gap: '12px' }}>
+							{userInfo.username && (
+								<div>
+									<strong style={{ color: '#374151' }}>Username:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>{String(userInfo.username)}</span>
+								</div>
+							)}
+							{userInfo.preferred_username && !userInfo.username && (
+								<div>
+									<strong style={{ color: '#374151' }}>Username:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>{String(userInfo.preferred_username)}</span>
+								</div>
+							)}
+							{userInfo.email && (
+								<div>
+									<strong style={{ color: '#374151' }}>Email:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>{String(userInfo.email)}</span>
+									{userInfo.email_verified !== undefined && (
+										<span
+											style={{
+												marginLeft: '8px',
+												padding: '2px 8px',
+												borderRadius: '4px',
+												fontSize: '12px',
+												background: userInfo.email_verified ? '#d1fae5' : '#fee2e2',
+												color: userInfo.email_verified ? '#065f46' : '#991b1b',
+											}}
+										>
+											{userInfo.email_verified ? 'Verified' : 'Unverified'}
+										</span>
+									)}
+								</div>
+							)}
+							{userInfo.name && (
+								<div>
+									<strong style={{ color: '#374151' }}>Name:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>{String(userInfo.name)}</span>
+								</div>
+							)}
+							{(userInfo.given_name || userInfo.family_name) && (
+								<div>
+									<strong style={{ color: '#374151' }}>Full Name:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>
+										{[userInfo.given_name, userInfo.family_name].filter(Boolean).join(' ')}
+									</span>
+								</div>
+							)}
+							{userInfo.sub && (
+								<div>
+									<strong style={{ color: '#374151' }}>User ID:</strong>{' '}
+									<span
+										style={{
+											color: '#6b7280',
+											fontFamily: 'monospace',
+											fontSize: '13px',
+										}}
+									>
+										{String(userInfo.sub)}
+									</span>
+								</div>
+							)}
+						</div>
+					) : (
+						<p style={{ margin: 0, color: '#6b7280' }}>
+							User information not available. Make sure your access token has the required scopes.
+						</p>
+					)}
+				</div>
+			)}
 
 			{/* Device Summary Card */}
 			{(deviceType || deviceId || contactInfo) && (
@@ -516,176 +754,151 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 				</div>
 			)}
 
-			{/* Token Information Card (for authentication flows) */}
-			{completionResult && (
+			{/* Access Token Information Card (for authentication flows) */}
+			{completionResult?.accessToken && (
 				<div
 					style={{
-						background: 'white',
-						border: '1px solid #e5e7eb',
+						background: '#f0fdf4',
+						border: '2px solid #6ee7b7',
 						borderRadius: '12px',
 						padding: '24px',
 						marginBottom: '24px',
-						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						boxShadow: '0 2px 4px rgba(16, 185, 129, 0.1)',
 					}}
 				>
-					<h4
-						style={{
-							margin: '0 0 20px 0',
-							fontSize: '18px',
-							fontWeight: '600',
-							color: '#1f2937',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						🔑 Access Token Information
-					</h4>
-					<div
-						style={{
-							display: 'grid',
-							gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-							gap: '16px',
-						}}
-					>
-						{completionResult.accessToken && (
-							<div
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+						<FiShield size={24} color="#10b981" />
+						<h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#065f46' }}>
+							🔑 Access Token
+						</h3>
+					</div>
+					<div style={{ display: 'grid', gap: '12px' }}>
+						<div
+							style={{
+								background: '#f9fafb',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								padding: '16px',
+								marginBottom: '16px',
+							}}
+						>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '12px',
+							}}
+						>
+							<strong style={{ color: '#374151', fontSize: '14px' }}>Access Token</strong>
+							<button
+								type="button"
+								onClick={handleCopyToken}
 								style={{
-									background: '#f9fafb',
-									padding: '16px',
-									borderRadius: '8px',
-									border: '1px solid #e5e7eb',
-									gridColumn: '1 / -1',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '6px',
+									padding: '6px 12px',
+									background: tokenCopied ? '#10b981' : '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '12px',
+									fontWeight: '600',
+									transition: 'background 0.2s',
+								}}
+								onMouseEnter={(e) => {
+									if (!tokenCopied) {
+										e.currentTarget.style.background = '#2563eb';
+									}
+								}}
+								onMouseLeave={(e) => {
+									if (!tokenCopied) {
+										e.currentTarget.style.background = '#3b82f6';
+									}
 								}}
 							>
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-										marginBottom: '8px',
-									}}
-								>
-									<span
-										style={{
-											fontSize: '12px',
-											color: '#6b7280',
-											fontWeight: '600',
-											textTransform: 'uppercase',
-											letterSpacing: '0.5px',
-										}}
-									>
-										Access Token
+								<FiCopy size={14} />
+								{tokenCopied ? '✓ Copied!' : 'Copy Token'}
+							</button>
+						</div>
+						<div
+							style={{
+								fontSize: '12px',
+								color: '#1f2937',
+								fontFamily: 'monospace',
+								wordBreak: 'break-all',
+								background: 'white',
+								padding: '12px',
+								borderRadius: '6px',
+								border: '1px solid #d1d5db',
+								maxHeight: '150px',
+								overflowY: 'auto',
+								lineHeight: '1.5',
+							}}
+						>
+							{completionResult.accessToken}
+						</div>
+						{TokenDisplayServiceV8.isJWT(completionResult.accessToken) && (
+							<button
+								type="button"
+								onClick={() => {
+									const decoded = TokenDisplayServiceV8.decodeJWT(completionResult.accessToken!);
+									if (decoded) {
+										const payload = JSON.stringify(decoded.payload, null, 2);
+										alert(`Token Payload:\n\n${payload}`);
+									} else {
+										toastV8.error('Failed to decode token');
+									}
+								}}
+								style={{
+									marginTop: '8px',
+									padding: '6px 12px',
+									background: '#f3f4f6',
+									color: '#374151',
+									border: '1px solid #d1d5db',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontSize: '12px',
+									fontWeight: '600',
+								}}
+							>
+								🔍 Decode Token
+							</button>
+						)}
+						</div>
+
+						{/* Token Metadata */}
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '12px',
+							}}
+						>
+							{completionResult.tokenType && (
+								<div>
+									<strong style={{ color: '#374151' }}>Token Type:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>{completionResult.tokenType}</span>
+								</div>
+							)}
+							{completionResult.expiresIn && (
+								<div>
+									<strong style={{ color: '#374151' }}>Expires In:</strong>{' '}
+									<span style={{ color: '#6b7280' }}>
+										{completionResult.expiresIn} seconds
+										{timestamp && (
+											<span style={{ display: 'block', fontSize: '12px', marginTop: '4px' }}>
+												({new Date(
+													new Date(timestamp).getTime() + completionResult.expiresIn * 1000
+												).toLocaleString()})
+											</span>
+										)}
 									</span>
-									<button
-										type="button"
-										onClick={handleCopyToken}
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											gap: '4px',
-											padding: '4px 8px',
-											background: '#3b82f6',
-											color: 'white',
-											border: 'none',
-											borderRadius: '4px',
-											cursor: 'pointer',
-											fontSize: '12px',
-											fontWeight: '500',
-										}}
-									>
-										<FiCopy size={14} />
-										Copy
-									</button>
 								</div>
-								<div
-									style={{
-										fontSize: '13px',
-										color: '#1f2937',
-										fontFamily: 'monospace',
-										background: 'white',
-										padding: '12px',
-										borderRadius: '6px',
-										wordBreak: 'break-all',
-										border: '1px solid #e5e7eb',
-									}}
-								>
-									{completionResult.accessToken}
-								</div>
-							</div>
-						)}
-						{completionResult.tokenType && (
-							<div
-								style={{
-									background: '#f9fafb',
-									padding: '16px',
-									borderRadius: '8px',
-									border: '1px solid #e5e7eb',
-								}}
-							>
-								<span
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										fontWeight: '600',
-										textTransform: 'uppercase',
-										letterSpacing: '0.5px',
-									}}
-								>
-									Token Type
-								</span>
-								<div
-									style={{
-										fontSize: '16px',
-										color: '#1f2937',
-										fontWeight: '500',
-										marginTop: '8px',
-									}}
-								>
-									{completionResult.tokenType}
-								</div>
-							</div>
-						)}
-						{completionResult.expiresIn && (
-							<div
-								style={{
-									background: '#f9fafb',
-									padding: '16px',
-									borderRadius: '8px',
-									border: '1px solid #e5e7eb',
-								}}
-							>
-								<span
-									style={{
-										fontSize: '12px',
-										color: '#6b7280',
-										fontWeight: '600',
-										textTransform: 'uppercase',
-										letterSpacing: '0.5px',
-									}}
-								>
-									Expires In
-								</span>
-								<div
-									style={{
-										fontSize: '16px',
-										color: '#1f2937',
-										fontWeight: '500',
-										marginTop: '8px',
-									}}
-								>
-									{completionResult.expiresIn} seconds
-								</div>
-								{timestamp && (
-									<div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-										Expires:{' '}
-										{new Date(
-											new Date(timestamp).getTime() + completionResult.expiresIn * 1000
-										).toLocaleString()}
-									</div>
-								)}
-							</div>
-						)}
+							)}
+						</div>
 					</div>
 				</div>
 			)}

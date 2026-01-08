@@ -263,37 +263,50 @@ export const CallbackHandlerV8U: React.FC = () => {
 		if (state?.startsWith('v8u-')) {
 			const parts = state.split('-');
 			console.log(`${MODULE_TAG} 🔍 State parts (split by hyphen):`, parts);
-			console.log(`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}"`);
+			console.log(`${MODULE_TAG} 🔍 parts[0]="${parts[0]}", parts[1]="${parts[1]}", parts.length=${parts.length}`);
 
 			if (parts.length >= 2) {
-				const detectedFlowType = parts[1];
-				console.log(`${MODULE_TAG} 🔍 Detected flow type from state: "${detectedFlowType}"`);
-				console.log(`${MODULE_TAG} 🔍 Checking if "${detectedFlowType}" is in known flow types:`, [
-					'oauth-authz',
+				// Known flow types (some have hyphens, so we need to check combinations)
+				const knownFlowTypes = [
+					'oauth-authz', // Requires parts[1] + '-' + parts[2]
+					'client-credentials', // Requires parts[1] + '-' + parts[2]
+					'device-code', // Requires parts[1] + '-' + parts[2]
 					'implicit',
 					'hybrid',
-					'client-credentials',
-					'device-code',
 					'ropc',
-				]);
+				];
 
-				// Validate it's a known flow type
-				if (
-					[
-						'oauth-authz',
-						'implicit',
-						'hybrid',
-						'client-credentials',
-						'device-code',
-						'ropc',
-					].includes(detectedFlowType)
-				) {
+				// Try to detect flow type by checking various combinations
+				let detectedFlowType: string | null = null;
+
+				// Check for multi-part flow types first (oauth-authz, client-credentials, device-code)
+				// State format: "v8u-{flowType}-{random}"
+				if (parts.length >= 3) {
+					const twoPartFlowType = `${parts[1]}-${parts[2]}`;
+					if (knownFlowTypes.includes(twoPartFlowType)) {
+						detectedFlowType = twoPartFlowType;
+						console.log(`${MODULE_TAG} 🔍 Detected two-part flow type: "${detectedFlowType}"`);
+					}
+				}
+
+				// If no two-part match, check single-part flow types (implicit, hybrid, ropc)
+				if (!detectedFlowType && parts.length >= 2) {
+					const singlePartFlowType = parts[1];
+					if (knownFlowTypes.includes(singlePartFlowType)) {
+						detectedFlowType = singlePartFlowType;
+						console.log(`${MODULE_TAG} 🔍 Detected single-part flow type: "${detectedFlowType}"`);
+					}
+				}
+
+				if (detectedFlowType) {
 					flowType = detectedFlowType;
 					console.log(`${MODULE_TAG} ✅ Using detected flow type: "${flowType}"`);
 				} else {
 					console.warn(`${MODULE_TAG} ⚠️ Unknown flow type in state, using default:`, {
+						parts,
 						detectedFlowType,
 						defaultFlowType: flowType,
+						state,
 					});
 				}
 			}
