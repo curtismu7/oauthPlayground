@@ -13,6 +13,7 @@ import { FIDODeviceExistsModalV8 } from '@/v8/components/FIDODeviceExistsModalV8
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -596,6 +597,9 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						<div
 							style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}
 						>
+							{/* Worker Token Status Gauge */}
+							<WorkerTokenGaugeV8 tokenStatus={tokenStatus} size={60} />
+							
 							<button
 								type="button"
 								onClick={async () => {
@@ -610,14 +614,15 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 										);
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
+										// forceShowModal=true because user explicitly clicked the button - always show modal
 										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-										await handleShowWorkerTokenModal(props.setShowWorkerTokenModal);
+										await handleShowWorkerTokenModal(props.setShowWorkerTokenModal, undefined, undefined, undefined, true);
 									}
 								}}
 								className="token-button"
 								style={{
 									padding: '10px 16px',
-									background: tokenStatus.isValid ? '#10b981' : '#ef4444',
+									background: tokenStatus.isValid ? '#10b981' : '#6366f1',
 									color: 'white',
 									border: 'none',
 									borderRadius: '6px',
@@ -627,10 +632,26 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 									display: 'flex',
 									alignItems: 'center',
 									gap: '8px',
+									boxShadow: tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.transform = 'translateY(-1px)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 4px 8px rgba(16, 185, 129, 0.3)'
+										: '0 4px 8px rgba(59, 130, 246, 0.3)';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.transform = 'translateY(0)';
+									e.currentTarget.style.boxShadow = tokenStatus.isValid
+										? '0 2px 4px rgba(16, 185, 129, 0.2)'
+										: '0 2px 4px rgba(59, 130, 246, 0.2)';
 								}}
 							>
 								<span>🔑</span>
-								<span>{tokenStatus.isValid ? 'Manage Token' : 'Add Token'}</span>
+								<span>Get Worker Token</span>
 							</button>
 
 							<button
@@ -1108,6 +1129,18 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				nav.setValidationErrors([
 					'WebAuthn is not supported in this browser. Please use a modern browser.',
 				]);
+				return;
+			}
+
+			// Check if pairing is disabled in the policy
+			const selectedPolicy = props.deviceAuthPolicies?.find(
+				(p) => p.id === credentials.deviceAuthenticationPolicyId
+			);
+			if (selectedPolicy?.pairingDisabled === true) {
+				nav.setValidationErrors([
+					'Device pairing is disabled for the selected Device Authentication Policy. Please select a different policy or contact your administrator.',
+				]);
+				toastV8.error('Device pairing is disabled for this policy');
 				return;
 			}
 

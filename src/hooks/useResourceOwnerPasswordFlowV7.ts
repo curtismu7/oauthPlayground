@@ -110,6 +110,11 @@ export const useResourceOwnerPasswordFlowV7 = ({
 	// Step results storage
 	const [stepResults, setStepResults] = useState<Record<string, any>>({});
 
+	// Step result management - defined early so it can be used in other callbacks
+	const saveStepResult = useCallback((stepKey: string, result: any) => {
+		setStepResults((prev) => ({ ...prev, [stepKey]: result }));
+	}, []);
+
 	// Save credentials
 	const saveCredentials = useCallback(async () => {
 		setIsSavingCredentials(true);
@@ -417,10 +422,6 @@ export const useResourceOwnerPasswordFlowV7 = ({
 		},
 		[stepResults]
 	);
-
-	const saveStepResult = useCallback((stepKey: string, result: any) => {
-		setStepResults((prev) => ({ ...prev, [stepKey]: result }));
-	}, []);
 
 	// Load saved credentials on mount
 	useEffect(() => {
