@@ -36,6 +36,7 @@ import {
 	FiKey,
 	FiLayers,
 	FiLock,
+	FiLogOut,
 	FiMove,
 	FiRefreshCw,
 	FiSearch,
@@ -975,6 +976,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 						badge: (
 							<MigrationBadge title="UserInfo Flow - Retrieve user profile information">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'pingone-logout-flow',
+						path: '/flows/pingone-logout',
+						label: 'PingOne Logout',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiLogOut />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="PingOne Logout - RP-initiated logout with PingOne SSO">
 								<FiCheckCircle />
 							</MigrationBadge>
 						),

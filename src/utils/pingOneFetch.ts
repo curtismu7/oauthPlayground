@@ -197,11 +197,65 @@ export async function pingOneFetch(
 
 	while (attempt < maxAttempts) {
 		attempt += 1;
+
+		// #region agent log - Debug instrumentation before fetch
+		try {
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					location: 'pingOneFetch.ts:198-BEFORE-FETCH',
+					message: 'About to call fetch in pingOneFetch',
+					data: {
+						attempt,
+						maxAttempts,
+						url:
+							typeof input === 'string'
+								? input
+								: input instanceof URL
+									? input.toString()
+									: 'Request object',
+						method: init.method || 'GET',
+						timestamp: Date.now(),
+					},
+					timestamp: Date.now(),
+					sessionId: 'debug-session',
+					runId: 'request-hang',
+					hypothesisId: 'BEFORE-FETCH',
+				}),
+			}).catch(() => {});
+		} catch (_e) {}
+		// #endregion
+
 		try {
 			const response = await fetch(input, {
 				...init,
 				headers,
 			});
+
+			// #region agent log - Debug instrumentation after fetch
+			try {
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'pingOneFetch.ts:198-AFTER-FETCH',
+						message: 'Fetch completed in pingOneFetch',
+						data: {
+							attempt,
+							status: response.status,
+							statusText: response.statusText,
+							ok: response.ok,
+							timestamp: Date.now(),
+						},
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						runId: 'request-hang',
+						hypothesisId: 'AFTER-FETCH',
+					}),
+				}).catch(() => {});
+			} catch (_e) {}
+			// #endregion
 
 			if (!retryStatuses.has(response.status) || attempt === maxAttempts) {
 				await logBackendPingOneCalls(response);
