@@ -747,28 +747,28 @@ const Dashboard = () => {
 								</p>
 								<FlowButtonsContainer>
 									<FlowLink
-										href="/flows/oauth-authorization-code-v7"
+										href="/v8u/unified/oauth-authz"
 										$variant="primary"
 										$palette="oauth"
 									>
-										Authorization Code (V7)
+										Authorization Code
 									</FlowLink>
-									<FlowLink href="/flows/implicit-v7" $variant="secondary" $palette="oauth">
-										Implicit Flow (V7)
+									<FlowLink href="/v8u/unified/implicit" $variant="secondary" $palette="oauth">
+										Implicit Flow
 									</FlowLink>
 									<FlowLink
-										href="/flows/device-authorization-v7"
+										href="/v8u/unified/device-code"
 										$variant="secondary"
 										$palette="oauth"
 									>
-										Device Authorization (V7)
+										Device Authorization
 									</FlowLink>
 									<FlowLink
-										href="/flows/client-credentials-v7"
+										href="/v8u/unified/client-credentials"
 										$variant="secondary"
 										$palette="oauth"
 									>
-										Client Credentials (V7)
+										Client Credentials
 									</FlowLink>
 								</FlowButtonsContainer>
 							</FlowCard>
@@ -778,17 +778,17 @@ const Dashboard = () => {
 								<p>Identity layer on top of OAuth 2.0.</p>
 								<FlowButtonsContainer>
 									<FlowLink
-										href="/flows/oauth-authorization-code-v7"
+										href="/v8u/unified/oauth-authz"
 										$variant="primary"
 										$palette="oidc"
 									>
-										Authorization Code (V7)
+										Authorization Code
 									</FlowLink>
-									<FlowLink href="/flows/oidc-hybrid-v7" $variant="secondary" $palette="oidc">
-										Hybrid Flow (V7)
+									<FlowLink href="/v8u/unified/hybrid" $variant="secondary" $palette="oidc">
+										Hybrid Flow
 									</FlowLink>
-									<FlowLink href="/flows/implicit-v7" $variant="secondary" $palette="oidc">
-										Implicit Flow (V7)
+									<FlowLink href="/v8u/unified/implicit" $variant="secondary" $palette="oidc">
+										Implicit Flow
 									</FlowLink>
 									<FlowLink href="/oidc-overview" $variant="secondary" $palette="oidc">
 										OIDC Overview
