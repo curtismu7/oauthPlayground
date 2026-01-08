@@ -204,6 +204,44 @@ const SpiffeSpireTokenDisplayV8U: React.FC = () => {
 			)}
 			{/* Shared bottom-docked API history (same as V8 MFA and SPIFFE/SPIRE lab) */}
 			<SuperSimpleApiDisplayV8 />
+
+			{/* Start Over Button at Bottom */}
+			<div
+				style={{
+					display: 'flex',
+					justifyContent: 'center',
+					marginTop: '3rem',
+					marginBottom: '2rem',
+				}}
+			>
+				<button
+					type="button"
+					onClick={() => navigate('/v8u/spiffe-spire')}
+					style={{
+						display: 'inline-flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+						padding: '0.75rem 1.5rem',
+						background: '#2563eb',
+						color: '#ffffff',
+						border: 'none',
+						borderRadius: '0.5rem',
+						fontSize: '0.875rem',
+						fontWeight: 500,
+						cursor: 'pointer',
+						transition: 'background 0.2s ease',
+					}}
+					onMouseEnter={(e) => {
+						e.currentTarget.style.background = '#1d4ed8';
+					}}
+					onMouseLeave={(e) => {
+						e.currentTarget.style.background = '#2563eb';
+					}}
+				>
+					<FiArrowLeft size={16} />
+					Start Over
+				</button>
+			</div>
 		</PageContainer>
 	);
 };

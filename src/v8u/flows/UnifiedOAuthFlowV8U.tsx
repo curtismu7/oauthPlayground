@@ -41,6 +41,7 @@ import CredentialsFormV8U from '../components/CredentialsFormV8U';
 import { FlowTypeSelector } from '../components/FlowTypeSelector';
 import { SpecVersionSelector } from '../components/SpecVersionSelector';
 import { UnifiedFlowSteps } from '../components/UnifiedFlowSteps';
+import { UnifiedNavigationV8U } from '../components/UnifiedNavigationV8U';
 import { FlowSettingsServiceV8U } from '../services/flowSettingsServiceV8U';
 import {
 	type UnifiedFlowCredentials,
@@ -1395,6 +1396,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				minHeight: '100vh',
 			}}
 		>
+			{/* Navigation Bar - At the very top */}
+			<UnifiedNavigationV8U currentFlowType={effectiveFlowType} showBackToMain={true} />
+
 			{/* Header with Flow Step Breadcrumbs at Top */}
 			<div
 				style={{

@@ -690,21 +690,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						),
 					},
 					{
-						id: 'token-exchange-v7',
-						path: '/flows/token-exchange-v7',
-						label: 'Token Exchange (V8M)',
-						icon: (
-							<ColoredIcon $color="#7c3aed">
-								<FiRefreshCw />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V8M: RFC 8693 Token Exchange">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
-					{
 						id: 'ciba-v7',
 						path: '/flows/ciba-v7',
 						label: 'CIBA Flow (V7)',
@@ -803,21 +788,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				),
 				isOpen: true,
 				items: [
-					{
-						id: 'worker-token-v7',
-						path: '/flows/worker-token-v7',
-						label: 'Worker Token (V7)',
-						icon: (
-							<ColoredIcon $color="#fb923c">
-								<FiKey />
-							</ColoredIcon>
-						),
-						badge: (
-							<MigrationBadge title="V7: Enhanced worker token flow">
-								<FiCheckCircle />
-							</MigrationBadge>
-						),
-					},
 					{
 						id: 'pingone-par-v7',
 						path: '/flows/pingone-par-v7',
@@ -926,15 +896,75 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 				],
 			},
 			{
-				id: 'token-management',
-				label: 'Token Management',
+				id: 'token-apps',
+				label: 'Token Apps',
 				icon: (
 					<ColoredIcon $color="#8b5cf6">
-						<FiDatabase />
+						<FiKey />
 					</ColoredIcon>
 				),
 				isOpen: true,
 				items: [
+					{
+						id: 'token-exchange-v7',
+						path: '/flows/token-exchange-v7',
+						label: 'Token Exchange (V8M)',
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiRefreshCw />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8M: RFC 8693 Token Exchange">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'worker-token-v7',
+						path: '/flows/worker-token-v7',
+						label: 'Worker Token (V7)',
+						icon: (
+							<ColoredIcon $color="#fb923c">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Enhanced worker token flow">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'worker-token-tester',
+						path: '/worker-token-tester',
+						label: 'Worker Token Check',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Validate and test PingOne worker tokens">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'token-management',
+						path: '/token-management',
+						label: 'Token Management',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Token Analysis and Management">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
 					{
 						id: 'token-introspection',
 						path: '/flows/token-introspection',
@@ -1221,21 +1251,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						isOpen: true,
 						items: [
 							{
-								id: 'worker-token-tester',
-								path: '/worker-token-tester',
-								label: 'Worker Token Check',
-								icon: (
-									<ColoredIcon $color="#f59e0b">
-										<FiKey />
-									</ColoredIcon>
-								),
-								badge: (
-									<MigrationBadge title="Validate and test PingOne worker tokens">
-										<FiCheckCircle />
-									</MigrationBadge>
-								),
-							},
-							{
 								id: 'pingone-user-profile',
 								path: '/pingone-user-profile',
 								label: 'User Profile',
@@ -1373,21 +1388,6 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 								),
 								badge: (
 									<MigrationBadge title="OIDC Discovery and Configuration">
-										<FiCheckCircle />
-									</MigrationBadge>
-								),
-							},
-							{
-								id: 'token-management',
-								path: '/token-management',
-								label: 'Token Management',
-								icon: (
-									<ColoredIcon $color="#8b5cf6">
-										<FiKey />
-									</ColoredIcon>
-								),
-								badge: (
-									<MigrationBadge title="Token Analysis and Management">
 										<FiCheckCircle />
 									</MigrationBadge>
 								),

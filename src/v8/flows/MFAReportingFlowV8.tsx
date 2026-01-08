@@ -23,9 +23,9 @@ import { MFAHeaderV8 } from '@/v8/components/MFAHeaderV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
-import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
+import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MFAReportingServiceV8, type ReportParams } from '@/v8/services/mfaReportingServiceV8';
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
@@ -76,6 +76,37 @@ export const MFAReportingFlowV8: React.FC = () => {
 	const [tokenStatus, setTokenStatus] = useState(() =>
 		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
 	);
+
+	// Worker Token Settings - Load from config service
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
+		} catch {
+			return true;
+		}
+	});
+
+	// Listen for config updates
+	useEffect(() => {
+		const handleConfigUpdate = (event: CustomEvent) => {
+			if (event.detail?.workerToken) {
+				setSilentApiRetrieval(event.detail.workerToken.silentApiRetrieval || false);
+				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false);
+			}
+		};
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		};
+	}, []);
+
 	const [selectedReport, setSelectedReport] = useState<ReportType>('sms');
 	const [username, setUsername] = useState<string>(''); // For device-based reports
 	const [reports, setReports] = useState<Array<Record<string, unknown>>>([]);
@@ -400,6 +431,125 @@ export const MFAReportingFlowV8: React.FC = () => {
 								<span>{WorkerTokenStatusServiceV8.getStatusIcon(tokenStatus.status)}</span>
 								<span style={{ marginLeft: '6px' }}>{tokenStatus.message}</span>
 							</div>
+						</div>
+						
+						{/* Worker Token Settings Checkboxes */}
+						<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={silentApiRetrieval}
+									onChange={async (e) => {
+										const newValue = e.target.checked;
+										setSilentApiRetrieval(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.silentApiRetrieval = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+										
+										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+										if (newValue) {
+											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											if (!currentStatus.isValid) {
+												console.log('[MFA-REPORTING-FLOW-V8] Silent API retrieval enabled, attempting to fetch token now...');
+												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												await handleShowWorkerTokenModal(
+													setShowWorkerTokenModal,
+													setTokenStatus,
+													newValue,  // Use new value
+													showTokenAtEnd,
+													false      // Not forced - respect silent setting
+												);
+											}
+										}
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Silent API Token Retrieval
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Automatically fetch worker token in the background without showing modals
+									</span>
+								</div>
+							</label>
+
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={showTokenAtEnd}
+									onChange={async (e) => {
+										const newValue = e.target.checked;
+										setShowTokenAtEnd(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.showTokenAtEnd = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										toastV8.info(`Show Token After Generation set to: ${newValue}`);
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Show Token After Generation
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Display the generated worker token in a modal after successful retrieval
+									</span>
+								</div>
+							</label>
 						</div>
 					</div>
 

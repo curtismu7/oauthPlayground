@@ -46,15 +46,43 @@ export class ToastNotificationsV8 {
 	}
 
 	/**
+	 * Extract a short summary from a long error message for toast display
+	 * @param message - Full error message
+	 * @returns Short summary suitable for toast
+	 */
+	private static extractShortSummary(message: string): string {
+		// If message is short (under 150 chars), use as-is
+		if (message.length <= 150) {
+			return message;
+		}
+
+		// Try to extract the first meaningful line (before first \n\n)
+		const firstParagraph = message.split(/\n\n/)[0];
+		if (firstParagraph && firstParagraph.length <= 150) {
+			return firstParagraph;
+		}
+
+		// Try to extract just the error title (before first colon or period)
+		const titleMatch = message.match(/^([^:.]{1,100})/);
+		if (titleMatch) {
+			return titleMatch[1];
+		}
+
+		// Fallback: truncate to 120 chars with ellipsis
+		return message.substring(0, 120) + '...';
+	}
+
+	/**
 	 * Show error notification
-	 * @param message - Error message to display
+	 * @param message - Error message to display (will be truncated if too long)
 	 * @param options - Optional configuration
 	 * @example
 	 * toastV8.error('Failed to validate credentials');
 	 */
 	static error(message: string, _options?: { duration?: number }): void {
 		console.log(`${ToastNotificationsV8.MODULE_TAG} Error:`, message);
-		v4ToastManager.showError(message);
+		const shortMessage = ToastNotificationsV8.extractShortSummary(message);
+		v4ToastManager.showError(shortMessage);
 	}
 
 	/**
