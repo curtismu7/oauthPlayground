@@ -67,8 +67,22 @@ export const MFAHubV8: React.FC = () => {
 	// Worker token state
 	const [tokenStatus, setTokenStatus] = useState(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	const [silentApiRetrieval, setSilentApiRetrieval] = useState(false);
-	const [showTokenAtEnd, setShowTokenAtEnd] = useState(true);
+	
+	// Initialize from config immediately (not in useEffect) so silent retrieval works on mount
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd !== false;
+		} catch {
+			return true;
+		}
+	});
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'MFA Hub V8', force: true });
@@ -76,22 +90,24 @@ export const MFAHubV8: React.FC = () => {
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
-	// Load configuration on mount
-	useEffect(() => {
-		const config = MFAConfigurationServiceV8.loadConfiguration();
-		setSilentApiRetrieval(config.workerToken.silentApiRetrieval);
-		setShowTokenAtEnd(config.workerToken.showTokenAtEnd);
-	}, []);
-
 		// Check worker token on mount and when token updates
 		useEffect(() => {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:94',message:'useEffect triggered',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+			// #endregion
 			const checkToken = async () => {
 				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(currentStatus);
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:98',message:'Token status checked',data:{isValid:currentStatus.isValid,hasToken:!!currentStatus.token},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				// #endregion
 
 				// If token is missing or expired, use helper to handle silent retrieval
 				// Pass Hub page checkbox values to override config (Hub page takes precedence)
 				if (!currentStatus.isValid) {
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:102',message:'Calling handleShowWorkerTokenModal',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+					// #endregion
 					await handleShowWorkerTokenModal(
 						setShowWorkerTokenModal, 
 						setTokenStatus,
@@ -136,16 +152,11 @@ export const MFAHubV8: React.FC = () => {
 	const handleSilentApiRetrievalChange = async (value: boolean) => {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		config.workerToken.silentApiRetrieval = value;
-		// If Silent is ON, Show Token must be OFF (silent means no modals)
-		if (value) {
-			config.workerToken.showTokenAtEnd = false;
-			setShowTokenAtEnd(false);
-		}
 		MFAConfigurationServiceV8.saveConfiguration(config);
 		setSilentApiRetrieval(value);
 		// Dispatch event to notify other components
 		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-		toastV8.info(`Silent API Token Retrieval set to: ${value}${value ? ' (Show Token disabled)' : ''}`);
+		toastV8.info(`Silent API Token Retrieval set to: ${value}`);
 		
 		// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 		if (value) {
@@ -166,16 +177,11 @@ export const MFAHubV8: React.FC = () => {
 	const handleShowTokenAtEndChange = (value: boolean) => {
 		const config = MFAConfigurationServiceV8.loadConfiguration();
 		config.workerToken.showTokenAtEnd = value;
-		// If Show Token is ON, Silent must be OFF (showing token means not silent)
-		if (value) {
-			config.workerToken.silentApiRetrieval = false;
-			setSilentApiRetrieval(false);
-		}
 		MFAConfigurationServiceV8.saveConfiguration(config);
 		setShowTokenAtEnd(value);
 		// Dispatch event to notify other components
 		window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-		toastV8.info(`Show Token After Generation set to: ${value}${value ? ' (Silent API disabled)' : ''}`);
+		toastV8.info(`Show Token After Generation set to: ${value}`);
 	};
 
 	// Clear all tokens (worker and user tokens) and end PingOne session

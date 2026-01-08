@@ -29,9 +29,8 @@ if (!fs.existsSync(logsDir)) {
 }
 
 // Separate log file for PingOne API calls
-const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log');
-const apiLogFile = path.join(logsDir, 'api-log.log');
-const realApiLogFile = path.join(logsDir, 'real-api.log');
+const pingOneApiLogFile = path.join(logsDir, 'pingone-api.log'); // All API calls (proxy and direct)
+const realApiLogFile = path.join(logsDir, 'real-api.log'); // Only direct PingOne API calls (no proxy)
 
 // Log width constant - wider for better readability, no truncation
 const LOG_WIDTH = 150;
@@ -721,18 +720,8 @@ function logPingOneApiCall(
 		}
 	}
 
-	// Write to both PingOne API log file and api-log.log (async, non-blocking)
+	// Write to pingone-api.log (all calls - proxy and direct)
 	// Note: fs.appendFile will create the file if it doesn't exist
-	console.log(
-		'[DEBUG] logPingOneApiCall: Writing to files:',
-		pingOneApiLogFile,
-		apiLogFile,
-		isProxyCall ? '(skipping real-api.log - proxy call)' : realApiLogFile
-	);
-	console.log('[DEBUG] logPingOneApiCall: Log message length:', logMessage.length);
-	console.log('[DEBUG] logPingOneApiCall: Is proxy call?', isProxyCall);
-
-	// Write to pingone-api.log (all calls)
 	fs.appendFile(pingOneApiLogFile, logMessage, 'utf8', (err) => {
 		if (err) {
 			originalError('[PingOne API Logging Error] Failed to write to pingone-api.log:', {
@@ -742,27 +731,10 @@ function logPingOneApiCall(
 				code: err.code,
 				stack: err.stack,
 			});
-		} else {
-			console.log(`[DEBUG] Successfully wrote to ${pingOneApiLogFile}`);
 		}
 	});
 
-	// Write to api-log.log (all calls)
-	fs.appendFile(apiLogFile, logMessage, 'utf8', (err) => {
-		if (err) {
-			originalError('[PingOne API Logging Error] Failed to write to api-log.log:', {
-				error: err,
-				file: apiLogFile,
-				message: err.message,
-				code: err.code,
-				stack: err.stack,
-			});
-		} else {
-			console.log(`[DEBUG] Successfully wrote to ${apiLogFile}`);
-		}
-	});
-
-	// Write to real-api.log (only non-proxy calls)
+	// Write to real-api.log (only direct PingOne API calls, no proxy calls)
 	if (!isProxyCall) {
 		fs.appendFile(realApiLogFile, logMessage, 'utf8', (err) => {
 			if (err) {
@@ -773,8 +745,6 @@ function logPingOneApiCall(
 					code: err.code,
 					stack: err.stack,
 				});
-			} else {
-				console.log(`[DEBUG] Successfully wrote to ${realApiLogFile}`);
 			}
 		});
 	}
@@ -1918,21 +1888,181 @@ app.post('/api/client-credentials', async (req, res) => {
 		// Prepare body for the request to PingOne
 		const body = new URLSearchParams(requestBody);
 
+		// #region agent log
+		const logPath = '/Users/cmuir/P1Import-apps/oauth-playground/.cursor/debug.log';
+		const logEntry = JSON.stringify({
+			location: 'server.js:1889',
+			message: 'Backend preparing request body for PingOne',
+			data: {
+				requestBodyKeys: Object.keys(requestBody),
+				requestBodyClientId: requestBody.client_id,
+				requestBodyClientIdType: typeof requestBody.client_id,
+				requestBodyClientIdLength: requestBody.client_id?.length,
+				bodyClientId: body.get('client_id'),
+				bodyClientIdType: typeof body.get('client_id'),
+				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+				clientIdMatches: body.get('client_id') === '4a275422-e580-4be6-84f2-3a624a849cbb',
+				requestBodyScope: requestBody.scope,
+				requestBodyScopeType: typeof requestBody.scope,
+				bodyKeys: Array.from(body.keys()),
+				bodyEntries: Object.fromEntries(body.entries()),
+				bodyScope: body.get('scope'),
+				authMethod: auth_method,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-CLIENT-ID',
+		}) + '\n';
+		try {
+			fs.appendFileSync(logPath, logEntry);
+		} catch (e) {
+			// Ignore log errors
+		}
+		// #endregion
+
 		console.log(`[Client Credentials] Using auth method: ${auth_method || 'client_secret_post'}`);
 		console.log(`[Client Credentials] Token endpoint URL:`, tokenEndpoint);
 		console.log(`[Client Credentials] Request headers:`, headers);
 		console.log(`[Client Credentials] Request body keys:`, Array.from(body.keys()));
 		console.log(`[Client Credentials] Request body values:`, Object.fromEntries(body.entries()));
+		console.log(`[Client Credentials] Request body string (URL-encoded):`, body.toString());
 		console.log(`[Client Credentials] Full request URL:`, `${tokenEndpoint}`);
 		console.log(`[Client Credentials] Request method: POST`);
 
+		// #region agent log - capture actual request being sent
+		const bodyString = body.toString();
+		const clientIdFromBody = body.get('client_id');
+		const logEntry4 = JSON.stringify({
+			location: 'server.js:1933',
+			message: 'About to send request to PingOne - actual body string',
+			data: {
+				bodyString,
+				bodyStringLength: bodyString.length,
+				clientId: clientIdFromBody,
+				clientIdLength: clientIdFromBody?.length,
+				clientIdType: typeof clientIdFromBody,
+				expectedClientId: '4a275422-e580-4be6-84f2-3a624a849cbb',
+				clientIdMatches: clientIdFromBody === '4a275422-e580-4be6-84f2-3a624a849cbb',
+				hasScope: bodyString.includes('scope'),
+				scopeValue: body.get('scope'),
+				hasGrantType: bodyString.includes('grant_type'),
+				hasClientId: bodyString.includes('client_id'),
+				hasClientSecret: bodyString.includes('client_secret'),
+				allParams: Object.fromEntries(body.entries()),
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'ACTUAL-REQUEST-CLIENT-ID',
+		}) + '\n';
+		try {
+			fs.appendFileSync(logPath, logEntry4);
+		} catch (e) {
+			// Ignore log errors
+		}
+		// #endregion
+
+		const requestStartTime = Date.now();
 		const response = await global.fetch(tokenEndpoint, {
 			method: 'POST',
 			headers: headers,
 			body: body,
 		});
+		const duration = Date.now() - requestStartTime;
 
-		const data = await response.json();
+		// Clone response for logging (before consuming the body)
+		const responseClone = response.clone();
+
+		// #region agent log
+		const logEntry2 = JSON.stringify({
+			location: 'server.js:1966',
+			message: 'Backend received response from PingOne',
+			data: {
+				status: response.status,
+				statusText: response.statusText,
+				hasBody: !!body,
+				bodyString: body.toString(),
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-RESPONSE',
+		}) + '\n';
+		try {
+			fs.appendFileSync(logPath, logEntry2);
+		} catch (e) {
+			// Ignore log errors
+		}
+		// #endregion
+
+		const responseText = await response.text();
+		let data;
+		try {
+			data = JSON.parse(responseText);
+		} catch (e) {
+			data = { error: 'Failed to parse response', rawResponse: responseText };
+		}
+
+		// Log to pingone-api.log (same as MFA flows)
+		// Parse response from clone for logging
+		let responseDataForLogging = data;
+		try {
+			const cloneText = await responseClone.text();
+			try {
+				responseDataForLogging = JSON.parse(cloneText);
+			} catch {
+				responseDataForLogging = { raw: cloneText };
+			}
+		} catch (e) {
+			responseDataForLogging = data;
+		}
+
+		// Parse URL-encoded body for better logging display
+		const bodyForLogging = Object.fromEntries(body.entries());
+
+		logPingOneApiCall(
+			'Client Credentials Token Request',
+			tokenEndpoint,
+			'POST',
+			headers,
+			bodyForLogging, // Pass as object so it displays properly in logs
+			response,
+			responseDataForLogging,
+			duration,
+			{
+				environmentId: environment_id,
+				authMethod: auth_method || 'client_secret_post',
+				clientId: requestBody.client_id,
+				scope: requestBody.scope, // Explicitly include scope in metadata
+			}
+		);
+
+		// #region agent log
+		const logEntry3 = JSON.stringify({
+			location: 'server.js:1985',
+			message: 'Backend parsed PingOne response',
+			data: {
+				status: response.status,
+				responseText,
+				parsedData: data,
+				error: data.error,
+				errorDescription: data.error_description,
+				requestBodyString: body.toString(),
+				requestBodyScope: body.get('scope'),
+				hasAccessToken: !!data.access_token,
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			runId: 'run1',
+			hypothesisId: 'BACKEND-RESPONSE-DATA',
+		}) + '\n';
+		try {
+			fs.appendFileSync(logPath, logEntry3);
+		} catch (e) {
+			// Ignore log errors
+		}
+		// #endregion
 
 		if (!response.ok) {
 			console.error(`[Client Credentials] PingOne error (${response.status}):`, {
@@ -6667,6 +6797,7 @@ app.get('/api/pingone/applications', async (req, res) => {
 	}
 });
 
+// Get application resources (must come before /:appId route)
 app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
 	try {
 		const { appId } = req.params;
@@ -6763,7 +6894,7 @@ app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
 		}
 
 		const data = await response.json();
-		console.log(`[Config Checker] Successfully fetched resources for app ${appId}`);
+		console.log('[Config Checker] Successfully fetched resources');
 
 		res.json(data);
 	} catch (error) {
@@ -6778,6 +6909,155 @@ app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
 			res.status(500).json({
 				error: 'server_error',
 				error_description: 'Internal server error while fetching resources',
+			});
+		}
+	}
+});
+
+// Get a single application with its secret
+app.get('/api/pingone/applications/:appId', async (req, res) => {
+	console.log('[App Discovery] Fetching application with secret:', req.params.appId);
+	try {
+		const { appId } = req.params;
+		const { environmentId, clientId, clientSecret, region = 'na', workerToken } = req.query;
+
+		if (!environmentId || !appId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, appId',
+			});
+		}
+
+		let tokenToUse = workerToken;
+		if (!tokenToUse) {
+			// Get worker token using app credentials
+			if (!clientId || !clientSecret) {
+				console.log('[App Discovery] Missing clientId or clientSecret for token request');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: clientId, clientSecret, or workerToken',
+				});
+			}
+
+			console.log('[App Discovery] Getting worker token...');
+			// Get worker token first
+			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			const controller1 = new AbortController();
+			const timeout1 = setTimeout(() => controller1.abort(), 10000); // 10s timeout
+			const tokenResponse = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientId,
+					client_secret: clientSecret,
+					scope: 'p1:read:environments p1:read:applications p1:read:connections',
+				}),
+				signal: controller1.signal,
+			});
+			clearTimeout(timeout1);
+
+			if (!tokenResponse.ok) {
+				const errorText = await tokenResponse.text();
+				console.error('[App Discovery] Token request failed:', errorText);
+				return res.status(400).json({
+					error: 'invalid_token_request',
+					error_description: 'Failed to get worker token',
+				});
+			}
+
+			const tokenData = await tokenResponse.json();
+			tokenToUse = tokenData.access_token;
+			console.log('[App Discovery] Worker token obtained');
+		} else {
+			console.log('[App Discovery] Using provided worker token');
+		}
+
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['na'];
+		const applicationUrl = `${baseUrl}/v1/environments/${environmentId}/applications/${appId}`;
+		const secretUrl = `${baseUrl}/v1/environments/${environmentId}/applications/${appId}/secret`;
+
+		console.log(`[App Discovery] Fetching application from: ${applicationUrl}`);
+		console.log(`[App Discovery] Fetching secret from: ${secretUrl}`);
+
+		// Fetch both application and secret in parallel
+		const controller2 = new AbortController();
+		const timeout2 = setTimeout(() => controller2.abort(), 10000); // 10s timeout
+
+		const [appResponse, secretResponse] = await Promise.all([
+			fetch(applicationUrl, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${tokenToUse}`,
+					'Content-Type': 'application/json',
+				},
+				signal: controller2.signal,
+			}),
+			fetch(secretUrl, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${tokenToUse}`,
+					'Content-Type': 'application/json',
+				},
+				signal: controller2.signal,
+			}),
+		]);
+
+		clearTimeout(timeout2);
+
+		if (!appResponse.ok) {
+			const errorText = await appResponse.text();
+			console.error('[App Discovery] Application request failed:', errorText);
+			return res.status(appResponse.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch application: ${appResponse.status} ${appResponse.statusText}`,
+			});
+		}
+
+		const applicationData = await appResponse.json();
+
+		// Secret endpoint might return 404 if secret doesn't exist or user doesn't have permission
+		// This is okay - we'll just not include the secret in the response
+		let secretData = null;
+		if (secretResponse.ok) {
+			secretData = await secretResponse.json();
+			console.log('[App Discovery] Secret fetched successfully');
+		} else {
+			console.log('[App Discovery] Secret not available (may not exist or no permission)');
+		}
+
+		// Combine application data with secret
+		const combinedData = {
+			...applicationData,
+			clientSecret: secretData?.secret || null,
+		};
+
+		console.log('[App Discovery] Successfully fetched application with secret');
+		res.json(combinedData);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.error('[App Discovery] Request timed out');
+			res.status(504).json({
+				error: 'timeout',
+				error_description: 'Request timed out',
+			});
+		} else {
+			console.error('[App Discovery] Error fetching application:', error);
+			res.status(500).json({
+				error: 'server_error',
+				error_description: 'Internal server error while fetching application',
 			});
 		}
 	}
@@ -7642,7 +7922,7 @@ app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
 			hasFilter: !!filter,
 			filter: filter || 'none',
 		});
-		console.log('[MFA Devices] 📋 Will log to pingone-api.log and api-log.log');
+		console.log('[MFA Devices] 📋 Will log to pingone-api.log');
 
 		// Call PingOne's actual devices API with optional SCIM filter
 		let devicesUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
@@ -7683,7 +7963,7 @@ app.post('/api/pingone/mfa/get-all-devices', async (req, res) => {
 		}
 
 		// Log the actual PingOne API call
-		console.log('[MFA Devices] 📝 Logging API call to pingone-api.log and api-log.log');
+		console.log('[MFA Devices] 📝 Logging API call to pingone-api.log');
 		logPingOneApiCall(
 			'Get All MFA Devices',
 			devicesUrl,

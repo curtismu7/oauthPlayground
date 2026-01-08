@@ -45,6 +45,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -250,6 +251,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		_links: null,
 		completionResult: null,
 	});
+
+	// Loading message state for spinner modal
+	const [loadingMessage, setLoadingMessage] = useState('');
 
 	// Username input state
 	const [usernameInput, setUsernameInput] = useState(credentials.username || '');
@@ -1091,6 +1095,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			_links: null,
 			completionResult: null,
 		});
+		setLoadingMessage('🔐 Starting MFA Authentication...');
 
 		try {
 			// 1. Lookup user
@@ -1214,6 +1219,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				_links: links,
 				completionResult: null,
 			});
+			setLoadingMessage('');
 
 			// Show appropriate modal
 			if (needsDeviceSelection) {
@@ -1238,11 +1244,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			if (handleDeviceFailureError(error)) {
 				// Error was handled by modal, just update loading state
 				setAuthState((prev) => ({ ...prev, isLoading: false }));
+				setLoadingMessage('');
 				return;
 			}
 
 			toastV8.error(error instanceof Error ? error.message : 'Failed to start authentication');
 			setAuthState((prev) => ({ ...prev, isLoading: false }));
+			setLoadingMessage('');
 		}
 	}, [
 		tokenStatus.isValid,
@@ -1329,6 +1337,18 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		}
 	}, [authContext, credentials.environmentId, credentials.userToken, setCredentials]);
 
+	// Compute showTokenOnly for modal
+	const showTokenOnly = (() => {
+		if (!showWorkerTokenModal) return false;
+		try {
+			const config = MFAConfigurationServiceV8.loadConfiguration();
+			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			return config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+		} catch {
+			return false;
+		}
+	})();
+
 	return (
 		<div
 			style={{
@@ -1342,6 +1362,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		>
 			{/* Navigation Bar */}
 			<MFANavigationV8 currentPage="hub" showBackToMain={true} />
+
+			<LoadingSpinnerModalV8U
+				show={authState.isLoading && !!loadingMessage}
+				message={loadingMessage}
+				theme="blue"
+			/>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
@@ -1665,15 +1691,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									// Update config service immediately (no cache)
 									const config = MFAConfigurationServiceV8.loadConfiguration();
 									config.workerToken.silentApiRetrieval = newValue;
-									// If Silent is ON, Show Token must be OFF (silent means no modals)
-									if (newValue) {
-										config.workerToken.showTokenAtEnd = false;
-										setShowTokenAtEnd(false);
-									}
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
 									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Silent API Token Retrieval set to: ${newValue}${newValue ? ' (Show Token disabled)' : ''}`);
+									toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
 									
 									// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
 									if (newValue) {
@@ -1736,15 +1757,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									// Update config service immediately (no cache)
 									const config = MFAConfigurationServiceV8.loadConfiguration();
 									config.workerToken.showTokenAtEnd = newValue;
-									// If Show Token is ON, Silent must be OFF (showing token means not silent)
-									if (newValue) {
-										config.workerToken.silentApiRetrieval = false;
-										setSilentApiRetrieval(false);
-									}
 									MFAConfigurationServiceV8.saveConfiguration(config);
 									// Dispatch event to notify other components
 									window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
-									toastV8.info(`Show Token After Generation set to: ${newValue}${newValue ? ' (Silent API disabled)' : ''}`);
+									toastV8.info(`Show Token After Generation set to: ${newValue}`);
 								}}
 								style={{
 									width: '20px',
@@ -3381,42 +3397,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			)}
 
 			{/* Modals */}
-			{showWorkerTokenModal && (() => {
-				// Check if we should show token only
-				// Token-only mode is shown when:
-				// 1. showTokenAtEnd is ON AND token is valid (regardless of silentApiRetrieval)
-				// 2. OR both silentApiRetrieval and showTokenAtEnd are ON AND token was just retrieved silently
-				try {
-					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
-					const config = MFAConfigurationServiceV8.loadConfiguration();
-					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-					
-					// Show token-only if showTokenAtEnd is ON and token is valid
-					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
-					
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								// Refresh token status when modal closes
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-							showTokenOnly={showTokenOnly}
-						/>
-					);
-				} catch {
-					return (
-						<WorkerTokenModalV8
-							isOpen={showWorkerTokenModal}
-							onClose={() => {
-								setShowWorkerTokenModal(false);
-								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
-							}}
-						/>
-					);
-				}
-			})()}
+			{showWorkerTokenModal ? (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={() => {
+						setShowWorkerTokenModal(false);
+						// Refresh token status when modal closes
+						setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+					}}
+					showTokenOnly={showTokenOnly}
+				/>
+			) : null}
 
 			{/* Username Decision Modal */}
 			{showUsernameDecisionModal && (

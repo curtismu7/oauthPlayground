@@ -75,15 +75,15 @@ export class ClientCredentialsIntegrationServiceV8 {
 					: '/api/client-credentials';
 
 			// Client Credentials flow REQUIRES client authentication (RFC 6749 Section 4.4)
-			// 'none' is NOT allowed - default to client_secret_basic (most common) if none is specified
+			// 'none' is NOT allowed - default to client_secret_post (most common) if none is specified
 			// Normalize auth method to lowercase (PingOne may return uppercase like "CLIENT_SECRET_POST")
 			const normalizedAuthMethod = credentials.clientAuthMethod
 				? (credentials.clientAuthMethod.toLowerCase() as ClientAuthMethod)
-				: 'client_secret_basic';
+				: 'client_secret_post';
 			const authMethod: Exclude<ClientAuthMethod, 'none'> =
 				normalizedAuthMethod && normalizedAuthMethod !== 'none'
 					? (normalizedAuthMethod as Exclude<ClientAuthMethod, 'none'>)
-					: 'client_secret_basic';
+					: 'client_secret_post';
 
 			const headers: Record<string, string> = {};
 
@@ -93,6 +93,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 				grant_type: 'client_credentials',
 				client_id: credentials.clientId,
 			};
+
+			// #region agent log - log client_id being sent
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:95',message:'Client ID being sent in request',data:{clientId:credentials.clientId,clientIdLength:credentials.clientId?.length,clientIdType:typeof credentials.clientId,expectedClientId:'4a275422-e580-4be6-84f2-3a624a849cbb',matchesExpected:credentials.clientId === '4a275422-e580-4be6-84f2-3a624a849cbb'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'CLIENT-ID-VERIFY'})}).catch(()=>{});
+			// #endregion
 
 			// Add scope - REQUIRED for client credentials flow
 			// NOTE: Client credentials is for machine-to-machine auth, NOT user auth
@@ -104,61 +108,19 @@ export class ClientCredentialsIntegrationServiceV8 {
 				);
 			}
 
-			// Validate scopes for client credentials flow
-			// Client credentials flow CANNOT use:
-			// 1. User authentication scopes (profile, email, address, phone, offline_access) - these require a user context
-			// 2. Self-management scopes (p1:read:user, p1:update:user, etc.) - singular "user" - these are for user self-management only
-			//    NOTE: These are typically used with Worker tokens for PingOne Admin operations, not client_credentials
-			// Client credentials SHOULD use:
-			// - Custom resource server scopes (api:read, api:write, etc.) - for generic M2M scenarios
-			// - Management API scopes (p1:read:user, p1:read:environments, etc.) - singular form, but typically used with Worker tokens
-			// - "openid" scope - allowed if the user explicitly requests it (some PingOne configurations may support it)
-			//
-			// KEY DISTINCTION:
-			// - p1:read:user (singular) = Management API scope for user operations (typically used with Worker tokens)
-			// - Client credentials tokens are for generic M2M scenarios, not PingOne Admin operations
-			// - Worker tokens are specifically for PingOne Admin/Management operations
-			const scopeList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
+			// Note: All scopes (including OIDC scopes like openid, profile, email, address, phone, offline_access)
+			// are allowed for client credentials flow. The actual validation is done by PingOne based on
+			// what scopes are enabled/granted to the application in the Resources tab.
 
-			// Note: "openid" scope is now allowed - user can include it if their PingOne configuration supports it
-			// We no longer automatically remove it
-
-			// User authentication scopes (require user context)
-			const userAuthScopes = ['offline_access', 'profile', 'email', 'address', 'phone'];
-			const foundUserAuthScopes = scopeList.filter((scope) =>
-				userAuthScopes.includes(scope.toLowerCase())
-			);
-
-			// Self-management scopes (p1:read:user, p1:update:user, etc.) - singular "user"
-			// These are for user self-management and cannot be granted on client_credentials flow
-			// IMPORTANT: This pattern matches SINGULAR "user" only, not plural "users"
-			const selfManagementScopePattern = /^p1:(read|update|delete|create):user$/i;
-			const foundSelfManagementScopes = scopeList.filter((scope) =>
-				selfManagementScopePattern.test(scope)
-			);
-
-			if (foundUserAuthScopes.length > 0) {
-				console.warn(
-					`${MODULE_TAG} WARNING: User authentication scopes detected for client credentials flow: ${foundUserAuthScopes.join(', ')}. ` +
-						`These scopes require a user context and cannot be used with client_credentials flow. ` +
-						`Use custom resource server scopes instead (e.g., api:read, api:write). ` +
-						`Note: Management API scopes (p1:read:user, etc.) are typically used with Worker tokens for PingOne Admin operations. ` +
-						`See https://apidocs.pingidentity.com/pingone/main/v1/api/#access-services-through-scopes-and-roles`
-				);
-			}
-
-			if (foundSelfManagementScopes.length > 0) {
-				console.warn(
-					`${MODULE_TAG} WARNING: Management API scopes detected for client credentials flow: ${foundSelfManagementScopes.join(', ')}. ` +
-						`Management API scopes (p1:read:user, p1:update:user, etc. - note: singular "user") are typically used with Worker tokens ` +
-						`for PingOne Admin/Management operations, not with standard client_credentials tokens. ` +
-						`Client credentials tokens are for generic machine-to-machine scenarios with custom APIs. ` +
-						`If you need PingOne Admin operations, consider using a Worker token instead. ` +
-						`See https://apidocs.pingidentity.com/pingone/main/v1/api/#pingone-self-management-scopes for details.`
-				);
-			}
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:111',message:'Scopes before assignment',data:{scopesRaw:credentials.scopes,scopesType:typeof credentials.scopes,scopesLength:credentials.scopes?.length,scopesTrimmed:credentials.scopes?.trim()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
 
 			proxyRequestBody.scope = credentials.scopes;
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:115',message:'Scope after assignment to proxyRequestBody',data:{scopeValue:proxyRequestBody.scope,scopeType:typeof proxyRequestBody.scope,scopeLength:proxyRequestBody.scope?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+			// #endregion
 
 			// Apply client authentication method
 			switch (authMethod) {
@@ -287,6 +249,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 				body: proxyRequestBody,
 			};
 
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:240',message:'Full proxyRequest before sending',data:{proxyRequest:JSON.stringify(proxyRequest),scopeInBody:proxyRequest.body.scope,scopeType:typeof proxyRequest.body.scope,authMethod:proxyRequest.auth_method},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+
 			// Add auth method and headers
 			// IMPORTANT: For JWT-based authentication (client_secret_jwt, private_key_jwt),
 			// the JWT assertion must be in the request body (client_assertion), NOT in headers.
@@ -302,9 +268,16 @@ export class ClientCredentialsIntegrationServiceV8 {
 			// Track API call for display
 			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 			const startTime = Date.now();
+			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
+				actualPingOneUrl,
+				isProxy: true,
+				headers: {
+					'Content-Type': 'application/json',
+					...(headers['Authorization'] ? { Authorization: '***REDACTED***' } : {}),
+				},
 				body: {
 					...proxyRequest,
 					body: {
@@ -313,7 +286,12 @@ export class ClientCredentialsIntegrationServiceV8 {
 					},
 				},
 				step: 'unified-client-credentials-token',
+				flowType: 'unified',
 			});
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:278',message:'About to send request',data:{tokenEndpoint,requestBodyString:JSON.stringify(proxyRequest),scopeInRequest:proxyRequest.body.scope},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+			// #endregion
 
 			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
@@ -348,6 +326,10 @@ export class ClientCredentialsIntegrationServiceV8 {
 					errorData.error ||
 					'Unknown error') as string;
 				const errorCode = (errorData.error || 'unknown_error') as string;
+
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:310',message:'Error response received',data:{status:response.status,statusText:response.statusText,errorCode,errorMessage,fullErrorData:errorData,scopeSent:proxyRequestBody.scope},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				// #endregion
 
 				// Log the FULL error response for debugging
 				console.error(`${MODULE_TAG} Full PingOne error response:`, {
@@ -422,7 +404,13 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMsg += `   b) Use a different application that has Client Credentials enabled\n`;
 						errorMsg += `5. Verify the Client ID matches exactly: ${credentials.clientId}\n`;
 						errorMsg += `6. Copy the Client Secret directly from PingOne (do not modify)\n`;
-						errorMsg += `7. Check "Token Endpoint Authentication Method" - should be "${authMethod}"\n`;
+						errorMsg += `7. ⚠️ CRITICAL: Check "Token Endpoint Authentication Method" in the OIDC Settings tab\n`;
+						errorMsg += `   - Your PingOne app is configured for: Check the "OIDC Settings" tab in PingOne\n`;
+						errorMsg += `   - This app is using: "${authMethod}"\n`;
+						errorMsg += `   - These MUST match! Common options:\n`;
+						errorMsg += `     * "Client Secret Post (Form Body)" = client_secret_post\n`;
+						errorMsg += `     * "Client Secret Basic (HTTP Basic)" = client_secret_basic\n`;
+						errorMsg += `   - Either change PingOne to match this app, or change this app's auth method to match PingOne\n`;
 						errorMsg += `8. Try the request again\n\n`;
 					}
 
@@ -490,11 +478,6 @@ export class ClientCredentialsIntegrationServiceV8 {
 
 					const scopesList = credentials.scopes.split(/\s+/).filter((s) => s.trim());
 
-					// Check for problematic scopes
-					const hasUserAuthScopes = scopesList.some((s) =>
-						['profile', 'email', 'address', 'phone', 'offline_access'].includes(s)
-					);
-
 					// Check if error indicates scopes are not granted (common issue)
 					const isScopeNotGranted =
 						errorMessage.toLowerCase().includes('at least one scope must be granted') ||
@@ -503,73 +486,89 @@ export class ClientCredentialsIntegrationServiceV8 {
 						errorMessage.toLowerCase().includes('not enabled') ||
 						errorMessage.toLowerCase().includes('not granted');
 
-					if (isScopeNotGranted) {
-						let errorMsg = `Scope Configuration Error: The scope(s) "${scopesList.join(', ')}" are not enabled/granted to your application in PingOne.\n\n`;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'clientCredentialsIntegrationServiceV8.ts:475',message:'Invalid scope error analysis',data:{errorCode,errorMessage,scopesList,isScopeNotGranted,correlationId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'SCOPE-ERROR-ANALYSIS'})}).catch(()=>{});
+					// #endregion
 
-						// Check for invalid scopes for client credentials
-						const invalidScopes = [];
-						const openIdScope = scopesList.find((s) => s.toLowerCase() === 'openid');
-						if (openIdScope) {
-							invalidScopes.push(openIdScope);
+					if (isScopeNotGranted) {
+						let errorMsg = `Configuration Error: The scope(s) "${scopesList.join(', ')}" request failed.\n\n`;
+						
+						errorMsg += `📋 Root Cause\n\n`;
+						errorMsg += `The error "At least one scope must be granted" from PingOne indicates that the requested scope(s) are not enabled or granted for your application.\n\n`;
+						
+						errorMsg += `💡 Critical: What Scopes Work with Client Credentials?\n\n`;
+						errorMsg += `For Client Credentials flow, you MUST use resource server scopes (like "ClaimScope", "custom:read", "api:read", etc.).\n\n`;
+						errorMsg += `❌ OIDC scopes (like "openid", "profile", "email") do NOT work with Client Credentials\n`;
+						errorMsg += `❌ Self-management scopes (like "p1:read:user") do NOT work with Client Credentials\n`;
+						errorMsg += `✅ Resource server scopes (like "ClaimScope", "custom:read") DO work with Client Credentials\n\n`;
+						
+						errorMsg += `⚠️ Authentication Method Mismatch\n\n`;
+						errorMsg += `Your PingOne app's "Token Endpoint Authentication Method" (in OIDC Settings tab) must match this app's auth method.\n\n`;
+						errorMsg += `• This app is using: "${authMethod}"\n`;
+						errorMsg += `• Common PingOne options:\n`;
+						errorMsg += `  - "Client Secret Post (Form Body)" = client_secret_post\n`;
+						errorMsg += `  - "Client Secret Basic (HTTP Basic)" = client_secret_basic\n`;
+						errorMsg += `• If they don't match, either change PingOne or change this app's auth method\n\n`;
+
+						errorMsg += `🔧 How to Fix: Create and Configure Resource Server Scopes\n\n`;
+						errorMsg += `Step 1: Create a Resource Server (if you don't have one)\n\n`;
+						errorMsg += `1. Go to PingOne Admin Console:\n`;
+						errorMsg += `   https://admin.pingone.com\n\n`;
+						errorMsg += `2. Navigate to: Resources → Resource Servers\n\n`;
+						errorMsg += `3. Click "Add Resource Server"\n\n`;
+						errorMsg += `4. Fill in the details:\n`;
+						errorMsg += `   • Name: "My API Server" (or any name you prefer)\n`;
+						errorMsg += `   • Description: "Resource server for client credentials flow" (optional)\n\n`;
+						errorMsg += `5. Click "Save"\n\n`;
+						errorMsg += `Step 2: Add Scopes to Your Resource Server\n\n`;
+						errorMsg += `1. In the Resource Server you just created, click "Scopes"\n\n`;
+						errorMsg += `2. Click "Add Scope"\n\n`;
+						errorMsg += `3. Fill in the scope details:\n`;
+						errorMsg += `   • Scope Name: "ClaimScope" (this is the scope you'll use in your request)\n`;
+						errorMsg += `   • Description: "Access to claim data" (optional)\n\n`;
+						errorMsg += `4. Click "Save"\n\n`;
+						errorMsg += `Step 3: Associate Resource Server with Your Application\n\n`;
+						errorMsg += `1. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n\n`;
+						errorMsg += `2. Click the "Resources" tab\n\n`;
+						errorMsg += `3. Under "Resource Servers", find your resource server (e.g., "My API Server")\n\n`;
+						errorMsg += `4. Check the box next to your resource server to enable it\n\n`;
+						errorMsg += `5. Under the resource server, check the box next to the scope (e.g., "ClaimScope")\n\n`;
+						errorMsg += `6. Click "Save"\n\n`;
+						errorMsg += `Step 4: Use the Resource Server Scope in Your Request\n\n`;
+						errorMsg += `1. In this app, use the scope name you created (e.g., "ClaimScope")\n\n`;
+						errorMsg += `2. Example: Enter "ClaimScope" in the Scopes field\n\n`;
+						errorMsg += `3. Wait a few seconds for changes to propagate, then try the request again\n\n`;
+						
+						errorMsg += `📝 Example\n\n`;
+						errorMsg += `Instead of "openid", use a resource server scope like "ClaimScope" or "custom:read" (whatever is available in your Resources tab under a resource server)\n\n`;
+
+						// Check for OIDC scopes - these don't work with client_credentials
+						const oidcScopes = scopesList.filter((s) =>
+							['openid', 'profile', 'email', 'address', 'phone', 'offline_access'].includes(
+								s.toLowerCase()
+							)
+						);
+						if (oidcScopes.length > 0) {
+							errorMsg += `⚠️ OIDC Scopes Detected (${oidcScopes.join(', ')})\n\n`;
+							errorMsg += `OIDC scopes cannot be used with Client Credentials flow. You need resource server scopes instead.\n\n`;
+							errorMsg += `✅ Use resource server scopes like "ClaimScope" or "custom:read" (check your Resources tab for available scopes)\n\n`;
 						}
 
-						// Check for self-management scopes (singular "user")
-						const selfManagementScopes = scopesList.filter((s) =>
-							/^p1:(read|update|delete|create):user$/i.test(s)
+						// Check for self-management scopes - these cannot be used with client_credentials
+						const selfManagementScopes = scopesList.filter(
+							(s) => s.startsWith('p1:') && /^p1:(read|update|delete|create):user$/i.test(s)
 						);
 						if (selfManagementScopes.length > 0) {
-							invalidScopes.push(...selfManagementScopes);
+							errorMsg += `⚠️ Self-Management Scopes Detected (${selfManagementScopes.join(', ')})\n\n`;
+							errorMsg += `PingOne self-management scopes (like "p1:read:user") cannot be granted on a client_credentials flow.\n\n`;
+							errorMsg += `✅ Use resource server scopes instead (like "ClaimScope" or "custom:read")\n\n`;
 						}
 
-						// Warn about user authentication scopes
-						if (hasUserAuthScopes) {
-							const userScopes = scopesList.filter((s) =>
-								['profile', 'email', 'address', 'phone', 'offline_access'].includes(s)
-							);
-							invalidScopes.push(...userScopes);
-						}
-
-						if (invalidScopes.length > 0) {
-							errorMsg += `❌ INVALID SCOPES FOR CLIENT CREDENTIALS:\n`;
-							errorMsg += `The following scope(s) cannot be used with Client Credentials flow:\n`;
-							errorMsg += `- "${invalidScopes.join('", "')}"\n\n`;
-							errorMsg += `Client Credentials flow requires custom resource server scopes.\n`;
-							errorMsg += `You cannot use:\n`;
-							errorMsg += `- "openid" (OIDC scope for user authentication)\n`;
-							errorMsg += `- Self-management scopes like "p1:read:user" (singular "user" - these are for user self-service)\n`;
-							errorMsg += `- User authentication scopes (profile, email, address, phone, offline_access)\n\n`;
-							errorMsg += `✅ You MUST use custom resource server scopes instead.\n`;
-							errorMsg += `Examples: custom:scope, CLAIM_IC_FACILITY, or other scopes defined in your resource server.\n\n`;
-						}
-
-						// Check for Management API scopes (plural "users") - these might be valid if available
-						const managementApiScopes = scopesList.filter(
-							(s) => s.startsWith('p1:') && !/^p1:(read|update|delete|create):user$/i.test(s)
-						);
-						if (managementApiScopes.length > 0) {
-							errorMsg += `📋 For Management API scopes (${managementApiScopes.join(', ')}):\n`;
-							errorMsg += `⚠️ NOTE: Management API scopes (p1:*) may not be available in all PingOne environments.\n`;
-							errorMsg += `If the "PingOne API" resource is not visible in your Resources tab, use custom resource server scopes instead.\n\n`;
-						}
-
-						errorMsg += `🔧 How to Fix:\n`;
-						errorMsg += `1. Go to PingOne Admin Console: https://admin.pingone.com\n`;
-						errorMsg += `2. Navigate to: Applications → Your Application (${credentials.clientId?.substring(0, 8)}...)\n`;
-						errorMsg += `3. Click the "Resources" tab\n`;
-						errorMsg += `4. Enable a custom resource server (or "PingOne API" if available for Management API scopes)\n`;
-						errorMsg += `5. Under "Scopes", check the boxes for your custom scopes\n`;
-						errorMsg += `6. Click "Save"\n`;
-						errorMsg += `7. Wait a few seconds for changes to propagate, then try the request again\n\n`;
-
-						errorMsg += `💡 Important: For Client Credentials flow, you MUST use custom resource server scopes.\n`;
-						errorMsg += `- ✅ Valid: Custom resource scopes (custom:scope, CLAIM_IC_FACILITY, or other scopes defined in your resource server)\n`;
-						errorMsg += `- ❌ Invalid: "openid" (OIDC scope)\n`;
-						errorMsg += `- ❌ Invalid: Self-management scopes like "p1:read:user" (singular "user")\n`;
-						errorMsg += `- ❌ Invalid: User authentication scopes (profile, email, address, phone, offline_access)\n\n`;
-
-						errorMsg += `📚 Documentation:\n`;
-						errorMsg += `- Custom Scopes: https://apidocs.pingidentity.com/pingone/main/v1/api/#custom-scopes\n`;
-						errorMsg += `- Roles, Scopes, and Permissions: https://apidocs.pingidentity.com/pingone/main/v1/api/#roles-scopes-and-permissions\n`;
+						errorMsg += `📚 Documentation\n\n`;
+						errorMsg += `• Custom Scopes:\n`;
+						errorMsg += `  https://apidocs.pingidentity.com/pingone/main/v1/api/#custom-scopes\n\n`;
+						errorMsg += `• Roles, Scopes, and Permissions:\n`;
+						errorMsg += `  https://apidocs.pingidentity.com/pingone/main/v1/api/#roles-scopes-and-permissions\n\n`;
 						errorMsg += `🔍 Correlation ID: ${correlationId || 'N/A'}`;
 
 						throw new Error(errorMsg);
