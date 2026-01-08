@@ -323,6 +323,9 @@ export class OAuthIntegrationServiceV8 {
 				}
 			}
 
+			// Include client_auth_method in request body so backend knows which method to use
+			bodyParams.client_auth_method = authMethod;
+
 			console.log(`${MODULE_TAG} Request body parameters:`, {
 				grant_type: bodyParams.grant_type,
 				client_id: bodyParams.client_id,
@@ -333,6 +336,7 @@ export class OAuthIntegrationServiceV8 {
 				has_client_secret: !!credentials.clientSecret,
 				auth_method: authMethod,
 				has_client_assertion: !!bodyParams.client_assertion,
+				client_auth_method: bodyParams.client_auth_method,
 			});
 
 			// Prepare request headers
@@ -356,9 +360,12 @@ export class OAuthIntegrationServiceV8 {
 				trackedHeaders.Authorization = '***REDACTED***';
 			}
 
+			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 			const callId = apiCallTrackerService.trackApiCall({
 				method: 'POST',
 				url: tokenEndpoint,
+				actualPingOneUrl,
+				isProxy: true,
 				headers: trackedHeaders,
 				body: {
 					...bodyParams,
@@ -368,6 +375,7 @@ export class OAuthIntegrationServiceV8 {
 					client_assertion: bodyParams.client_assertion ? '***REDACTED***' : undefined,
 				},
 				step: 'unified-token-exchange',
+				flowType: 'unified',
 			});
 
 			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
@@ -403,8 +411,71 @@ export class OAuthIntegrationServiceV8 {
 				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
 				const errorData = responseData as Record<string, unknown>;
 				console.error(`${MODULE_TAG} Error response:`, errorData);
+				
+				const errorCode = (errorData.error as string) || 'unknown_error';
+				const errorDescription = (errorData.error_description as string) || '';
+				const correlationId = (errorData.correlation_id as string) || '';
+				
+				// Enhanced error message for invalid_client
+				if (errorCode === 'invalid_client') {
+					const authMethod = credentials.clientAuthMethod || 'client_secret_post';
+					const clientIdPreview = credentials.clientId
+						? `${credentials.clientId.substring(0, 8)}...`
+						: 'NOT PROVIDED';
+					
+					const enhancedMessage = `Token exchange failed: invalid_client - ${errorDescription}
+
+📋 Root Cause:
+The client credentials (client_id or client_secret) are invalid, or the authentication method doesn't match your PingOne application configuration.
+
+🔍 Diagnostic Information:
+• Client ID: ${clientIdPreview}
+• Authentication Method Used: ${authMethod}
+• Correlation ID: ${correlationId || 'Not provided'}
+
+🔧 How to Fix:
+
+1. Verify Client ID and Client Secret:
+   • Go to PingOne Admin Console: https://admin.pingone.com
+   • Navigate to: Applications → Your Application (${clientIdPreview})
+   • Check that the Client ID matches exactly
+   • Verify the Client Secret is correct (you may need to regenerate it)
+
+2. Check Authentication Method Mismatch:
+   • In PingOne, go to: Applications → Your Application → Configuration tab
+   • Find "Token Endpoint Authentication Method"
+   • Verify it matches what you're using: ${authMethod}
+   • Common values:
+     - "Client Secret Post" = client_secret_post
+     - "Client Secret Basic" = client_secret_basic
+     - "Private Key JWT" = private_key_jwt
+     - "Client Secret JWT" = client_secret_jwt
+
+3. If Authentication Method Doesn't Match:
+   • Option A: Update PingOne app to use "${authMethod}"
+   • Option B: Update your credentials to match PingOne's configured method
+   • Go to Step 0 (Configuration) and change "Token Endpoint Authentication Method"
+
+4. Verify Application is Active:
+   • Ensure the application is enabled in PingOne
+   • Check that the application hasn't been deleted or disabled
+
+💡 Common Issues:
+• Client Secret may have been regenerated in PingOne (old secret is invalid)
+• Copy/paste errors in Client ID or Client Secret
+• Authentication method changed in PingOne but not updated in your configuration
+• Application was deleted and recreated with a new Client ID
+
+📚 Documentation:
+• PingOne Applications: https://apidocs.pingidentity.com/pingone/main/v1/api/#applications
+• OAuth 2.0 Client Authentication: https://tools.ietf.org/html/rfc6749#section-2.3`;
+
+					throw new Error(enhancedMessage);
+				}
+				
+				// Standard error message for other errors
 				throw new Error(
-					`Token exchange failed: ${errorData.error} - ${(errorData.error_description || '') as string}`
+					`Token exchange failed: ${errorCode} - ${errorDescription}${correlationId ? ` (Correlation ID: ${correlationId})` : ''}`
 				);
 			}
 

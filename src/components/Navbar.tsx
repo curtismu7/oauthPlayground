@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiSettings } from 'react-icons/fi';
+import { FiDownload, FiFileText, FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiSettings, FiX } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { APP_VERSION } from '../version';
+import { exportAllUseCasesAsMarkdown, exportAllUseCasesAsPDF } from '../v8u/services/unifiedFlowDocumentationServiceV8U';
 
 const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;
@@ -101,6 +102,124 @@ const MenuButton = styled.button`
   }
 `;
 
+const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+`;
+
+const ModalContent = styled.div`
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+  border: 1px solid #e5e7eb;
+`;
+
+const ModalHeader = styled.div`
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 12px 12px 0 0;
+  color: white;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: 2rem;
+`;
+
+const ModalMessage = styled.p`
+  margin: 0 0 1.5rem 0;
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 0.95rem;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+`;
+
+const ExportButton = styled.button<{ $variant: 'markdown' | 'pdf' }>`
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  ${({ $variant }) => {
+    if ($variant === 'markdown') {
+      return `
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #2563eb;
+        
+        &:hover {
+          background-color: #2563eb;
+          border-color: #1d4ed8;
+        }
+      `;
+    } else {
+      return `
+        background-color: #dc2626;
+        color: #ffffff;
+        border-color: #b91c1c;
+        
+        &:hover {
+          background-color: #b91c1c;
+          border-color: #991b1b;
+        }
+      `;
+    }
+  }}
+`;
+
 interface NavbarProps {
 	toggleSidebar: () => void;
 	sidebarOpen?: boolean;
@@ -115,6 +234,7 @@ const Navbar: React.FC<NavbarProps> = ({
 	const { isAuthenticated, logout, user } = useAuth();
 	const navigate = useNavigate();
 	const { announce } = useAccessibility();
+	const [showExportModal, setShowExportModal] = useState(false);
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
 			const saved = localStorage.getItem('sidebar.width');
@@ -165,7 +285,28 @@ const Navbar: React.FC<NavbarProps> = ({
 		announce('Navigation menu toggled');
 	};
 
+	const handleExportAllUseCases = () => {
+		setShowExportModal(true);
+	};
+
+	const handleExportMarkdown = () => {
+		exportAllUseCasesAsMarkdown();
+		setShowExportModal(false);
+		announce('Exporting all Unified Flow use cases as Markdown');
+	};
+
+	const handleExportPDF = () => {
+		exportAllUseCasesAsPDF();
+		setShowExportModal(false);
+		announce('Exporting all Unified Flow use cases as PDF');
+	};
+
+	const handleCloseExportModal = () => {
+		setShowExportModal(false);
+	};
+
 	return (
+		<>
 		<NavbarContainer
 			role="banner"
 			aria-label="Main navigation"
@@ -210,8 +351,18 @@ const Navbar: React.FC<NavbarProps> = ({
 					<FiSettings aria-hidden="true" />
 					<span>App Generator</span>
 				</Link>
+				<button
+					type="button"
+					onClick={handleExportAllUseCases}
+					title="Export all Unified Flow use cases as PDF or Markdown"
+					aria-label="Export all Unified Flow use cases"
+				>
+					<FiDownload aria-hidden="true" />
+					<span>Export All</span>
+				</button>
 				{isAuthenticated ? (
 					<button
+						type="button"
 						onClick={handleLogout}
 						title="Logout from the application"
 						aria-label="Logout from the application"
@@ -227,6 +378,36 @@ const Navbar: React.FC<NavbarProps> = ({
 				)}
 			</NavItems>
 		</NavbarContainer>
+		<ModalOverlay $isOpen={showExportModal} onClick={handleCloseExportModal}>
+			<ModalContent onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiDownload />
+						Export All Unified Flow Use Cases
+					</ModalTitle>
+					<CloseButton onClick={handleCloseExportModal} aria-label="Close modal">
+						<FiX size={20} />
+					</CloseButton>
+				</ModalHeader>
+				<ModalBody>
+					<ModalMessage>
+						Choose a format to export all Unified Flow use cases. This will generate a comprehensive document
+						containing API calls for each flow type.
+					</ModalMessage>
+					<ButtonGroup>
+						<ExportButton $variant="markdown" onClick={handleExportMarkdown}>
+							<FiFileText />
+							Export as Markdown
+						</ExportButton>
+						<ExportButton $variant="pdf" onClick={handleExportPDF}>
+							<FiDownload />
+							Export as PDF
+						</ExportButton>
+					</ButtonGroup>
+				</ModalBody>
+			</ModalContent>
+		</ModalOverlay>
+	</>
 	);
 };
 
