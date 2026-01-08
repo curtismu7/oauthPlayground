@@ -17,11 +17,26 @@
  */
 
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { FiArrowRight, FiCopy, FiInfo } from 'react-icons/fi';
+import {
+	FiAlertCircle,
+	FiArrowRight,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiCopy,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiShield,
+} from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
+import styled from 'styled-components';
 import { ColoredUrlDisplay } from '@/components/ColoredUrlDisplay';
 import DeviceTypeSelector from '@/components/DeviceTypeSelector';
 import DynamicDeviceFlow from '@/components/DynamicDeviceFlow';
+import EnhancedFlowInfoCard from '@/components/EnhancedFlowInfoCard';
+import FlowConfigurationRequirements from '@/components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
@@ -39,11 +54,150 @@ import {
 } from '../services/unifiedFlowIntegrationV8U';
 import { ErrorDisplayWithRetry } from './ErrorDisplayWithRetry';
 import { TokenDisplayV8U } from './TokenDisplayV8U';
+import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
+import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
 const MODULE_TAG = '[🔄 UNIFIED-FLOW-STEPS-V8U]';
+
+// Styled components for educational content
+const CollapsibleSection = styled.section`
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	margin-bottom: 1.5rem;
+	background-color: #ffffff;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+`;
+
+const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #14532d;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+	}
+`;
+
+// All educational sections use CollapsibleHeaderButton for consistent Unified styling
+
+const CollapsibleTitle = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: transform 0.2s ease;
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
+const CollapsibleContent = styled.div`
+	padding: 1.5rem;
+	padding-top: 0;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+`;
+
+const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	display: flex;
+	gap: 1rem;
+	align-items: flex-start;
+	border: 1px solid
+		${({ $variant }) => {
+			if ($variant === 'warning') return '#f59e0b';
+			if ($variant === 'success') return '#22c55e';
+			return '#3b82f6';
+		}};
+	background-color:
+		${({ $variant }) => {
+			if ($variant === 'warning') return '#fef3c7';
+			if ($variant === 'success') return '#dcfce7';
+			return '#dbeafe';
+		}};
+`;
+
+const InfoTitle = styled.h3`
+	font-size: 1rem;
+	font-weight: 600;
+	color: #0f172a;
+	margin: 0;
+`;
+
+const InfoText = styled.p`
+	font-size: 0.95rem;
+	color: #3f3f46;
+	line-height: 1.7;
+	margin: 0;
+`;
+
+const InfoList = styled.ul`
+	font-size: 0.875rem;
+	color: #334155;
+	line-height: 1.5;
+	margin: 0.5rem 0 0;
+	padding-left: 1.5rem;
+`;
+
+const ParameterGrid = styled.div`
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1rem;
+	margin: 1.5rem 0;
+`;
+
+const GeneratedContentBox = styled.div`
+	background-color: #dcfce7;
+	border: 1px solid #22c55e;
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 1.5rem 0;
+	position: relative;
+`;
+
+const GeneratedLabel = styled.div`
+	position: absolute;
+	top: -10px;
+	left: 16px;
+	background-color: #16a34a;
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+`;
 
 export interface UnifiedFlowStepsProps {
 	specVersion: SpecVersion;
@@ -137,6 +291,23 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const normalizedSpecVersion = specVersion.replace(/\./g, '').toLowerCase();
 		return `${flowType}_${normalizedSpecVersion}_v8u`;
 	}, [flowType, specVersion]);
+
+	// Helper: Check if PKCE is required based on enforcement level.
+	// PKCE only applies to flows that use an authorization code (authz-code / hybrid).
+	// Device Authorization (RFC 8628) does NOT use PKCE.
+	// CRITICAL: Declare this BEFORE any useEffect that uses it
+	const isPKCERequired = useMemo(() => {
+		const flowSupportsPkce = flowType === 'oauth-authz' || flowType === 'hybrid';
+		if (!flowSupportsPkce) {
+			return false;
+		}
+		if (credentials.pkceEnforcement) {
+			return credentials.pkceEnforcement !== 'OPTIONAL';
+		}
+		// Legacy: fallback to usePKCE boolean
+		return credentials.usePKCE === true;
+	}, [flowType, credentials.pkceEnforcement, credentials.usePKCE]);
+
 	// CRITICAL DEBUG: Log credentials received by UnifiedFlowSteps
 	useEffect(() => {
 		console.log(`${MODULE_TAG} ========== UNIFIED-FLOW-STEPS CREDENTIALS RECEIVED ==========`);
@@ -162,47 +333,35 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		console.log(`${MODULE_TAG} ========== UNIFIED-FLOW-STEPS CREDENTIALS END ==========`);
 	}, [credentials, flowType, isPKCERequired]);
 
-	// Helper: Check if PKCE is required based on enforcement level.
-	// PKCE only applies to flows that use an authorization code (authz-code / hybrid).
-	// Device Authorization (RFC 8628) does NOT use PKCE.
-	const isPKCERequired = useMemo(() => {
-		const flowSupportsPkce = flowType === 'oauth-authz' || flowType === 'hybrid';
-		if (!flowSupportsPkce) {
-			return false;
-		}
-		if (credentials.pkceEnforcement) {
-			return credentials.pkceEnforcement !== 'OPTIONAL';
-		}
-		// Legacy: fallback to usePKCE boolean
-		return credentials.usePKCE === true;
-	}, [flowType, credentials.pkceEnforcement, credentials.usePKCE]);
-
 	/**
 	 * Calculate total number of steps for the current flow type
 	 *
 	 * Step counts vary by flow type:
 	 *
-	 * Client Credentials (4 steps):
+	 * Client Credentials (5 steps):
 	 *   0: Configuration
 	 *   1: Request Token
 	 *   2: Display Tokens
 	 *   3: Introspection & UserInfo
+	 *   4: API Documentation
 	 *
-	 * Device Code (5 steps):
+	 * Device Code (6 steps):
 	 *   0: Configuration
 	 *   1: Request Device Authorization
 	 *   2: Poll for Tokens
 	 *   3: Display Tokens
 	 *   4: Introspection & UserInfo
+	 *   5: API Documentation
 	 *
-	 * Implicit (5 steps):
+	 * Implicit (6 steps):
 	 *   0: Configuration
 	 *   1: Generate Authorization URL
 	 *   2: Parse Fragment (extract tokens from URL)
 	 *   3: Display Tokens
 	 *   4: Introspection & UserInfo
+	 *   5: API Documentation
 	 *
-	 * Authorization Code / Hybrid (7 steps):
+	 * Authorization Code / Hybrid (8 steps):
 	 *   0: Configuration
 	 *   1: Generate PKCE Parameters
 	 *   2: Generate Authorization URL (with PKCE)
@@ -210,24 +369,25 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	 *   4: Exchange Code for Tokens (with code_verifier)
 	 *   5: Display Tokens
 	 *   6: Introspection & UserInfo
+	 *   7: API Documentation
 	 *
 	 * @returns {number} Total number of steps for the current flow
 	 */
 	const getTotalSteps = (): number => {
 		switch (flowType) {
 			case 'client-credentials':
-				return 4; // Config → Token Request → Tokens → Introspection & UserInfo
+				return 5; // Config → Token Request → Tokens → Introspection & UserInfo → Documentation
 			case 'device-code':
-				return 5; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo
+				return 6; // Config → Device Auth → Poll → Tokens → Introspection & UserInfo → Documentation
 			case 'implicit':
-				return 5; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo
+				return 6; // Config → Auth URL → Fragment → Tokens → Introspection & UserInfo → Documentation
 			case 'hybrid':
-				// 7 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo
-				return 7;
+				// 8 steps: Config → PKCE → Auth URL → Parse Callback → Exchange → Tokens → Introspection & UserInfo → Documentation
+				return 8;
 			default:
 				// oauth-authz flow
-				// 7 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo
-				return 7;
+				// 8 steps: Config → PKCE → Auth URL → Handle Callback → Exchange → Tokens → Introspection & UserInfo → Documentation
+				return 8;
 		}
 	};
 
@@ -246,6 +406,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return 0;
 	}, [urlStep, totalSteps]);
 
+	// CRITICAL: Declare refs early so they can be used in useState initializers
+	// Ref to track current device code to avoid stale closures in polling
+	const deviceCodeRef = useRef<string | undefined>(undefined);
+	// Ref to track previous flow type for cleanup
+	const prevFlowTypeRef = useRef<FlowType>(flowType);
+
 	// Track completed steps and validation
 	const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 	const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -261,6 +427,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		body: Record<string, unknown>;
 	} | null>(null);
 	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+
+	// Educational content collapsed state
+	const [isQuickStartCollapsed, setIsQuickStartCollapsed] = useState(false);
+	const [pkceOverviewCollapsed, setPkceOverviewCollapsed] = useState(false);
+	const [pkceDetailsCollapsed, setPkceDetailsCollapsed] = useState(false);
+	const [authRequestOverviewCollapsed, setAuthRequestOverviewCollapsed] = useState(false);
+	const [authRequestDetailsCollapsed, setAuthRequestDetailsCollapsed] = useState(false);
+	const [deviceCodeOverviewCollapsed, setDeviceCodeOverviewCollapsed] = useState(false);
+	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
+	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] = useState(false);
+	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
+	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
+	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
 
 	// Navigation functions using React Router
 	const navigateToStep = useCallback(
@@ -406,6 +585,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return initialState;
 	});
 	const [isLoading, setIsLoading] = useState(false);
+	const [loadingMessage, setLoadingMessage] = useState('');
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
@@ -702,6 +882,28 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				 * - userInfoEndpoint: The discovered or fallback endpoint URL
 				 * - accessToken: The OAuth access token to authenticate the request
 				 */
+				// Track API call for display
+				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+				const startTime = Date.now();
+				const requestBody = {
+					userInfoEndpoint,
+					accessToken: '***REDACTED***',
+				};
+
+				const callId = apiCallTrackerService.trackApiCall({
+					method: 'POST',
+					url: '/api/pingone/userinfo',
+					actualPingOneUrl: userInfoEndpoint,
+					isProxy: true,
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: 'Bearer ***REDACTED***',
+					},
+					body: requestBody,
+					step: 'unified-userinfo',
+					flowType: 'unified',
+				});
+
 				const response = await fetch('/api/pingone/userinfo', {
 					method: 'POST',
 					headers: {
@@ -713,22 +915,36 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}),
 				});
 
-				if (!response.ok) {
-					const errorText = await response.text();
-					let errorBody: { error?: string; message?: string };
-					try {
-						errorBody = JSON.parse(errorText) as { error?: string; message?: string };
+				// Parse response once (clone first to avoid consuming the body)
+				const responseClone = response.clone();
+				let responseData: unknown;
+				try {
+					responseData = await responseClone.json();
 					} catch {
-						errorBody = { error: errorText };
-					}
+					responseData = { error: 'Failed to parse response' };
+				}
+
+				// Update API call with response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: response.status,
+						statusText: response.statusText,
+						data: responseData,
+					},
+					Date.now() - startTime
+				);
+
+				if (!response.ok) {
+					const errorData = responseData as { error?: string; message?: string };
 					throw new Error(
-						errorBody.error ||
-							errorBody.message ||
+						errorData.error ||
+							errorData.message ||
 							`UserInfo request failed: ${response.status} ${response.statusText}`
 					);
 				}
 
-				const userInfo = await response.json();
+				const userInfo = responseData as Record<string, unknown>;
 				return userInfo;
 			} catch (err) {
 				console.warn(`${MODULE_TAG} Failed to fetch UserInfo`, err);
@@ -868,9 +1084,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// CRITICAL: Clear tokens and flow state when flow type changes
 	// This ensures tokens from a previous flow type don't persist when switching flows
-	const prevFlowTypeRef = useRef<FlowType>(flowType);
-	// CRITICAL: Ref to track current device code to avoid stale closures in polling
-	const deviceCodeRef = useRef<string | undefined>(undefined);
+	// Note: prevFlowTypeRef and deviceCodeRef are declared earlier (before useState initializers)
 	useEffect(() => {
 		if (prevFlowTypeRef.current !== flowType) {
 			console.log(`${MODULE_TAG} Flow type changed - clearing tokens and flow state`, {
@@ -899,11 +1113,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				'v8u_hybrid_tokens', // Flow-specific key for hybrid (if not using shared key)
 				'v8u_callback_data',
 			];
-
+			
 			allPossibleTokenKeys.forEach((key) => {
 				sessionStorage.removeItem(key);
 			});
-
+			
 			// Also clear any flow-specific token keys using the pattern v8u_${flowType}_tokens
 			const flowTypes: FlowType[] = [
 				'oauth-authz',
@@ -916,7 +1130,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const key = `v8u_${ft}_tokens`;
 				sessionStorage.removeItem(key);
 			});
-
+			
 			// Clear PKCE codes for the previous flow type
 			const prevFlowKey = `${prevFlowTypeRef.current}-${specVersion}-v8u`;
 			PKCEStorageServiceV8U.clearPKCECodes(prevFlowKey).catch((err) => {
@@ -1241,6 +1455,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					`${MODULE_TAG} On tokens step with tokens available - marking step ${currentStep} as complete`
 				);
 				nav.markStepComplete();
+				// Clear validation errors when tokens are successfully displayed
+				nav.setValidationErrors([]);
 			}
 		}
 	}, [flowState.tokens?.accessToken, currentStep, flowType, completedSteps, nav]);
@@ -2029,8 +2245,254 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		// Determine if all fields are configured
 		const allConfigured = missingFields.length === 0;
 
+		// Map Unified flow types to EnhancedFlowInfoCard flow types
+		const getFlowInfoCardType = (): string => {
+			switch (flowType) {
+				case 'oauth-authz':
+					return specVersion === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code';
+				case 'implicit':
+					return 'implicit';
+				case 'client-credentials':
+					return 'client-credentials';
+				case 'device-code':
+					return 'device-authorization';
+				case 'hybrid':
+					return 'oidc-hybrid';
+				default:
+					return 'oauth-authorization-code';
+			}
+		};
+
+		// Map Unified flow types to FlowConfigurationRequirements flow types
+		const getFlowConfigReqType = ():
+			| 'device-authorization'
+			| 'implicit'
+			| 'authorization-code'
+			| 'client-credentials'
+			| 'hybrid' => {
+			switch (flowType) {
+				case 'oauth-authz':
+					return 'authorization-code';
+				case 'implicit':
+					return 'implicit';
+				case 'client-credentials':
+					return 'client-credentials';
+				case 'device-code':
+					return 'device-authorization';
+				case 'hybrid':
+					return 'hybrid';
+				default:
+					return 'authorization-code';
+			}
+		};
+
+		// Determine if flow supports both OAuth and OIDC
+		const supportsOAuthAndOIDC = flowType === 'oauth-authz' || flowType === 'hybrid';
+		const isOIDCMode = specVersion === 'oidc';
+
+		// Get flow-specific educational content
+		const getWhatYoullGet = (): string => {
+			switch (flowType) {
+				case 'oauth-authz':
+					return isOIDCMode
+						? '🎯 User authentication + API authorization with ID token and access token'
+						: '🔑 API authorization with access token (PingOne requires openid scope)';
+				case 'implicit':
+					return '🔑 Access token + ID token returned directly in URL fragment (legacy flow)';
+				case 'client-credentials':
+					return '🔑 Machine-to-machine access token (no user interaction)';
+				case 'device-code':
+					return '🔑 Access token via device code and user verification (for TVs, IoT, CLI)';
+				case 'hybrid':
+					return '🎯 Authorization code + ID token (some tokens in front channel, others via back channel)';
+				default:
+					return '🔑 Access token for API authorization';
+			}
+		};
+
+		const getPerfectFor = (): string[] => {
+			switch (flowType) {
+				case 'oauth-authz':
+					return ['Web apps with secure backends', 'SPAs using PKCE', 'Apps needing refresh tokens'];
+				case 'implicit':
+					return ['Legacy SPAs (deprecated)', 'Simple token retrieval', 'No backend required'];
+				case 'client-credentials':
+					return ['API-to-API communication', 'Backend services', 'Scheduled jobs', 'Machine-to-machine'];
+				case 'device-code':
+					return ['Smart TVs', 'IoT devices', 'CLI tools', 'Devices without browsers'];
+				case 'hybrid':
+					return ['OIDC flows needing immediate ID token', 'Combined front/back channel flows'];
+				default:
+					return ['Web applications'];
+			}
+		};
+
 		return (
 			<div className="step-content">
+				{/* Quick Start & Overview - Educational Section */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setIsQuickStartCollapsed(!isQuickStartCollapsed)}
+						aria-expanded={!isQuickStartCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook />
+							<span>
+								Quick Start & Overview -{' '}
+								{flowType === 'oauth-authz'
+									? isOIDCMode
+										? 'OpenID Connect'
+										: 'OAuth 2.0'
+									: flowType === 'implicit'
+										? 'OAuth 2.0 Implicit'
+										: flowType === 'client-credentials'
+											? 'OAuth 2.0 Client Credentials'
+											: flowType === 'device-code'
+												? 'OAuth 2.0 Device Code'
+												: flowType === 'hybrid'
+													? 'OpenID Connect Hybrid'
+													: 'OAuth 2.0'}{' '}
+								{flowType === 'oauth-authz' ? 'Authorization Code' : ''}
+							</span>
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={isQuickStartCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!isQuickStartCollapsed && (
+						<CollapsibleContent>
+							{/* Compact Overview - InfoBox Grid */}
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+									gap: '1rem',
+									marginBottom: '1.5rem',
+								}}
+							>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>What You'll Get</InfoTitle>
+										<InfoText>{getWhatYoullGet()}</InfoText>
+									</div>
+								</InfoBox>
+								<InfoBox $variant="success">
+									<FiCheckCircle size={20} />
+									<div>
+										<InfoTitle>Perfect For</InfoTitle>
+										<InfoText>
+											{getPerfectFor().map((item, idx) => (
+												<React.Fragment key={idx}>
+													{idx > 0 && <br />}• {item}
+												</React.Fragment>
+											))}
+										</InfoText>
+									</div>
+								</InfoBox>
+								<InfoBox $variant="warning" style={{ marginBottom: 0 }}>
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Required for Full Functionality</InfoTitle>
+										<InfoText>
+											{flowType === 'client-credentials' ? (
+												<>
+													<strong>Client Secret:</strong> Required for token request
+													<br />
+													<strong>Scopes:</strong> Resource server scopes (e.g., ClaimScope, custom:read)
+													<br />
+													<strong>Environment ID:</strong> Must match your PingOne environment
+												</>
+											) : flowType === 'device-code' ? (
+												<>
+													<strong>Client ID:</strong> Required for device authorization request
+													<br />
+													<strong>Scopes:</strong> Include "openid" for OIDC flows
+													<br />
+													<strong>Environment ID:</strong> Must match your PingOne environment
+												</>
+											) : (
+												<>
+													<strong>Client Secret:</strong> Required for token introspection and refresh
+													<br />
+													<strong>Scopes:</strong> Include "profile" scope for user info endpoint
+													<br />
+													<strong>Environment ID:</strong> Must match your PingOne environment
+												</>
+											)}
+										</InfoText>
+									</div>
+								</InfoBox>
+							</div>
+
+							{/* OAuth vs OIDC Comparison (for flows that support both) */}
+							{supportsOAuthAndOIDC && (
+								<GeneratedContentBox>
+									<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+											gap: '1rem',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${!isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: !isOIDCMode ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OAuth 2.0 Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> API access only
+											</p>
+											<p>
+												<strong>PingOne:</strong> Requires openid scope
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${isOIDCMode ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: isOIDCMode ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OpenID Connect Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + ID + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> Authentication + API access
+											</p>
+											<p>
+												<strong>Standard:</strong> Requires openid scope
+											</p>
+										</div>
+									</div>
+								</GeneratedContentBox>
+							)}
+
+							{/* Enhanced Flow Info Card */}
+							<EnhancedFlowInfoCard flowType={getFlowInfoCardType()} />
+
+							{/* Flow Configuration Requirements */}
+							<FlowConfigurationRequirements
+								flowType={getFlowConfigReqType()}
+								variant={isOIDCMode ? 'oidc' : 'oauth'}
+							/>
+
+							{/* Flow Sequence Display */}
+							<FlowSequenceDisplay flowType={getFlowConfigReqType()} />
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				{/* Credentials form is rendered by parent */}
 				<div
 					style={{
@@ -2184,6 +2646,129 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					authorization flow.
 				</p>
 
+				{/* PKCE Educational Sections */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceOverviewCollapsed(!pkceOverviewCollapsed)}
+						aria-expanded={!pkceOverviewCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook /> What is PKCE?
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={pkceOverviewCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!pkceOverviewCollapsed && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
+									<InfoText>
+										PKCE is a security extension for OAuth 2.0 that prevents authorization code
+										interception attacks. It's required for public clients (like mobile apps)
+										and highly recommended for all OAuth flows.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
+									<InfoText>
+										Without PKCE, if an attacker intercepts your authorization code (through app
+										redirects, network sniffing, or malicious apps), they could exchange it for
+										tokens. PKCE prevents this by requiring proof that the same client that
+										started the flow is finishing it.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setPkceDetailsCollapsed(!pkceDetailsCollapsed)}
+						aria-expanded={!pkceDetailsCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook /> Understanding Code Verifier & Code Challenge
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={pkceDetailsCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!pkceDetailsCollapsed && (
+						<CollapsibleContent>
+							<ParameterGrid>
+								<InfoBox $variant="success">
+									<FiKey size={20} />
+									<div>
+										<InfoTitle>Code Verifier</InfoTitle>
+										<InfoText>
+											A high-entropy cryptographic random string (43-128 chars) that stays
+											secret in your app. Think of it as a temporary password that proves you're
+											the same client that started the OAuth flow.
+										</InfoText>
+										<InfoList>
+											<li>Generated fresh for each OAuth request</li>
+											<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
+											<li>Never sent in the authorization request</li>
+											<li>Only revealed during token exchange</li>
+										</InfoList>
+									</div>
+								</InfoBox>
+
+								<InfoBox $variant="info">
+									<FiShield size={20} />
+									<div>
+										<InfoTitle>Code Challenge</InfoTitle>
+										<InfoText>
+											A SHA256 hash of the code verifier, encoded in base64url format. This is
+											sent publicly in the authorization URL but can't be reversed to get the
+											original verifier.
+										</InfoText>
+										<InfoList>
+											<li>Derived from: SHA256(code_verifier)</li>
+											<li>Encoded in base64url (URL-safe)</li>
+											<li>Safe to include in authorization URLs</li>
+											<li>Used by PingOne to verify the verifier later</li>
+										</InfoList>
+									</div>
+								</InfoBox>
+							</ParameterGrid>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Security Best Practices</InfoTitle>
+									<InfoList>
+										<li>
+											<strong>Generate Fresh Values:</strong> Create new PKCE parameters for
+											every authorization request
+										</li>
+										<li>
+											<strong>Secure Storage:</strong> Keep the code verifier in memory or
+											secure storage, never log it
+										</li>
+										<li>
+											<strong>Use S256 Method:</strong> Always use SHA256 hashing
+											(code_challenge_method=S256)
+										</li>
+										<li>
+											<strong>Sufficient Entropy:</strong> Use at least 43 characters of
+											high-entropy randomness
+										</li>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				<PKCEService
 					value={pkceCodes}
 					onChange={handlePKCEChange}
@@ -2255,6 +2840,32 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					resumeUrl: `${resumeUrl.substring(0, 100)}...`,
 				});
 
+				// Track API call for display
+				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+				const startTime = Date.now();
+				const requestBody = {
+					resumeUrl,
+					flowId,
+					flowState: stateValue,
+					clientId: credentials.clientId,
+					clientSecret: '***REDACTED***',
+					codeVerifier: '***REDACTED***',
+					sessionId,
+				};
+
+				const callId = apiCallTrackerService.trackApiCall({
+					method: 'POST',
+					url: '/api/pingone/resume',
+					actualPingOneUrl: resumeUrl,
+					isProxy: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: requestBody,
+					step: 'unified-resume-flow',
+					flowType: 'unified',
+				});
+
 				const resumeResponse = await fetch('/api/pingone/resume', {
 					method: 'POST',
 					headers: {
@@ -2271,18 +2882,35 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}),
 				});
 
+				// Parse response once (clone first to avoid consuming the body)
+				const responseClone = resumeResponse.clone();
+				let responseData: unknown;
+				try {
+					responseData = await responseClone.json();
+				} catch {
+					responseData = { error: 'Failed to parse response' };
+				}
+
+				// Update API call with response
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: resumeResponse.status,
+						statusText: resumeResponse.statusText,
+						data: responseData,
+					},
+					Date.now() - startTime
+				);
+
 				if (!resumeResponse.ok) {
-					const errorData = (await resumeResponse.json().catch(() => ({}))) as Record<
-						string,
-						unknown
-					>;
+					const errorData = responseData as Record<string, unknown>;
 					const errorMsg = (errorData.error_description ||
 						errorData.error ||
 						`Resume failed (${resumeResponse.status})`) as string;
 					throw new Error(errorMsg);
 				}
 
-				const resumeData = (await resumeResponse.json()) as Record<string, unknown>;
+				const resumeData = responseData as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Resume response:`, resumeData);
 
 				// Try to extract code from various possible locations
@@ -2418,6 +3046,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const handleRedirectlessTokenExchange = useCallback(
 		async (authCode: string, codeVerifier: string) => {
 			setIsLoading(true);
+			setLoadingMessage('🔄 Exchanging Authorization Code for Tokens...');
 			setError(null);
 
 			try {
@@ -2527,6 +3156,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				toastV8.error(message);
 			} finally {
 				setIsLoading(false);
+				setLoadingMessage('');
 			}
 		},
 		[credentials, flowState, nav, totalSteps, navigateToStep]
@@ -2558,6 +3188,32 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				const flowApiUrl = `https://auth.pingone.com/${credentials.environmentId}/flows/${flowId}`;
 
+				// Track API call for display
+				const { apiCallTrackerService: apiCallTrackerService2 } = await import('@/services/apiCallTrackerService');
+				const startTime2 = Date.now();
+				const requestBody2 = {
+					environmentId: credentials.environmentId,
+					flowUrl: flowApiUrl,
+					username,
+					password: '***REDACTED***',
+					clientId: credentials.clientId,
+					clientSecret: '***REDACTED***',
+					sessionId,
+				};
+
+				const callId2 = apiCallTrackerService2.trackApiCall({
+					method: 'POST',
+					url: '/api/pingone/flows/check-username-password',
+					actualPingOneUrl: flowApiUrl,
+					isProxy: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: requestBody2,
+					step: 'unified-check-credentials',
+					flowType: 'unified',
+				});
+
 				const credentialsResponse = await fetch('/api/pingone/flows/check-username-password', {
 					method: 'POST',
 					headers: {
@@ -2574,14 +3230,36 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}),
 				});
 
+				// Parse response once (clone first to avoid consuming the body)
+				const responseClone2 = credentialsResponse.clone();
+				let responseData2: unknown;
+				try {
+					responseData2 = await responseClone2.json();
+				} catch {
+					responseData2 = { error: 'Failed to parse response' };
+				}
+
+				// Update API call with response
+				apiCallTrackerService2.updateApiCallResponse(
+					callId2,
+					{
+						status: credentialsResponse.status,
+						statusText: credentialsResponse.statusText,
+						data: responseData2,
+					},
+					Date.now() - startTime2
+				);
+
 				if (!credentialsResponse.ok) {
-					const errorText = await credentialsResponse.text();
+					const errorData = responseData2 as { error?: string; message?: string };
 					throw new Error(
-						`Credentials submission failed: ${credentialsResponse.status} ${credentialsResponse.statusText}. ${errorText}`
+						errorData.error ||
+							errorData.message ||
+							`Credentials submission failed: ${credentialsResponse.status} ${credentialsResponse.statusText}`
 					);
 				}
 
-				const credentialsData = (await credentialsResponse.json()) as Record<string, unknown>;
+				const credentialsData = responseData2 as Record<string, unknown>;
 				console.log(`${MODULE_TAG} 🔌 Credentials response:`, credentialsData);
 
 				// Extract and update sessionId from credentials response
@@ -2909,6 +3587,28 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				backendRequestBody.clientSecret = credentials.clientSecret;
 			}
 
+			// Track API call for display
+			const { apiCallTrackerService: apiCallTrackerService3 } = await import('@/services/apiCallTrackerService');
+			const startTime3 = Date.now();
+			const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+			const requestBody3 = {
+				...backendRequestBody,
+				clientSecret: backendRequestBody.clientSecret ? '***REDACTED***' : undefined,
+			};
+
+			const callId3 = apiCallTrackerService3.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/redirectless/authorize',
+				actualPingOneUrl,
+				isProxy: true,
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: requestBody3,
+				step: 'unified-redirectless-authorize',
+				flowType: 'unified',
+			});
+
 			const authorizeResponse = await fetch('/api/pingone/redirectless/authorize', {
 				method: 'POST',
 				headers: {
@@ -2918,18 +3618,35 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				body: JSON.stringify(backendRequestBody),
 			});
 
+			// Parse response once (clone first to avoid consuming the body)
+			const responseClone3 = authorizeResponse.clone();
+			let responseData3: unknown;
+			try {
+				responseData3 = await responseClone3.json();
+			} catch {
+				responseData3 = { error: 'Failed to parse response' };
+			}
+
+			// Update API call with response
+			apiCallTrackerService3.updateApiCallResponse(
+				callId3,
+				{
+					status: authorizeResponse.status,
+					statusText: authorizeResponse.statusText,
+					data: responseData3,
+				},
+				Date.now() - startTime3
+			);
+
 			if (!authorizeResponse.ok) {
-				const errorData = (await authorizeResponse.json().catch(() => ({}))) as Record<
-					string,
-					unknown
-				>;
+				const errorData = responseData3 as Record<string, unknown>;
 				const errorMsg = (errorData.error_description ||
 					errorData.error ||
 					`Authorization request failed (${authorizeResponse.status})`) as string;
 				throw new Error(errorMsg);
 			}
 
-			const flowData = (await authorizeResponse.json()) as Record<string, unknown>;
+			const flowData = responseData3 as Record<string, unknown>;
 			console.log(`${MODULE_TAG} 🔌 Redirectless flow response:`, flowData);
 
 			const flowId = flowData.id as string | undefined;
@@ -3099,6 +3816,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			setIsLoading(true);
+			setLoadingMessage('🔗 Generating Authorization URL...');
 			setError(null);
 
 			try {
@@ -3201,6 +3919,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				toastV8.error(message);
 			} finally {
 				setIsLoading(false);
+				setLoadingMessage('');
 			}
 		};
 
@@ -3217,6 +3936,306 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				<p style={{ marginBottom: '24px', color: '#6b7280' }}>
 					Generate the authorization URL to redirect the user to authenticate.
 				</p>
+
+				{/* Implicit Flow Educational Sections (only for implicit flow) */}
+				{flowType === 'implicit' && (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setImplicitOverviewCollapsed(!implicitOverviewCollapsed)}
+								aria-expanded={!implicitOverviewCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> What is Implicit Flow?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={implicitOverviewCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!implicitOverviewCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Deprecated Grant Type</InfoTitle>
+											<InfoText>
+												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1 and
+												should not be used for new applications. It was designed for browser-based
+												applications that couldn't securely store client secrets, but modern
+												alternatives provide better security.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>How Implicit Flow Works</InfoTitle>
+											<InfoText>
+												In the Implicit Flow, tokens are returned directly in the URL fragment
+												after user authorization. The client never receives an authorization code;
+												instead, the access token (and optionally ID token) is returned
+												immediately in the redirect URI fragment.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setImplicitDetailsCollapsed(!implicitDetailsCollapsed)}
+								aria-expanded={!implicitDetailsCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Security Considerations & Modern Alternatives
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={implicitDetailsCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!implicitDetailsCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Implicit Flow Security Considerations</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Token Exposure:</strong> Tokens are exposed in the URL fragment,
+													which can be logged in browser history, server logs, or shared URLs
+												</li>
+												<li>
+													<strong>No Refresh Tokens:</strong> Implicit flow cannot return refresh
+													tokens, requiring users to re-authenticate frequently
+												</li>
+												<li>
+													<strong>Limited Security:</strong> No PKCE support, making it vulnerable to
+													authorization code interception attacks
+												</li>
+												<li>
+													<strong>OAuth 2.1 Deprecation:</strong> Removed from OAuth 2.1 specification
+													due to security concerns
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Modern Alternative: PKCE with Authorization Code Flow</InfoTitle>
+											<InfoText>
+												For single-page applications (SPAs) and browser-based apps, use the
+												Authorization Code Flow with PKCE instead of Implicit Flow. This provides:
+											</InfoText>
+											<InfoList>
+												<li>
+													<strong>Better Security:</strong> Tokens never appear in URLs, PKCE
+													prevents code interception
+												</li>
+												<li>
+													<strong>Refresh Tokens:</strong> Can obtain refresh tokens for long-lived
+													sessions
+												</li>
+												<li>
+													<strong>OAuth 2.1 Compliant:</strong> Recommended approach in current
+													specifications
+												</li>
+												<li>
+													<strong>Same Use Case:</strong> Works perfectly for SPAs and public
+													clients
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>When to Use Implicit Flow (Legacy Only)</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Legacy SPAs:</strong> Existing applications that haven't migrated
+													yet
+												</li>
+												<li>
+													<strong>Educational Purposes:</strong> Understanding deprecated patterns and
+													OAuth history
+												</li>
+												<li>
+													<strong>Specific Requirements:</strong> Only if you have a specific
+													requirement that cannot be met by Authorization Code + PKCE
+												</li>
+											</InfoList>
+											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+												<strong>Note:</strong> For all new applications, use Authorization Code Flow
+												with PKCE instead.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				)}
+
+				{/* Authorization URL Educational Sections (for authz, hybrid, and implicit flows) */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setAuthRequestOverviewCollapsed(!authRequestOverviewCollapsed)}
+						aria-expanded={!authRequestOverviewCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook /> Understanding Authorization Requests
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={authRequestOverviewCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!authRequestOverviewCollapsed && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiGlobe size={20} />
+								<div>
+									<InfoTitle>What is an Authorization Request?</InfoTitle>
+									<InfoText>
+										An authorization request redirects users to PingOne's authorization server
+										where they authenticate and consent to sharing their information with your
+										application. This is the first step in obtaining an authorization code.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Critical Security Considerations</InfoTitle>
+									<InfoList>
+										<li>
+											<strong>State Parameter:</strong> Always include a unique state parameter
+											to prevent CSRF attacks
+										</li>
+										<li>
+											<strong>HTTPS Only:</strong> Authorization requests must use HTTPS in
+											production
+										</li>
+										<li>
+											<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly
+											matches what's registered in PingOne
+										</li>
+										<li>
+											<strong>Scope Limitation:</strong> Only request the minimum scopes your
+											application needs
+										</li>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setAuthRequestDetailsCollapsed(!authRequestDetailsCollapsed)}
+						aria-expanded={!authRequestDetailsCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook /> Authorization URL Parameters Deep Dive
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={authRequestDetailsCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!authRequestDetailsCollapsed && (
+						<CollapsibleContent>
+							<ParameterGrid>
+								<InfoBox $variant="info">
+									<FiKey size={20} />
+									<div>
+										<InfoTitle>Required Parameters</InfoTitle>
+										<InfoList>
+											<li>
+												<strong>response_type:</strong>{' '}
+												{flowType === 'implicit'
+													? 'Must be "token" for implicit flow (tokens returned in fragment)'
+													: flowType === 'hybrid'
+														? 'Must be "code id_token" for hybrid flow (code + ID token)'
+														: 'Must be "code" for authorization code flow'}
+											</li>
+											<li>
+												<strong>client_id:</strong> Your application's unique identifier in
+												PingOne
+											</li>
+											<li>
+												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user
+												back after authorization
+											</li>
+											<li>
+												<strong>scope:</strong> Permissions you're requesting (openid, profile,
+												email, etc.)
+											</li>
+										</InfoList>
+									</div>
+								</InfoBox>
+
+								<InfoBox $variant="success">
+									<FiShield size={20} />
+									<div>
+										<InfoTitle>Security Parameters</InfoTitle>
+										<InfoList>
+											<li>
+												<strong>state:</strong> Random value to prevent CSRF attacks and
+												maintain session state
+											</li>
+											{(flowType === 'oauth-authz' || flowType === 'hybrid') && (
+												<>
+													<li>
+														<strong>code_challenge:</strong> PKCE parameter for secure code exchange
+													</li>
+													<li>
+														<strong>code_challenge_method:</strong> Always "S256" for SHA256 hashing
+													</li>
+												</>
+											)}
+											{(flowType === 'hybrid' || (flowType === 'oauth-authz' && specVersion === 'oidc')) && (
+												<li>
+													<strong>nonce:</strong> Random value to prevent replay attacks on ID tokens
+												</li>
+											)}
+										</InfoList>
+									</div>
+								</InfoBox>
+							</ParameterGrid>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Optional But Recommended Parameters</InfoTitle>
+									<InfoList>
+										<li>
+											<strong>prompt:</strong> Controls authentication behavior (none, login,
+											consent, select_account)
+										</li>
+										<li>
+											<strong>max_age:</strong> Maximum age of authentication session before
+											re-auth required
+										</li>
+										<li>
+											<strong>acr_values:</strong> Requested Authentication Context Class
+											Reference values
+										</li>
+										<li>
+											<strong>login_hint:</strong> Hint about the user identifier (email,
+											username)
+										</li>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
 				{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
 					flowState.codeVerifier &&
@@ -3576,64 +4595,125 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				<h2>Step 1: Request Device Authorization</h2>
 				<p>Request device authorization to get a device code and user code.</p>
 
-				{/* Educational Info for Device Code Flow */}
-				<div
-					style={{
-						background: '#fef3c7',
-						border: '2px solid #f59e0b',
-						borderRadius: '8px',
-						padding: '16px',
-						marginTop: '16px',
-					}}
+				{/* Device Code Flow Educational Sections */}
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setDeviceCodeOverviewCollapsed(!deviceCodeOverviewCollapsed)}
+						aria-expanded={!deviceCodeOverviewCollapsed}
 				>
-					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-						<span style={{ fontSize: '24px', flexShrink: 0 }}>📚</span>
+						<CollapsibleTitle>
+							<FiBook /> What is Device Authorization Flow?
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={deviceCodeOverviewCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!deviceCodeOverviewCollapsed && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiInfo size={20} />
 						<div>
-							<h3
-								style={{
-									margin: '0 0 8px 0',
-									fontSize: '16px',
-									fontWeight: '600',
-									color: '#92400e',
-								}}
-							>
-								What's Happening Here?
-							</h3>
-							<div style={{ fontSize: '14px', color: '#92400e', lineHeight: '1.6' }}>
-								<p style={{ margin: '0 0 8px 0' }}>
-									<strong>The Device Authorization Flow (RFC 8628)</strong> is designed for devices
-									with limited input capabilities:
-								</p>
-								<ol style={{ margin: '0 0 8px 0', paddingLeft: '20px' }}>
-									<li style={{ marginBottom: '4px' }}>
-										<strong>Step 1 (this step):</strong> Your device requests authorization and
-										receives a device code and user code
+									<InfoTitle>Device Authorization Flow (RFC 8628)</InfoTitle>
+									<InfoText>
+										The Device Authorization Flow is designed for devices with limited input
+										capabilities, such as smart TVs, IoT devices, printers, and CLI tools. It allows
+										users to authorize devices using a separate device (like a smartphone or
+										computer) while the limited device polls for the authorization result.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>How Device Code Flow Works</InfoTitle>
+									<InfoList>
+										<li>
+											<strong>Step 1 (this step):</strong> Device requests authorization and receives
+											a device code and user code
 									</li>
-									<li style={{ marginBottom: '4px' }}>
-										<strong>Step 2 (next):</strong> User enters the user code on a separate
+										<li>
+											<strong>Step 2:</strong> User enters the user code on a separate
 										device/browser to authorize
 									</li>
-									<li style={{ marginBottom: '4px' }}>
-										<strong>Step 3 (after auth):</strong> Your device polls the token endpoint until
-										authorization completes
+										<li>
+											<strong>Step 3:</strong> Device polls the token endpoint until authorization
+											completes
 									</li>
-								</ol>
-								<p
-									style={{
-										margin: '8px 0 0 0',
-										padding: '8px',
-										background: 'rgba(255, 255, 255, 0.5)',
-										borderRadius: '4px',
-									}}
-								>
-									<strong>🔒 Why this way?</strong> Devices like smart TVs, printers, or IoT devices
-									can't easily display login forms. This flow allows users to authorize on a
-									separate device while the limited device polls for the result.
-								</p>
+									</InfoList>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => setDeviceCodeDetailsCollapsed(!deviceCodeDetailsCollapsed)}
+						aria-expanded={!deviceCodeDetailsCollapsed}
+					>
+						<CollapsibleTitle>
+							<FiBook /> Device Code vs Authorization Code & Use Cases
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={deviceCodeDetailsCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!deviceCodeDetailsCollapsed && (
+						<CollapsibleContent>
+							<ParameterGrid>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>Device Code Flow</InfoTitle>
+										<InfoList>
+											<li>No browser redirect required</li>
+											<li>User authorizes on separate device</li>
+											<li>Device polls for tokens</li>
+											<li>Perfect for limited-input devices</li>
+										</InfoList>
 							</div>
+								</InfoBox>
+
+								<InfoBox $variant="success">
+									<FiCheckCircle size={20} />
+									<div>
+										<InfoTitle>Authorization Code Flow</InfoTitle>
+										<InfoList>
+											<li>Requires browser redirect</li>
+											<li>User authorizes in same browser</li>
+											<li>Code exchanged for tokens immediately</li>
+											<li>Perfect for web and mobile apps</li>
+										</InfoList>
 						</div>
+								</InfoBox>
+							</ParameterGrid>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Use Cases for Device Code Flow</InfoTitle>
+									<InfoList>
+										<li>
+											<strong>Smart TVs:</strong> Users authorize on their phone, TV gets access
+										</li>
+										<li>
+											<strong>IoT Devices:</strong> Sensors, cameras, and other devices without
+											keyboards
+										</li>
+										<li>
+											<strong>CLI Tools:</strong> Command-line applications that can't open
+											browsers
+										</li>
+										<li>
+											<strong>Printers & Scanners:</strong> Office equipment needing cloud access
+										</li>
+									</InfoList>
 					</div>
-				</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
 				{/* Show success if device code was received */}
 				{isComplete && (
@@ -4026,6 +5106,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		const handleParseCallback = () => {
 			console.log(`${MODULE_TAG} Parsing callback URL`, { flowType });
 			setIsLoading(true);
+			setLoadingMessage('📋 Parsing Callback URL...');
 			setError(null);
 
 			try {
@@ -4108,6 +5189,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				toastV8.error(message);
 			} finally {
 				setIsLoading(false);
+				setLoadingMessage('');
 			}
 		};
 
@@ -4931,11 +6013,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Start countdown from when polling started
 			const startTime = flowState.pollingStatus.lastPolled || Date.now();
 			const currentInterval = flowState.deviceCodeInterval || 5; // Get current polling interval
-
+			
 			const updateTimers = () => {
 				const now = Date.now();
 				const elapsed = Math.floor((now - startTime) / 1000);
-
+				
 				// Calculate polling timeout remaining
 				const remaining = Math.max(0, pollingTimeoutSeconds - elapsed);
 				setPollingTimeoutRemaining(remaining > 0 ? remaining : null);
@@ -4976,27 +6058,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	// Shared handler for device authorization requests (used in both Step 1 and Step 2)
 	const handleRequestDeviceAuth = useCallback(async () => {
-		// #region agent log - Debug instrumentation at function start
-		const debugTimestamp = new Date().toISOString();
-		console.log(`${MODULE_TAG} [DEBUG] handleRequestDeviceAuth called at ${debugTimestamp}`);
-		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'UnifiedFlowSteps.tsx:4938-FUNCTION-START',
-					message: 'handleRequestDeviceAuth called',
-					data: {
-						timestamp: Date.now(),
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'request-hang',
-					hypothesisId: 'FUNCTION-START',
-				}),
-			}).catch(() => {});
-		} catch (_e) {}
-		// #endregion
+		
 
 		// Validate required fields before requesting device authorization
 		if (!credentials.environmentId?.trim()) {
@@ -5038,75 +6100,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		}
 
 		setIsLoading(true);
+		setLoadingMessage('📱 Requesting Device Authorization...');
 		setError(null);
 
-		// #region agent log - Debug instrumentation after setIsLoading
-		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'UnifiedFlowSteps.tsx:4995-AFTER-SET-LOADING',
-					message: 'setIsLoading(true) called',
-					data: {
-						isLoading: true,
-						timestamp: Date.now(),
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'request-hang',
-					hypothesisId: 'AFTER-SET-LOADING',
-				}),
-			}).catch(() => {});
-		} catch (_e) {}
-		// #endregion
+		
 
-		// #region agent log - Debug instrumentation before request
-		try {
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'UnifiedFlowSteps.tsx:4978-BEFORE-REQUEST',
-					message: 'About to call requestDeviceAuthorization',
-					data: {
-						hasEnvironmentId: !!credentials.environmentId,
-						hasClientId: !!credentials.clientId,
-						hasScopes: !!credentials.scopes,
-						environmentId: `${credentials.environmentId?.substring(0, 10)}...`,
-						clientId: `${credentials.clientId?.substring(0, 10)}...`,
-						scopes: credentials.scopes,
-						isLoading: true,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'request-hang',
-					hypothesisId: 'BEFORE-REQUEST',
-				}),
-			}).catch(() => {});
-		} catch (_e) {}
-		// #endregion
+		
 
 		try {
-			// #region agent log - Debug instrumentation right before await
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:4982-BEFORE-AWAIT',
-						message: 'About to await requestDeviceAuthorization',
-						data: {
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'BEFORE-AWAIT',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// Add timeout to prevent infinite hanging (30 seconds max)
 			const timeoutPromise = new Promise<never>((_, reject) => {
@@ -5120,81 +6122,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				timeoutPromise,
 			]);
 
-			// #region agent log - Debug instrumentation after request completes
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:4982-AFTER-REQUEST',
-						message: 'requestDeviceAuthorization completed successfully',
-						data: {
-							hasResult: !!result,
-							hasDeviceCode: !!result?.device_code,
-							hasUserCode: !!result?.user_code,
-							deviceCodePrefix: `${result?.device_code?.substring(0, 20)}...`,
-							userCode: result?.user_code,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'AFTER-REQUEST',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// CRITICAL: Update ref with new device code IMMEDIATELY (FIRST THING after receiving result)
 			// This must happen before ANY other operations to ensure polling uses the new device code
 			deviceCodeRef.current = result.device_code;
 
-			// #region agent log - Debug instrumentation for immediate ref update
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:4980-REF-UPDATE-IMMEDIATE',
-						message: 'IMMEDIATELY updated deviceCodeRef with new device code (FIRST THING)',
-						data: {
-							newDeviceCode: `${result.device_code?.substring(0, 20)}...`,
-							refValue: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'REF-UPDATE-IMMEDIATE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// Calculate expiration timestamp
 			const expiresAt = Date.now() + result.expires_in * 1000;
 
-			// #region agent log - Debug instrumentation for immediate ref update
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:4990-REF-UPDATE-IMMEDIATE',
-						message: 'IMMEDIATELY updated deviceCodeRef with new device code (FIRST THING)',
-						data: {
-							newDeviceCode: `${result.device_code?.substring(0, 20)}...`,
-							refValue: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'REF-UPDATE-IMMEDIATE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// CRITICAL: Clear old device code from sessionStorage after ref is updated
 			// This prevents stale device codes from being restored
@@ -5226,50 +6165,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Clear any previous tokens
 			delete newState.tokens;
 
-			// #region agent log - Debug instrumentation for ref update
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5010-REF-UPDATE',
-						message: 'Updated deviceCodeRef with new device code',
-						data: {
-							newDeviceCode: `${result.device_code?.substring(0, 20)}...`,
-							refValue: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							beforeStateUpdate: true,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'REF-UPDATE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
-			// #region agent log - Debug instrumentation before state update
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5087-BEFORE-SET-STATE',
-						message: 'About to call setFlowState with new device code',
-						data: {
-							refDeviceCode: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							newStateDeviceCode: `${newState.deviceCode?.substring(0, 20)}...`,
-							pollingAborted: pollingAbortRef.current,
-							willResetAutoPoll: true,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'BEFORE-SET-STATE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			setFlowState(newState as FlowState);
 
@@ -5286,153 +6184,34 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				autoPollTriggeredRef.current = true;
 				autoPollInitiatedRef.current = false; // Reset so useEffect can trigger it
 			} else {
-				// Reset auto-poll trigger so it can trigger again when user navigates to step 2
-				autoPollTriggeredRef.current = false;
-				autoPollInitiatedRef.current = false;
+			// Reset auto-poll trigger so it can trigger again when user navigates to step 2
+			autoPollTriggeredRef.current = false;
+			autoPollInitiatedRef.current = false;
 			}
 
-			// #region agent log - Debug instrumentation after state update
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5096-AFTER-SET-STATE',
-						message: 'After setFlowState - ref and state should match',
-						data: {
-							refDeviceCode: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							newStateDeviceCode: `${newState.deviceCode?.substring(0, 20)}...`,
-							pollingAborted: pollingAbortRef.current,
-							autoPollTriggered: autoPollTriggeredRef.current,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'AFTER-SET-STATE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			nav.markStepComplete();
 			toastV8.success('Device authorization request successful');
 		} catch (err) {
-			// #region agent log - Debug instrumentation for error in handleRequestDeviceAuth
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5145-ERROR',
-						message: 'Error in handleRequestDeviceAuth',
-						data: {
-							errorMessage: err instanceof Error ? err.message : String(err),
-							errorType: err instanceof Error ? err.constructor.name : typeof err,
-							hasStack: err instanceof Error ? !!err.stack : false,
-							stackPreview: err instanceof Error ? err.stack?.substring(0, 200) : 'no stack',
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'ERROR-HANDLER',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
 			nav.setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
-			// #region agent log - Debug instrumentation for finally block
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5145-FINALLY',
-						message: 'Finally block in handleRequestDeviceAuth',
-						data: {
-							willSetIsLoadingFalse: true,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'FINALLY',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
-			// #region agent log - Debug instrumentation before setIsLoading(false)
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5323-BEFORE-SET-LOADING-FALSE',
-						message: 'About to call setIsLoading(false) with functional update',
-						data: {
-							currentIsLoading: isLoading,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'BEFORE-SET-LOADING-FALSE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// Use functional update to ensure we're setting it correctly regardless of closure
 			setIsLoading((prev) => {
-				// #region agent log - Debug instrumentation inside setIsLoading functional update
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:5323-INSIDE-SET-LOADING-FALSE',
-							message: 'Inside setIsLoading functional update',
-							data: {
-								prevIsLoading: prev,
-								willSetTo: false,
-								timestamp: Date.now(),
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'request-hang',
-							hypothesisId: 'INSIDE-SET-LOADING-FALSE',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
+				
 				return false;
 			});
 
-			// #region agent log - Debug instrumentation after setIsLoading(false)
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5323-AFTER-SET-LOADING-FALSE',
-						message: 'Called setIsLoading(false) with functional update',
-						data: {
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'request-hang',
-						hypothesisId: 'AFTER-SET-LOADING-FALSE',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// Ensure flags are reset even on error
 			if (!flowState.deviceCode) {
@@ -5623,6 +6402,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			setIsLoading(false);
+			setLoadingMessage('');
 			setFlowState((prev) => ({
 				...prev,
 				pollingStatus: prev.pollingStatus
@@ -5633,58 +6413,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		};
 
 		const handlePollForTokens = async () => {
-			// #region agent log - Debug instrumentation for handlePollForTokens entry
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5591-HANDLE-POLL-ENTRY',
-						message: 'handlePollForTokens called',
-						data: {
-							hasRefDeviceCode: !!deviceCodeRef.current,
-							hasStateDeviceCode: !!flowState.deviceCode,
-							refDeviceCodePrefix: `${deviceCodeRef.current?.substring(0, 20)}...` || 'null',
-							stateDeviceCodePrefix: `${flowState.deviceCode?.substring(0, 20)}...` || 'null',
-							pollingAborted: pollingAbortRef.current,
-							currentStep,
-							isLoading,
-							isPollingExecuting: isPollingExecutingRef.current,
-							isPolling: flowState.pollingStatus?.isPolling,
-							timestamp: Date.now(),
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'device-code-missing',
-						hypothesisId: 'HANDLE-POLL-ENTRY',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			// CRITICAL: Check abort flag FIRST - if polling was stopped, don't start new polling
 			if (pollingAbortRef.current) {
 				console.log(`${MODULE_TAG} Polling aborted - not starting new polling`);
-				// #region agent log - Debug instrumentation for polling aborted
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:5593-POLLING-ABORTED',
-							message: 'Polling aborted - not starting',
-							data: {
-								pollingAborted: pollingAbortRef.current,
-								timestamp: Date.now(),
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'device-code-missing',
-							hypothesisId: 'POLLING-ABORTED',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
+				
 				return;
 			}
 
@@ -5692,30 +6426,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// The ref is the source of truth and is updated synchronously, so we only check the ref
 			// State updates are asynchronous and may lag behind, causing race conditions
 			if (!deviceCodeRef.current) {
-				// #region agent log - Debug instrumentation for missing ref device code
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:5599-MISSING-REF-DEVICE-CODE',
-							message: 'ERROR: deviceCodeRef.current is missing',
-							data: {
-								hasRefDeviceCode: false,
-								hasStateDeviceCode: !!flowState.deviceCode,
-								stateDeviceCodePrefix: `${flowState.deviceCode?.substring(0, 20)}...` || 'null',
-								currentStep,
-								isLoading,
-								timestamp: Date.now(),
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'device-code-missing',
-							hypothesisId: 'MISSING-REF-DEVICE-CODE',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
+				
 				setError(
 					'Please request a device code first by clicking the "Request Device Code" button above.'
 				);
@@ -5741,29 +6452,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Mark as executing immediately to prevent race conditions
 			isPollingExecutingRef.current = true;
 
-			// #region agent log - Debug instrumentation for polling start
-			try {
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						location: 'UnifiedFlowSteps.tsx:5367-POLLING-START',
-						message: 'Starting polling - verifying device code in ref',
-						data: {
-							refDeviceCode: `${deviceCodeRef.current?.substring(0, 20)}...`,
-							stateDeviceCode: `${flowState.deviceCode?.substring(0, 20)}...`,
-							refMatchesState: deviceCodeRef.current === flowState.deviceCode,
-							pollingAborted: pollingAbortRef.current,
-							isPollingExecuting: isPollingExecutingRef.current,
-						},
-						timestamp: Date.now(),
-						sessionId: 'debug-session',
-						runId: 'token-detection',
-						hypothesisId: 'POLLING-START',
-					}),
-				}).catch(() => {});
-			} catch (_e) {}
-			// #endregion
+			
 
 			console.log(`${MODULE_TAG} Starting polling for tokens`);
 			setIsLoading(true);
@@ -5812,31 +6501,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return null;
 					}
 
-					// #region agent log - Debug instrumentation for device code source
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5272-DEVICE-CODE-SOURCE',
-								message: 'Reading device code from ref vs state',
-								data: {
-									pollCount,
-									refDeviceCode: `${deviceCodeRef.current?.substring(0, 20)}...`,
-									stateDeviceCode: `${flowState.deviceCode?.substring(0, 20)}...`,
-									refHasValue: !!deviceCodeRef.current,
-									stateHasValue: !!flowState.deviceCode,
-									usingRef: true,
-									currentDeviceCodePrefix: `${currentDeviceCode?.substring(0, 20)}...`,
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'DEVICE-CODE-REF',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 
 					// Validate device code before sending
 					if (!currentDeviceCode || currentDeviceCode === '') {
@@ -5881,56 +6546,33 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						deviceCodePrefix: `${currentDeviceCode.substring(0, 10)}...`,
 					});
 
-					// #region agent log - Debug instrumentation for poll request
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5705-BEFORE-FETCH',
-								message: 'About to make poll request to token endpoint',
-								data: {
-									pollCount: pollCount + 1,
-									endpoint: tokenEndpoint,
-									hasDeviceCode: !!flowState.deviceCode,
-									deviceCodePrefix: `${flowState.deviceCode?.substring(0, 10)}...`,
-									clientId: `${credentials.clientId?.substring(0, 10)}...`,
-									requestBodyKeys: Object.keys(requestBody),
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'N',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 
 					pollCount++;
 					let response: Response;
 					try {
-						// #region agent log - Debug instrumentation for actual fetch URL
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5331-FETCH-URL',
-									message: 'About to fetch - verifying URL',
-									data: {
-										tokenEndpoint,
-										windowLocation: window.location.href,
-										expectedUrl: window.location.origin + tokenEndpoint,
-										pollCount,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'URL-VERIFY',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						// Track API call for display
+						const { apiCallTrackerService: apiCallTrackerService4 } = await import('@/services/apiCallTrackerService');
+						const startTime4 = Date.now();
+						const actualPingOneUrl = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+						const requestBodyForTracking = {
+							...requestBody,
+							device_code: '***REDACTED***',
+						};
+
+						const callId4 = apiCallTrackerService4.trackApiCall({
+							method: 'POST',
+							url: tokenEndpoint,
+							actualPingOneUrl,
+							isProxy: true,
+							headers: {
+								'Content-Type': 'application/json',
+								Accept: 'application/json',
+							},
+							body: requestBodyForTracking,
+							step: 'unified-device-code-poll',
+							flowType: 'unified',
+						});
 
 						response = await fetch(tokenEndpoint, {
 							method: 'POST',
@@ -5940,40 +6582,28 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							},
 							body: JSON.stringify(requestBody),
 						});
-					} catch (fetchError) {
-						// #region agent log - Debug instrumentation for fetch error
+
+						// Parse response once (clone first to avoid consuming the body)
+						const responseClone4 = response.clone();
+						let responseData4: unknown;
 						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5362-FETCH-ERROR',
-									message: 'Fetch failed during poll request - CRITICAL ERROR',
-									data: {
-										pollCount,
-										tokenEndpoint,
-										windowLocation: window.location.href,
-										expectedUrl: window.location.origin + tokenEndpoint,
-										error: fetchError instanceof Error ? fetchError.message : String(fetchError),
-										errorType:
-											fetchError instanceof Error ? fetchError.constructor.name : typeof fetchError,
-										errorStack: fetchError instanceof Error ? fetchError.stack : undefined,
-										isNetworkError:
-											fetchError instanceof TypeError &&
-											fetchError.message.includes('Failed to fetch'),
-										isSSLError:
-											fetchError instanceof TypeError &&
-											(fetchError.message.includes('SSL') ||
-												fetchError.message.includes('ERR_SSL')),
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'O',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+							responseData4 = await responseClone4.json();
+						} catch {
+							responseData4 = { error: 'Failed to parse response' };
+						}
+
+						// Update API call with response
+						apiCallTrackerService4.updateApiCallResponse(
+							callId4,
+							{
+									status: response.status,
+									statusText: response.statusText,
+								data: responseData4,
+							},
+							Date.now() - startTime4
+						);
+					} catch (fetchError) {
+						
 
 						// Log to console with full details
 						console.error(`${MODULE_TAG} ❌ Fetch error during polling (attempt ${pollCount}):`, {
@@ -5986,29 +6616,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						throw fetchError;
 					}
 
-					// #region agent log - Debug instrumentation for poll response received
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5713-RESPONSE-RECEIVED',
-								message: 'Poll response received from backend',
-								data: {
-									pollCount,
-									status: response.status,
-									statusText: response.statusText,
-									ok: response.ok,
-									headers: Object.fromEntries(response.headers.entries()),
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'P',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 
 					// Update polling status
 					setFlowState((prev) => ({
@@ -6021,9 +6629,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}));
 
 					// CRITICAL DEBUG: Log response status before checking
-					console.log(
-						`${MODULE_TAG} [DEBUG] Poll response status: ${response.status} ${response.statusText}, ok: ${response.ok}, pollCount: ${pollCount}`
-					);
+					
 
 					if (response.ok) {
 						console.log(`${MODULE_TAG} [DEBUG] Response is OK (200) - attempting to parse tokens`);
@@ -6031,149 +6637,20 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						let responseText = '';
 						try {
 							responseText = await response.text();
-							// #region agent log - Debug instrumentation for response parsing
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:5428-RESPONSE-OK',
-										message: 'Response is OK (200), parsing JSON',
-										data: {
-											pollCount,
-											status: response.status,
-											responseTextLength: responseText.length,
-											responseTextPreview: responseText.substring(0, 500),
-											hasAccessToken: responseText.includes('access_token'),
-											hasIdToken: responseText.includes('id_token'),
-											hasRefreshToken: responseText.includes('refresh_token'),
-											responseTextFull: responseText, // Full response for debugging
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'token-detection',
-										hypothesisId: 'Q',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 							tokens = JSON.parse(responseText);
 
-							// #region agent log - Debug instrumentation for parsed tokens
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:5451-TOKENS-PARSED',
-										message: 'Tokens successfully parsed from JSON',
-										data: {
-											pollCount,
-											hasAccessToken: !!tokens.access_token,
-											hasIdToken: !!tokens.id_token,
-											hasRefreshToken: !!tokens.refresh_token,
-											expiresIn: tokens.expires_in,
-											tokenType: tokens.token_type,
-											accessTokenLength: tokens.access_token?.length || 0,
-											accessTokenPrefix: `${tokens.access_token?.substring(0, 30)}...`,
-											allKeys: Object.keys(tokens),
-											tokensFull: JSON.stringify(tokens), // Full tokens for debugging
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'token-detection',
-										hypothesisId: 'TOKENS-PARSED',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 						} catch (parseError) {
-							// #region agent log - Debug instrumentation for parse error
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:5452-PARSE-ERROR',
-										message: 'Failed to parse response JSON (200 OK but invalid JSON)',
-										data: {
-											pollCount,
-											status: response.status,
-											error: parseError instanceof Error ? parseError.message : String(parseError),
-											errorStack: parseError instanceof Error ? parseError.stack : undefined,
-											responseTextLength: responseText?.length || 0,
-											responseTextPreview: responseText?.substring(0, 500) || 'N/A',
-											responseTextFull: responseText || 'N/A', // Full response for debugging
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'token-detection',
-										hypothesisId: 'R',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 							throw new Error(
 								`Failed to parse token response: ${parseError instanceof Error ? parseError.message : String(parseError)}`
 							);
 						}
 						console.log(`${MODULE_TAG} ✅ Tokens received successfully on attempt ${pollCount}`);
-						// #region agent log - Debug instrumentation for token detection
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5740-TOKENS-RECEIVED',
-									message: 'Tokens received successfully from polling',
-									data: {
-										pollCount,
-										hasAccessToken: !!tokens.access_token,
-										hasIdToken: !!tokens.id_token,
-										hasRefreshToken: !!tokens.refresh_token,
-										expiresIn: tokens.expires_in,
-										tokenType: tokens.token_type,
-										accessTokenPrefix: `${tokens.access_token?.substring(0, 20)}...`,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'A',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 
-						// #region agent log - Debug instrumentation before returning tokens
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:6009-BEFORE-RETURN-TOKENS',
-									message: 'About to return tokens from performPoll',
-									data: {
-										pollCount,
-										hasTokens: !!tokens,
-										tokensType: typeof tokens,
-										tokensIsNull: tokens === null,
-										tokensIsUndefined: tokens === undefined,
-										hasAccessToken: !!tokens?.access_token,
-										accessTokenType: typeof tokens?.access_token,
-										accessTokenLength: tokens?.access_token?.length || 0,
-										allTokenKeys: tokens ? Object.keys(tokens) : [],
-										tokensStringified: tokens
-											? JSON.stringify(tokens).substring(0, 200)
-											: 'null/undefined',
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'BEFORE-RETURN-TOKENS',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 
 						return tokens;
 					}
@@ -6183,57 +6660,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					let responseText = '';
 					try {
 						responseText = await response.text();
-						// #region agent log - Debug instrumentation for response text
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5509-RESPONSE-TEXT',
-									message: 'Received response text (non-200)',
-									data: {
-										pollCount,
-										status: response.status,
-										statusText: response.statusText,
-										responseTextLength: responseText.length,
-										responseTextPreview: responseText.substring(0, 500),
-										hasAccessToken: responseText.includes('access_token'),
-										hasError: responseText.includes('error'),
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'RESPONSE-TEXT',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 						errorData = JSON.parse(responseText);
 					} catch (parseErr) {
-						// #region agent log - Debug instrumentation for parse failure
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5511-PARSE-FAIL',
-									message: 'Failed to parse non-200 response as JSON',
-									data: {
-										pollCount,
-										status: response.status,
-										statusText: response.statusText,
-										responseTextLength: responseText.length,
-										responseTextPreview: responseText.substring(0, 500),
-										parseError: parseErr instanceof Error ? parseErr.message : String(parseErr),
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'PARSE-FAIL',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
 					}
@@ -6247,34 +6677,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						`${MODULE_TAG} [DEBUG] Full error response data:`,
 						JSON.stringify(errorData, null, 2)
 					);
-					// #region agent log - Debug instrumentation for poll response
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5740',
-								message: 'Poll response received (non-200)',
-								data: {
-									pollCount,
-									status: response.status,
-									error: errorData.error,
-									errorDescription: errorData.error_description,
-									interval: errorData.interval,
-									isAuthorizationPending: errorData.error === 'authorization_pending',
-									isSlowDown: errorData.error === 'slow_down',
-									isAccessDenied: errorData.error === 'access_denied',
-									isExpired:
-										errorData.error === 'expired_token' || errorData.error === 'invalid_grant',
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'H',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 
 					// Check for authorization_pending (user hasn't approved yet) - this is EXPECTED and normal
 					if (errorData.error === 'authorization_pending') {
@@ -6360,36 +6763,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// Start polling loop
 			const pollLoop = async () => {
 				// Do first poll immediately
-				// #region agent log - Debug instrumentation for poll loop start
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:5828',
-							message: 'Poll loop STARTED',
-							data: {
-								maxAttempts,
-								pollInterval,
-								expiresIn: flowState.deviceCodeExpiresIn,
-								deviceCodeInterval: flowState.deviceCodeInterval,
-								currentStep,
-								pollingAborted: pollingAbortRef.current,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'token-detection',
-							hypothesisId: 'K',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
-
+				
+				
 				for (let attempt = 0; attempt < maxAttempts; attempt++) {
 					// Check if polling was stopped (before each operation)
 					if (pollingAbortRef.current) {
 						console.log(`${MODULE_TAG} Polling stopped by user`);
 						setIsLoading(false);
+						setLoadingMessage('');
 						isPollingExecutingRef.current = false; // Reset execution flag
 						setFlowState((prev) => ({
 							...prev,
@@ -6401,67 +6782,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					console.log(`${MODULE_TAG} Polling attempt ${attempt + 1}/${maxAttempts}`);
-					// #region agent log - Debug instrumentation for polling loop
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5843',
-								message: 'Poll loop iteration - BEFORE performPoll',
-								data: {
-									attempt: attempt + 1,
-									maxAttempts,
-									pollingAborted: pollingAbortRef.current,
-									isPollingExecuting: isPollingExecutingRef.current,
-									hasDeviceCode: !!flowState.deviceCode,
-									currentStep,
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'F',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 					const tokens = await performPoll();
-
-					// #region agent log - Debug instrumentation for polling result
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:5844',
-								message: 'Poll loop iteration - AFTER performPoll',
-								data: {
-									attempt: attempt + 1,
-									hasTokens: !!tokens,
-									tokensType: typeof tokens,
-									tokensIsNull: tokens === null,
-									tokensIsUndefined: tokens === undefined,
-									hasAccessToken: !!tokens?.access_token,
-									accessTokenValue: tokens?.access_token
-										? `${tokens.access_token.substring(0, 30)}...`
-										: 'none',
-									pollingAborted: pollingAbortRef.current,
-									willContinue: !tokens && !pollingAbortRef.current && attempt + 1 < maxAttempts,
-									willCheckTokens: true,
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'G',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
+					
 
 					// Check again after async operation
 					if (pollingAbortRef.current) {
 						console.log(`${MODULE_TAG} Polling stopped after poll attempt`);
 						setIsLoading(false);
+						setLoadingMessage('');
 						isPollingExecutingRef.current = false;
 						setFlowState((prev) => ({
 							...prev,
@@ -6472,62 +6802,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						return;
 					}
 
-					// #region agent log - Debug instrumentation before tokens check
-					try {
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
-								location: 'UnifiedFlowSteps.tsx:6293-BEFORE-TOKENS-CHECK',
-								message: 'About to check if tokens exist',
-								data: {
-									attempt: attempt + 1,
-									hasTokens: !!tokens,
-									tokensTruthy: !!tokens,
-									tokensType: typeof tokens,
-									tokensIsNull: tokens === null,
-									tokensIsUndefined: tokens === undefined,
-									hasAccessToken: !!tokens?.access_token,
-									willEnterIfBlock: !!tokens,
-								},
-								timestamp: Date.now(),
-								sessionId: 'debug-session',
-								runId: 'token-detection',
-								hypothesisId: 'BEFORE-TOKENS-CHECK',
-							}),
-						}).catch(() => {});
-					} catch (_e) {}
-					// #endregion
+					
 
 					if (tokens) {
 						// Success! Tokens received
-						// #region agent log - Debug instrumentation for token processing
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5860',
-									message: 'Processing tokens - BEFORE state update',
-									data: {
-										hasTokens: !!tokens,
-										accessTokenPrefix: `${tokens.access_token?.substring(0, 20)}...`,
-										hasIdToken: !!tokens.id_token,
-										hasRefreshToken: !!tokens.refresh_token,
-										currentStep,
-										isLoading,
-										isPollingExecuting: isPollingExecutingRef.current,
-										pollingAborted: pollingAbortRef.current,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'B',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
-
+						
+						
 						// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
 						const filteredTokens = filterTokensBySpec(tokens);
 						const tokensWithExtras = filteredTokens;
@@ -6543,56 +6823,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							tokenState.refreshToken = tokensWithExtras.refresh_token;
 						}
 
-						// #region agent log - Debug instrumentation for state update
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5850-STATE-UPDATE-BEFORE',
-									message: 'Setting tokens in state - ABOUT TO CALL setFlowState',
-									data: {
-										tokenStateKeys: Object.keys(tokenState),
-										hasAccessToken: !!tokenState.accessToken,
-										hasIdToken: !!tokenState.idToken,
-										hasRefreshToken: !!tokenState.refreshToken,
-										expiresIn: tokenState.expiresIn,
-										accessTokenPrefix: `${tokenState.accessToken?.substring(0, 20)}...`,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'C',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 
 						setFlowState((prev) => {
-							// #region agent log - Debug instrumentation for state update callback
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:5855-setFlowState-callback',
-										message: 'Inside setFlowState callback - state update executing',
-										data: {
-											prevHasTokens: !!prev.tokens?.accessToken,
-											prevAccessToken: `${prev.tokens?.accessToken?.substring(0, 20)}...`,
-											newHasTokens: !!tokenState.accessToken,
-											newAccessToken: `${tokenState.accessToken?.substring(0, 20)}...`,
-											isPolling: prev.pollingStatus?.isPolling,
-											tokenStateKeys: Object.keys(tokenState),
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'token-detection',
-										hypothesisId: 'D',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 							const newState = {
 								...prev,
 								tokens: tokenState,
@@ -6601,57 +6835,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									: { isPolling: false, pollCount: 0 },
 							};
 
-							// #region agent log - Debug instrumentation for state after update
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:5884-setFlowState-return',
-										message: 'Returning new state from setFlowState',
-										data: {
-											newStateHasTokens: !!newState.tokens?.accessToken,
-											newStateAccessToken: `${newState.tokens?.accessToken?.substring(0, 20)}...`,
-											newStateIsPolling: newState.pollingStatus?.isPolling,
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'token-detection',
-										hypothesisId: 'D-AFTER',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 
 							return newState;
 						});
 
 						setIsLoading(false);
 						isPollingExecutingRef.current = false; // Reset execution flag
-
-						// #region agent log - Debug instrumentation for completion actions
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5887',
-									message: 'Calling nav.markStepComplete and showTokenSuccessModal',
-									data: {
-										currentStep,
-										hasTokens: !!tokenState.accessToken,
-										isLoading: false,
-										isPollingExecuting: false,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'E',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
-
+						
+						
+						
 						nav.markStepComplete();
 						showTokenSuccessModal(tokensWithExtras);
 
@@ -6681,58 +6874,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 						toastV8.tokenExchangeSuccess();
 						toastV8.stepCompleted(2);
-
-						// #region agent log - Debug instrumentation for loop exit
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5916',
-									message: 'Exiting poll loop - tokens successfully processed',
-									data: {
-										attempt: attempt + 1,
-										maxAttempts,
-										hasTokens: !!tokens,
-										currentStep,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'I',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
-
+						
+						
+						
 						return; // Exit polling loop
 					}
 
 					// Wait before next poll (but not after the last attempt)
 					if (attempt < maxAttempts - 1) {
-						// #region agent log - Debug instrumentation for waiting between polls
-						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-								method: 'POST',
-								headers: { 'Content-Type': 'application/json' },
-								body: JSON.stringify({
-									location: 'UnifiedFlowSteps.tsx:5920',
-									message: 'Waiting before next poll',
-									data: {
-										attempt: attempt + 1,
-										maxAttempts,
-										currentInterval,
-										willWaitMs: currentInterval * 1000,
-										pollingAborted: pollingAbortRef.current,
-									},
-									timestamp: Date.now(),
-									sessionId: 'debug-session',
-									runId: 'token-detection',
-									hypothesisId: 'J',
-								}),
-							}).catch(() => {});
-						} catch (_e) {}
-						// #endregion
+						
 						// Check abort before waiting
 						if (pollingAbortRef.current) {
 							console.log(`${MODULE_TAG} Polling stopped before wait`);
@@ -6773,30 +6923,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				}
 
 				// Timeout
-				// #region agent log - Debug instrumentation for polling timeout
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:6204',
-							message: 'Poll loop TIMEOUT - max attempts reached without tokens',
-							data: {
-								maxAttempts,
-								attemptsCompleted: maxAttempts,
-								pollInterval,
-								totalTimeElapsed: maxAttempts * (currentInterval * 1000),
-								pollingAborted: pollingAbortRef.current,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'token-detection',
-							hypothesisId: 'L',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
-
+				
+				
 				setIsLoading(false);
 				isPollingExecutingRef.current = false; // Reset execution flag
 				setError('Token polling timeout - user did not authorize within time limit');
@@ -6812,27 +6940,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			// Start polling (non-blocking)
 			pollLoop().catch((err) => {
-				// #region agent log - Debug instrumentation for polling error
-				try {
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-						method: 'POST',
-						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({
-							location: 'UnifiedFlowSteps.tsx:6219',
-							message: 'Poll loop ERROR - caught exception',
-							data: {
-								errorMessage: err instanceof Error ? err.message : String(err),
-								errorType: err instanceof Error ? err.constructor.name : typeof err,
-								stack: err instanceof Error ? err.stack : undefined,
-							},
-							timestamp: Date.now(),
-							sessionId: 'debug-session',
-							runId: 'token-detection',
-							hypothesisId: 'M',
-						}),
-					}).catch(() => {});
-				} catch (_e) {}
-				// #endregion
+				
 				const message = err instanceof Error ? err.message : 'Failed to poll for tokens';
 				setError(message);
 				setIsLoading(false);
@@ -6909,17 +7017,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 				{/* Start Polling Button - Above Device Display */}
 				{flowState.deviceCode && !isComplete && (
-					<button
-						type="button"
-						className="btn btn-next"
-						onClick={handlePollForTokens}
-						disabled={isLoading || flowState.pollingStatus?.isPolling}
-						style={{ marginTop: '16px', marginBottom: '24px' }}
-					>
-						{isLoading || flowState.pollingStatus?.isPolling
-							? 'Polling...'
-							: 'Start Polling for Tokens'}
-					</button>
+							<button
+								type="button"
+								className="btn btn-next"
+								onClick={handlePollForTokens}
+								disabled={isLoading || flowState.pollingStatus?.isPolling}
+								style={{ marginTop: '16px', marginBottom: '24px' }}
+							>
+								{isLoading || flowState.pollingStatus?.isPolling
+									? 'Polling...'
+									: 'Start Polling for Tokens'}
+							</button>
 				)}
 
 				{/* Device Type Selector */}
@@ -6940,109 +7048,59 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				{flowState.deviceCode && flowState.userCode && (
 					<div style={{ marginTop: '24px', marginBottom: '24px' }}>
 						{(() => {
-							// #region agent log - Debug instrumentation before DynamicDeviceFlow render
-							try {
-								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-									method: 'POST',
-									headers: { 'Content-Type': 'application/json' },
-									body: JSON.stringify({
-										location: 'UnifiedFlowSteps.tsx:6738-BEFORE-DYNAMIC-DEVICE-FLOW',
-										message: 'About to render DynamicDeviceFlow',
-										data: {
-											hasDeviceCode: !!flowState.deviceCode,
-											hasUserCode: !!flowState.userCode,
-											deviceType: selectedDeviceType,
-											hasVerificationUri: !!flowState.verificationUri,
-											hasExpiresAt: !!flowState.deviceCodeExpiresAt,
-											expiresAtType: typeof flowState.deviceCodeExpiresAt,
-											timestamp: Date.now(),
-										},
-										timestamp: Date.now(),
-										sessionId: 'debug-session',
-										runId: 'step2-error',
-										hypothesisId: 'BEFORE-DYNAMIC-DEVICE-FLOW',
-									}),
-								}).catch(() => {});
-							} catch (_e) {}
-							// #endregion
+							
 
 							try {
 								return (
-									<DynamicDeviceFlow
-										deviceType={selectedDeviceType}
-										state={{
+						<DynamicDeviceFlow
+							deviceType={selectedDeviceType}
+							state={{
 											deviceCode: flowState.deviceCode || '',
 											userCode: flowState.userCode || '',
-											verificationUri: flowState.verificationUri || '',
-											verificationUriComplete: flowState.verificationUriComplete || '',
-											expiresIn: flowState.deviceCodeExpiresIn || 0,
-											interval: 5,
+								verificationUri: flowState.verificationUri || '',
+								verificationUriComplete: flowState.verificationUriComplete || '',
+								expiresIn: flowState.deviceCodeExpiresIn || 0,
+								interval: 5,
 											expiresAt:
 												flowState.deviceCodeExpiresAt &&
 												typeof flowState.deviceCodeExpiresAt === 'number'
-													? new Date(flowState.deviceCodeExpiresAt)
-													: new Date(),
-											status: flowState.tokens?.accessToken
-												? 'authorized'
-												: flowState.pollingStatus?.isPolling
-													? 'pending'
-													: 'pending',
-											...(flowState.tokens?.accessToken && {
-												tokens: {
-													access_token: flowState.tokens.accessToken,
-													token_type: 'Bearer',
-													expires_in: flowState.tokens.expiresIn || 3600,
-													...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
-													...(flowState.tokens.refreshToken && {
-														refresh_token: flowState.tokens.refreshToken,
-													}),
-												},
-											}),
-											...(flowState.pollingStatus?.lastPolled && {
-												lastPolled: new Date(flowState.pollingStatus.lastPolled),
-											}),
-											pollCount: flowState.pollingStatus?.pollCount || 0,
-										}}
-										onStateUpdate={(newState: unknown) => {
-											console.log(`${MODULE_TAG} Device flow state updated`, newState);
-										}}
-										onComplete={(tokens: unknown) => {
-											console.log(`${MODULE_TAG} Device authorization completed`, tokens);
-										}}
-										onError={(error: string) => {
-											console.error(`${MODULE_TAG} Device authorization error`, error);
-											setError(error);
-										}}
-									/>
+									? new Date(flowState.deviceCodeExpiresAt)
+									: new Date(),
+								status: flowState.tokens?.accessToken
+									? 'authorized'
+									: flowState.pollingStatus?.isPolling
+										? 'pending'
+										: 'pending',
+								...(flowState.tokens?.accessToken && {
+									tokens: {
+										access_token: flowState.tokens.accessToken,
+										token_type: 'Bearer',
+										expires_in: flowState.tokens.expiresIn || 3600,
+										...(flowState.tokens.idToken && { id_token: flowState.tokens.idToken }),
+										...(flowState.tokens.refreshToken && {
+											refresh_token: flowState.tokens.refreshToken,
+										}),
+									},
+								}),
+								...(flowState.pollingStatus?.lastPolled && {
+									lastPolled: new Date(flowState.pollingStatus.lastPolled),
+								}),
+								pollCount: flowState.pollingStatus?.pollCount || 0,
+							}}
+							onStateUpdate={(newState: unknown) => {
+								console.log(`${MODULE_TAG} Device flow state updated`, newState);
+							}}
+							onComplete={(tokens: unknown) => {
+								console.log(`${MODULE_TAG} Device authorization completed`, tokens);
+							}}
+							onError={(error: string) => {
+								console.error(`${MODULE_TAG} Device authorization error`, error);
+								setError(error);
+							}}
+						/>
 								);
 							} catch (error) {
-								// #region agent log - Debug instrumentation for DynamicDeviceFlow error
-								try {
-									fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-										method: 'POST',
-										headers: { 'Content-Type': 'application/json' },
-										body: JSON.stringify({
-											location: 'UnifiedFlowSteps.tsx:6780-DYNAMIC-DEVICE-FLOW-ERROR',
-											message: 'Error rendering DynamicDeviceFlow',
-											data: {
-												errorMessage: error instanceof Error ? error.message : String(error),
-												errorType: error instanceof Error ? error.constructor.name : typeof error,
-												hasStack: error instanceof Error ? !!error.stack : false,
-												stackPreview:
-													error instanceof Error ? error.stack?.substring(0, 200) : 'no stack',
-												deviceType: selectedDeviceType,
-												hasDeviceCode: !!flowState.deviceCode,
-												hasUserCode: !!flowState.userCode,
-												timestamp: Date.now(),
-											},
-											timestamp: Date.now(),
-											sessionId: 'debug-session',
-											runId: 'step2-error',
-											hypothesisId: 'DYNAMIC-DEVICE-FLOW-ERROR',
-										}),
-									}).catch(() => {});
-								} catch (_e) {}
-								// #endregion
+								
 
 								console.error(`${MODULE_TAG} Error rendering DynamicDeviceFlow:`, error);
 								return (
@@ -7413,6 +7471,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			console.log(`${MODULE_TAG} Requesting token`, { flowType });
 			setIsLoading(true);
+			setLoadingMessage('🔑 Requesting Access Token...');
 			setError(null);
 
 			try {
@@ -7491,114 +7550,155 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				<h2>{stepTitle}</h2>
 				<p>Request an access token using client credentials.</p>
 
-				{/* Educational Info for Client Credentials Flow */}
+				{/* Client Credentials Flow Educational Sections */}
 				{flowType === 'client-credentials' && (
-					<div
-						style={{
-							background: '#fef3c7',
-							border: '2px solid #f59e0b',
-							borderRadius: '8px',
-							padding: '16px',
-							marginTop: '16px',
-						}}
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setClientCredentialsOverviewCollapsed(!clientCredentialsOverviewCollapsed)}
+								aria-expanded={!clientCredentialsOverviewCollapsed}
 					>
-						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-							<span style={{ fontSize: '24px', flexShrink: 0 }}>📚</span>
+								<CollapsibleTitle>
+									<FiBook /> What is Client Credentials Flow?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={clientCredentialsOverviewCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!clientCredentialsOverviewCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
 							<div>
-								<h3
-									style={{
-										margin: '0 0 8px 0',
-										fontSize: '16px',
-										fontWeight: '600',
-										color: '#92400e',
-									}}
-								>
-									What's Happening Here?
-								</h3>
-								<div style={{ fontSize: '14px', color: '#92400e', lineHeight: '1.6' }}>
-									<p style={{ margin: '0 0 8px 0' }}>
-										<strong>The Client Credentials Flow</strong> is made directly to the token
-										endpoint and is used to request an access token for:
-									</p>
-									<ul style={{ margin: '0 0 8px 0', paddingLeft: '20px' }}>
-										<li style={{ marginBottom: '4px' }}>
-											<strong>Resources owned by the client</strong> rather than any specific end
-											user
+											<InfoTitle>Machine-to-Machine Authentication</InfoTitle>
+											<InfoText>
+												The Client Credentials Flow (RFC 6749 Section 4.4) is used for
+												machine-to-machine (M2M) authentication where no user is involved. The
+												client authenticates using its own credentials and receives an access token
+												for resources owned by the client or shared across multiple users.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>When to Use Client Credentials</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Resources owned by the client:</strong> Access to data or services
+													belonging to the application itself
 										</li>
-										<li style={{ marginBottom: '4px' }}>
-											<strong>Resources belonging to multiple end users</strong>
+												<li>
+													<strong>Resources belonging to multiple users:</strong> Batch operations,
+													aggregated data, or system-level access
 										</li>
-									</ul>
-									<ol style={{ margin: '0 0 8px 0', paddingLeft: '20px' }}>
-										<li style={{ marginBottom: '4px' }}>
-											<strong>Step 1 (this step):</strong> Your application authenticates using HTTP
-											Basic Authentication with its client ID and client secret, sending a POST
-											request with <code>Content-Type: application/x-www-form-urlencoded</code>
+												<li>
+													<strong>No user context:</strong> Background jobs, scheduled tasks, or
+													automated processes
 										</li>
-										<li style={{ marginBottom: '4px' }}>
-											<strong>Step 2 (next):</strong> PingOne validates your credentials and returns
-											an access token
-										</li>
-									</ol>
-									<p
-										style={{
-											margin: '8px 0 0 0',
-											padding: '8px',
-											background: 'rgba(255, 255, 255, 0.5)',
-											borderRadius: '4px',
-										}}
-									>
-										<strong>🔒 Why this way?</strong> This flow is designed for machine-to-machine
-										(M2M) authentication where no user interaction is required. Your application
-										authenticates directly using its own credentials to access resources on behalf
-										of the application itself or multiple users. <strong>Note:</strong> Client
-										Credentials flow typically does not return refresh tokens or ID tokens (unless{' '}
-										<code>openid</code> scope is included and supported).
-									</p>
-									<div style={{ margin: '12px 0 0 0' }}>
-										<button
-											type="button"
-											onClick={() => setShowWorkerTokenVsClientCredentialsModal(true)}
-											style={{
-												display: 'inline-flex',
-												alignItems: 'center',
-												gap: '8px',
-												padding: '8px 16px',
-												background: '#3b82f6',
-												color: '#ffffff',
-												border: 'none',
-												borderRadius: '6px',
-												cursor: 'pointer',
-												fontSize: '14px',
-												fontWeight: '600',
-												transition: 'background 0.2s',
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#2563eb';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = '#3b82f6';
-											}}
-										>
-											<FiInfo size={16} />
-											Learn: Worker Tokens vs Client Credentials
-										</button>
+											</InfoList>
 									</div>
-									<p style={{ margin: '8px 0 0 0', fontSize: '12px', fontStyle: 'italic' }}>
-										Reference:{' '}
-										<a
-											href="https://apidocs.pingidentity.com/pingone/main/v1/api/"
-											target="_blank"
-											rel="noopener noreferrer"
-											style={{ color: '#3b82f6' }}
-										>
-											PingOne Platform API Reference
-										</a>
-									</p>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setClientCredentialsDetailsCollapsed(!clientCredentialsDetailsCollapsed)}
+								aria-expanded={!clientCredentialsDetailsCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Client Credentials vs User Flows & Resource Server Scopes
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={clientCredentialsDetailsCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!clientCredentialsDetailsCollapsed && (
+								<CollapsibleContent>
+									<ParameterGrid>
+										<InfoBox $variant="info">
+											<FiInfo size={20} />
+											<div>
+												<InfoTitle>Client Credentials Flow</InfoTitle>
+												<InfoList>
+													<li>No user authentication required</li>
+													<li>Direct token request with client credentials</li>
+													<li>Uses resource server scopes</li>
+													<li>Perfect for backend services</li>
+												</InfoList>
 								</div>
+										</InfoBox>
+
+										<InfoBox $variant="success">
+											<FiCheckCircle size={20} />
+											<div>
+												<InfoTitle>User Flows (Auth Code, Implicit)</InfoTitle>
+												<InfoList>
+													<li>Requires user authentication</li>
+													<li>User grants permission to application</li>
+													<li>Uses OIDC scopes (openid, profile, email)</li>
+													<li>Perfect for user-facing applications</li>
+												</InfoList>
 							</div>
+										</InfoBox>
+									</ParameterGrid>
+
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Resource Server Scopes Required</InfoTitle>
+											<InfoText>
+												Client Credentials flow requires resource server scopes (e.g., "ClaimScope",
+												"custom:read", "api:read"). OIDC scopes (openid, profile, email) and
+												self-management scopes (p1:read:user) do not work with Client Credentials.
+											</InfoText>
+											<InfoList>
+												<li>
+													<strong>Why?</strong> Client Credentials is for accessing resources, not
+													user identity
+												</li>
+												<li>
+													<strong>How to configure:</strong> Create a resource server in PingOne,
+													add scopes, and associate it with your application
+												</li>
+												<li>
+													<strong>Example scopes:</strong> ClaimScope, custom:read, api:read,
+													api:write
+												</li>
+											</InfoList>
 						</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>Use Cases for Client Credentials</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>API-to-API communication:</strong> Microservices authenticating to
+													each other
+												</li>
+												<li>
+													<strong>Backend services:</strong> Server-side applications accessing APIs
+												</li>
+												<li>
+													<strong>Scheduled jobs:</strong> Cron jobs, batch processors, data sync
+													tasks
+												</li>
+												<li>
+													<strong>System integrations:</strong> Third-party integrations, webhooks,
+													automated workflows
+												</li>
+											</InfoList>
 					</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
 				)}
 
 				{/* Show success if tokens were received */}
@@ -8021,6 +8121,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					tokens: tokenState,
 				});
 				nav.markStepComplete();
+				// Clear validation errors when tokens are successfully received
+				nav.setValidationErrors([]);
 
 				// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
 				if (specVersion === 'oidc' && tokens.access_token) {
@@ -8330,6 +8432,36 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					proxyEndpoint,
 				});
 
+				// Track API call for display
+				const { apiCallTrackerService: apiCallTrackerService5 } = await import('@/services/apiCallTrackerService');
+				const startTime5 = Date.now();
+				const requestBody5 = {
+					token: '***REDACTED***',
+					token_type_hint:
+						tokenType === 'refresh'
+							? 'refresh_token'
+							: tokenType === 'id'
+								? 'id_token'
+								: 'access_token',
+					client_id: credentials.clientId,
+					client_secret: '***REDACTED***',
+					introspection_endpoint: introspectionEndpoint,
+					token_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+				};
+
+				const callId5 = apiCallTrackerService5.trackApiCall({
+					method: 'POST',
+					url: proxyEndpoint,
+					actualPingOneUrl: introspectionEndpoint,
+					isProxy: true,
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: requestBody5,
+					step: `unified-introspect-${tokenType}`,
+					flowType: 'unified',
+				});
+
 				const response = await fetch(proxyEndpoint, {
 					method: 'POST',
 					headers: {
@@ -8350,6 +8482,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}),
 				});
 
+				// Parse response once (clone first to avoid consuming the body)
+				const responseClone5 = response.clone();
+				let responseData5: unknown;
+				try {
+					responseData5 = await responseClone5.json();
+				} catch {
+					responseData5 = { error: 'Failed to parse response' };
+				}
+
+				// Update API call with response
+				apiCallTrackerService5.updateApiCallResponse(
+					callId5,
+					{
+						status: response.status,
+						statusText: response.statusText,
+						data: responseData5,
+					},
+					Date.now() - startTime5
+				);
+
 				console.log(`${MODULE_TAG} Introspection response status:`, {
 					status: response.status,
 					statusText: response.statusText,
@@ -8357,14 +8509,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				if (!response.ok) {
-					const errorText = await response.text();
+					const errorData = responseData5 as { error?: string; message?: string };
+					const errorText = errorData.error || errorData.message || 'Unknown error';
 					console.error(`${MODULE_TAG} Introspection error response:`, errorText);
 					throw new Error(
 						`Token introspection failed: ${response.status} ${response.statusText} - ${errorText}`
 					);
 				}
 
-				const data = await response.json();
+				const data = responseData5 as Record<string, unknown>;
 				console.log(`${MODULE_TAG} Introspection data received:`, data);
 
 				setIntrospectionData(data);
@@ -9200,6 +9353,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		);
 	};
 
+	// Step 7: API Documentation
+	const renderStep7Documentation = () => {
+		return (
+			<UnifiedFlowDocumentationPageV8U
+				flowType={flowType}
+				specVersion={specVersion}
+				credentials={credentials}
+				currentStep={currentStep}
+				totalSteps={totalSteps}
+			/>
+		);
+	};
+
 	// Polling Timeout Modal - shown when polling times out
 	const renderPollingTimeoutModal = () => {
 		if (!showPollingTimeoutModal) return null;
@@ -9842,13 +10008,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const renderStepContent = () => {
 		// Only log when step or flow type changes (not on every render)
 		if (prevStepRef.current !== currentStep || prevFlowTypeRef.current !== flowType) {
-			console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
-				currentStep,
-				flowType,
-				usePKCE: isPKCERequired,
-				pkceEnforcement: credentials.pkceEnforcement,
-				alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
-			});
+		console.log(`${MODULE_TAG} [STEP ROUTING] Rendering step content`, {
+			currentStep,
+			flowType,
+			usePKCE: isPKCERequired,
+			pkceEnforcement: credentials.pkceEnforcement,
+			alwaysShowPKCE: flowType === 'oauth-authz' || flowType === 'hybrid',
+		});
 			prevStepRef.current = currentStep;
 			// Note: prevFlowTypeRef is updated in the useEffect above, so we don't update it here
 		}
@@ -9916,6 +10082,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'implicit' || flowType === 'device-code') {
 					return renderStep6IntrospectionUserInfo();
 				}
+				// Client credentials - Step 4 is Documentation (after Introspection at step 3)
+				if (flowType === 'client-credentials') {
+					return renderStep7Documentation();
+				}
 				// All other flows - shouldn't reach here
 				return renderStep3Tokens();
 
@@ -9935,11 +10105,26 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
 					return renderStep6IntrospectionUserInfo();
 				}
+				// For implicit and device-code, Step 6 is documentation (after Introspection at step 5)
+				if (flowType === 'implicit' || flowType === 'device-code') {
+					return renderStep7Documentation();
+				}
 				return renderStep6IntrospectionUserInfo();
 
+			case 7:
+				// For oauth-authz and hybrid, Step 7 is documentation (after Introspection at step 6)
+				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+					return renderStep7Documentation();
+				}
+				return renderStep7Documentation();
+
 			default:
-				// For other flows, check if we're on the last step (introspection & userinfo)
+				// Check if we're on the documentation step (last step)
 				if (currentStep === totalSteps - 1) {
+					return renderStep7Documentation();
+				}
+				// Check if we're on the introspection step (second to last)
+				if (currentStep === totalSteps - 2) {
 					return renderStep6IntrospectionUserInfo();
 				}
 				return null;
@@ -9948,6 +10133,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	return (
 		<>
+			<LoadingSpinnerModalV8U
+				show={isLoading && !!loadingMessage}
+				message={loadingMessage}
+				theme="blue"
+			/>
 			<style>{`
 				.unified-flow-steps-v8u .btn {
 					display: inline-flex;
@@ -10215,12 +10405,28 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					</button>
 
 					{/* Next Button - Green with white text and arrow - Always show except on last step */}
-					{currentStep < totalSteps - 1 && (
+					{currentStep < totalSteps - 1 && (() => {
+						// Determine if we're on the token display step
+						let isTokenStep = false;
+						if (flowType === 'client-credentials') {
+							isTokenStep = currentStep === 2; // Step 3 (0-indexed: 0, 1, 2)
+						} else if (flowType === 'device-code' || flowType === 'implicit') {
+							isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
+						} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
+							isTokenStep = currentStep === 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
+						}
+						
+						// Enable button if tokens are present on token step, or if no validation errors
+						const canProceed = isTokenStep && flowState.tokens?.accessToken 
+							? true 
+							: nav.canGoNext;
+						
+						return (
 						<button
 							type="button"
 							className="btn btn-next"
 							onClick={nav.goToNext}
-							disabled={!nav.canGoNext}
+								disabled={!canProceed}
 							style={{
 								display: 'flex',
 								alignItems: 'center',
@@ -10228,12 +10434,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								gap: '8px',
 								minWidth: '120px',
 							}}
-							title={nav.canGoNext ? 'Proceed to next step' : 'Complete the current step first'}
+								title={canProceed ? 'Proceed to next step' : 'Complete the current step first'}
 						>
 							<span>Next Step</span>
 							<FiArrowRight size={16} style={{ marginLeft: '4px' }} />
 						</button>
-					)}
+						);
+					})()}
 					{/* Always show navigation to introspection step from tokens step, even if validation errors exist */}
 					{currentStep === totalSteps - 2 && flowState.tokens?.accessToken && (
 						<button
