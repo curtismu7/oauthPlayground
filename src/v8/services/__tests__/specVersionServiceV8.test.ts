@@ -182,7 +182,7 @@ describe('SpecVersionServiceV8', () => {
 			expect(SpecVersionServiceV8.getFlowLabel('client-credentials')).toBe(
 				'Client Credentials Flow'
 			);
-			expect(SpecVersionServiceV8.getFlowLabel('device-code')).toBe('Device Authorization Flow');
+			expect(SpecVersionServiceV8.getFlowLabel('device-code')).toBe('Device code grant type');
 			expect(SpecVersionServiceV8.getFlowLabel('hybrid')).toBe('Hybrid Flow');
 		});
 	});

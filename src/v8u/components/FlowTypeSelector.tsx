@@ -26,7 +26,7 @@ const FLOW_LABELS: Record<FlowType, string> = {
 	implicit: 'Implicit',
 	'client-credentials': 'Client Credentials',
 	ropc: 'Resource Owner Password Credentials',
-	'device-code': 'Device Authorization',
+	'device-code': 'Device code grant type',
 	hybrid: 'Hybrid',
 };
 

@@ -975,8 +975,15 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		return redirectFlowKey;
 	}, [effectiveFlowKey, effectiveFlowType, specVersion]);
 
+	// Track the last flow key to detect flow changes (for auto-updating redirect URI only on flow change)
+	const lastRedirectFlowKeyRef = useRef<string | null>(null);
+
 	// Initialize and update redirect URIs for the flow based on spec version and flow type
 	// Use effectiveFlowKey which accounts for PKCE and spec version
+	// Only auto-update when:
+	// 1. Redirect URI is empty (initial load)
+	// 2. Flow key changes (user switched flows)
+	// This allows users to manually edit the redirect URI without it being overwritten
 	useEffect(() => {
 		const redirectFlowKey = getRedirectFlowKey();
 
@@ -985,33 +992,54 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 		const correctPostLogoutUri =
 			RedirectUriServiceV8.getPostLogoutRedirectUriForFlow(redirectFlowKey);
 
+		const flowKeyChanged = lastRedirectFlowKeyRef.current !== redirectFlowKey;
+		const redirectUriEmpty = !credentials.redirectUri?.trim();
+		const postLogoutUriEmpty = !credentials.postLogoutRedirectUri?.trim();
+
 		console.log(`${MODULE_TAG} Redirect URI check`, {
 			redirectFlowKey,
 			correctRedirectUri,
 			currentRedirectUri: credentials.redirectUri,
-			willAutoSet: !credentials.redirectUri && !!correctRedirectUri,
+			flowKeyChanged,
+			redirectUriEmpty,
+			willAutoSet: (flowKeyChanged || redirectUriEmpty) && !!correctRedirectUri,
 		});
 
-		// Always update redirect URI to the correct one for this flow (not just when empty)
-		// This ensures that when switching flows, the redirect URI is updated
-		if (correctRedirectUri && credentials.redirectUri !== correctRedirectUri) {
-			console.log(`${MODULE_TAG} Auto-updating redirect URI for flow (was incorrect)`, {
-				redirectFlowKey,
-				oldRedirectUri: credentials.redirectUri,
-				newRedirectUri: correctRedirectUri,
-			});
-			onChange({ ...credentials, redirectUri: correctRedirectUri });
+		// Only auto-update redirect URI if:
+		// 1. It's empty (initial load), OR
+		// 2. The flow key changed (user switched flows)
+		// This prevents overwriting user's manual edits
+		if (correctRedirectUri && (redirectUriEmpty || flowKeyChanged)) {
+			// Only update if it's different from current value
+			if (credentials.redirectUri !== correctRedirectUri) {
+				console.log(`${MODULE_TAG} Auto-updating redirect URI for flow`, {
+					redirectFlowKey,
+					oldRedirectUri: credentials.redirectUri,
+					newRedirectUri: correctRedirectUri,
+					reason: redirectUriEmpty ? 'empty' : 'flow changed',
+				});
+				onChange({ ...credentials, redirectUri: correctRedirectUri });
+			}
 		}
 
-		// Always update post-logout redirect URI to the correct one for this flow (not just when empty)
-		if (correctPostLogoutUri && credentials.postLogoutRedirectUri !== correctPostLogoutUri) {
-			console.log(`${MODULE_TAG} Auto-updating post-logout redirect URI for flow (was incorrect)`, {
-				redirectFlowKey,
-				oldPostLogoutUri: credentials.postLogoutRedirectUri,
-				newPostLogoutUri: correctPostLogoutUri,
-			});
-			onChange({ ...credentials, postLogoutRedirectUri: correctPostLogoutUri });
+		// Only auto-update post-logout redirect URI if:
+		// 1. It's empty (initial load), OR
+		// 2. The flow key changed (user switched flows)
+		if (correctPostLogoutUri && (postLogoutUriEmpty || flowKeyChanged)) {
+			// Only update if it's different from current value
+			if (credentials.postLogoutRedirectUri !== correctPostLogoutUri) {
+				console.log(`${MODULE_TAG} Auto-updating post-logout redirect URI for flow`, {
+					redirectFlowKey,
+					oldPostLogoutUri: credentials.postLogoutRedirectUri,
+					newPostLogoutUri: correctPostLogoutUri,
+					reason: postLogoutUriEmpty ? 'empty' : 'flow changed',
+				});
+				onChange({ ...credentials, postLogoutRedirectUri: correctPostLogoutUri });
+			}
 		}
+
+		// Update the ref to track the current flow key
+		lastRedirectFlowKeyRef.current = redirectFlowKey;
 	}, [
 		getRedirectFlowKey,
 		credentials.redirectUri,
