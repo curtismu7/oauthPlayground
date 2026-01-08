@@ -142,21 +142,40 @@ class WorkerTokenServiceV8 {
 	 * Load worker token credentials from all storage layers (memory -> browser -> IndexedDB)
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:144',message:'loadCredentials called',data:{hasMemoryCache:!!this.memoryCache,storageKey:BROWSER_STORAGE_KEY},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+		// #endregion
 		// Try memory cache first
 		if (this.memoryCache) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:147',message:'Using memory cache',data:{hasEnvironmentId:!!this.memoryCache.environmentId,hasClientId:!!this.memoryCache.clientId,hasClientSecret:!!this.memoryCache.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
 			return this.extractCredentials(this.memoryCache);
 		}
 
 		// Try browser storage (primary)
 		try {
 			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:152',message:'Checking browser storage',data:{hasStored:!!stored,storageKey:BROWSER_STORAGE_KEY,storedLength:stored?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
 			if (stored) {
 				const data: WorkerTokenData = JSON.parse(stored);
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:155',message:'Parsed storage data',data:{hasEnvironmentId:!!data.environmentId,hasClientId:!!data.clientId,hasClientSecret:!!data.clientSecret,hasScopes:!!data.scopes},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
 				this.memoryCache = data;
-				return this.extractCredentials(data);
+				const extracted = this.extractCredentials(data);
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:157',message:'Extracted credentials',data:{hasExtracted:!!extracted,hasExtractedEnvId:!!extracted?.environmentId,hasExtractedClientId:!!extracted?.clientId,hasExtractedClientSecret:!!extracted?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+				return extracted;
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load from browser storage`, error);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:160',message:'Error loading from browser storage',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
 		}
 
 		// Try IndexedDB (backup)
@@ -185,6 +204,44 @@ class WorkerTokenServiceV8 {
 			console.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
 		}
 
+		// Try legacy storage key as fallback (worker_credentials)
+		try {
+			const legacyStored = localStorage.getItem('worker_credentials');
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:188',message:'Checking legacy storage key',data:{hasLegacyStored:!!legacyStored},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+			if (legacyStored) {
+				const legacyData = JSON.parse(legacyStored);
+				// Convert legacy format to WorkerTokenData format
+				const convertedData: WorkerTokenData = {
+					token: '', // Token not in legacy format
+					environmentId: legacyData.environmentId,
+					clientId: legacyData.clientId,
+					clientSecret: legacyData.clientSecret,
+					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					region: legacyData.region || 'us',
+					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					savedAt: Date.now(),
+				};
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:200',message:'Found legacy credentials, converting',data:{hasEnvironmentId:!!convertedData.environmentId,hasClientId:!!convertedData.clientId,hasClientSecret:!!convertedData.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+				// Save to new format and cache
+				this.memoryCache = convertedData;
+				try {
+					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
+				} catch (error) {
+					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage`, error);
+				}
+				return this.extractCredentials(convertedData);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load from legacy storage`, error);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:212',message:'Error loading legacy credentials',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+		}
+
 		return null;
 	}
 
@@ -207,6 +264,35 @@ class WorkerTokenServiceV8 {
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load from browser storage (sync)`, error);
+		}
+
+		// Try legacy storage key as fallback (worker_credentials)
+		try {
+			const legacyStored = localStorage.getItem('worker_credentials');
+			if (legacyStored) {
+				const legacyData = JSON.parse(legacyStored);
+				// Convert legacy format to WorkerTokenData format
+				const convertedData: WorkerTokenData = {
+					token: '', // Token not in legacy format
+					environmentId: legacyData.environmentId,
+					clientId: legacyData.clientId,
+					clientSecret: legacyData.clientSecret,
+					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
+					region: legacyData.region || 'us',
+					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
+					savedAt: Date.now(),
+				};
+				// Save to new format and cache
+				this.memoryCache = convertedData;
+				try {
+					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
+				} catch (error) {
+					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`, error);
+				}
+				return this.extractCredentials(convertedData);
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Failed to load from legacy storage (sync)`, error);
 		}
 
 		return null;
@@ -373,6 +459,9 @@ class WorkerTokenServiceV8 {
 	 * Extract credentials from data object
 	 */
 	private extractCredentials(data: WorkerTokenData): WorkerTokenCredentials {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenServiceV8.ts:394',message:'extractCredentials called',data:{hasData:!!data,hasEnvironmentId:!!data?.environmentId,hasClientId:!!data?.clientId,hasClientSecret:!!data?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
+		// #endregion
 		return {
 			environmentId: data.environmentId,
 			clientId: data.clientId,

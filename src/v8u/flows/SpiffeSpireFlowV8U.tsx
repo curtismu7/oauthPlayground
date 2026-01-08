@@ -26,7 +26,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { EnvironmentIdServiceV8 } from '@/v8/services/environmentIdServiceV8';
 import { TokenDisplayServiceV8 } from '@/v8/services/tokenDisplayServiceV8';
@@ -206,10 +205,10 @@ const HelperText = styled.div`
 	}
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid #d1d5db; // Grey border
+	border: 1px solid ${(props) => (props.$hasError ? '#dc2626' : '#d1d5db')}; // Red border if error, grey otherwise
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	color: #1f2937; // Dark text
@@ -218,8 +217,9 @@ const Input = styled.input`
 
 	&:focus {
 		outline: none;
-		border-color: #667eea;
-		box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+		border-color: ${(props) => (props.$hasError ? '#dc2626' : '#667eea')};
+		box-shadow: 0 0 0 3px
+			${(props) => (props.$hasError ? 'rgba(220, 38, 38, 0.1)' : 'rgba(102, 126, 234, 0.1)')};
 	}
 
 	&:disabled {
@@ -754,6 +754,12 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 		if (storedEnvId) {
 			setEnvironmentId(storedEnvId);
 			console.log(`${MODULE_TAG} Loaded environment ID from storage`);
+		} else {
+			// Auto-fill with a default example if nothing is stored
+			const defaultEnvId = 'b9817c16-9910-4415-b67e-4ac687da74d9';
+			setEnvironmentId(defaultEnvId);
+			EnvironmentIdServiceV8.saveEnvironmentId(defaultEnvId);
+			console.log(`${MODULE_TAG} Auto-filled environment ID with default`);
 		}
 	}, []);
 
@@ -1057,9 +1063,6 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 				<p>Demonstrate workload identity (SVID) generation and exchange for PingOne SSO tokens</p>
 			</Header>
 
-			{/* Navigation */}
-			<MFANavigationV8 currentPage="hub" showRestartFlow={false} showBackToMain={true} />
-
 			<Alert $type="info">
 				<FiExternalLink />
 				<div>
@@ -1334,6 +1337,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}
 								placeholder="example.org"
 								disabled={currentStep > 1}
+								$hasError={currentStep === 1 && !workloadConfig.trustDomain?.trim()}
 							/>
 							<HelperText>
 								💡 <strong>Use the default:</strong> example.org (or enter your own)
@@ -1359,6 +1363,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}
 								placeholder="frontend/api"
 								disabled={currentStep > 1}
+								$hasError={currentStep === 1 && !workloadConfig.workloadPath?.trim()}
 							/>
 							<HelperText>
 								💡 <strong>Use the default:</strong> frontend/api (or enter your own)
@@ -1395,6 +1400,11 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										}
 										placeholder="default"
 										disabled={currentStep > 1}
+										$hasError={
+											currentStep === 1 &&
+											workloadConfig.workloadType === 'kubernetes' &&
+											!workloadConfig.namespace?.trim()
+										}
 									/>
 									<HelperText>
 										💡 <strong>Use the default:</strong> default (or enter your own)
@@ -1411,6 +1421,11 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 										}
 										placeholder="frontend-sa"
 										disabled={currentStep > 1}
+										$hasError={
+											currentStep === 1 &&
+											workloadConfig.workloadType === 'kubernetes' &&
+											!workloadConfig.serviceAccount?.trim()
+										}
 									/>
 									<HelperText>
 										💡 <strong>Use the default:</strong> frontend-sa (or enter your own)
@@ -1433,6 +1448,7 @@ export const SpiffeSpireFlowV8U: React.FC = () => {
 								}}
 								placeholder="12345678-1234-1234-1234-123456789abc"
 								disabled={currentStep > 1}
+								$hasError={currentStep === 1 && !environmentId?.trim()}
 							/>
 							<HelperText>
 								{environmentId ? (

@@ -391,7 +391,7 @@ const createPopOutWindow = (
 											const responseText = hasResponse ? JSON.stringify(call.response.data, null, 2) : '';
 											// Escape for use in JavaScript strings within HTML onclick attributes
 											// Use JSON.stringify to properly escape the text for JavaScript
-											const escapeForJsString = (text: string): string => {
+											const escapeForJsString = (text) => {
 												// JSON.stringify will properly escape all special characters
 												// Remove the surrounding quotes that JSON.stringify adds
 												return JSON.stringify(text).slice(1, -1);
@@ -635,7 +635,7 @@ export const SuperSimpleApiDisplayV8: React.FC<SuperSimpleApiDisplayV8Props> = (
 				clearTimeout(timeout2);
 			};
 		}
-	}, [isVisible, fontSize, apiCalls.length]);
+	}, [isVisible]);
 	const [popOutWindow, setPopOutWindow] = useState<Window | null>(null);
 	const [showP1Only, setShowP1Only] = useState(false); // Filter toggle state
 
