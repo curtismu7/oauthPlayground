@@ -1614,13 +1614,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										setSilentApiRetrieval(newValue);
 										const config = MFAConfigurationServiceV8.loadConfiguration();
 										config.workerToken.silentApiRetrieval = newValue;
-										if (newValue) {
-											config.workerToken.showTokenAtEnd = false;
-											setShowTokenAtEnd(false);
-											toastV8.info(
-												'Show Token After Generation automatically turned OFF for silent retrieval.'
-											);
-										}
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										window.dispatchEvent(
 											new CustomEvent('mfaConfigurationUpdated', {
@@ -1673,13 +1666,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 										setShowTokenAtEnd(newValue);
 										const config = MFAConfigurationServiceV8.loadConfiguration();
 										config.workerToken.showTokenAtEnd = newValue;
-										if (newValue) {
-											config.workerToken.silentApiRetrieval = false;
-											setSilentApiRetrieval(false);
-											toastV8.info(
-												'Silent API Token Retrieval automatically turned OFF to show token.'
-											);
-										}
 										MFAConfigurationServiceV8.saveConfiguration(config);
 										window.dispatchEvent(
 											new CustomEvent('mfaConfigurationUpdated', {
