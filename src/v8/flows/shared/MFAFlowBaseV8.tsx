@@ -839,13 +839,34 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}}
 			/>
 
-			{showWorkerTokenModal && (
+			{showWorkerTokenModal && (() => {
+				// Check if we should show token only (matches MFA pattern)
+				try {
+					const { MFAConfigurationServiceV8 } = require('@/v8/services/mfaConfigurationServiceV8');
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					
+					// Show token-only if showTokenAtEnd is ON and token is valid
+					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+					
+					return (
 				<WorkerTokenModalV8
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onTokenGenerated={handleWorkerTokenGenerated}
-				/>
-			)}
+							showTokenOnly={showTokenOnly}
+						/>
+					);
+				} catch {
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => setShowWorkerTokenModal(false)}
+							onTokenGenerated={handleWorkerTokenGenerated}
+						/>
+					);
+				}
+			})()}
 
 			{showUserLoginModal && (
 				<UserLoginModalV8
