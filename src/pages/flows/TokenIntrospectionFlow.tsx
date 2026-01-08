@@ -358,23 +358,6 @@ console.log('Token expires at:', new Date(introspectionResponse.exp! * 1000));`,
 							username: 'john.doe@example.com',
 							auth_time: Math.floor(Date.now() / 1000) - 600,
 						};
-					} else if (activeTab === 'id_token') {
-						mockIntrospectionResponse = {
-							active: true,
-							scope: 'openid profile email',
-							client_id: formData.clientId,
-							token_type: 'Bearer',
-							exp: Math.floor(Date.now() / 1000) + 3600,
-							iat: Math.floor(Date.now() / 1000) - 300,
-							sub: 'user_123456789',
-							aud: formData.clientId,
-							iss: `https://auth.pingone.com/${formData.environmentId}`,
-							jti: `jti_${Date.now()}`,
-							username: 'john.doe@example.com',
-							auth_time: Math.floor(Date.now() / 1000) - 600,
-							nonce: `nonce_${Date.now()}`,
-							at_hash: `at_hash_${Date.now()}`,
-						};
 					} else if (activeTab === 'refresh_token') {
 						mockIntrospectionResponse = {
 							active: true,
@@ -703,9 +686,6 @@ console.log('Token validation result:', validation);`,
 				<Tab $active={activeTab === 'access_token'} onClick={() => setActiveTab('access_token')}>
 					Access Token
 				</Tab>
-				<Tab $active={activeTab === 'id_token'} onClick={() => setActiveTab('id_token')}>
-					ID Token
-				</Tab>
 				<Tab $active={activeTab === 'refresh_token'} onClick={() => setActiveTab('refresh_token')}>
 					Refresh Token
 				</Tab>
@@ -716,6 +696,19 @@ console.log('Token validation result:', validation);`,
 					Resource-based
 				</Tab>
 			</TabContainer>
+			
+			{/* Educational Note about ID Tokens */}
+			<div style={{
+				padding: '12px 16px',
+				background: '#fef3c7',
+				border: '1px solid #f59e0b',
+				borderRadius: '6px',
+				marginBottom: '1rem',
+				fontSize: '14px',
+				color: '#92400e'
+			}}>
+				<strong>ℹ️ Note:</strong> ID tokens should be validated locally (verify signature, issuer, audience, expiration) rather than using the introspection endpoint. The introspection endpoint is designed for opaque access tokens and refresh tokens.
+			</div>
 
 			<div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
 				<div style={{ flex: 1 }}>

@@ -5288,6 +5288,129 @@ export class MFAServiceV8 {
 	}
 
 	/**
+	 * Create a new device authentication policy
+	 * POST /v1/environments/{environmentId}/deviceAuthenticationPolicies
+	 * @param environmentId - Environment ID
+	 * @param policy - Policy object with required fields (name, type, etc.)
+	 * @param region - Optional PingOne region (defaults to 'us' if not provided)
+	 * @returns Created device authentication policy
+	 */
+	static async createDeviceAuthenticationPolicy(
+		environmentId: string,
+		policy: Partial<DeviceAuthenticationPolicy> & { name: string; type?: string },
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na'
+	): Promise<DeviceAuthenticationPolicy> {
+		console.log(`${MODULE_TAG} Creating device authentication policy`, {
+			environmentId,
+			policyName: policy.name,
+			updateKeys: Object.keys(policy),
+			region: region || 'us',
+		});
+
+		try {
+			const accessToken = await MFAServiceV8.getWorkerToken();
+
+			// PingOne API requires either 'id' or 'type' field, with valid 'type' being 'DEFAULT'
+			// If type is not provided, we'll use 'DEFAULT'
+			const requestBody = {
+				environmentId,
+				workerToken: accessToken.trim(),
+				policy: {
+					...policy,
+					type: policy.type || 'DEFAULT',
+				},
+				region: region || 'us',
+			};
+
+			const startTime = Date.now();
+			const callId = apiCallTrackerService.trackApiCall({
+				method: 'POST',
+				url: '/api/pingone/mfa/device-authentication-policies',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: requestBody,
+				step: 'mfa-Create Device Authentication Policy',
+				flowType: 'mfa',
+			});
+
+			let response: Response;
+			try {
+				response = await pingOneFetch('/api/pingone/mfa/device-authentication-policies', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(requestBody),
+					retry: { maxAttempts: 3 },
+				});
+			} catch (error) {
+				apiCallTrackerService.updateApiCallResponse(
+					callId,
+					{
+						status: 0,
+						statusText: 'Network Error',
+						error: error instanceof Error ? error.message : String(error),
+					},
+					Date.now() - startTime
+				);
+				throw error;
+			}
+
+			const responseClone = response.clone();
+			let responseData: unknown;
+			try {
+				responseData = await responseClone.json();
+			} catch {
+				responseData = { error: 'Failed to parse response' };
+			}
+
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					headers: (() => {
+						const headers: Record<string, string> = {};
+						response.headers.forEach((value, key) => {
+							headers[key] = value;
+						});
+						return headers;
+					})(),
+					data: responseData,
+				},
+				Date.now() - startTime
+			);
+
+			if (!response.ok) {
+				const errorData = responseData as { message?: string; error?: string; details?: unknown };
+				const errorMessage =
+					errorData.message || errorData.error || response.statusText || 'Unknown error';
+				console.error(`${MODULE_TAG} Create policy error:`, {
+					status: response.status,
+					error: errorMessage,
+					details: errorData.details,
+				});
+				throw new Error(`Failed to create device authentication policy: ${errorMessage}`);
+			}
+
+			const createdPolicy = responseData as DeviceAuthenticationPolicy;
+			console.log(`${MODULE_TAG} Created device authentication policy:`, {
+				id: createdPolicy.id,
+				name: createdPolicy.name,
+			});
+			return createdPolicy;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Create device authentication policy error:`, {
+				error: error instanceof Error ? error.message : String(error),
+				errorDetails: error instanceof Error ? error.stack : undefined,
+				environmentId,
+			});
+			throw error;
+		}
+	}
+
+	/**
 	 * Update a device authentication policy
 	 * PUT /v1/environments/{environmentId}/deviceAuthenticationPolicies/{policyId}
 	 * @param environmentId - Environment ID
