@@ -651,6 +651,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'postman-collection-generator',
+						path: '/postman-collection-generator',
+						label: '📦 Postman Collection Generator',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiPackage />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -976,6 +991,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						icon: (
 							<ColoredIcon $color="#ef4444">
 								<FiLogOut />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'postman-collection-generator',
+						path: '/postman-collection-generator',
+						label: 'Postman Collection Generator',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiPackage />
 							</ColoredIcon>
 						),
 					},

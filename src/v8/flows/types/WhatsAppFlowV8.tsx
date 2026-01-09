@@ -1546,6 +1546,8 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						adminDeviceStatus,
 						credentials.tokenType
 					);
+					// Ensure deviceType is set for documentation button
+					successData.deviceType = 'WHATSAPP' as DeviceType;
 
 					// Store in state if not already stored
 					if (!deviceRegisteredActive) {
@@ -1555,6 +1557,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					return (
 						<MFASuccessPageV8
 							{...props}
+							credentials={{ ...credentials, deviceType: 'WHATSAPP' as DeviceType }}
 							successData={successData}
 							onStartAgain={() => {
 								setDeviceRegisteredActive(null);
@@ -1846,9 +1849,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'WHATSAPP' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'WHATSAPP' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
@@ -1866,9 +1872,12 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						adminDeviceStatus,
 						credentials.tokenType
 					);
+					// Ensure deviceType is set for documentation button
+					successData.deviceType = 'WHATSAPP' as DeviceType;
 					return (
 						<MFASuccessPageV8
 							{...props}
+							credentials={{ ...credentials, deviceType: 'WHATSAPP' as DeviceType }}
 							successData={successData}
 							onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 						/>
