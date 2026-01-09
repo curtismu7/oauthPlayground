@@ -525,6 +525,10 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 	// Modal state for existing FIDO device
 	const [showFIDODeviceExistsModal, setShowFIDODeviceExistsModal] = useState(false);
+	const [existingFIDODevice, setExistingFIDODevice] = useState<{
+		id: string;
+		nickname?: string;
+	} | null>(null);
 
 	// Initialize WebAuthn support check
 	useEffect(() => {
@@ -635,14 +639,20 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								type="button"
 								onClick={async () => {
 									if (tokenStatus.isValid) {
-										import('@/v8/services/workerTokenServiceV8').then(
-											({ workerTokenServiceV8 }) => {
-												workerTokenServiceV8.clearToken();
-												window.dispatchEvent(new Event('workerTokenUpdated'));
-												WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-												toastV8.success('Worker token removed');
-											}
-										);
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:637',message:'User clicked remove token, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+										await workerTokenServiceV8.clearToken();
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:641',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:645',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										toastV8.success('Worker token removed');
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// Pass current checkbox values to override config (page checkboxes take precedence)
@@ -1330,6 +1340,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 					const hasExistingFIDODevice = existingDevices.length > 0;
 
 					if (hasExistingFIDODevice) {
+						const firstDevice = existingDevices[0] as Record<string, unknown>;
 						console.log(`${MODULE_TAG} User already has a FIDO device registered:`, {
 							deviceCount: existingDevices.length,
 							devices: existingDevices.map((d: Record<string, unknown>) => ({
@@ -1337,6 +1348,11 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								nickname: d.nickname || d.name,
 								status: d.status,
 							})),
+						});
+						// Store device info for the modal
+						setExistingFIDODevice({
+							id: firstDevice.id as string,
+							nickname: (firstDevice.nickname || firstDevice.name) as string | undefined,
 						});
 						setShowFIDODeviceExistsModal(true);
 						setIsLoading(false);
@@ -2472,9 +2488,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 			<FIDODeviceExistsModalV8
 				isOpen={showFIDODeviceExistsModal}
-				onClose={() => setShowFIDODeviceExistsModal(false)}
+				onClose={() => {
+					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
+				}}
 				onBackToSelection={() => {
 					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
 					// Navigate back to device selection step
 					if (navRef.current) {
 						navRef.current.goToStep(1);
@@ -2484,8 +2504,29 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				}}
 				onBackToHub={() => {
 					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
 					navigateToMfaHubWithCleanup(navigate);
 				}}
+				onDeviceDeleted={() => {
+					setShowFIDODeviceExistsModal(false);
+					setExistingFIDODevice(null);
+					// Refresh device list and allow registration
+					if (navRef.current) {
+						navRef.current.setValidationErrors([]);
+						navRef.current.setValidationWarnings([]);
+					}
+					// Trigger device reload by updating device selection state
+					setDeviceSelection((prev) => ({
+						...prev,
+						existingDevices: [],
+						selectedExistingDevice: 'new',
+						showRegisterForm: true,
+					}));
+				}}
+				environmentId={credentialsRef.current?.environmentId}
+				username={credentialsRef.current?.username}
+				deviceId={existingFIDODevice?.id}
+				deviceNickname={existingFIDODevice?.nickname}
 			/>
 		</div>
 	);

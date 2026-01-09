@@ -845,10 +845,63 @@ interface FlowState {
 
 ---
 
+## Step 7: API Documentation
+
+**Component:** `UnifiedFlowDocumentationPageV8U`  
+**Purpose:** Display comprehensive API documentation for the flow
+
+### Download Options
+
+The documentation page provides three download options:
+
+1. **Download Markdown** (`handleDownloadMarkdown`)
+   - Icon: `FiFileText`
+   - Background: `#3b82f6` (blue)
+   - Generates markdown file with all API calls
+
+2. **Download PDF** (`handleDownloadPDF`)
+   - Icon: `FiDownload`
+   - Background: `#10b981` (green)
+   - Generates PDF file with all API calls
+
+3. **Download Postman Collection** (`handleDownloadPostman`)
+   - Icon: `FiPackage`
+   - Background: `#8b5cf6` (purple)
+   - Generates Postman collection JSON file
+   - Format: `{{authPath}}/{{envID}}/path` (matches PingOne documentation format)
+   - Variables included: `authPath`, `envID`, `client_id`, `client_secret`, `workerToken`
+   - Reference: [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template)
+
+### Postman Collection Format
+
+The generated Postman collection uses the following format:
+- **URL Format**: `{{authPath}}/{{envID}}/as/authorize`, `{{authPath}}/{{envID}}/as/token`
+- **Variables**:
+  - `authPath`: `https://auth.pingone.com` (includes protocol)
+  - `envID`: Environment ID from credentials
+  - `client_id`: Client ID from credentials
+  - `client_secret`: Client Secret from credentials (type: `secret`)
+  - `workerToken`: Empty (user fills in)
+
+### Button Styling
+
+All download buttons:
+- Padding: `12px 24px`
+- Border radius: `8px`
+- Font size: `16px`
+- Font weight: `600`
+- Display: `flex`
+- Align items: `center`
+- Gap: `8px`
+
+---
+
 ## References
 
 - [RFC 6749 - OAuth 2.0 Authorization Framework](https://tools.ietf.org/html/rfc6749)
 - [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
 - [OAuth 2.1 Draft](https://oauth.net/2.1/)
 - [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/main/v1/api/)
+- [PingOne Postman Collections](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-collections)
+- [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template)
 
