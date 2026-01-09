@@ -797,6 +797,61 @@ A: Code exchange provides:
 
 ---
 
+## Downloading API Documentation
+
+The documentation page (final step) provides three download options:
+
+### 1. Download as Markdown
+
+- **Format**: Markdown (.md) file
+- **Content**: Complete API documentation with all API calls, request/response examples, and notes
+- **Use Case**: Documentation, sharing with team, version control
+
+### 2. Download as PDF
+
+- **Format**: PDF file
+- **Content**: Same as Markdown, formatted for printing
+- **Use Case**: Printing, offline reference, formal documentation
+
+### 3. Download Postman Collection
+
+- **Format**: Postman Collection JSON file
+- **Content**: Complete Postman collection with all API calls from the flow
+- **Use Case**: Import into Postman for testing, API exploration, team sharing
+
+#### Postman Collection Features
+
+The generated Postman collection includes:
+
+- **All API Calls**: Every API call made during the flow
+- **Pre-configured Variables**: 
+  - `authPath`: `https://auth.pingone.com` (includes protocol)
+  - `envID`: Your environment ID (pre-filled from credentials)
+  - `client_id`: Your client ID (pre-filled from credentials)
+  - `client_secret`: Your client secret (pre-filled, marked as secret)
+  - `workerToken`: Empty (fill in after obtaining token)
+- **URL Format**: Matches PingOne documentation format: `{{authPath}}/{{envID}}/as/authorize`, `{{authPath}}/{{envID}}/as/token`
+- **Headers**: Automatically configured (Content-Type, Authorization)
+- **Request Bodies**: Pre-filled with example data
+
+#### Using the Postman Collection
+
+1. **Download**: Click "Download Postman Collection" button. This downloads two files:
+    -   **Collection file** (`*-collection.json`) - Contains all API requests
+    -   **Environment file** (`*-environment.json`) - Contains all variables with pre-filled values
+2. **Import Collection**: Open Postman → Import → Select the collection file (`*-collection.json`)
+3. **Import Environment**: Open Postman → Import → Select the environment file (`*-environment.json`)
+4. **Select Environment**: In Postman, select the imported environment from the dropdown (top right)
+5. **Update Variables**: Edit environment variables with your actual values:
+    -   `envID`, `client_id`, `client_secret` are pre-filled from your flow credentials
+    -   `workerToken` will be empty; fill in after obtaining a worker token
+    -   Other variables have default values
+6. **Test**: Run requests directly in Postman. All variables are automatically substituted from the environment.
+
+**Reference**: [PingOne Postman Collections Documentation](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-collections)
+
+---
+
 ## Support
 
 If you encounter issues not covered in this documentation:

@@ -1510,7 +1510,14 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					} else if (isWorkerTokenError) {
 						// Use helper to show worker token modal (respects silent API retrieval setting)
 						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-						await handleShowWorkerTokenModal(setShowWorkerTokenModal);
+						// Get current checkbox values from config
+						const config = MFAConfigurationServiceV8.loadConfiguration();
+						const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
+						const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
+						// #region agent log
+						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MobileFlowV8.tsx:1510',message:'Calling handleShowWorkerTokenModal from error handler',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+						// #endregion
+						await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, silentApiRetrieval, showTokenAtEnd);
 						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
 						toastV8.error(`Registration failed: ${errorMessage}`);
 					} else {
@@ -1557,9 +1564,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'MOBILE' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'MOBILE' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => {
 							setDeviceRegisteredActive(null);
@@ -1589,9 +1599,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'MOBILE' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'MOBILE' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => {
 							setDeviceRegisteredActive(null);
@@ -2773,9 +2786,12 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'MOBILE' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'MOBILE' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>

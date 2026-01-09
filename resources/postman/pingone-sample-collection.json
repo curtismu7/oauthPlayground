@@ -1,0 +1,514 @@
+{
+	"info": {
+		"name": "PingOne OAuth Playground - Sample Collection",
+		"description": "Sample Postman collection demonstrating PingOne API format with {{authPath}} and {{envID}} variables. This collection follows the PingOne Postman Environment Template format.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "sample-pingone-collection-001",
+		"version": {
+			"major": 1,
+			"minor": 0,
+			"patch": 0
+		}
+	},
+	"variable": [
+		{
+			"key": "authPath",
+			"value": "https://auth.pingone.com",
+			"type": "string",
+			"description": "PingOne authentication server base URL (includes protocol)"
+		},
+		{
+			"key": "envID",
+			"value": "",
+			"type": "string",
+			"description": "PingOne Environment ID (UUID format)"
+		},
+		{
+			"key": "client_id",
+			"value": "",
+			"type": "string",
+			"description": "OAuth Client ID"
+		},
+		{
+			"key": "client_secret",
+			"value": "",
+			"type": "secret",
+			"description": "OAuth Client Secret"
+		},
+		{
+			"key": "workerToken",
+			"value": "",
+			"type": "string",
+			"description": "PingOne Worker Token for management API calls"
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "string",
+			"description": "Username for MFA operations"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "User ID (UUID format)"
+		},
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "string",
+			"description": "MFA Device ID (UUID format)"
+		}
+	],
+	"item": [
+		{
+			"name": "OAuth 2.0 Flows",
+			"item": [
+				{
+					"name": "Authorization Code Flow",
+					"item": [
+						{
+							"name": "1. Build Authorization URL",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{authPath}}/{{envID}}/as/authorize?client_id={{client_id}}&response_type=code&redirect_uri={{redirect_uri}}&scope={{scopes}}&state={{state}}",
+									"protocol": "https",
+									"host": ["auth", "pingone", "com"],
+									"path": ["{{envID}}", "as", "authorize"],
+									"query": [
+										{
+											"key": "client_id",
+											"value": "{{client_id}}"
+										},
+										{
+											"key": "response_type",
+											"value": "code"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{redirect_uri}}"
+										},
+										{
+											"key": "scope",
+											"value": "{{scopes}}"
+										},
+										{
+											"key": "state",
+											"value": "{{state}}"
+										}
+									]
+								},
+								"description": "Build the authorization URL for Authorization Code flow. User will be redirected to this URL to authorize the application."
+							}
+						},
+						{
+							"name": "2. Exchange Authorization Code for Tokens",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "authorization_code"
+										},
+										{
+											"key": "code",
+											"value": "{{authorization_code}}"
+										},
+										{
+											"key": "redirect_uri",
+											"value": "{{redirect_uri}}"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client_id}}"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client_secret}}"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{authPath}}/{{envID}}/as/token",
+									"protocol": "https",
+									"host": ["auth", "pingone", "com"],
+									"path": ["{{envID}}", "as", "token"]
+								},
+								"description": "Exchange the authorization code received from the authorization endpoint for access token, ID token, and refresh token."
+							}
+						},
+						{
+							"name": "3. Introspect Token",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{workerToken}}"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "token",
+											"value": "{{access_token}}"
+										},
+										{
+											"key": "token_type_hint",
+											"value": "access_token"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{authPath}}/{{envID}}/as/introspect",
+									"protocol": "https",
+									"host": ["auth", "pingone", "com"],
+									"path": ["{{envID}}", "as", "introspect"]
+								},
+								"description": "Introspect an access token to get information about its validity, expiration, and associated scopes."
+							}
+						},
+						{
+							"name": "4. Get UserInfo",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{access_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{authPath}}/{{envID}}/as/userinfo",
+									"protocol": "https",
+									"host": ["auth", "pingone", "com"],
+									"path": ["{{envID}}", "as", "userinfo"]
+								},
+								"description": "Retrieve user information using the access token. Requires 'openid' scope."
+							}
+						}
+					]
+				},
+				{
+					"name": "Client Credentials Flow",
+					"item": [
+						{
+							"name": "Get Access Token",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials"
+										},
+										{
+											"key": "scope",
+											"value": "{{scopes}}"
+										},
+										{
+											"key": "client_id",
+											"value": "{{client_id}}"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{client_secret}}"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{authPath}}/{{envID}}/as/token",
+									"protocol": "https",
+									"host": ["auth", "pingone", "com"],
+									"path": ["{{envID}}", "as", "token"]
+								},
+								"description": "Get access token using client credentials. Used for server-to-server authentication."
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "MFA Flows",
+			"item": [
+				{
+					"name": "Registration",
+					"item": [
+						{
+							"name": "SMS",
+							"item": [
+								{
+									"name": "Register SMS Device",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"SMS\",\n  \"status\": \"ACTIVATION_REQUIRED\",\n  \"policy\": {\n    \"id\": \"{{deviceAuthenticationPolicyId}}\"\n  },\n  \"phone\": \"+1.5125201234\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications"]
+										},
+										"description": "Register a new SMS device for the user. Returns device ID and activation code."
+									}
+								},
+								{
+									"name": "Activate SMS Device",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"otp\": \"{{otp_code}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications/{{deviceId}}/otp/check",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications", "{{deviceId}}", "otp", "check"]
+										},
+										"description": "Activate SMS device by validating the OTP code sent to the user's phone."
+									}
+								}
+							]
+						},
+						{
+							"name": "FIDO2",
+							"item": [
+								{
+									"name": "Register FIDO2 Device",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"type\": \"FIDO2\",\n  \"rp\": {\n    \"id\": \"{{rpId}}\",\n    \"name\": \"{{rpName}}\"\n  },\n  \"policy\": {\n    \"id\": \"{{deviceAuthenticationPolicyId}}\"\n  }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications"]
+										},
+										"description": "Register a new FIDO2 device. Returns publicKeyCredentialCreationOptions for WebAuthn registration."
+									}
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Authentication",
+					"item": [
+						{
+							"name": "SMS",
+							"item": [
+								{
+									"name": "Initialize SMS Authentication",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"user\": {\n    \"id\": \"{{userId}}\"\n  },\n  \"device\": {\n    \"id\": \"{{deviceId}}\"\n  },\n  \"policy\": {\n    \"id\": \"{{deviceAuthenticationPolicyId}}\"\n  }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications"]
+										},
+										"description": "Initialize SMS device authentication. Sends OTP code to user's phone."
+									}
+								},
+								{
+									"name": "Validate SMS OTP",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"otp\": \"{{otp_code}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthenticationId}}/otp/check",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications", "{{deviceAuthenticationId}}", "otp", "check"]
+										},
+										"description": "Validate OTP code for SMS authentication."
+									}
+								}
+							]
+						},
+						{
+							"name": "FIDO2",
+							"item": [
+								{
+									"name": "Initialize FIDO2 Authentication",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.pingidentity.assertion.check+json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"user\": {\n    \"id\": \"{{userId}}\"\n  },\n  \"device\": {\n    \"id\": \"{{deviceId}}\"\n  },\n  \"policy\": {\n    \"id\": \"{{deviceAuthenticationPolicyId}}\"\n  }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications"]
+										},
+										"description": "Initialize FIDO2 device authentication. Returns publicKeyCredentialRequestOptions for WebAuthn assertion."
+									}
+								},
+								{
+									"name": "Validate FIDO2 Assertion",
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/vnd.pingidentity.assertion.check+json"
+											},
+											{
+												"key": "Authorization",
+												"value": "Bearer {{workerToken}}"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"assertion\": \"{{fido2_assertion}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{authPath}}/{{envID}}/deviceAuthentications/{{deviceAuthenticationId}}/assertion/check",
+											"protocol": "https",
+											"host": ["auth", "pingone", "com"],
+											"path": ["{{envID}}", "deviceAuthentications", "{{deviceAuthenticationId}}", "assertion", "check"]
+										},
+										"description": "Validate FIDO2 WebAuthn assertion."
+									}
+								}
+							]
+						}
+					]
+				}
+			]
+		}
+	]
+}
