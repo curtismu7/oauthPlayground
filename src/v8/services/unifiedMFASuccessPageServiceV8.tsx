@@ -309,6 +309,8 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 			WHATSAPP: '/v8/mfa/register/whatsapp/docs',
 			VOICE: '/v8/mfa/register/sms/docs', // Voice uses SMS flow
 			FIDO2: '/v8/mfa/register/fido2/docs',
+			TOTP: '/v8/mfa/register/totp/docs',
+			MOBILE: '/v8/mfa/register/mobile/docs',
 		};
 
 		const route = docsRouteMap[deviceType as string] || '/v8/mfa/register/sms/docs';
@@ -338,7 +340,7 @@ export const UnifiedMFASuccessPageV8: React.FC<UnifiedMFASuccessPageProps> = ({
 	// Normalize deviceType to string for comparison
 	const deviceTypeStr = String(deviceType || '').toUpperCase();
 	const hasDocumentation =
-		deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2'].includes(deviceTypeStr);
+		deviceTypeStr && ['SMS', 'EMAIL', 'WHATSAPP', 'VOICE', 'FIDO2', 'TOTP', 'MOBILE'].includes(deviceTypeStr);
 	// Show button for registration flows OR FIDO2 authentication flows
 	const showDocumentationButton = hasDocumentation && (flowType === 'registration' || (flowType === 'authentication' && deviceTypeStr === 'FIDO2'));
 	
