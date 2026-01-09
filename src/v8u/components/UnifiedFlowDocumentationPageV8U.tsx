@@ -16,11 +16,16 @@ import {
 	FiFileText,
 	FiHome,
 	FiInfo,
+	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '@/services/apiCallTrackerService';
+import {
+	generatePostmanCollection,
+	downloadPostmanCollectionWithEnvironment,
+} from '@/services/postmanCollectionGeneratorV8';
 
 interface UnifiedFlowDocumentationPageV8UProps {
 	flowType: FlowType;
@@ -364,6 +369,19 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 		navigate('/v8u/unified');
 	};
 
+	const handleDownloadPostman = (): void => {
+		const trackedCalls = apiCallTrackerService.getApiCalls();
+		const collection = generatePostmanCollection(trackedCalls, flowType, specVersion, {
+			environmentId: credentials?.environmentId,
+			clientId: credentials?.clientId,
+			clientSecret: credentials?.clientSecret,
+		});
+		const date = new Date().toISOString().split('T')[0];
+		const filename = `pingone-${flowType}-${specVersion}-${date}-collection.json`;
+		const environmentName = `PingOne ${flowType} ${specVersion} Environment`;
+		downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
+	};
+
 	const flowTypeLabels: Record<FlowType, string> = {
 		'oauth-authz': 'Authorization Code',
 		hybrid: 'Hybrid',
@@ -488,6 +506,26 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 				>
 					<FiDownload />
 					Download PDF
+				</button>
+				<button
+					type="button"
+					onClick={handleDownloadPostman}
+					style={{
+						padding: '12px 24px',
+						fontSize: '16px',
+						fontWeight: '600',
+						borderRadius: '8px',
+						border: '1px solid #8b5cf6',
+						background: '#8b5cf6',
+						color: 'white',
+						cursor: 'pointer',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+					}}
+				>
+					<FiPackage />
+					Download Postman Collection
 				</button>
 				<button
 					type="button"
