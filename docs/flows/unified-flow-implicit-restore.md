@@ -778,6 +778,76 @@ if (isExpired) {
 
 ---
 
+## Postman Collection Downloads
+
+### Overview
+
+The documentation page (final step) provides a **Postman Collection** download feature that generates a complete Postman collection JSON file with all API calls from the flow.
+
+### Collection Format
+
+The generated Postman collection follows the [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template) format:
+
+- **URL Format**: `{{authPath}}/{{envID}}/as/authorize`, `{{authPath}}/{{envID}}/as/token`
+- **Variables**: Pre-configured with values from credentials
+- **Headers**: Automatically set (Content-Type, Authorization)
+- **Request Bodies**: Pre-filled with example data
+
+### Variables Included
+
+| Variable | Value | Type | Source |
+|----------|-------|------|--------|
+| `authPath` | `https://auth.pingone.com` | `string` | Default (includes protocol) |
+| `envID` | Environment ID | `string` | From credentials |
+| `client_id` | Client ID | `string` | From credentials |
+| `workerToken` | Empty | `string` | User fills in |
+
+### Storage
+
+**Postman collections are NOT persisted** - they are generated on-demand when the user clicks "Download Postman Collection".
+
+### Generation Process
+
+1. **Source**: API calls tracked during flow execution via `apiCallTrackerService`
+2. **Conversion**: Endpoints converted to Postman format: `{{authPath}}/{{envID}}/path`
+3. **Variables**: Extracted from current credentials
+4. **Collection Generation**: Postman collection JSON file created with all API requests
+5. **Environment Generation**: Postman environment JSON file created with all variables pre-filled
+6. **Download**: Both files downloaded:
+    -   Collection: `pingone-{flowType}-{specVersion}-{date}-collection.json`
+    -   Environment: `pingone-{flowType}-{specVersion}-{date}-environment.json`
+
+### Environment Variables
+
+The generated environment file includes all variables with pre-filled values from credentials:
+
+-   `authPath`: `https://auth.pingone.com` (default, includes protocol)
+-   `envID`: Pre-filled from `environmentId` in credentials
+-   `client_id`: Pre-filled from `clientId` in credentials
+-   `workerToken`: Empty (user fills in)
+-   `redirect_uri`: Default value `http://localhost:3000/oauth-callback`
+-   `scopes`: Default value `openid profile email`
+-   `state`: Empty (generated per request)
+-   `access_token`: Empty (filled after token exchange)
+
+### Usage
+
+1. User completes flow and reaches documentation page
+2. User clicks "Download Postman Collection" button
+3. Two JSON files are generated and downloaded:
+    -   Collection file with all API requests
+    -   Environment file with all variables
+4. User imports both files into Postman:
+    -   Import collection file → All API requests available
+    -   Import environment file → All variables pre-configured
+5. User selects the imported environment from Postman's environment dropdown
+6. User updates environment variables with actual values if needed
+7. User can test API calls directly in Postman (variables automatically substituted)
+
+**Reference**: [PingOne Postman Collections](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-collections)
+
+---
+
 ## Data Flow
 
 ### Complete Flow Sequence

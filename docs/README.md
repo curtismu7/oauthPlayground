@@ -1,50 +1,66 @@
-# Documentation Index
+# OAuth Playground Documentation
 
-This directory contains all project documentation following the organization structure defined in `.documentation-organization.md`.
+Welcome to the OAuth Playground documentation! This directory contains comprehensive documentation for all features, flows, and utilities.
 
----
+## 📖 Quick Start
 
-## 📚 Documentation Files
+**New to the documentation?** Start here: [Documentation Guide](./DOCUMENTATION_GUIDE.md)
 
-### MFA API Integration
+The Documentation Guide explains:
+- What each document type is (UI Contract, UI Doc, Restore)
+- Where to find documentation
+- How to use the documentation
+- Quick reference guide
 
-- **[mfa-api-endpoints-integration.md](./mfa-api-endpoints-integration.md)** - Comprehensive guide to PingOne MFA API endpoints integration, including activation and pairing code resend functionality
+## 📁 Directory Structure
 
-- **[mfa-endpoints-implementation-summary.md](./mfa-endpoints-implementation-summary.md)** - Implementation summary with Option C (User Choice) design for validation vs. activation
+```
+docs/
+├── DOCUMENTATION_GUIDE.md          # Start here! Comprehensive guide to all documentation
+├── flows/                           # Unified OAuth/OIDC flow documentation
+│   ├── unified-flow-*-ui-contract.md
+│   ├── unified-flow-*-ui-doc.md
+│   └── unified-flow-*-restore.md
+├── mfa-ui-documentation/            # MFA flow documentation
+│   ├── MFA_*_UI_CONTRACT.md
+│   ├── MFA_*_UI_DOC.md
+│   └── MFA_*_RESTORE.md
+└── v8-utilities/                    # Utility feature documentation
+    ├── *-ui-contract.md
+    ├── *-ui-doc.md
+    └── *-restore.md
+```
 
-### Organization
+## 🔍 Finding Documentation
 
-- **[.documentation-organization.md](./.documentation-organization.md)** - Documentation organization guidelines and conventions
+### By Feature Type
 
----
+- **Unified OAuth/OIDC Flows**: `docs/flows/`
+- **MFA Flows**: `docs/mfa-ui-documentation/`
+- **Utilities**: `docs/v8-utilities/`
 
-## 🎯 Quick Links
+### By Document Type
 
-### For Developers
-- [MFA API Integration Guide](./mfa-api-endpoints-integration.md) - Full technical details
-- [Implementation Summary](./mfa-endpoints-implementation-summary.md) - Quick reference
+- **UI Contracts** (for developers): `*-ui-contract.md`
+- **UI Documentation** (for users): `*-ui-doc.md`
+- **Restore Documentation** (for bug fixes): `*-restore.md`
 
-### For Project Management
-- [Documentation Organization](./.documentation-organization.md) - Where to put new docs
+## 📚 Documentation Types
 
----
+### UI Contract (`*-ui-contract.md`)
+Technical specification for developers. Contains component structure, API calls, state management, and testing checklists.
 
-## 📝 Recent Updates
+### UI Documentation (`*-ui-doc.md`)
+End-user guide with step-by-step instructions, troubleshooting, and best practices.
 
-**2024-11-24:**
-- Added MFA API endpoints documentation
-- Implemented Option C (User Choice) for device activation
-- Service layer complete for all three endpoints
-- UI integration plan documented
+### Restore Documentation (`*-restore.md`)
+Implementation details for restoring features, including file locations, code snippets, and common fixes.
 
----
+## 🆕 Recent Updates
 
-## 🔗 Related Documentation
+- **Postman Collection Support**: All documentation now includes Postman collection download information
+- **Complete Coverage**: All flows and utilities have full documentation (UI Contract, UI Doc, Restore)
 
-- **Root README:** `../README.md` - Project overview and getting started
-- **API Documentation:** External PingOne MFA API docs
-- **Code Comments:** Inline documentation in source files
+## 📖 Full Documentation Guide
 
----
-
-**Note:** All new documentation should be created in this `docs/` folder. See `.documentation-organization.md` for guidelines.
+For complete details, see: [Documentation Guide](./DOCUMENTATION_GUIDE.md)

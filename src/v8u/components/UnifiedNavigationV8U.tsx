@@ -13,10 +13,11 @@
  * <UnifiedNavigationV8U currentFlowType="oauth-authz" showBackToMain={true} />
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
+import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
 
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
@@ -30,6 +31,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 	showBackToMain = true,
 }) => {
 	const navigate = useNavigate();
+	const [showDocsModal, setShowDocsModal] = useState(false);
 
 	const flowTypeLabels: Partial<Record<FlowType, { label: string; icon: string; path: string }>> = {
 		'oauth-authz': {
@@ -92,7 +94,6 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 						display: 'flex',
 						gap: '0',
 						flex: 1,
-						justifyContent: 'space-between',
 						alignItems: 'center',
 					}}
 				>
@@ -173,30 +174,9 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					</button>
 					<button
 						type="button"
-						onClick={() => {
-							// Navigate to the documentation step (last step) for the current flow
-							const flow = currentFlowType || 'oauth-authz';
-							// Documentation step numbers (0-indexed, last step):
-							// - Client Credentials: 5 steps total (0-4), documentation at step 4
-							// - Device Code: 6 steps total (0-5), documentation at step 5
-							// - Implicit: 6 steps total (0-5), documentation at step 5
-							// - Authorization Code/Hybrid: 8 steps total (0-7), documentation at step 7
-							const docStepMap: Partial<Record<FlowType, number>> = {
-								'client-credentials': 4, // Step 4 (0-indexed) = last step
-								'device-code': 5, // Step 5 (0-indexed) = last step
-								implicit: 5, // Step 5 (0-indexed) = last step
-								'oauth-authz': 7, // Step 7 (0-indexed) = last step
-								hybrid: 7, // Step 7 (0-indexed) = last step
-							};
-							const docStep = docStepMap[flow];
-							if (docStep !== undefined) {
-								navigate(`/v8u/unified/${flow}/${docStep}`);
-							} else {
-								console.warn(`[UnifiedNavigationV8U] No documentation step mapped for flow: ${flow}`);
-							}
-						}}
+						onClick={() => setShowDocsModal(true)}
 						className="nav-link-btn"
-						title="View API Documentation"
+						title="Download Unified Flow Documentation"
 						style={{
 							fontWeight: '500',
 							flex: 1,
@@ -210,25 +190,20 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 						<button
 							type="button"
 							onClick={handleBackToMain}
+							className="nav-link-btn"
+							title="Back to Unified Flow Hub"
 							style={{
-								padding: '10px 20px',
+								fontWeight: '500',
+								flex: 1,
 								background: '#3b82f6',
 								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '14px',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								fontWeight: '500',
-								marginLeft: '12px',
+								border: '2px solid #3b82f6',
 							}}
 						>
 							🏠 Back to Main
 						</button>
 					)}
-					<div style={{ marginLeft: '12px', display: 'flex', alignItems: 'center' }}>
+					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>
@@ -257,6 +232,8 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					justify-content: center;
 					gap: 8px;
 					text-align: center;
+					min-width: 0;
+					flex: 1;
 				}
 
 				.nav-link-btn:first-child {
@@ -264,7 +241,8 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					border-bottom-left-radius: 6px;
 				}
 
-				.unified-nav-links > .nav-link-btn:last-of-type {
+				.unified-nav-links > .nav-link-btn:last-of-type,
+				.unified-nav-links > .api-display-wrapper:last-of-type {
 					border-top-right-radius: 6px;
 					border-bottom-right-radius: 6px;
 					border-right: none;
@@ -299,7 +277,22 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					color: white;
 					border-color: #2563eb;
 				}
+
+				.api-display-wrapper {
+					background: #f3f4f6;
+					border: 2px solid transparent;
+					border-right: 1px solid #e5e7eb;
+					cursor: default;
+				}
+
+				.api-display-wrapper:hover {
+					background: #f3f4f6;
+				}
 			`}</style>
+			<UnifiedDocumentationModalV8U
+				isOpen={showDocsModal}
+				onClose={() => setShowDocsModal(false)}
+			/>
 		</>
 	);
 };
