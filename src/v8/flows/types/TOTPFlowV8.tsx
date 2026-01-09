@@ -3041,9 +3041,12 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					deviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'TOTP' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'TOTP' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>

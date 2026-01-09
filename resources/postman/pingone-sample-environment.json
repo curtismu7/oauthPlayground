@@ -1,0 +1,129 @@
+{
+	"id": "pingone-oauth-playground-sample-env",
+	"name": "PingOne OAuth Playground - Sample Environment",
+	"values": [
+		{
+			"key": "authPath",
+			"value": "https://auth.pingone.com",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "envID",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "client_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "client_secret",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "workerToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "username",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "deviceId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "deviceAuthenticationPolicyId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "redirect_uri",
+			"value": "http://localhost:3000/oauth-callback",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "scopes",
+			"value": "openid profile email",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "state",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "authorization_code",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "device_code",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "otp_code",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "deviceAuthenticationId",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "fido2_assertion",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "rpId",
+			"value": "localhost",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "rpName",
+			"value": "OAuth Playground",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-01-27T00:00:00.000Z",
+	"_postman_exported_using": "OAuth Playground"
+}

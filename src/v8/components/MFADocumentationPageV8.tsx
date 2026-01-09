@@ -16,9 +16,14 @@ import {
 	FiFileText,
 	FiHome,
 	FiInfo,
+	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { DeviceType } from '../flows/shared/MFATypes';
+import {
+	generateMFAPostmanCollection,
+	downloadPostmanCollectionWithEnvironment,
+} from '@/services/postmanCollectionGeneratorV8';
 
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
@@ -1348,6 +1353,17 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 		downloadAsPDF(markdown, title);
 	};
 
+	const handleDownloadPostman = (): void => {
+		const collection = generateMFAPostmanCollection(apiCalls, deviceType, flowType, {
+			environmentId: credentials?.environmentId,
+			username: credentials?.username,
+		});
+		const date = new Date().toISOString().split('T')[0];
+		const filename = `pingone-mfa-${deviceType.toLowerCase()}-${flowType}-${date}-collection.json`;
+		const environmentName = `PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'} Environment`;
+		downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
+	};
+
 	const deviceTypeLabel = DEVICE_DOCS[deviceType].deviceName;
 	const pageName = `${deviceTypeLabel} Flow - Documentation`;
 
@@ -1556,6 +1572,27 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				>
 					<FiDownload size={18} />
 					Download as PDF
+				</button>
+				<button
+					type="button"
+					onClick={handleDownloadPostman}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '8px',
+						padding: '12px 24px',
+						background: '#8b5cf6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '8px',
+						fontSize: '15px',
+						fontWeight: '600',
+						cursor: 'pointer',
+						boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+					}}
+				>
+					<FiPackage size={18} />
+					Download Postman Collection
 				</button>
 			</div>
 

@@ -1303,9 +1303,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'EMAIL' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'EMAIL' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => {
 							setDeviceRegisteredActive(null);
@@ -1335,9 +1338,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'EMAIL' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'EMAIL' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => {
 							setDeviceRegisteredActive(null);
@@ -2348,9 +2354,12 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 					adminDeviceStatus,
 					credentials.tokenType
 				);
+				// Ensure deviceType is set for documentation button
+				successData.deviceType = 'EMAIL' as DeviceType;
 				return (
 					<MFASuccessPageV8
 						{...props}
+						credentials={{ ...credentials, deviceType: 'EMAIL' as DeviceType }}
 						successData={successData}
 						onStartAgain={() => navigateToMfaHubWithCleanup(navigate)}
 					/>
