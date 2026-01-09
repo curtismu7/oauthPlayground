@@ -158,6 +158,7 @@ import ServiceTestRunner from './pages/ServiceTestRunner';
 import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
+import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
@@ -914,6 +915,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/docs/spiffe-spire-pingone" element={<SpiffeSpirePingOne />} />
 							<Route path="/auto-discover" element={<AutoDiscover />} />
 							<Route path="/token-management" element={<TokenManagement />} />
+							<Route path="/postman-collection-generator" element={<PostmanCollectionGenerator />} />
 							<Route path="/oauth-2-1" element={<OAuth21 />} />
 							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 							<Route path="/par-vs-rar" element={<PARvsRAR />} />
