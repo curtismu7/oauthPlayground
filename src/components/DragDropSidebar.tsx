@@ -28,7 +28,6 @@ import {
 	FiChevronDown,
 	FiCode,
 	FiCpu,
-	FiDatabase,
 	FiEye,
 	FiFileText,
 	FiGitBranch,
@@ -38,6 +37,7 @@ import {
 	FiLock,
 	FiLogOut,
 	FiMove,
+	FiPackage,
 	FiRefreshCw,
 	FiSearch,
 	FiServer,
@@ -284,7 +284,9 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		const presentIds = new Set<string>();
 		const collectItemIds = (groups: MenuGroup[]) => {
 			groups.forEach((g) => {
-				g.items.forEach((i) => presentIds.add(i.id));
+				g.items.forEach((i) => {
+					presentIds.add(i.id);
+				});
 				if (g.subGroups) {
 					collectItemIds(g.subGroups);
 				}
@@ -470,6 +472,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 						badge: (
 							<MigrationBadge title="Utility to delete all MFA devices for a user with device type filtering">
 								UTILITY
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'postman-collection-generator',
+						path: '/postman-collection-generator',
+						label: '📦 Postman Collection Generator',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiPackage />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Generate custom Postman collections for Unified OAuth/OIDC and MFA flows">
+								NEW
 							</MigrationBadge>
 						),
 					},

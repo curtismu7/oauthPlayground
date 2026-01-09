@@ -2,6 +2,38 @@
 
 This folder contains all UI contracts, UI documentation, and restore/master documents for MFA components.
 
+> **📖 New to the documentation?** See the [Documentation Guide](../DOCUMENTATION_GUIDE.md) for an overview of all documentation types.
+
+## Documentation Structure
+
+Each MFA device type has three documentation files:
+
+- **UI Contract** (`MFA_{DEVICE_TYPE}_UI_CONTRACT.md`) - Technical specification for developers
+- **UI Documentation** (`MFA_{DEVICE_TYPE}_UI_DOC.md`) - End-user guide
+- **Restore Documentation** (`MFA_{DEVICE_TYPE}_RESTORE.md`) - Implementation details for restoration
+
+## Available Device Types
+
+| Device Type | UI Contract | UI Doc | Restore |
+|-------------|-------------|--------|---------|
+| SMS | ✅ | ✅ | ✅ |
+| Email | ✅ | ✅ | ✅ |
+| WhatsApp | ✅ | ✅ | ✅ |
+| TOTP | ✅ | ✅ | ✅ |
+| FIDO2 | ✅ | ✅ | ✅ |
+| Mobile | ✅ | ✅ | ✅ |
+| Config Page | ✅ | ✅ | ✅ |
+| Success Page | ✅ | ✅ | - |
+
+## Master Documents
+
+- **Documentation Page Master**: `MFA_DOCUMENTATION_PAGE_MASTER.md`
+- **Documentation Modal Master**: `MFA_DOCUMENTATION_MODAL_MASTER.md`
+- **Success Page Master**: `MFA_SUCCESS_PAGE_MASTER.md`
+- **FIDO2 Master**: `MFA_FIDO2_MASTER.md`
+- **Mobile Master**: `MFA_MOBILE_MASTER.md`
+- **OTP/TOTP Master**: `MFA_OTP_TOTP_MASTER.md`
+
 ## Quick Start
 
 **To move all UI documentation files to this folder, run:**
