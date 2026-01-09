@@ -308,30 +308,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		return credentials.usePKCE === true;
 	}, [flowType, credentials.pkceEnforcement, credentials.usePKCE]);
 
-	// CRITICAL DEBUG: Log credentials received by UnifiedFlowSteps
-	useEffect(() => {
-		console.log(`${MODULE_TAG} ========== UNIFIED-FLOW-STEPS CREDENTIALS RECEIVED ==========`);
-		console.log(`${MODULE_TAG} Flow Type:`, flowType);
-		console.log(`${MODULE_TAG} Credentials Object:`, {
-			environmentId: credentials.environmentId || 'MISSING',
-			clientId: credentials.clientId || 'MISSING',
-			hasClientSecret:
-				credentials.clientSecret !== undefined
-					? credentials.clientSecret
-						? 'PRESENT'
-						: 'EMPTY'
-					: 'UNDEFINED',
-			clientSecretLength: credentials.clientSecret?.length || 0,
-			redirectUri: credentials.redirectUri || 'MISSING',
-			scopes: credentials.scopes || 'MISSING',
-			usePKCE: isPKCERequired,
-			pkceEnforcement: credentials.pkceEnforcement,
-			enableRefreshToken: credentials.enableRefreshToken,
-			allKeys: Object.keys(credentials),
-		});
-		console.log(`${MODULE_TAG} Full Credentials JSON:`, JSON.stringify(credentials, null, 2));
-		console.log(`${MODULE_TAG} ========== UNIFIED-FLOW-STEPS CREDENTIALS END ==========`);
-	}, [credentials, flowType, isPKCERequired]);
+	// Credentials received - no verbose logging needed
 
 	/**
 	 * Calculate total number of steps for the current flow type
@@ -449,7 +426,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				return;
 			}
 			const path = `/v8u/unified/${flowType}/${step}`;
-			console.log(`${MODULE_TAG} Navigating to step`, { from: currentStep, to: step, path });
 			navigate(path, { replace: true });
 			onStepChange?.(step);
 		},
@@ -474,18 +450,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 	const markStepComplete = useCallback(() => {
 		if (!completedSteps.includes(currentStep)) {
-			console.log(`${MODULE_TAG} Marking step as complete`, { step: currentStep });
 			setCompletedSteps((prev) => [...prev, currentStep]);
 		}
 	}, [currentStep, completedSteps]);
 
 	const setValidationErrorsState = useCallback((errors: string[]) => {
-		console.log(`${MODULE_TAG} Setting validation errors`, { errorCount: errors.length });
 		setValidationErrors(errors);
 	}, []);
 
 	const setValidationWarningsState = useCallback((warnings: string[]) => {
-		console.log(`${MODULE_TAG} Setting validation warnings`, { warningCount: warnings.length });
 		setValidationWarnings(warnings);
 	}, []);
 
@@ -539,7 +512,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (storedTokens) {
 				try {
 					const tokens = JSON.parse(storedTokens);
-					console.log(`${MODULE_TAG} Restored ${flowType} tokens from sessionStorage`, {
+					// Restored tokens from sessionStorage
 						hasAccessToken: !!tokens.accessToken,
 					});
 					initialState.tokens = tokens;
@@ -552,9 +525,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (storedTokens) {
 				try {
 					const tokens = JSON.parse(storedTokens);
-					console.log(`${MODULE_TAG} Restored client-credentials tokens from sessionStorage`, {
-						hasAccessToken: !!tokens.accessToken,
-					});
+					// Restored client-credentials tokens from sessionStorage
 					initialState.tokens = tokens;
 				} catch (err) {
 					console.error(`${MODULE_TAG} Failed to parse stored client-credentials tokens`, err);
@@ -565,9 +536,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (storedDeviceCode) {
 				try {
 					const deviceData = JSON.parse(storedDeviceCode);
-					console.log(`${MODULE_TAG} Restored device code data from sessionStorage`, {
-						hasDeviceCode: !!deviceData.deviceCode,
-					});
+					// Restored device code data from sessionStorage
 					initialState.deviceCode = deviceData.deviceCode;
 					initialState.userCode = deviceData.userCode;
 					initialState.verificationUri = deviceData.verificationUri;
@@ -1031,7 +1000,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		sessionStorage.removeItem('v8u_implicit_tokens');
 		sessionStorage.removeItem('v8u_device_code_data');
 		sessionStorage.removeItem('v8u_client_credentials_tokens');
-		console.log(`${MODULE_TAG} Cleared sessionStorage (all flow-specific data)`);
 
 		/**
 		 * Step 3: Reset navigation to step 0
@@ -1068,7 +1036,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		 * - We want to ensure we have the latest saved credentials
 		 */
 		if (onFlowReset) {
-			console.log(`${MODULE_TAG} Notifying parent to reload credentials from storage`);
 			onFlowReset();
 		}
 
@@ -10094,9 +10061,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
 					return renderStep3Tokens();
 				}
-				// For implicit and device-code, Step 5 is Introspection & UserInfo (after Tokens at step 3)
+				// For implicit and device-code, Step 5 is Documentation (after Introspection at step 4)
 				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep6IntrospectionUserInfo();
+					return renderStep7Documentation();
 				}
 				return renderStep3Tokens();
 
@@ -10105,10 +10072,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				if (flowType === 'oauth-authz' || flowType === 'hybrid') {
 					return renderStep6IntrospectionUserInfo();
 				}
-				// For implicit and device-code, Step 6 is documentation (after Introspection at step 5)
-				if (flowType === 'implicit' || flowType === 'device-code') {
-					return renderStep7Documentation();
-				}
+				// Implicit and device-code only have 6 steps (0-5), so step 6 doesn't exist for them
+				// This case should not be reached for implicit/device-code flows
 				return renderStep6IntrospectionUserInfo();
 
 			case 7:

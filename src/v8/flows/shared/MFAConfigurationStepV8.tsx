@@ -761,14 +761,20 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										type="button"
 										onClick={async () => {
 											if (tokenStatus.isValid) {
-												import('@/v8/services/workerTokenServiceV8').then(
-													({ workerTokenServiceV8 }) => {
-														workerTokenServiceV8.clearToken();
-														window.dispatchEvent(new Event('workerTokenUpdated'));
-														WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-														toastV8.success('Worker token removed');
-													}
-												);
+												// #region agent log
+												fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:763',message:'User clicked remove token, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+												// #endregion
+												const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+												await workerTokenServiceV8.clearToken();
+												// #region agent log
+												fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:767',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+												// #endregion
+												window.dispatchEvent(new Event('workerTokenUpdated'));
+												const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+												// #region agent log
+												fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:771',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+												// #endregion
+												toastV8.success('Worker token removed');
 											} else {
 												// Use helper to check silentApiRetrieval before showing modal
 												// Pass current checkbox values to override config (page checkboxes take precedence)
@@ -1194,14 +1200,20 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 								type="button"
 								onClick={async () => {
 									if (tokenStatus.isValid) {
-										import('@/v8/services/workerTokenServiceV8').then(
-											({ workerTokenServiceV8 }) => {
-												workerTokenServiceV8.clearToken();
-												window.dispatchEvent(new Event('workerTokenUpdated'));
-												WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-												toastV8.success('Worker token removed');
-											}
-										);
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:1196',message:'User clicked remove token, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+										await workerTokenServiceV8.clearToken();
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:1200',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										window.dispatchEvent(new Event('workerTokenUpdated'));
+										const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+										// #region agent log
+										fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAConfigurationStepV8.tsx:1204',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+										// #endregion
+										toastV8.success('Worker token removed');
 									} else {
 										// Use helper to check silentApiRetrieval before showing modal
 										// forceShowModal=true because user explicitly clicked the button - always show modal
