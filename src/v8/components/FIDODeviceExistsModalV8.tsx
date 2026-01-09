@@ -5,16 +5,23 @@
  * @version 8.0.0
  */
 
-import React, { useEffect, useId } from 'react';
-import { FiAlertCircle, FiArrowLeft, FiInfo, FiX } from 'react-icons/fi';
+import React, { useEffect, useId, useState } from 'react';
+import { FiAlertCircle, FiArrowLeft, FiInfo, FiTrash2, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useDraggableModal } from '@/v8/hooks/useDraggableModal';
+import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
+import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 
 interface FIDODeviceExistsModalV8Props {
 	isOpen: boolean;
 	onClose: () => void;
 	onBackToSelection: () => void;
 	onBackToHub?: () => void;
+	onDeviceDeleted?: () => void;
+	environmentId?: string;
+	username?: string;
+	deviceId?: string;
+	deviceNickname?: string;
 }
 
 const ModalOverlay = styled.div<{ $hasPosition: boolean }>`
@@ -148,6 +155,38 @@ const SecondaryButton = styled.button`
 	}
 `;
 
+const DangerButton = styled.button`
+	background: #ef4444;
+	color: #ffffff;
+	border: none;
+	border-radius: 0.5rem;
+	padding: 0.65rem 1.5rem;
+	font-weight: 600;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition: background 0.2s ease, transform 0.2s ease;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+
+	&:hover {
+		background: #dc2626;
+		transform: translateY(-1px);
+	}
+
+	&:focus-visible {
+		outline: 3px solid rgba(239, 68, 68, 0.45);
+		outline-offset: 2px;
+	}
+
+	&:disabled {
+		background: #d1d5db;
+		color: #9ca3af;
+		cursor: not-allowed;
+		transform: none;
+	}
+`;
+
 const InfoCallout = styled.div`
 	margin-top: 1.25rem;
 	padding: 1rem;
@@ -180,7 +219,13 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 	onClose,
 	onBackToSelection,
 	onBackToHub,
+	onDeviceDeleted,
+	environmentId,
+	username,
+	deviceId,
+	deviceNickname,
 }) => {
+	const [isDeleting, setIsDeleting] = useState(false);
 	// Lock body scroll when modal is open
 	useEffect(() => {
 		if (isOpen) {
@@ -209,6 +254,57 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 
 	const modalTitleId = useId();
 	const { modalRef, modalPosition, handleMouseDown, modalStyle } = useDraggableModal(isOpen);
+
+	const handleDeleteDevice = async () => {
+		if (!environmentId || !username || !deviceId) {
+			toastV8.error('Missing required information to delete device');
+			return;
+		}
+
+		const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+		const confirmed = await uiNotificationServiceV8.confirm({
+			title: 'Delete FIDO2 Device',
+			message: `Are you sure you want to delete ${deviceNickname || 'this FIDO2 device'}? This action cannot be undone. You will be able to register a new FIDO2 device after deletion.`,
+			confirmText: 'Delete Device',
+			cancelText: 'Cancel',
+			severity: 'danger',
+		});
+
+		if (!confirmed) {
+			return;
+		}
+
+		setIsDeleting(true);
+		try {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:218',message:'Deleting FIDO2 device',data:{environmentId,username,deviceId,deviceNickname},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			await MFAServiceV8.deleteDevice({
+				environmentId,
+				username,
+				deviceId,
+			});
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:228',message:'Device deleted successfully',data:{deviceId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			toastV8.success('FIDO2 device deleted successfully. You can now register a new device.');
+			onClose();
+			if (onDeviceDeleted) {
+				onDeviceDeleted();
+			}
+		} catch (error) {
+			console.error('[FIDODeviceExistsModal] Failed to delete device', error);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDODeviceExistsModalV8.tsx:237',message:'Delete device failed',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			toastV8.error(
+				`Failed to delete device: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+		} finally {
+			setIsDeleting(false);
+		}
+	};
 
 	if (!isOpen) {
 		return null;
@@ -280,6 +376,16 @@ export const FIDODeviceExistsModalV8: React.FC<FIDODeviceExistsModalV8Props> = (
 						<SecondaryButton type="button" onClick={onBackToHub}>
 							Back to Device Selection
 						</SecondaryButton>
+					)}
+					{environmentId && username && deviceId && (
+						<DangerButton
+							type="button"
+							onClick={handleDeleteDevice}
+							disabled={isDeleting}
+						>
+							<FiTrash2 size={16} />
+							{isDeleting ? 'Deleting...' : 'Delete Device'}
+						</DangerButton>
 					)}
 					<PrimaryButton type="button" onClick={onBackToSelection}>
 						<FiArrowLeft size={16} />

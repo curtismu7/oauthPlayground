@@ -164,9 +164,19 @@ export const MFADeviceOrderingFlowV8: React.FC = () => {
 				severity: 'warning',
 			});
 			if (confirmed) {
-				workerTokenServiceV8.clearToken();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:166',message:'User confirmed token removal, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
+				await workerTokenServiceV8.clearToken();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:169',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
-				setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceOrderingFlowV8.tsx:173',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
+				setTokenStatus(newStatus);
 				toastV8.success('Worker token removed');
 			}
 		} else {

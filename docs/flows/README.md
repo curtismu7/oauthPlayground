@@ -1,6 +1,36 @@
-# OAuth/OIDC Flow Documentation
+# Unified OAuth/OIDC Flow Documentation
 
-Comprehensive documentation for all supported authentication and authorization flows.
+Comprehensive documentation for all Unified OAuth 2.0 and OpenID Connect flows.
+
+> **📖 New to the documentation?** See the [Documentation Guide](../DOCUMENTATION_GUIDE.md) for an overview of all documentation types.
+
+## Documentation Structure
+
+Each Unified flow has three documentation files:
+
+- **UI Contract** (`unified-flow-{flow-name}-ui-contract.md`) - Technical specification for developers
+- **UI Documentation** (`unified-flow-{flow-name}-ui-doc.md`) - End-user guide
+- **Restore Documentation** (`unified-flow-{flow-name}-restore.md`) - Implementation details for restoration
+
+## Available Flows
+
+| Flow | UI Contract | UI Doc | Restore |
+|------|-------------|--------|---------|
+| Client Credentials | ✅ | ✅ | ✅ |
+| Implicit | ✅ | ✅ | ✅ |
+| Hybrid | ✅ | ✅ | ✅ |
+| Device Authorization | ✅ | ✅ | ✅ |
+| SPIFFE/SPIRE | ✅ | ✅ | ✅ |
+
+## Legacy Flow Documentation
+
+For legacy OAuth/OIDC flow documentation, see:
+- [OAuth Flows](oauth/) - Legacy OAuth 2.0 flows
+- [OIDC Flows](oidc/) - Legacy OpenID Connect flows
+- [Device Authorization](device/) - Device Authorization Grant
+- [CIBA](ciba/) - Client Initiated Backchannel Authentication
+- [PAR](par/) - Pushed Authorization Requests
+- [SAML](saml/) - SAML 2.0 integration
 
 ## OAuth 2.0 Flows
 

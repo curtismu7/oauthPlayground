@@ -1,6 +1,6 @@
 # Unified Flow - Client Credentials Flow UI Documentation
 
-**Version:** 1.0  
+**Version:** 1.1  
 **Last Updated:** 2025-01-27  
 **Audience:** End Users  
 **Flow Type:** Client Credentials Flow (OAuth 2.0 / OAuth 2.1)
@@ -549,6 +549,8 @@ A: Not recommended - client secrets should not be exposed in browser code. Use A
 - [OAuth 2.1 Best Current Practices](https://oauth.net/2.1/)
 - [PingOne API Documentation](https://apidocs.pingidentity.com/pingone/main/v1/api/)
 - [Client Credentials Grant (RFC 6749 Section 4.4)](https://tools.ietf.org/html/rfc6749#section-4.4)
+- [PingOne Postman Collections](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-collections)
+- [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template)
 
 ---
 

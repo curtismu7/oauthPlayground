@@ -47,6 +47,12 @@ import {
 	type UnifiedFlowCredentials,
 	UnifiedFlowIntegrationV8U,
 } from '../services/unifiedFlowIntegrationV8U';
+import {
+	generateComprehensiveUnifiedPostmanCollection,
+	generateCompletePostmanCollection,
+	downloadPostmanCollectionWithEnvironment,
+} from '@/services/postmanCollectionGeneratorV8';
+import { FiPackage } from 'react-icons/fi';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -65,7 +71,6 @@ const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
  * @returns {JSX.Element} The unified OAuth flow UI
  */
 export const UnifiedOAuthFlowV8U: React.FC = () => {
-	console.log(`${MODULE_TAG} Initializing unified flow`);
 
 	// Scroll to top on page load for better UX
 	usePageScroll({ pageName: 'Unified OAuth Flow V8U', force: true });
@@ -146,10 +151,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Load saved spec version preference for this specific flow type
 		// This ensures each flow remembers its own spec version setting
 		const savedSpecVersion = FlowSettingsServiceV8U.getSpecVersion(flowType);
-		console.log(`${MODULE_TAG} Initializing spec version for flow`, {
-			flowType,
-			savedSpecVersion,
-		});
 		return savedSpecVersion;
 	});
 
@@ -173,13 +174,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			return;
 		}
 
-		console.log(`${MODULE_TAG} 🔍 URL sync check`, {
-			urlFlowType,
-			currentFlowType: flowType,
-			needsSync: urlFlowType !== flowType,
-			url: location.pathname,
-		});
-
 		// Validate URL flow type and sync if different from current state
 		// Note: 'ropc' is removed - it's a mock flow, not supported by PingOne
 		// CRITICAL: Only sync FROM URL if URL has a valid flow type and it's different
@@ -191,12 +185,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			) &&
 			urlFlowType !== flowType
 		) {
-			console.log(`${MODULE_TAG} 🔄 Syncing flow type from URL`, {
-				from: flowType,
-				to: urlFlowType,
-				currentStep,
-				url: location.pathname,
-			});
 			// Mark as synced BEFORE updating to prevent re-runs
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
 			// Reset the last processed flow type ref so spec version loading can run
@@ -240,11 +228,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Only update state if the saved version differs from current
 		// This prevents unnecessary re-renders
 		if (savedSpecVersion !== specVersion) {
-			console.log(`${MODULE_TAG} 🔄 Loading spec version for flow type`, {
-				flowType,
-				savedSpecVersion,
-				currentSpecVersion: specVersion,
-			});
 			setSpecVersion(savedSpecVersion);
 		}
 
@@ -253,7 +236,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		FlowSettingsServiceV8U.saveSettings(flowType, {
 			specVersion: savedSpecVersion,
 		});
-		console.log(`${MODULE_TAG} ✅ Updated last used timestamp for flow`, { flowType });
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
 		// Intentionally omitting specVersion from dependencies to prevent loops
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -292,7 +274,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		(step: number, newFlowType?: FlowType) => {
 			const targetFlowType = newFlowType || flowType;
 			const path = `/v8u/unified/${targetFlowType}/${step}`;
-			console.log(`${MODULE_TAG} Navigating to step`, { step, flowType: targetFlowType, path });
 			navigate(path, { replace: true });
 		},
 		[flowType, navigate]
@@ -392,40 +373,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					: {}),
 			};
 
-			console.log(`${MODULE_TAG} ========== INITIAL CREDENTIAL LOADING (SYNC) ==========`);
-			console.log(`${MODULE_TAG} Flow Key:`, initialFlowKey);
-			console.log(`${MODULE_TAG} Shared Credentials:`, {
-				environmentId: shared.environmentId || 'MISSING',
-				clientId: shared.clientId || 'MISSING',
-				hasClientSecret:
-					shared.clientSecret !== undefined
-						? shared.clientSecret
-							? 'PRESENT'
-							: 'EMPTY'
-						: 'UNDEFINED',
-			});
-			console.log(`${MODULE_TAG} Flow-Specific Credentials:`, {
-				environmentId: flowSpecific.environmentId || 'MISSING',
-				clientId: flowSpecific.clientId || 'MISSING',
-				hasClientSecret:
-					flowSpecific.clientSecret !== undefined
-						? flowSpecific.clientSecret
-							? 'PRESENT'
-							: 'EMPTY'
-						: 'UNDEFINED',
-			});
-			console.log(`${MODULE_TAG} Initial Merged Credentials:`, {
-				environmentId: initial.environmentId || 'MISSING',
-				clientId: initial.clientId || 'MISSING',
-				hasClientSecret:
-					initial.clientSecret !== undefined
-						? initial.clientSecret
-							? 'PRESENT'
-							: 'EMPTY'
-						: 'UNDEFINED',
-				scopes: initial.scopes || 'MISSING',
-			});
-			console.log(`${MODULE_TAG} ========== INITIAL CREDENTIAL LOADING END ==========`);
+			// Initial credential loading completed
 
 			return initial;
 		} catch (err) {
@@ -458,7 +406,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Check worker token status
 			const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 			if (!tokenStatus.isValid) {
-				console.log(`${MODULE_TAG} No valid worker token - skipping app config fetch`);
 				setAppConfig(null);
 				return;
 			}
@@ -466,7 +413,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			// Get the actual token from the service
 			const token = await workerTokenServiceV8.getToken();
 			if (!token) {
-				console.log(`${MODULE_TAG} No worker token available - skipping app config fetch`);
 				setAppConfig(null);
 				return;
 			}
@@ -483,7 +429,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						...(config.pkceRequired !== undefined && { pkceRequired: config.pkceRequired }),
 						...(config.pkceEnforced !== undefined && { pkceEnforced: config.pkceEnforced }),
 					});
-					console.log(`${MODULE_TAG} ✅ App config fetched`, {
+					// App config fetched
 						pkceRequired: config.pkceRequired,
 						pkceEnforced: config.pkceEnforced,
 					});
@@ -514,7 +460,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Get available flows for current spec version
 	const availableFlows = useMemo(() => {
 		const flows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-		console.log(`${MODULE_TAG} 📋 Available flows computed`, {
+		// Available flows computed
 			specVersion,
 			flows,
 			flowsAsString: JSON.stringify(flows),
@@ -541,7 +487,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 */
 	const effectiveFlowType = useMemo(() => {
 		const isAvailable = availableFlows.includes(flowType);
-		console.log(`${MODULE_TAG} 🔍 Checking flow type availability`, {
+		// Checking flow type availability
 			flowType,
 			specVersion,
 			availableFlows,
@@ -614,12 +560,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// This only happens when spec version changes, not when user selects a flow
 		if (!isFlowAvailable && currentAvailableFlows.length > 0) {
 			const fallbackFlow = currentAvailableFlows[0];
-			console.log(`${MODULE_TAG} 🔄 Auto-correcting flow type for spec version change`, {
-				specVersion,
-				from: flowType,
-				to: fallbackFlow,
-				availableFlows: currentAvailableFlows,
-			});
 			setFlowType(fallbackFlow);
 			// Update URL to reflect new flow type
 			if (currentStep !== undefined) {
@@ -672,32 +612,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			lastLoadedFlowKeyRef.current = flowKey;
 
 			try {
-				console.log(`${MODULE_TAG} ========== CREDENTIAL LOADING DEBUG START ==========`);
-				console.log(`${MODULE_TAG} Loading credentials from storage`, {
-					flowKey,
-					timestamp: new Date().toISOString(),
-				});
-
-				// DEBUG: Check localStorage directly
-				const sharedStorageKey = 'v8_shared_credentials';
-				const sharedStorageRaw = localStorage.getItem(sharedStorageKey);
-				console.log(`${MODULE_TAG} [DEBUG] Direct localStorage check for shared credentials:`, {
-					key: sharedStorageKey,
-					hasValue: !!sharedStorageRaw,
-					rawValue: sharedStorageRaw ? `${sharedStorageRaw.substring(0, 200)}...` : null,
-				});
-
-				// DEBUG: Check flow-specific storage (using the actual storage prefix from CredentialsServiceV8)
-				const flowStorageKey = `v8_credentials_${flowKey}`;
-				const flowStorageRaw = localStorage.getItem(flowStorageKey);
-				console.log(
-					`${MODULE_TAG} [DEBUG] Direct localStorage check for flow-specific credentials:`,
-					{
-						key: flowStorageKey,
-						hasValue: !!flowStorageRaw,
-						rawValue: flowStorageRaw ? `${flowStorageRaw.substring(0, 200)}...` : null,
-					}
-				);
 
 				const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
 					flowKey,
@@ -710,36 +624,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 				// Load flow-specific credentials (does not depend on worker token)
 				const flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config);
-				console.log(`${MODULE_TAG} [DEBUG] Flow-specific credentials loaded:`, {
-					keys: Object.keys(flowSpecific),
-					environmentId: flowSpecific.environmentId || 'MISSING',
-					clientId: flowSpecific.clientId || 'MISSING',
-					hasClientSecret:
-						flowSpecific.clientSecret !== undefined
-							? flowSpecific.clientSecret
-								? 'PRESENT'
-								: 'EMPTY'
-							: 'UNDEFINED',
-					clientSecretLength: flowSpecific.clientSecret?.length || 0,
-					scopes: flowSpecific.scopes || 'MISSING',
-					redirectUri: flowSpecific.redirectUri || 'MISSING',
-				});
 
 				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
 				// Try sync first for immediate results, then async for disk fallback
 				const sharedSync = SharedCredentialsServiceV8.loadSharedCredentialsSync();
-				console.log(`${MODULE_TAG} [DEBUG] Shared credentials (sync) loaded:`, {
-					keys: Object.keys(sharedSync),
-					environmentId: sharedSync.environmentId || 'MISSING',
-					clientId: sharedSync.clientId || 'MISSING',
-					hasClientSecret:
-						sharedSync.clientSecret !== undefined
-							? sharedSync.clientSecret
-								? 'PRESENT'
-								: 'EMPTY'
-							: 'UNDEFINED',
-					clientSecretLength: sharedSync.clientSecret?.length || 0,
-				});
 
 				const shared: SharedCredentials =
 					await SharedCredentialsServiceV8.loadSharedCredentials().catch((err) => {
@@ -750,25 +638,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						return sharedSync; // Use sync result as fallback
 					});
 
-				console.log(`${MODULE_TAG} [DEBUG] Shared credentials (async) loaded:`, {
-					keys: Object.keys(shared),
-					environmentId: shared.environmentId || 'MISSING',
-					clientId: shared.clientId || 'MISSING',
-					hasClientSecret:
-						shared.clientSecret !== undefined
-							? shared.clientSecret
-								? 'PRESENT'
-								: 'EMPTY'
-							: 'UNDEFINED',
-					clientSecretLength: shared.clientSecret?.length || 0,
-				});
-
 				// Get stored environment ID from global service
 				const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
-				console.log(`${MODULE_TAG} [DEBUG] Global environment ID:`, {
-					hasValue: !!storedEnvId,
-					value: `${storedEnvId?.substring(0, 20)}...`,
-				});
 
 				// Merge credentials: flow-specific takes priority (allows per-flow clientId/environmentId)
 				// Fall back to shared credentials if flow-specific not available
@@ -823,20 +694,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						: {}),
 				};
 
-				console.log(`${MODULE_TAG} [DEBUG] Merged credentials:`, {
-					environmentId: merged.environmentId?.trim() || 'MISSING',
-					clientId: merged.clientId?.trim() || 'MISSING',
-					hasClientSecret:
-						merged.clientSecret !== undefined
-							? merged.clientSecret?.trim()
-								? 'PRESENT'
-								: 'EMPTY'
-							: 'UNDEFINED',
-					clientSecretLength: merged.clientSecret?.length || 0,
-					scopes: merged.scopes || 'MISSING',
-					redirectUri: merged.redirectUri || 'MISSING',
-					allKeys: Object.keys(merged),
-				});
 
 				// Update credentials from storage if we have any data
 				// Always use storage data if it exists, as it's the source of truth
@@ -866,74 +723,19 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					const mergedString = JSON.stringify(merged);
 					const credentialsChanged = prevString !== mergedString;
 
-					console.log(`${MODULE_TAG} [DEBUG] Credential update decision:`, {
-						hasStorageData,
-						hasExistingData,
-						credentialsChanged,
-						storageEnvId: merged.environmentId?.trim() || 'EMPTY',
-						storageClientId: merged.clientId?.trim() || 'EMPTY',
-						storageClientSecret:
-							merged.clientSecret !== undefined
-								? merged.clientSecret?.trim()
-									? 'PRESENT'
-									: 'EMPTY'
-								: 'UNDEFINED',
-						currentEnvId: prev.environmentId?.trim() || 'EMPTY',
-						currentClientId: prev.clientId?.trim() || 'EMPTY',
-						currentClientSecret:
-							prev.clientSecret !== undefined
-								? prev.clientSecret?.trim()
-									? 'PRESENT'
-									: 'EMPTY'
-								: 'UNDEFINED',
-						willUpdate: hasStorageData && credentialsChanged,
-						willPreserve: !hasStorageData && hasExistingData,
-					});
-
-					// CRITICAL DEBUG: Log the actual merged object to see all values
-					console.log(
-						`${MODULE_TAG} [DEBUG] FULL MERGED CREDENTIALS OBJECT:`,
-						JSON.stringify(merged, null, 2)
-					);
-
 					// If credentials haven't changed, return previous to prevent unnecessary updates
 					if (!credentialsChanged && hasExistingData) {
-						console.log(`${MODULE_TAG} ✅ Credentials unchanged - skipping update`);
 						return prev;
 					}
 
 					// If we have storage data, always use it (storage is source of truth)
 					if (hasStorageData) {
-						console.log(`${MODULE_TAG} ✅ Updating credentials from storage (storage has data)`, {
-							storage: {
-								hasEnvId: !!merged.environmentId?.trim(),
-								hasClientId: !!merged.clientId?.trim(),
-								hasClientSecret: merged.clientSecret !== undefined && !!merged.clientSecret?.trim(),
-							},
-							current: {
-								hasEnvId: !!prev.environmentId?.trim(),
-								hasClientId: !!prev.clientId?.trim(),
-								hasClientSecret: prev.clientSecret !== undefined && !!prev.clientSecret?.trim(),
-							},
-							willUpdate: true,
-						});
 						return merged;
 					} else if (hasExistingData) {
 						// No storage data but we have existing - preserve it
-						console.log(
-							`${MODULE_TAG} ⚠️ No credentials in storage but preserving existing credentials`,
-							{
-								hasEnvId: !!prev.environmentId?.trim(),
-								hasClientId: !!prev.clientId?.trim(),
-								hasClientSecret: prev.clientSecret !== undefined && !!prev.clientSecret?.trim(),
-							}
-						);
 						return prev; // Preserve existing credentials
 					} else {
 						// No data anywhere - use defaults (first time load)
-						console.log(
-							`${MODULE_TAG} ⚠️ No credentials found in storage or state - using defaults`
-						);
 						const storedEnvId = EnvironmentIdServiceV8.getEnvironmentId();
 						return {
 							environmentId: storedEnvId || '',
@@ -943,7 +745,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					}
 				});
 
-				console.log(`${MODULE_TAG} ========== CREDENTIAL LOADING DEBUG END ==========`);
 			} catch (err) {
 				console.error(
 					`${MODULE_TAG} ❌ Error loading credentials (will preserve existing state):`,
@@ -971,7 +772,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Reload credentials when page becomes visible (in case storage was cleared/updated in another tab)
 		const handleVisibilityChange = () => {
 			if (document.visibilityState === 'visible') {
-				console.log(`${MODULE_TAG} Page became visible - checking for credential updates`);
 				loadCredentials();
 			}
 		};
@@ -1035,7 +835,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	useEffect(() => {
 		// Skip save if we're currently loading credentials (prevents loop)
 		if (isLoadingCredentialsRef.current) {
-			console.log(`${MODULE_TAG} Skipping save - credentials are being loaded`);
 			return;
 		}
 
@@ -1049,7 +848,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			const saveCredentials = async () => {
 				// Double-check we're not loading (async check)
 				if (isLoadingCredentialsRef.current) {
-					console.log(`${MODULE_TAG} Skipping save - credentials are being loaded (async check)`);
 					return;
 				}
 
@@ -1058,7 +856,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					const credsString = JSON.stringify(credentials);
 					if (credsString === lastSavedCredsRef.current) {
 						// No actual change, skip save to prevent loops
-						console.log(`${MODULE_TAG} Skipping save - credentials unchanged`);
 						return;
 					}
 					lastSavedCredsRef.current = credsString;
@@ -1081,7 +878,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						sharedCreds.clientSecret !== undefined
 					) {
 						await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
-						console.log(`${MODULE_TAG} Saved shared credentials to storage`, {
+						// Saved shared credentials to storage
 							flowKey,
 							hasEnvId: !!sharedCreds.environmentId,
 							hasClientId: !!sharedCreds.clientId,
@@ -1089,7 +886,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						});
 					}
 
-					console.log(`${MODULE_TAG} Saved credentials to storage`, {
+					// Saved credentials to storage
 						flowKey,
 						hasSharedCreds: !!(
 							sharedCreds.environmentId ||
@@ -1165,7 +962,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				lastSavedCredsRef.current = JSON.stringify(credentials);
 
 				toastV8.success('Credentials saved successfully');
-				console.log(`${MODULE_TAG} ✅ Manual save completed`, { flowKey });
 			} else {
 				toastV8.warning('No credentials to save');
 			}
@@ -1182,11 +978,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		const totalSteps = getTotalSteps();
 		if (currentStep < totalSteps - 1) {
 			navigateToStep(currentStep + 1);
-			console.log(`${MODULE_TAG} ✅ Navigated to next step`, {
-				from: currentStep,
-				to: currentStep + 1,
-				totalSteps,
-			});
 		} else {
 			toastV8.info('Already on the last step');
 		}
@@ -1240,7 +1031,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	};
 
 	const handleSpecVersionChange = (newSpec: SpecVersion) => {
-		console.log(`${MODULE_TAG} Spec version changed`, { from: specVersion, to: newSpec });
 
 		// Modal state removed - dropdown already filters flows
 
@@ -1248,10 +1038,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		const newAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(newSpec);
 		if (!newAvailableFlows.includes(flowType)) {
 			const newFlowType = newAvailableFlows[0] || 'oauth-authz';
-			console.log(`${MODULE_TAG} Flow type not available in new spec, switching`, {
-				from: flowType,
-				to: newFlowType,
-			});
 			// Update flow type FIRST, then spec version
 			setFlowType(newFlowType);
 		}
@@ -1261,7 +1047,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// Save spec version for this flow type
 		FlowSettingsServiceV8U.saveSpecVersion(flowType, newSpec);
-		console.log(`${MODULE_TAG} ✅ Saved spec version for flow`, { flowType, specVersion: newSpec });
 	};
 
 	const handleFlowTypeChange = async (newFlowType: FlowType) => {
@@ -1274,7 +1059,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// If not, automatically switch to a compatible spec version
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 		if (!currentAvailableFlows.includes(newFlowType)) {
-			console.log(`${MODULE_TAG} ⚠️ Flow type not available for current spec version`, {
+			// Flow type not available for current spec version
 				newFlowType,
 				specVersion,
 				availableFlows: currentAvailableFlows,
@@ -1288,11 +1073,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			});
 
 			if (compatibleSpec) {
-				console.log(`${MODULE_TAG} 🔄 Auto-switching to compatible spec version`, {
-					from: specVersion,
-					to: compatibleSpec,
-					flowType: newFlowType,
-				});
 				// Switch spec version first, then flow type
 				setSpecVersion(compatibleSpec);
 				FlowSettingsServiceV8U.saveSpecVersion(newFlowType, compatibleSpec);
@@ -1321,7 +1101,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			});
 
 			if (!confirmed) {
-				console.log(`${MODULE_TAG} User cancelled flow type change to preserve API calls`);
 				// Reset the dropdown to the current flow type
 				// Note: The FlowTypeSelector component should handle this automatically
 				// by being controlled by the flowType state
@@ -1329,7 +1108,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 		}
 
-		console.log(`${MODULE_TAG} 🔄 Flow type changed via selector`, {
+		// Flow type changed via selector
 			specVersion,
 			from: flowType,
 			to: newFlowType,
@@ -1339,7 +1118,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Clear API calls when flow type changes (only if confirmed or no calls exist)
 		if (hasApiCalls) {
 			apiCallTrackerService.clearApiCalls();
-			console.log(`${MODULE_TAG} 🧹 Cleared API calls due to flow type change`);
 		}
 
 		// CRITICAL: Mark that user is changing flow type to prevent auto-correct from interfering
@@ -1356,7 +1134,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Navigate to current step with new flow type to update URL
 		if (currentStep !== undefined) {
 			const path = `/v8u/unified/${newFlowType}/${currentStep}`;
-			console.log(`${MODULE_TAG} Updating URL for new flow type`, { path });
 			navigate(path, { replace: true });
 		}
 
@@ -1489,7 +1266,110 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					/>
 				</div>
 
-				{/* API Documentation and Specification Links */}
+					{/* Postman Collection Download Button */}
+					<div
+						style={{
+							marginBottom: '12px',
+						}}
+					>
+						<button
+							type="button"
+							onClick={() => {
+								const collection = generateComprehensiveUnifiedPostmanCollection({
+									environmentId: credentials.environmentId,
+									clientId: credentials.clientId,
+									clientSecret: credentials.clientSecret,
+								});
+								const date = new Date().toISOString().split('T')[0];
+								const filename = `pingone-unified-flows-complete-${date}-collection.json`;
+								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Unified Flows Environment');
+								toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all Unified flows.');
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '12px 24px',
+								background: '#8b5cf6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#7c3aed';
+								e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#8b5cf6';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+							}}
+							title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
+						>
+							<FiPackage size={18} />
+							Download All Unified Flows Postman Collection
+						</button>
+						<button
+							type="button"
+							onClick={() => {
+								// Get MFA credentials
+								const { CredentialsServiceV8 } = require('@/v8/services/credentialsServiceV8');
+								const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+									flowKey: 'mfa-v8',
+									flowType: 'oauth' as const,
+									includeClientSecret: false,
+									includeScopes: false,
+									includeRedirectUri: false,
+									includeLogoutUri: false,
+								});
+								
+								const collection = generateCompletePostmanCollection({
+									environmentId: credentials.environmentId,
+									clientId: credentials.clientId,
+									clientSecret: credentials.clientSecret,
+									username: mfaCreds?.username,
+								});
+								const date = new Date().toISOString().split('T')[0];
+								const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
+								toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '12px 24px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+								transition: 'all 0.2s ease',
+								marginTop: '12px',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#059669';
+								e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#10b981';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+							}}
+							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+						>
+							<FiPackage size={18} />
+							Download Complete Collection (Unified + MFA)
+						</button>
+					</div>
+
+					{/* API Documentation and Specification Links */}
 				<div
 					style={{
 						display: 'flex',

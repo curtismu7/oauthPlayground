@@ -498,7 +498,7 @@ export const downloadAsPDF = (markdown: string, title: string): void
 ### 4. Action Buttons
 
 **Contract:**
-- Three buttons in horizontal row
+- Four buttons in horizontal row
 - Centered alignment
 - Wrap enabled for responsive design
 
@@ -518,6 +518,14 @@ export const downloadAsPDF = (markdown: string, title: string): void
    - Icon: `FiDownload`
    - Background: `#ef4444` (red)
    - Calls `handleDownloadPDF()`
+
+4. **Download Postman Collection**
+   - Icon: `FiPackage`
+   - Background: `#8b5cf6` (purple)
+   - Calls `handleDownloadPostman()`
+   - Generates Postman collection JSON file with format: `{{authPath}}/{{envID}}/path`
+   - Includes variables: `authPath`, `envID`, `workerToken`, `username`
+   - Reference: [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template)
 
 **Styling:**
 - Padding: `12px 24px`

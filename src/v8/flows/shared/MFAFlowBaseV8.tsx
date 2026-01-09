@@ -438,7 +438,10 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 
 					// Use helper function to attempt silent retrieval (respects silentApiRetrieval setting)
 					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAFlowBaseV8.tsx:439',message:'Calling handleShowWorkerTokenModal from error handler',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+					// #endregion
+					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd);
 				} catch (configError) {
 					console.error(`${MODULE_TAG} Failed to load MFA configuration:`, configError);
 					// Only show modal if config can't be loaded AND we can't determine showTokenAtEnd
@@ -835,7 +838,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				onGetToken={async () => {
 					// Use helper to show worker token modal (respects silent API retrieval setting)
 					const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
+					// Load config to get silentApiRetrieval and showTokenAtEnd
+					const { MFAConfigurationServiceV8 } = await import('@/v8/services/mfaConfigurationServiceV8');
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const silentApiRetrieval = config.workerToken.silentApiRetrieval || false;
+					const showTokenAtEnd = config.workerToken.showTokenAtEnd !== false;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAFlowBaseV8.tsx:836',message:'Calling handleShowWorkerTokenModal from prompt modal',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+					// #endregion
+					await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd, true);
 				}}
 			/>
 

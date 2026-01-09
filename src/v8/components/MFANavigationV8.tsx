@@ -85,7 +85,6 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						display: 'flex',
 						gap: '0',
 						flex: 1,
-						justifyContent: 'space-between',
 						alignItems: 'center',
 					}}
 				>
@@ -184,25 +183,20 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 						<button
 							type="button"
 							onClick={() => navigateToMfaHubWithCleanup(navigate)}
+							className="nav-link-btn"
+							title="Back to MFA Hub"
 							style={{
-								padding: '10px 20px',
+								fontWeight: '500',
+								flex: 1,
 								background: '#3b82f6',
 								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '14px',
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								fontWeight: '500',
-								marginLeft: '12px',
+								border: '2px solid #3b82f6',
 							}}
 						>
 							🏠 Back to Main
 						</button>
 					)}
-					<div style={{ marginLeft: '12px', display: 'flex', alignItems: 'center' }}>
+					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>
@@ -235,6 +229,8 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					justify-content: center;
 					gap: 8px;
 					text-align: center;
+					min-width: 0;
+					flex: 1;
 				}
 
 				.nav-link-btn:first-child {
@@ -242,7 +238,8 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					border-bottom-left-radius: 6px;
 				}
 
-				.mfa-nav-links > .nav-link-btn:last-child {
+				.mfa-nav-links > .nav-link-btn:last-of-type,
+				.mfa-nav-links > .api-display-wrapper:last-of-type {
 					border-top-right-radius: 6px;
 					border-bottom-right-radius: 6px;
 					border-right: none;
@@ -280,6 +277,17 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 
 				.nav-link-btn.restart-btn:hover {
 					color: #ef4444;
+				}
+
+				.api-display-wrapper {
+					background: #f3f4f6;
+					border: 2px solid transparent;
+					border-right: 1px solid #e5e7eb;
+					cursor: default;
+				}
+
+				.api-display-wrapper:hover {
+					background: #f3f4f6;
 				}
 			`}</style>
 		</>
