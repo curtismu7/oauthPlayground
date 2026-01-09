@@ -111,7 +111,48 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 	// Get API display padding
 	const { paddingBottom } = useApiDisplayPadding();
 
-	// Check token status periodically
+	// Check worker token on mount and when token updates (with silent retrieval support)
+	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:113',message:'useEffect triggered for token check',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+		// #endregion
+		const checkToken = async () => {
+			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(currentStatus);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:118',message:'Token status checked',data:{isValid:currentStatus.isValid,hasToken:!!currentStatus.token,status:currentStatus.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+
+			// If token is missing or expired, use helper to handle silent retrieval
+			if (!currentStatus.isValid) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:123',message:'Token invalid, calling handleShowWorkerTokenModal',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+				const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+				await handleShowWorkerTokenModal(
+					setShowWorkerTokenModal,
+					setTokenStatus,
+					silentApiRetrieval,  // Page checkbox value takes precedence
+					showTokenAtEnd       // Page checkbox value takes precedence
+				);
+			}
+		};
+
+		checkToken();
+
+		// Listen for token updates
+		const handleTokenUpdate = () => {
+			const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(newStatus);
+		};
+
+		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
+		return () => {
+			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
+		};
+	}, [silentApiRetrieval, showTokenAtEnd]); // Re-run when checkboxes change to trigger silent retrieval
+
+	// Check token status periodically (for status updates only, not for silent retrieval)
 	useEffect(() => {
 		const checkStatus = () => {
 			const status = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
@@ -124,12 +165,10 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 			checkStatus();
 		};
 		window.addEventListener('storage', handleStorageChange);
-		window.addEventListener('workerTokenUpdated', handleStorageChange);
 
 		return () => {
 			clearInterval(interval);
 			window.removeEventListener('storage', handleStorageChange);
-			window.removeEventListener('workerTokenUpdated', handleStorageChange);
 		};
 	}, []);
 
@@ -163,16 +202,28 @@ export const MFADeviceManagementFlowV8: React.FC = () => {
 				severity: 'warning',
 			});
 			if (confirmed) {
-				workerTokenServiceV8.clearToken();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:165',message:'User confirmed token removal, calling clearToken',data:{tokenStatusBefore:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
+				await workerTokenServiceV8.clearToken();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:168',message:'clearToken completed, checking status',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
 				window.dispatchEvent(new Event('workerTokenUpdated'));
 				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:172',message:'Status checked after clearToken',data:{isValid:newStatus.isValid,status:newStatus.status,message:newStatus.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
 				setTokenStatus(newStatus);
 				toastV8.success('Worker token removed');
 			}
 		} else {
 			// Use helper to check silentApiRetrieval before showing modal
 			const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFADeviceManagementFlowV8.tsx:174',message:'Calling handleShowWorkerTokenModal',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+			// #endregion
+			await handleShowWorkerTokenModal(setShowWorkerTokenModal, setTokenStatus, silentApiRetrieval, showTokenAtEnd);
 		}
 	};
 
