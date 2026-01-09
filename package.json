@@ -1,6 +1,6 @@
 {
 	"name": "pingone-oauth-playground",
-	"version": "7.7.2",
+	"version": "7.7.3",
 	"mfaV8Version": "8.4.1",
 	"unifiedV8uVersion": "8.0.0",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",

@@ -37,6 +37,78 @@ This document provides implementation details, code snippets, and restoration gu
 
 ---
 
+## Postman Collection Downloads
+
+### Overview
+
+The MFA documentation page provides a **Postman Collection** download feature that generates a complete Postman collection JSON file with all API calls from the Email device registration/authentication flow.
+
+### Collection Format
+
+The generated Postman collection follows the [PingOne Postman Environment Template](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template) format:
+
+- **URL Format**: `{{authPath}}/{{envID}}/deviceAuthentications`, `{{authPath}}/{{envID}}/deviceAuthentications/{id}/otp/check`
+- **Variables**: Pre-configured with values from credentials
+- **Headers**: Automatically set (Content-Type, Authorization)
+- **Request Bodies**: Pre-filled with example data
+
+### Variables Included
+
+| Variable | Value | Type | Source |
+|----------|-------|------|--------|
+| `authPath` | `https://auth.pingone.com` | `string` | Default (includes protocol) |
+| `envID` | Environment ID | `string` | From credentials |
+| `workerToken` | Empty | `string` | User fills in |
+| `username` | Username | `string` | From credentials |
+
+### Storage
+
+**Postman collections are NOT persisted** - they are generated on-demand when the user clicks "Download Postman Collection" on the documentation page.
+
+### Generation Process
+
+1. **Source**: API calls from the MFA flow documentation
+2. **Conversion**: Endpoints converted to Postman format: `{{authPath}}/{{envID}}/path`
+3. **Variables**: Extracted from current credentials
+4. **Collection Generation**: Postman collection JSON file created with all API requests
+5. **Environment Generation**: Postman environment JSON file created with all variables pre-filled
+6. **Download**: Both files downloaded:
+    -   Collection: `pingone-mfa-email-{flowType}-{date}-collection.json`
+    -   Environment: `pingone-mfa-email-{flowType}-{date}-environment.json`
+
+### Environment Variables
+
+The generated environment file includes all variables with pre-filled values from credentials:
+
+-   `authPath`: `https://auth.pingone.com` (default, includes protocol)
+-   `envID`: Pre-filled from `environmentId` in credentials
+-   `username`: Pre-filled from `username` in credentials
+-   `workerToken`: Empty (user fills in)
+-   `userId`: Empty (filled after user lookup)
+-   `deviceId`: Empty (filled after device registration)
+-   `deviceAuthenticationPolicyId`: Pre-filled from credentials
+-   `deviceAuthenticationId`: Empty (filled after authentication initialization)
+-   `otp_code`: Empty (user fills in)
+
+### Usage
+
+1. User completes Email device registration/authentication flow
+2. User navigates to documentation page
+3. User clicks "Download Postman Collection" button
+4. Two JSON files are generated and downloaded:
+    -   Collection file with all API requests
+    -   Environment file with all variables
+5. User imports both files into Postman:
+    -   Import collection file → All API requests available
+    -   Import environment file → All variables pre-configured
+6. User selects the imported environment from Postman's environment dropdown
+7. User updates environment variables with actual values if needed
+8. User can test API calls directly in Postman (variables automatically substituted)
+
+**Reference**: [PingOne Postman Collections](https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-collections)
+
+---
+
 ## Critical Implementation Details
 
 ### 1. Device Selection Skipping (Registration Flow)
