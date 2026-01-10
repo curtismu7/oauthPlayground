@@ -354,18 +354,9 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// Handle both cases: token added or token removed
 		if (credentials.userToken !== userToken) {
 			if (credentials.userToken) {
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from credentials`, {
-					hasToken: !!credentials.userToken,
-					tokenLength: credentials.userToken.length,
-					tokenPreview: credentials.userToken.substring(0, 20) + '...',
-				});
 				setUserToken(credentials.userToken);
 				const status = validateUserToken(credentials.userToken);
 				setUserTokenStatus(status);
-				console.log(`[⚙️ MFA-CONFIG-STEP-V8] User token validated`, {
-					status,
-					tokenLength: credentials.userToken.length,
-				});
 			} else if (!credentials.userToken && userToken) {
 				// CRITICAL: Don't clear token if modal is open, if we're switching to user flow, or if tokenType is 'user'
 				// This prevents losing the token when the modal opens or during flow type changes
@@ -409,13 +400,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			}
 		} else if (credentials.userToken && userTokenStatus === 'invalid') {
 			// Token exists but status is invalid - re-validate
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Re-validating existing user token`);
 			const status = validateUserToken(credentials.userToken);
 			setUserTokenStatus(status);
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Re-validation result`, {
-				status,
-				tokenLength: credentials.userToken.length,
-			});
 		} else if (
 			!credentials.userToken &&
 			authContext.tokens?.access_token &&
@@ -516,12 +502,6 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		} else if (credentials.tokenType === 'user' && credentials.userToken && !userToken) {
 			// CRITICAL: If credentials has a userToken but local state doesn't, sync it
 			// This handles the case where token is received from UserLoginModal before local state updates
-			console.log(
-				`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from credentials (token received externally)`,
-				{
-					credentialsUserToken: credentials.userToken?.substring(0, 20) + '...',
-				}
-			);
 			setUserToken(credentials.userToken);
 			const status = validateUserToken(credentials.userToken);
 			setUserTokenStatus(status);
@@ -540,13 +520,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	// Run validation on mount if token exists
 	React.useEffect(() => {
 		if (userToken && userTokenStatus === 'invalid') {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Running initial validation on mount for existing token`);
 			const status = validateUserToken(userToken);
 			setUserTokenStatus(status);
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Initial validation result`, {
-				status,
-				tokenLength: userToken.length,
-			});
 		}
 	}, []); // Only run on mount
 

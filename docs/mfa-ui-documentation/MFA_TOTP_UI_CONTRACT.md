@@ -9,8 +9,8 @@
 
 ---
 
-**Last Updated:** 2026-01-06 18:15:00  
-**Version:** 1.3.0  
+**Last Updated:** 2026-01-27  
+**Version:** 1.4.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -60,9 +60,26 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
    - Must allow policy selection
    - Must validate policy selection before proceeding
 
-4. **Action Buttons**
-   - "Back to Hub" button (left)
-   - "Continue to Device Registration" button (right, primary)
+4. **Education Section**
+   - **MUST** display educational content about OATH TOTP (RFC 6238)
+   - **MUST** include title: "About OATH TOTP (RFC 6238)"
+   - **MUST** include book icon (FiBook, blue, 24px) next to title
+   - **MUST** explain OATH TOTP (Time-based One-Time Password, RFC 6238) as an open standard
+   - **MUST** list security benefits in bulleted format:
+     - Phishing-resistant (codes generated locally)
+     - Offline-capable (no network required)
+     - Time-based (30-second code rotation)
+     - Industry standard (RFC 6238, ensures compatibility)
+     - Secure storage (secret keys never transmitted)
+     - Easy setup (QR code scan or manual entry)
+   - **MUST** explain how it works (registration flow, QR code scanning, authenticator app setup)
+   - **MUST** include "Learn more" note about OATH framework (Initiative for Open Authentication) and standardized approach using HMAC-SHA1 algorithm
+   - **MUST** be styled consistently with other education sections (white background, padding 24px, border radius 8px)
+   - **MUST** use correct terminology: "OATH TOTP (RFC 6238)" for educational content, "TOTP" for user-facing labels
+
+5. **Action Buttons**
+   - "Cancel" button (left, gray)
+   - "Proceed to TOTP Registration" button (right, orange, primary)
 
 #### State Management
 
@@ -315,6 +332,7 @@ This document defines the UI contract for TOTP (Time-based One-Time Password) de
 
 ## Version History
 
+- **v1.4.0** (2026-01-27): Added OATH TOTP (RFC 6238) educational section contract requirements with protocol terminology, security benefits, and OATH framework information
 - **v1.3.0** (2026-01-06): Separated OTP activation into its own modal (not embedded in QR modal)
 - **v1.2.0** (2026-01-06): Added stuck device warning section with delete buttons
 - **v1.1.0** (2026-01-06): Added navigation fixes and success page display

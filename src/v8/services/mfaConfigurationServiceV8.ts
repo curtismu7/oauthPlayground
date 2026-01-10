@@ -147,7 +147,7 @@ export class MFAConfigurationServiceV8 {
 				config.security = { ...DEFAULT_CONFIG.security, ...parsed.security };
 			}
 
-			console.log(`${MODULE_TAG} Configuration loaded from localStorage`);
+			// Configuration loaded successfully
 			return config;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Failed to load configuration:`, error);

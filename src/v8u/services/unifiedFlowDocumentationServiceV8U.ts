@@ -6,6 +6,7 @@
  */
 
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import {
@@ -54,7 +55,8 @@ export const generateAllUseCasesDocumentation = (): string => {
 	});
 	md += `\n### Supported Specification Versions\n\n`;
 	specVersions.forEach((spec) => {
-		md += `- **${spec.toUpperCase()}**\n`;
+		const specLabel = SpecVersionServiceV8.getSpecLabel(spec);
+		md += `- **${specLabel}**\n`;
 	});
 	md += `\n---\n\n`;
 
@@ -119,9 +121,10 @@ export const generateAllUseCasesDocumentation = (): string => {
 	}
 
 	md += `\n## References\n\n`;
-	md += `- [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749)\n`;
-	md += `- [OAuth 2.0 Device Authorization Grant (RFC 8628)](https://tools.ietf.org/html/rfc8628)\n`;
+	md += `- [OAuth 2.0 RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749)\n`;
+	md += `- [OAuth 2.0 Device Authorization Grant (RFC 8628)](https://datatracker.ietf.org/doc/html/rfc8628)\n`;
 	md += `- [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)\n`;
+	md += `- [PKCE (RFC 7636)](https://datatracker.ietf.org/doc/html/rfc7636)\n`;
 	md += `- [PingOne API Documentation](https://apidocs.pingidentity.com/)\n`;
 
 	return md;

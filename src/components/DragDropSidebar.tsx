@@ -418,7 +418,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'unified-oauth-flow-v8u',
 						path: '/v8u/unified',
-						label: '🎯 Unified Flow (V8U)',
+						label: '🎯 Unified OAuth & OIDC',
 						icon: (
 							<ColoredIcon $color="#10b981">
 								<FiZap />
