@@ -1,7 +1,7 @@
 /**
  * @file SpecVersionSelector.tsx
  * @module v8u/components
- * @description Spec version selector component (OAuth 2.0, OAuth 2.1, OIDC) with user guidance
+ * @description Spec version selector component for OAuth 2.0 Authorization Framework (RFC 6749), OAuth 2.1 Authorization Framework (draft), and OpenID Connect Core 1.0 with user guidance
  * @version 8.0.0
  * @since 2024-11-16
  */
@@ -23,33 +23,34 @@ const SPEC_GUIDANCE: Record<
 	{ description: string; whenToUse: string[]; flows: string[] }
 > = {
 	oidc: {
-		description: 'Authentication layer on OAuth 2.0. Best for user authentication and identity.',
+		description: 'OpenID Connect Core 1.0 - Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides authorization AND authentication.',
 		whenToUse: [
-			'You need user authentication and identity information',
-			'You want ID tokens with user claims',
-			'You need user profile information (email, name, etc.)',
-			'You are building a web application with user login',
+			'You need user authentication and identity information (ID tokens, user claims)',
+			'You want ID tokens with user claims (email, name, profile, etc.)',
+			'You need the UserInfo endpoint to fetch user profile data',
+			'You are building a web application with user login and identity',
 		],
 		flows: ['Authorization Code', 'Implicit', 'Hybrid', 'Device Authorization'],
 	},
 	'oauth2.0': {
-		description: 'Standard OAuth 2.0 (RFC 6749). Most flexible, supports all flow types.',
+		description: 'OAuth 2.0 Authorization Framework (RFC 6749) - Baseline OAuth framework standard. Provides authorization without authentication. Most flexible, supports all flow types including Implicit.',
 		whenToUse: [
-			'You need maximum compatibility with older systems',
-			'You want to use Implicit Flow (deprecated in 2.1)',
-			'You are working with legacy applications',
+			'You need maximum compatibility with older systems and legacy applications',
+			'You want to use Implicit Flow (deprecated in OAuth 2.1 draft)',
+			'You only need authorization (API access) without user authentication',
 			'You need the broadest flow type support',
 		],
 		flows: ['Authorization Code', 'Implicit', 'Client Credentials', 'Device Authorization'],
 	},
 	'oauth2.1': {
 		description:
-			'Modern OAuth 2.0 with security best practices. PKCE is required for Authorization Code; HTTPS enforced.',
+			'OAuth 2.1 Authorization Framework (draft) - Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices. PKCE is required for Authorization Code; HTTPS enforced. Note: Still an Internet-Draft, not yet an RFC. When combined with OpenID Connect Core 1.0, this provides OIDC Core 1.0 using Authorization Code + PKCE with OAuth 2.1 (draft) baseline.',
 		whenToUse: [
-			'You are building new applications',
-			'You want the highest security standards',
-			'You can use PKCE (required for Authorization Code)',
+			'You are building new applications requiring highest security standards',
+			'You want to follow the latest OAuth security best practices',
+			'You can use PKCE (required for Authorization Code flow)',
 			'You can use HTTPS for all redirect URIs',
+			'You want future-proof implementation (even though still a draft)',
 		],
 		flows: ['Authorization Code', 'Client Credentials', 'Device Authorization'],
 	},
@@ -167,16 +168,13 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 					</div>
 					<ul style={{ margin: '0', paddingLeft: '20px', color: '#1e40af' }}>
 						<li>
-							<strong>OpenID Connect:</strong> Use when you need user authentication and identity
-							information (ID tokens, user claims)
+							<strong>OpenID Connect Core 1.0:</strong> Use when you need user authentication and identity information (ID tokens, openid scope, UserInfo endpoint). Adds identity layer on top of OAuth 2.0.
 						</li>
 						<li>
-							<strong>OAuth 2.0:</strong> Use for maximum compatibility and flexibility (supports
-							all flow types)
+							<strong>OAuth 2.0 Authorization Framework (RFC 6749):</strong> Use for baseline authorization without authentication. Maximum compatibility, supports all flow types including Implicit.
 						</li>
 						<li>
-							<strong>OAuth 2.1:</strong> Use for new applications requiring highest security (PKCE
-							required, HTTPS enforced)
+							<strong>OAuth 2.1 Authorization Framework (draft):</strong> Use for new applications requiring highest security (PKCE required, HTTPS enforced). Note: Still an Internet-Draft. When used with OpenID Connect, this means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline".
 						</li>
 					</ul>
 					<p style={{ margin: '8px 0 0 0', fontSize: '12px', color: '#1e40af' }}>

@@ -33,7 +33,6 @@ import { handleShowWorkerTokenModal } from '@/v8/utils/workerTokenModalHelperV8'
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import {
 	generateComprehensiveMFAPostmanCollection,
-	generateCompletePostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
 } from '@/services/postmanCollectionGeneratorV8';
 
@@ -406,6 +405,143 @@ export const MFAHubV8: React.FC = () => {
 			/>
 
 			<div className="hub-container">
+				{/* Postman Collection Download Section - At Top Like Unified Page */}
+				<div
+					style={{
+						padding: '16px',
+						background: '#ffffff',
+						borderRadius: '8px',
+						border: '1px solid #e2e8f0',
+						marginBottom: '24px',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							gap: '12px',
+							flexWrap: 'wrap',
+						}}
+					>
+						<button
+							type="button"
+							onClick={async () => {
+								try {
+									// Get environment ID from credentials
+									const creds = CredentialsServiceV8.loadCredentials();
+									const collection = generateComprehensiveMFAPostmanCollection({
+										environmentId: creds?.environmentId,
+										username: creds?.username,
+									});
+									const date = new Date().toISOString().split('T')[0];
+									const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
+									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
+									toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+								} catch (error) {
+									console.error('Error generating MFA Postman collection:', error);
+									toastV8.error('Failed to generate Postman collection. Please try again.');
+								}
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '12px 24px',
+								background: '#8b5cf6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+								transition: 'all 0.2s ease',
+								flex: 1,
+								minWidth: '250px',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#7c3aed';
+								e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#8b5cf6';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+							}}
+							title="Download comprehensive Postman collection for all MFA device types (SMS, Email, WhatsApp, TOTP, FIDO2, Mobile) grouped by Registration and Authentication"
+						>
+							<FiPackage size={18} />
+							Download All MFA Flows Postman Collection
+						</button>
+						<button
+							type="button"
+							onClick={async () => {
+								try {
+									// Get Unified credentials
+									const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+									const { EnvironmentIdServiceV8 } = await import('@/v8/services/environmentIdServiceV8');
+									const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
+									const flowKey = 'oauth-authz-v8u';
+									const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
+										flowKey,
+										flowType: 'oauth' as const,
+										includeClientSecret: true,
+										includeScopes: true,
+										includeRedirectUri: true,
+										includeLogoutUri: false,
+									};
+									const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
+									
+									// Get MFA credentials
+									const creds = CredentialsServiceV8.loadCredentials();
+									const { generateCompletePostmanCollection } = await import('@/services/postmanCollectionGeneratorV8');
+									const collection = generateCompletePostmanCollection({
+										environmentId: environmentId || unifiedCreds?.environmentId || creds?.environmentId,
+										clientId: unifiedCreds?.clientId,
+										clientSecret: unifiedCreds?.clientSecret,
+										username: creds?.username,
+									});
+									const date = new Date().toISOString().split('T')[0];
+									const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+									const { downloadPostmanCollectionWithEnvironment } = await import('@/services/postmanCollectionGeneratorV8');
+									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
+									toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+								} catch (error) {
+									console.error('Error generating complete Postman collection:', error);
+									toastV8.error('Failed to generate complete Postman collection. Please try again.');
+								}
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '8px',
+								padding: '12px 24px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								fontSize: '15px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+								transition: 'all 0.2s ease',
+								flex: 1,
+								minWidth: '250px',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#059669';
+								e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#10b981';
+								e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+							}}
+							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+						>
+							<FiPackage size={18} />
+							Download Complete Collection (Unified + MFA)
+						</button>
+					</div>
+				</div>
+
 				<div className="welcome-section">
 					<div
 						style={{
@@ -628,141 +764,6 @@ export const MFAHubV8: React.FC = () => {
 								</button>
 							</div>
 						</div>
-					</div>
-				</div>
-
-				{/* Postman Collection Download Section - Matching Unified Flows Layout */}
-				<div
-					style={{
-						padding: '16px',
-						background: '#ffffff',
-						borderRadius: '8px',
-						border: '1px solid #e2e8f0',
-						marginBottom: '24px',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '12px',
-						}}
-					>
-						<button
-							type="button"
-							onClick={async () => {
-								try {
-									// Get environment ID from credentials
-									const creds = CredentialsServiceV8.loadCredentials();
-									const collection = generateComprehensiveMFAPostmanCollection({
-										environmentId: creds?.environmentId,
-										username: creds?.username,
-									});
-									const date = new Date().toISOString().split('T')[0];
-									const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
-									toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
-								} catch (error) {
-									console.error('Error generating MFA Postman collection:', error);
-									toastV8.error('Failed to generate Postman collection. Please try again.');
-								}
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#8b5cf6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-								transition: 'all 0.2s ease',
-								flex: 1,
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#7c3aed';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#8b5cf6';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
-							}}
-							title="Download comprehensive Postman collection for all MFA device types (SMS, Email, WhatsApp, TOTP, FIDO2, Mobile) grouped by Registration and Authentication"
-						>
-							<FiPackage size={18} />
-							Download All MFA Flows Postman Collection
-						</button>
-						<button
-							type="button"
-							onClick={async () => {
-								try {
-									// Get Unified credentials
-									const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
-									const { EnvironmentIdServiceV8 } = await import('@/v8/services/environmentIdServiceV8');
-									const environmentId = EnvironmentIdServiceV8.getEnvironmentId();
-									const flowKey = 'oauth-authz-v8u';
-									const config = CredentialsServiceV8.getFlowConfig(flowKey) || {
-										flowKey,
-										flowType: 'oauth' as const,
-										includeClientSecret: true,
-										includeScopes: true,
-										includeRedirectUri: true,
-										includeLogoutUri: false,
-									};
-									const unifiedCreds = CredentialsServiceV8.loadCredentials(flowKey, config);
-									
-									// Get MFA credentials
-									const creds = CredentialsServiceV8.loadCredentials();
-									const { generateCompletePostmanCollection } = await import('@/services/postmanCollectionGeneratorV8');
-									const collection = generateCompletePostmanCollection({
-										environmentId: environmentId || unifiedCreds?.environmentId || creds?.environmentId,
-										clientId: unifiedCreds?.clientId,
-										clientSecret: unifiedCreds?.clientSecret,
-										username: creds?.username,
-									});
-									const date = new Date().toISOString().split('T')[0];
-									const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-									const { downloadPostmanCollectionWithEnvironment } = await import('@/services/postmanCollectionGeneratorV8');
-									downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-									toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
-								} catch (error) {
-									console.error('Error generating complete Postman collection:', error);
-									toastV8.error('Failed to generate complete Postman collection. Please try again.');
-								}
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#10b981',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-								transition: 'all 0.2s ease',
-								flex: 1,
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#059669';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#10b981';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-							}}
-							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
-						>
-							<FiPackage size={18} />
-							Download Complete Collection (Unified + MFA)
-						</button>
 					</div>
 				</div>
 
