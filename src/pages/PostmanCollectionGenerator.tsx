@@ -7,7 +7,7 @@
  * Allows users to select:
  * - All collections (Unified + MFA)
  * - Just MFA (all or individual device types)
- * - Just Unified (all, OAuth 2.0, OAuth 2.1, OIDC, or combinations)
+ * - Just Unified (all, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft), or combinations)
  */
 
 import React, { useState } from 'react';
@@ -20,7 +20,11 @@ import {
 	generateComprehensiveUnifiedPostmanCollection,
 	generateComprehensiveMFAPostmanCollection,
 	generateCompletePostmanCollection,
+	generateUseCasesPostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
+	generatePostmanEnvironment,
+	downloadPostmanEnvironment,
+	downloadPostmanCollection,
 	type PostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
@@ -44,33 +48,188 @@ type UnifiedVariation =
 
 type MFAUseCase = 'user-flow' | 'admin-flow' | 'registration' | 'authentication';
 
+type UseCaseType =
+	| 'signup'
+	| 'signin'
+	| 'mfa-enrollment'
+	| 'mfa-challenge'
+	| 'stepup'
+	| 'password-reset'
+	| 'account-recovery'
+	| 'change-credentials'
+	| 'social-login'
+	| 'federation'
+	| 'oauth-login'
+	| 'risk-checks'
+	| 'logout';
+
 export const PostmanCollectionGenerator: React.FC = () => {
 	usePageScroll({ pageName: 'Postman Collection Generator', force: true });
 
 	// Collection type selection
 	const [includeUnified, setIncludeUnified] = useState(true);
 	const [includeMFA, setIncludeMFA] = useState(true);
+	const [includeUseCases, setIncludeUseCases] = useState(false);
+
+	// Use case selection
+	const useCaseTypes: UseCaseType[] = [
+		'signup',
+		'signin',
+		'mfa-enrollment',
+		'mfa-challenge',
+		'stepup',
+		'password-reset',
+		'account-recovery',
+		'change-credentials',
+		'social-login',
+		'federation',
+		'oauth-login',
+		'risk-checks',
+		'logout',
+	];
+
+	const [selectedUseCases, setSelectedUseCases] = useState<Set<UseCaseType>>(
+		new Set(useCaseTypes) // All use cases selected by default when Use Cases is enabled
+	);
 
 	// Unified spec version selection
 	const [includeOAuth20, setIncludeOAuth20] = useState(true);
 	const [includeOAuth21, setIncludeOAuth21] = useState(true);
 	const [includeOIDC, setIncludeOIDC] = useState(true);
 
+	// Map FlowType to UnifiedVariation types
+	const flowTypeToVariations = (flowType: FlowType, specVersion?: SpecVersion): UnifiedVariation[] => {
+		switch (flowType) {
+			case 'oauth-authz':
+				// OAuth 2.1 (draft) requires PKCE for Authorization Code flow, so only PKCE variations. When used with OIDC Core 1.0, this is "OIDC Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".
+				if (specVersion === 'oauth2.1') {
+					return ['authz-pkce', 'authz-pkce-par'];
+				}
+				// For other spec versions, include all authz variations
+				return [
+					'authz-client-secret-post',
+					'authz-client-secret-basic',
+					'authz-client-secret-jwt',
+					'authz-private-key-jwt',
+					'authz-pkce',
+					'authz-pkce-par',
+					'authz-pi-flow',
+				];
+			case 'implicit':
+				return ['implicit'];
+			case 'hybrid':
+				return ['hybrid'];
+			case 'client-credentials':
+				return ['client-credentials'];
+			case 'device-code':
+				return ['device-code'];
+			default:
+				return [];
+		}
+	};
+
+	// Get all variations for a spec version
+	const getVariationsForSpec = (specVersion: SpecVersion): UnifiedVariation[] => {
+		const flows = SpecVersionServiceV8.getAvailableFlows(specVersion);
+		const variations: UnifiedVariation[] = [];
+		flows.forEach((flow) => {
+			variations.push(...flowTypeToVariations(flow, specVersion));
+		});
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'PostmanCollectionGenerator.tsx:94',
+				message: 'Getting variations for spec version',
+				data: { specVersion, flows: Array.from(flows), variations: Array.from(variations) },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				hypothesisId: 'B',
+			}),
+		}).catch(() => {});
+		// #endregion
+		return variations;
+	};
+
+	// Handle spec version change with auto-selection of flow variations
+	const handleSpecVersionChange = (
+		specVersion: 'oauth2.0' | 'oauth2.1' | 'oidc',
+		checked: boolean
+	) => {
+		// Calculate new spec version states
+		const newOAuth20 = specVersion === 'oauth2.0' ? checked : includeOAuth20;
+		const newOAuth21 = specVersion === 'oauth2.1' ? checked : includeOAuth21;
+		const newOIDC = specVersion === 'oidc' ? checked : includeOIDC;
+
+		// Update spec version states
+		setIncludeOAuth20(newOAuth20);
+		setIncludeOAuth21(newOAuth21);
+		setIncludeOIDC(newOIDC);
+
+		// Auto-select/deselect flow variations based on all selected spec versions
+		setSelectedUnifiedVariations((prev) => {
+			const newSet = new Set(prev);
+			
+			// Collect all variations from all selected spec versions (after the change)
+			const allSelectedVariations = new Set<UnifiedVariation>();
+			if (newOAuth20) {
+				getVariationsForSpec('oauth2.0').forEach((v) => allSelectedVariations.add(v));
+			}
+			if (newOAuth21) {
+				getVariationsForSpec('oauth2.1').forEach((v) => allSelectedVariations.add(v));
+			}
+			if (newOIDC) {
+				getVariationsForSpec('oidc').forEach((v) => allSelectedVariations.add(v));
+			}
+
+			// If checking, add all variations from this spec version
+			if (checked) {
+				const variations = getVariationsForSpec(specVersion);
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({
+						location: 'PostmanCollectionGenerator.tsx:135',
+						message: 'Adding variations for spec version',
+						data: { specVersion, checked, variations: Array.from(variations) },
+						timestamp: Date.now(),
+						sessionId: 'debug-session',
+						hypothesisId: 'A',
+					}),
+				}).catch(() => {});
+				// #endregion
+				variations.forEach((variation) => newSet.add(variation));
+			} else {
+				// If unchecking, remove variations from this spec version
+				// but only if they're not supported by any other selected spec version
+				const unselectedSpecVariations = getVariationsForSpec(specVersion);
+				unselectedSpecVariations.forEach((variation) => {
+					// Only remove if not in the allSelectedVariations set (i.e., not supported by other specs)
+					if (!allSelectedVariations.has(variation)) {
+						newSet.delete(variation);
+					}
+				});
+			}
+
+			return newSet;
+		});
+	};
+
+	// Initialize selected variations based on initial spec version selections
+	const getInitialVariations = (): Set<UnifiedVariation> => {
+		const variations = new Set<UnifiedVariation>();
+		// Start with all three specs selected by default
+		getVariationsForSpec('oauth2.0').forEach((v) => variations.add(v));
+		getVariationsForSpec('oauth2.1').forEach((v) => variations.add(v));
+		getVariationsForSpec('oidc').forEach((v) => variations.add(v));
+		return variations;
+	};
+
 	// Unified variation selection (multiselect)
 	const [selectedUnifiedVariations, setSelectedUnifiedVariations] = useState<Set<UnifiedVariation>>(
-		new Set([
-			'authz-client-secret-post',
-			'authz-client-secret-basic',
-			'authz-client-secret-jwt',
-			'authz-private-key-jwt',
-			'authz-pi-flow',
-			'authz-pkce',
-			'authz-pkce-par',
-			'implicit',
-			'client-credentials',
-			'device-code',
-			'hybrid',
-		])
+		getInitialVariations()
 	);
 
 	// MFA device type selection
@@ -94,6 +253,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	const [expandedMFAUseCases, setExpandedMFAUseCases] = useState<Map<DeviceType, boolean>>(
 		new Map(['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2', 'MOBILE'].map((dt) => [dt as DeviceType, false]))
 	);
+	const [expandedUseCases, setExpandedUseCases] = useState(false); // Collapsed by default - for Use Cases selection
 
 	const [isGenerating, setIsGenerating] = useState(false);
 
@@ -160,71 +320,45 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		const collection = generateComprehensiveUnifiedPostmanCollection(credentials);
 
 		// Filter items based on selected spec versions
-		// The collection structure is: [Registration folder, Authentication folder]
-		// Each folder contains items for different flows
+		// The collection structure is: [Use Cases, Worker Token, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0, Redirectless (PingOne pi.flow)]
+		// Filter by folder name (spec version) - each folder contains all flows for that spec version
 		const filteredItems: PostmanCollectionItem[] = [];
 
 		collection.item.forEach((folder) => {
-			if (folder.item) {
-				const filteredFolderItems: PostmanCollectionItem[] = [];
+			const folderName = folder.name;
+			
+			// Always exclude Use Cases folder when filtering (will be added separately if includeUseCases is true)
+			if (folderName === 'Use Cases') {
+				return;
+			}
+			
+			// Always include Worker Token and Redirectless folders
+			if (folderName === 'Worker Token' || folderName.includes('Redirectless')) {
+				filteredItems.push(folder);
+				return;
+			}
 
-				folder.item.forEach((item) => {
-					// Check if this item belongs to a selected flow
-					const itemName = item.name.toLowerCase();
-					let shouldInclude = false;
+			// Check if folder matches selected spec versions (exact match by folder name)
+			let shouldInclude = false;
+			
+			// OAuth 2.0 folder: include if OAuth 2.0 is selected
+			if (includeOAuth20 && folderName === 'OAuth 2.0 Authorization Framework (RFC 6749)') {
+				shouldInclude = true;
+			}
+			
+			// OIDC folder (not OIDC 2.1): include if OIDC is selected
+			if (includeOIDC && folderName === 'OpenID Connect Core 1.0') {
+				shouldInclude = true;
+			}
+			
+			// OAuth 2.1 / OIDC 2.1 folder: include if OAuth 2.1 is selected
+			if (includeOAuth21 && folderName === 'OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0') {
+				shouldInclude = true;
+			}
 
-					// Check each flow type
-					if (allFlows.has('oauth-authz')) {
-						if (itemName.includes('authorization code') || itemName.includes('authz')) {
-							shouldInclude = true;
-						}
-					}
-					if (allFlows.has('implicit')) {
-						if (itemName.includes('implicit')) {
-							shouldInclude = true;
-						}
-					}
-					if (allFlows.has('client-credentials')) {
-						if (itemName.includes('client credentials')) {
-							shouldInclude = true;
-						}
-					}
-					if (allFlows.has('device-code')) {
-						if (itemName.includes('device code') || itemName.includes('device-code')) {
-							shouldInclude = true;
-						}
-					}
-					if (allFlows.has('hybrid')) {
-						if (itemName.includes('hybrid')) {
-							shouldInclude = true;
-						}
-					}
-
-					// Also check nested items (for Authorization Code variations)
-					if (item.item) {
-						const filteredNestedItems = item.item.filter(() => {
-							// Authorization Code variations are always included if oauth-authz is selected
-							return allFlows.has('oauth-authz');
-						});
-
-						if (filteredNestedItems.length > 0) {
-							filteredFolderItems.push({
-								...item,
-								item: filteredNestedItems,
-							});
-							shouldInclude = true;
-						}
-					} else if (shouldInclude) {
-						filteredFolderItems.push(item);
-					}
-				});
-
-				if (filteredFolderItems.length > 0) {
-					filteredItems.push({
-						...folder,
-						item: filteredFolderItems,
-					});
-				}
+			if (shouldInclude) {
+				// Include entire folder with all its flows (all flows in that spec version are included)
+				filteredItems.push(folder);
 			}
 		});
 
@@ -232,11 +366,11 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		const specNames = allSpecVersions.map((spec) => {
 			switch (spec) {
 				case 'oauth2.0':
-					return 'OAuth 2.0';
+					return 'OAuth 2.0 Authorization Framework (RFC 6749)';
 				case 'oauth2.1':
-					return 'OAuth 2.1';
+					return 'OAuth 2.1 Authorization Framework (draft)';
 				case 'oidc':
-					return 'OpenID Connect';
+					return 'OpenID Connect Core 1.0';
 			}
 		});
 
@@ -329,6 +463,15 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		setIncludeOAuth20(true);
 		setIncludeOAuth21(true);
 		setIncludeOIDC(true);
+		
+		// Select all variations from all spec versions
+		setSelectedUnifiedVariations((prev) => {
+			const newSet = new Set(prev);
+			getVariationsForSpec('oauth2.0').forEach((v) => newSet.add(v));
+			getVariationsForSpec('oauth2.1').forEach((v) => newSet.add(v));
+			getVariationsForSpec('oidc').forEach((v) => newSet.add(v));
+			return newSet;
+		});
 	};
 
 	// Unselect all Unified spec versions
@@ -336,6 +479,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		setIncludeOAuth20(false);
 		setIncludeOAuth21(false);
 		setIncludeOIDC(false);
+		
+		// Unselect all variations
+		setSelectedUnifiedVariations(new Set());
 	};
 
 	// Unified variation handlers
@@ -413,39 +559,294 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		});
 	};
 
+	// Use case handlers
+	const toggleUseCase = (useCase: UseCaseType) => {
+		setSelectedUseCases((prev) => {
+			const newSet = new Set(prev);
+			if (newSet.has(useCase)) {
+				newSet.delete(useCase);
+			} else {
+				newSet.add(useCase);
+			}
+			return newSet;
+		});
+	};
+
+	const selectAllUseCases = () => {
+		setSelectedUseCases(new Set(useCaseTypes));
+	};
+
+	const unselectAllUseCases = () => {
+		setSelectedUseCases(new Set());
+	};
+
+	// Use case labels mapping
+	const useCaseLabels: Record<UseCaseType, string> = {
+		'signup': '1. Sign-up (Registration)',
+		'signin': '2. Sign-in',
+		'mfa-enrollment': '3. MFA Enrollment',
+		'mfa-challenge': '4. MFA Challenge',
+		'stepup': '5. Step-up Authentication',
+		'password-reset': '6. Forgot Password / Password Reset',
+		'account-recovery': '7. Account Recovery',
+		'change-credentials': '8. Change Credentials & Factors',
+		'social-login': '9. Social Login',
+		'federation': '10. Partner / Enterprise Federation',
+		'oauth-login': '11. OIDC/OAuth Login (Web app)',
+		'risk-checks': '12. Risk-based Checks',
+		'logout': '13. Logout',
+	};
+
+	// Helper function to generate collection based on selections
+	const generateCollectionBasedOnSelections = (
+		credentials: {
+			environmentId?: string;
+			clientId?: string;
+			clientSecret?: string;
+			username?: string;
+		}
+	): PostmanCollection | null => {
+		// If only Use Cases is selected
+		if (includeUseCases && !includeUnified && !includeMFA) {
+			return generateUseCasesPostmanCollection(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+				},
+				selectedUseCases
+			);
+		}
+
+		// If Use Cases + Unified + MFA
+		if (includeUnified && includeMFA && includeUseCases) {
+			const unified = generateCompletePostmanCollection(credentials);
+			const useCases = generateUseCasesPostmanCollection(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+				},
+				selectedUseCases
+			);
+			
+			const variableMap = new Map<string, { key: string; value: string; type?: string }>();
+			unified.variable.forEach((v) => variableMap.set(v.key, v));
+			useCases.variable.forEach((v) => variableMap.set(v.key, v));
+			
+			// Extract Worker Token from Use Cases collection (it's the first item)
+			const workerTokenItem = useCases.item.find((item) => item.name === 'Worker Token');
+			const useCasesItemsWithoutWorkerToken = useCases.item.filter((item) => item.name !== 'Worker Token');
+			
+			// Filter out "Use Cases" and "Worker Token" from unified.item (already extracted Worker Token from Use Cases)
+			const filteredUnifiedItems = unified.item.filter((item) => item.name !== 'Use Cases' && item.name !== 'Worker Token');
+			
+			// Build final structure: Worker Token FIRST, then Use Cases, then Unified and MFA folders
+			const finalItems: PostmanCollectionItem[] = [];
+			if (workerTokenItem) {
+				finalItems.push(workerTokenItem); // Worker Token at top level, first
+			}
+			finalItems.push(...useCasesItemsWithoutWorkerToken); // Use Cases (without Worker Token)
+			finalItems.push(...filteredUnifiedItems); // Unified and MFA folders (without Worker Token and Use Cases)
+			
+			return {
+				...unified,
+				variable: Array.from(variableMap.values()),
+				item: finalItems,
+				info: {
+					...unified.info,
+					name: 'PingOne Complete Collection - Use Cases, Unified & MFA',
+					description: `${unified.info.description}\n\n${useCases.info.description}`,
+				},
+			};
+		}
+
+		// If Unified + Use Cases
+		if (includeUnified && includeUseCases && !includeMFA) {
+			const unified = generateFilteredUnifiedCollection(credentials);
+			const useCases = generateUseCasesPostmanCollection(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+				},
+				selectedUseCases
+			);
+			
+			if (!unified) return null;
+			
+			const variableMap = new Map<string, { key: string; value: string; type?: string }>();
+			unified.variable.forEach((v) => variableMap.set(v.key, v));
+			useCases.variable.forEach((v) => variableMap.set(v.key, v));
+			
+			// Extract Worker Token from Use Cases collection (it's the first item)
+			const workerTokenItem = useCases.item.find((item) => item.name === 'Worker Token');
+			const useCasesItemsWithoutWorkerToken = useCases.item.filter((item) => item.name !== 'Worker Token');
+			
+			// Filter out "Use Cases" and "Worker Token" from unified.item (already extracted Worker Token from Use Cases)
+			const filteredUnifiedItems = unified.item.filter((item) => item.name !== 'Use Cases' && item.name !== 'Worker Token');
+			
+			// Build final structure: Worker Token FIRST, then Use Cases, then Unified folders
+			const finalItems: PostmanCollectionItem[] = [];
+			if (workerTokenItem) {
+				finalItems.push(workerTokenItem); // Worker Token at top level, first
+			}
+			finalItems.push(...useCasesItemsWithoutWorkerToken); // Use Cases (without Worker Token)
+			finalItems.push(...filteredUnifiedItems); // Unified folders (without Worker Token and Use Cases)
+			
+			return {
+				...unified,
+				variable: Array.from(variableMap.values()),
+				item: finalItems,
+				info: {
+					...unified.info,
+					name: 'PingOne Unified OAuth/OIDC & Use Cases',
+					description: `${unified.info.description}\n\n${useCases.info.description}`,
+				},
+			};
+		}
+
+		// If MFA + Use Cases
+		if (includeMFA && includeUseCases && !includeUnified) {
+			const mfa = generateFilteredMFACollection(credentials);
+			const useCases = generateUseCasesPostmanCollection(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+				},
+				selectedUseCases
+			);
+			
+			if (!mfa) return null;
+			
+			const variableMap = new Map<string, { key: string; value: string; type?: string }>();
+			mfa.variable.forEach((v) => variableMap.set(v.key, v));
+			useCases.variable.forEach((v) => variableMap.set(v.key, v));
+			
+			// Extract Worker Token from Use Cases collection (it's the first item)
+			const workerTokenItem = useCases.item.find((item) => item.name === 'Worker Token');
+			const useCasesItemsWithoutWorkerToken = useCases.item.filter((item) => item.name !== 'Worker Token');
+			
+			// Filter out "Worker Token" from mfa.item (already extracted Worker Token from Use Cases)
+			const filteredMFAItems = mfa.item.filter((item) => item.name !== 'Worker Token');
+			
+			// Build final structure: Worker Token FIRST, then Use Cases, then MFA folders
+			const finalItems: PostmanCollectionItem[] = [];
+			if (workerTokenItem) {
+				finalItems.push(workerTokenItem); // Worker Token at top level, first
+			}
+			finalItems.push(...useCasesItemsWithoutWorkerToken); // Use Cases (without Worker Token)
+			finalItems.push(...filteredMFAItems); // MFA folders (without Worker Token)
+			
+			return {
+				...mfa,
+				variable: Array.from(variableMap.values()),
+				item: finalItems,
+				info: {
+					...mfa.info,
+					name: 'PingOne MFA & Use Cases',
+					description: `${mfa.info.description}\n\n${useCases.info.description}`,
+				},
+			};
+		}
+
+		// If Unified + MFA (no Use Cases)
+		if (includeUnified && includeMFA && !includeUseCases) {
+			return generateCompletePostmanCollection(credentials);
+		}
+
+		// If only Unified
+		if (includeUnified && !includeMFA && !includeUseCases) {
+			return generateFilteredUnifiedCollection(credentials);
+		}
+
+		// If only MFA
+		if (includeMFA && !includeUnified && !includeUseCases) {
+			return generateFilteredMFACollection(credentials);
+		}
+
+		return null;
+	};
+
+	// Helper function to generate filename based on selections
+	const generateFilename = (extension: 'collection.json' | 'environment.json'): string => {
+		const date = new Date().toISOString().split('T')[0];
+		let filename = 'pingone';
+		
+		if (includeUnified && includeMFA && includeUseCases) {
+			filename += '-complete-all';
+		} else if (includeUnified && includeMFA) {
+			filename += '-complete-unified-mfa';
+		} else if (includeUnified && includeUseCases) {
+			filename += '-unified-use-cases';
+			if (includeOAuth20 && !includeOAuth21 && !includeOIDC) {
+				filename += '-oauth20';
+			} else if (includeOAuth21 && !includeOAuth20 && !includeOIDC) {
+				filename += '-oauth21';
+			} else if (includeOIDC && !includeOAuth20 && !includeOAuth21) {
+				filename += '-oidc';
+			} else {
+				filename += '-custom';
+			}
+		} else if (includeMFA && includeUseCases) {
+			filename += '-mfa-use-cases';
+			if (selectedDeviceTypes.size < 6) {
+				filename += `-${Array.from(selectedDeviceTypes).join('-').toLowerCase()}`;
+			}
+		} else if (includeUseCases) {
+			filename += '-use-cases';
+		} else if (includeUnified) {
+			filename += '-unified';
+			if (includeOAuth20 && !includeOAuth21 && !includeOIDC) {
+				filename += '-oauth20';
+			} else if (includeOAuth21 && !includeOAuth20 && !includeOIDC) {
+				filename += '-oauth21';
+			} else if (includeOIDC && !includeOAuth20 && !includeOAuth21) {
+				filename += '-oidc';
+			} else {
+				filename += '-custom';
+			}
+		} else if (includeMFA) {
+			filename += '-mfa';
+			if (selectedDeviceTypes.size < 6) {
+				filename += `-${Array.from(selectedDeviceTypes).join('-').toLowerCase()}`;
+			}
+		}
+		
+		filename += `-${date}-${extension}`;
+		return filename;
+	};
+
 	// Generate and download collection
 	const handleGenerateCollection = async () => {
-		if (!includeUnified && !includeMFA) {
-			toastV8.error('Please select at least one collection type (Unified or MFA)');
+		if (!includeUnified && !includeMFA && !includeUseCases) {
+			toastV8.error('Please select at least one collection type (Use Cases, Unified, or MFA)');
 			return;
 		}
 
+		// Validate Unified selection if included
 		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-			toastV8.error('Please select at least one Unified spec version (OAuth 2.0, OAuth 2.1, or OIDC)');
+			toastV8.error('Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))');
 			return;
 		}
 
+		// Validate MFA selection if included
 		if (includeMFA && selectedDeviceTypes.size === 0) {
 			toastV8.error('Please select at least one MFA device type');
+			return;
+		}
+
+		// Validate Use Cases selection if included
+		if (includeUseCases && selectedUseCases.size === 0) {
+			toastV8.error('Please select at least one Use Case');
 			return;
 		}
 
 		setIsGenerating(true);
 		try {
 			const credentials = getCredentials();
-
-			let collection: PostmanCollection | null = null;
-
-			if (includeUnified && includeMFA) {
-				// Generate complete collection (both)
-				collection = generateCompletePostmanCollection(credentials);
-			} else if (includeUnified) {
-				// Generate only Unified
-				collection = generateFilteredUnifiedCollection(credentials);
-			} else if (includeMFA) {
-				// Generate only MFA
-				collection = generateFilteredMFACollection(credentials);
-			}
+			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
 				toastV8.error('Failed to generate collection. Please check your selections.');
@@ -453,29 +854,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			}
 
 			// Generate filename
-			const date = new Date().toISOString().split('T')[0];
-			let filename = 'pingone';
-			if (includeUnified && includeMFA) {
-				filename += '-complete-unified-mfa';
-			} else if (includeUnified) {
-				filename += '-unified';
-				if (includeOAuth20 && !includeOAuth21 && !includeOIDC) {
-					filename += '-oauth20';
-				} else if (includeOAuth21 && !includeOAuth20 && !includeOIDC) {
-					filename += '-oauth21';
-				} else if (includeOIDC && !includeOAuth20 && !includeOAuth21) {
-					filename += '-oidc';
-				} else {
-					filename += '-custom';
-				}
-			} else if (includeMFA) {
-				filename += '-mfa';
-				if (selectedDeviceTypes.size < 6) {
-					filename += `-${Array.from(selectedDeviceTypes).join('-').toLowerCase()}`;
-				}
-			}
-			filename += `-${date}-collection.json`;
-
+			const filename = generateFilename('collection.json');
 			const environmentName = `${collection.info.name} Environment`;
 
 			// Download
@@ -485,6 +864,103 @@ export const PostmanCollectionGenerator: React.FC = () => {
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error generating collection:`, error);
 			toastV8.error('Failed to generate Postman collection. Please try again.');
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	// Download only the collection file (without environment)
+	const handleDownloadCollectionOnly = async () => {
+		if (!includeUnified && !includeMFA && !includeUseCases) {
+			toastV8.error('Please select at least one collection type (Use Cases, Unified, or MFA)');
+			return;
+		}
+
+		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
+			toastV8.error('Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))');
+			return;
+		}
+
+		if (includeMFA && selectedDeviceTypes.size === 0) {
+			toastV8.error('Please select at least one MFA device type');
+			return;
+		}
+
+		if (includeUseCases && selectedUseCases.size === 0) {
+			toastV8.error('Please select at least one Use Case');
+			return;
+		}
+
+		setIsGenerating(true);
+		try {
+			const credentials = getCredentials();
+			const collection = generateCollectionBasedOnSelections(credentials);
+
+			if (!collection) {
+				toastV8.error('Failed to generate collection. Please check your selections.');
+				return;
+			}
+
+			// Generate filename
+			const filename = generateFilename('collection.json');
+
+			// Download only the collection file
+			downloadPostmanCollection(collection, filename);
+
+			toastV8.success('Postman collection downloaded! Import into Postman to use the collection.');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error generating collection:`, error);
+			toastV8.error('Failed to generate Postman collection. Please try again.');
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	// Download only the environment/variables file
+	const handleDownloadVariables = async () => {
+		if (!includeUnified && !includeMFA && !includeUseCases) {
+			toastV8.error('Please select at least one collection type (Use Cases, Unified, or MFA)');
+			return;
+		}
+
+		if (includeUnified && !includeOAuth20 && !includeOAuth21 && !includeOIDC) {
+			toastV8.error('Please select at least one Unified spec version (OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, or OAuth 2.1 Authorization Framework (draft))');
+			return;
+		}
+
+		if (includeMFA && selectedDeviceTypes.size === 0) {
+			toastV8.error('Please select at least one MFA device type');
+			return;
+		}
+
+		if (includeUseCases && selectedUseCases.size === 0) {
+			toastV8.error('Please select at least one Use Case');
+			return;
+		}
+
+		setIsGenerating(true);
+		try {
+			const credentials = getCredentials();
+			const collection = generateCollectionBasedOnSelections(credentials);
+
+			if (!collection) {
+				toastV8.error('Failed to generate environment. Please check your selections.');
+				return;
+			}
+
+			// Generate filename
+			const filename = generateFilename('environment.json');
+
+			const environmentName = `${collection.info.name} Environment`;
+
+			// Generate and download only the environment file
+			const environment = generatePostmanEnvironment(collection, environmentName);
+			downloadPostmanEnvironment(environment, filename);
+
+			toastV8.success('Postman environment/variables file downloaded! Import into Postman to use the variables.');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error generating environment:`, error);
+			toastV8.error('Failed to generate Postman environment. Please try again.');
 		} finally {
 			setIsGenerating(false);
 		}
@@ -543,6 +1019,27 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							gap: '12px',
 							cursor: 'pointer',
 							padding: '12px 20px',
+							border: `2px solid ${includeUseCases ? '#8b5cf6' : '#e5e7eb'}`,
+							borderRadius: '8px',
+							background: includeUseCases ? '#f3f4f6' : 'white',
+							transition: 'all 0.2s',
+						}}
+					>
+						<input
+							type="checkbox"
+							checked={includeUseCases}
+							onChange={(e) => setIncludeUseCases(e.target.checked)}
+							style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+						/>
+						<span style={{ fontSize: '1rem', fontWeight: '500' }}>Use Cases</span>
+					</label>
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '12px',
+							cursor: 'pointer',
+							padding: '12px 20px',
 							border: `2px solid ${includeUnified ? '#8b5cf6' : '#e5e7eb'}`,
 							borderRadius: '8px',
 							background: includeUnified ? '#f3f4f6' : 'white',
@@ -580,6 +1077,124 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					</label>
 				</div>
 			</div>
+
+			{/* Use Cases Selection */}
+			{includeUseCases && (
+				<div
+					style={{
+						background: 'white',
+						padding: '2rem',
+						borderRadius: '12px',
+						boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+						marginBottom: '2rem',
+					}}
+				>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+						<h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '600' }}>
+							Use Cases Selection
+						</h2>
+						<div style={{ display: 'flex', gap: '0.5rem' }}>
+							<button
+								type="button"
+								onClick={selectAllUseCases}
+								style={{
+									padding: '6px 12px',
+									border: '1px solid #10b981',
+									borderRadius: '6px',
+									background: 'white',
+									color: '#10b981',
+									fontSize: '0.875rem',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#ecfdf5';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = 'white';
+								}}
+							>
+								Select All
+							</button>
+							<button
+								type="button"
+								onClick={unselectAllUseCases}
+								style={{
+									padding: '6px 12px',
+									border: '1px solid #ef4444',
+									borderRadius: '6px',
+									background: 'white',
+									color: '#ef4444',
+									fontSize: '0.875rem',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#fef2f2';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = 'white';
+								}}
+							>
+								Unselect All
+							</button>
+						</div>
+					</div>
+					<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.95rem' }}>
+						Select which customer identity flow use cases to include:
+					</p>
+					<button
+						type="button"
+						onClick={() => setExpandedUseCases(!expandedUseCases)}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							background: 'none',
+							border: 'none',
+							cursor: 'pointer',
+							padding: '8px 0',
+							fontSize: '1rem',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '1rem',
+						}}
+					>
+						{expandedUseCases ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
+						<span>Use Cases ({selectedUseCases.size} of {useCaseTypes.length} selected)</span>
+					</button>
+					{expandedUseCases && (
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', paddingLeft: '1.5rem' }}>
+							{useCaseTypes.map((useCase) => (
+								<label
+									key={useCase}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+										cursor: 'pointer',
+										padding: '8px 12px',
+										border: `1px solid ${selectedUseCases.has(useCase) ? '#10b981' : '#e5e7eb'}`,
+										borderRadius: '6px',
+										background: selectedUseCases.has(useCase) ? '#ecfdf5' : 'white',
+										transition: 'all 0.2s',
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={selectedUseCases.has(useCase)}
+										onChange={() => toggleUseCase(useCase)}
+										style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+									/>
+									<span style={{ fontSize: '0.9rem' }}>{useCaseLabels[useCase]}</span>
+								</label>
+							))}
+						</div>
+					)}
+				</div>
+			)}
 
 			{/* Unified Spec Version Selection */}
 			{includeUnified && (
@@ -645,9 +1260,18 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							</button>
 						</div>
 					</div>
-					<p style={{ marginBottom: '1rem', color: '#6b7280', fontSize: '0.95rem' }}>
+					<p style={{ marginBottom: '0.5rem', color: '#6b7280', fontSize: '0.95rem' }}>
 						Select which OAuth/OIDC specification versions to include:
 					</p>
+					<div style={{ marginBottom: '1rem', padding: '12px', background: '#f0f9ff', border: '1px solid #bfdbfe', borderRadius: '6px', fontSize: '0.875rem', color: '#1e40af' }}>
+						<strong style={{ display: 'block', marginBottom: '6px' }}>📚 Understanding Protocol Names:</strong>
+						<ul style={{ margin: '0 0 0 20px', padding: 0, lineHeight: '1.6' }}>
+							<li><strong>OAuth 2.0 Authorization Framework (RFC 6749):</strong> Baseline OAuth framework standard. Provides authorization without authentication. Supports all flow types.</li>
+							<li><strong>OpenID Connect Core 1.0:</strong> Authentication layer on top of OAuth 2.0. Adds ID Tokens, openid scope, UserInfo endpoint, and user authentication.</li>
+							<li><strong>OAuth 2.1 Authorization Framework (draft):</strong> Consolidated OAuth specification (IETF draft). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). <em>Note: Still an Internet-Draft, not yet an RFC.</em></li>
+							<li><strong>When using OAuth 2.1 with OpenID Connect:</strong> This means "OpenID Connect Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".</li>
+						</ul>
+					</div>
 					<div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
 						<label
 							style={{
@@ -665,31 +1289,10 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							<input
 								type="checkbox"
 								checked={includeOAuth20}
-								onChange={(e) => setIncludeOAuth20(e.target.checked)}
+								onChange={(e) => handleSpecVersionChange('oauth2.0', e.target.checked)}
 								style={{ width: '18px', height: '18px', cursor: 'pointer' }}
 							/>
-							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OAuth 2.0</span>
-						</label>
-						<label
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '12px',
-								cursor: 'pointer',
-								padding: '10px 16px',
-								border: `2px solid ${includeOAuth21 ? '#3b82f6' : '#e5e7eb'}`,
-								borderRadius: '8px',
-								background: includeOAuth21 ? '#eff6ff' : 'white',
-								transition: 'all 0.2s',
-							}}
-						>
-							<input
-								type="checkbox"
-								checked={includeOAuth21}
-								onChange={(e) => setIncludeOAuth21(e.target.checked)}
-								style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-							/>
-							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OAuth 2.1</span>
+							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OAuth 2.0<br /><span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>(RFC 6749)</span></span>
 						</label>
 						<label
 							style={{
@@ -707,49 +1310,77 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							<input
 								type="checkbox"
 								checked={includeOIDC}
-								onChange={(e) => setIncludeOIDC(e.target.checked)}
+								onChange={(e) => handleSpecVersionChange('oidc', e.target.checked)}
 								style={{ width: '18px', height: '18px', cursor: 'pointer' }}
 							/>
-							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OpenID Connect (OIDC)</span>
+							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OpenID Connect<br /><span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>Core 1.0</span></span>
+						</label>
+						<label
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '12px',
+								cursor: 'pointer',
+								padding: '10px 16px',
+								border: `2px solid ${includeOAuth21 ? '#3b82f6' : '#e5e7eb'}`,
+								borderRadius: '8px',
+								background: includeOAuth21 ? '#eff6ff' : 'white',
+								transition: 'all 0.2s',
+							}}
+						>
+							<input
+								type="checkbox"
+								checked={includeOAuth21}
+								onChange={(e) => handleSpecVersionChange('oauth2.1', e.target.checked)}
+								style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+							/>
+							<span style={{ fontSize: '0.95rem', fontWeight: '500' }}>OAuth 2.1 (draft)<br /><span style={{ fontSize: '0.75rem', fontWeight: '400', color: '#6b7280' }}>with OIDC Core 1.0</span></span>
 						</label>
 					</div>
 
 					{/* Unified Flow Variations */}
 					<div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #e5e7eb' }}>
-						<button
-							type="button"
-							onClick={() => setExpandedUnifiedVariations(!expandedUnifiedVariations)}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								background: 'none',
-								border: 'none',
-								cursor: 'pointer',
-								padding: '8px 0',
-								fontSize: '1rem',
-								fontWeight: '600',
-								color: '#374151',
-							}}
-						>
-							{expandedUnifiedVariations ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
-							<span>Select Specific Flow Variations</span>
-						</button>
-						{expandedUnifiedVariations && (
-							<div style={{ marginTop: '1rem', paddingLeft: '1.5rem' }}>
-								<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+							<button
+								type="button"
+								onClick={() => setExpandedUnifiedVariations(!expandedUnifiedVariations)}
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									background: 'none',
+									border: 'none',
+									cursor: 'pointer',
+									padding: '8px 0',
+									fontSize: '1rem',
+									fontWeight: '600',
+									color: '#374151',
+								}}
+							>
+								{expandedUnifiedVariations ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
+								<span>Select Specific Flow Variations</span>
+							</button>
+							{expandedUnifiedVariations && (
+								<div style={{ display: 'flex', gap: '0.5rem' }}>
 									<button
 										type="button"
 										onClick={selectAllUnifiedVariations}
 										style={{
-											padding: '4px 8px',
+											padding: '6px 12px',
 											border: '1px solid #3b82f6',
-											borderRadius: '4px',
+											borderRadius: '6px',
 											background: 'white',
 											color: '#3b82f6',
-											fontSize: '0.75rem',
+											fontSize: '0.875rem',
 											fontWeight: '500',
 											cursor: 'pointer',
+											transition: 'all 0.2s',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = '#eff6ff';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = 'white';
 										}}
 									>
 										Select All
@@ -758,19 +1389,30 @@ export const PostmanCollectionGenerator: React.FC = () => {
 										type="button"
 										onClick={unselectAllUnifiedVariations}
 										style={{
-											padding: '4px 8px',
+											padding: '6px 12px',
 											border: '1px solid #ef4444',
-											borderRadius: '4px',
+											borderRadius: '6px',
 											background: 'white',
 											color: '#ef4444',
-											fontSize: '0.75rem',
+											fontSize: '0.875rem',
 											fontWeight: '500',
 											cursor: 'pointer',
+											transition: 'all 0.2s',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = '#fef2f2';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = 'white';
 										}}
 									>
 										Unselect All
 									</button>
 								</div>
+							)}
+						</div>
+						{expandedUnifiedVariations && (
+							<div style={{ marginTop: '1rem', paddingLeft: '1.5rem' }}>
 								<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
 									{[
 										{ key: 'authz-client-secret-post', label: 'Authorization Code - Client Secret Post' },
@@ -1038,7 +1680,9 @@ export const PostmanCollectionGenerator: React.FC = () => {
 				style={{
 					display: 'flex',
 					justifyContent: 'center',
+					gap: '16px',
 					marginTop: '2rem',
+					flexWrap: 'wrap',
 				}}
 			>
 				<button
@@ -1072,6 +1716,7 @@ export const PostmanCollectionGenerator: React.FC = () => {
 							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
 						}
 					}}
+					title="Download both Postman collection and environment files"
 				>
 					{isGenerating ? (
 						<>
@@ -1090,7 +1735,115 @@ export const PostmanCollectionGenerator: React.FC = () => {
 					) : (
 						<>
 							<FiDownload size={20} />
-							Generate & Download Postman Collection
+							Download Collection + Variables
+						</>
+					)}
+				</button>
+				<button
+					type="button"
+					onClick={handleDownloadCollectionOnly}
+					disabled={isGenerating}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						padding: '16px 32px',
+						background: isGenerating ? '#9ca3af' : '#3b82f6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '10px',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						cursor: isGenerating ? 'not-allowed' : 'pointer',
+						boxShadow: isGenerating ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)',
+						transition: 'all 0.2s',
+					}}
+					onMouseEnter={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4)';
+						}
+					}}
+					onMouseLeave={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+						}
+					}}
+					title="Download only the Postman collection file (without environment)"
+				>
+					{isGenerating ? (
+						<>
+							<div
+								style={{
+									width: '20px',
+									height: '20px',
+									border: '3px solid rgba(255, 255, 255, 0.3)',
+									borderTop: '3px solid white',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite',
+								}}
+							/>
+							Generating...
+						</>
+					) : (
+						<>
+							<FiPackage size={20} />
+							Download Collection Only
+						</>
+					)}
+				</button>
+				<button
+					type="button"
+					onClick={handleDownloadVariables}
+					disabled={isGenerating}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						padding: '16px 32px',
+						background: isGenerating ? '#9ca3af' : '#10b981',
+						color: 'white',
+						border: 'none',
+						borderRadius: '10px',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						cursor: isGenerating ? 'not-allowed' : 'pointer',
+						boxShadow: isGenerating ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+						transition: 'all 0.2s',
+					}}
+					onMouseEnter={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
+						}
+					}}
+					onMouseLeave={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+						}
+					}}
+					title="Download only the Postman environment/variables file (without the collection)"
+				>
+					{isGenerating ? (
+						<>
+							<div
+								style={{
+									width: '20px',
+									height: '20px',
+									border: '3px solid rgba(255, 255, 255, 0.3)',
+									borderTop: '3px solid white',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite',
+								}}
+							/>
+							Generating...
+						</>
+					) : (
+						<>
+							<FiPackage size={20} />
+							Download Variables Only
 						</>
 					)}
 				</button>

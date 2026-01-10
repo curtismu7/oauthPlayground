@@ -106,15 +106,7 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
 
-		// Debug logging
-		console.log(`[📱 SMS-CONFIG-PAGE-V8] Checking auth context for auto-population`, {
-			isAuthenticated,
-			hasAuthToken: !!authToken,
-			hasUserToken: !!credentials.userToken,
-			tokenType: credentials.tokenType,
-			registrationFlowType,
-			hasAutoPopulated: hasAutoPopulatedRef.current,
-		});
+		// Check auth context for auto-population
 
 		// Only auto-populate if:
 		// 1. User is authenticated and has an access token
@@ -318,7 +310,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					window.history.replaceState({}, document.title, window.location.pathname);
 
 					// Update credentials - mark OAuth as completed (we don't need to store the token itself)
-					console.log(`[📱 SMS-CONFIG-PAGE-V8] ✅ OAuth token exchange successful`);
 					setCredentials((prev) => {
 						const updated = {
 							...prev,
@@ -664,16 +655,6 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 				toastV8.warning('Please enter a Username before proceeding');
 				return;
 			}
-
-			console.log(
-				`${MODULE_TAG} Proceeding to registration with policy:`,
-				credentials.deviceAuthenticationPolicyId
-			);
-			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
-				'Registration Flow Type': registrationFlowType,
-				'Admin Device Status': adminDeviceStatus,
-				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
-			});
 
 			// Navigate to actual SMS registration flow device route
 			navigate('/v8/mfa/register/sms/device', {
