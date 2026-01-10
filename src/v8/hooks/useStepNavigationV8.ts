@@ -107,24 +107,10 @@ export const useStepNavigationV8 = (
 	// Go to specific step
 	const goToStep = useCallback(
 		(step: number) => {
-		// #region agent log
-		console.log(`${MODULE_TAG} [DEBUG] goToStep called`, {requestedStep:step,currentStep,totalSteps,isValid:step >= 0 && step < totalSteps});
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useStepNavigationV8.ts:109',message:'goToStep called',data:{requestedStep:step,currentStep,totalSteps,isValid:step >= 0 && step < totalSteps},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-		// #endregion
-		
 		if (step < 0 || step >= totalSteps) {
 			console.warn(`${MODULE_TAG} Invalid step`, { step, totalSteps });
-			// #region agent log
-			console.log(`${MODULE_TAG} [DEBUG] goToStep rejected - invalid step`, {step,totalSteps});
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useStepNavigationV8.ts:112',message:'goToStep rejected - invalid step',data:{step,totalSteps},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-			// #endregion
 			return;
 		}
-
-		// #region agent log
-		console.log(`${MODULE_TAG} [DEBUG] BEFORE setCurrentStep`, {currentStep,requestedStep:step,willMarkComplete:currentStep < step && !completedSteps.includes(currentStep)});
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useStepNavigationV8.ts:118',message:'BEFORE setCurrentStep',data:{currentStep,requestedStep:step,willMarkComplete:currentStep < step && !completedSteps.includes(currentStep)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-		// #endregion
 
 		// Mark current step as completed when leaving it
 		if (currentStep < step && !completedSteps.includes(currentStep)) {
@@ -134,11 +120,6 @@ export const useStepNavigationV8 = (
 		setCurrentStep(step);
 		setValidationErrorsState([]);
 		setValidationWarningsState([]);
-
-		// #region agent log
-		console.log(`${MODULE_TAG} [DEBUG] AFTER setCurrentStep call`, {requestedStep:step,hasOnStepChange:!!onStepChange});
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'useStepNavigationV8.ts:127',message:'AFTER setCurrentStep call',data:{requestedStep:step,hasOnStepChange:!!onStepChange},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-		// #endregion
 
 		onStepChange?.(step);
 		},
