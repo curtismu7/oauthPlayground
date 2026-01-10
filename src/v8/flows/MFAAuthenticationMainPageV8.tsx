@@ -26,6 +26,7 @@ import {
 	FiKey,
 	FiLoader,
 	FiMail,
+	FiPackage,
 	FiPhone,
 	FiPlus,
 	FiShield,
@@ -57,6 +58,11 @@ import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthentic
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import {
+	generateComprehensiveMFAPostmanCollection,
+	generateCompletePostmanCollection,
+	downloadPostmanCollectionWithEnvironment,
+} from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
 
@@ -1264,6 +1270,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const handleClearTokens = useCallback(async () => {
 		setShowClearTokensModal(false);
 		setIsClearingTokens(true);
+		
+		// Ensure spinner shows before starting async operations
+		await new Promise((resolve) => {
+			requestAnimationFrame(() => {
+				setTimeout(resolve, 100);
+			});
+		});
+		
+		const startTime = Date.now();
+		const minDisplayTime = 800; // Minimum time to show spinner (ms)
+		
 		try {
 			// End PingOne session first (if we have an ID token)
 			const tokens = oauthStorage.getTokens();
@@ -1304,8 +1321,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				console.warn('[MFA-AUTHN-MAIN-V8] Could not call auth context logout:', error);
 			}
 
-			// Clear worker token
-			await workerTokenServiceV8.clearCredentials();
+			// Clear worker token (preserve credentials)
+			await workerTokenServiceV8.clearToken();
 
 			// Clear OAuth tokens from auth context
 			try {
@@ -1333,6 +1350,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			console.error('[MFA-AUTHN-MAIN-V8] Failed to clear tokens:', error);
 			toastV8.error('Failed to clear tokens. Please try again.');
 		} finally {
+			// Ensure spinner shows for minimum time
+			const elapsed = Date.now() - startTime;
+			const remaining = Math.max(0, minDisplayTime - elapsed);
+			if (remaining > 0) {
+				await new Promise((resolve) => setTimeout(resolve, remaining));
+			}
 			setIsClearingTokens(false);
 		}
 	}, [authContext, credentials.environmentId, credentials.userToken, setCredentials]);
@@ -1369,6 +1392,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				theme="blue"
 			/>
 
+			{/* Token Clearing Spinner */}
+			<LoadingSpinnerModalV8U
+				show={isClearingTokens}
+				message="Clearing tokens and ending session..."
+				theme="orange"
+			/>
+
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Page Header */}
@@ -1388,6 +1418,134 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				<p style={{ margin: 0, fontSize: '16px', color: 'white', opacity: 0.9 }}>
 					Unified authentication flow for all MFA device types
 				</p>
+			</div>
+
+			{/* Postman Collection Download Buttons */}
+			<div
+				style={{
+					background: 'white',
+					borderRadius: '12px',
+					padding: '24px',
+					marginBottom: '24px',
+					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					border: '1px solid #e5e7eb',
+				}}
+			>
+				<div
+					style={{
+						display: 'flex',
+						gap: '12px',
+						flexWrap: 'wrap',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => {
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const collection = generateComprehensiveMFAPostmanCollection({
+								environmentId: credentials.environmentId,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-mfa-flows-complete-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne MFA Flows Environment');
+							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all MFA flows.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
+						}}
+						title="Download comprehensive Postman collection for all MFA device types (SMS, Email, OATH TOTP (RFC 6238), FIDO2, Mobile, WhatsApp) grouped by Registration and Authentication"
+					>
+						<FiPackage size={18} />
+						Download All MFA Flows Postman Collection
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// Get Unified credentials for complete collection
+							const unifiedCreds = CredentialsServiceV8.loadCredentials('oauth-authz-v8u', {
+								flowKey: 'oauth-authz-v8u',
+								flowType: 'oauth-authz' as const,
+								includeClientSecret: true,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							const collection = generateCompletePostmanCollection({
+								environmentId: credentials.environmentId || unifiedCreds?.environmentId,
+								clientId: unifiedCreds?.clientId,
+								clientSecret: unifiedCreds?.clientSecret,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
+							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#10b981',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '15px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
+						}}
+						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+					>
+						<FiPackage size={18} />
+						Download Complete Collection (Unified + MFA)
+					</button>
+				</div>
 			</div>
 
 			{/* 1. Authentication & Registration */}

@@ -53,8 +53,6 @@ export class MFAFlowControllerFactory {
 	static create(config: ControllerFactoryConfig) {
 		const { deviceType, callbacks = {} } = config;
 
-		console.log(`${MODULE_TAG} Creating controller for device type: ${deviceType}`);
-
 		switch (deviceType) {
 			case 'SMS':
 				return new SMSFlowController(callbacks);

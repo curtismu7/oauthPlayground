@@ -214,20 +214,7 @@ export class OAuthIntegrationServiceV8 {
 		code: string,
 		codeVerifier: string
 	): Promise<TokenResponse> {
-		console.log(
-			`${MODULE_TAG} ========== OAUTH INTEGRATION SERVICE: exchangeCodeForTokens ==========`
-		);
-		console.log(`${MODULE_TAG} Credentials:`, {
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			redirectUri: credentials.redirectUri,
-			scopes: credentials.scopes,
-			hasClientSecret: !!credentials.clientSecret,
-			clientSecretLength: credentials.clientSecret?.length,
-		});
-		console.log(`${MODULE_TAG} Code:`, `${code?.substring(0, 30)}...`);
-		console.log(`${MODULE_TAG} Code Verifier:`, `${codeVerifier?.substring(0, 30)}...`);
-		console.log(`${MODULE_TAG} Code Verifier length:`, codeVerifier?.length);
+		// Exchanging authorization code for tokens
 
 		try {
 			// Use relative path to leverage Vite proxy (proxies /api to http://localhost:3001)
@@ -246,20 +233,15 @@ export class OAuthIntegrationServiceV8 {
 			// This should match the scopes from the authorization request
 			if (credentials.scopes) {
 				bodyParams.scope = credentials.scopes;
-				console.log(`${MODULE_TAG} ✅ Including scope in request:`, credentials.scopes);
 			}
 
 			// Only add code_verifier if it's provided (PKCE flow)
 			if (codeVerifier) {
 				bodyParams.code_verifier = codeVerifier;
-				console.log(`${MODULE_TAG} ✅ Including code_verifier in request (PKCE flow)`);
-			} else {
-				console.log(`${MODULE_TAG} ⚠️ No code_verifier provided (non-PKCE flow)`);
 			}
 
 			// Handle client authentication based on method
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
-			console.log(`${MODULE_TAG} 🔐 Using client authentication method: ${authMethod}`);
 
 			if (authMethod === 'client_secret_jwt' || authMethod === 'private_key_jwt') {
 				// JWT assertion authentication
@@ -294,7 +276,6 @@ export class OAuthIntegrationServiceV8 {
 					bodyParams.client_assertion_type =
 						'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
 					bodyParams.client_assertion = assertion;
-					console.log(`${MODULE_TAG} ✅ Using JWT assertion authentication (${authMethod})`);
 				} catch (error) {
 					console.error(`${MODULE_TAG} Failed to generate JWT assertion`, { error });
 					throw new Error(
@@ -307,37 +288,16 @@ export class OAuthIntegrationServiceV8 {
 					if (credentials.clientSecret) {
 						if (authMethod === 'client_secret_post') {
 							bodyParams.client_secret = credentials.clientSecret;
-							console.log(
-								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
-							);
-						} else {
-							// client_secret_basic - will be handled in Authorization header
-							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);
 						}
+						// client_secret_basic - will be handled in Authorization header
 					} else {
 						throw new Error(`Client secret is required for ${authMethod} authentication`);
 					}
-				} else {
-					// none - public client, no authentication
-					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
 				}
 			}
 
 			// Include client_auth_method in request body so backend knows which method to use
 			bodyParams.client_auth_method = authMethod;
-
-			console.log(`${MODULE_TAG} Request body parameters:`, {
-				grant_type: bodyParams.grant_type,
-				client_id: bodyParams.client_id,
-				code: `${code.substring(0, 20)}...`,
-				redirect_uri: bodyParams.redirect_uri,
-				scope: bodyParams.scope,
-				has_code_verifier: !!bodyParams.code_verifier,
-				has_client_secret: !!credentials.clientSecret,
-				auth_method: authMethod,
-				has_client_assertion: !!bodyParams.client_assertion,
-				client_auth_method: bodyParams.client_auth_method,
-			});
 
 			// Prepare request headers
 			const headers: Record<string, string> = {
@@ -348,7 +308,6 @@ export class OAuthIntegrationServiceV8 {
 			if (authMethod === 'client_secret_basic' && credentials.clientSecret) {
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 				headers.Authorization = `Basic ${basicAuth}`;
-				console.log(`${MODULE_TAG} ✅ Added Authorization header (client_secret_basic)`);
 			}
 
 			// Track API call for display
@@ -378,7 +337,6 @@ export class OAuthIntegrationServiceV8 {
 				flowType: 'unified',
 			});
 
-			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint (via proxy)...`);
 			const response = await pingOneFetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
@@ -404,8 +362,6 @@ export class OAuthIntegrationServiceV8 {
 				Date.now() - startTime
 			);
 
-			console.log(`${MODULE_TAG} Response status:`, response.status);
-			console.log(`${MODULE_TAG} Response status text:`, response.statusText);
 
 			if (!response.ok) {
 				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);

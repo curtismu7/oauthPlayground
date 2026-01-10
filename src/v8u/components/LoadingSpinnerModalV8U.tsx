@@ -30,7 +30,7 @@ const Backdrop = styled.div`
 	right: 0;
 	bottom: 0;
 	background: rgba(0, 0, 0, 0.5);
-	z-index: 999;
+	z-index: 10001;
 	animation: fadeIn 0.3s ease-out;
 
 	@keyframes fadeIn {
@@ -67,7 +67,7 @@ const Modal = styled.div<{ $theme: 'blue' | 'green' | 'orange' | 'purple' }>`
 	font-size: 1.5rem;
 	font-weight: 700;
 	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-	z-index: 1000;
+	z-index: 10002;
 	animation: phaseSlideIn 0.5s ease-out;
 	display: flex;
 	align-items: center;

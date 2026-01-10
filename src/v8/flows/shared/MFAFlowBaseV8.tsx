@@ -95,10 +95,9 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const hasLoggedRef = useRef(false);
 	useEffect(() => {
 		if (!hasLoggedRef.current) {
-			console.log(`${MODULE_TAG} Initializing MFA flow for ${deviceType}`);
 			hasLoggedRef.current = true;
 		}
-	}, [deviceType]);
+	}, []);
 
 	// Subscribe to API display visibility changes
 	useEffect(() => {
@@ -115,7 +114,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const totalSteps = stepLabels.length;
 
 	const nav = useStepNavigationV8(totalSteps, {
-		onStepChange: (step) => {
+		onStepChange: (_step) => {
 			// Removed verbose logging
 			window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
 			document.documentElement.scrollTop = 0;
@@ -193,7 +192,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			return;
 		}
 
-		console.log(`${MODULE_TAG} Fetching device authentication policies`, { environmentId: envId });
 		isFetchingPoliciesRef.current = true;
 		setIsLoadingPolicies(true);
 		setPoliciesError(null);
@@ -376,9 +374,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		// This handles the case where user was on Step 0 (or Step 2 for registration) before OAuth
 		// and now needs to proceed after receiving the user token
 		if (isOAuthCallbackReturn && credentials.userToken?.trim() && nav.currentStep === 0) {
-			console.log(
-				`${MODULE_TAG} ✅ OAuth callback return detected with user token - auto-advancing from step 0`
-			);
 			toastV8.info('🔄 Returning to your previous step after authentication...');
 
 			// Clean up the marker
@@ -388,9 +383,8 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			setTimeout(() => {
 				if (validateStep0(credentials, tokenStatus, nav)) {
 					nav.goToNext();
-					console.log(`${MODULE_TAG} ✅ Auto-advanced to step 1 after OAuth callback`);
 				} else {
-					console.log(`${MODULE_TAG} ⚠️ Step 0 validation failed, staying on step 0`);
+					// Step 0 validation failed, staying on step 0
 				}
 			}, 500); // Small delay to ensure credentials are fully updated
 		}
@@ -421,7 +415,6 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 		if (hasWorkerTokenError && !showWorkerTokenPromptModal) {
 			// Check MFA configuration for silent API retrieval setting
 			void (async () => {
-				let silentRetrievalSucceeded = false;
 				try {
 					const { MFAConfigurationServiceV8 } = await import(
 						'@/v8/services/mfaConfigurationServiceV8'
@@ -450,7 +443,7 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				}
 			})();
 		}
-	}, [nav.validationErrors, showWorkerTokenPromptModal, setTokenStatus, nav]);
+	}, [nav.validationErrors, showWorkerTokenPromptModal, nav]);
 
 	useEffect(() => {
 		// NOTE: Scope checking removed - worker token provides necessary permissions
