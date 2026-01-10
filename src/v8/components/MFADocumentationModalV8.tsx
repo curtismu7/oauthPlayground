@@ -12,7 +12,6 @@ import React, { useState } from 'react';
 import { FiBook, FiDownload, FiFileText, FiX } from 'react-icons/fi';
 import type { DeviceType } from '../flows/shared/MFATypes';
 import {
-	DEVICE_DOCS,
 	getApiCalls,
 	generateMarkdown,
 	downloadAsMarkdown,
@@ -36,21 +35,27 @@ const DEVICE_TYPES: DeviceType[] = ['SMS', 'EMAIL', 'TOTP', 'FIDO2', 'WHATSAPP',
 
 const USE_CASES: UseCase[] = [
 	// Registration use cases
-	...DEVICE_TYPES.map((deviceType) => ({
-		id: `register-${deviceType.toLowerCase()}`,
-		deviceType,
-		flowType: 'registration' as const,
-		title: `${deviceType} Device Registration`,
-		description: `Complete flow for registering a new ${deviceType} device, including device creation, activation, and QR code setup (if applicable).`,
-	})),
+	...DEVICE_TYPES.map((deviceType) => {
+		const educationalLabel = deviceType === 'TOTP' ? 'OATH TOTP (RFC 6238)' : deviceType;
+		return {
+			id: `register-${deviceType.toLowerCase()}`,
+			deviceType,
+			flowType: 'registration' as const,
+			title: `${educationalLabel} Device Registration`,
+			description: `Complete flow for registering a new ${educationalLabel} device, including device creation, activation, and QR code setup (if applicable).`,
+		};
+	}),
 	// Authentication use cases
-	...DEVICE_TYPES.map((deviceType) => ({
-		id: `auth-${deviceType.toLowerCase()}`,
-		deviceType,
-		flowType: 'authentication' as const,
-		title: `${deviceType} Device Authentication`,
-		description: `Complete flow for authenticating with an existing ${deviceType} device, including device selection, OTP validation, and authentication completion.`,
-	})),
+	...DEVICE_TYPES.map((deviceType) => {
+		const educationalLabel = deviceType === 'TOTP' ? 'OATH TOTP (RFC 6238)' : deviceType;
+		return {
+			id: `auth-${deviceType.toLowerCase()}`,
+			deviceType,
+			flowType: 'authentication' as const,
+			title: `${educationalLabel} Device Authentication`,
+			description: `Complete flow for authenticating with an existing ${educationalLabel} device, including device selection, OTP validation, and authentication completion.`,
+		};
+	}),
 ];
 
 export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = ({
@@ -124,10 +129,6 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 		markdown += `## Overview\n\n`;
 		markdown += `This document contains comprehensive API documentation for ${useCases.length} selected MFA use case${useCases.length !== 1 ? 's' : ''}.\n\n`;
 
-		// Group by flow type
-		const registrationCases = useCases.filter((uc) => uc.flowType === 'registration');
-		const authenticationCases = useCases.filter((uc) => uc.flowType === 'authentication');
-
 		// Generate documentation for each use case
 		for (const useCase of useCases) {
 			const apiCalls = getApiCalls(useCase.deviceType, useCase.flowType);
@@ -182,6 +183,9 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 
 	return (
 		<div
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="mfa-doc-modal-title"
 			style={{
 				position: 'fixed',
 				top: 0,
@@ -195,6 +199,11 @@ export const MFADocumentationModalV8: React.FC<MFADocumentationModalV8Props> = (
 				zIndex: 10000,
 			}}
 			onClick={onClose}
+			onKeyDown={(e) => {
+				if (e.key === 'Escape') {
+					onClose();
+				}
+			}}
 		>
 			<div
 				style={{

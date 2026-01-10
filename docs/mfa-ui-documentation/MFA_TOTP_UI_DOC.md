@@ -1,7 +1,7 @@
 # MFA TOTP UI Documentation
 
-**Last Updated:** 2026-01-06 20:30:00  
-**Version:** 1.4.0  
+**Last Updated:** 2026-01-27  
+**Version:** 1.5.0  
 **Status:** ✅ IMPLEMENTED
 
 ---
@@ -33,9 +33,9 @@ This document provides a complete reference for the UI structure, components, st
 ┌─────────────────────────────────────────────────────────┐
 │  MFANavigationV8 (Top Navigation Bar)                   │
 ├─────────────────────────────────────────────────────────┤
-│  TOTP Configuration Header (Blue Gradient)            │
-│  - Title: "TOTP Device Registration"                      │
-│  - Subtitle: "Configure TOTP MFA settings"              │
+│  TOTP Configuration Header (Orange Gradient)         │
+│  - Title: "TOTP Configuration"                           │
+│  - Subtitle: "Configure TOTP device registration..."    │
 ├─────────────────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────────────────┐  │
 │  │  Worker Token Status Section                    │  │
@@ -56,12 +56,79 @@ This document provides a complete reference for the UI structure, components, st
 │  └─────────────────────────────────────────────────┘  │
 │                                                         │
 │  ┌─────────────────────────────────────────────────┐  │
+│  │  Education Section                               │  │
+│  │  - Title: "About OATH TOTP (RFC 6238)"          │  │
+│  │  - Protocol explanation                          │  │
+│  │  - Security benefits list                        │  │
+│  │  - How it works description                      │  │
+│  │  - Learn more note about OATH framework          │  │
+│  └─────────────────────────────────────────────────┘  │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐  │
 │  │  Action Buttons                                  │  │
-│  │  - "Back to Hub" (left)                         │  │
-│  │  - "Continue to Device Registration" (right)    │  │
+│  │  - "Cancel" (left)                               │  │
+│  │  - "Proceed to TOTP Registration" (right)        │  │
+│  └─────────────────────────────────────────────────┘  │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐  │
+│  │  Education Section                               │  │
+│  │  - Title: "About OATH TOTP (RFC 6238)"          │  │
+│  │  - Icon: Book icon (FiBook, blue)                │  │
+│  │  - Protocol explanation                          │  │
+│  │  - Security benefits (bulleted list)             │  │
+│  │  - How it works description                      │  │
+│  │  - Learn more note about OATH framework          │  │
+│  └─────────────────────────────────────────────────┘  │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐  │
+│  │  Action Buttons                                  │  │
+│  │  - "Cancel" (left, gray)                         │  │
+│  │  - "Proceed to TOTP Registration" (right, orange) │  │
 │  └─────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## Education Section
+
+**Location:** TOTP Configuration Page, after Shared Configuration Step  
+**Component:** `TOTPConfigurationPageV8.tsx`
+
+### Educational Content
+
+**Title:** "About OATH TOTP (RFC 6238)"
+
+**Content Structure:**
+1. **Introduction:** Explains OATH TOTP (Time-based One-Time Password, RFC 6238) as an open standard for generating time-based authentication codes
+2. **Security Benefits (Bulleted List):**
+   - **Phishing-resistant:** Codes generated locally on device, immune to SMS interception
+   - **Offline-capable:** Doesn't rely on network connectivity
+   - **Time-based:** Each 6-digit code valid for 30 seconds, auto-rotating
+   - **Industry standard:** Based on RFC 6238, ensuring compatibility
+   - **Secure storage:** Secret keys stored securely, never transmitted
+   - **Easy setup:** Simple QR code scan or manual secret key entry
+3. **How it works:** Description of registration flow, QR code scanning, and authenticator app setup
+4. **Learn more note:** Information about OATH framework (Initiative for Open Authentication) and standardized approach using HMAC-SHA1 algorithm
+
+**Styling:**
+- Background: White (`#ffffff`)
+- Border: `1px solid rgba(0, 0, 0, 0.1)`
+- Border radius: `8px`
+- Padding: `24px`
+- Margin bottom: `24px`
+- Box shadow: `0 1px 3px rgba(0, 0, 0, 0.1)`
+
+**Typography:**
+- Title: Font size `20px`, font weight `600`, color `#1f2937`
+- Body text: Font size `14px`, color `#6b7280`, line height `1.6`
+- Learn more note: Blue background (`#f0f9ff`), border (`1px solid #bfdbfe`), padding `12px`, border radius `6px`
+
+**Icon:**
+- Book icon (`FiBook`) from `react-icons/fi`
+- Size: `24px`
+- Color: `#3b82f6` (blue)
+- Displayed next to title with `12px` gap
 
 ---
 
@@ -256,6 +323,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 ## Version History
 
+- **v1.5.0** (2026-01-27): Added OATH TOTP (RFC 6238) educational section to configuration page with protocol information, security benefits, and OATH framework details
 - **v1.4.0** (2026-01-06): Updated activation modal behavior - navigates to Step 4 on success, stays open on error with cleared OTP input
 - **v1.3.0** (2026-01-06): Separated OTP activation into its own modal with detailed UI documentation
 - **v1.2.0** (2026-01-06): Added stuck device warning section UI documentation
