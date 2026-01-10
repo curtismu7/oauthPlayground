@@ -2,7 +2,7 @@
 /**
  * @file specUrlServiceV8.ts
  * @module v8/services
- * @description Service for OAuth 2.0, OAuth 2.1, and OpenID Connect specification URLs
+ * @description Service for OAuth 2.0 Authorization Framework (RFC 6749), OAuth 2.1 Authorization Framework (draft), and OpenID Connect Core 1.0 specification URLs
  * @version 8.0.0
  * @since 2024-11-16
  *
@@ -74,7 +74,7 @@ export class SpecUrlServiceV8 {
 			case 'oauth2.0':
 				return {
 					primary: SPEC_URLS.OAUTH2_RFC6749,
-					primaryLabel: 'RFC 6749 - OAuth 2.0 Authorization Framework',
+					primaryLabel: 'OAuth 2.0 Authorization Framework (RFC 6749)',
 					related: [
 						{
 							label: 'RFC 8252 - OAuth 2.0 Security Best Current Practice',
@@ -86,14 +86,14 @@ export class SpecUrlServiceV8 {
 			case 'oauth2.1':
 				return {
 					primary: SPEC_URLS.OAUTH2_1_DRAFT,
-					primaryLabel: 'OAuth 2.1 (Draft)',
+					primaryLabel: 'OAuth 2.1 Authorization Framework (draft)',
 					related: [
-						{ label: 'RFC 6749 - OAuth 2.0 Core', url: SPEC_URLS.OAUTH2_RFC6749 },
+						{ label: 'RFC 6749 - OAuth 2.0 Authorization Framework', url: SPEC_URLS.OAUTH2_RFC6749 },
 						{
-							label: 'RFC 8252 - Security Best Current Practice',
+							label: 'RFC 8252 - OAuth 2.0 Security Best Current Practice',
 							url: SPEC_URLS.OAUTH2_BCP_RFC8252,
 						},
-						{ label: 'RFC 7636 - PKCE', url: SPEC_URLS.PKCE_RFC7636 },
+						{ label: 'RFC 7636 - Proof Key for Code Exchange (PKCE)', url: SPEC_URLS.PKCE_RFC7636 },
 					],
 				};
 
@@ -123,85 +123,138 @@ export class SpecUrlServiceV8 {
 	 */
 	static getFlowSpecInfo(flowType: FlowType): FlowSpecInfo {
 		console.log(`${MODULE_TAG} Getting flow spec info for`, { flowType });
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'specUrlServiceV8.ts:124',
+				message: 'Getting flow-specific specification info',
+				data: { flowType },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				hypothesisId: 'C',
+			}),
+		}).catch(() => {});
+		// #endregion
 
 		switch (flowType) {
-			case 'oauth-authz':
-				return {
-					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-					specLabel: 'OAuth 2.0 Authorization Code Flow',
-					relatedSpecs: [
-						{
-							label: 'Section 4.1 - Authorization Code Grant',
-							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.1`,
-						},
-						{ label: 'RFC 7636 - PKCE (Recommended)', url: SPEC_URLS.PKCE_RFC7636 },
-					],
-				};
+		case 'oauth-authz':
+			return {
+				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+				specLabel: 'OAuth 2.0 Authorization Code Flow',
+				relatedSpecs: [
+					{
+						label: 'Section 4.1 - Authorization Code Grant',
+						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.1`,
+					},
+					{ label: 'RFC 7636 - PKCE (Recommended)', url: SPEC_URLS.PKCE_RFC7636 },
+				],
+			};
 
-			case 'implicit':
-				return {
-					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-					specLabel: 'OAuth 2.0 Implicit Flow',
-					relatedSpecs: [
-						{
-							label: 'Section 4.2 - Implicit Grant',
-							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.2`,
-						},
-						{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
-					],
-				};
+		case 'implicit':
+			return {
+				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+				specLabel: 'OAuth 2.0 Implicit Flow',
+				relatedSpecs: [
+					{
+						label: 'Section 4.2 - Implicit Grant',
+						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.2`,
+					},
+					{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
+				],
+			};
 
-			case 'client-credentials':
-				return {
-					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-					specLabel: 'OAuth 2.0 Client Credentials Flow',
-					relatedSpecs: [
-						{
-							label: 'Section 4.4 - Client Credentials Grant',
-							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.4`,
-						},
-					],
-				};
+		case 'client-credentials':
+			return {
+				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+				specLabel: 'OAuth 2.0 Client Credentials Flow',
+				relatedSpecs: [
+					{
+						label: 'Section 4.4 - Client Credentials Grant',
+						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.4`,
+					},
+				],
+			};
 
-			case 'ropc':
-				return {
-					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-					specLabel: 'OAuth 2.0 Resource Owner Password Credentials',
-					relatedSpecs: [
-						{
-							label: 'Section 4.3 - Resource Owner Password Credentials Grant',
-							url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.3`,
-						},
-						{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
-					],
-				};
+		case 'ropc':
+			return {
+				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+				specLabel: 'OAuth 2.0 Resource Owner Password Credentials',
+				relatedSpecs: [
+					{
+						label: 'Section 4.3 - Resource Owner Password Credentials Grant',
+						url: `${SPEC_URLS.OAUTH2_RFC6749}#section-4.3`,
+					},
+					{ label: '⚠️ Deprecated in OAuth 2.1', url: SPEC_URLS.OAUTH2_1_DRAFT },
+				],
+			};
 
-			case 'device-code':
-				return {
-					primarySpec: SPEC_URLS.DEVICE_AUTH_RFC8628,
-					specLabel: 'OAuth 2.0 Device Authorization Grant',
-					relatedSpecs: [
-						{ label: 'RFC 8628 - Device Authorization Grant', url: SPEC_URLS.DEVICE_AUTH_RFC8628 },
-					],
-				};
+		case 'device-code':
+			return {
+				primarySpec: SPEC_URLS.DEVICE_AUTH_RFC8628,
+				specLabel: 'OAuth 2.0 Device Authorization Grant',
+				relatedSpecs: [
+					{ label: 'Section 3.1 - Device Authorization Request', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.1` },
+					{ label: 'Section 3.2 - Device Authorization Response', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.2` },
+					{ label: 'Section 3.4 - Token Request', url: `${SPEC_URLS.DEVICE_AUTH_RFC8628}#section-3.4` },
+					{ label: 'RFC 8628 - Device Authorization Grant', url: SPEC_URLS.DEVICE_AUTH_RFC8628 },
+				],
+			};
 
-			case 'hybrid':
-				return {
-					primarySpec: SPEC_URLS.OIDC_CORE,
-					specLabel: 'OpenID Connect Hybrid Flow',
-					relatedSpecs: [
-						{ label: 'Section 3.3 - Hybrid Flow', url: `${SPEC_URLS.OIDC_CORE}#HybridFlowAuth` },
-						{ label: 'OpenID Connect Core 1.0', url: SPEC_URLS.OIDC_CORE },
-					],
-				};
+		case 'hybrid':
+			return {
+				primarySpec: SPEC_URLS.OIDC_CORE,
+				specLabel: 'OpenID Connect Hybrid Flow',
+				relatedSpecs: [
+					{ label: 'Section 3.3 - Hybrid Flow Authentication', url: `${SPEC_URLS.OIDC_CORE}#HybridFlowAuth` },
+					{ label: 'Section 3.3.1 - Hybrid Flow Steps', url: `${SPEC_URLS.OIDC_CORE}#HybridFlowSteps` },
+					{ label: 'OpenID Connect Core 1.0', url: SPEC_URLS.OIDC_CORE },
+				],
+			};
 
-			default:
-				return {
-					primarySpec: SPEC_URLS.OAUTH2_RFC6749,
-					specLabel: 'OAuth 2.0',
-					relatedSpecs: [],
-				};
+		default:
+			return {
+				primarySpec: SPEC_URLS.OAUTH2_RFC6749,
+				specLabel: 'OAuth 2.0',
+				relatedSpecs: [],
+			};
 		}
+	}
+	
+	/**
+	 * Log specification URL results for debugging
+	 */
+	static logSpecUrls(
+		specVersion: SpecVersion,
+		flowType: FlowType,
+		flowSpecs: FlowSpecInfo,
+		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
+	): void {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'specUrlServiceV8.ts:205',
+				message: 'Specification URL results',
+				data: {
+					specVersion,
+					flowType,
+					flowPrimarySpec: flowSpecs.primarySpec,
+					flowSpecLabel: flowSpecs.specLabel,
+					flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
+					versionPrimarySpec: versionSpecs.primary,
+					versionPrimaryLabel: versionSpecs.primaryLabel,
+					versionRelatedSpecs: versionSpecs.related.map((s) => ({ label: s.label, url: s.url })),
+				},
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				hypothesisId: 'D',
+			}),
+		}).catch(() => {});
+		// #endregion
 	}
 
 	/**

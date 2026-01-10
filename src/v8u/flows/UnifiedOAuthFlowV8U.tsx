@@ -6,7 +6,7 @@
  * @since 2024-11-16
  *
  * This is the main unified flow page that adapts to:
- * - OAuth 2.0, OAuth 2.1, and OpenID Connect specifications
+ * - OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 specifications
  * - All flow types (Authorization Code, Implicit, Client Credentials, etc.)
  * - Uses real PingOne APIs (no mocks)
  */
@@ -62,7 +62,7 @@ const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
  * This component orchestrates all OAuth 2.0 and OpenID Connect flows in a single unified interface.
  * It manages:
  * - Flow type selection (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid)
- * - Spec version selection (OAuth 2.0, OAuth 2.1, OpenID Connect)
+ * - Spec version selection (OAuth 2.0, OAuth 2.1 / OIDC 2.1, OIDC Core 1.0)
  * - Step navigation and state management
  * - Credentials loading and persistence
  * - Flow availability validation
@@ -111,7 +111,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 *
 	 * Supported flows:
 	 * - 'oauth-authz': Authorization Code Flow (most secure, recommended)
-	 * - 'implicit': Implicit Flow (deprecated in OAuth 2.1, but still supported in OAuth 2.0)
+	 * - 'implicit': Implicit Flow (deprecated in OAuth 2.1 / OIDC 2.1, but still supported in OAuth 2.0)
 	 * - 'client-credentials': Client Credentials Flow (for server-to-server)
 	 * - 'device-code': Device Code Flow (for devices without browsers)
 	 * - 'hybrid': Hybrid Flow (combines authorization code and implicit)
@@ -141,8 +141,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 *
 	 * Supported spec versions:
 	 * - 'oauth2.0': OAuth 2.0 (RFC 6749) - original specification
-	 * - 'oauth2.1': OAuth 2.1 (draft) - removes deprecated flows (implicit, ROPC)
-	 * - 'oidc': OpenID Connect - adds identity layer on top of OAuth 2.0
+	 * - 'oauth2.1': OAuth 2.1 / OIDC 2.1 (draft) - removes deprecated flows (implicit, ROPC)
+	 * - 'oidc': OIDC Core 1.0 - adds identity layer on top of OAuth 2.0
 	 *
 	 * Each flow type can have its own saved spec version preference.
 	 * This allows users to use OAuth 2.0 for one flow and OIDC for another.
@@ -429,10 +429,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						...(config.pkceRequired !== undefined && { pkceRequired: config.pkceRequired }),
 						...(config.pkceEnforced !== undefined && { pkceEnforced: config.pkceEnforced }),
 					});
-					// App config fetched
-						pkceRequired: config.pkceRequired,
-						pkceEnforced: config.pkceEnforced,
-					});
 				} else {
 					setAppConfig(null);
 				}
@@ -460,11 +456,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Get available flows for current spec version
 	const availableFlows = useMemo(() => {
 		const flows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
-		// Available flows computed
-			specVersion,
-			flows,
-			flowsAsString: JSON.stringify(flows),
-		});
 		return flows;
 	}, [specVersion]);
 
@@ -487,13 +478,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 */
 	const effectiveFlowType = useMemo(() => {
 		const isAvailable = availableFlows.includes(flowType);
-		// Checking flow type availability
-			flowType,
-			specVersion,
-			availableFlows,
-			isAvailable,
-		});
-
 		// Return selected flow if it's available for the current spec version
 		if (isAvailable) {
 			return flowType;
@@ -878,22 +862,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						sharedCreds.clientSecret !== undefined
 					) {
 						await SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds);
-						// Saved shared credentials to storage
-							flowKey,
-							hasEnvId: !!sharedCreds.environmentId,
-							hasClientId: !!sharedCreds.clientId,
-							hasClientSecret: sharedCreds.clientSecret !== undefined,
-						});
 					}
-
-					// Saved credentials to storage
-						flowKey,
-						hasSharedCreds: !!(
-							sharedCreds.environmentId ||
-							sharedCreds.clientId ||
-							sharedCreds.clientSecret !== undefined
-						),
-					});
 				}
 			};
 
@@ -1059,12 +1028,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// If not, automatically switch to a compatible spec version
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 		if (!currentAvailableFlows.includes(newFlowType)) {
-			// Flow type not available for current spec version
-				newFlowType,
-				specVersion,
-				availableFlows: currentAvailableFlows,
-			});
-
 			// Find a spec version that supports this flow type
 			const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
 			const compatibleSpec = compatibleSpecVersions.find((spec) => {
@@ -1108,13 +1071,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			}
 		}
 
-		// Flow type changed via selector
-			specVersion,
-			from: flowType,
-			to: newFlowType,
-			currentStep,
-		});
-
 		// Clear API calls when flow type changes (only if confirmed or no calls exist)
 		if (hasApiCalls) {
 			apiCallTrackerService.clearApiCalls();
@@ -1146,21 +1102,58 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	// Get API documentation URL for the current flow type
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'UnifiedOAuthFlowV8U.tsx:1103',
+				message: 'Generating PingOne API documentation URL',
+				data: { flowType: flow, baseUrl },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				hypothesisId: 'A',
+			}),
+		}).catch(() => {});
+		// #endregion
 
+		let url: string;
 		switch (flow) {
 			case 'oauth-authz':
-				return `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+				url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+				break;
 			case 'implicit':
-				return `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+				url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+				break;
 			case 'client-credentials':
-				return `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+				url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+				break;
 			case 'device-code':
-				return `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+				url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+				break;
 			case 'hybrid':
-				return `${baseUrl}#openid-connect`;
+				url = `${baseUrl}#openid-connect`;
+				break;
 			default:
-				return baseUrl;
+				url = baseUrl;
 		}
+
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				location: 'UnifiedOAuthFlowV8U.tsx:1125',
+				message: 'Generated PingOne API documentation URL',
+				data: { flowType: flow, url, hasAnchor: url.includes('#') },
+				timestamp: Date.now(),
+				sessionId: 'debug-session',
+				hypothesisId: 'A',
+			}),
+		}).catch(() => {});
+		// #endregion
+
+		return url;
 	};
 
 	return (
@@ -1235,7 +1228,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						zIndex: 1,
 					}}
 				>
-					Single UI for all OAuth 2.0, OAuth 2.1, and OpenID Connect flows using real PingOne APIs
+					Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs
 				</p>
 			</div>
 
@@ -1317,7 +1310,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							type="button"
 							onClick={() => {
 								// Get MFA credentials
-								const { CredentialsServiceV8 } = require('@/v8/services/credentialsServiceV8');
 								const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
 									flowKey: 'mfa-v8',
 									flowType: 'oauth' as const,
@@ -1412,6 +1404,27 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{/* OAuth/OIDC Specification Links */}
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
+						// #region agent log
+						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								location: 'UnifiedOAuthFlowV8U.tsx:1369',
+								message: 'Generating specification URLs',
+								data: {
+									specVersion,
+									flowType: effectiveFlowType,
+									primaryUrl: specUrls.primary,
+									primaryLabel: specUrls.primaryLabel,
+									allSpecsCount: specUrls.allSpecs.length,
+									allSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
+								},
+								timestamp: Date.now(),
+								sessionId: 'debug-session',
+								hypothesisId: 'B',
+							}),
+						}).catch(() => {});
+						// #endregion
 						return (
 							<div
 								style={{
@@ -1505,7 +1518,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						}}
 					>
 						<span>🚫</span>
-						<span>OAuth 2.1 Compliance Error</span>
+						<span>OAuth 2.1 / OIDC 2.1 Compliance Error</span>
 					</div>
 					{complianceErrors.map((error, index) => (
 						<div
