@@ -1135,21 +1135,20 @@ export const FIDO2ConfigurationPageV8: React.FC = () => {
 							>
 								<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
 									No FIDO2 policies found. Create one in the{' '}
-									<button
-										type="button"
-										onClick={() => navigate('/v8/mfa-fido-policies')}
+									<a
+										href="https://admin.pingone.com"
+										target="_blank"
+										rel="noopener noreferrer"
 										style={{
-											background: 'none',
-											border: 'none',
 											color: '#3b82f6',
 											textDecoration: 'underline',
 											cursor: 'pointer',
 											fontSize: '14px',
 										}}
 									>
-										FIDO Policy Management
-									</button>{' '}
-									page.
+										PingOne Admin Console
+									</a>
+									.
 								</p>
 							</div>
 						) : (

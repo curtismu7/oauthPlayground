@@ -512,9 +512,6 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (storedTokens) {
 				try {
 					const tokens = JSON.parse(storedTokens);
-					// Restored tokens from sessionStorage
-						hasAccessToken: !!tokens.accessToken,
-					});
 					initialState.tokens = tokens;
 				} catch (err) {
 					console.error(`${MODULE_TAG} Failed to parse stored ${flowType} tokens`, err);
@@ -713,27 +710,31 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	/**
 	 * Filter tokens based on spec version to ensure spec compliance
 	 *
-	 * OAuth 2.0/2.1: Only access_token and refresh_token (NO id_token)
-	 * OIDC: access_token, id_token, and refresh_token
+	 * OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft): Only access_token and refresh_token (NO id_token)
+	 * OpenID Connect Core 1.0: access_token, id_token, and refresh_token
 	 *
-	 * PingOne may return id_token even for OAuth 2.0/2.1 requests because it uses
+	 * Note: OAuth 2.1 (draft) with OpenID Connect Core 1.0 means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline", which includes id_token.
+	 *
+	 * PingOne may return id_token even for OAuth 2.0 / OAuth 2.1 (draft) requests because it uses
 	 * OpenID for all apps, but we filter it out to follow the spec correctly.
 	 */
 	const filterTokensBySpec = useCallback(
 		(tokens: TokenResponse): TokenResponse => {
-			// For OAuth 2.0 and 2.1, remove id_token to follow spec
+			// For OAuth 2.0 Authorization Framework (RFC 6749) and OAuth 2.1 Authorization Framework (draft), remove id_token to follow spec
+			// Note: OAuth 2.1 (draft) without OpenID Connect only returns access_token and refresh_token.
+			// However, when OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it includes id_token (OIDC Core 1.0 using OAuth 2.1 (draft) baseline).
 			if (specVersion === 'oauth2.0' || specVersion === 'oauth2.1') {
 				if (tokens.id_token) {
 					console.log(
 						`${MODULE_TAG} 🔒 SPEC COMPLIANCE: Filtering out id_token for ${specVersion}. ` +
-							`OAuth 2.0/2.1 only returns access_token and refresh_token. ` +
-							`ID tokens are only part of OIDC (OpenID Connect).`
+							`OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) only returns access_token and refresh_token when used without OpenID Connect. ` +
+							`ID tokens are only part of OpenID Connect Core 1.0.`
 					);
 					const { id_token, ...filteredTokens } = tokens;
 					return filteredTokens as TokenResponse;
 				}
 			}
-			// For OIDC, keep all tokens including id_token
+			// For OIDC Core 1.0, keep all tokens including id_token
 			return tokens;
 		},
 		[specVersion]
@@ -2288,7 +2289,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				case 'device-code':
 					return ['Smart TVs', 'IoT devices', 'CLI tools', 'Devices without browsers'];
 				case 'hybrid':
-					return ['OIDC flows needing immediate ID token', 'Combined front/back channel flows'];
+					return ['OIDC Core 1.0 flows needing immediate ID token', 'Combined front/back channel flows'];
 				default:
 					return ['Web applications'];
 			}
@@ -2308,7 +2309,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								Quick Start & Overview -{' '}
 								{flowType === 'oauth-authz'
 									? isOIDCMode
-										? 'OpenID Connect'
+										? 'OIDC Core 1.0'
 										: 'OAuth 2.0'
 									: flowType === 'implicit'
 										? 'OAuth 2.0 Implicit'
@@ -2317,7 +2318,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											: flowType === 'device-code'
 												? 'OAuth 2.0 Device Code'
 												: flowType === 'hybrid'
-													? 'OpenID Connect Hybrid'
+													? 'OIDC Core 1.0 Hybrid'
 													: 'OAuth 2.0'}{' '}
 								{flowType === 'oauth-authz' ? 'Authorization Code' : ''}
 							</span>
@@ -2374,7 +2375,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<>
 													<strong>Client ID:</strong> Required for device authorization request
 													<br />
-													<strong>Scopes:</strong> Include "openid" for OIDC flows
+													<strong>Scopes:</strong> Include "openid" for OIDC Core 1.0 flows
 													<br />
 													<strong>Environment ID:</strong> Must match your PingOne environment
 												</>
@@ -2430,7 +2431,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												background: isOIDCMode ? '#eff6ff' : 'white',
 											}}
 										>
-											<h4>OpenID Connect Mode</h4>
+											<h4>OIDC Core 1.0 Mode</h4>
 											<p>
 												<strong>Tokens:</strong> Access + ID + Refresh
 											</p>
@@ -3926,10 +3927,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										<div>
 											<InfoTitle>Deprecated Grant Type</InfoTitle>
 											<InfoText>
-												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1 and
+												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1 Authorization Framework (draft) and
 												should not be used for new applications. It was designed for browser-based
 												applications that couldn't securely store client secrets, but modern
-												alternatives provide better security.
+												alternatives provide better security. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -3982,8 +3983,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													authorization code interception attacks
 												</li>
 												<li>
-													<strong>OAuth 2.1 Deprecation:</strong> Removed from OAuth 2.1 specification
-													due to security concerns
+													<strong>OAuth 2.1 Authorization Framework (draft) Deprecation:</strong> Removed from OAuth 2.1 Authorization Framework (IETF draft-ietf-oauth-v2-1) due to security concerns. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
 												</li>
 											</InfoList>
 										</div>
@@ -4007,8 +4007,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													sessions
 												</li>
 												<li>
-													<strong>OAuth 2.1 Compliant:</strong> Recommended approach in current
-													specifications
+													<strong>OAuth 2.1 Authorization Framework (draft) Compliant:</strong> Recommended approach in current
+													specifications. When combined with OpenID Connect Core 1.0, this means "OIDC Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".
 												</li>
 												<li>
 													<strong>Same Use Case:</strong> Works perfectly for SPAs and public
@@ -6775,7 +6775,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						// Success! Tokens received
 						
 						
-						// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
+						// Filter tokens based on spec version (OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) should not have id_token when used without OpenID Connect)
 						const filteredTokens = filterTokensBySpec(tokens);
 						const tokensWithExtras = filteredTokens;
 
@@ -8572,7 +8572,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									)}
 									{specVersion === 'oauth2.1' && (
 										<>
-											<strong>OAuth 2.1</strong> only returns:{' '}
+											<strong>OAuth 2.1 Authorization Framework (draft)</strong> only returns:{' '}
 											<code
 												style={{ background: '#fde68a', padding: '2px 6px', borderRadius: '3px' }}
 											>
@@ -8593,8 +8593,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										id_token
 									</code>
 									, but it's filtered out to follow the{' '}
-									{specVersion === 'oauth2.0' ? 'OAuth 2.0' : 'OAuth 2.1'} spec. ID tokens are only
-									part of <strong>OIDC (OpenID Connect)</strong>.
+									{specVersion === 'oauth2.0' ? 'OAuth 2.0 Authorization Framework (RFC 6749)' : 'OAuth 2.1 Authorization Framework (draft)'} spec. ID tokens are only
+									part of <strong>OpenID Connect Core 1.0</strong>. Note: When OAuth 2.1 (draft) is combined with OpenID Connect Core 1.0, it means "OIDC Core 1.0 using OAuth 2.1 (draft) baseline" and includes id_token.
 								</p>
 							</div>
 						</div>
@@ -8623,7 +8623,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										lineHeight: '1.5',
 									}}
 								>
-									<strong>OpenID Connect</strong> returns:{' '}
+									<strong>OIDC Core 1.0</strong> returns:{' '}
 									<code style={{ background: '#bfdbfe', padding: '2px 6px', borderRadius: '3px' }}>
 										access_token
 									</code>

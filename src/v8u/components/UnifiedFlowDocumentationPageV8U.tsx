@@ -20,6 +20,8 @@ import {
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
+import { SpecUrlServiceV8 } from '@/v8/services/specUrlServiceV8';
 import type { UnifiedFlowCredentials } from '../services/unifiedFlowIntegrationV8U';
 import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '@/services/apiCallTrackerService';
 import {
@@ -126,6 +128,66 @@ export const convertTrackedCallsToDocumentation = (
 };
 
 /**
+ * Get PingOne API documentation URL for a flow type
+ */
+const getApiDocsUrlForFlow = (flowType: FlowType): string => {
+	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
+	
+	// #region agent log
+	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
+			message: 'Getting PingOne API docs URL for flow',
+			data: { flowType, baseUrl },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			hypothesisId: 'F',
+		}),
+	}).catch(() => {});
+	// #endregion
+
+	let url: string;
+	switch (flowType) {
+		case 'oauth-authz':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-authorization-code`;
+			break;
+		case 'implicit':
+			url = `${baseUrl}#authorization-and-authentication-apis-authorize-implicit`;
+			break;
+		case 'client-credentials':
+			url = `${baseUrl}#authorization-and-authentication-apis-token-client-credentials`;
+			break;
+		case 'device-code':
+			url = `${baseUrl}#authorization-and-authentication-apis-device-authorization-request`;
+			break;
+		case 'hybrid':
+			url = `${baseUrl}#openid-connect`;
+			break;
+		default:
+			url = baseUrl;
+	}
+	
+	// #region agent log
+	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
+			message: 'Generated PingOne API docs URL',
+			data: { flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			hypothesisId: 'F',
+		}),
+	}).catch(() => {});
+	// #endregion
+	
+	return url;
+};
+
+/**
  * Generate markdown documentation
  */
 export const generateUnifiedFlowMarkdown = (
@@ -142,7 +204,7 @@ export const generateUnifiedFlowMarkdown = (
 		'device-code': 'Device Code',
 	};
 
-	const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${specVersion})`;
+	const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionServiceV8.getSpecLabel(specVersion)})`;
 
 	const generatedDate = new Date().toLocaleString('en-US', {
 		year: 'numeric',
@@ -156,7 +218,7 @@ export const generateUnifiedFlowMarkdown = (
 	let md = `# ${title}\n\n`;
 	md += `**Generated:** ${generatedDate}\n\n`;
 	md += `## Overview\n\n`;
-	md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${specVersion}.\n\n`;
+	md += `This document describes the PingOne OAuth 2.0 API calls required for the ${flowTypeLabels[flowType]} flow using ${SpecVersionServiceV8.getSpecLabel(specVersion)}.\n\n`;
 
 	if (credentials) {
 		md += `## Configuration\n\n`;
@@ -206,14 +268,72 @@ export const generateUnifiedFlowMarkdown = (
 	});
 
 	md += `## References\n\n`;
-	md += `- [OAuth 2.0 RFC 6749](https://tools.ietf.org/html/rfc6749)\n`;
-	if (flowType === 'device-code') {
-		md += `- [OAuth 2.0 Device Authorization Grant (RFC 8628)](https://tools.ietf.org/html/rfc8628)\n`;
+	
+	// Get flow-specific specification links
+	const flowSpecs = SpecUrlServiceV8.getFlowSpecInfo(flowType);
+	const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, flowType);
+	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
+	
+	// #region agent log
+	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
+			message: 'Generating documentation references',
+			data: {
+				flowType,
+				specVersion,
+				flowPrimarySpec: flowSpecs.primarySpec,
+				flowRelatedSpecs: flowSpecs.relatedSpecs?.map((s) => ({ label: s.label, url: s.url })),
+				combinedPrimaryUrl: specUrls.primary,
+				combinedPrimaryLabel: specUrls.primaryLabel,
+				combinedAllSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
+			},
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			hypothesisId: 'E',
+		}),
+	}).catch(() => {});
+	// #endregion
+	
+	// Add primary specification with section anchor if available
+	if (flowSpecs.relatedSpecs && flowSpecs.relatedSpecs.length > 0) {
+		flowSpecs.relatedSpecs.forEach((spec) => {
+			md += `- [${spec.label}](${spec.url})\n`;
+		});
+	} else {
+		// Fallback to primary spec
+		md += `- [${specUrls.primaryLabel}](${specUrls.primary})\n`;
 	}
-	if (specVersion === 'oidc') {
-		md += `- [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)\n`;
-	}
-	md += `- [PingOne API Documentation](https://apidocs.pingidentity.com/)\n`;
+	
+	// Add version-specific related specs
+	versionSpecs.related.forEach((spec) => {
+		// Avoid duplicates
+		if (!flowSpecs.relatedSpecs?.some((s) => s.url === spec.url)) {
+			md += `- [${spec.label}](${spec.url})\n`;
+		}
+	});
+	
+	// Add PingOne API documentation with flow-specific anchor
+	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
+	
+	// #region agent log
+	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({
+			location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
+			message: 'Adding PingOne API documentation link',
+			data: { flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') },
+			timestamp: Date.now(),
+			sessionId: 'debug-session',
+			hypothesisId: 'E',
+		}),
+	}).catch(() => {});
+	// #endregion
+	
+	md += `- [PingOne API Documentation - ${flowTypeLabels[flowType]} Flow](${apiDocsUrl})\n`;
 
 	return md;
 };
@@ -361,7 +481,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 			'client-credentials': 'Client Credentials',
 			'device-code': 'Device Code',
 		};
-		const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${specVersion})`;
+		const title = `PingOne OAuth 2.0 - ${flowTypeLabels[flowType]} Flow (${SpecVersionServiceV8.getSpecLabel(specVersion)})`;
 		downloadAsPDF(markdown, title);
 	};
 
