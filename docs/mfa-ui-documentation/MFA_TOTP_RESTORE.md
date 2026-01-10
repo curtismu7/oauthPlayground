@@ -1,7 +1,7 @@
 # MFA TOTP Restore Document
 
-**Last Updated:** 2026-01-06 17:30:00  
-**Version:** 1.2.0  
+**Last Updated:** 2026-01-27  
+**Version:** 1.3.0  
 **Purpose:** Implementation details for restoring the TOTP flow if it breaks or drifts  
 **Usage:** Use this document to restore correct implementations when TOTP flows break or regress
 
@@ -111,7 +111,73 @@ The generated environment file includes all variables with pre-filled values fro
 
 ## Critical Implementation Details
 
-### 1. Device Selection Skipping (Registration Flow)
+### 1. OATH TOTP (RFC 6238) Educational Section
+
+**Contract:** TOTP Configuration Page MUST include educational section about OATH TOTP (RFC 6238).
+
+**Correct Implementation:**
+```typescript
+// In TOTPConfigurationPageV8.tsx, after Shared Configuration Step
+import { FiBook } from 'react-icons/fi';
+
+{/* Education Section */}
+<div
+    style={{
+        background: 'white',
+        borderRadius: '8px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+    }}
+>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+        <FiBook size={24} color="#3b82f6" />
+        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
+            About OATH TOTP (RFC 6238)
+        </h2>
+    </div>
+    <div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
+        <p style={{ margin: '0 0 12px 0' }}>
+            <strong>OATH TOTP (Time-based One-Time Password, RFC 6238)</strong> is an open standard for generating time-based authentication codes using authenticator apps like Google Authenticator, Authy, or Microsoft Authenticator.
+        </p>
+        <ul style={{ margin: '0 0 12px 0', paddingLeft: '20px' }}>
+            <li><strong>Phishing-resistant:</strong> Codes are generated locally on your device, making them immune to SMS interception attacks</li>
+            <li><strong>Offline-capable:</strong> Doesn't rely on network connectivity - codes are generated using time-based algorithms</li>
+            <li><strong>Time-based:</strong> Each 6-digit code is valid for 30 seconds, automatically rotating for enhanced security</li>
+            <li><strong>Industry standard:</strong> Based on RFC 6238, ensuring compatibility across different authenticator apps</li>
+            <li><strong>Secure storage:</strong> Secret keys are stored securely in your authenticator app and never transmitted</li>
+            <li><strong>Easy setup:</strong> Simple QR code scan or manual secret key entry to get started</li>
+        </ul>
+        <p style={{ margin: '0 0 12px 0' }}>
+            <strong>How it works:</strong> After registering your TOTP device, you'll receive a QR code containing your secret key. Scan this QR code with an authenticator app to set up OATH TOTP (RFC 6238). The app will then generate time-based codes that you enter when authenticating.
+        </p>
+        <p style={{ margin: 0, padding: '12px', background: '#f0f9ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+            <strong>📚 Learn more:</strong> OATH TOTP (RFC 6238) is part of the Initiative for Open Authentication (OATH) framework, providing a standardized approach to two-factor authentication. The standard ensures codes are generated using HMAC-SHA1 algorithm with time-based intervals, making it highly secure and widely compatible.
+        </p>
+    </div>
+</div>
+```
+
+**Critical Points:**
+- **MUST** use terminology "OATH TOTP (RFC 6238)" for educational content
+- **MUST** import `FiBook` icon from `react-icons/fi`
+- **MUST** include all security benefits listed above
+- **MUST** explain how it works with QR code scanning
+- **MUST** include "Learn more" note about OATH framework
+- **MUST** be placed after Shared Configuration Step, before Action Buttons
+- **MUST** match styling of other education sections (white background, 24px padding, 8px border radius)
+
+**Incorrect Implementation (DO NOT DO THIS):**
+```typescript
+// ❌ WRONG - Missing educational section
+// ❌ WRONG - Using "TOTP" instead of "OATH TOTP (RFC 6238)" in educational content
+// ❌ WRONG - Missing security benefits list
+// ❌ WRONG - Missing OATH framework information
+```
+
+---
+
+### 2. Device Selection Skipping (Registration Flow)
 
 **Contract:** Device selection MUST be completely skipped during registration flow.
 
@@ -140,7 +206,7 @@ if (isConfiguredValue) {
 
 ---
 
-### 2. QR Code Always Displayed
+### 3. QR Code Always Displayed
 
 **Contract:** QR code MUST always be displayed on Step 3, regardless of device status.
 
@@ -169,7 +235,7 @@ const renderStep3QrCode = useCallback(() => {
 
 ---
 
-### 3. Policy Format (Critical)
+### 4. Policy Format (Critical)
 
 **Contract:** Policy object MUST contain only `id` (not `type`) when ID is provided.
 
@@ -189,7 +255,7 @@ const policy = {
 
 ---
 
-### 4. Secret Expiration Handling
+### 5. Secret Expiration Handling
 
 **Contract:** Must track secret expiration (30 minutes from device creation).
 
@@ -212,7 +278,7 @@ if (isSecretExpired) {
 
 ---
 
-### 5. Navigation Prevention (Step 3)
+### 6. Navigation Prevention (Step 3)
 
 **Contract:** Must prevent navigation from Step 3 to Step 4 during registration.
 
@@ -230,7 +296,7 @@ if (nav.currentStep === 3 && deviceType === 'TOTP') {
 nav.goToNext();
 ```
 
-### 6. Stuck Device Warning Section
+### 7. Stuck Device Warning Section
 
 **Contract:** Must display warning section when device is stuck in ACTIVATION_REQUIRED status.
 
@@ -519,6 +585,7 @@ if (nav.currentStep === 3 && !showQrModal && mfaState.deviceStatus !== 'ACTIVE')
 
 ## Version History
 
+- **v1.3.0** (2026-01-27): Added OATH TOTP (RFC 6238) educational section implementation details with protocol terminology, security benefits, and OATH framework information
 - **v1.2.0** (2026-01-06): Fixed stuck device warning condition (only show when QR data missing), fixed QR modal reopening after activation
 - **v1.1.0** (2026-01-06): Added stuck device warning section restoration guidance
 - **v1.0.0** (2026-01-06): Initial TOTP restore document
