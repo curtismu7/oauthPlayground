@@ -24,6 +24,7 @@ import {
 import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthenticationServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
@@ -412,6 +413,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const [credentialId, setCredentialId] = useState<string>('');
 	const [isRegistering, setIsRegistering] = useState(false);
 
+	// FIDO2 Policy state
+	const [fido2Policies, setFido2Policies] = useState<Array<{ id: string; name: string; default?: boolean; description?: string }>>([]);
+	const [isLoadingFido2Policies, setIsLoadingFido2Policies] = useState(false);
+	const [fido2PoliciesError, setFido2PoliciesError] = useState<string | null>(null);
+	const lastFetchedFido2EnvIdRef = useRef<string | null>(null);
+	const isFetchingFido2PoliciesRef = useRef(false);
+
 	// Worker Token Settings - Load from config service
 	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
 		try {
@@ -556,6 +564,176 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 
 		initializeWebAuthn();
 	}, []);
+
+	// Load FIDO2 policies
+	const fetchFido2Policies = useCallback(async () => {
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		const envId = storedCredentials.environmentId?.trim();
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:569',message:'fetchFido2Policies entry',data:{envId,hasToken:tokenValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+		// #endregion
+		
+		if (!envId || !tokenValid) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:582',message:'Early return - missing prerequisites',data:{hasEnvId:!!envId,hasToken:tokenValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			setFido2Policies([]);
+			setFido2PoliciesError(null);
+			lastFetchedFido2EnvIdRef.current = null;
+			return;
+		}
+
+		// Prevent duplicate calls
+		if (isFetchingFido2PoliciesRef.current || lastFetchedFido2EnvIdRef.current === envId) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:589',message:'Skipping duplicate call',data:{isFetching:isFetchingFido2PoliciesRef.current,lastEnvId:lastFetchedFido2EnvIdRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			return;
+		}
+
+		isFetchingFido2PoliciesRef.current = true;
+		setIsLoadingFido2Policies(true);
+		setFido2PoliciesError(null);
+
+		try {
+			const workerToken = await workerTokenServiceV8.getToken();
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:598',message:'Worker token retrieved',data:{hasToken:!!workerToken,tokenLength:workerToken?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+			// #endregion
+			if (!workerToken) {
+				throw new Error('Worker token not found');
+			}
+
+			const credentialsData = await workerTokenServiceV8.loadCredentials();
+			const region = credentialsData?.region || 'na';
+
+			const params = new URLSearchParams({
+				environmentId: envId,
+				workerToken: workerToken.trim(),
+				region,
+			});
+			const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:612',message:'Before API call',data:{url:apiUrl,envId,region},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+
+			const response = await fetch(apiUrl, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' },
+			});
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:617',message:'API response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+
+			if (!response.ok) {
+				const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:622',message:'API error response',data:{status:response.status,errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+				throw new Error(
+					errorData.message ||
+						errorData.error ||
+						`Failed to load FIDO2 policies: ${response.status}`
+				);
+			}
+
+			const data = await response.json();
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:626',message:'Raw API response data',data:{hasData:!!data,dataKeys:Object.keys(data||{}),isArray:Array.isArray(data),hasEmbedded:!!data?._embedded,hasFido2Policies:!!data?._embedded?.fido2Policies},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+			// #endregion
+			const policiesList = data._embedded?.fido2Policies || [];
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:629',message:'Before setState',data:{policiesCount:policiesList.length,policyIds:policiesList.map(p=>p.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+			// #endregion
+			lastFetchedFido2EnvIdRef.current = envId;
+			setFido2Policies(policiesList);
+
+			// Auto-select default policy if no policy is set
+			if (policiesList.length > 0) {
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				const currentPolicyId = (stored as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId;
+				
+				if (!currentPolicyId) {
+					const defaultPolicy =
+						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+					if (defaultPolicy.id) {
+						const updated = { ...stored, fido2PolicyId: defaultPolicy.id } as MFACredentials;
+						CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+					}
+				}
+			}
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+			setFido2PoliciesError(errorMessage);
+			console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+		} finally {
+			isFetchingFido2PoliciesRef.current = false;
+			setIsLoadingFido2Policies(false);
+		}
+	}, []);
+
+	// Fetch FIDO2 policies when environment and token are ready
+	useEffect(() => {
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+		const envId = storedCredentials.environmentId?.trim();
+		const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+		
+		if (envId && tokenValid) {
+			void fetchFido2Policies();
+		}
+	}, [fetchFido2Policies]);
+
+	// Also fetch when token status changes
+	useEffect(() => {
+		const checkTokenAndFetch = () => {
+			const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+				flowKey: 'mfa-flow-v8',
+				flowType: 'oidc',
+				includeClientSecret: false,
+				includeRedirectUri: false,
+				includeLogoutUri: false,
+				includeScopes: false,
+			});
+			const envId = storedCredentials.environmentId?.trim();
+			const tokenValid = WorkerTokenStatusServiceV8.checkWorkerTokenStatus().isValid;
+			
+			if (envId && tokenValid && lastFetchedFido2EnvIdRef.current !== envId) {
+				void fetchFido2Policies();
+			}
+		};
+
+		const interval = setInterval(checkTokenAndFetch, 5000);
+		window.addEventListener('workerTokenUpdated', checkTokenAndFetch);
+		
+		return () => {
+			clearInterval(interval);
+			window.removeEventListener('workerTokenUpdated', checkTokenAndFetch);
+		};
+	}, [fetchFido2Policies]);
 
 	// Step 0: Configure Credentials (FIDO2-specific - no phone/email needed)
 	// NO HOOKS INSIDE - all hooks moved to component level
@@ -1015,6 +1193,154 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						</div>
 
 						<div className="form-group">
+							<label
+								htmlFor="fido2-policy-select"
+								style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+							>
+								FIDO2 Policy <span className="required">*</span>
+								<MFAInfoButtonV8 contentKey="device.fido2.policy" displayMode="modal" />
+							</label>
+
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									flexWrap: 'wrap',
+									marginBottom: '12px',
+								}}
+							>
+								<button
+									type="button"
+									onClick={() => void fetchFido2Policies()}
+									className="token-button"
+									style={{
+										padding: '8px 18px',
+										background: '#0284c7',
+										color: 'white',
+										border: 'none',
+										borderRadius: '999px',
+										fontSize: '13px',
+										fontWeight: '700',
+										cursor: isLoadingFido2Policies ? 'not-allowed' : 'pointer',
+										opacity: isLoadingFido2Policies ? 0.6 : 1,
+										boxShadow: '0 8px 18px rgba(2,132,199,0.25)',
+										transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+									}}
+									disabled={isLoadingFido2Policies || !tokenStatus.isValid || !credentials.environmentId}
+									onMouseEnter={(e) => {
+										if (!isLoadingFido2Policies) {
+											e.currentTarget.style.transform = 'translateY(-1px)';
+										}
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'translateY(0)';
+									}}
+								>
+									{isLoadingFido2Policies ? 'Refreshing…' : 'Refresh Policies'}
+								</button>
+								<span style={{ fontSize: '13px', color: '#475569' }}>
+									Select which PingOne FIDO2 policy governs device registration.
+								</span>
+							</div>
+
+							{fido2PoliciesError && (
+								<div
+									className="info-box"
+									style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b' }}
+								>
+									<strong>Failed to load FIDO2 policies:</strong> {fido2PoliciesError}. Retry after verifying
+									access.
+								</div>
+							)}
+
+							{(() => {
+								// #region agent log
+								fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2FlowV8.tsx:1257',message:'Rendering policy select condition',data:{policiesCount:fido2Policies.length,isLoading:isLoadingFido2Policies,hasError:!!fido2PoliciesError,willRenderSelect:fido2Policies.length>0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+								// #endregion
+								return fido2Policies.length > 0 ? (
+									<select
+										id="fido2-policy-select"
+										value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
+										onChange={(e) => {
+											const updated = {
+												...credentials,
+												fido2PolicyId: e.target.value,
+											} as MFACredentials & { fido2PolicyId?: string };
+											setCredentials(updated);
+											CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+										}}
+										style={{
+											width: '100%',
+											padding: '10px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+											background: 'white',
+										}}
+									>
+										<option value="">-- Select a FIDO2 policy --</option>
+										{fido2Policies.map((policy) => (
+											<option key={policy.id} value={policy.id}>
+												{policy.name} {policy.default ? '(Default)' : ''}
+											</option>
+										))}
+									</select>
+							) : (
+								<input
+									id="fido2-policy-select"
+									type="text"
+									value={(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId || ''}
+									onChange={(e) => {
+										const updated = {
+											...credentials,
+											fido2PolicyId: e.target.value.trim(),
+										} as MFACredentials & { fido2PolicyId?: string };
+										setCredentials(updated);
+										CredentialsServiceV8.saveCredentials('mfa-flow-v8', updated);
+									}}
+									placeholder="Enter a FIDO2 Policy ID"
+									style={{
+										width: '100%',
+										padding: '10px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+									}}
+								/>
+							);
+							})()}
+
+							{(credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId && (
+								<div style={{ marginTop: '12px' }}>
+									{fido2Policies.find(
+										(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
+									)?.description && (
+										<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
+											{fido2Policies.find(
+												(p) => p.id === (credentials as MFACredentials & { fido2PolicyId?: string }).fido2PolicyId
+											)?.description}
+										</p>
+									)}
+								</div>
+							)}
+
+							<div
+								style={{
+									marginTop: '12px',
+									padding: '12px 14px',
+									background: '#f1f5f9',
+									borderRadius: '10px',
+									fontSize: '12px',
+									color: '#475569',
+									lineHeight: 1.5,
+								}}
+							>
+								FIDO2 policies are fetched from PingOne FIDO2 Policies API.
+							</div>
+						</div>
+
+						<div className="form-group">
 							<label htmlFor="mfa-username">
 								Username <span className="required">*</span>
 							</label>
@@ -1031,7 +1357,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [isConfigured, webAuthnSupported, webAuthnCapabilities]);
+	}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, credentials, setCredentials, tokenStatus]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
 	const pendingTriggerRef = React.useRef<{

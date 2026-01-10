@@ -90,7 +90,7 @@ export async function save(
 
 		await new Promise<void>((resolve, reject) => {
 			transaction.oncomplete = () => {
-				console.log(`${MODULE_TAG} ✅ Saved backup`, { key, type });
+				// Backup saved successfully
 				resolve();
 			};
 			transaction.onerror = () => {
