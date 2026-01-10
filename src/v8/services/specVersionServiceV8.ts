@@ -1,7 +1,7 @@
 /**
  * @file specVersionServiceV8.ts
  * @module v8/services
- * @description Spec version management service for OAuth 2.0, OAuth 2.1, and OpenID Connect
+ * @description Spec version management service for OAuth 2.0 Authorization Framework (RFC 6749), OAuth 2.1 Authorization Framework (draft), and OpenID Connect Core 1.0
  * @version 8.0.0
  * @since 2024-11-16
  *
@@ -51,8 +51,8 @@ export interface ValidationResult {
 
 const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 	'oauth2.0': {
-		name: 'OAuth 2.0',
-		description: 'Standard OAuth 2.0 (RFC 6749)',
+		name: 'OAuth 2.0 Authorization Framework (RFC 6749)',
+		description: 'Baseline OAuth framework standard (RFC 6749). Provides authorization without authentication. Supports all flow types including Implicit.',
 		supportedFlows: ['oauth-authz', 'implicit', 'client-credentials', 'device-code'],
 		complianceRules: {
 			requirePKCE: false,
@@ -64,8 +64,8 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 		},
 	},
 	'oauth2.1': {
-		name: 'OAuth 2.1',
-		description: 'Modern OAuth 2.0 (RFC 6749 + Security Best Current Practices)',
+		name: 'OAuth 2.1 Authorization Framework (draft)',
+		description: 'Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). Note: Still an Internet-Draft, not yet an RFC.',
 		supportedFlows: ['oauth-authz', 'client-credentials', 'device-code'],
 		complianceRules: {
 			requirePKCE: true,
@@ -77,8 +77,8 @@ const SPEC_CONFIGS: Record<SpecVersion, SpecConfig> = {
 		},
 	},
 	oidc: {
-		name: 'OpenID Connect',
-		description: 'Authentication layer on OAuth 2.0 (OpenID Connect Core)',
+		name: 'OpenID Connect Core 1.0',
+		description: 'Authentication layer on top of OAuth 2.0 (OpenID Connect Core 1.0). Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication.',
 		supportedFlows: ['oauth-authz', 'implicit', 'hybrid', 'device-code'],
 		complianceRules: {
 			requirePKCE: false,
@@ -223,9 +223,9 @@ export class SpecVersionServiceV8 {
 	 */
 	static getSpecLabel(specVersion: SpecVersion): string {
 		const labels: Record<SpecVersion, string> = {
-			'oauth2.0': 'OAuth 2.0',
-			'oauth2.1': 'OAuth 2.1',
-			oidc: 'OpenID Connect',
+			'oauth2.0': 'OAuth 2.0 Authorization Framework (RFC 6749)',
+			'oauth2.1': 'OAuth 2.1 Authorization Framework (draft)',
+			oidc: 'OpenID Connect Core 1.0',
 		};
 		return labels[specVersion];
 	}

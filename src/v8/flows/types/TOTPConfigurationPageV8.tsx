@@ -11,7 +11,7 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiArrowRight, FiClock } from 'react-icons/fi';
+import { FiArrowRight, FiBook, FiClock } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
@@ -665,6 +665,43 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 						showDeviceLimitModal={false}
 						setShowDeviceLimitModal={() => {}}
 					/>
+				</div>
+
+				{/* Education Section */}
+				<div
+					style={{
+						background: 'white',
+						borderRadius: '8px',
+						padding: '24px',
+						marginBottom: '24px',
+						boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+						<FiBook size={24} color="#3b82f6" />
+						<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600', color: '#1f2937' }}>
+							About OATH TOTP (RFC 6238)
+						</h2>
+					</div>
+					<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.6 }}>
+						<p style={{ margin: '0 0 12px 0' }}>
+							<strong>OATH TOTP (Time-based One-Time Password, RFC 6238)</strong> is an open standard for generating time-based authentication codes using authenticator apps like Google Authenticator, Authy, or Microsoft Authenticator.
+						</p>
+						<ul style={{ margin: '0 0 12px 0', paddingLeft: '20px' }}>
+							<li><strong>Phishing-resistant:</strong> Codes are generated locally on your device, making them immune to SMS interception attacks</li>
+							<li><strong>Offline-capable:</strong> Doesn't rely on network connectivity - codes are generated using time-based algorithms</li>
+							<li><strong>Time-based:</strong> Each 6-digit code is valid for 30 seconds, automatically rotating for enhanced security</li>
+							<li><strong>Industry standard:</strong> Based on RFC 6238, ensuring compatibility across different authenticator apps</li>
+							<li><strong>Secure storage:</strong> Secret keys are stored securely in your authenticator app and never transmitted</li>
+							<li><strong>Easy setup:</strong> Simple QR code scan or manual secret key entry to get started</li>
+						</ul>
+						<p style={{ margin: '0 0 12px 0' }}>
+							<strong>How it works:</strong> After registering your TOTP device, you'll receive a QR code containing your secret key. Scan this QR code with an authenticator app to set up OATH TOTP (RFC 6238). The app will then generate time-based codes that you enter when authenticating.
+						</p>
+						<p style={{ margin: 0, padding: '12px', background: '#f0f9ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+							<strong>📚 Learn more:</strong> OATH TOTP (RFC 6238) is part of the Initiative for Open Authentication (OATH) framework, providing a standardized approach to two-factor authentication. The standard ensures codes are generated using HMAC-SHA1 algorithm with time-based intervals, making it highly secure and widely compatible.
+						</p>
+					</div>
 				</div>
 
 				{/* Proceed Button */}
