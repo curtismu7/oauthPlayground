@@ -6,7 +6,7 @@
  */
 
 // Collection version - update this when making breaking changes or major updates
-export const COLLECTION_VERSION = '8.1.6';
+export const COLLECTION_VERSION = '8.1.7';
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
@@ -2330,7 +2330,7 @@ const generateUseCasesItems = (
 				createUseCaseItem(
 					'Lookup User by Username',
 					'GET',
-					`${baseUrl}/users?filter=username eq "{{SignUpUsername}}"&limit=20`,
+					`${baseUrl}/users?filter=username%20eq%20%22{{SignUpUsername}}%22&limit=20`,
 					'**Test Registration: Lookup User by Username**\n\n**Educational Context:**\n- Test that the user can be found by their username after registration\n- Use GET with filter parameter to search by username using SCIM filter syntax\n- Returns user object if found, or empty result if user doesn\'t exist\n- Username filter is case-sensitive and must match exactly\n- **SCIM Operators**: Uses `eq` (equals) operator - supported operators include: `eq`, `sw` (starts with), `ew` (ends with), `co` (contains), `and`, `or`\n- The username comes from the user created in Register user Step 1 (SignUpUsername variable)\n- **Limit Parameter**: `limit=20` restricts results to maximum 20 users for performance and to prevent large result sets\n- This test verifies the user can be found by username after creation and verification\n- Reference: [PingOne API Documentation - List Users with Filters](https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-list-users)\n\n**Filter Syntax:**\n```\nGET {{apiPath}}/v1/environments/{{envID}}/users?filter=username eq "john_doe"&limit=20\n```\n\n**Prerequisite:**\n- Complete Register user Step 1: Create a user (with email verification) to set `SignUpUsername`',
 					[
 						{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
@@ -2378,7 +2378,7 @@ const generateUseCasesItems = (
 				createUseCaseItem(
 					'Lookup User by Email',
 					'GET',
-					`${baseUrl}/users?filter=email eq "cmuir+{{baseballPlayerFirstName}}@pingone.com"&limit=20`,
+					`${baseUrl}/users?filter=email%20eq%20%22cmuir%2B{{baseballPlayerFirstName}}@pingone.com%22&limit=20`,
 					'**Test Registration: Lookup User by Email**\n\n**Educational Context:**\n- Test that the user can be found by their email address after registration\n- Use GET with filter parameter to search by email using SCIM filter syntax\n- Returns user object if found, or empty result if user doesn\'t exist\n- Email filter searches the user\'s email attribute\n- **SCIM Operators**: Uses `eq` (equals) operator - email also supports `sw` (starts with) and `ew` (ends with for domains only)\n- The email comes from the user created in Register user Step 1\n- **Limit Parameter**: `limit=20` restricts results to maximum 20 users for performance and to prevent large result sets\n- This test verifies the user can be found by email after creation and verification\n- Reference: [PingOne API Documentation - List Users with Filters](https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-list-users)\n\n**Filter Syntax:**\n```\nGET {{apiPath}}/v1/environments/{{envID}}/users?filter=email eq "user@example.com"&limit=20\n```\n\n**Important:** The correct filter syntax is `email eq "email@example.com"`\n\n**Prerequisite:**\n- Complete Register user Step 1: Create a user (with email verification)',
 					[
 						{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
