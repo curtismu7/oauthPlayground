@@ -6,7 +6,7 @@
  */
 
 // Collection version - update this when making breaking changes or major updates
-export const COLLECTION_VERSION = '8.1.9';
+export const COLLECTION_VERSION = '8.1.10';
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
@@ -463,6 +463,16 @@ export const validateCollection = (
 					rawUrl,
 				});
 			}
+			if (rawUrl.includes('{{authPath}}') && !rawUrl.includes('{{envID}}')) {
+				issues.addError(
+					'REQUEST_URL_MISSING_ENV',
+					'Request URL uses {{authPath}} without {{envID}}.',
+					{
+						currentPath,
+						rawUrl,
+					}
+				);
+			}
 			validateTemplateVariables(extractTemplateVariables(rawUrl), currentPath);
 			if (item.request.header) {
 				item.request.header.forEach((header) => {
@@ -535,6 +545,18 @@ export const validateEnvironment = (
 	issues: GenerationIssues,
 	contextLabel: string
 ): void => {
+	const variableKeys = new Set(variables.map((variable) => variable.key));
+	Object.entries(VARIABLE_POLICIES)
+		.filter(([, policy]) => policy === 'required')
+		.forEach(([key]) => {
+			if (!variableKeys.has(key)) {
+				issues.addError('ENV_VAR_REQUIRED_MISSING', 'Required environment variable is missing.', {
+					contextLabel,
+					key,
+				});
+			}
+		});
+
 	variables.forEach((variable) => {
 		if (!variable.key?.trim()) {
 			issues.addError('ENV_VAR_KEY_MISSING', 'Environment variable key is missing.', {
