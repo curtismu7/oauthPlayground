@@ -1,0 +1,182 @@
+{
+	"info": {
+		"name": "PKCE Authorization - COMPLETED",
+		"description": "PKCE Authorization Code flow collection (PingOne). Includes PKCE generation, authorization request, and token exchange.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Generate PKCE Codes",
+			"request": {
+				"method": "GET",
+				"description": "Generates PKCE code_verifier and code_challenge and stores them in environment variables.",
+				"url": {
+					"raw": "{{authPath}}/{{envID}}/generate-pkce"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Generate PKCE code verifier and challenge",
+							"function generateCodeVerifier() {",
+							"    const array = new Uint8Array(32);",
+							"    crypto.getRandomValues(array);",
+							"    return btoa(String.fromCharCode.apply(null, Array.from(array)))",
+							"        .replace(/\\+/g, \"-\")",
+							"        .replace(/\\//g, \"_\")",
+							"        .replace(/=/g, \"\");",
+							"}",
+							"",
+							"function generateCodeChallenge(verifier) {",
+							"    return CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64)",
+							"        .replace(/\\+/g, \"-\")",
+							"        .replace(/\\//g, \"_\")",
+							"        .replace(/=/g, \"\");",
+							"}",
+							"",
+							"const codeVerifier = generateCodeVerifier();",
+							"const codeChallenge = generateCodeChallenge(codeVerifier);",
+							"",
+							"pm.environment.set(\"code_verifier\", codeVerifier);",
+							"pm.environment.set(\"code_challenge\", codeChallenge);",
+							"pm.environment.set(\"code_challenge_method\", \"S256\");",
+							"",
+							"console.log(\"✅ PKCE codes generated:\");",
+							"console.log(\"   Code Verifier:\", codeVerifier);",
+							"console.log(\"   Code Challenge:\", codeChallenge);",
+							"console.log(\"   Method: S256\");"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// Verify PKCE codes were generated",
+							"const codeVerifier = pm.environment.get(\"code_verifier\");",
+							"const codeChallenge = pm.environment.get(\"code_challenge\");",
+							"",
+							"if (codeVerifier && codeChallenge) {",
+							"    pm.test(\"PKCE codes generated\", function () {",
+							"        pm.expect(codeVerifier).to.be.a(\"string\");",
+							"        pm.expect(codeChallenge).to.be.a(\"string\");",
+							"        pm.expect(codeVerifier.length).to.be.at.least(43);",
+							"        pm.expect(codeChallenge.length).to.be.at.least(43);",
+							"    });",
+							"} else {",
+							"    pm.test(\"PKCE codes generated\", function () {",
+							"        pm.expect.fail(\"PKCE codes were not generated\");",
+							"    });",
+							"}"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Send Authorization Request (PKCE, Non-Redirect)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"description": "Non-redirect authorization request using PKCE. response_mode=pi.flow returns a JSON flow response (HTTP 200) and does not require redirect_uri.",
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{ "key": "response_type", "value": "code" },
+						{ "key": "client_id", "value": "{{user_client_id}}" },
+						{ "key": "scope", "value": "{{scopes_oidc}}" },
+						{ "key": "state", "value": "{{state}}" },
+						{ "key": "code_challenge", "value": "{{code_challenge}}" },
+						{ "key": "code_challenge_method", "value": "{{code_challenge_method}}" },
+						{ "key": "response_mode", "value": "pi.flow" }
+					]
+				},
+				"url": {
+					"raw": "{{authPath}}/{{envID}}/as/authorize"
+				}
+			}
+		},
+		{
+			"name": "3. Exchange Authorization Code for Tokens",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"description": "Exchanges authorization_code for tokens using PKCE code_verifier.",
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{ "key": "grant_type", "value": "authorization_code" },
+						{ "key": "code", "value": "{{authorization_code}}" },
+						{ "key": "redirect_uri", "value": "{{redirect_uri}}" },
+						{ "key": "code_verifier", "value": "{{code_verifier}}" },
+						{ "key": "client_id", "value": "{{user_client_id}}" },
+						{ "key": "client_secret", "value": "{{user_client_secret}}" }
+					]
+				},
+				"url": {
+					"raw": "{{authPath}}/{{envID}}/as/token"
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"✅ Call was Successful - Token Exchange Completed\", function() {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"try {",
+							"    const jsonData = pm.response.json();",
+							"    if (jsonData.access_token) pm.environment.set(\"access_token\", jsonData.access_token);",
+							"    if (jsonData.id_token) pm.environment.set(\"id_token\", jsonData.id_token);",
+							"    if (jsonData.refresh_token) pm.environment.set(\"refresh_token\", jsonData.refresh_token);",
+							"    if (jsonData.expires_in) pm.environment.set(\"expires_in\", jsonData.expires_in);",
+							"} catch (e) {",
+							"    pm.test(\"❌ Response should be valid JSON\", function() {",
+							"        pm.expect.fail(\"Failed to parse response as JSON: \" + e.message);",
+							"    });",
+							"}"
+						]
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "authPath", "value": "https://auth.pingone.com", "type": "string" },
+		{ "key": "envID", "value": "", "type": "string" },
+		{ "key": "user_client_id", "value": "", "type": "string" },
+		{ "key": "user_client_secret", "value": "", "type": "secret" },
+		{ "key": "redirect_uri", "value": "http://localhost:3000/callback", "type": "string" },
+		{ "key": "scopes_oidc", "value": "openid profile email", "type": "string" },
+		{ "key": "state", "value": "", "type": "string" },
+		{ "key": "code_verifier", "value": "", "type": "string" },
+		{ "key": "code_challenge", "value": "", "type": "string" },
+		{ "key": "code_challenge_method", "value": "S256", "type": "string" },
+		{ "key": "authorization_code", "value": "", "type": "string" },
+		{ "key": "access_token", "value": "", "type": "string" },
+		{ "key": "id_token", "value": "", "type": "string" },
+		{ "key": "refresh_token", "value": "", "type": "string" },
+		{ "key": "expires_in", "value": "", "type": "string" }
+	]
+}
