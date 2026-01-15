@@ -6,10 +6,28 @@
  */
 
 // Collection version - update this when making breaking changes or major updates
-export const COLLECTION_VERSION = '8.1.7';
+export const COLLECTION_VERSION = '8.1.8';
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
+
+/**
+ * DATA FLOW MAP (V8 Postman Generator)
+ * Inputs:
+ * - Tracked API calls from apiCallTrackerService
+ * - Credentials (envID/clientId/clientSecret/username)
+ * - Selected use cases and flow specs
+ * Derived values:
+ * - URL templates ({{authPath}}, {{apiPath}}, {{envID}})
+ * - Request bodies/headers/scripts assembled per use case
+ * Outputs:
+ * - Postman Collection JSON (requests, scripts, variables)
+ * - Postman Environment/Variables JSON
+ * Validation:
+ * - Required variables present and non-blank
+ * - Intentionally blank values always warn + annotate descriptions
+ * - Collection URLs/methods/scripts validated before output
+ */
 
 export interface PostmanCollectionItem {
 	name: string;
@@ -59,9 +77,423 @@ export interface PostmanCollection {
 		key: string;
 		value: string;
 		type?: string;
+		description?: string;
 	}>;
 	item: PostmanCollectionItem[];
 }
+
+type IssueLevel = 'error' | 'warning';
+
+type GenerationIssue = {
+	level: IssueLevel;
+	code: string;
+	message: string;
+	context?: Record<string, unknown>;
+};
+
+type VariablePolicy = 'required' | 'user-fill' | 'runtime-set';
+
+/**
+ * GenerationIssues collects errors and warnings for a single generation run.
+ */
+export class GenerationIssues {
+	private issues: GenerationIssue[] = [];
+	private readonly runLabel: string;
+
+	/**
+	 * Create a new issue collector with a readable label.
+	 */
+	constructor(runLabel: string) {
+		this.runLabel = runLabel;
+	}
+
+	/**
+	 * Add a generation error with context.
+	 */
+	addError(code: string, message: string, context?: Record<string, unknown>): void {
+		const issue: GenerationIssue = context
+			? { level: 'error', code, message, context }
+			: { level: 'error', code, message };
+		this.issues.push(issue);
+	}
+
+	/**
+	 * Add a generation warning with context.
+	 */
+	addWarning(code: string, message: string, context?: Record<string, unknown>): void {
+		const issue: GenerationIssue = context
+			? { level: 'warning', code, message, context }
+			: { level: 'warning', code, message };
+		this.issues.push(issue);
+	}
+
+	/**
+	 * Print a summary of warnings/errors for diagnostics.
+	 */
+	printSummary(): void {
+		if (!this.issues.length) return;
+		const grouped = this.issues.reduce(
+			(acc, issue) => {
+				acc[issue.level].push(issue);
+				return acc;
+			},
+			{ error: [] as GenerationIssue[], warning: [] as GenerationIssue[] }
+		);
+		if (grouped.error.length) {
+			console.error(`[POSTMAN-GEN] ${this.runLabel} errors: ${grouped.error.length}`);
+			grouped.error.forEach((issue) => {
+				console.error(
+					`[POSTMAN-GEN][ERROR] ${issue.code}: ${issue.message}`,
+					redactSensitive(issue.context)
+				);
+			});
+		}
+		if (grouped.warning.length) {
+			console.warn(`[POSTMAN-GEN] ${this.runLabel} warnings: ${grouped.warning.length}`);
+			grouped.warning.forEach((issue) => {
+				console.warn(
+					`[POSTMAN-GEN][WARN] ${issue.code}: ${issue.message}`,
+					redactSensitive(issue.context)
+				);
+			});
+		}
+	}
+
+	/**
+	 * Throw when errors exist, after printing a summary.
+	 */
+	throwIfErrors(): void {
+		const hasErrors = this.issues.some((issue) => issue.level === 'error');
+		if (!hasErrors) return;
+		this.printSummary();
+		throw new Error(`[POSTMAN-GEN] ${this.runLabel} failed with validation errors.`);
+	}
+
+	/**
+	 * Check if warnings are present.
+	 */
+	hasWarnings(): boolean {
+		return this.issues.some((issue) => issue.level === 'warning');
+	}
+
+	/**
+	 * Expose issues for testing and diagnostics.
+	 */
+	getIssues(): GenerationIssue[] {
+		return [...this.issues];
+	}
+}
+
+/**
+ * Redact known sensitive fields from logs to avoid leaking secrets.
+ */
+export const redactSensitive = (
+	context?: Record<string, unknown>
+): Record<string, unknown> | undefined => {
+	if (!context) return context;
+	const redacted: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(context)) {
+		if (key.toLowerCase().includes('secret') || key.toLowerCase().includes('token')) {
+			redacted[key] = '[REDACTED]';
+		} else {
+			redacted[key] = value;
+		}
+	}
+	return redacted;
+};
+
+/**
+ * Check whether a value is blank or whitespace only.
+ */
+export const isBlank = (value?: string | null): boolean => {
+	if (value === undefined || value === null) return true;
+	return value.trim().length === 0;
+};
+
+/**
+ * Require a non-blank string; adds error and returns a placeholder if missing.
+ */
+export const requireNonBlankString = (
+	name: string,
+	value: string | undefined,
+	issues: GenerationIssues,
+	context?: Record<string, unknown>
+): string => {
+	const trimmed = value?.trim() ?? '';
+	if (trimmed.length === 0) {
+		issues.addError('REQUIRED_VALUE_MISSING', `Required value "${name}" is blank.`, context);
+		return '<<REQUIRED_VALUE_MISSING>>';
+	}
+	return trimmed;
+};
+
+/**
+ * Allow blank values but emit a warning every time.
+ */
+export const allowBlankButWarn = (
+	name: string,
+	value: string | undefined,
+	issues: GenerationIssues,
+	policy: VariablePolicy,
+	context?: Record<string, unknown>
+): string => {
+	if (isBlank(value)) {
+		const policyLabel =
+			policy === 'runtime-set'
+				? 'Value intentionally blank — set by collection scripts at runtime'
+				: 'Value intentionally blank — user must fill before running collection';
+		issues.addWarning('INTENTIONALLY_BLANK', `${policyLabel}: "${name}"`, context);
+		return value ?? '';
+	}
+	return value?.trim() ?? '';
+};
+
+/**
+ * Encode query strings while preserving Postman variables ({{var}}).
+ */
+export const encodeQueryPreservingVariables = (query: string): string => {
+	const parts = query.split(/(\{\{[^}]+\}\})/g);
+	return parts
+		.map((part) => {
+			if (part.startsWith('{{') && part.endsWith('}}')) return part;
+			return part.replace(/ /g, '%20').replace(/"/g, '%22').replace(/\+/g, '%2B');
+		})
+		.join('');
+};
+
+/**
+ * Normalize URL strings to avoid Postman blank rendering.
+ */
+export const normalizeUrlForPostman = (rawUrl: string): string => {
+	const [base, query] = rawUrl.split('?');
+	if (!query) return rawUrl;
+	return `${base}?${encodeQueryPreservingVariables(query)}`;
+};
+
+/**
+ * Format form values while avoiding blank/undefined strings.
+ */
+export const formatFormValue = (value: unknown): string => {
+	if (value === undefined || value === null) return '<<MISSING_VALUE>>';
+	if (typeof value === 'string') return value;
+	return String(value);
+};
+
+const VARIABLE_POLICIES: Record<string, VariablePolicy> = {
+	authPath: 'required',
+	apiPath: 'required',
+	envID: 'required',
+	worker_client_id: 'required',
+	worker_client_secret: 'required',
+	user_client_id: 'user-fill',
+	user_client_secret: 'user-fill',
+	redirect_uri: 'user-fill',
+	logout_uri: 'user-fill',
+	post_logout_redirect_uri: 'user-fill',
+};
+
+const RUNTIME_SET_VARIABLES = new Set([
+	'workerToken',
+	'userToken',
+	'access_token',
+	'id_token',
+	'refresh_token',
+	'expires_in',
+	'authorization_code',
+	'authCode',
+	'flowID',
+	'interactionId',
+	'interactionToken',
+	'userId',
+	'SignUpUserID',
+	'SignUpUsername',
+	'SignUpPopID',
+	'SignInUserID',
+	'SignInUsername',
+	'SignInUserEmail',
+	'groupId',
+	'webAppSignInWithPKCEId',
+	'SignInWithPKCEAppSecret',
+	'deviceId',
+	'deviceAuthenticationId',
+	'deviceAuthenticationPolicyId',
+	'sessionId',
+	'request_uri',
+	'par_request_uri',
+	'code_verifier',
+	'code_challenge',
+	'code_challenge_method',
+	'codeChallenge',
+	'codeChallengeMethod',
+	'codeVerifier',
+]);
+
+/**
+ * Determine variable policy based on registry or runtime-set heuristics.
+ */
+export const resolveVariablePolicy = (key: string): VariablePolicy => {
+	if (VARIABLE_POLICIES[key]) return VARIABLE_POLICIES[key];
+	if (RUNTIME_SET_VARIABLES.has(key)) return 'runtime-set';
+	return 'user-fill';
+};
+
+/**
+ * Enforce variable policies and attach descriptions for intentionally blank values.
+ */
+export const finalizeVariables = (
+	variables: Array<{ key: string; value: string; type?: string; description?: string }>,
+	issues: GenerationIssues,
+	contextLabel: string
+): Array<{ key: string; value: string; type?: string; description?: string }> => {
+	return variables.map((variable) => {
+		const key = requireNonBlankString('variable.key', variable.key, issues, {
+			contextLabel,
+			variable,
+		});
+		const policy = resolveVariablePolicy(key);
+		let value = variable.value;
+
+		if (policy === 'required') {
+			value = requireNonBlankString(key, variable.value, issues, { contextLabel, key });
+		} else {
+			value = allowBlankButWarn(key, variable.value, issues, policy, { contextLabel, key });
+		}
+
+		if (isBlank(value)) {
+			const warningDescription =
+				policy === 'runtime-set'
+					? 'Value intentionally blank — set by collection scripts at runtime.'
+					: 'Value intentionally blank — user must fill before running collection.';
+			const description = variable.description
+				? `${variable.description} ${warningDescription}`
+				: warningDescription;
+			return { ...variable, key, value, description };
+		}
+
+		return { ...variable, key, value };
+	});
+};
+
+/**
+ * Validate collection invariants before output.
+ */
+export const validateCollection = (
+	collection: PostmanCollection,
+	issues: GenerationIssues,
+	contextLabel: string
+): void => {
+	if (!collection.info?.name?.trim()) {
+		issues.addError('COLLECTION_NAME_MISSING', 'Collection name is missing.', { contextLabel });
+	}
+	if (!collection.info?.schema?.trim()) {
+		issues.addError('COLLECTION_SCHEMA_MISSING', 'Collection schema is missing.', { contextLabel });
+	}
+
+	const validateItem = (item: PostmanCollectionItem, path: string): void => {
+		const currentPath = `${path}/${item.name}`;
+		if (!item.name?.trim()) {
+			issues.addError('ITEM_NAME_MISSING', 'Collection item name is missing.', { currentPath });
+		}
+		if (item.request) {
+			if (!item.request.method?.trim()) {
+				issues.addError('REQUEST_METHOD_MISSING', 'Request method is missing.', { currentPath });
+			}
+			const rawUrl = item.request.url?.raw?.trim() ?? '';
+			if (!rawUrl) {
+				issues.addError('REQUEST_URL_MISSING', 'Request URL is missing.', { currentPath });
+			}
+			if (/^https?:\/\/($|\/|\?)/.test(rawUrl)) {
+				issues.addError('REQUEST_URL_INVALID', 'Request URL is missing a host.', {
+					currentPath,
+					rawUrl,
+				});
+			}
+			if (item.request.header) {
+				item.request.header.forEach((header) => {
+					if (!header.key?.trim()) {
+						issues.addError('HEADER_KEY_MISSING', 'Header key is missing.', {
+							currentPath,
+							header,
+						});
+					}
+					const lowerKey = header.key?.toLowerCase() ?? '';
+					const headerValue = header.value?.trim() ?? '';
+					if (
+						lowerKey === 'authorization' &&
+						headerValue.startsWith('Bearer') &&
+						!headerValue.includes('{{')
+					) {
+						issues.addWarning('HEADER_BEARER_BLANK', 'Authorization header is missing a token.', {
+							currentPath,
+							header,
+						});
+					}
+				});
+			}
+		}
+		if (item.item) {
+			for (const nested of item.item) {
+				validateItem(nested, currentPath);
+			}
+		}
+	};
+
+	for (const item of collection.item) {
+		validateItem(item, collection.info.name);
+	}
+};
+
+/**
+ * Validate environment invariants before output.
+ */
+export const validateEnvironment = (
+	variables: Array<{ key: string; value: string; type?: string; description?: string }>,
+	issues: GenerationIssues,
+	contextLabel: string
+): void => {
+	variables.forEach((variable) => {
+		if (!variable.key?.trim()) {
+			issues.addError('ENV_VAR_KEY_MISSING', 'Environment variable key is missing.', {
+				contextLabel,
+				variable,
+			});
+		}
+		const policy = resolveVariablePolicy(variable.key);
+		if (policy === 'required' && isBlank(variable.value)) {
+			issues.addError('ENV_VAR_REQUIRED_BLANK', 'Required environment variable is blank.', {
+				contextLabel,
+				key: variable.key,
+			});
+		}
+		if (policy !== 'required' && isBlank(variable.value)) {
+			issues.addWarning('ENV_VAR_BLANK', 'Environment variable is intentionally blank.', {
+				contextLabel,
+				key: variable.key,
+				policy,
+			});
+		}
+	});
+};
+
+/**
+ * Validate unresolved placeholders in output JSON.
+ */
+export const validatePlaceholders = (
+	serialized: string,
+	issues: GenerationIssues,
+	contextLabel: string
+): void => {
+	if (serialized.includes('{{}}')) {
+		issues.addError('PLACEHOLDER_EMPTY', 'Found empty placeholder {{}} in output.', {
+			contextLabel,
+		});
+	}
+	if (serialized.includes('{{undefined}}') || serialized.includes('{{null}}')) {
+		issues.addError('PLACEHOLDER_INVALID', 'Found undefined/null placeholders in output.', {
+			contextLabel,
+		});
+	}
+};
 
 /**
  * Convert API endpoint to Postman format with {{authPath}} and {{envID}} variables
@@ -111,7 +543,8 @@ const parseUrl = (
 	query?: Array<{ key: string; value: string }>;
 } => {
 	// Remove leading slash if present (common mistake that causes /https://api.pingone.com)
-	let cleanedUrl = rawUrl.trim();
+	const normalizedUrl = normalizeUrlForPostman(rawUrl);
+	let cleanedUrl = normalizedUrl.trim();
 	if (cleanedUrl.startsWith('/{{') || cleanedUrl.startsWith('/{')) {
 		cleanedUrl = cleanedUrl.substring(1);
 	}
@@ -210,7 +643,11 @@ const parseUrl = (
 			...(path.length > 0 && { path }),
 			...(query.length > 0 && { query }),
 		};
-	} catch {
+	} catch (error) {
+		console.warn('[POSTMAN-GEN][WARN] URL parsing failed, using raw fallback.', {
+			rawUrl: cleanedUrl,
+			error: error instanceof Error ? error.message : String(error),
+		});
 		// If URL parsing fails, return cleaned URL with basic structure
 		const parts = cleanedUrl.split('/').filter(Boolean);
 		return {
@@ -254,7 +691,7 @@ const convertRequestBody = (
 				mode: 'urlencoded',
 				urlencoded: Object.entries(requestBody).map(([key, value]) => ({
 					key,
-					value: String(value),
+					value: formatFormValue(value),
 				})),
 			};
 		}
@@ -489,6 +926,9 @@ export const generatePostmanCollection = (
 		clientSecret?: string;
 	}
 ): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generatePostmanCollection');
+
 	const flowTypeLabels: Record<FlowType, string> = {
 		'oauth-authz': 'Authorization Code',
 		hybrid: 'Hybrid',
@@ -502,7 +942,7 @@ export const generatePostmanCollection = (
 
 	// Build variables - match PingOne Postman collection format
 	// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
-	const variables: Array<{ key: string; value: string; type?: string }> = [
+	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 		{
 			key: 'envID',
@@ -896,15 +1336,23 @@ export const generatePostmanCollection = (
 		};
 	});
 
-	return {
+	const finalizedVariables = finalizeVariables(variables, issues, collectionName);
+	const collection: PostmanCollection = {
 		info: {
 			name: collectionName,
 			description: `Postman collection for PingOne ${flowTypeLabels[flowType]} Flow (${specVersion}). Generated from OAuth Playground.`,
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: variables,
+		variable: finalizedVariables,
 		item: items,
 	};
+
+	validateCollection(collection, issues, collectionName);
+	validateEnvironment(finalizedVariables, issues, collectionName);
+	validatePlaceholders(JSON.stringify(collection), issues, collectionName);
+	issues.printSummary();
+	issues.throwIfErrors();
+	return collection;
 };
 
 /**
@@ -927,12 +1375,15 @@ export const generateMFAPostmanCollection = (
 		username?: string;
 	}
 ): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generateMFAPostmanCollection');
+
 	const collectionName = `PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'}`;
 
 	// Build variables - match PingOne Postman collection format
 	// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
 	// Note: workerToken is NOT included - it's global and obtained separately outside of individual flows
-	const variables: Array<{ key: string; value: string; type?: string }> = [
+	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
 		{
@@ -1359,15 +1810,23 @@ export const generateMFAPostmanCollection = (
 		};
 	});
 
-	return {
+	const finalizedVariables = finalizeVariables(variables, issues, collectionName);
+	const collection: PostmanCollection = {
 		info: {
 			name: collectionName,
 			description: `Postman collection for PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'}. Generated from OAuth Playground.`,
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: variables,
+		variable: finalizedVariables,
 		item: items,
 	};
+
+	validateCollection(collection, issues, collectionName);
+	validateEnvironment(finalizedVariables, issues, collectionName);
+	validatePlaceholders(JSON.stringify(collection), issues, collectionName);
+	issues.printSummary();
+	issues.throwIfErrors();
+	return collection;
 };
 
 /**
@@ -5131,7 +5590,6 @@ const generateUseCasesItems = (
 						'                console.log(`      Expires At: ${session.expiresAt}`);',
 						'            }',
 						'            if (session.lastActivity) {',
-						// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Postman script code where template literals are valid
 						'                console.log(`      Last Activity: ${session.lastActivity}`);',
 						'            }',
 						'        });',
@@ -5144,7 +5602,6 @@ const generateUseCasesItems = (
 						'                pm.expect(sessions[0].id).to.be.a("string").and.not.empty;',
 						'            });',
 						'            ',
-						// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Postman script code where template literals are valid
 						'            console.log("\\n📝 First session ID saved as sessionId:", sessions[0].id);',
 						'            console.log("📝 Proceed to Step 3 to get session details, or Step 4 to delete this session");',
 						'        } else {',
@@ -5262,7 +5719,6 @@ const generateUseCasesItems = (
 						'            console.log("✅ Session deleted successfully (204 No Content)");',
 						'        }',
 						'        ',
-						// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Postman script code where template literals are valid
 						'        console.log("📝 Session", pm.environment.get("sessionId") || "{{sessionId}}", "has been terminated");',
 						'        console.log("📝 User is now logged out from that specific device/browser");',
 						'        console.log("📝 Proceed to Step 6 to verify session has been removed from active sessions list");',
@@ -5495,13 +5951,13 @@ const generateUseCasesItems = (
 						'',
 						'const encodedHeader = base64UrlEncode(JSON.stringify(header));',
 						'const encodedPayload = base64UrlEncode(JSON.stringify(payload));',
-						'const signature = CryptoJS.HmacSHA256(`${encodedHeader}.${encodedPayload}`, clientSecret);',
+						'const signature = CryptoJS.HmacSHA256(encodedHeader + "." + encodedPayload, clientSecret);',
 						'const encodedSignature = CryptoJS.enc.Base64.stringify(signature)',
 						'    .replace(/=+$/g, "")',
 						'    .replace(/\\+/g, "-")',
 						'    .replace(/\\//g, "_");',
 						'',
-						'const jwt = `${encodedHeader}.${encodedPayload}.${encodedSignature}`;',
+						'const jwt = encodedHeader + "." + encodedPayload + "." + encodedSignature;',
 						'pm.environment.set("loginHintJwt", jwt);',
 						'console.log("✅ login_hint_token JWT created and saved");',
 					]
@@ -6177,8 +6633,11 @@ export const generateUseCasesPostmanCollection = (
 	},
 	selectedUseCases?: Set<string>
 ): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generateUseCasesPostmanCollection');
+
 	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string }> = [
+	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
 		{
@@ -6286,6 +6745,7 @@ export const generateUseCasesPostmanCollection = (
 	// Generate use cases items (filtered by selection if provided)
 	const useCasesItems = generateUseCasesItems(credentials, selectedUseCases);
 
+	const finalizedVariables = finalizeVariables(variables, issues, 'Use Cases Collection');
 	const collection: PostmanCollection = {
 		info: {
 			name: 'PingOne Customer Identity Use Cases',
@@ -6294,7 +6754,7 @@ export const generateUseCasesPostmanCollection = (
 				'Postman collection for common customer identity flows for web applications. Each use case contains real PingOne API calls to implement that specific flow. Based on Common Customer Identity Flows (Web) documentation.\n\n**Use Cases Included:**\n\n1. **Sign-up (Registration):** Create account and collect profile attributes\n2. **Sign-in:** Primary authentication using OAuth/OIDC Authorization Code flow with PKCE\n3. **MFA Enrollment:** Add or register an additional factor after initial sign-in\n4. **MFA Challenge:** Prompt for additional factor during sign-in or sensitive actions\n5. **Step-up Authentication:** Re-authenticate for high-risk actions\n6. **Forgot Password / Password Reset:** Self-service password reset flow\n7. **Account Recovery:** Recover when user can\'t complete MFA\n8. **Password recovery for user:** Change password with re-auth/step-up, admin force password change\n9. **Social Login:** Configure external identity providers (Facebook, LinkedIn) for social login\n10. **Partner / Enterprise Federation:** Configure Azure AD for enterprise federation - "Sign in with your organization"\n11. **Risk-based Checks:** Get risk predictors and update risk evaluations using PingOne Protect API\n12. **Logout:** Complete logout workflow including session listing, session termination, token revocation, and token status verification\n\n**Standard Environment Variables:**\n\n**Core Configuration:**\n- `envID` - PingOne Environment ID (UUID format)\n- `authPath` - Authentication base URL (https://auth.pingone.com)\n- `apiPath` - API base URL (https://api.pingone.com)\n\n**Worker Token (Server-to-Server Authentication):**\n- `workerToken` - Worker access token (obtained from Worker Token section, used for admin/management operations)\n- `worker_client_id` - Client ID for worker token generation (typically a service account/client)\n- `worker_client_secret` - Client secret for worker token generation\n\n**User/OAuth Client Credentials (User Authentication Flows):**\n- `user_client_id` - Client ID for OAuth flows (user login, token exchange, token refresh)\n- `user_client_secret` - Client secret for OAuth flows\n- **Note:** These are typically DIFFERENT from worker credentials - set them separately in your environment\n\n**User Information (from Sign-in Step 2 - used across ALL use cases):**\n- `SignInUserID` - User ID created in Sign-in Step 2 (used in all subsequent use cases)\n- `SignInUsername` - Username created in Sign-in Step 2\n- **Important:** All use cases share the same user created in Sign-in - no additional users are created\n\n**Application Information (from Sign-in Step 1):**\n- `webAppSignInWithPKCEId` - Application ID created in Sign-in Step 1 (used in authorization requests)\n\n**OAuth Flow Variables:**\n- `redirect_uri` - OAuth redirect URI\n- `scopes_oidc` - OIDC scopes (e.g., "openid profile email")\n- `authorization_code` - Authorization code from authorization request\n- `access_token` - OAuth access token (user token)\n- `id_token` - OIDC ID token\n- `refresh_token` - OAuth refresh token\n- `code_verifier` - PKCE code verifier\n- `code_challenge` - PKCE code challenge\n- `code_challenge_method` - PKCE method (S256)\n\nGenerated from OAuth Playground.',
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: variables,
+		variable: finalizedVariables,
 		item: [
 			{
 				name: 'Worker Token',
@@ -6309,6 +6769,11 @@ export const generateUseCasesPostmanCollection = (
 		],
 	};
 
+	validateCollection(collection, issues, 'Use Cases Collection');
+	validateEnvironment(finalizedVariables, issues, 'Use Cases Collection');
+	validatePlaceholders(JSON.stringify(collection), issues, 'Use Cases Collection');
+	issues.printSummary();
+	issues.throwIfErrors();
 	// Enhance all descriptions with Variables Saved information
 	return enhanceCollectionDescriptions(collection);
 };
@@ -6322,10 +6787,13 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 	clientId?: string;
 	clientSecret?: string;
 }): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generateComprehensiveUnifiedPostmanCollection');
+
 	const baseUrl = '{{authPath}}/{{envID}}';
 
 	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string }> = [
+	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 		{
 			key: 'envID',
@@ -8447,6 +8915,11 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 		},
 	];
 
+	const finalizedVariables = finalizeVariables(
+		variables,
+		issues,
+		'Unified Comprehensive Collection'
+	);
 	const collection: PostmanCollection = {
 		info: {
 			name: 'PingOne Unified OAuth/OIDC Flows - Complete Collection',
@@ -8455,9 +8928,15 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 				'Comprehensive Postman collection for all PingOne OAuth and OpenID Connect flows. Organized by specification version:\n\n**Understanding Protocol Names:**\n\n1. **OAuth 2.0 Authorization Framework (RFC 6749):** Baseline OAuth framework standard. Provides authorization without authentication. Supports all flow types including Implicit. No ID tokens - only access tokens and refresh tokens.\n\n2. **OpenID Connect Core 1.0:** Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides both authorization AND authentication.\n\n3. **OAuth 2.1 Authorization Framework (draft):** Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). **Note: Still an Internet-Draft, not yet an RFC.** When used with OpenID Connect Core 1.0, this means "OpenID Connect Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".\n\n**Collection Contents:**\n\n**Worker Token:**\n- Get Worker Token (Client Secret Post)\n- Get Worker Token (Client Secret Basic)\n- Get Worker Token (Client Secret JWT)\n- Get Worker Token (Private Key JWT)\n\n**OAuth 2.0 Authorization Framework (RFC 6749):**\n- Authorization Code (simple, no PKCE, no id_token)\n- Implicit Flow (deprecated in OAuth 2.1 (draft), but still part of OAuth 2.0)\n- Client Credentials\n- Device Code Flow\n\n**OpenID Connect Core 1.0:**\n- Authorization Code (simple + optional PKCE, includes id_token)\n- Implicit Flow (deprecated)\n- Hybrid Flow (code id_token)\n- Device Code Flow\n- Introspection & UserInfo\n\n**OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0:**\n- Authorization Code (PKCE REQUIRED, includes id_token)\n- Authorization Code with PKCE and PAR\n- Client Credentials\n- Device Code Flow\n- Introspection & UserInfo\n\nGenerated from OAuth Playground.',
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: variables,
+		variable: finalizedVariables,
 		item: items,
 	};
+
+	validateCollection(collection, issues, 'Unified Comprehensive Collection');
+	validateEnvironment(finalizedVariables, issues, 'Unified Comprehensive Collection');
+	validatePlaceholders(JSON.stringify(collection), issues, 'Unified Comprehensive Collection');
+	issues.printSummary();
+	issues.throwIfErrors();
 
 	// Enhance all descriptions with Variables Saved information
 	return enhanceCollectionDescriptions(collection);
@@ -8471,10 +8950,13 @@ export const generateComprehensiveMFAPostmanCollection = (credentials?: {
 	environmentId?: string;
 	username?: string;
 }): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generateComprehensiveMFAPostmanCollection');
+
 	const deviceTypes = ['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2', 'MOBILE'];
 
 	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string }> = [
+	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
 		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 		{
 			key: 'envID',
@@ -8735,6 +9217,7 @@ export const generateComprehensiveMFAPostmanCollection = (credentials?: {
 		},
 	];
 
+	const finalizedVariables = finalizeVariables(variables, issues, 'MFA Comprehensive Collection');
 	const collection: PostmanCollection = {
 		info: {
 			name: 'PingOne MFA Flows - Complete Collection',
@@ -8743,9 +9226,15 @@ export const generateComprehensiveMFAPostmanCollection = (credentials?: {
 				'Comprehensive Postman collection for all PingOne MFA device types. Includes SMS, Email, WhatsApp, OATH TOTP (RFC 6238), FIDO2, and Mobile device registration and authentication flows. Generated from OAuth Playground.',
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: variables,
+		variable: finalizedVariables,
 		item: items,
 	};
+
+	validateCollection(collection, issues, 'MFA Comprehensive Collection');
+	validateEnvironment(finalizedVariables, issues, 'MFA Comprehensive Collection');
+	validatePlaceholders(JSON.stringify(collection), issues, 'MFA Comprehensive Collection');
+	issues.printSummary();
+	issues.throwIfErrors();
 
 	// Enhance all descriptions with Variables Saved information
 	return enhanceCollectionDescriptions(collection);
@@ -8775,9 +9264,15 @@ export const generatePostmanEnvironment = (
 	collection: PostmanCollection,
 	environmentName: string
 ): PostmanEnvironment => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generatePostmanEnvironment');
+	validateEnvironment(collection.variable, issues, environmentName);
+	issues.printSummary();
+	issues.throwIfErrors();
+
 	const values = collection.variable.map((variable) => ({
 		key: variable.key,
-		value: variable.value || '',
+		value: variable.value,
 		type: (variable.type === 'secret' ? 'secret' : 'default') as 'default' | 'secret',
 		enabled: true,
 	}));
@@ -8840,6 +9335,9 @@ export const generateCompletePostmanCollection = (credentials?: {
 	clientSecret?: string;
 	username?: string;
 }): PostmanCollection => {
+	// Collect generation warnings/errors for this run.
+	const issues = new GenerationIssues('generateCompletePostmanCollection');
+
 	// Generate both collections
 	const unifiedCreds: { environmentId?: string; clientId?: string; clientSecret?: string } = {};
 	if (credentials?.environmentId) unifiedCreds.environmentId = credentials.environmentId;
@@ -8859,7 +9357,10 @@ export const generateCompletePostmanCollection = (credentials?: {
 	);
 
 	// Merge variables (remove duplicates, keep unique keys)
-	const variableMap = new Map<string, { key: string; value: string; type?: string }>();
+	const variableMap = new Map<
+		string,
+		{ key: string; value: string; type?: string; description?: string }
+	>();
 
 	// Add Unified variables first
 	unifiedCollection.variable.forEach((v) => {
@@ -8873,6 +9374,7 @@ export const generateCompletePostmanCollection = (credentials?: {
 
 	// Convert map to array
 	const mergedVariables = Array.from(variableMap.values());
+	const finalizedVariables = finalizeVariables(mergedVariables, issues, 'Complete Collection');
 
 	// Extract Worker Token from unified collection (it's at the top level, first item)
 	const unifiedWorkerTokenItem = unifiedCollection.item.find(
@@ -8919,10 +9421,15 @@ export const generateCompletePostmanCollection = (credentials?: {
 				'Complete Postman collection for all PingOne OAuth 2.0, OpenID Connect, and MFA flows. Includes:\n\n**Unified OAuth/OIDC Flows:**\n- Authorization Code Grant (7 variations)\n- Implicit Flow\n- Client Credentials Flow\n- Device Code Flow\n- Hybrid Flow\n\n**MFA Flows:**\n- SMS Device Registration & Authentication\n- Email Device Registration & Authentication\n- WhatsApp Device Registration & Authentication\n- OATH TOTP (RFC 6238) Device Registration & Authentication\n- FIDO2 Device Registration & Authentication\n- Mobile Device Registration & Authentication\n\nAll flows include educational comments, variable extraction scripts, and complete OAuth login steps for user flows. Generated from OAuth Playground.',
 			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 		},
-		variable: mergedVariables,
+		variable: finalizedVariables,
 		item: items,
 	};
 
+	validateCollection(collection, issues, 'Complete Collection');
+	validateEnvironment(finalizedVariables, issues, 'Complete Collection');
+	validatePlaceholders(JSON.stringify(collection), issues, 'Complete Collection');
+	issues.printSummary();
+	issues.throwIfErrors();
 	// Enhance all descriptions with Variables Saved information
 	return enhanceCollectionDescriptions(collection);
 };
