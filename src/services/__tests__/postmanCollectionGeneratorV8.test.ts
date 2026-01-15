@@ -53,7 +53,7 @@ describe('postmanCollectionGeneratorV8 helpers', () => {
 	it('warns when a value is intentionally blank', () => {
 		// Ensure intentionally blank values always emit warnings.
 		const issues = new GenerationIssues('test-blank');
-		const value = allowBlankButWarn('redirect_uri', '', issues, 'user-fill', { test: true });
+		const value = allowBlankButWarn('redirect_uri', '', issues, { test: true });
 
 		expect(isBlank(value)).toBe(true);
 		expect(issues.getIssues().some((issue) => issue.level === 'warning')).toBe(true);
