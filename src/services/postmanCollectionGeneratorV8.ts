@@ -6,7 +6,7 @@
  */
 
 // Collection version - update this when making breaking changes or major updates
-export const COLLECTION_VERSION = '8.1.10';
+export const COLLECTION_VERSION = '8.1.11';
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
@@ -183,6 +183,9 @@ export class GenerationIssues {
 		return [...this.issues];
 	}
 }
+
+let activeIssues: GenerationIssues | undefined;
+let activeContextLabel: string | undefined;
 
 /**
  * Redact known sensitive fields from logs to avoid leaking secrets.
@@ -640,7 +643,9 @@ const convertEndpointToPostman = (endpoint: string): string => {
  * Parse URL into Postman URL structure
  */
 const parseUrl = (
-	rawUrl: string
+	rawUrl: string,
+	issues?: GenerationIssues,
+	contextLabel?: string
 ): {
 	raw: string;
 	protocol?: string;
@@ -648,6 +653,20 @@ const parseUrl = (
 	path?: string[];
 	query?: Array<{ key: string; value: string }>;
 } => {
+	const issuesCollector = issues ?? activeIssues;
+	const resolvedContext = contextLabel ?? activeContextLabel;
+
+	if (issuesCollector) {
+		const resolvedRawUrl = requireNonBlankString('request.url.raw', rawUrl, issuesCollector, {
+			contextLabel: resolvedContext,
+		});
+		if (resolvedRawUrl === '<<REQUIRED_VALUE_MISSING>>') {
+			throw new Error('Request URL is required and cannot be blank.');
+		}
+	} else if (isBlank(rawUrl)) {
+		throw new Error('Request URL is required and cannot be blank.');
+	}
+
 	// Remove leading slash if present (common mistake that causes /https://api.pingone.com)
 	const normalizedUrl = normalizeUrlForPostman(rawUrl);
 	let cleanedUrl = normalizedUrl.trim();
@@ -721,6 +740,21 @@ const parseUrl = (
 		};
 	}
 
+	const variableHostMatch = cleanedUrl.match(/^\{\{[^}]+\}\}/);
+	if (variableHostMatch) {
+		const queryIndex = cleanedUrl.indexOf('?');
+		if (queryIndex !== -1) {
+			return { raw: cleanedUrl };
+		}
+		const parts = cleanedUrl.split('/').filter(Boolean);
+		const path = parts.slice(1);
+		return {
+			raw: cleanedUrl,
+			host: [variableHostMatch[0]],
+			...(path.length > 0 && { path }),
+		};
+	}
+
 	// Fallback: try to parse as regular URL
 	try {
 		const url = new URL(cleanedUrl);
@@ -750,16 +784,23 @@ const parseUrl = (
 			...(query.length > 0 && { query }),
 		};
 	} catch (error) {
-		console.warn('[POSTMAN-GEN][WARN] URL parsing failed, using raw fallback.', {
-			rawUrl: cleanedUrl,
-			error: error instanceof Error ? error.message : String(error),
-		});
-		// If URL parsing fails, return cleaned URL with basic structure
-		const parts = cleanedUrl.split('/').filter(Boolean);
-		return {
-			raw: cleanedUrl,
-			path: parts,
-		};
+		const errorMessage = error instanceof Error ? error.message : String(error);
+		if (issuesCollector) {
+			issuesCollector.addError('URL_PARSE_FAILED', 'Failed to parse request URL.', {
+				contextLabel: resolvedContext,
+				rawUrl: cleanedUrl,
+				error: errorMessage,
+			});
+		}
+		if (
+			cleanedUrl.startsWith('http://') ||
+			cleanedUrl.startsWith('https://') ||
+			cleanedUrl.includes('{{authPath}}') ||
+			cleanedUrl.includes('{{apiPath}}')
+		) {
+			throw new Error(`Failed to parse request URL: ${cleanedUrl}`);
+		}
+		return { raw: cleanedUrl };
 	}
 };
 
@@ -1045,420 +1086,434 @@ export const generatePostmanCollection = (
 	};
 
 	const collectionName = `PingOne ${flowTypeLabels[flowType]} Flow (${specVersion})`;
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = collectionName;
 
-	// Build variables - match PingOne Postman collection format
-	// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
-	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
-		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{
-			key: 'envID',
-			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
-			type: 'string',
-		},
-	];
+	try {
+		// Build variables - match PingOne Postman collection format
+		// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
+		const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
+			{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
+			{
+				key: 'envID',
+				value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+				type: 'string',
+			},
+		];
 
-	// Worker client credentials (for Worker Token - server-to-server authentication)
-	// ALWAYS use these default values for worker token - do NOT override with authorization credentials
-	variables.push({
-		key: 'worker_client_id',
-		value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
-		type: 'string',
-	});
-	variables.push({
-		key: 'worker_client_secret',
-		value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
-		type: 'secret',
-	});
-
-	// User/OAuth client credentials (for OAuth flows - user authentication)
-	// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
-	if (credentials?.clientId) {
-		variables.push({ key: 'user_client_id', value: credentials.clientId, type: 'string' });
-	} else {
+		// Worker client credentials (for Worker Token - server-to-server authentication)
+		// ALWAYS use these default values for worker token - do NOT override with authorization credentials
 		variables.push({
-			key: 'user_client_id',
+			key: 'worker_client_id',
 			value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
 			type: 'string',
 		});
-	}
-
-	if (credentials?.clientSecret) {
-		variables.push({ key: 'user_client_secret', value: credentials.clientSecret, type: 'secret' });
-	} else {
 		variables.push({
-			key: 'user_client_secret',
+			key: 'worker_client_secret',
 			value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
 			type: 'secret',
 		});
-	}
 
-	// Note: workerToken is NOT included in individual flow collections
-	// Worker token is global and obtained separately outside of individual flows
+		// User/OAuth client credentials (for OAuth flows - user authentication)
+		// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
+		if (credentials?.clientId) {
+			variables.push({ key: 'user_client_id', value: credentials.clientId, type: 'string' });
+		} else {
+			variables.push({
+				key: 'user_client_id',
+				value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
+				type: 'string',
+			});
+		}
 
-	// Build collection items with educational comments and variable extraction scripts
-	const items: PostmanCollectionItem[] = apiCalls.map((apiCall) => {
-		// Get endpoint (prefer actualPingOneUrl if available, otherwise use url)
-		const endpoint = apiCall.actualPingOneUrl || apiCall.url;
-		const postmanUrl = convertEndpointToPostman(endpoint);
-		const urlStructure = parseUrl(postmanUrl);
-		const headers = extractHeaders(apiCall, apiCall.method);
-		const body = convertRequestBody(apiCall.body as Record<string, unknown>, apiCall.method);
+		if (credentials?.clientSecret) {
+			variables.push({
+				key: 'user_client_secret',
+				value: credentials.clientSecret,
+				type: 'secret',
+			});
+		} else {
+			variables.push({
+				key: 'user_client_secret',
+				value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
+				type: 'secret',
+			});
+		}
 
-		// Build comprehensive educational description
-		let educationalDescription = apiCall.step || `${apiCall.method} ${endpoint}`;
+		// Note: workerToken is NOT included in individual flow collections
+		// Worker token is global and obtained separately outside of individual flows
 
-		// Add flow-specific educational context
-		if (endpoint.includes('/as/authorize')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			educationalDescription += '- This is the authorization request step in OAuth 2.0 flow\n';
-			educationalDescription += '- User is redirected to PingOne login page\n';
-			educationalDescription +=
-				'- After authentication, user is redirected back with authorization code\n';
-			educationalDescription += '- Authorization code is single-use and short-lived\n';
-			educationalDescription += '- State parameter should be validated to prevent CSRF attacks\n';
-			if (endpoint.includes('code_challenge')) {
+		// Build collection items with educational comments and variable extraction scripts
+		const items: PostmanCollectionItem[] = apiCalls.map((apiCall) => {
+			// Get endpoint (prefer actualPingOneUrl if available, otherwise use url)
+			const endpoint = apiCall.actualPingOneUrl || apiCall.url;
+			const postmanUrl = convertEndpointToPostman(endpoint);
+			const urlStructure = parseUrl(postmanUrl);
+			const headers = extractHeaders(apiCall, apiCall.method);
+			const body = convertRequestBody(apiCall.body as Record<string, unknown>, apiCall.method);
+
+			// Build comprehensive educational description
+			let educationalDescription = apiCall.step || `${apiCall.method} ${endpoint}`;
+
+			// Add flow-specific educational context
+			if (endpoint.includes('/as/authorize')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				educationalDescription += '- This is the authorization request step in OAuth 2.0 flow\n';
+				educationalDescription += '- User is redirected to PingOne login page\n';
 				educationalDescription +=
-					'- PKCE (Proof Key for Code Exchange) is used for enhanced security\n';
-				educationalDescription += '- code_challenge is sent in this request (public value)\n';
-			}
-		} else if (endpoint.includes('/as/token')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			if (apiCall.body && typeof apiCall.body === 'object') {
-				const body = apiCall.body as Record<string, unknown>;
-				if (body.grant_type === 'authorization_code') {
+					'- After authentication, user is redirected back with authorization code\n';
+				educationalDescription += '- Authorization code is single-use and short-lived\n';
+				educationalDescription += '- State parameter should be validated to prevent CSRF attacks\n';
+				if (endpoint.includes('code_challenge')) {
 					educationalDescription +=
-						'- Exchanges authorization code for access token and ID token\n';
-					educationalDescription +=
-						'- Authorization code must match the one from authorization request\n';
-					educationalDescription +=
-						'- redirect_uri must match the one used in authorization request\n';
-					if (body.code_verifier) {
-						educationalDescription +=
-							'- code_verifier must match code_challenge from authorization request\n';
-						educationalDescription +=
-							'- Server verifies: SHA256(code_verifier) === code_challenge\n';
-					}
-				} else if (body.grant_type === 'client_credentials') {
-					educationalDescription +=
-						'- Client Credentials grant for server-to-server authentication\n';
-					educationalDescription += '- No user interaction required\n';
-					educationalDescription += '- Returns access token for API calls\n';
-				} else if (body.grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
-					educationalDescription += '- Device Code grant for devices without browsers\n';
-					educationalDescription += '- Polls for tokens after user authorizes on another device\n';
-					educationalDescription += '- Returns access token when user completes authorization\n';
+						'- PKCE (Proof Key for Code Exchange) is used for enhanced security\n';
+					educationalDescription += '- code_challenge is sent in this request (public value)\n';
 				}
-			}
-			educationalDescription +=
-				'- Response includes access_token, id_token (if OIDC), and refresh_token (if requested)\n';
-		} else if (endpoint.includes('/as/introspect')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			educationalDescription += '- Token introspection validates and returns token information\n';
-			educationalDescription += '- Requires worker token for authentication\n';
-			educationalDescription += '- Returns token metadata (active, exp, scopes, etc.)\n';
-		} else if (endpoint.includes('/as/userinfo')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			educationalDescription += '- UserInfo endpoint returns user identity claims\n';
-			educationalDescription += '- Requires access token in Authorization header\n';
-			educationalDescription += '- Returns user information (sub, name, email, etc.)\n';
-		} else if (endpoint.includes('/as/device_authorization')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			educationalDescription += '- Device Authorization Request (RFC 8628)\n';
-			educationalDescription += '- Returns device_code and user_code for device flow\n';
-			educationalDescription += '- User enters user_code on another device to authorize\n';
-		} else if (endpoint.includes('/as/par')) {
-			educationalDescription += '\n\n**Educational Context:**\n';
-			educationalDescription += '- Pushed Authorization Request (PAR, RFC 9126)\n';
-			educationalDescription += '- Pushes authorization parameters to server before redirect\n';
-			educationalDescription += '- Returns request_uri that is used in authorization URL\n';
-			educationalDescription += '- More secure than sending all parameters in URL\n';
-		}
-
-		// Determine what variables to extract based on endpoint and response
-		const events: Array<{
-			listen: 'prerequest' | 'test';
-			script: { exec: string[]; type: string };
-		}> = [];
-
-		// Add test script to extract variables from response
-		if (endpoint.includes('/as/token')) {
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - Token Exchange Completed", function() {',
-						'    pm.response.to.have.status(200);',
-						'});',
-						'',
-						'// ============================================',
-						'// Token Extraction Script',
-						'// ============================================',
-						'// This script automatically extracts tokens from the token exchange response',
-						'// and saves them to environment variables for use in subsequent requests.',
-						'',
-						'try {',
-						'    if (pm.response.code === 200) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract access token (used for API authentication)',
-						'        if (jsonData.access_token) {',
-						'            pm.environment.set("access_token", jsonData.access_token);',
-						'            ',
-						'            pm.test("✅ Access Token was saved to variable access_token", function() {',
-						'                pm.expect(jsonData.access_token, "Access token should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Access token saved to environment");',
-						'        }',
-						'        ',
-						'        // Extract ID token (contains user identity claims)',
-						'        if (jsonData.id_token) {',
-						'            pm.environment.set("id_token", jsonData.id_token);',
-						'            ',
-						'            pm.test("✅ ID Token was saved to variable id_token", function() {',
-						'                pm.expect(jsonData.id_token, "ID token should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ ID token saved to environment");',
-						'        }',
-						'        ',
-						'        // Extract refresh token (used to get new access tokens)',
-						'        if (jsonData.refresh_token) {',
-						'            pm.environment.set("refresh_token", jsonData.refresh_token);',
-						'            ',
-						'            pm.test("✅ Refresh Token was saved to variable refresh_token", function() {',
-						'                pm.expect(jsonData.refresh_token, "Refresh token should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Refresh token saved to environment");',
-						'        }',
-						'        ',
-						'        // Extract token expiration time',
-						'        if (jsonData.expires_in) {',
-						'            pm.environment.set("expires_in", jsonData.expires_in);',
-						'        }',
-						'        ',
-						'        pm.test("✅ Response contains token information", function() {',
-						'            pm.expect(jsonData).to.have.property("access_token");',
-						'            pm.expect(jsonData).to.have.property("token_type", "Bearer");',
-						'        });',
-						'    } else {',
-						'        console.log("❌ Token exchange failed:", pm.response.code);',
-						'        console.log("Response:", pm.response.text());',
-						'        pm.test("❌ Token exchange should return 200", function() {',
-						'            pm.expect.fail("Token exchange failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		} else if (endpoint.includes('/as/device_authorization')) {
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - Device Authorization Completed", function() {',
-						'    pm.response.to.have.status(200);',
-						'});',
-						'',
-						'// ============================================',
-						'// Device Code Extraction Script',
-						'// ============================================',
-						'// This script extracts device_code and user_code from device authorization response',
-						'',
-						'try {',
-						'    if (pm.response.code === 200) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract device_code (used for polling tokens)',
-						'        if (jsonData.device_code) {',
-						'            pm.environment.set("device_code", jsonData.device_code);',
-						'            ',
-						'            pm.test("✅ Device Code was saved to variable device_code", function() {',
-						'                pm.expect(jsonData.device_code, "Device code should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Device code saved to environment");',
-						'        }',
-						'        ',
-						'        // Extract user_code (display to user for authorization)',
-						'        if (jsonData.user_code) {',
-						'            pm.environment.set("user_code", jsonData.user_code);',
-						'            ',
-						'            pm.test("✅ User Code was saved to variable user_code", function() {',
-						'                pm.expect(jsonData.user_code, "User code should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ User code saved to environment:", jsonData.user_code);',
-						'        }',
-						'        ',
-						'        // Extract verification URI',
-						'        if (jsonData.verification_uri) {',
-						'            pm.environment.set("verification_uri", jsonData.verification_uri);',
-						'            console.log("✅ Verification URI:", jsonData.verification_uri);',
-						'        }',
-						'        ',
-						'        // Extract expiration time',
-						'        if (jsonData.expires_in) {',
-						'            pm.environment.set("device_code_expires_in", jsonData.expires_in);',
-						'        }',
-						'        ',
-						'        // Extract polling interval',
-						'        if (jsonData.interval) {',
-						'            pm.environment.set("polling_interval", jsonData.interval);',
-						'        }',
-						'        ',
-						'        pm.test("✅ Response contains device authorization codes", function() {',
-						'            pm.expect(jsonData).to.have.property("device_code");',
-						'            pm.expect(jsonData).to.have.property("user_code");',
-						'        });',
-						'    } else {',
-						'        console.log("❌ Device authorization failed:", pm.response.code);',
-						'        pm.test("❌ Device authorization should return 200", function() {',
-						'            pm.expect.fail("Device authorization failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		} else if (endpoint.includes('/as/par')) {
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - PAR Request Completed", function() {',
-						'    pm.response.to.have.status(201);',
-						'});',
-						'',
-						'// ============================================',
-						'// PAR Request URI Extraction Script',
-						'// ============================================',
-						'// This script extracts request_uri from PAR response',
-						'',
-						'try {',
-						'    if (pm.response.code === 201) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract request_uri (used in authorization URL)',
-						'        if (jsonData.request_uri) {',
-						'            pm.environment.set("request_uri", jsonData.request_uri);',
-						'            ',
-						'            pm.test("✅ Request URI was saved to variable request_uri", function() {',
-						'                pm.expect(jsonData.request_uri, "Request URI should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Request URI saved to environment");',
-						'        }',
-						'        ',
-						'        // Extract expiration time',
-						'        if (jsonData.expires_in) {',
-						'            pm.environment.set("par_expires_in", jsonData.expires_in);',
-						'        }',
-						'        ',
-						'        pm.test("✅ Response contains request_uri", function() {',
-						'            pm.expect(jsonData).to.have.property("request_uri");',
-						'        });',
-						'    } else {',
-						'        console.log("❌ PAR request failed:", pm.response.code);',
-						'        pm.test("❌ PAR request should return 201", function() {',
-						'            pm.expect.fail("PAR request failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		}
-
-		// Extract variables saved from test scripts and add to description
-		const savedVariables: string[] = [];
-		events.forEach((event) => {
-			if (event.listen === 'test') {
-				event.script.exec.forEach((line) => {
-					const match = line.match(/pm\.environment\.set\(["']([^"']+)["']/);
-					if (match?.[1]) {
-						savedVariables.push(match[1]);
+			} else if (endpoint.includes('/as/token')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				if (apiCall.body && typeof apiCall.body === 'object') {
+					const body = apiCall.body as Record<string, unknown>;
+					if (body.grant_type === 'authorization_code') {
+						educationalDescription +=
+							'- Exchanges authorization code for access token and ID token\n';
+						educationalDescription +=
+							'- Authorization code must match the one from authorization request\n';
+						educationalDescription +=
+							'- redirect_uri must match the one used in authorization request\n';
+						if (body.code_verifier) {
+							educationalDescription +=
+								'- code_verifier must match code_challenge from authorization request\n';
+							educationalDescription +=
+								'- Server verifies: SHA256(code_verifier) === code_challenge\n';
+						}
+					} else if (body.grant_type === 'client_credentials') {
+						educationalDescription +=
+							'- Client Credentials grant for server-to-server authentication\n';
+						educationalDescription += '- No user interaction required\n';
+						educationalDescription += '- Returns access token for API calls\n';
+					} else if (body.grant_type === 'urn:ietf:params:oauth:grant-type:device_code') {
+						educationalDescription += '- Device Code grant for devices without browsers\n';
+						educationalDescription +=
+							'- Polls for tokens after user authorizes on another device\n';
+						educationalDescription += '- Returns access token when user completes authorization\n';
 					}
+				}
+				educationalDescription +=
+					'- Response includes access_token, id_token (if OIDC), and refresh_token (if requested)\n';
+			} else if (endpoint.includes('/as/introspect')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				educationalDescription += '- Token introspection validates and returns token information\n';
+				educationalDescription += '- Requires worker token for authentication\n';
+				educationalDescription += '- Returns token metadata (active, exp, scopes, etc.)\n';
+			} else if (endpoint.includes('/as/userinfo')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				educationalDescription += '- UserInfo endpoint returns user identity claims\n';
+				educationalDescription += '- Requires access token in Authorization header\n';
+				educationalDescription += '- Returns user information (sub, name, email, etc.)\n';
+			} else if (endpoint.includes('/as/device_authorization')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				educationalDescription += '- Device Authorization Request (RFC 8628)\n';
+				educationalDescription += '- Returns device_code and user_code for device flow\n';
+				educationalDescription += '- User enters user_code on another device to authorize\n';
+			} else if (endpoint.includes('/as/par')) {
+				educationalDescription += '\n\n**Educational Context:**\n';
+				educationalDescription += '- Pushed Authorization Request (PAR, RFC 9126)\n';
+				educationalDescription += '- Pushes authorization parameters to server before redirect\n';
+				educationalDescription += '- Returns request_uri that is used in authorization URL\n';
+				educationalDescription += '- More secure than sending all parameters in URL\n';
+			}
+
+			// Determine what variables to extract based on endpoint and response
+			const events: Array<{
+				listen: 'prerequest' | 'test';
+				script: { exec: string[]; type: string };
+			}> = [];
+
+			// Add test script to extract variables from response
+			if (endpoint.includes('/as/token')) {
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - Token Exchange Completed", function() {',
+							'    pm.response.to.have.status(200);',
+							'});',
+							'',
+							'// ============================================',
+							'// Token Extraction Script',
+							'// ============================================',
+							'// This script automatically extracts tokens from the token exchange response',
+							'// and saves them to environment variables for use in subsequent requests.',
+							'',
+							'try {',
+							'    if (pm.response.code === 200) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract access token (used for API authentication)',
+							'        if (jsonData.access_token) {',
+							'            pm.environment.set("access_token", jsonData.access_token);',
+							'            ',
+							'            pm.test("✅ Access Token was saved to variable access_token", function() {',
+							'                pm.expect(jsonData.access_token, "Access token should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Access token saved to environment");',
+							'        }',
+							'        ',
+							'        // Extract ID token (contains user identity claims)',
+							'        if (jsonData.id_token) {',
+							'            pm.environment.set("id_token", jsonData.id_token);',
+							'            ',
+							'            pm.test("✅ ID Token was saved to variable id_token", function() {',
+							'                pm.expect(jsonData.id_token, "ID token should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ ID token saved to environment");',
+							'        }',
+							'        ',
+							'        // Extract refresh token (used to get new access tokens)',
+							'        if (jsonData.refresh_token) {',
+							'            pm.environment.set("refresh_token", jsonData.refresh_token);',
+							'            ',
+							'            pm.test("✅ Refresh Token was saved to variable refresh_token", function() {',
+							'                pm.expect(jsonData.refresh_token, "Refresh token should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Refresh token saved to environment");',
+							'        }',
+							'        ',
+							'        // Extract token expiration time',
+							'        if (jsonData.expires_in) {',
+							'            pm.environment.set("expires_in", jsonData.expires_in);',
+							'        }',
+							'        ',
+							'        pm.test("✅ Response contains token information", function() {',
+							'            pm.expect(jsonData).to.have.property("access_token");',
+							'            pm.expect(jsonData).to.have.property("token_type", "Bearer");',
+							'        });',
+							'    } else {',
+							'        console.log("❌ Token exchange failed:", pm.response.code);',
+							'        console.log("Response:", pm.response.text());',
+							'        pm.test("❌ Token exchange should return 200", function() {',
+							'            pm.expect.fail("Token exchange failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			} else if (endpoint.includes('/as/device_authorization')) {
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - Device Authorization Completed", function() {',
+							'    pm.response.to.have.status(200);',
+							'});',
+							'',
+							'// ============================================',
+							'// Device Code Extraction Script',
+							'// ============================================',
+							'// This script extracts device_code and user_code from device authorization response',
+							'',
+							'try {',
+							'    if (pm.response.code === 200) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract device_code (used for polling tokens)',
+							'        if (jsonData.device_code) {',
+							'            pm.environment.set("device_code", jsonData.device_code);',
+							'            ',
+							'            pm.test("✅ Device Code was saved to variable device_code", function() {',
+							'                pm.expect(jsonData.device_code, "Device code should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Device code saved to environment");',
+							'        }',
+							'        ',
+							'        // Extract user_code (display to user for authorization)',
+							'        if (jsonData.user_code) {',
+							'            pm.environment.set("user_code", jsonData.user_code);',
+							'            ',
+							'            pm.test("✅ User Code was saved to variable user_code", function() {',
+							'                pm.expect(jsonData.user_code, "User code should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ User code saved to environment:", jsonData.user_code);',
+							'        }',
+							'        ',
+							'        // Extract verification URI',
+							'        if (jsonData.verification_uri) {',
+							'            pm.environment.set("verification_uri", jsonData.verification_uri);',
+							'            console.log("✅ Verification URI:", jsonData.verification_uri);',
+							'        }',
+							'        ',
+							'        // Extract expiration time',
+							'        if (jsonData.expires_in) {',
+							'            pm.environment.set("device_code_expires_in", jsonData.expires_in);',
+							'        }',
+							'        ',
+							'        // Extract polling interval',
+							'        if (jsonData.interval) {',
+							'            pm.environment.set("polling_interval", jsonData.interval);',
+							'        }',
+							'        ',
+							'        pm.test("✅ Response contains device authorization codes", function() {',
+							'            pm.expect(jsonData).to.have.property("device_code");',
+							'            pm.expect(jsonData).to.have.property("user_code");',
+							'        });',
+							'    } else {',
+							'        console.log("❌ Device authorization failed:", pm.response.code);',
+							'        pm.test("❌ Device authorization should return 200", function() {',
+							'            pm.expect.fail("Device authorization failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			} else if (endpoint.includes('/as/par')) {
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - PAR Request Completed", function() {',
+							'    pm.response.to.have.status(201);',
+							'});',
+							'',
+							'// ============================================',
+							'// PAR Request URI Extraction Script',
+							'// ============================================',
+							'// This script extracts request_uri from PAR response',
+							'',
+							'try {',
+							'    if (pm.response.code === 201) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract request_uri (used in authorization URL)',
+							'        if (jsonData.request_uri) {',
+							'            pm.environment.set("request_uri", jsonData.request_uri);',
+							'            ',
+							'            pm.test("✅ Request URI was saved to variable request_uri", function() {',
+							'                pm.expect(jsonData.request_uri, "Request URI should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Request URI saved to environment");',
+							'        }',
+							'        ',
+							'        // Extract expiration time',
+							'        if (jsonData.expires_in) {',
+							'            pm.environment.set("par_expires_in", jsonData.expires_in);',
+							'        }',
+							'        ',
+							'        pm.test("✅ Response contains request_uri", function() {',
+							'            pm.expect(jsonData).to.have.property("request_uri");',
+							'        });',
+							'    } else {',
+							'        console.log("❌ PAR request failed:", pm.response.code);',
+							'        pm.test("❌ PAR request should return 201", function() {',
+							'            pm.expect.fail("PAR request failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
 				});
 			}
+
+			// Extract variables saved from test scripts and add to description
+			const savedVariables: string[] = [];
+			events.forEach((event) => {
+				if (event.listen === 'test') {
+					event.script.exec.forEach((line) => {
+						const match = line.match(/pm\.environment\.set\(["']([^"']+)["']/);
+						if (match?.[1]) {
+							savedVariables.push(match[1]);
+						}
+					});
+				}
+			});
+
+			// Enhance description with Variables Saved section if variables are saved
+			let enhancedDescription = educationalDescription;
+			if (savedVariables.length > 0) {
+				const uniqueVariables = [...new Set(savedVariables)];
+				enhancedDescription += '\n\n**Variables Saved:**\n';
+				uniqueVariables.forEach((varName) => {
+					// Add helpful descriptions for common variables
+					const varDescriptions: Record<string, string> = {
+						access_token: 'Access token for API authentication (Bearer token)',
+						id_token: 'ID token containing user identity claims (OIDC)',
+						refresh_token: 'Refresh token for obtaining new access tokens',
+						expires_in: 'Token expiration time in seconds',
+						device_code: 'Device code for polling token endpoint',
+						user_code: 'User code to display for authorization',
+						verification_uri: 'URI where user enters the user code',
+						device_code_expires_in: 'Device code expiration time in seconds',
+						polling_interval: 'Recommended polling interval in seconds',
+						request_uri: 'Request URI for PAR (Pushed Authorization Request)',
+						par_expires_in: 'PAR request URI expiration time in seconds',
+					};
+					const description =
+						varDescriptions[varName] || 'Saved to environment for use in subsequent requests';
+					enhancedDescription += `- \`${varName}\` - ${description}\n`;
+				});
+			}
+
+			return {
+				name: apiCall.step || `${apiCall.method} ${endpoint}`,
+				request: {
+					method: apiCall.method,
+					...(headers.length > 0 && { header: headers }),
+					...(body && { body }),
+					url: urlStructure,
+					description: enhancedDescription,
+				},
+				...(events.length > 0 && { event: events }),
+			};
 		});
 
-		// Enhance description with Variables Saved section if variables are saved
-		let enhancedDescription = educationalDescription;
-		if (savedVariables.length > 0) {
-			const uniqueVariables = [...new Set(savedVariables)];
-			enhancedDescription += '\n\n**Variables Saved:**\n';
-			uniqueVariables.forEach((varName) => {
-				// Add helpful descriptions for common variables
-				const varDescriptions: Record<string, string> = {
-					access_token: 'Access token for API authentication (Bearer token)',
-					id_token: 'ID token containing user identity claims (OIDC)',
-					refresh_token: 'Refresh token for obtaining new access tokens',
-					expires_in: 'Token expiration time in seconds',
-					device_code: 'Device code for polling token endpoint',
-					user_code: 'User code to display for authorization',
-					verification_uri: 'URI where user enters the user code',
-					device_code_expires_in: 'Device code expiration time in seconds',
-					polling_interval: 'Recommended polling interval in seconds',
-					request_uri: 'Request URI for PAR (Pushed Authorization Request)',
-					par_expires_in: 'PAR request URI expiration time in seconds',
-				};
-				const description =
-					varDescriptions[varName] || 'Saved to environment for use in subsequent requests';
-				enhancedDescription += `- \`${varName}\` - ${description}\n`;
-			});
-		}
-
-		return {
-			name: apiCall.step || `${apiCall.method} ${endpoint}`,
-			request: {
-				method: apiCall.method,
-				...(headers.length > 0 && { header: headers }),
-				...(body && { body }),
-				url: urlStructure,
-				description: enhancedDescription,
+		const finalizedVariables = finalizeVariables(variables, issues, collectionName);
+		const collection: PostmanCollection = {
+			info: {
+				name: collectionName,
+				description: `Postman collection for PingOne ${flowTypeLabels[flowType]} Flow (${specVersion}). Generated from OAuth Playground.`,
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 			},
-			...(events.length > 0 && { event: events }),
+			variable: finalizedVariables,
+			item: items,
 		};
-	});
 
-	const finalizedVariables = finalizeVariables(variables, issues, collectionName);
-	const collection: PostmanCollection = {
-		info: {
-			name: collectionName,
-			description: `Postman collection for PingOne ${flowTypeLabels[flowType]} Flow (${specVersion}). Generated from OAuth Playground.`,
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: items,
-	};
-
-	validateCollection(collection, issues, collectionName);
-	validateEnvironment(finalizedVariables, issues, collectionName);
-	validatePlaceholders(JSON.stringify(collection), issues, collectionName);
-	issues.printSummary();
-	issues.throwIfErrors();
-	return collection;
+		validateCollection(collection, issues, collectionName);
+		validateEnvironment(finalizedVariables, issues, collectionName);
+		validatePlaceholders(JSON.stringify(collection), issues, collectionName);
+		issues.printSummary();
+		issues.throwIfErrors();
+		return collection;
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
+	}
 };
 
 /**
@@ -1485,454 +1540,471 @@ export const generateMFAPostmanCollection = (
 	const issues = new GenerationIssues('generateMFAPostmanCollection');
 
 	const collectionName = `PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'}`;
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = collectionName;
 
-	// Build variables - match PingOne Postman collection format
-	// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
-	// Note: workerToken is NOT included - it's global and obtained separately outside of individual flows
-	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
-		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
-		{
-			key: 'envID',
-			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
-			type: 'string',
-		},
-		{ key: 'username', value: credentials?.username || '', type: 'string' },
-		{ key: 'userId', value: '', type: 'string' },
-		{ key: 'deviceId', value: '', type: 'string' },
-		{ key: 'deviceAuthenticationPolicyId', value: '', type: 'string' },
-		{ key: 'deviceAuthenticationId', value: '', type: 'string' },
-		{ key: 'otp_code', value: '', type: 'string' },
-	];
+	try {
+		// Build variables - match PingOne Postman collection format
+		// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#the-pingone-postman-environment-template
+		// Note: workerToken is NOT included - it's global and obtained separately outside of individual flows
+		const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
+			{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
+			{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
+			{
+				key: 'envID',
+				value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+				type: 'string',
+			},
+			{ key: 'username', value: credentials?.username || '', type: 'string' },
+			{ key: 'userId', value: '', type: 'string' },
+			{ key: 'deviceId', value: '', type: 'string' },
+			{ key: 'deviceAuthenticationPolicyId', value: '', type: 'string' },
+			{ key: 'deviceAuthenticationId', value: '', type: 'string' },
+			{ key: 'otp_code', value: '', type: 'string' },
+		];
 
-	// Build collection items
-	const items: PostmanCollectionItem[] = apiCalls.map((apiCall) => {
-		const postmanUrl = convertEndpointToPostman(apiCall.endpoint);
-		const urlStructure = parseUrl(postmanUrl);
+		// Build collection items
+		const items: PostmanCollectionItem[] = apiCalls.map((apiCall) => {
+			const postmanUrl = convertEndpointToPostman(apiCall.endpoint);
+			const urlStructure = parseUrl(postmanUrl);
 
-		// Extract headers
-		const headers: Array<{ key: string; value: string; type?: string }> = [];
+			// Extract headers
+			const headers: Array<{ key: string; value: string; type?: string }> = [];
 
-		// Add Content-Type
-		if (['POST', 'PUT', 'PATCH'].includes(apiCall.method)) {
-			if (apiCall.endpoint.includes('deviceAuthentications')) {
-				// Check for special content types
-				if (apiCall.description?.toLowerCase().includes('assertion')) {
-					headers.push({
-						key: 'Content-Type',
-						value: 'application/vnd.pingidentity.assertion.check+json',
-					});
-				} else if (apiCall.description?.toLowerCase().includes('select')) {
-					headers.push({
-						key: 'Content-Type',
-						value: 'application/vnd.pingidentity.device.select+json',
-					});
+			// Add Content-Type
+			if (['POST', 'PUT', 'PATCH'].includes(apiCall.method)) {
+				if (apiCall.endpoint.includes('deviceAuthentications')) {
+					// Check for special content types
+					if (apiCall.description?.toLowerCase().includes('assertion')) {
+						headers.push({
+							key: 'Content-Type',
+							value: 'application/vnd.pingidentity.assertion.check+json',
+						});
+					} else if (apiCall.description?.toLowerCase().includes('select')) {
+						headers.push({
+							key: 'Content-Type',
+							value: 'application/vnd.pingidentity.device.select+json',
+						});
+					} else {
+						headers.push({ key: 'Content-Type', value: 'application/json' });
+					}
 				} else {
 					headers.push({ key: 'Content-Type', value: 'application/json' });
 				}
-			} else {
-				headers.push({ key: 'Content-Type', value: 'application/json' });
 			}
-		}
 
-		// Add Authorization header based on flow type
-		// Note: Individual flow collections don't include workerToken
-		// User flows use userToken, admin flows would use workerToken (but workerToken is global)
-		if (apiCall.requestBody && typeof apiCall.requestBody === 'object') {
-			const body = apiCall.requestBody as Record<string, unknown>;
-			// Check if this is a user flow step (has userToken) or admin flow step
-			if (
-				apiCall.step.includes('Authorization Code') ||
-				apiCall.step.includes('Exchange') ||
-				apiCall.step.includes('Token')
-			) {
-				// User flow - uses userToken from OAuth login
-				headers.push({
-					key: 'Authorization',
-					value: 'Bearer {{userToken}}',
-				});
-			} else if (body.workerToken) {
-				// Admin flow - but note: workerToken is global, not in individual collections
-				// This is for reference only - actual collections won't include workerToken
-				headers.push({
-					key: 'Authorization',
-					value: 'Bearer {{workerToken}}',
-				});
-			} else if (apiCall.endpoint.includes('/users') || apiCall.endpoint.includes('/devices')) {
-				// Most MFA API calls require authorization
-				// Default to userToken for user flows, workerToken for admin flows
-				// Since we don't know the flow type here, we'll use a variable that can be set
-				headers.push({
-					key: 'Authorization',
-					value: 'Bearer {{userToken}}',
-				});
-			}
-		}
-
-		// Convert request body
-		const body = convertRequestBody(apiCall.requestBody, apiCall.method);
-
-		// Build comprehensive educational description
-		let educationalDescription = apiCall.description || '';
-
-		// Add notes as educational content if available
-		if (apiCall.notes && apiCall.notes.length > 0) {
-			educationalDescription += '\n\n**Educational Notes:**\n';
-			apiCall.notes.forEach((note) => {
-				educationalDescription += `- ${note}\n`;
-			});
-		}
-
-		// Add flow context if available
-		if (apiCall.step.includes('Worker Token')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- This is the first step in Admin Flow\n';
-			educationalDescription += '- Worker tokens are used for administrative operations\n';
-			educationalDescription += '- No user login is required for this token\n';
-			educationalDescription +=
-				'- Permissions are controlled by roles assigned to the client application\n';
-			educationalDescription +=
-				'- **Note:** Worker token is obtained separately and is not included in individual flow collections\n';
-		} else if (
-			apiCall.step.includes('Authorization Code') ||
-			apiCall.step.includes('Build Authorization URL')
-		) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- This is part of User Flow (OAuth 2.0 Authorization Code Flow)\n';
-			educationalDescription += '- User must authenticate with PingOne before proceeding\n';
-			educationalDescription += '- After login, user is redirected back with authorization code\n';
-			educationalDescription += '- Authorization code is exchanged for access token (userToken)\n';
-		} else if (apiCall.step.includes('Exchange') && apiCall.step.includes('Token')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- Exchanges authorization code for access token (userToken)\n';
-			educationalDescription += '- userToken is used for subsequent MFA device operations\n';
-			educationalDescription += '- Token is automatically extracted and saved by the test script\n';
-		} else if (apiCall.step.includes('Get User ID') || apiCall.step.includes('User Lookup')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- This step retrieves the user ID needed for device operations\n';
-			educationalDescription += '- The userId will be used in subsequent API calls\n';
-			educationalDescription +=
-				'- User ID is automatically extracted and saved by the test script\n';
-		} else if (apiCall.step.includes('Create') && apiCall.step.includes('Device')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
+			// Add Authorization header based on flow type
+			// Note: Individual flow collections don't include workerToken
+			// User flows use userToken, admin flows would use workerToken (but workerToken is global)
 			if (apiCall.requestBody && typeof apiCall.requestBody === 'object') {
 				const body = apiCall.requestBody as Record<string, unknown>;
-				if (body.status === 'ACTIVE') {
-					educationalDescription += '- Device is created with ACTIVE status (Admin Flow)\n';
-					educationalDescription += '- Device is immediately usable, no OTP activation required\n';
-					educationalDescription += '- This is only possible with worker token (Admin Flow)\n';
-				} else if (body.status === 'ACTIVATION_REQUIRED') {
-					educationalDescription += '- Device is created with ACTIVATION_REQUIRED status\n';
-					educationalDescription += '- PingOne automatically sends OTP to the device\n';
-					educationalDescription += '- User must activate device with OTP before first use\n';
-					educationalDescription +=
-						'- User Flow always uses ACTIVATION_REQUIRED (security requirement)\n';
+				// Check if this is a user flow step (has userToken) or admin flow step
+				if (
+					apiCall.step.includes('Authorization Code') ||
+					apiCall.step.includes('Exchange') ||
+					apiCall.step.includes('Token')
+				) {
+					// User flow - uses userToken from OAuth login
+					headers.push({
+						key: 'Authorization',
+						value: 'Bearer {{userToken}}',
+					});
+				} else if (body.workerToken) {
+					// Admin flow - but note: workerToken is global, not in individual collections
+					// This is for reference only - actual collections won't include workerToken
+					headers.push({
+						key: 'Authorization',
+						value: 'Bearer {{workerToken}}',
+					});
+				} else if (apiCall.endpoint.includes('/users') || apiCall.endpoint.includes('/devices')) {
+					// Most MFA API calls require authorization
+					// Default to userToken for user flows, workerToken for admin flows
+					// Since we don't know the flow type here, we'll use a variable that can be set
+					headers.push({
+						key: 'Authorization',
+						value: 'Bearer {{userToken}}',
+					});
 				}
 			}
-			educationalDescription +=
-				'- Device ID is automatically extracted and saved by the test script\n';
-			educationalDescription += '- Policy ID links the device to an MFA authentication policy\n';
-		} else if (apiCall.step.includes('Activate')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription +=
-				'- This step activates a device that was created with ACTIVATION_REQUIRED status\n';
-			educationalDescription +=
-				'- OTP code is received via SMS/Email/WhatsApp/OATH TOTP (RFC 6238) app\n';
-			educationalDescription += '- After successful activation, device status changes to ACTIVE\n';
-			educationalDescription += '- Device can now be used for MFA authentication\n';
-		} else if (apiCall.step.includes('Initialize Device Authentication')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- This starts the MFA authentication process\n';
-			educationalDescription += '- PingOne sends OTP to the selected device\n';
-			educationalDescription += '- Device Authentication ID is automatically extracted and saved\n';
-			educationalDescription += '- This ID is used in subsequent authentication steps\n';
-		} else if (apiCall.step.includes('Check OTP')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- User enters OTP code received on their device\n';
-			educationalDescription += '- OTP is validated against the device authentication session\n';
-			educationalDescription += '- If valid, authentication proceeds to completion\n';
-		} else if (apiCall.step.includes('Complete Authentication')) {
-			educationalDescription += '\n\n**Flow Context:**\n';
-			educationalDescription += '- This finalizes the MFA authentication process\n';
-			educationalDescription += '- Authentication is now complete and user can proceed\n';
-		}
 
-		// Determine what variables to extract based on endpoint and response
-		const events: Array<{
-			listen: 'prerequest' | 'test';
-			script: { exec: string[]; type: string };
-		}> = [];
+			// Convert request body
+			const body = convertRequestBody(apiCall.requestBody, apiCall.method);
 
-		// Add test script to extract variables from response
-		if (
-			apiCall.endpoint.includes('/users') &&
-			apiCall.method === 'GET' &&
-			apiCall.step.includes('User ID')
-		) {
-			// Extract userId from user lookup response
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - User Lookup Completed", function() {',
-						'    pm.response.to.have.status(200);',
-						'});',
-						'',
-						'// ============================================',
-						'// User ID Extraction Script',
-						'// ============================================',
-						'// This script extracts the user ID from the user lookup response',
-						'// The userId is used in subsequent device operations',
-						'',
-						'try {',
-						'    if (pm.response.code === 200) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract userId from embedded users array',
-						'        if (jsonData._embedded && jsonData._embedded.users && jsonData._embedded.users.length > 0) {',
-						'            const userId = jsonData._embedded.users[0].id;',
-						'            pm.environment.set("userId", userId);',
-						'            ',
-						'            pm.test("✅ User ID was saved to variable userId", function() {',
-						'                pm.expect(userId, "User ID should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ User ID saved to environment:", userId);',
-						'        } else if (jsonData.id) {',
-						'            // Direct user object response',
-						'            pm.environment.set("userId", jsonData.id);',
-						'            ',
-						'            pm.test("✅ User ID was saved to variable userId", function() {',
-						'                pm.expect(jsonData.id, "User ID should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ User ID saved to environment:", jsonData.id);',
-						'        }',
-						'    } else {',
-						'        console.log("❌ User lookup failed:", pm.response.code);',
-						'        pm.test("❌ User lookup should return 200", function() {',
-						'            pm.expect.fail("User lookup failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		} else if (
-			apiCall.endpoint.includes('/devices') &&
-			apiCall.method === 'POST' &&
-			apiCall.step.includes('Create')
-		) {
-			// Extract deviceId from device creation response
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - Device Created", function() {',
-						'    pm.expect(pm.response.code, "Response should be 200 or 201").to.be.oneOf([200, 201]);',
-						'});',
-						'',
-						'// ============================================',
-						'// Device ID Extraction Script',
-						'// ============================================',
-						'// This script extracts the device ID from the device creation response',
-						'// The deviceId is used in subsequent device operations (activate, delete, etc.)',
-						'',
-						'try {',
-						'    if (pm.response.code === 201 || pm.response.code === 200) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract deviceId from response',
-						'        if (jsonData.id) {',
-						'            pm.environment.set("deviceId", jsonData.id);',
-						'            ',
-						'            pm.test("✅ Device ID was saved to variable deviceId", function() {',
-						'                pm.expect(jsonData.id, "Device ID should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Device ID saved to environment:", jsonData.id);',
-						'        }',
-						'        ',
-						'        // Also extract policy ID if available',
-						'        if (jsonData.policy && jsonData.policy.id) {',
-						'            pm.environment.set("deviceAuthenticationPolicyId", jsonData.policy.id);',
-						'            console.log("✅ Policy ID saved to environment:", jsonData.policy.id);',
-						'        }',
-						'    } else {',
-						'        console.log("❌ Device creation failed:", pm.response.code);',
-						'        pm.test("❌ Device creation should return 200 or 201", function() {',
-						'            pm.expect.fail("Device creation failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		} else if (
-			apiCall.endpoint.includes('deviceAuthentications') &&
-			apiCall.method === 'POST' &&
-			apiCall.step.includes('Initialize')
-		) {
-			// Extract deviceAuthenticationId from device authentication initialization response
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'pm.test("✅ Call was Successful - Device Authentication Initialized", function() {',
-						'    pm.expect(pm.response.code, "Response should be 200 or 201").to.be.oneOf([200, 201]);',
-						'});',
-						'',
-						'// ============================================',
-						'// Device Authentication ID Extraction Script',
-						'// ============================================',
-						'// This script extracts the device authentication ID from the initialization response',
-						'// The deviceAuthenticationId is used in subsequent authentication steps (check OTP, complete)',
-						'',
-						'try {',
-						'    if (pm.response.code === 201 || pm.response.code === 200) {',
-						'        const jsonData = pm.response.json();',
-						'        ',
-						'        // Extract deviceAuthenticationId from response',
-						'        if (jsonData.id) {',
-						'            pm.environment.set("deviceAuthenticationId", jsonData.id);',
-						'            ',
-						'            pm.test("✅ Device Authentication ID was saved to variable deviceAuthenticationId", function() {',
-						'                pm.expect(jsonData.id, "Device authentication ID should be a non-empty string").to.be.a("string").and.not.empty;',
-						'            });',
-						'            ',
-						'            console.log("✅ Device Authentication ID saved to environment:", jsonData.id);',
-						'        }',
-						'    } else {',
-						'        console.log("❌ Device authentication initialization failed:", pm.response.code);',
-						'        pm.test("❌ Device authentication initialization should return 200 or 201", function() {',
-						'            pm.expect.fail("Device authentication initialization failed with status: " + pm.response.code);',
-						'        });',
-						'    }',
-						'} catch (e) {',
-						'    console.log("❌ There was an error parsing JSON", e);',
-						'    pm.test("❌ Response should be valid JSON", function() {',
-						'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
-						'    });',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		} else if (
-			apiCall.step.includes('Exchange') &&
-			apiCall.step.includes('Token') &&
-			apiCall.endpoint.includes('/as/token')
-		) {
-			// Extract userToken from token exchange response
-			events.push({
-				listen: 'test' as const,
-				script: {
-					exec: [
-						'// ============================================',
-						'// User Token Extraction Script',
-						'// ============================================',
-						'// This script extracts the access token (userToken) from the token exchange response',
-						'// The userToken is used for subsequent MFA device operations',
-						'',
-						'if (pm.response.code === 200) {',
-						'    const jsonData = pm.response.json();',
-						'    ',
-						'    // Extract access token (userToken)',
-						'    if (jsonData.access_token) {',
-						'        pm.environment.set("userToken", jsonData.access_token);',
-						'        console.log("✅ User token saved to environment");',
-						'    }',
-						'    ',
-						'    // Also extract ID token if available (contains user ID)',
-						'    if (jsonData.id_token) {',
-						'        pm.environment.set("id_token", jsonData.id_token);',
-						'        console.log("✅ ID token saved to environment");',
-						'    }',
-						'} else {',
-						'    console.log("❌ Token exchange failed:", pm.response.code);',
-						'}',
-					],
-					type: 'text/javascript',
-				},
-			});
-		}
+			// Build comprehensive educational description
+			let educationalDescription = apiCall.description || '';
 
-		// Extract variables saved from test scripts and add to description
-		const savedVariables: string[] = [];
-		events.forEach((event) => {
-			if (event.listen === 'test') {
-				event.script.exec.forEach((line) => {
-					const match = line.match(/pm\.environment\.set\(["']([^"']+)["']/);
-					if (match?.[1]) {
-						savedVariables.push(match[1]);
-					}
+			// Add notes as educational content if available
+			if (apiCall.notes && apiCall.notes.length > 0) {
+				educationalDescription += '\n\n**Educational Notes:**\n';
+				apiCall.notes.forEach((note) => {
+					educationalDescription += `- ${note}\n`;
 				});
 			}
+
+			// Add flow context if available
+			if (apiCall.step.includes('Worker Token')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription += '- This is the first step in Admin Flow\n';
+				educationalDescription += '- Worker tokens are used for administrative operations\n';
+				educationalDescription += '- No user login is required for this token\n';
+				educationalDescription +=
+					'- Permissions are controlled by roles assigned to the client application\n';
+				educationalDescription +=
+					'- **Note:** Worker token is obtained separately and is not included in individual flow collections\n';
+			} else if (
+				apiCall.step.includes('Authorization Code') ||
+				apiCall.step.includes('Build Authorization URL')
+			) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription +=
+					'- This is part of User Flow (OAuth 2.0 Authorization Code Flow)\n';
+				educationalDescription += '- User must authenticate with PingOne before proceeding\n';
+				educationalDescription +=
+					'- After login, user is redirected back with authorization code\n';
+				educationalDescription +=
+					'- Authorization code is exchanged for access token (userToken)\n';
+			} else if (apiCall.step.includes('Exchange') && apiCall.step.includes('Token')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription += '- Exchanges authorization code for access token (userToken)\n';
+				educationalDescription += '- userToken is used for subsequent MFA device operations\n';
+				educationalDescription +=
+					'- Token is automatically extracted and saved by the test script\n';
+			} else if (apiCall.step.includes('Get User ID') || apiCall.step.includes('User Lookup')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription +=
+					'- This step retrieves the user ID needed for device operations\n';
+				educationalDescription += '- The userId will be used in subsequent API calls\n';
+				educationalDescription +=
+					'- User ID is automatically extracted and saved by the test script\n';
+			} else if (apiCall.step.includes('Create') && apiCall.step.includes('Device')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				if (apiCall.requestBody && typeof apiCall.requestBody === 'object') {
+					const body = apiCall.requestBody as Record<string, unknown>;
+					if (body.status === 'ACTIVE') {
+						educationalDescription += '- Device is created with ACTIVE status (Admin Flow)\n';
+						educationalDescription +=
+							'- Device is immediately usable, no OTP activation required\n';
+						educationalDescription += '- This is only possible with worker token (Admin Flow)\n';
+					} else if (body.status === 'ACTIVATION_REQUIRED') {
+						educationalDescription += '- Device is created with ACTIVATION_REQUIRED status\n';
+						educationalDescription += '- PingOne automatically sends OTP to the device\n';
+						educationalDescription += '- User must activate device with OTP before first use\n';
+						educationalDescription +=
+							'- User Flow always uses ACTIVATION_REQUIRED (security requirement)\n';
+					}
+				}
+				educationalDescription +=
+					'- Device ID is automatically extracted and saved by the test script\n';
+				educationalDescription += '- Policy ID links the device to an MFA authentication policy\n';
+			} else if (apiCall.step.includes('Activate')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription +=
+					'- This step activates a device that was created with ACTIVATION_REQUIRED status\n';
+				educationalDescription +=
+					'- OTP code is received via SMS/Email/WhatsApp/OATH TOTP (RFC 6238) app\n';
+				educationalDescription +=
+					'- After successful activation, device status changes to ACTIVE\n';
+				educationalDescription += '- Device can now be used for MFA authentication\n';
+			} else if (apiCall.step.includes('Initialize Device Authentication')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription += '- This starts the MFA authentication process\n';
+				educationalDescription += '- PingOne sends OTP to the selected device\n';
+				educationalDescription +=
+					'- Device Authentication ID is automatically extracted and saved\n';
+				educationalDescription += '- This ID is used in subsequent authentication steps\n';
+			} else if (apiCall.step.includes('Check OTP')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription += '- User enters OTP code received on their device\n';
+				educationalDescription += '- OTP is validated against the device authentication session\n';
+				educationalDescription += '- If valid, authentication proceeds to completion\n';
+			} else if (apiCall.step.includes('Complete Authentication')) {
+				educationalDescription += '\n\n**Flow Context:**\n';
+				educationalDescription += '- This finalizes the MFA authentication process\n';
+				educationalDescription += '- Authentication is now complete and user can proceed\n';
+			}
+
+			// Determine what variables to extract based on endpoint and response
+			const events: Array<{
+				listen: 'prerequest' | 'test';
+				script: { exec: string[]; type: string };
+			}> = [];
+
+			// Add test script to extract variables from response
+			if (
+				apiCall.endpoint.includes('/users') &&
+				apiCall.method === 'GET' &&
+				apiCall.step.includes('User ID')
+			) {
+				// Extract userId from user lookup response
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - User Lookup Completed", function() {',
+							'    pm.response.to.have.status(200);',
+							'});',
+							'',
+							'// ============================================',
+							'// User ID Extraction Script',
+							'// ============================================',
+							'// This script extracts the user ID from the user lookup response',
+							'// The userId is used in subsequent device operations',
+							'',
+							'try {',
+							'    if (pm.response.code === 200) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract userId from embedded users array',
+							'        if (jsonData._embedded && jsonData._embedded.users && jsonData._embedded.users.length > 0) {',
+							'            const userId = jsonData._embedded.users[0].id;',
+							'            pm.environment.set("userId", userId);',
+							'            ',
+							'            pm.test("✅ User ID was saved to variable userId", function() {',
+							'                pm.expect(userId, "User ID should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ User ID saved to environment:", userId);',
+							'        } else if (jsonData.id) {',
+							'            // Direct user object response',
+							'            pm.environment.set("userId", jsonData.id);',
+							'            ',
+							'            pm.test("✅ User ID was saved to variable userId", function() {',
+							'                pm.expect(jsonData.id, "User ID should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ User ID saved to environment:", jsonData.id);',
+							'        }',
+							'    } else {',
+							'        console.log("❌ User lookup failed:", pm.response.code);',
+							'        pm.test("❌ User lookup should return 200", function() {',
+							'            pm.expect.fail("User lookup failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			} else if (
+				apiCall.endpoint.includes('/devices') &&
+				apiCall.method === 'POST' &&
+				apiCall.step.includes('Create')
+			) {
+				// Extract deviceId from device creation response
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - Device Created", function() {',
+							'    pm.expect(pm.response.code, "Response should be 200 or 201").to.be.oneOf([200, 201]);',
+							'});',
+							'',
+							'// ============================================',
+							'// Device ID Extraction Script',
+							'// ============================================',
+							'// This script extracts the device ID from the device creation response',
+							'// The deviceId is used in subsequent device operations (activate, delete, etc.)',
+							'',
+							'try {',
+							'    if (pm.response.code === 201 || pm.response.code === 200) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract deviceId from response',
+							'        if (jsonData.id) {',
+							'            pm.environment.set("deviceId", jsonData.id);',
+							'            ',
+							'            pm.test("✅ Device ID was saved to variable deviceId", function() {',
+							'                pm.expect(jsonData.id, "Device ID should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Device ID saved to environment:", jsonData.id);',
+							'        }',
+							'        ',
+							'        // Also extract policy ID if available',
+							'        if (jsonData.policy && jsonData.policy.id) {',
+							'            pm.environment.set("deviceAuthenticationPolicyId", jsonData.policy.id);',
+							'            console.log("✅ Policy ID saved to environment:", jsonData.policy.id);',
+							'        }',
+							'    } else {',
+							'        console.log("❌ Device creation failed:", pm.response.code);',
+							'        pm.test("❌ Device creation should return 200 or 201", function() {',
+							'            pm.expect.fail("Device creation failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			} else if (
+				apiCall.endpoint.includes('deviceAuthentications') &&
+				apiCall.method === 'POST' &&
+				apiCall.step.includes('Initialize')
+			) {
+				// Extract deviceAuthenticationId from device authentication initialization response
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'pm.test("✅ Call was Successful - Device Authentication Initialized", function() {',
+							'    pm.expect(pm.response.code, "Response should be 200 or 201").to.be.oneOf([200, 201]);',
+							'});',
+							'',
+							'// ============================================',
+							'// Device Authentication ID Extraction Script',
+							'// ============================================',
+							'// This script extracts the device authentication ID from the initialization response',
+							'// The deviceAuthenticationId is used in subsequent authentication steps (check OTP, complete)',
+							'',
+							'try {',
+							'    if (pm.response.code === 201 || pm.response.code === 200) {',
+							'        const jsonData = pm.response.json();',
+							'        ',
+							'        // Extract deviceAuthenticationId from response',
+							'        if (jsonData.id) {',
+							'            pm.environment.set("deviceAuthenticationId", jsonData.id);',
+							'            ',
+							'            pm.test("✅ Device Authentication ID was saved to variable deviceAuthenticationId", function() {',
+							'                pm.expect(jsonData.id, "Device authentication ID should be a non-empty string").to.be.a("string").and.not.empty;',
+							'            });',
+							'            ',
+							'            console.log("✅ Device Authentication ID saved to environment:", jsonData.id);',
+							'        }',
+							'    } else {',
+							'        console.log("❌ Device authentication initialization failed:", pm.response.code);',
+							'        pm.test("❌ Device authentication initialization should return 200 or 201", function() {',
+							'            pm.expect.fail("Device authentication initialization failed with status: " + pm.response.code);',
+							'        });',
+							'    }',
+							'} catch (e) {',
+							'    console.log("❌ There was an error parsing JSON", e);',
+							'    pm.test("❌ Response should be valid JSON", function() {',
+							'        pm.expect.fail("Failed to parse response as JSON: " + e.message);',
+							'    });',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			} else if (
+				apiCall.step.includes('Exchange') &&
+				apiCall.step.includes('Token') &&
+				apiCall.endpoint.includes('/as/token')
+			) {
+				// Extract userToken from token exchange response
+				events.push({
+					listen: 'test' as const,
+					script: {
+						exec: [
+							'// ============================================',
+							'// User Token Extraction Script',
+							'// ============================================',
+							'// This script extracts the access token (userToken) from the token exchange response',
+							'// The userToken is used for subsequent MFA device operations',
+							'',
+							'if (pm.response.code === 200) {',
+							'    const jsonData = pm.response.json();',
+							'    ',
+							'    // Extract access token (userToken)',
+							'    if (jsonData.access_token) {',
+							'        pm.environment.set("userToken", jsonData.access_token);',
+							'        console.log("✅ User token saved to environment");',
+							'    }',
+							'    ',
+							'    // Also extract ID token if available (contains user ID)',
+							'    if (jsonData.id_token) {',
+							'        pm.environment.set("id_token", jsonData.id_token);',
+							'        console.log("✅ ID token saved to environment");',
+							'    }',
+							'} else {',
+							'    console.log("❌ Token exchange failed:", pm.response.code);',
+							'}',
+						],
+						type: 'text/javascript',
+					},
+				});
+			}
+
+			// Extract variables saved from test scripts and add to description
+			const savedVariables: string[] = [];
+			events.forEach((event) => {
+				if (event.listen === 'test') {
+					event.script.exec.forEach((line) => {
+						const match = line.match(/pm\.environment\.set\(["']([^"']+)["']/);
+						if (match?.[1]) {
+							savedVariables.push(match[1]);
+						}
+					});
+				}
+			});
+
+			// Enhance description with Variables Saved section if variables are saved
+			let enhancedDescription = educationalDescription;
+			if (savedVariables.length > 0) {
+				const uniqueVariables = [...new Set(savedVariables)];
+				enhancedDescription += '\n\n**Variables Saved:**\n';
+				uniqueVariables.forEach((varName) => {
+					// Add helpful descriptions for common MFA variables
+					const varDescriptions: Record<string, string> = {
+						userId: 'User ID used for device operations',
+						deviceId: 'Device ID used for device management operations',
+						deviceAuthenticationId: 'Device authentication session ID used for MFA verification',
+						deviceAuthenticationPolicyId: 'MFA policy ID linked to the device',
+						userToken: 'User access token for authenticated device operations',
+						id_token: 'ID token containing user identity claims (OIDC)',
+					};
+					const description =
+						varDescriptions[varName] || 'Saved to environment for use in subsequent requests';
+					enhancedDescription += `- \`${varName}\` - ${description}\n`;
+				});
+			}
+
+			return {
+				name: apiCall.step,
+				request: {
+					method: apiCall.method,
+					...(headers.length > 0 && { header: headers }),
+					...(body && { body }),
+					url: urlStructure,
+					description: enhancedDescription,
+				},
+				...(events.length > 0 && { event: events }),
+			};
 		});
 
-		// Enhance description with Variables Saved section if variables are saved
-		let enhancedDescription = educationalDescription;
-		if (savedVariables.length > 0) {
-			const uniqueVariables = [...new Set(savedVariables)];
-			enhancedDescription += '\n\n**Variables Saved:**\n';
-			uniqueVariables.forEach((varName) => {
-				// Add helpful descriptions for common MFA variables
-				const varDescriptions: Record<string, string> = {
-					userId: 'User ID used for device operations',
-					deviceId: 'Device ID used for device management operations',
-					deviceAuthenticationId: 'Device authentication session ID used for MFA verification',
-					deviceAuthenticationPolicyId: 'MFA policy ID linked to the device',
-					userToken: 'User access token for authenticated device operations',
-					id_token: 'ID token containing user identity claims (OIDC)',
-				};
-				const description =
-					varDescriptions[varName] || 'Saved to environment for use in subsequent requests';
-				enhancedDescription += `- \`${varName}\` - ${description}\n`;
-			});
-		}
-
-		return {
-			name: apiCall.step,
-			request: {
-				method: apiCall.method,
-				...(headers.length > 0 && { header: headers }),
-				...(body && { body }),
-				url: urlStructure,
-				description: enhancedDescription,
+		const finalizedVariables = finalizeVariables(variables, issues, collectionName);
+		const collection: PostmanCollection = {
+			info: {
+				name: collectionName,
+				description: `Postman collection for PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'}. Generated from OAuth Playground.`,
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 			},
-			...(events.length > 0 && { event: events }),
+			variable: finalizedVariables,
+			item: items,
 		};
-	});
 
-	const finalizedVariables = finalizeVariables(variables, issues, collectionName);
-	const collection: PostmanCollection = {
-		info: {
-			name: collectionName,
-			description: `Postman collection for PingOne MFA ${deviceType} ${flowType === 'registration' ? 'Registration' : 'Authentication'}. Generated from OAuth Playground.`,
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: items,
-	};
-
-	validateCollection(collection, issues, collectionName);
-	validateEnvironment(finalizedVariables, issues, collectionName);
-	validatePlaceholders(JSON.stringify(collection), issues, collectionName);
-	issues.printSummary();
-	issues.throwIfErrors();
-	return collection;
+		validateCollection(collection, issues, collectionName);
+		validateEnvironment(finalizedVariables, issues, collectionName);
+		validatePlaceholders(JSON.stringify(collection), issues, collectionName);
+		issues.printSummary();
+		issues.throwIfErrors();
+		return collection;
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
+	}
 };
 
 /**
@@ -6741,168 +6813,178 @@ export const generateUseCasesPostmanCollection = (
 ): PostmanCollection => {
 	// Collect generation warnings/errors for this run.
 	const issues = new GenerationIssues('generateUseCasesPostmanCollection');
+	const contextLabel = 'Use Cases Collection';
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = contextLabel;
 
-	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
-		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
-		{
-			key: 'envID',
-			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
-			type: 'string',
-		},
-		{ key: 'workerToken', value: '', type: 'string' },
-		// Worker client credentials (for Worker Token - server-to-server authentication)
-		// These are used for admin/management operations (creating users, devices, policies, etc.)
-		// ALWAYS use these default values for worker token - do NOT override with authorization credentials
-		{ key: 'worker_client_id', value: '66a4686b-9222-4ad2-91b6-03113711c9aa', type: 'string' },
-		{
-			key: 'worker_client_secret',
-			value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
-			type: 'secret',
-		},
-		// User/OAuth client credentials (for OAuth flows - user authentication)
-		// These are used for user login flows (authorization code exchange, token refresh, etc.)
-		// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
-		// NOTE: Typically these are DIFFERENT from worker credentials - set them separately in your environment
-		{
-			key: 'user_client_id',
-			value: credentials?.clientId || '66a4686b-9222-4ad2-91b6-03113711c9aa',
-			type: 'string',
-		},
-		{
-			key: 'user_client_secret',
-			value:
-				credentials?.clientSecret ||
-				'3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
-			type: 'secret',
-		},
-		{ key: 'redirect_uri', value: 'http://localhost:3000/callback', type: 'string' },
-		{ key: 'scopes_oidc', value: 'openid profile email', type: 'string' },
-		{ key: 'state', value: '', type: 'string' },
-		{ key: 'authorization_code', value: '', type: 'string' },
-		{ key: 'access_token', value: '', type: 'string' },
-		{ key: 'id_token', value: '', type: 'string' },
-		{ key: 'refresh_token', value: '', type: 'string' },
-		{ key: 'code_verifier', value: '', type: 'string' },
-		{ key: 'code_challenge', value: '', type: 'string' },
-		{ key: 'code_challenge_method', value: 'S256', type: 'string' },
-		{ key: 'codeVerifier', value: '', type: 'string' },
-		{ key: 'codeChallenge', value: '', type: 'string' },
-		{ key: 'codeChallengeMethod', value: 'S256', type: 'string' },
-		{ key: 'basic_auth', value: '', type: 'string' },
-		{ key: 'client_secret_jwt', value: '', type: 'string' },
-		{ key: 'client_assertion_jwt', value: '', type: 'string' },
-		{ key: 'client_assertion_jwt_private', value: '', type: 'string' },
-		{ key: 'user_client_assertion_jwt_private', value: '', type: 'string' },
-		{ key: 'SignUpPopID', value: '', type: 'string' },
-		{ key: 'SignUpUserID', value: '', type: 'string' },
-		{ key: 'SignUpUsername', value: '', type: 'string' },
-		{ key: 'baseballPlayerFirstName', value: '', type: 'string' },
-		{ key: 'baseballPlayerLastName', value: '', type: 'string' },
-		{ key: 'baseballPlayerEmail', value: '', type: 'string' },
-		{ key: 'baseballPlayerUsername', value: '', type: 'string' },
-		// User variables (from Register user Step 1 - used across ALL use cases)
-		{ key: 'SignInUserID', value: '', type: 'string' },
-		{ key: 'SignInUsername', value: '', type: 'string' },
-		{ key: 'SignInUserEmail', value: '', type: 'string' },
-		// Application variables (from Sign-in Step 1)
-		{ key: 'webAppSignInWithPKCEId', value: '', type: 'string' },
-		{ key: 'SignInWithPKCEAppSecret', value: '', type: 'secret' },
-		{ key: 'SignInSignonPolicyID', value: '', type: 'string' },
-		{ key: 'flowID', value: '', type: 'string' },
-		{ key: 'authCode', value: '', type: 'string' },
-		{ key: 'userPassword', value: '', type: 'string' },
-		{ key: 'currentPassword', value: '', type: 'string' },
-		{ key: 'newPassword', value: '', type: 'string' },
-		// Legacy user variables (deprecated - use SignInUserID instead)
-		{ key: 'userId', value: '', type: 'string' },
-		{ key: 'username', value: '', type: 'string' },
-		{ key: 'email', value: '', type: 'string' },
-		{ key: 'givenName', value: '', type: 'string' },
-		{ key: 'familyName', value: '', type: 'string' },
-		{ key: 'phone', value: '', type: 'string' },
-		{ key: 'populationId', value: '', type: 'string' },
-		{ key: 'initialPassword', value: '', type: 'string' },
-		{ key: 'emailVerificationCode', value: '', type: 'string' },
-		{ key: 'recoveryCode', value: '', type: 'string' },
-		{ key: 'current_password', value: '', type: 'string' },
-		{ key: 'new_password', value: '', type: 'string' },
-		{ key: 'userToken', value: '', type: 'string' },
-		{ key: 'groupId', value: '', type: 'string' },
-		{ key: 'deviceId', value: '', type: 'string' },
-		{ key: 'deviceAuthenticationPolicyId', value: '', type: 'string' },
-		{ key: 'deviceAuthenticationId', value: '', type: 'string' },
-		{ key: 'otp_code', value: '', type: 'string' },
-		// Social Login Provider Credentials
-		{ key: 'facebook_client_id', value: '', type: 'string' },
-		{ key: 'facebook_client_secret', value: '', type: 'secret' },
-		{ key: 'linkedin_client_id', value: '', type: 'string' },
-		{ key: 'linkedin_client_secret', value: '', type: 'secret' },
-		{ key: 'azure_client_id', value: '', type: 'string' },
-		{ key: 'azure_client_secret', value: '', type: 'secret' },
-		{ key: 'azure_tenant_id', value: 'common', type: 'string' },
-		// External IdP IDs (saved after configuration)
-		{ key: 'facebook_idp_id', value: '', type: 'string' },
-		{ key: 'linkedin_idp_id', value: '', type: 'string' },
-		{ key: 'azure_idp_id', value: '', type: 'string' },
-		// Risk-based Checks / PingOne Protect variables
-		{ key: 'riskPredictorId', value: '', type: 'string' },
-		{ key: 'riskEvaluationId', value: '', type: 'string' },
-		{ key: 'completionStatus', value: 'SUCCESS', type: 'string' },
-		// Logout / Session Management variables
-		{ key: 'sessionId', value: '', type: 'string' },
-		// Transaction Approval variables
-		{ key: 'loginHintJwt', value: '', type: 'string' },
-		{ key: 'transactionFlowID', value: '', type: 'string' },
-		{ key: 'transactionId', value: '', type: 'string' },
-		{ key: 'transactionAmount', value: '', type: 'string' },
-		{ key: 'transactionCurrency', value: '', type: 'string' },
-		{ key: 'transactionDescription', value: '', type: 'string' },
-		// PingOne Endpoints - Metadata variables
-		{ key: 'customAuthPath', value: '', type: 'string' },
-		// PAR variables
-		{ key: 'par_request_uri', value: '', type: 'string' },
-	];
-
-	// Generate Worker Token items (needed for all use cases)
-	const baseUrl = '{{authPath}}/{{envID}}';
-	const workerTokenItems = generateWorkerTokenItems(baseUrl);
-
-	// Generate use cases items (filtered by selection if provided)
-	const useCasesItems = generateUseCasesItems(credentials, selectedUseCases);
-
-	const finalizedVariables = finalizeVariables(variables, issues, 'Use Cases Collection');
-	const collection: PostmanCollection = {
-		info: {
-			name: 'PingOne Customer Identity Use Cases',
-			version: COLLECTION_VERSION,
-			description:
-				'Postman collection for common customer identity flows for web applications. Each use case contains real PingOne API calls to implement that specific flow. Based on Common Customer Identity Flows (Web) documentation.\n\n**Use Cases Included:**\n\n1. **Sign-up (Registration):** Create account and collect profile attributes\n2. **Sign-in:** Primary authentication using OAuth/OIDC Authorization Code flow with PKCE\n3. **MFA Enrollment:** Add or register an additional factor after initial sign-in\n4. **MFA Challenge:** Prompt for additional factor during sign-in or sensitive actions\n5. **Step-up Authentication:** Re-authenticate for high-risk actions\n6. **Forgot Password / Password Reset:** Self-service password reset flow\n7. **Account Recovery:** Recover when user can\'t complete MFA\n8. **Password recovery for user:** Change password with re-auth/step-up, admin force password change\n9. **Social Login:** Configure external identity providers (Facebook, LinkedIn) for social login\n10. **Partner / Enterprise Federation:** Configure Azure AD for enterprise federation - "Sign in with your organization"\n11. **Risk-based Checks:** Get risk predictors and update risk evaluations using PingOne Protect API\n12. **Logout:** Complete logout workflow including session listing, session termination, token revocation, and token status verification\n\n**Standard Environment Variables:**\n\n**Core Configuration:**\n- `envID` - PingOne Environment ID (UUID format)\n- `authPath` - Authentication base URL (https://auth.pingone.com)\n- `apiPath` - API base URL (https://api.pingone.com)\n\n**Worker Token (Server-to-Server Authentication):**\n- `workerToken` - Worker access token (obtained from Worker Token section, used for admin/management operations)\n- `worker_client_id` - Client ID for worker token generation (typically a service account/client)\n- `worker_client_secret` - Client secret for worker token generation\n\n**User/OAuth Client Credentials (User Authentication Flows):**\n- `user_client_id` - Client ID for OAuth flows (user login, token exchange, token refresh)\n- `user_client_secret` - Client secret for OAuth flows\n- **Note:** These are typically DIFFERENT from worker credentials - set them separately in your environment\n\n**User Information (from Sign-in Step 2 - used across ALL use cases):**\n- `SignInUserID` - User ID created in Sign-in Step 2 (used in all subsequent use cases)\n- `SignInUsername` - Username created in Sign-in Step 2\n- **Important:** All use cases share the same user created in Sign-in - no additional users are created\n\n**Application Information (from Sign-in Step 1):**\n- `webAppSignInWithPKCEId` - Application ID created in Sign-in Step 1 (used in authorization requests)\n\n**OAuth Flow Variables:**\n- `redirect_uri` - OAuth redirect URI\n- `scopes_oidc` - OIDC scopes (e.g., "openid profile email")\n- `authorization_code` - Authorization code from authorization request\n- `access_token` - OAuth access token (user token)\n- `id_token` - OIDC ID token\n- `refresh_token` - OAuth refresh token\n- `code_verifier` - PKCE code verifier\n- `code_challenge` - PKCE code challenge\n- `code_challenge_method` - PKCE method (S256)\n\nGenerated from OAuth Playground.',
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: [
+	try {
+		// Build variables
+		const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
+			{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
+			{ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' },
 			{
-				name: 'Worker Token',
-				item: workerTokenItems,
+				key: 'envID',
+				value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+				type: 'string',
+			},
+			{ key: 'workerToken', value: '', type: 'string' },
+			// Worker client credentials (for Worker Token - server-to-server authentication)
+			// These are used for admin/management operations (creating users, devices, policies, etc.)
+			// ALWAYS use these default values for worker token - do NOT override with authorization credentials
+			{ key: 'worker_client_id', value: '66a4686b-9222-4ad2-91b6-03113711c9aa', type: 'string' },
+			{
+				key: 'worker_client_secret',
+				value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
+				type: 'secret',
+			},
+			// User/OAuth client credentials (for OAuth flows - user authentication)
+			// These are used for user login flows (authorization code exchange, token refresh, etc.)
+			// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
+			// NOTE: Typically these are DIFFERENT from worker credentials - set them separately in your environment
+			{
+				key: 'user_client_id',
+				value: credentials?.clientId || '66a4686b-9222-4ad2-91b6-03113711c9aa',
+				type: 'string',
 			},
 			{
-				name: 'Use Cases',
-				item: useCasesItems,
+				key: 'user_client_secret',
+				value:
+					credentials?.clientSecret ||
+					'3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
+				type: 'secret',
+			},
+			{ key: 'redirect_uri', value: 'http://localhost:3000/callback', type: 'string' },
+			{ key: 'scopes_oidc', value: 'openid profile email', type: 'string' },
+			{ key: 'state', value: '', type: 'string' },
+			{ key: 'authorization_code', value: '', type: 'string' },
+			{ key: 'access_token', value: '', type: 'string' },
+			{ key: 'id_token', value: '', type: 'string' },
+			{ key: 'refresh_token', value: '', type: 'string' },
+			{ key: 'code_verifier', value: '', type: 'string' },
+			{ key: 'code_challenge', value: '', type: 'string' },
+			{ key: 'code_challenge_method', value: 'S256', type: 'string' },
+			{ key: 'codeVerifier', value: '', type: 'string' },
+			{ key: 'codeChallenge', value: '', type: 'string' },
+			{ key: 'codeChallengeMethod', value: 'S256', type: 'string' },
+			{ key: 'basic_auth', value: '', type: 'string' },
+			{ key: 'client_secret_jwt', value: '', type: 'string' },
+			{ key: 'client_assertion_jwt', value: '', type: 'string' },
+			{ key: 'client_assertion_jwt_private', value: '', type: 'string' },
+			{ key: 'user_client_assertion_jwt_private', value: '', type: 'string' },
+			{ key: 'SignUpPopID', value: '', type: 'string' },
+			{ key: 'SignUpUserID', value: '', type: 'string' },
+			{ key: 'SignUpUsername', value: '', type: 'string' },
+			{ key: 'baseballPlayerFirstName', value: '', type: 'string' },
+			{ key: 'baseballPlayerLastName', value: '', type: 'string' },
+			{ key: 'baseballPlayerEmail', value: '', type: 'string' },
+			{ key: 'baseballPlayerUsername', value: '', type: 'string' },
+			// User variables (from Register user Step 1 - used across ALL use cases)
+			{ key: 'SignInUserID', value: '', type: 'string' },
+			{ key: 'SignInUsername', value: '', type: 'string' },
+			{ key: 'SignInUserEmail', value: '', type: 'string' },
+			// Application variables (from Sign-in Step 1)
+			{ key: 'webAppSignInWithPKCEId', value: '', type: 'string' },
+			{ key: 'SignInWithPKCEAppSecret', value: '', type: 'secret' },
+			{ key: 'SignInSignonPolicyID', value: '', type: 'string' },
+			{ key: 'flowID', value: '', type: 'string' },
+			{ key: 'authCode', value: '', type: 'string' },
+			{ key: 'userPassword', value: '', type: 'string' },
+			{ key: 'currentPassword', value: '', type: 'string' },
+			{ key: 'newPassword', value: '', type: 'string' },
+			// Legacy user variables (deprecated - use SignInUserID instead)
+			{ key: 'userId', value: '', type: 'string' },
+			{ key: 'username', value: '', type: 'string' },
+			{ key: 'email', value: '', type: 'string' },
+			{ key: 'givenName', value: '', type: 'string' },
+			{ key: 'familyName', value: '', type: 'string' },
+			{ key: 'phone', value: '', type: 'string' },
+			{ key: 'populationId', value: '', type: 'string' },
+			{ key: 'initialPassword', value: '', type: 'string' },
+			{ key: 'emailVerificationCode', value: '', type: 'string' },
+			{ key: 'recoveryCode', value: '', type: 'string' },
+			{ key: 'current_password', value: '', type: 'string' },
+			{ key: 'new_password', value: '', type: 'string' },
+			{ key: 'userToken', value: '', type: 'string' },
+			{ key: 'groupId', value: '', type: 'string' },
+			{ key: 'deviceId', value: '', type: 'string' },
+			{ key: 'deviceAuthenticationPolicyId', value: '', type: 'string' },
+			{ key: 'deviceAuthenticationId', value: '', type: 'string' },
+			{ key: 'otp_code', value: '', type: 'string' },
+			// Social Login Provider Credentials
+			{ key: 'facebook_client_id', value: '', type: 'string' },
+			{ key: 'facebook_client_secret', value: '', type: 'secret' },
+			{ key: 'linkedin_client_id', value: '', type: 'string' },
+			{ key: 'linkedin_client_secret', value: '', type: 'secret' },
+			{ key: 'azure_client_id', value: '', type: 'string' },
+			{ key: 'azure_client_secret', value: '', type: 'secret' },
+			{ key: 'azure_tenant_id', value: 'common', type: 'string' },
+			// External IdP IDs (saved after configuration)
+			{ key: 'facebook_idp_id', value: '', type: 'string' },
+			{ key: 'linkedin_idp_id', value: '', type: 'string' },
+			{ key: 'azure_idp_id', value: '', type: 'string' },
+			// Risk-based Checks / PingOne Protect variables
+			{ key: 'riskPredictorId', value: '', type: 'string' },
+			{ key: 'riskEvaluationId', value: '', type: 'string' },
+			{ key: 'completionStatus', value: 'SUCCESS', type: 'string' },
+			// Logout / Session Management variables
+			{ key: 'sessionId', value: '', type: 'string' },
+			// Transaction Approval variables
+			{ key: 'loginHintJwt', value: '', type: 'string' },
+			{ key: 'transactionFlowID', value: '', type: 'string' },
+			{ key: 'transactionId', value: '', type: 'string' },
+			{ key: 'transactionAmount', value: '', type: 'string' },
+			{ key: 'transactionCurrency', value: '', type: 'string' },
+			{ key: 'transactionDescription', value: '', type: 'string' },
+			// PingOne Endpoints - Metadata variables
+			{ key: 'customAuthPath', value: '', type: 'string' },
+			// PAR variables
+			{ key: 'par_request_uri', value: '', type: 'string' },
+		];
+
+		// Generate Worker Token items (needed for all use cases)
+		const baseUrl = '{{authPath}}/{{envID}}';
+		const workerTokenItems = generateWorkerTokenItems(baseUrl);
+
+		// Generate use cases items (filtered by selection if provided)
+		const useCasesItems = generateUseCasesItems(credentials, selectedUseCases);
+
+		const finalizedVariables = finalizeVariables(variables, issues, contextLabel);
+		const collection: PostmanCollection = {
+			info: {
+				name: 'PingOne Customer Identity Use Cases',
+				version: COLLECTION_VERSION,
 				description:
-					'Common customer identity flows for web applications. Each use case contains real PingOne API calls to implement that specific flow. Based on Common Customer Identity Flows (Web) documentation.',
+					'Postman collection for common customer identity flows for web applications. Each use case contains real PingOne API calls to implement that specific flow. Based on Common Customer Identity Flows (Web) documentation.\n\n**Use Cases Included:**\n\n1. **Sign-up (Registration):** Create account and collect profile attributes\n2. **Sign-in:** Primary authentication using OAuth/OIDC Authorization Code flow with PKCE\n3. **MFA Enrollment:** Add or register an additional factor after initial sign-in\n4. **MFA Challenge:** Prompt for additional factor during sign-in or sensitive actions\n5. **Step-up Authentication:** Re-authenticate for high-risk actions\n6. **Forgot Password / Password Reset:** Self-service password reset flow\n7. **Account Recovery:** Recover when user can\'t complete MFA\n8. **Password recovery for user:** Change password with re-auth/step-up, admin force password change\n9. **Social Login:** Configure external identity providers (Facebook, LinkedIn) for social login\n10. **Partner / Enterprise Federation:** Configure Azure AD for enterprise federation - "Sign in with your organization"\n11. **Risk-based Checks:** Get risk predictors and update risk evaluations using PingOne Protect API\n12. **Logout:** Complete logout workflow including session listing, session termination, token revocation, and token status verification\n\n**Standard Environment Variables:**\n\n**Core Configuration:**\n- `envID` - PingOne Environment ID (UUID format)\n- `authPath` - Authentication base URL (https://auth.pingone.com)\n- `apiPath` - API base URL (https://api.pingone.com)\n\n**Worker Token (Server-to-Server Authentication):**\n- `workerToken` - Worker access token (obtained from Worker Token section, used for admin/management operations)\n- `worker_client_id` - Client ID for worker token generation (typically a service account/client)\n- `worker_client_secret` - Client secret for worker token generation\n\n**User/OAuth Client Credentials (User Authentication Flows):**\n- `user_client_id` - Client ID for OAuth flows (user login, token exchange, token refresh)\n- `user_client_secret` - Client secret for OAuth flows\n- **Note:** These are typically DIFFERENT from worker credentials - set them separately in your environment\n\n**User Information (from Sign-in Step 2 - used across ALL use cases):**\n- `SignInUserID` - User ID created in Sign-in Step 2 (used in all subsequent use cases)\n- `SignInUsername` - Username created in Sign-in Step 2\n- **Important:** All use cases share the same user created in Sign-in - no additional users are created\n\n**Application Information (from Sign-in Step 1):**\n- `webAppSignInWithPKCEId` - Application ID created in Sign-in Step 1 (used in authorization requests)\n\n**OAuth Flow Variables:**\n- `redirect_uri` - OAuth redirect URI\n- `scopes_oidc` - OIDC scopes (e.g., "openid profile email")\n- `authorization_code` - Authorization code from authorization request\n- `access_token` - OAuth access token (user token)\n- `id_token` - OIDC ID token\n- `refresh_token` - OAuth refresh token\n- `code_verifier` - PKCE code verifier\n- `code_challenge` - PKCE code challenge\n- `code_challenge_method` - PKCE method (S256)\n\nGenerated from OAuth Playground.',
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
 			},
-		],
-	};
+			variable: finalizedVariables,
+			item: [
+				{
+					name: 'Worker Token',
+					item: workerTokenItems,
+				},
+				{
+					name: 'Use Cases',
+					item: useCasesItems,
+					description:
+						'Common customer identity flows for web applications. Each use case contains real PingOne API calls to implement that specific flow. Based on Common Customer Identity Flows (Web) documentation.',
+				},
+			],
+		};
 
-	validateCollection(collection, issues, 'Use Cases Collection');
-	validateEnvironment(finalizedVariables, issues, 'Use Cases Collection');
-	validatePlaceholders(JSON.stringify(collection), issues, 'Use Cases Collection');
-	issues.printSummary();
-	issues.throwIfErrors();
-	// Enhance all descriptions with Variables Saved information
-	return enhanceCollectionDescriptions(collection);
+		validateCollection(collection, issues, contextLabel);
+		validateEnvironment(finalizedVariables, issues, contextLabel);
+		validatePlaceholders(JSON.stringify(collection), issues, contextLabel);
+		issues.printSummary();
+		issues.throwIfErrors();
+		// Enhance all descriptions with Variables Saved information
+		return enhanceCollectionDescriptions(collection);
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
+	}
 };
 
 /**
@@ -6916,1674 +6998,169 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 }): PostmanCollection => {
 	// Collect generation warnings/errors for this run.
 	const issues = new GenerationIssues('generateComprehensiveUnifiedPostmanCollection');
+	const contextLabel = 'Unified Comprehensive Collection';
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = contextLabel;
 
-	const baseUrl = '{{authPath}}/{{envID}}';
+	try {
+		const baseUrl = '{{authPath}}/{{envID}}';
 
-	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
-		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{
-			key: 'envID',
-			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
-			type: 'string',
-		},
-	];
+		// Build variables
+		const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
+			{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
+			{
+				key: 'envID',
+				value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+				type: 'string',
+			},
+		];
 
-	// Worker client credentials (for Worker Token - server-to-server authentication)
-	// ALWAYS use these default values for worker token - do NOT override with authorization credentials
-	variables.push({
-		key: 'worker_client_id',
-		value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
-		type: 'string',
-	});
-	variables.push({
-		key: 'worker_client_secret',
-		value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
-		type: 'secret',
-	});
-
-	// User/OAuth client credentials (for OAuth flows - user authentication)
-	// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
-	if (credentials?.clientId) {
-		variables.push({ key: 'user_client_id', value: credentials.clientId, type: 'string' });
-	} else {
+		// Worker client credentials (for Worker Token - server-to-server authentication)
+		// ALWAYS use these default values for worker token - do NOT override with authorization credentials
 		variables.push({
-			key: 'user_client_id',
+			key: 'worker_client_id',
 			value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
 			type: 'string',
 		});
-	}
-
-	if (credentials?.clientSecret) {
-		variables.push({ key: 'user_client_secret', value: credentials.clientSecret, type: 'secret' });
-	} else {
 		variables.push({
-			key: 'user_client_secret',
+			key: 'worker_client_secret',
 			value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
 			type: 'secret',
 		});
-	}
 
-	variables.push({ key: 'workerToken', value: '', type: 'string' });
-	variables.push({ key: 'redirect_uri', value: '', type: 'string' });
-	variables.push({ key: 'scopes_oauth2', value: getDefaultScopes('oauth2.0'), type: 'string' });
-	variables.push({ key: 'scopes_oidc', value: getDefaultScopes('oidc'), type: 'string' });
-	variables.push({ key: 'scopes_oidc21', value: getDefaultScopes('oidc2.1'), type: 'string' });
-	variables.push({ key: 'state', value: '', type: 'string' });
-	variables.push({ key: 'authorization_code', value: '', type: 'string' });
-	variables.push({ key: 'access_token', value: '', type: 'string' });
-	variables.push({ key: 'id_token', value: '', type: 'string' });
-	variables.push({ key: 'refresh_token', value: '', type: 'string' });
-	variables.push({ key: 'code_verifier', value: '', type: 'string' });
-	variables.push({ key: 'code_challenge', value: '', type: 'string' });
-	variables.push({ key: 'code_challenge_method', value: 'S256', type: 'string' });
-	variables.push({ key: 'client_credentials_basic', value: '', type: 'string' });
-	variables.push({ key: 'user_client_credentials_basic', value: '', type: 'string' });
-	variables.push({ key: 'basic_auth', value: '', type: 'string' });
-	variables.push({ key: 'client_secret_jwt', value: '', type: 'string' });
-	variables.push({ key: 'client_assertion_jwt', value: '', type: 'string' });
-	variables.push({ key: 'user_client_assertion_jwt', value: '', type: 'string' });
-	variables.push({ key: 'private_key_jwt', value: '', type: 'string' });
-	variables.push({ key: 'client_assertion_jwt_private', value: '', type: 'string' });
-	variables.push({ key: 'user_client_assertion_jwt_private', value: '', type: 'string' });
-	variables.push({ key: 'pi_flow_id', value: '', type: 'string' });
-	variables.push({ key: 'request_uri', value: '', type: 'string' });
-	variables.push({ key: 'device_code', value: '', type: 'string' });
-	variables.push({ key: 'user_code', value: '', type: 'string' });
-	variables.push({ key: 'verification_uri', value: '', type: 'string' });
-	variables.push({ key: 'verification_uri_complete', value: '', type: 'string' });
-	variables.push({ key: 'device_code_expires_in', value: '', type: 'string' });
-	variables.push({ key: 'device_code_expires_at', value: '', type: 'string' });
-	variables.push({ key: 'device_code_interval', value: '5', type: 'string' });
-	variables.push({ key: 'nonce', value: '', type: 'string' });
-	variables.push({ key: 'response_mode', value: 'query', type: 'string' });
-	variables.push({ key: 'redirectless_flowId', value: '', type: 'string' });
-	variables.push({ key: 'redirectless_resumeUrl', value: '', type: 'string' });
-	variables.push({ key: 'redirectless_sessionId', value: '', type: 'string' });
-	variables.push({ key: 'redirectless_status', value: '', type: 'string' });
-	variables.push({ key: 'username', value: '', type: 'string' });
-	variables.push({ key: 'password', value: '', type: 'string' });
-	variables.push({ key: 'otp_code', value: '', type: 'string' });
-	variables.push({ key: 'flowId', value: '', type: 'string' });
-	variables.push({ key: 'flowID', value: '', type: 'string' });
-	variables.push({ key: 'interactionId', value: '', type: 'string' });
-	variables.push({ key: 'interactionToken', value: '', type: 'string' });
-	variables.push({ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' });
-	variables.push({ key: 'userId', value: '', type: 'string' });
-	variables.push({ key: 'current_password', value: '', type: 'string' });
-	variables.push({ key: 'new_password', value: '', type: 'string' });
-	variables.push({ key: 'currentPassword', value: '', type: 'string' });
-	variables.push({ key: 'newPassword', value: '', type: 'string' });
-	variables.push({ key: 'userPassword', value: '', type: 'string' });
-	variables.push({ key: 'authCode', value: '', type: 'string' });
-	variables.push({ key: 'SignInSignonPolicyID', value: '', type: 'string' });
-	// Use case variables (default to Babe Ruth for example data)
-	variables.push({ key: 'email', value: 'babe.ruth@example.com', type: 'string' });
-	variables.push({ key: 'givenName', value: 'Babe', type: 'string' });
-	variables.push({ key: 'familyName', value: 'Ruth', type: 'string' });
-	variables.push({ key: 'phone', value: '', type: 'string' });
-	variables.push({ key: 'populationId', value: '', type: 'string' });
-	variables.push({ key: 'initialPassword', value: '', type: 'string' });
-	variables.push({ key: 'emailVerificationCode', value: '', type: 'string' });
-	variables.push({ key: 'recoveryCode', value: '', type: 'string' });
-	variables.push({ key: 'emailVerificationRequired', value: 'false', type: 'boolean' });
-	variables.push({ key: 'userToken', value: '', type: 'string' });
+		// User/OAuth client credentials (for OAuth flows - user authentication)
+		// Use passed-in credentials if provided (for authorization flows), otherwise use worker defaults
+		if (credentials?.clientId) {
+			variables.push({ key: 'user_client_id', value: credentials.clientId, type: 'string' });
+		} else {
+			variables.push({
+				key: 'user_client_id',
+				value: '66a4686b-9222-4ad2-91b6-03113711c9aa',
+				type: 'string',
+			});
+		}
 
-	// Build collection items grouped by OAuth 2.0, OIDC, and OIDC 2.1
-	const oauth20Items: PostmanCollectionItem[] = [];
-	const oidcItems: PostmanCollectionItem[] = [];
-	const oidc21Items: PostmanCollectionItem[] = [];
+		if (credentials?.clientSecret) {
+			variables.push({
+				key: 'user_client_secret',
+				value: credentials.clientSecret,
+				type: 'secret',
+			});
+		} else {
+			variables.push({
+				key: 'user_client_secret',
+				value: '3D_ksu7589TfcVJm2fqEHjXuhc-DCRfoxEv0urEw8GIK7qiJe72n92WRQ0uaT2tC',
+				type: 'secret',
+			});
+		}
 
-	// ============================================
-	// OAuth 2.0 Flows
-	// ============================================
-	// OAuth 2.0: Simple Authorization Code with Query String (default, no PKCE, no id_token, no offline_access)
-	oauth20Items.push(
-		buildAuthorizationCodeFlow('oauth2.0', 'client_secret_post', baseUrl, false, false, 'query')
-	);
-	oauth20Items.push(
-		buildAuthorizationCodeFlow('oauth2.0', 'client_secret_basic', baseUrl, false, false, 'query')
-	);
-	oauth20Items.push(
-		buildAuthorizationCodeFlow('oauth2.0', 'client_secret_jwt', baseUrl, false, false, 'query')
-	);
-	oauth20Items.push(
-		buildAuthorizationCodeFlow('oauth2.0', 'private_key_jwt', baseUrl, false, false, 'query')
-	);
+		variables.push({ key: 'workerToken', value: '', type: 'string' });
+		variables.push({ key: 'redirect_uri', value: '', type: 'string' });
+		variables.push({ key: 'scopes_oauth2', value: getDefaultScopes('oauth2.0'), type: 'string' });
+		variables.push({ key: 'scopes_oidc', value: getDefaultScopes('oidc'), type: 'string' });
+		variables.push({ key: 'scopes_oidc21', value: getDefaultScopes('oidc2.1'), type: 'string' });
+		variables.push({ key: 'state', value: '', type: 'string' });
+		variables.push({ key: 'authorization_code', value: '', type: 'string' });
+		variables.push({ key: 'access_token', value: '', type: 'string' });
+		variables.push({ key: 'id_token', value: '', type: 'string' });
+		variables.push({ key: 'refresh_token', value: '', type: 'string' });
+		variables.push({ key: 'code_verifier', value: '', type: 'string' });
+		variables.push({ key: 'code_challenge', value: '', type: 'string' });
+		variables.push({ key: 'code_challenge_method', value: 'S256', type: 'string' });
+		variables.push({ key: 'client_credentials_basic', value: '', type: 'string' });
+		variables.push({ key: 'user_client_credentials_basic', value: '', type: 'string' });
+		variables.push({ key: 'basic_auth', value: '', type: 'string' });
+		variables.push({ key: 'client_secret_jwt', value: '', type: 'string' });
+		variables.push({ key: 'client_assertion_jwt', value: '', type: 'string' });
+		variables.push({ key: 'user_client_assertion_jwt', value: '', type: 'string' });
+		variables.push({ key: 'private_key_jwt', value: '', type: 'string' });
+		variables.push({ key: 'client_assertion_jwt_private', value: '', type: 'string' });
+		variables.push({ key: 'user_client_assertion_jwt_private', value: '', type: 'string' });
+		variables.push({ key: 'pi_flow_id', value: '', type: 'string' });
+		variables.push({ key: 'request_uri', value: '', type: 'string' });
+		variables.push({ key: 'device_code', value: '', type: 'string' });
+		variables.push({ key: 'user_code', value: '', type: 'string' });
+		variables.push({ key: 'verification_uri', value: '', type: 'string' });
+		variables.push({ key: 'verification_uri_complete', value: '', type: 'string' });
+		variables.push({ key: 'device_code_expires_in', value: '', type: 'string' });
+		variables.push({ key: 'device_code_expires_at', value: '', type: 'string' });
+		variables.push({ key: 'device_code_interval', value: '5', type: 'string' });
+		variables.push({ key: 'nonce', value: '', type: 'string' });
+		variables.push({ key: 'response_mode', value: 'query', type: 'string' });
+		variables.push({ key: 'redirectless_flowId', value: '', type: 'string' });
+		variables.push({ key: 'redirectless_resumeUrl', value: '', type: 'string' });
+		variables.push({ key: 'redirectless_sessionId', value: '', type: 'string' });
+		variables.push({ key: 'redirectless_status', value: '', type: 'string' });
+		variables.push({ key: 'username', value: '', type: 'string' });
+		variables.push({ key: 'password', value: '', type: 'string' });
+		variables.push({ key: 'otp_code', value: '', type: 'string' });
+		variables.push({ key: 'flowId', value: '', type: 'string' });
+		variables.push({ key: 'flowID', value: '', type: 'string' });
+		variables.push({ key: 'interactionId', value: '', type: 'string' });
+		variables.push({ key: 'interactionToken', value: '', type: 'string' });
+		variables.push({ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' });
+		variables.push({ key: 'userId', value: '', type: 'string' });
+		variables.push({ key: 'current_password', value: '', type: 'string' });
+		variables.push({ key: 'new_password', value: '', type: 'string' });
+		variables.push({ key: 'currentPassword', value: '', type: 'string' });
+		variables.push({ key: 'newPassword', value: '', type: 'string' });
+		variables.push({ key: 'userPassword', value: '', type: 'string' });
+		variables.push({ key: 'authCode', value: '', type: 'string' });
+		variables.push({ key: 'SignInSignonPolicyID', value: '', type: 'string' });
+		// Use case variables (default to Babe Ruth for example data)
+		variables.push({ key: 'email', value: 'babe.ruth@example.com', type: 'string' });
+		variables.push({ key: 'givenName', value: 'Babe', type: 'string' });
+		variables.push({ key: 'familyName', value: 'Ruth', type: 'string' });
+		variables.push({ key: 'phone', value: '', type: 'string' });
+		variables.push({ key: 'populationId', value: '', type: 'string' });
+		variables.push({ key: 'initialPassword', value: '', type: 'string' });
+		variables.push({ key: 'emailVerificationCode', value: '', type: 'string' });
+		variables.push({ key: 'recoveryCode', value: '', type: 'string' });
+		variables.push({ key: 'emailVerificationRequired', value: 'false', type: 'boolean' });
+		variables.push({ key: 'userToken', value: '', type: 'string' });
 
-	// OAuth 2.0: Authorization Code with Form POST (enhanced security)
-	oauth20Items.push(
-		buildAuthorizationCodeFlow('oauth2.0', 'client_secret_post', baseUrl, false, false, 'form_post')
-	);
+		// Build collection items grouped by OAuth 2.0, OIDC, and OIDC 2.1
+		const oauth20Items: PostmanCollectionItem[] = [];
+		const oidcItems: PostmanCollectionItem[] = [];
+		const oidc21Items: PostmanCollectionItem[] = [];
 
-	// OAuth 2.0: Client Credentials (Client Secret Post)
-	oauth20Items.push({
-		name: 'Client Credentials (Client Secret Post)',
-		item: [
-			{
-				name: 'Get Access Token',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'client_credentials' },
-							{ key: 'scope', value: '{{scopes_oauth2}}' },
-							{ key: 'client_id', value: '{{user_client_id}}' },
-							{ key: 'client_secret', value: '{{user_client_secret}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Client Credentials Grant - OAuth 2.0 (Client Secret Post)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using client_id and client_secret in request body\n- Returns access_token only (no id_token, no refresh_token)\n- Used for machine-to-machine communication (M2M)\n- OAuth 2.0: No offline_access scope needed (refresh tokens not applicable)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// OAuth 2.0: Extract access_token only (no id_token, no refresh_token)',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Extract access_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OAuth 2.0 - Client Credentials)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'        console.log("📋 Token scope:", jsonData.scope);',
-								'    }',
-								'    ',
-								'    // Note: OAuth 2.0 Client Credentials does not return id_token or refresh_token',
-								'    console.log("✅ Client Credentials flow completed successfully!");',
-								'} else {',
-								'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'            ',
-								'            // Common errors',
-								'            if (jsonData.error === "invalid_client") {',
-								'                console.log("   💡 Tip: Verify client_id and client_secret are correct");',
-								'            } else if (jsonData.error === "invalid_scope") {',
-								'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
+		// ============================================
+		// OAuth 2.0 Flows
+		// ============================================
+		// OAuth 2.0: Simple Authorization Code with Query String (default, no PKCE, no id_token, no offline_access)
+		oauth20Items.push(
+			buildAuthorizationCodeFlow('oauth2.0', 'client_secret_post', baseUrl, false, false, 'query')
+		);
+		oauth20Items.push(
+			buildAuthorizationCodeFlow('oauth2.0', 'client_secret_basic', baseUrl, false, false, 'query')
+		);
+		oauth20Items.push(
+			buildAuthorizationCodeFlow('oauth2.0', 'client_secret_jwt', baseUrl, false, false, 'query')
+		);
+		oauth20Items.push(
+			buildAuthorizationCodeFlow('oauth2.0', 'private_key_jwt', baseUrl, false, false, 'query')
+		);
 
-	// OAuth 2.0: Client Credentials (Client Secret Basic)
-	oauth20Items.push({
-		name: 'Client Credentials (Client Secret Basic)',
-		item: [
-			{
-				name: 'Get Access Token',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-						{ key: 'Authorization', value: 'Basic {{user_client_credentials_basic}}' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'client_credentials' },
-							{ key: 'scope', value: '{{scopes_oauth2}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Client Credentials Grant - OAuth 2.0 (Client Secret Basic)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using HTTP Basic Authentication (client_id:client_secret in Authorization header)\n- More secure than client_secret_post (credentials not in request body)\n- Returns access_token only (no id_token, no refresh_token)\n- Used for machine-to-machine communication (M2M)\n- OAuth 2.0: No offline_access scope needed (refresh tokens not applicable)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)\n- Note: Uses {{user_client_credentials_basic}} which is automatically generated from {{user_client_id}} and {{user_client_secret}}',
-				},
-				event: [
-					{
-						listen: 'prerequest' as const,
-						script: {
-							exec: [
-								'// Generate Basic Auth header for Client Credentials',
-								'const clientId = pm.environment.get("user_client_id");',
-								'const clientSecret = pm.environment.get("user_client_secret");',
-								'if (clientId && clientSecret) {',
-								'    const basicAuth = btoa(clientId + ":" + clientSecret);',
-								'    pm.environment.set("user_client_credentials_basic", basicAuth);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// OAuth 2.0: Extract access_token only (no id_token, no refresh_token)',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Extract access_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OAuth 2.0 - Client Credentials Basic)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'        console.log("📋 Token scope:", jsonData.scope);',
-								'    }',
-								'    ',
-								'    // Note: OAuth 2.0 Client Credentials does not return id_token or refresh_token',
-								'    console.log("✅ Client Credentials flow completed successfully (Basic Auth)!");',
-								'} else {',
-								'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'            ',
-								'            // Common errors',
-								'            if (jsonData.error === "invalid_client") {',
-								'                console.log("   💡 Tip: Verify user_client_id and user_client_secret in Authorization header are correct");',
-								'                console.log("   💡 Tip: Verify {{user_client_credentials_basic}} = base64(user_client_id:user_client_secret)");',
-								'            } else if (jsonData.error === "invalid_scope") {',
-								'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
+		// OAuth 2.0: Authorization Code with Form POST (enhanced security)
+		oauth20Items.push(
+			buildAuthorizationCodeFlow(
+				'oauth2.0',
+				'client_secret_post',
+				baseUrl,
+				false,
+				false,
+				'form_post'
+			)
+		);
 
-	// OAuth 2.0: Device Code Flow
-	oauth20Items.push({
-		name: 'Device Code Flow',
-		item: [
-			{
-				name: '1. Request Device Authorization',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'client_id', value: '{{user_client_id}}' },
-							{ key: 'scope', value: '{{scopes_oauth2}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/device_authorization`),
-					description:
-						'**Device Code Flow - OAuth 2.0 (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OAuth 2.0: Returns access_token only (no id_token)\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Extract all Device Code Flow response values',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Required: device_code for polling',
-								'    if (jsonData.device_code) {',
-								'        pm.environment.set("device_code", jsonData.device_code);',
-								'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
-								'    }',
-								'    ',
-								'    // Required: user_code for user to enter',
-								'    if (jsonData.user_code) {',
-								'        pm.environment.set("user_code", jsonData.user_code);',
-								'        console.log("✅ User code saved:", jsonData.user_code);',
-								'        console.log("   👤 User must enter this code at verification URI");',
-								'    }',
-								'    ',
-								'    // Required: verification_uri where user enters code',
-								'    if (jsonData.verification_uri) {',
-								'        pm.environment.set("verification_uri", jsonData.verification_uri);',
-								'        console.log("✅ Verification URI:", jsonData.verification_uri);',
-								'    }',
-								'    ',
-								'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
-								'    if (jsonData.verification_uri_complete) {',
-								'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
-								'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
-								'    }',
-								'    ',
-								'    // Required: expires_in (device code expiration in seconds, typically 900)',
-								'    if (jsonData.expires_in) {',
-								'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    ',
-								'    // Required: interval (polling interval in seconds, typically 5)',
-								'    const interval = jsonData.interval || 5;',
-								'    pm.environment.set("device_code_interval", interval.toString());',
-								'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
-								'    console.log("");',
-								'    console.log("📋 Next Steps:");',
-								'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
-								'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
-								'    console.log("   3. User authenticates and authorizes");',
-								'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
-								'} else {',
-								'    console.log("❌ Device authorization request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-			{
-				name: '2. Poll for Tokens',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
-							{ key: 'device_code', value: '{{device_code}}' },
-							{ key: 'client_id', value: '{{user_client_id}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Poll for Tokens - Device Code Flow (OAuth 2.0)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OAuth 2.0: Returns access_token only (no id_token)\n- Refresh token available if requested in scope',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Handle Device Code Flow polling responses',
-								'if (pm.response.code === 200) {',
-								'    // Success: User authorized, extract tokens',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // OAuth 2.0: Extract access_token only (no id_token)',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OAuth 2.0 - no id_token)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'    }',
-								'    ',
-								'    // Note: OAuth 2.0 Device Code Flow does not return refresh_token or id_token',
-								'    console.log("✅ Device Code Flow completed successfully!");',
-								'} else if (pm.response.code === 400) {',
-								'    // Handle polling errors',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    if (jsonData.error === "authorization_pending") {',
-								'        console.log("⏳ Authorization pending - user has not authorized yet");',
-								'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
-								'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
-								'    } else if (jsonData.error === "slow_down") {',
-								'        console.log("⚠️ Slow down - polling too frequently");',
-								'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        const newInterval = currentInterval + 5;',
-								'        pm.environment.set("device_code_interval", newInterval.toString());',
-								'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
-								'    } else if (jsonData.error === "expired_token") {',
-								'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else if (jsonData.error === "access_denied") {',
-								'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else {',
-								'        console.log("❌ Polling failed:", jsonData.error);',
-								'        if (jsonData.error_description) {',
-								'            console.log("   Description:", jsonData.error_description);',
-								'        }',
-								'    }',
-								'} else {',
-								'    console.log("❌ Unexpected response code:", pm.response.code);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OAuth 2.0: Implicit Flow (deprecated in OAuth 2.1, but still part of OAuth 2.0)
-	// OAuth 2.0 Implicit uses response_type=token (access token only, no id_token)
-	oauth20Items.push({
-		name: 'Implicit Flow (URL Fragment)',
-		item: [
-			{
-				name: '1. Build Authorization URL',
-				request: {
-					method: 'GET',
-					url: parseUrl(
-						`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=token&redirect_uri={{redirect_uri}}&scope={{scopes_oauth2}}&state={{state}}&response_mode=fragment`
-					),
-				},
-				description:
-					'**Implicit Flow - OAuth 2.0 (URL Fragment)**\n\n**Educational Context:**\n- OAuth 2.0 Implicit flow (deprecated in OAuth 2.1, but still part of OAuth 2.0)\n- Tokens returned directly in URL fragment (not secure)\n- OAuth 2.0: Returns access_token only (response_type=token, no id_token)\n- No refresh_token (use Authorization Code flow instead)\n- response_mode=fragment is the default for implicit flow\n- ⚠️ Deprecated in OAuth 2.1 for security reasons',
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Note: In real OAuth 2.0 Implicit flow, access_token comes in redirect URL fragment',
-								'// This is a placeholder - actual token extraction happens from callback URL',
-								'// Example callback URL: https://example.com/callback#access_token=...&token_type=Bearer&expires_in=3600&state=...',
-								'if (pm.response.code === 200 || pm.response.code === 302) {',
-								'    console.log("✅ Authorization URL generated for OAuth 2.0 Implicit Flow");',
-								'    console.log("⚠️ Access token will be in redirect URL fragment, not in response body");',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OAuth 2.0: Implicit Flow with Form POST (alternative)
-	oauth20Items.push({
-		name: 'Implicit Flow (Form POST)',
-		item: [
-			{
-				name: '1. Build Authorization URL',
-				request: {
-					method: 'GET',
-					url: parseUrl(
-						`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=token&redirect_uri={{redirect_uri}}&scope={{scopes_oauth2}}&state={{state}}&response_mode=form_post`
-					),
-				},
-				description:
-					'**Implicit Flow - OAuth 2.0 (Form POST)**\n\n**Educational Context:**\n- OAuth 2.0 Implicit flow with form_post response mode\n- More secure than fragment (no tokens in URL)\n- OAuth 2.0: Returns access_token only (response_type=token, no id_token)\n- Tokens sent via HTTP POST as form data\n- Requires server-side form processing\n- ⚠️ Deprecated in OAuth 2.1 for security reasons',
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Note: In form_post mode, tokens come via POST to redirect_uri',
-								'// This is a placeholder - actual token extraction happens from POST body',
-								'if (pm.response.code === 200 || pm.response.code === 302) {',
-								'    console.log("✅ Authorization URL generated for OAuth 2.0 Implicit Flow (Form POST)");',
-								'    console.log("⚠️ Access token will be in POST body to redirect_uri, not in response body");',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// ============================================
-	// OIDC Flows
-	// ============================================
-	// OIDC: Simple Authorization Code with Query String (no PKCE required, but optional)
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'query')
-	);
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, false, false, 'query')
-	);
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_jwt', baseUrl, false, false, 'query')
-	);
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'private_key_jwt', baseUrl, false, false, 'query')
-	);
-
-	// OIDC: Authorization Code with URL Fragment (for SPAs)
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'fragment')
-	);
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, false, false, 'fragment')
-	);
-
-	// OIDC: Authorization Code with Form POST (enhanced security)
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'form_post')
-	);
-
-	// OIDC: Authorization Code with PKCE and Query String (optional)
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, true, false, 'query')
-	);
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, true, false, 'query')
-	);
-
-	// OIDC: Authorization Code with PKCE and URL Fragment (optional)
-	oidcItems.push(
-		buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, true, false, 'fragment')
-	);
-
-	// OIDC: Implicit Flow (deprecated but still supported)
-	// Implicit flow uses fragment by default (required by spec)
-	oidcItems.push({
-		name: 'Implicit Flow (URL Fragment)',
-		item: [
-			{
-				name: '1. Build Authorization URL',
-				request: {
-					method: 'GET',
-					url: parseUrl(
-						`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=id_token token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=fragment`
-					),
-				},
-				description:
-					'**Implicit Flow - OIDC (URL Fragment)**\n\n**Educational Context:**\n- OIDC Implicit flow (deprecated in OAuth 2.1, but still supported)\n- Tokens returned directly in URL fragment (not secure)\n- Returns access_token and id_token\n- No refresh_token (use Authorization Code flow instead)\n- Requires nonce for id_token validation\n- response_mode=fragment is the default for implicit flow',
-			},
-		],
-	});
-
-	// OIDC: Implicit Flow with Form POST (alternative)
-	oidcItems.push({
-		name: 'Implicit Flow (Form POST)',
-		item: [
-			{
-				name: '1. Build Authorization URL',
-				request: {
-					method: 'GET',
-					url: parseUrl(
-						`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=id_token token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=form_post`
-					),
-				},
-				description:
-					'**Implicit Flow - OIDC (Form POST)**\n\n**Educational Context:**\n- OIDC Implicit flow with form_post response mode\n- More secure than fragment (no tokens in URL)\n- Tokens sent via HTTP POST as form data\n- Requires server-side form processing',
-			},
-		],
-	});
-
-	// OIDC: Device Code Flow
-	oidcItems.push({
-		name: 'Device Code Flow',
-		item: [
-			{
-				name: '1. Request Device Authorization',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'client_id', value: '{{user_client_id}}' },
-							{ key: 'scope', value: '{{scopes_oidc}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/device_authorization`),
-					description:
-						'**Device Code Flow - OIDC (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OIDC: Returns access_token AND id_token when authorized\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes\n- Requires openid scope for id_token',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Extract all Device Code Flow response values',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Required: device_code for polling',
-								'    if (jsonData.device_code) {',
-								'        pm.environment.set("device_code", jsonData.device_code);',
-								'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
-								'    }',
-								'    ',
-								'    // Required: user_code for user to enter',
-								'    if (jsonData.user_code) {',
-								'        pm.environment.set("user_code", jsonData.user_code);',
-								'        console.log("✅ User code saved:", jsonData.user_code);',
-								'        console.log("   👤 User must enter this code at verification URI");',
-								'    }',
-								'    ',
-								'    // Required: verification_uri where user enters code',
-								'    if (jsonData.verification_uri) {',
-								'        pm.environment.set("verification_uri", jsonData.verification_uri);',
-								'        console.log("✅ Verification URI:", jsonData.verification_uri);',
-								'    }',
-								'    ',
-								'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
-								'    if (jsonData.verification_uri_complete) {',
-								'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
-								'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
-								'    }',
-								'    ',
-								'    // Required: expires_in (device code expiration in seconds, typically 900)',
-								'    if (jsonData.expires_in) {',
-								'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    ',
-								'    // Required: interval (polling interval in seconds, typically 5)',
-								'    const interval = jsonData.interval || 5;',
-								'    pm.environment.set("device_code_interval", interval.toString());',
-								'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
-								'    console.log("");',
-								'    console.log("📋 Next Steps:");',
-								'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
-								'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
-								'    console.log("   3. User authenticates and authorizes");',
-								'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
-								'} else {',
-								'    console.log("❌ Device authorization request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-			{
-				name: '2. Poll for Tokens',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
-							{ key: 'device_code', value: '{{device_code}}' },
-							{ key: 'client_id', value: '{{user_client_id}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Poll for Tokens - Device Code Flow (OIDC)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token and id_token (OIDC)\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OIDC: Returns access_token, id_token, and refresh_token (if offline_access scope requested)',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Handle Device Code Flow polling responses (OIDC)',
-								'if (pm.response.code === 200) {',
-								'    // Success: User authorized, extract tokens',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // OIDC: Extract access_token and id_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OIDC)");',
-								'    }',
-								'    ',
-								'    if (jsonData.id_token) {',
-								'        pm.environment.set("id_token", jsonData.id_token);',
-								'        console.log("✅ ID token received (OIDC)");',
-								'    }',
-								'    ',
-								'    if (jsonData.refresh_token) {',
-								'        pm.environment.set("refresh_token", jsonData.refresh_token);',
-								'        console.log("✅ Refresh token received (offline_access scope requested)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'    }',
-								'    ',
-								'    console.log("✅ Device Code Flow completed successfully (OIDC)!");',
-								'} else if (pm.response.code === 400) {',
-								'    // Handle polling errors',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    if (jsonData.error === "authorization_pending") {',
-								'        console.log("⏳ Authorization pending - user has not authorized yet");',
-								'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
-								'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
-								'    } else if (jsonData.error === "slow_down") {',
-								'        console.log("⚠️ Slow down - polling too frequently");',
-								'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        const newInterval = currentInterval + 5;',
-								'        pm.environment.set("device_code_interval", newInterval.toString());',
-								'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
-								'    } else if (jsonData.error === "expired_token") {',
-								'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else if (jsonData.error === "access_denied") {',
-								'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else {',
-								'        console.log("❌ Polling failed:", jsonData.error);',
-								'        if (jsonData.error_description) {',
-								'            console.log("   Description:", jsonData.error_description);',
-								'        }',
-								'    }',
-								'} else {',
-								'    console.log("❌ Unexpected response code:", pm.response.code);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OIDC: Hybrid Flow (code id_token)
-	oidcItems.push({
-		name: 'Hybrid Flow (code id_token)',
-		item: [
-			{
-				name: '1. Build Authorization URL',
-				request: {
-					method: 'GET',
-					url: parseUrl(
-						`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=code id_token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=fragment`
-					),
-				},
-				description:
-					"**Hybrid Flow - OIDC (code id_token)**\n\n**Educational Context:**\n- OIDC Hybrid flow combines Authorization Code and Implicit flows\n- Returns both authorization code AND id_token immediately in redirect URL fragment\n- Code can be exchanged for access_token and refresh_token\n- id_token provides immediate user authentication (no need to wait for token exchange)\n- Requires nonce for id_token validation (prevents replay attacks)\n- response_mode=fragment is common for hybrid flows (tokens in URL fragment)\n- After user authorizes, you'll be redirected to redirect_uri with code and id_token in fragment\n- Example redirect: https://example.com/callback#code=abc123&id_token=xyz789&state=state123",
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Note: In real Hybrid Flow, user is redirected to redirect_uri with tokens in fragment',
-								'// This GET request initiates the authorization - actual tokens come in redirect callback',
-								'if (pm.response.code === 302) {',
-								'    // Handle redirect (normal case)',
-								'    const locationHeader = pm.response.headers.get("Location");',
-								'    if (locationHeader) {',
-								'        console.log("✅ Authorization URL generated for Hybrid Flow");',
-								'        console.log("   Redirecting to:", locationHeader);',
-								'        console.log("   After user authorizes, you\'ll be redirected to redirect_uri with:");',
-								'        console.log("   - code (authorization code) in URL fragment");',
-								'        console.log("   - id_token (user identity token) in URL fragment");',
-								'        console.log("   - state (for validation) in URL fragment");',
-								'        console.log("");',
-								'        console.log("📋 Next Steps:");',
-								'        console.log("   1. User completes authorization (opens redirect URL)");',
-								'        console.log("   2. User is redirected to redirect_uri with tokens in fragment");',
-								'        console.log("   3. Extract code and id_token from redirect URL fragment");',
-								'        console.log("   4. Call Exchange Authorization Code step to get access_token");',
-								'    }',
-								'} else if (pm.response.code === 200) {',
-								'    console.log("✅ Authorization URL generated for Hybrid Flow");',
-								'    console.log("⚠️ Note: In real flow, user completes authorization and is redirected to redirect_uri");',
-								'} else {',
-								'    console.log("❌ Authorization URL generation failed:", pm.response.code);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-			{
-				name: '2. Parse Redirect Callback (Demonstration - Extract code and id_token from fragment)',
-				request: {
-					method: 'GET',
-					url: {
-						raw: 'https://example.com/callback#code={{authorization_code}}&id_token={{id_token}}&state={{state}}',
-						protocol: 'https',
-						host: ['example', 'com'],
-						path: ['callback'],
-					},
-					description:
-						'**Parse Redirect Callback - Hybrid Flow (Demonstration Step)**\n\n**⚠️ NOTE: This is a DEMONSTRATION step, not a real PingOne API call**\n- This step shows how to extract code and id_token from redirect URL fragment\n- In real applications, this parsing happens automatically in your callback handler\n- After user authorizes, PingOne redirects to redirect_uri with tokens in fragment\n- Example redirect URL: https://example.com/callback#code=abc123&id_token=xyz789&state=state123\n- Extract:\n  - code: authorization code (use in token exchange - Step 3)\n  - id_token: user identity token (already received in Step 1, no need to wait for exchange)\n  - state: validate matches original state parameter (security check)\n- In Postman: Manually extract from redirect URL or use the test script below\n- The test script below demonstrates the parsing logic that your application would use',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Extract code and id_token from redirect URL fragment',
-								'// In real application, this happens automatically when user is redirected',
-								'// This script demonstrates extraction logic (adjust based on actual redirect URL)',
-								'',
-								'// Method 1: Extract from current URL (if callback handler)',
-								'const currentUrl = pm.request.url.toString();',
-								'if (currentUrl.includes("#")) {',
-								'    const fragment = currentUrl.split("#")[1];',
-								'    const params = new URLSearchParams(fragment);',
-								'    ',
-								'    // Extract authorization code',
-								'    const code = params.get("code");',
-								'    if (code) {',
-								'        pm.environment.set("authorization_code", code);',
-								'        console.log("✅ Authorization code extracted from fragment:", code);',
-								'    }',
-								'    ',
-								'    // Extract id_token (already received in Hybrid Flow)',
-								'    const idToken = params.get("id_token");',
-								'    if (idToken) {',
-								'        pm.environment.set("id_token", idToken);',
-								'        console.log("✅ ID token extracted from fragment (Hybrid Flow):", idToken.substring(0, 50) + "...");',
-								'        console.log("   💡 ID token already received - no need to wait for token exchange!");',
-								'    }',
-								'    ',
-								'    // Extract and validate state',
-								'    const state = params.get("state");',
-								'    if (state) {',
-								'        const originalState = pm.environment.get("state");',
-								'        if (state === originalState) {',
-								'            console.log("✅ State parameter validated:", state);',
-								'        } else {',
-								'            console.log("⚠️ State mismatch - possible CSRF attack!");',
-								'        }',
-								'    }',
-								'}',
-								'',
-								'// Method 2: If using a test request with full redirect URL as raw URL',
-								'// Parse from pm.request.url',
-								'if (pm.request.url && pm.request.url.toString().includes("#")) {',
-								'    const urlObj = new URL(pm.request.url.toString());',
-								'    const hash = urlObj.hash.substring(1); // Remove #',
-								'    const params = new URLSearchParams(hash);',
-								'    ',
-								'    if (params.get("code")) {',
-								'        pm.environment.set("authorization_code", params.get("code"));',
-								'    }',
-								'    if (params.get("id_token")) {',
-								'        pm.environment.set("id_token", params.get("id_token"));',
-								'    }',
-								'    if (params.get("state")) {',
-								'        pm.environment.set("state", params.get("state"));',
-								'    }',
-								'}',
-								'',
-								'console.log("📋 Hybrid Flow callback parsed:");',
-								'console.log("   - Authorization code:", pm.environment.get("authorization_code") || "not found");',
-								'console.log("   - ID token:", pm.environment.get("id_token") ? "extracted" : "not found");',
-								'console.log("");',
-								'console.log("✅ Next step: Exchange Authorization Code for access_token (id_token already received)");',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-			{
-				name: '3. Exchange Authorization Code for Access Token',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'authorization_code' },
-							{ key: 'code', value: '{{authorization_code}}' },
-							{ key: 'redirect_uri', value: '{{redirect_uri}}' },
-							{ key: 'client_id', value: '{{user_client_id}}' },
-							{ key: 'client_secret', value: '{{user_client_secret}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Token Exchange - Hybrid Flow (OIDC)**\n\n**Educational Context:**\n- Exchanges authorization code for access_token and refresh_token\n- id_token was already received in authorization response (Step 1 redirect fragment)\n- Returns access_token for API calls\n- Returns refresh_token if offline_access scope requested\n- Note: In Hybrid Flow, id_token comes immediately in Step 1, so you have user identity before token exchange\n- This is the key advantage of Hybrid Flow over standard Authorization Code flow',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Extract tokens from token exchange response',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Extract access_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (Hybrid Flow)");',
-								'    }',
-								'    ',
-								'    // Note: id_token was already received in Step 1 redirect fragment',
-								'    // Do not overwrite it if it was already set',
-								'    if (jsonData.id_token && !pm.environment.get("id_token")) {',
-								'        pm.environment.set("id_token", jsonData.id_token);',
-								'        console.log("✅ ID token received (backup from token exchange)");',
-								'    } else if (pm.environment.get("id_token")) {',
-								'        console.log("✅ ID token already received from Step 1 redirect (Hybrid Flow advantage)");',
-								'    }',
-								'    ',
-								'    // Extract refresh_token (if offline_access scope requested)',
-								'    if (jsonData.refresh_token) {',
-								'        pm.environment.set("refresh_token", jsonData.refresh_token);',
-								'        console.log("✅ Refresh token received (offline_access scope requested)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'    }',
-								'    ',
-								'    console.log("✅ Hybrid Flow completed successfully!");',
-								'    console.log("   - ID token: Already received from Step 1 (immediate authentication)");',
-								'    console.log("   - Access token: Received from token exchange (for API calls)");',
-								'    console.log("   - Refresh token: Received if offline_access scope requested");',
-								'} else {',
-								'    console.log("❌ Token exchange failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OIDC: Introspection and UserInfo
-	oidcItems.push({
-		name: 'Introspect Token',
-		request: {
-			method: 'POST',
-			header: [
-				{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-				{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
-			],
-			body: {
-				mode: 'urlencoded',
-				urlencoded: [
-					{ key: 'token', value: '{{access_token}}' },
-					{ key: 'token_type_hint', value: 'access_token' },
-				],
-			},
-			url: parseUrl(`${baseUrl}/as/introspect`),
-			description:
-				'**Token Introspection - OIDC**\n\n**Educational Context:**\n- Validates access_token and returns token metadata\n- Returns active status, expiration, scopes, etc.\n- Requires worker token for authentication',
-		},
-	});
-
-	oidcItems.push({
-		name: 'Get UserInfo',
-		request: {
-			method: 'GET',
-			header: [{ key: 'Authorization', value: 'Bearer {{access_token}}' }],
-			url: parseUrl(`${baseUrl}/as/userinfo`),
-			description:
-				'**UserInfo Endpoint - OIDC**\n\n**Educational Context:**\n- Returns user claims (profile, email, etc.)\n- Requires valid access_token\n- OIDC-specific endpoint (not in OAuth 2.0)',
-		},
-	});
-
-	// ============================================
-	// OIDC 2.1 Flows
-	// ============================================
-	// OIDC 2.1: Authorization Code with PKCE and Query String (REQUIRED)
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'query')
-	);
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, false, 'query')
-	);
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_jwt', baseUrl, true, false, 'query')
-	);
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'private_key_jwt', baseUrl, true, false, 'query')
-	);
-
-	// OIDC 2.1: Authorization Code with PKCE and URL Fragment
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'fragment')
-	);
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, false, 'fragment')
-	);
-
-	// OIDC 2.1: Authorization Code with PKCE and Form POST
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'form_post')
-	);
-
-	// OIDC 2.1: Authorization Code with PKCE and PAR (Query String)
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, true, 'query')
-	);
-	oidc21Items.push(
-		buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, true, 'query')
-	);
-
-	// OIDC 2.1: Client Credentials (Client Secret Post)
-	oidc21Items.push({
-		name: 'Client Credentials (Client Secret Post)',
-		item: [
-			{
-				name: 'Get Access Token',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'client_credentials' },
-							{ key: 'scope', value: '{{scopes_oidc21}}' },
-							{ key: 'client_id', value: '{{client_id}}' },
-							{ key: 'client_secret', value: '{{client_secret}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Client Credentials Grant - OIDC 2.1 (Client Secret Post)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using client_id and client_secret in request body\n- OIDC 2.1: May return id_token if openid scope requested\n- Returns access_token (and id_token if openid scope requested)\n- No refresh_token (refresh tokens not applicable to Client Credentials flow)\n- Used for machine-to-machine communication (M2M)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// OIDC 2.1: Extract access_token and id_token (if openid scope requested)',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Extract access_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OIDC 2.1 - Client Credentials)");',
-								'    }',
-								'    ',
-								'    // OIDC 2.1: Extract id_token if openid scope requested',
-								'    if (jsonData.id_token) {',
-								'        pm.environment.set("id_token", jsonData.id_token);',
-								'        console.log("✅ ID token received (OIDC 2.1 - openid scope requested)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'        console.log("📋 Token scope:", jsonData.scope);',
-								'    }',
-								'    ',
-								'    // Note: Client Credentials flow does not return refresh_token',
-								'    console.log("✅ Client Credentials flow completed successfully (OIDC 2.1)!");',
-								'} else {',
-								'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'            ',
-								'            // Common errors',
-								'            if (jsonData.error === "invalid_client") {',
-								'                console.log("   💡 Tip: Verify client_id and client_secret are correct");',
-								'            } else if (jsonData.error === "invalid_scope") {',
-								'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
-								'                console.log("   💡 Tip: Request openid scope to receive id_token");',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OIDC 2.1: Client Credentials (Client Secret Basic)
-	oidc21Items.push({
-		name: 'Client Credentials (Client Secret Basic)',
-		item: [
-			{
-				name: 'Get Access Token',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-						{ key: 'Authorization', value: 'Basic {{user_client_credentials_basic}}' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'client_credentials' },
-							{ key: 'scope', value: '{{scopes_oidc21}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Client Credentials Grant - OIDC 2.1 (Client Secret Basic)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using HTTP Basic Authentication (client_id:client_secret in Authorization header)\n- More secure than client_secret_post (credentials not in request body)\n- OIDC 2.1: May return id_token if openid scope requested\n- Returns access_token (and id_token if openid scope requested)\n- No refresh_token (refresh tokens not applicable to Client Credentials flow)\n- Used for machine-to-machine communication (M2M)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)\n- Note: Uses {{user_client_credentials_basic}} which is automatically generated from {{user_client_id}} and {{user_client_secret}}',
-				},
-				event: [
-					{
-						listen: 'prerequest' as const,
-						script: {
-							exec: [
-								'// Generate Basic Auth header for Client Credentials',
-								'const clientId = pm.environment.get("user_client_id");',
-								'const clientSecret = pm.environment.get("user_client_secret");',
-								'if (clientId && clientSecret) {',
-								'    const basicAuth = btoa(clientId + ":" + clientSecret);',
-								'    pm.environment.set("user_client_credentials_basic", basicAuth);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// OIDC 2.1: Extract access_token and id_token (if openid scope requested)',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Extract access_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OIDC 2.1 - Client Credentials Basic)");',
-								'    }',
-								'    ',
-								'    // OIDC 2.1: Extract id_token if openid scope requested',
-								'    if (jsonData.id_token) {',
-								'        pm.environment.set("id_token", jsonData.id_token);',
-								'        console.log("✅ ID token received (OIDC 2.1 - openid scope requested)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'        console.log("📋 Token scope:", jsonData.scope);',
-								'    }',
-								'    ',
-								'    // Note: Client Credentials flow does not return refresh_token',
-								'    console.log("✅ Client Credentials flow completed successfully (OIDC 2.1 - Basic Auth)!");',
-								'} else {',
-								'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'            ',
-								'            // Common errors',
-								'            if (jsonData.error === "invalid_client") {',
-								'                console.log("   💡 Tip: Verify user_client_id and user_client_secret in Authorization header are correct");',
-								'                console.log("   💡 Tip: Verify {{user_client_credentials_basic}} = base64(user_client_id:user_client_secret)");',
-								'            } else if (jsonData.error === "invalid_scope") {',
-								'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
-								'                console.log("   💡 Tip: Request openid scope to receive id_token");',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OIDC 2.1: Device Code Flow (same as OIDC, but with OIDC 2.1 baseline)
-	oidc21Items.push({
-		name: 'Device Code Flow',
-		item: [
-			{
-				name: '1. Request Device Authorization',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'client_id', value: '{{client_id}}' },
-							{ key: 'scope', value: '{{scopes_oidc21}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/device_authorization`),
-					description:
-						'**Device Code Flow - OIDC 2.1 (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OIDC 2.1: Returns access_token AND id_token when authorized\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes\n- OIDC 2.1: offline_access scope recommended for refresh tokens\n- Requires openid scope for id_token',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Extract all Device Code Flow response values (OIDC 2.1)',
-								'if (pm.response.code === 200) {',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // Required: device_code for polling',
-								'    if (jsonData.device_code) {',
-								'        pm.environment.set("device_code", jsonData.device_code);',
-								'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
-								'    }',
-								'    ',
-								'    // Required: user_code for user to enter',
-								'    if (jsonData.user_code) {',
-								'        pm.environment.set("user_code", jsonData.user_code);',
-								'        console.log("✅ User code saved:", jsonData.user_code);',
-								'        console.log("   👤 User must enter this code at verification URI");',
-								'    }',
-								'    ',
-								'    // Required: verification_uri where user enters code',
-								'    if (jsonData.verification_uri) {',
-								'        pm.environment.set("verification_uri", jsonData.verification_uri);',
-								'        console.log("✅ Verification URI:", jsonData.verification_uri);',
-								'    }',
-								'    ',
-								'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
-								'    if (jsonData.verification_uri_complete) {',
-								'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
-								'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
-								'    }',
-								'    ',
-								'    // Required: expires_in (device code expiration in seconds, typically 900)',
-								'    if (jsonData.expires_in) {',
-								'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
-								'    }',
-								'    ',
-								'    // Required: interval (polling interval in seconds, typically 5)',
-								'    const interval = jsonData.interval || 5;',
-								'    pm.environment.set("device_code_interval", interval.toString());',
-								'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
-								'    console.log("");',
-								'    console.log("📋 Next Steps:");',
-								'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
-								'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
-								'    console.log("   3. User authenticates and authorizes");',
-								'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
-								'} else {',
-								'    console.log("❌ Device authorization request failed:", pm.response.code);',
-								'    try {',
-								'        const jsonData = pm.response.json();',
-								'        if (jsonData.error) {',
-								'            console.log("   Error:", jsonData.error);',
-								'            if (jsonData.error_description) {',
-								'                console.log("   Description:", jsonData.error_description);',
-								'            }',
-								'        }',
-								'    } catch (e) {',
-								'        // Response may not be JSON',
-								'    }',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-			{
-				name: '2. Poll for Tokens',
-				request: {
-					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-						{ key: 'Accept', value: 'application/json' },
-					],
-					body: {
-						mode: 'urlencoded',
-						urlencoded: [
-							{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
-							{ key: 'device_code', value: '{{device_code}}' },
-							{ key: 'client_id', value: '{{user_client_id}}' },
-						],
-					},
-					url: parseUrl(`${baseUrl}/as/token`),
-					description:
-						'**Poll for Tokens - Device Code Flow (OIDC 2.1)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token and id_token (OIDC 2.1)\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OIDC 2.1: Returns access_token, id_token, and refresh_token (if offline_access scope requested)',
-				},
-				event: [
-					{
-						listen: 'test' as const,
-						script: {
-							exec: [
-								'// Handle Device Code Flow polling responses (OIDC 2.1)',
-								'if (pm.response.code === 200) {',
-								'    // Success: User authorized, extract tokens',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    // OIDC 2.1: Extract access_token, id_token, and refresh_token',
-								'    if (jsonData.access_token) {',
-								'        pm.environment.set("access_token", jsonData.access_token);',
-								'        console.log("✅ Access token received (OIDC 2.1)");',
-								'    }',
-								'    ',
-								'    if (jsonData.id_token) {',
-								'        pm.environment.set("id_token", jsonData.id_token);',
-								'        console.log("✅ ID token received (OIDC 2.1)");',
-								'    }',
-								'    ',
-								'    if (jsonData.refresh_token) {',
-								'        pm.environment.set("refresh_token", jsonData.refresh_token);',
-								'        console.log("✅ Refresh token received (offline_access scope requested)");',
-								'    }',
-								'    ',
-								'    // Extract token metadata',
-								'    if (jsonData.token_type) {',
-								'        pm.environment.set("token_type", jsonData.token_type);',
-								'    }',
-								'    if (jsonData.expires_in) {',
-								'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
-								'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
-								'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
-								'    }',
-								'    if (jsonData.scope) {',
-								'        pm.environment.set("token_scope", jsonData.scope);',
-								'    }',
-								'    ',
-								'    console.log("✅ Device Code Flow completed successfully (OIDC 2.1)!");',
-								'} else if (pm.response.code === 400) {',
-								'    // Handle polling errors',
-								'    const jsonData = pm.response.json();',
-								'    ',
-								'    if (jsonData.error === "authorization_pending") {',
-								'        console.log("⏳ Authorization pending - user has not authorized yet");',
-								'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
-								'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
-								'    } else if (jsonData.error === "slow_down") {',
-								'        console.log("⚠️ Slow down - polling too frequently");',
-								'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
-								'        const newInterval = currentInterval + 5;',
-								'        pm.environment.set("device_code_interval", newInterval.toString());',
-								'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
-								'    } else if (jsonData.error === "expired_token") {',
-								'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else if (jsonData.error === "access_denied") {',
-								'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
-								'        pm.environment.unset("device_code");',
-								'        pm.environment.unset("user_code");',
-								'    } else {',
-								'        console.log("❌ Polling failed:", jsonData.error);',
-								'        if (jsonData.error_description) {',
-								'            console.log("   Description:", jsonData.error_description);',
-								'        }',
-								'    }',
-								'} else {',
-								'    console.log("❌ Unexpected response code:", pm.response.code);',
-								'}',
-							],
-							type: 'text/javascript',
-						},
-					},
-				],
-			},
-		],
-	});
-
-	// OIDC 2.1: Introspection and UserInfo (same as OIDC)
-	oidc21Items.push({
-		name: 'Introspect Token',
-		request: {
-			method: 'POST',
-			header: [
-				{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-				{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
-			],
-			body: {
-				mode: 'urlencoded',
-				urlencoded: [
-					{ key: 'token', value: '{{access_token}}' },
-					{ key: 'token_type_hint', value: 'access_token' },
-				],
-			},
-			url: parseUrl(`${baseUrl}/as/introspect`),
-			description:
-				'**Token Introspection - OIDC 2.1**\n\n**Educational Context:**\n- Validates access_token and returns token metadata\n- OIDC 2.1: Enhanced security requirements',
-		},
-	});
-
-	oidc21Items.push({
-		name: 'Get UserInfo',
-		request: {
-			method: 'GET',
-			header: [{ key: 'Authorization', value: 'Bearer {{access_token}}' }],
-			url: parseUrl(`${baseUrl}/as/userinfo`),
-			description:
-				'**UserInfo Endpoint - OIDC 2.1**\n\n**Educational Context:**\n- Returns user claims\n- OIDC 2.1: Enhanced security requirements',
-		},
-	});
-
-	// ============================================
-	// Redirectless (PingOne pi.flow) - Separate Group
-	// ============================================
-	// Redirectless uses a separate API endpoint instead of standard authorization URL
-	const redirectlessItems: PostmanCollectionItem[] = [
-		{
-			name: 'Authentication',
+		// OAuth 2.0: Client Credentials (Client Secret Post)
+		oauth20Items.push({
+			name: 'Client Credentials (Client Secret Post)',
 			item: [
 				{
-					name: '1. Generate PKCE Codes',
-					request: {
-						method: 'GET',
-						url: parseUrl(`${baseUrl}/generate-pkce`),
-						description:
-							"**Generate PKCE Codes for Redirectless**\n\n**Educational Context:**\n- PKCE is REQUIRED for redirectless flows\n- Generates code_verifier (secret) and code_challenge (public)\n- Code challenge is SHA256 hash of code verifier\n- This is a local script step - the actual URL doesn't matter as the pre-request script generates the codes\n- The generated codes are automatically saved to environment variables: code_verifier, code_challenge, code_challenge_method",
-					},
-					event: [
-						{
-							listen: 'prerequest' as const,
-							script: {
-								exec: [
-									'// Generate PKCE code verifier and challenge',
-									'// This script runs BEFORE the request and generates the PKCE codes',
-									'function generateCodeVerifier() {',
-									'    const array = new Uint8Array(32);',
-									'    crypto.getRandomValues(array);',
-									'    return btoa(String.fromCharCode.apply(null, Array.from(array)))',
-									'        .replace(/\\+/g, "-")',
-									'        .replace(/\\//g, "_")',
-									'        .replace(/=/g, "");',
-									'}',
-									'',
-									'function generateCodeChallenge(verifier) {',
-									'    return CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64)',
-									'        .replace(/\\+/g, "-")',
-									'        .replace(/\\//g, "_")',
-									'        .replace(/=/g, "");',
-									'}',
-									'',
-									'const codeVerifier = generateCodeVerifier();',
-									'const codeChallenge = generateCodeChallenge(codeVerifier);',
-									'',
-									'pm.environment.set("code_verifier", codeVerifier);',
-									'pm.environment.set("code_challenge", codeChallenge);',
-									'pm.environment.set("code_challenge_method", "S256");',
-									'',
-									'console.log("✅ PKCE codes generated:");',
-									'console.log("   Code Verifier:", codeVerifier);',
-									'console.log("   Code Challenge:", codeChallenge);',
-									'console.log("   Method: S256");',
-								],
-								type: 'text/javascript',
-							},
-						},
-						{
-							listen: 'test' as const,
-							script: {
-								exec: [
-									'// Verify PKCE codes were generated',
-									'const codeVerifier = pm.environment.get("code_verifier");',
-									'const codeChallenge = pm.environment.get("code_challenge");',
-									'',
-									'if (codeVerifier && codeChallenge) {',
-									'    console.log("✅ PKCE codes successfully saved to environment variables");',
-									'    pm.test("PKCE codes generated", function () {',
-									'        pm.expect(codeVerifier).to.be.a("string");',
-									'        pm.expect(codeChallenge).to.be.a("string");',
-									'        pm.expect(codeVerifier.length).to.be.at.least(43);',
-									'        pm.expect(codeChallenge.length).to.be.at.least(43);',
-									'    });',
-									'} else {',
-									'    console.log("❌ PKCE codes generation failed");',
-									'}',
-								],
-								type: 'text/javascript',
-							},
-						},
-					],
-				},
-				{
-					name: '2. Start Auth Code Flow',
+					name: 'Get Access Token',
 					request: {
 						method: 'POST',
 						header: [
@@ -8593,65 +7170,265 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 						body: {
 							mode: 'urlencoded',
 							urlencoded: [
-								{ key: 'response_type', value: 'code' },
-								{ key: 'client_id', value: '{{client_id}}' },
-								{ key: 'scope', value: '{{scopes_oidc}}' },
-								{ key: 'redirect_uri', value: 'urn:pingidentity:redirectless' },
-								{ key: 'response_mode', value: 'pi.flow' },
-								{ key: 'code_challenge', value: '{{code_challenge}}' },
-								{ key: 'code_challenge_method', value: '{{code_challenge_method}}' },
-								{ key: 'state', value: '{{state}}' },
+								{ key: 'grant_type', value: 'client_credentials' },
+								{ key: 'scope', value: '{{scopes_oauth2}}' },
+								{ key: 'client_id', value: '{{user_client_id}}' },
+								{ key: 'client_secret', value: '{{user_client_secret}}' },
 							],
 						},
-						url: parseUrl(`${baseUrl}/as/authorize`),
+						url: parseUrl(`${baseUrl}/as/token`),
 						description:
-							'**Start Auth Code Flow (PingOne pi.flow)**\n\n**Educational Context:**\n- Starts the redirectless Authorization Code flow with response_mode=pi.flow\n- POST request to /as/authorize (not GET) - returns flow object in JSON response, not redirect\n- Perfect for embedded auth, mobile apps, and headless flows\n- PKCE is REQUIRED for redirectless flows\n- Returns flow object with flowId, status (USERNAME_PASSWORD_REQUIRED, MFA_REQUIRED, COMPLETE), and resumeUrl\n\n**Key Differences from Standard OAuth:**\n- Uses POST instead of GET\n- Includes response_mode=pi.flow parameter\n- Returns JSON flow object, not browser redirect\n- Requires Flows API (/flows/{flowId}) to continue authentication',
+							'**Client Credentials Grant - OAuth 2.0 (Client Secret Post)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using client_id and client_secret in request body\n- Returns access_token only (no id_token, no refresh_token)\n- Used for machine-to-machine communication (M2M)\n- OAuth 2.0: No offline_access scope needed (refresh tokens not applicable)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)',
 					},
 					event: [
 						{
 							listen: 'test' as const,
 							script: {
 								exec: [
-									'// Extract flow data from Start Auth Code Flow response',
+									'// OAuth 2.0: Extract access_token only (no id_token, no refresh_token)',
 									'if (pm.response.code === 200) {',
 									'    const jsonData = pm.response.json();',
 									'    ',
-									'    // Extract flowId (may be in id, _id, or flowId field)',
-									'    const flowId = jsonData.id || jsonData._id || jsonData.flowId;',
-									'    if (flowId) {',
-									'        pm.environment.set("flowId", flowId);',
-									'        pm.environment.set("redirectless_flowId", flowId);',
-									'        console.log("✅ Flow ID saved:", flowId);',
+									'    // Extract access_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OAuth 2.0 - Client Credentials)");',
 									'    }',
 									'    ',
-									'    // Extract resumeUrl or construct from flowId',
-									'    if (jsonData.resumeUrl) {',
-									'        pm.environment.set("redirectless_resumeUrl", jsonData.resumeUrl);',
-									'    } else if (flowId) {',
-									'        const envID = pm.environment.get("envID");',
-									// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Postman script code where template literals are valid
-									'        const resumeUrl = `https://auth.pingone.com/${envID}/as/resume?flowId=${flowId}`;',
-									'        pm.environment.set("redirectless_resumeUrl", resumeUrl);',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'        console.log("📋 Token scope:", jsonData.scope);',
 									'    }',
 									'    ',
-									'    // Extract sessionId (may be in _sessionId, sessionId, or _links.session.href)',
-									'    const sessionId = jsonData._sessionId || jsonData.sessionId || (jsonData._links && jsonData._links.session && jsonData._links.session.href ? jsonData._links.session.href.split("/").pop() : null);',
-									'    if (sessionId) {',
-									'        pm.environment.set("redirectless_sessionId", sessionId);',
+									'    // Note: OAuth 2.0 Client Credentials does not return id_token or refresh_token',
+									'    console.log("✅ Client Credentials flow completed successfully!");',
+									'} else {',
+									'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'            ',
+									'            // Common errors',
+									'            if (jsonData.error === "invalid_client") {',
+									'                console.log("   💡 Tip: Verify client_id and client_secret are correct");',
+									'            } else if (jsonData.error === "invalid_scope") {',
+									'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
+									'    }',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OAuth 2.0: Client Credentials (Client Secret Basic)
+		oauth20Items.push({
+			name: 'Client Credentials (Client Secret Basic)',
+			item: [
+				{
+					name: 'Get Access Token',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+							{ key: 'Authorization', value: 'Basic {{user_client_credentials_basic}}' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'client_credentials' },
+								{ key: 'scope', value: '{{scopes_oauth2}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/token`),
+						description:
+							'**Client Credentials Grant - OAuth 2.0 (Client Secret Basic)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using HTTP Basic Authentication (client_id:client_secret in Authorization header)\n- More secure than client_secret_post (credentials not in request body)\n- Returns access_token only (no id_token, no refresh_token)\n- Used for machine-to-machine communication (M2M)\n- OAuth 2.0: No offline_access scope needed (refresh tokens not applicable)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)\n- Note: Uses {{user_client_credentials_basic}} which is automatically generated from {{user_client_id}} and {{user_client_secret}}',
+					},
+					event: [
+						{
+							listen: 'prerequest' as const,
+							script: {
+								exec: [
+									'// Generate Basic Auth header for Client Credentials',
+									'const clientId = pm.environment.get("user_client_id");',
+									'const clientSecret = pm.environment.get("user_client_secret");',
+									'if (clientId && clientSecret) {',
+									'    const basicAuth = btoa(clientId + ":" + clientSecret);',
+									'    pm.environment.set("user_client_credentials_basic", basicAuth);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// OAuth 2.0: Extract access_token only (no id_token, no refresh_token)',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Extract access_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OAuth 2.0 - Client Credentials Basic)");',
 									'    }',
 									'    ',
-									'    // Extract status',
-									'    if (jsonData.status) {',
-									'        pm.environment.set("redirectless_status", jsonData.status);',
-									'        console.log("✅ Flow status:", jsonData.status);',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'        console.log("📋 Token scope:", jsonData.scope);',
 									'    }',
 									'    ',
-									'    // Extract interactionId and interactionToken if present (for Flow API)',
-									'    if (jsonData.interactionId) {',
-									'        pm.environment.set("interactionId", jsonData.interactionId);',
+									'    // Note: OAuth 2.0 Client Credentials does not return id_token or refresh_token',
+									'    console.log("✅ Client Credentials flow completed successfully (Basic Auth)!");',
+									'} else {',
+									'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'            ',
+									'            // Common errors',
+									'            if (jsonData.error === "invalid_client") {',
+									'                console.log("   💡 Tip: Verify user_client_id and user_client_secret in Authorization header are correct");',
+									'                console.log("   💡 Tip: Verify {{user_client_credentials_basic}} = base64(user_client_id:user_client_secret)");',
+									'            } else if (jsonData.error === "invalid_scope") {',
+									'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
 									'    }',
-									'    if (jsonData.interactionToken) {',
-									'        pm.environment.set("interactionToken", jsonData.interactionToken);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OAuth 2.0: Device Code Flow
+		oauth20Items.push({
+			name: 'Device Code Flow',
+			item: [
+				{
+					name: '1. Request Device Authorization',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'client_id', value: '{{user_client_id}}' },
+								{ key: 'scope', value: '{{scopes_oauth2}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/device_authorization`),
+						description:
+							'**Device Code Flow - OAuth 2.0 (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OAuth 2.0: Returns access_token only (no id_token)\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Extract all Device Code Flow response values',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Required: device_code for polling',
+									'    if (jsonData.device_code) {',
+									'        pm.environment.set("device_code", jsonData.device_code);',
+									'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
+									'    }',
+									'    ',
+									'    // Required: user_code for user to enter',
+									'    if (jsonData.user_code) {',
+									'        pm.environment.set("user_code", jsonData.user_code);',
+									'        console.log("✅ User code saved:", jsonData.user_code);',
+									'        console.log("   👤 User must enter this code at verification URI");',
+									'    }',
+									'    ',
+									'    // Required: verification_uri where user enters code',
+									'    if (jsonData.verification_uri) {',
+									'        pm.environment.set("verification_uri", jsonData.verification_uri);',
+									'        console.log("✅ Verification URI:", jsonData.verification_uri);',
+									'    }',
+									'    ',
+									'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
+									'    if (jsonData.verification_uri_complete) {',
+									'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
+									'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
+									'    }',
+									'    ',
+									'    // Required: expires_in (device code expiration in seconds, typically 900)',
+									'    if (jsonData.expires_in) {',
+									'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    ',
+									'    // Required: interval (polling interval in seconds, typically 5)',
+									'    const interval = jsonData.interval || 5;',
+									'    pm.environment.set("device_code_interval", interval.toString());',
+									'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
+									'    console.log("");',
+									'    console.log("📋 Next Steps:");',
+									'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
+									'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
+									'    console.log("   3. User authenticates and authorizes");',
+									'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
+									'} else {',
+									'    console.log("❌ Device authorization request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
 									'    }',
 									'}',
 								],
@@ -8661,81 +7438,87 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 					],
 				},
 				{
-					name: '3. Check Username/Password',
+					name: '2. Poll for Tokens',
 					request: {
 						method: 'POST',
 						header: [
-							{ key: 'Content-Type', value: 'application/json' },
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
 							{ key: 'Accept', value: 'application/json' },
 						],
 						body: {
-							mode: 'raw',
-							raw: JSON.stringify(
-								{
-									action: 'usernamePassword.check',
-									username: '{{username}}',
-									password: '{{password}}',
-								},
-								null,
-								2
-							),
-							options: {
-								raw: {
-									language: 'json',
-								},
-							},
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
+								{ key: 'device_code', value: '{{device_code}}' },
+								{ key: 'client_id', value: '{{user_client_id}}' },
+							],
 						},
-						url: parseUrl(`${baseUrl}/flows/{{flowId}}`),
+						url: parseUrl(`${baseUrl}/as/token`),
 						description:
-							'**Check Username/Password (PingOne Flows API)**\n\n**Educational Context:**\n- Validates user credentials using PingOne Flows API\n- POST to /flows/{flowId} with username/password\n- Uses action: "usernamePassword.check" to check credentials\n- Flow may return status: USERNAME_PASSWORD_REQUIRED (retry), MFA_REQUIRED (proceed to MFA), or COMPLETE (proceed to Get Auth Code)\n- If MFA is required, you\'ll need to call this endpoint again with otp_code after receiving MFA_REQUIRED status',
+							'**Poll for Tokens - Device Code Flow (OAuth 2.0)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OAuth 2.0: Returns access_token only (no id_token)\n- Refresh token available if requested in scope',
 					},
 					event: [
 						{
 							listen: 'test' as const,
 							script: {
 								exec: [
-									'// Extract updated flow data from Check Username/Password response',
-									'if (pm.response.code === 200 || pm.response.code === 201) {',
+									'// Handle Device Code Flow polling responses',
+									'if (pm.response.code === 200) {',
+									'    // Success: User authorized, extract tokens',
 									'    const jsonData = pm.response.json();',
 									'    ',
-									'    // Update flowId if changed',
-									'    const flowId = jsonData.id || jsonData._id || jsonData.flowId || pm.environment.get("flowId");',
-									'    if (flowId) {',
-									'        pm.environment.set("flowId", flowId);',
-									'        pm.environment.set("redirectless_flowId", flowId);',
+									'    // OAuth 2.0: Extract access_token only (no id_token)',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OAuth 2.0 - no id_token)");',
 									'    }',
 									'    ',
-									'    // Extract and update status',
-									'    if (jsonData.status) {',
-									'        pm.environment.set("redirectless_status", jsonData.status);',
-									'        console.log("✅ Flow status updated:", jsonData.status);',
-									'        ',
-									'        if (jsonData.status === "MFA_REQUIRED") {',
-									'            console.log("⚠️ MFA required - call Check Username/Password again with otp_code");',
-									'        } else if (jsonData.status === "COMPLETE" || jsonData.status === "READY_TO_RESUME") {',
-									'            console.log("✅ Credentials validated - proceed to Get Auth Code step");',
-									'        }',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
 									'    }',
 									'    ',
-									'    // Extract resumeUrl if provided',
-									'    if (jsonData.resumeUrl) {',
-									'        pm.environment.set("redirectless_resumeUrl", jsonData.resumeUrl);',
-									'    }',
-									'    ',
-									'    // Extract sessionId if changed',
-									'    const sessionId = jsonData._sessionId || jsonData.sessionId;',
-									'    if (sessionId) {',
-									'        pm.environment.set("redirectless_sessionId", sessionId);',
-									'    }',
-									'} else {',
-									'    console.log("❌ Username/password check failed:", pm.response.code);',
+									'    // Note: OAuth 2.0 Device Code Flow does not return refresh_token or id_token',
+									'    console.log("✅ Device Code Flow completed successfully!");',
+									'} else if (pm.response.code === 400) {',
+									'    // Handle polling errors',
 									'    const jsonData = pm.response.json();',
-									'    if (jsonData.error) {',
-									'        console.log("   Error:", jsonData.error);',
+									'    ',
+									'    if (jsonData.error === "authorization_pending") {',
+									'        console.log("⏳ Authorization pending - user has not authorized yet");',
+									'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
+									'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
+									'    } else if (jsonData.error === "slow_down") {',
+									'        console.log("⚠️ Slow down - polling too frequently");',
+									'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        const newInterval = currentInterval + 5;',
+									'        pm.environment.set("device_code_interval", newInterval.toString());',
+									'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
+									'    } else if (jsonData.error === "expired_token") {',
+									'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else if (jsonData.error === "access_denied") {',
+									'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else {',
+									'        console.log("❌ Polling failed:", jsonData.error);',
 									'        if (jsonData.error_description) {',
 									'            console.log("   Description:", jsonData.error_description);',
 									'        }',
 									'    }',
+									'} else {',
+									'    console.log("❌ Unexpected response code:", pm.response.code);',
 									'}',
 								],
 								type: 'text/javascript',
@@ -8743,53 +7526,247 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 						},
 					],
 				},
+			],
+		});
+
+		// OAuth 2.0: Implicit Flow (deprecated in OAuth 2.1, but still part of OAuth 2.0)
+		// OAuth 2.0 Implicit uses response_type=token (access token only, no id_token)
+		oauth20Items.push({
+			name: 'Implicit Flow (URL Fragment)',
+			item: [
 				{
-					name: '4. Get Auth Code',
+					name: '1. Build Authorization URL',
 					request: {
 						method: 'GET',
-						header: [{ key: 'Accept', value: 'application/json' }],
-						url: parseUrl(`${baseUrl}/as/resume?flowId={{flowId}}`),
+						url: parseUrl(
+							`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=token&redirect_uri={{redirect_uri}}&scope={{scopes_oauth2}}&state={{state}}&response_mode=fragment`
+						),
+					},
+					description:
+						'**Implicit Flow - OAuth 2.0 (URL Fragment)**\n\n**Educational Context:**\n- OAuth 2.0 Implicit flow (deprecated in OAuth 2.1, but still part of OAuth 2.0)\n- Tokens returned directly in URL fragment (not secure)\n- OAuth 2.0: Returns access_token only (response_type=token, no id_token)\n- No refresh_token (use Authorization Code flow instead)\n- response_mode=fragment is the default for implicit flow\n- ⚠️ Deprecated in OAuth 2.1 for security reasons',
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Note: In real OAuth 2.0 Implicit flow, access_token comes in redirect URL fragment',
+									'// This is a placeholder - actual token extraction happens from callback URL',
+									'// Example callback URL: https://example.com/callback#access_token=...&token_type=Bearer&expires_in=3600&state=...',
+									'if (pm.response.code === 200 || pm.response.code === 302) {',
+									'    console.log("✅ Authorization URL generated for OAuth 2.0 Implicit Flow");',
+									'    console.log("⚠️ Access token will be in redirect URL fragment, not in response body");',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OAuth 2.0: Implicit Flow with Form POST (alternative)
+		oauth20Items.push({
+			name: 'Implicit Flow (Form POST)',
+			item: [
+				{
+					name: '1. Build Authorization URL',
+					request: {
+						method: 'GET',
+						url: parseUrl(
+							`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=token&redirect_uri={{redirect_uri}}&scope={{scopes_oauth2}}&state={{state}}&response_mode=form_post`
+						),
+					},
+					description:
+						'**Implicit Flow - OAuth 2.0 (Form POST)**\n\n**Educational Context:**\n- OAuth 2.0 Implicit flow with form_post response mode\n- More secure than fragment (no tokens in URL)\n- OAuth 2.0: Returns access_token only (response_type=token, no id_token)\n- Tokens sent via HTTP POST as form data\n- Requires server-side form processing\n- ⚠️ Deprecated in OAuth 2.1 for security reasons',
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Note: In form_post mode, tokens come via POST to redirect_uri',
+									'// This is a placeholder - actual token extraction happens from POST body',
+									'if (pm.response.code === 200 || pm.response.code === 302) {',
+									'    console.log("✅ Authorization URL generated for OAuth 2.0 Implicit Flow (Form POST)");',
+									'    console.log("⚠️ Access token will be in POST body to redirect_uri, not in response body");',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// ============================================
+		// OIDC Flows
+		// ============================================
+		// OIDC: Simple Authorization Code with Query String (no PKCE required, but optional)
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'query')
+		);
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, false, false, 'query')
+		);
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_jwt', baseUrl, false, false, 'query')
+		);
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'private_key_jwt', baseUrl, false, false, 'query')
+		);
+
+		// OIDC: Authorization Code with URL Fragment (for SPAs)
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'fragment')
+		);
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, false, false, 'fragment')
+		);
+
+		// OIDC: Authorization Code with Form POST (enhanced security)
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, false, false, 'form_post')
+		);
+
+		// OIDC: Authorization Code with PKCE and Query String (optional)
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, true, false, 'query')
+		);
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_basic', baseUrl, true, false, 'query')
+		);
+
+		// OIDC: Authorization Code with PKCE and URL Fragment (optional)
+		oidcItems.push(
+			buildAuthorizationCodeFlow('oidc', 'client_secret_post', baseUrl, true, false, 'fragment')
+		);
+
+		// OIDC: Implicit Flow (deprecated but still supported)
+		// Implicit flow uses fragment by default (required by spec)
+		oidcItems.push({
+			name: 'Implicit Flow (URL Fragment)',
+			item: [
+				{
+					name: '1. Build Authorization URL',
+					request: {
+						method: 'GET',
+						url: parseUrl(
+							`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=id_token token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=fragment`
+						),
+					},
+					description:
+						'**Implicit Flow - OIDC (URL Fragment)**\n\n**Educational Context:**\n- OIDC Implicit flow (deprecated in OAuth 2.1, but still supported)\n- Tokens returned directly in URL fragment (not secure)\n- Returns access_token and id_token\n- No refresh_token (use Authorization Code flow instead)\n- Requires nonce for id_token validation\n- response_mode=fragment is the default for implicit flow',
+				},
+			],
+		});
+
+		// OIDC: Implicit Flow with Form POST (alternative)
+		oidcItems.push({
+			name: 'Implicit Flow (Form POST)',
+			item: [
+				{
+					name: '1. Build Authorization URL',
+					request: {
+						method: 'GET',
+						url: parseUrl(
+							`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=id_token token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=form_post`
+						),
+					},
+					description:
+						'**Implicit Flow - OIDC (Form POST)**\n\n**Educational Context:**\n- OIDC Implicit flow with form_post response mode\n- More secure than fragment (no tokens in URL)\n- Tokens sent via HTTP POST as form data\n- Requires server-side form processing',
+				},
+			],
+		});
+
+		// OIDC: Device Code Flow
+		oidcItems.push({
+			name: 'Device Code Flow',
+			item: [
+				{
+					name: '1. Request Device Authorization',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'client_id', value: '{{user_client_id}}' },
+								{ key: 'scope', value: '{{scopes_oidc}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/device_authorization`),
 						description:
-							'**Get Auth Code (PingOne Resume Flow)**\n\n**Educational Context:**\n- Resumes the redirectless flow to get the authorization code\n- GET to /as/resume?flowId={flowId} after credentials are validated\n- PingOne responds with either:\n  - 302 redirect with Location header containing ?code=abc123&state=xyz (standard)\n  - 200 JSON response with code field (if response_mode=pi.flow on resume)\n- The authorization code is extracted from the Location header or JSON response\n- This code is then used in the Exchange Code for Token step',
+							'**Device Code Flow - OIDC (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OIDC: Returns access_token AND id_token when authorized\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes\n- Requires openid scope for id_token',
 					},
 					event: [
 						{
 							listen: 'test' as const,
 							script: {
 								exec: [
-									'// Extract authorization code from Get Auth Code response',
-									'if (pm.response.code === 302) {',
-									'    // Handle 302 redirect - extract code from Location header',
-									'    const locationHeader = pm.response.headers.get("Location");',
-									'    if (locationHeader) {',
-									'        const url = new URL(locationHeader);',
-									'        const code = url.searchParams.get("code");',
-									'        const state = url.searchParams.get("state");',
-									'        ',
-									'        if (code) {',
-									'            pm.environment.set("authorization_code", code);',
-									'            console.log("✅ Authorization code extracted from redirect:", code);',
-									'        }',
-									'        if (state) {',
-									'            pm.environment.set("state", state);',
-									'        }',
+									'// Extract all Device Code Flow response values',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Required: device_code for polling',
+									'    if (jsonData.device_code) {',
+									'        pm.environment.set("device_code", jsonData.device_code);',
+									'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
 									'    }',
-									'} else if (pm.response.code === 200) {',
-									'    // Handle 200 JSON response (response_mode=pi.flow)',
+									'    ',
+									'    // Required: user_code for user to enter',
+									'    if (jsonData.user_code) {',
+									'        pm.environment.set("user_code", jsonData.user_code);',
+									'        console.log("✅ User code saved:", jsonData.user_code);',
+									'        console.log("   👤 User must enter this code at verification URI");',
+									'    }',
+									'    ',
+									'    // Required: verification_uri where user enters code',
+									'    if (jsonData.verification_uri) {',
+									'        pm.environment.set("verification_uri", jsonData.verification_uri);',
+									'        console.log("✅ Verification URI:", jsonData.verification_uri);',
+									'    }',
+									'    ',
+									'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
+									'    if (jsonData.verification_uri_complete) {',
+									'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
+									'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
+									'    }',
+									'    ',
+									'    // Required: expires_in (device code expiration in seconds, typically 900)',
+									'    if (jsonData.expires_in) {',
+									'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    ',
+									'    // Required: interval (polling interval in seconds, typically 5)',
+									'    const interval = jsonData.interval || 5;',
+									'    pm.environment.set("device_code_interval", interval.toString());',
+									'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
+									'    console.log("");',
+									'    console.log("📋 Next Steps:");',
+									'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
+									'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
+									'    console.log("   3. User authenticates and authorizes");',
+									'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
+									'} else {',
+									'    console.log("❌ Device authorization request failed:", pm.response.code);',
 									'    try {',
 									'        const jsonData = pm.response.json();',
-									'        if (jsonData.code) {',
-									'            pm.environment.set("authorization_code", jsonData.code);',
-									'            console.log("✅ Authorization code extracted from JSON:", jsonData.code);',
-									'        }',
-									'        if (jsonData.state) {',
-									'            pm.environment.set("state", jsonData.state);',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
 									'        }',
 									'    } catch (e) {',
-									'        console.log("⚠️ Could not parse JSON response");',
+									'        // Response may not be JSON',
 									'    }',
-									'} else {',
-									'    console.log("❌ Failed to get authorization code:", pm.response.code);',
 									'}',
 								],
 								type: 'text/javascript',
@@ -8798,7 +7775,242 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 					],
 				},
 				{
-					name: '5. Exchange Code for Token',
+					name: '2. Poll for Tokens',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
+								{ key: 'device_code', value: '{{device_code}}' },
+								{ key: 'client_id', value: '{{user_client_id}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/token`),
+						description:
+							'**Poll for Tokens - Device Code Flow (OIDC)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token and id_token (OIDC)\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OIDC: Returns access_token, id_token, and refresh_token (if offline_access scope requested)',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Handle Device Code Flow polling responses (OIDC)',
+									'if (pm.response.code === 200) {',
+									'    // Success: User authorized, extract tokens',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // OIDC: Extract access_token and id_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OIDC)");',
+									'    }',
+									'    ',
+									'    if (jsonData.id_token) {',
+									'        pm.environment.set("id_token", jsonData.id_token);',
+									'        console.log("✅ ID token received (OIDC)");',
+									'    }',
+									'    ',
+									'    if (jsonData.refresh_token) {',
+									'        pm.environment.set("refresh_token", jsonData.refresh_token);',
+									'        console.log("✅ Refresh token received (offline_access scope requested)");',
+									'    }',
+									'    ',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'    }',
+									'    ',
+									'    console.log("✅ Device Code Flow completed successfully (OIDC)!");',
+									'} else if (pm.response.code === 400) {',
+									'    // Handle polling errors',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    if (jsonData.error === "authorization_pending") {',
+									'        console.log("⏳ Authorization pending - user has not authorized yet");',
+									'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
+									'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
+									'    } else if (jsonData.error === "slow_down") {',
+									'        console.log("⚠️ Slow down - polling too frequently");',
+									'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        const newInterval = currentInterval + 5;',
+									'        pm.environment.set("device_code_interval", newInterval.toString());',
+									'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
+									'    } else if (jsonData.error === "expired_token") {',
+									'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else if (jsonData.error === "access_denied") {',
+									'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else {',
+									'        console.log("❌ Polling failed:", jsonData.error);',
+									'        if (jsonData.error_description) {',
+									'            console.log("   Description:", jsonData.error_description);',
+									'        }',
+									'    }',
+									'} else {',
+									'    console.log("❌ Unexpected response code:", pm.response.code);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OIDC: Hybrid Flow (code id_token)
+		oidcItems.push({
+			name: 'Hybrid Flow (code id_token)',
+			item: [
+				{
+					name: '1. Build Authorization URL',
+					request: {
+						method: 'GET',
+						url: parseUrl(
+							`${baseUrl}/as/authorize?client_id={{user_client_id}}&response_type=code id_token&redirect_uri={{redirect_uri}}&scope={{scopes_oidc}}&state={{state}}&nonce={{nonce}}&response_mode=fragment`
+						),
+					},
+					description:
+						"**Hybrid Flow - OIDC (code id_token)**\n\n**Educational Context:**\n- OIDC Hybrid flow combines Authorization Code and Implicit flows\n- Returns both authorization code AND id_token immediately in redirect URL fragment\n- Code can be exchanged for access_token and refresh_token\n- id_token provides immediate user authentication (no need to wait for token exchange)\n- Requires nonce for id_token validation (prevents replay attacks)\n- response_mode=fragment is common for hybrid flows (tokens in URL fragment)\n- After user authorizes, you'll be redirected to redirect_uri with code and id_token in fragment\n- Example redirect: https://example.com/callback#code=abc123&id_token=xyz789&state=state123",
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Note: In real Hybrid Flow, user is redirected to redirect_uri with tokens in fragment',
+									'// This GET request initiates the authorization - actual tokens come in redirect callback',
+									'if (pm.response.code === 302) {',
+									'    // Handle redirect (normal case)',
+									'    const locationHeader = pm.response.headers.get("Location");',
+									'    if (locationHeader) {',
+									'        console.log("✅ Authorization URL generated for Hybrid Flow");',
+									'        console.log("   Redirecting to:", locationHeader);',
+									'        console.log("   After user authorizes, you\'ll be redirected to redirect_uri with:");',
+									'        console.log("   - code (authorization code) in URL fragment");',
+									'        console.log("   - id_token (user identity token) in URL fragment");',
+									'        console.log("   - state (for validation) in URL fragment");',
+									'        console.log("");',
+									'        console.log("📋 Next Steps:");',
+									'        console.log("   1. User completes authorization (opens redirect URL)");',
+									'        console.log("   2. User is redirected to redirect_uri with tokens in fragment");',
+									'        console.log("   3. Extract code and id_token from redirect URL fragment");',
+									'        console.log("   4. Call Exchange Authorization Code step to get access_token");',
+									'    }',
+									'} else if (pm.response.code === 200) {',
+									'    console.log("✅ Authorization URL generated for Hybrid Flow");',
+									'    console.log("⚠️ Note: In real flow, user completes authorization and is redirected to redirect_uri");',
+									'} else {',
+									'    console.log("❌ Authorization URL generation failed:", pm.response.code);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+				{
+					name: '2. Parse Redirect Callback (Demonstration - Extract code and id_token from fragment)',
+					request: {
+						method: 'GET',
+						url: {
+							raw: 'https://example.com/callback#code={{authorization_code}}&id_token={{id_token}}&state={{state}}',
+							protocol: 'https',
+							host: ['example', 'com'],
+							path: ['callback'],
+						},
+						description:
+							'**Parse Redirect Callback - Hybrid Flow (Demonstration Step)**\n\n**⚠️ NOTE: This is a DEMONSTRATION step, not a real PingOne API call**\n- This step shows how to extract code and id_token from redirect URL fragment\n- In real applications, this parsing happens automatically in your callback handler\n- After user authorizes, PingOne redirects to redirect_uri with tokens in fragment\n- Example redirect URL: https://example.com/callback#code=abc123&id_token=xyz789&state=state123\n- Extract:\n  - code: authorization code (use in token exchange - Step 3)\n  - id_token: user identity token (already received in Step 1, no need to wait for exchange)\n  - state: validate matches original state parameter (security check)\n- In Postman: Manually extract from redirect URL or use the test script below\n- The test script below demonstrates the parsing logic that your application would use',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Extract code and id_token from redirect URL fragment',
+									'// In real application, this happens automatically when user is redirected',
+									'// This script demonstrates extraction logic (adjust based on actual redirect URL)',
+									'',
+									'// Method 1: Extract from current URL (if callback handler)',
+									'const currentUrl = pm.request.url.toString();',
+									'if (currentUrl.includes("#")) {',
+									'    const fragment = currentUrl.split("#")[1];',
+									'    const params = new URLSearchParams(fragment);',
+									'    ',
+									'    // Extract authorization code',
+									'    const code = params.get("code");',
+									'    if (code) {',
+									'        pm.environment.set("authorization_code", code);',
+									'        console.log("✅ Authorization code extracted from fragment:", code);',
+									'    }',
+									'    ',
+									'    // Extract id_token (already received in Hybrid Flow)',
+									'    const idToken = params.get("id_token");',
+									'    if (idToken) {',
+									'        pm.environment.set("id_token", idToken);',
+									'        console.log("✅ ID token extracted from fragment (Hybrid Flow):", idToken.substring(0, 50) + "...");',
+									'        console.log("   💡 ID token already received - no need to wait for token exchange!");',
+									'    }',
+									'    ',
+									'    // Extract and validate state',
+									'    const state = params.get("state");',
+									'    if (state) {',
+									'        const originalState = pm.environment.get("state");',
+									'        if (state === originalState) {',
+									'            console.log("✅ State parameter validated:", state);',
+									'        } else {',
+									'            console.log("⚠️ State mismatch - possible CSRF attack!");',
+									'        }',
+									'    }',
+									'}',
+									'',
+									'// Method 2: If using a test request with full redirect URL as raw URL',
+									'// Parse from pm.request.url',
+									'if (pm.request.url && pm.request.url.toString().includes("#")) {',
+									'    const urlObj = new URL(pm.request.url.toString());',
+									'    const hash = urlObj.hash.substring(1); // Remove #',
+									'    const params = new URLSearchParams(hash);',
+									'    ',
+									'    if (params.get("code")) {',
+									'        pm.environment.set("authorization_code", params.get("code"));',
+									'    }',
+									'    if (params.get("id_token")) {',
+									'        pm.environment.set("id_token", params.get("id_token"));',
+									'    }',
+									'    if (params.get("state")) {',
+									'        pm.environment.set("state", params.get("state"));',
+									'    }',
+									'}',
+									'',
+									'console.log("📋 Hybrid Flow callback parsed:");',
+									'console.log("   - Authorization code:", pm.environment.get("authorization_code") || "not found");',
+									'console.log("   - ID token:", pm.environment.get("id_token") ? "extracted" : "not found");',
+									'console.log("");',
+									'console.log("✅ Next step: Exchange Authorization Code for access_token (id_token already received)");',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+				{
+					name: '3. Exchange Authorization Code for Access Token',
 					request: {
 						method: 'POST',
 						header: [
@@ -8810,199 +8022,70 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 							urlencoded: [
 								{ key: 'grant_type', value: 'authorization_code' },
 								{ key: 'code', value: '{{authorization_code}}' },
-								{ key: 'redirect_uri', value: 'urn:pingidentity:redirectless' },
-								{ key: 'client_id', value: '{{client_id}}' },
-								{ key: 'code_verifier', value: '{{code_verifier}}' },
+								{ key: 'redirect_uri', value: '{{redirect_uri}}' },
+								{ key: 'client_id', value: '{{user_client_id}}' },
+								{ key: 'client_secret', value: '{{user_client_secret}}' },
 							],
 						},
-						url: {
-							raw: `${baseUrl}/as/token`,
-						},
+						url: parseUrl(`${baseUrl}/as/token`),
 						description:
-							'**Exchange Code for Token (Redirectless Flow)**\n\n**Educational Context:**\n- Exchanges authorization code for tokens (same as standard Authorization Code flow)\n- code_verifier must match code_challenge from Start Auth Code Flow request\n- Returns access_token, id_token (if OIDC), and refresh_token (if offline_access scope requested)\n- Client authenticates using client_id and code_verifier (PKCE)\n- The redirect_uri must match the one used in Start Auth Code Flow',
-					},
-					event: [
-						{
-							listen: 'test' as const,
-							script: {
-								exec: generateTokenExtractionScript('oidc'),
-								type: 'text/javascript',
-							},
-						},
-					],
-				},
-				{
-					name: '6. Session Reset (updates (or resets) a flow session)',
-					request: {
-						method: 'POST',
-						header: [
-							{ key: 'Content-Type', value: 'application/json' },
-							{ key: 'Accept', value: 'application/json' },
-						],
-						body: {
-							mode: 'raw',
-							raw: JSON.stringify(
-								{
-									action: 'session.reset',
-								},
-								null,
-								2
-							),
-							options: {
-								raw: {
-									language: 'json',
-								},
-							},
-						},
-						url: parseUrl(`${baseUrl}/flows/{{flowId}}`),
-						description:
-							'**Session Reset (PingOne Flows API)**\n\n**Educational Context:**\n- Resets or updates a flow session\n- POST to /flows/{flowId} with action: "session.reset"\n- Use this to reset the current authentication session if needed\n- May be required if authentication state becomes invalid or needs to be restarted\n- After reset, you may need to restart from Check Username/Password step',
+							'**Token Exchange - Hybrid Flow (OIDC)**\n\n**Educational Context:**\n- Exchanges authorization code for access_token and refresh_token\n- id_token was already received in authorization response (Step 1 redirect fragment)\n- Returns access_token for API calls\n- Returns refresh_token if offline_access scope requested\n- Note: In Hybrid Flow, id_token comes immediately in Step 1, so you have user identity before token exchange\n- This is the key advantage of Hybrid Flow over standard Authorization Code flow',
 					},
 					event: [
 						{
 							listen: 'test' as const,
 							script: {
 								exec: [
-									'// Extract updated flow data after session reset',
-									'if (pm.response.code === 200 || pm.response.code === 201) {',
+									'// Extract tokens from token exchange response',
+									'if (pm.response.code === 200) {',
 									'    const jsonData = pm.response.json();',
 									'    ',
-									'    if (jsonData.status) {',
-									'        pm.environment.set("redirectless_status", jsonData.status);',
-									'        console.log("✅ Session reset - new status:", jsonData.status);',
+									'    // Extract access_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (Hybrid Flow)");',
 									'    }',
 									'    ',
-									'    // Update flowId if changed',
-									'    const flowId = jsonData.id || jsonData._id || jsonData.flowId;',
-									'    if (flowId && flowId !== pm.environment.get("flowId")) {',
-									'        pm.environment.set("flowId", flowId);',
-									'        pm.environment.set("redirectless_flowId", flowId);',
+									'    // Note: id_token was already received in Step 1 redirect fragment',
+									'    // Do not overwrite it if it was already set',
+									'    if (jsonData.id_token && !pm.environment.get("id_token")) {',
+									'        pm.environment.set("id_token", jsonData.id_token);',
+									'        console.log("✅ ID token received (backup from token exchange)");',
+									'    } else if (pm.environment.get("id_token")) {',
+									'        console.log("✅ ID token already received from Step 1 redirect (Hybrid Flow advantage)");',
 									'    }',
-									'} else {',
-									'    console.log("❌ Session reset failed:", pm.response.code);',
-									'}',
-								],
-								type: 'text/javascript',
-							},
-						},
-					],
-				},
-				{
-					name: '7. Password Change Flow (MUST_CHANGE_PASSWORD)',
-					request: {
-						method: 'POST',
-						header: [
-							{
-								key: 'Content-Type',
-								value: 'application/vnd.pingidentity.password.forceChange+json',
-							},
-							{ key: 'Accept', value: 'application/json' },
-							{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
-						],
-						body: {
-							mode: 'raw',
-							raw: JSON.stringify(
-								{
-									currentPassword: '{{current_password}}',
-									newPassword: '{{new_password}}',
-									forceChange: true,
-								},
-								null,
-								2
-							),
-							options: {
-								raw: {
-									language: 'json',
-								},
-							},
-						},
-						url: parseUrl(`{{apiPath}}/v1/environments/{{envID}}/users/{{userId}}/password`),
-						description:
-							'**Password Change Flow (MUST_CHANGE_PASSWORD)**\n\n**Educational Context:**\n- Forces a password change during authentication flow\n- POST to /v1/environments/{envID}/users/{userId}/password with Content-Type: application/vnd.pingidentity.password.forceChange+json\n- Requires worker token (Bearer token) for authentication\n- Used when user account has MUST_CHANGE_PASSWORD status\n- After password change, user can proceed with normal authentication flow\n- This step requires userId to be set (from user lookup or previous authentication)',
-					},
-					event: [
-						{
-							listen: 'test' as const,
-							script: {
-								exec: [
-									'// Verify password change response',
-									'if (pm.response.code === 200 || pm.response.code === 201 || pm.response.code === 204) {',
-									'    console.log("✅ Password change successful");',
-									'    console.log("⚠️ User can now proceed with normal authentication flow");',
 									'    ',
-									'    // Reset flow status to allow re-authentication',
-									'    pm.environment.set("redirectless_status", "USERNAME_PASSWORD_REQUIRED");',
+									'    // Extract refresh_token (if offline_access scope requested)',
+									'    if (jsonData.refresh_token) {',
+									'        pm.environment.set("refresh_token", jsonData.refresh_token);',
+									'        console.log("✅ Refresh token received (offline_access scope requested)");',
+									'    }',
+									'    ',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'    }',
+									'    ',
+									'    console.log("✅ Hybrid Flow completed successfully!");',
+									'    console.log("   - ID token: Already received from Step 1 (immediate authentication)");',
+									'    console.log("   - Access token: Received from token exchange (for API calls)");',
+									'    console.log("   - Refresh token: Received if offline_access scope requested");',
 									'} else {',
-									'    console.log("❌ Password change failed:", pm.response.code);',
+									'    console.log("❌ Token exchange failed:", pm.response.code);',
 									'    try {',
 									'        const jsonData = pm.response.json();',
 									'        if (jsonData.error) {',
 									'            console.log("   Error:", jsonData.error);',
 									'            if (jsonData.error_description) {',
 									'                console.log("   Description:", jsonData.error_description);',
-									'            }',
-									'        }',
-									'    } catch (e) {',
-									'        // Response may not be JSON',
-									'    }',
-									'}',
-								],
-								type: 'text/javascript',
-							},
-						},
-					],
-				},
-				{
-					name: '8. Update Password (Self)',
-					request: {
-						method: 'POST',
-						header: [
-							{ key: 'Content-Type', value: 'application/vnd.pingidentity.password.change+json' },
-							{ key: 'Accept', value: 'application/json' },
-							{ key: 'Authorization', value: 'Bearer {{access_token}}' },
-						],
-						body: {
-							mode: 'raw',
-							raw: JSON.stringify(
-								{
-									currentPassword: '{{current_password}}',
-									newPassword: '{{new_password}}',
-								},
-								null,
-								2
-							),
-							options: {
-								raw: {
-									language: 'json',
-								},
-							},
-						},
-						url: parseUrl(`{{apiPath}}/v1/environments/{{envID}}/users/{{userId}}/password`),
-						description:
-							'**Update Password (Self)**\n\n**Educational Context:**\n- Allows authenticated user to change their own password\n- POST to /v1/environments/{envID}/users/{userId}/password with Content-Type: application/vnd.pingidentity.password.change+json\n- Requires user access token (Bearer token) - user must be authenticated\n- Requires current password for security verification\n- This is a self-service password change, not an admin-forced change\n- The userId can be extracted from the ID token claims (sub field) or UserInfo endpoint',
-					},
-					event: [
-						{
-							listen: 'test' as const,
-							script: {
-								exec: [
-									'// Verify password update response',
-									'if (pm.response.code === 200 || pm.response.code === 201 || pm.response.code === 204) {',
-									'    console.log("✅ Password updated successfully");',
-									'    pm.test("Password update successful", function () {',
-									'        pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);',
-									'    });',
-									'} else {',
-									'    console.log("❌ Password update failed:", pm.response.code);',
-									'    try {',
-									'        const jsonData = pm.response.json();',
-									'        if (jsonData.error) {',
-									'            console.log("   Error:", jsonData.error);',
-									'            if (jsonData.error_description) {',
-									'                console.log("   Description:", jsonData.error_description);',
-									'            }',
-									'            if (jsonData.details) {',
-									'                console.log("   Details:", JSON.stringify(jsonData.details, null, 2));',
 									'            }',
 									'        }',
 									'    } catch (e) {',
@@ -9016,63 +8099,1079 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 					],
 				},
 			],
-		},
-	];
+		});
 
-	// Generate Worker Token items - used by all collections
-	const workerTokenItems = generateWorkerTokenItems(baseUrl);
+		// OIDC: Introspection and UserInfo
+		oidcItems.push({
+			name: 'Introspect Token',
+			request: {
+				method: 'POST',
+				header: [
+					{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+					{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
+				],
+				body: {
+					mode: 'urlencoded',
+					urlencoded: [
+						{ key: 'token', value: '{{access_token}}' },
+						{ key: 'token_type_hint', value: 'access_token' },
+					],
+				},
+				url: parseUrl(`${baseUrl}/as/introspect`),
+				description:
+					'**Token Introspection - OIDC**\n\n**Educational Context:**\n- Validates access_token and returns token metadata\n- Returns active status, expiration, scopes, etc.\n- Requires worker token for authentication',
+			},
+		});
 
-	// Create folder structure organized by spec version
-	// Note: Use Cases are NOT included here - they are only included when explicitly requested via generateUseCasesPostmanCollection
-	// Note: Worker Token is FIRST as it's required for many operations
-	const items: PostmanCollectionItem[] = [
-		{
-			name: 'Worker Token',
-			item: workerTokenItems,
-		},
-		{
-			name: 'OAuth 2.0 Authorization Framework (RFC 6749)',
-			item: oauth20Items,
-		},
-		{
-			name: 'OpenID Connect Core 1.0',
-			item: oidcItems,
-		},
-		{
-			name: 'OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0',
-			item: oidc21Items,
-		},
-		{
-			name: 'Redirectless (PingOne pi.flow)',
-			item: redirectlessItems,
-		},
-	];
+		oidcItems.push({
+			name: 'Get UserInfo',
+			request: {
+				method: 'GET',
+				header: [{ key: 'Authorization', value: 'Bearer {{access_token}}' }],
+				url: parseUrl(`${baseUrl}/as/userinfo`),
+				description:
+					'**UserInfo Endpoint - OIDC**\n\n**Educational Context:**\n- Returns user claims (profile, email, etc.)\n- Requires valid access_token\n- OIDC-specific endpoint (not in OAuth 2.0)',
+			},
+		});
 
-	const finalizedVariables = finalizeVariables(
-		variables,
-		issues,
-		'Unified Comprehensive Collection'
-	);
-	const collection: PostmanCollection = {
-		info: {
-			name: 'PingOne Unified OAuth/OIDC Flows - Complete Collection',
-			version: COLLECTION_VERSION,
-			description:
-				'Comprehensive Postman collection for all PingOne OAuth and OpenID Connect flows. Organized by specification version:\n\n**Understanding Protocol Names:**\n\n1. **OAuth 2.0 Authorization Framework (RFC 6749):** Baseline OAuth framework standard. Provides authorization without authentication. Supports all flow types including Implicit. No ID tokens - only access tokens and refresh tokens.\n\n2. **OpenID Connect Core 1.0:** Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides both authorization AND authentication.\n\n3. **OAuth 2.1 Authorization Framework (draft):** Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). **Note: Still an Internet-Draft, not yet an RFC.** When used with OpenID Connect Core 1.0, this means "OpenID Connect Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".\n\n**Collection Contents:**\n\n**Worker Token:**\n- Get Worker Token (Client Secret Post)\n- Get Worker Token (Client Secret Basic)\n- Get Worker Token (Client Secret JWT)\n- Get Worker Token (Private Key JWT)\n\n**OAuth 2.0 Authorization Framework (RFC 6749):**\n- Authorization Code (simple, no PKCE, no id_token)\n- Implicit Flow (deprecated in OAuth 2.1 (draft), but still part of OAuth 2.0)\n- Client Credentials\n- Device Code Flow\n\n**OpenID Connect Core 1.0:**\n- Authorization Code (simple + optional PKCE, includes id_token)\n- Implicit Flow (deprecated)\n- Hybrid Flow (code id_token)\n- Device Code Flow\n- Introspection & UserInfo\n\n**OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0:**\n- Authorization Code (PKCE REQUIRED, includes id_token)\n- Authorization Code with PKCE and PAR\n- Client Credentials\n- Device Code Flow\n- Introspection & UserInfo\n\nGenerated from OAuth Playground.',
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: items,
-	};
+		// ============================================
+		// OIDC 2.1 Flows
+		// ============================================
+		// OIDC 2.1: Authorization Code with PKCE and Query String (REQUIRED)
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'query')
+		);
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, false, 'query')
+		);
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_jwt', baseUrl, true, false, 'query')
+		);
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'private_key_jwt', baseUrl, true, false, 'query')
+		);
 
-	validateCollection(collection, issues, 'Unified Comprehensive Collection');
-	validateEnvironment(finalizedVariables, issues, 'Unified Comprehensive Collection');
-	validatePlaceholders(JSON.stringify(collection), issues, 'Unified Comprehensive Collection');
-	issues.printSummary();
-	issues.throwIfErrors();
+		// OIDC 2.1: Authorization Code with PKCE and URL Fragment
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'fragment')
+		);
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, false, 'fragment')
+		);
 
-	// Enhance all descriptions with Variables Saved information
-	return enhanceCollectionDescriptions(collection);
+		// OIDC 2.1: Authorization Code with PKCE and Form POST
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, false, 'form_post')
+		);
+
+		// OIDC 2.1: Authorization Code with PKCE and PAR (Query String)
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_post', baseUrl, true, true, 'query')
+		);
+		oidc21Items.push(
+			buildAuthorizationCodeFlow('oidc2.1', 'client_secret_basic', baseUrl, true, true, 'query')
+		);
+
+		// OIDC 2.1: Client Credentials (Client Secret Post)
+		oidc21Items.push({
+			name: 'Client Credentials (Client Secret Post)',
+			item: [
+				{
+					name: 'Get Access Token',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'client_credentials' },
+								{ key: 'scope', value: '{{scopes_oidc21}}' },
+								{ key: 'client_id', value: '{{client_id}}' },
+								{ key: 'client_secret', value: '{{client_secret}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/token`),
+						description:
+							'**Client Credentials Grant - OIDC 2.1 (Client Secret Post)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using client_id and client_secret in request body\n- OIDC 2.1: May return id_token if openid scope requested\n- Returns access_token (and id_token if openid scope requested)\n- No refresh_token (refresh tokens not applicable to Client Credentials flow)\n- Used for machine-to-machine communication (M2M)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// OIDC 2.1: Extract access_token and id_token (if openid scope requested)',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Extract access_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OIDC 2.1 - Client Credentials)");',
+									'    }',
+									'    ',
+									'    // OIDC 2.1: Extract id_token if openid scope requested',
+									'    if (jsonData.id_token) {',
+									'        pm.environment.set("id_token", jsonData.id_token);',
+									'        console.log("✅ ID token received (OIDC 2.1 - openid scope requested)");',
+									'    }',
+									'    ',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'        console.log("📋 Token scope:", jsonData.scope);',
+									'    }',
+									'    ',
+									'    // Note: Client Credentials flow does not return refresh_token',
+									'    console.log("✅ Client Credentials flow completed successfully (OIDC 2.1)!");',
+									'} else {',
+									'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'            ',
+									'            // Common errors',
+									'            if (jsonData.error === "invalid_client") {',
+									'                console.log("   💡 Tip: Verify client_id and client_secret are correct");',
+									'            } else if (jsonData.error === "invalid_scope") {',
+									'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
+									'                console.log("   💡 Tip: Request openid scope to receive id_token");',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
+									'    }',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OIDC 2.1: Client Credentials (Client Secret Basic)
+		oidc21Items.push({
+			name: 'Client Credentials (Client Secret Basic)',
+			item: [
+				{
+					name: 'Get Access Token',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+							{ key: 'Authorization', value: 'Basic {{user_client_credentials_basic}}' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'client_credentials' },
+								{ key: 'scope', value: '{{scopes_oidc21}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/token`),
+						description:
+							'**Client Credentials Grant - OIDC 2.1 (Client Secret Basic)**\n\n**Educational Context:**\n- Server-to-server authentication (no user involved)\n- Client authenticates using HTTP Basic Authentication (client_id:client_secret in Authorization header)\n- More secure than client_secret_post (credentials not in request body)\n- OIDC 2.1: May return id_token if openid scope requested\n- Returns access_token (and id_token if openid scope requested)\n- No refresh_token (refresh tokens not applicable to Client Credentials flow)\n- Used for machine-to-machine communication (M2M)\n- Token expires after expires_in seconds (typically 3600 seconds = 1 hour)\n- Note: Uses {{user_client_credentials_basic}} which is automatically generated from {{user_client_id}} and {{user_client_secret}}',
+					},
+					event: [
+						{
+							listen: 'prerequest' as const,
+							script: {
+								exec: [
+									'// Generate Basic Auth header for Client Credentials',
+									'const clientId = pm.environment.get("user_client_id");',
+									'const clientSecret = pm.environment.get("user_client_secret");',
+									'if (clientId && clientSecret) {',
+									'    const basicAuth = btoa(clientId + ":" + clientSecret);',
+									'    pm.environment.set("user_client_credentials_basic", basicAuth);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// OIDC 2.1: Extract access_token and id_token (if openid scope requested)',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Extract access_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OIDC 2.1 - Client Credentials Basic)");',
+									'    }',
+									'    ',
+									'    // OIDC 2.1: Extract id_token if openid scope requested',
+									'    if (jsonData.id_token) {',
+									'        pm.environment.set("id_token", jsonData.id_token);',
+									'        console.log("✅ ID token received (OIDC 2.1 - openid scope requested)");',
+									'    }',
+									'    ',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'        console.log("📋 Token scope:", jsonData.scope);',
+									'    }',
+									'    ',
+									'    // Note: Client Credentials flow does not return refresh_token',
+									'    console.log("✅ Client Credentials flow completed successfully (OIDC 2.1 - Basic Auth)!");',
+									'} else {',
+									'    console.log("❌ Client Credentials token request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'            ',
+									'            // Common errors',
+									'            if (jsonData.error === "invalid_client") {',
+									'                console.log("   💡 Tip: Verify user_client_id and user_client_secret in Authorization header are correct");',
+									'                console.log("   💡 Tip: Verify {{user_client_credentials_basic}} = base64(user_client_id:user_client_secret)");',
+									'            } else if (jsonData.error === "invalid_scope") {',
+									'                console.log("   💡 Tip: Verify requested scopes are valid for this client");',
+									'                console.log("   💡 Tip: Request openid scope to receive id_token");',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
+									'    }',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OIDC 2.1: Device Code Flow (same as OIDC, but with OIDC 2.1 baseline)
+		oidc21Items.push({
+			name: 'Device Code Flow',
+			item: [
+				{
+					name: '1. Request Device Authorization',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'client_id', value: '{{client_id}}' },
+								{ key: 'scope', value: '{{scopes_oidc21}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/device_authorization`),
+						description:
+							'**Device Code Flow - OIDC 2.1 (RFC 8628)**\n\n**Educational Context:**\n- For devices without browsers (TVs, printers, IoT)\n- Returns device_code (for polling), user_code (for user to enter), and verification_uri\n- User enters user_code at verification_uri on another device\n- OIDC 2.1: Returns access_token AND id_token when authorized\n- Device code expires after expires_in seconds (typically 900 seconds = 15 minutes)\n- Poll token endpoint at interval seconds (typically 5 seconds) until user authorizes\n- OIDC 2.1: offline_access scope recommended for refresh tokens\n- Requires openid scope for id_token',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Extract all Device Code Flow response values (OIDC 2.1)',
+									'if (pm.response.code === 200) {',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // Required: device_code for polling',
+									'    if (jsonData.device_code) {',
+									'        pm.environment.set("device_code", jsonData.device_code);',
+									'        console.log("✅ Device code saved:", jsonData.device_code.substring(0, 20) + "...");',
+									'    }',
+									'    ',
+									'    // Required: user_code for user to enter',
+									'    if (jsonData.user_code) {',
+									'        pm.environment.set("user_code", jsonData.user_code);',
+									'        console.log("✅ User code saved:", jsonData.user_code);',
+									'        console.log("   👤 User must enter this code at verification URI");',
+									'    }',
+									'    ',
+									'    // Required: verification_uri where user enters code',
+									'    if (jsonData.verification_uri) {',
+									'        pm.environment.set("verification_uri", jsonData.verification_uri);',
+									'        console.log("✅ Verification URI:", jsonData.verification_uri);',
+									'    }',
+									'    ',
+									'    // Optional: verification_uri_complete (includes user_code, for QR codes)',
+									'    if (jsonData.verification_uri_complete) {',
+									'        pm.environment.set("verification_uri_complete", jsonData.verification_uri_complete);',
+									'        console.log("✅ Verification URI Complete (QR code):", jsonData.verification_uri_complete);',
+									'    }',
+									'    ',
+									'    // Required: expires_in (device code expiration in seconds, typically 900)',
+									'    if (jsonData.expires_in) {',
+									'        pm.environment.set("device_code_expires_in", jsonData.expires_in.toString());',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("device_code_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Device code expires in:", jsonData.expires_in, "seconds (" + Math.round(jsonData.expires_in / 60) + " minutes)");',
+									'    }',
+									'    ',
+									'    // Required: interval (polling interval in seconds, typically 5)',
+									'    const interval = jsonData.interval || 5;',
+									'    pm.environment.set("device_code_interval", interval.toString());',
+									'    console.log("🔄 Poll token endpoint every", interval, "seconds");',
+									'    console.log("");',
+									'    console.log("📋 Next Steps:");',
+									'    console.log("   1. User opens:", pm.environment.get("verification_uri") || jsonData.verification_uri);',
+									'    console.log("   2. User enters code:", pm.environment.get("user_code") || jsonData.user_code);',
+									'    console.log("   3. User authenticates and authorizes");',
+									'    console.log("   4. Call Poll for Tokens step (wait", interval, "seconds between polls)");',
+									'} else {',
+									'    console.log("❌ Device authorization request failed:", pm.response.code);',
+									'    try {',
+									'        const jsonData = pm.response.json();',
+									'        if (jsonData.error) {',
+									'            console.log("   Error:", jsonData.error);',
+									'            if (jsonData.error_description) {',
+									'                console.log("   Description:", jsonData.error_description);',
+									'            }',
+									'        }',
+									'    } catch (e) {',
+									'        // Response may not be JSON',
+									'    }',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+				{
+					name: '2. Poll for Tokens',
+					request: {
+						method: 'POST',
+						header: [
+							{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+							{ key: 'Accept', value: 'application/json' },
+						],
+						body: {
+							mode: 'urlencoded',
+							urlencoded: [
+								{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
+								{ key: 'device_code', value: '{{device_code}}' },
+								{ key: 'client_id', value: '{{user_client_id}}' },
+							],
+						},
+						url: parseUrl(`${baseUrl}/as/token`),
+						description:
+							'**Poll for Tokens - Device Code Flow (OIDC 2.1)**\n\n**Educational Context:**\n- Poll this endpoint until user authorizes the device\n- Use interval from device authorization response (typically 5 seconds) - wait between polls\n- Handle responses:\n  - 200 OK: User authorized - extract access_token and id_token (OIDC 2.1)\n  - 400 Bad Request with error=authorization_pending: User has not authorized yet - keep polling\n  - 400 Bad Request with error=slow_down: Poll too frequently - increase interval by 5 seconds\n  - 400 Bad Request with error=expired_token: Device code expired - restart flow\n  - 400 Bad Request with error=access_denied: User denied authorization - restart flow\n- OIDC 2.1: Returns access_token, id_token, and refresh_token (if offline_access scope requested)',
+					},
+					event: [
+						{
+							listen: 'test' as const,
+							script: {
+								exec: [
+									'// Handle Device Code Flow polling responses (OIDC 2.1)',
+									'if (pm.response.code === 200) {',
+									'    // Success: User authorized, extract tokens',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    // OIDC 2.1: Extract access_token, id_token, and refresh_token',
+									'    if (jsonData.access_token) {',
+									'        pm.environment.set("access_token", jsonData.access_token);',
+									'        console.log("✅ Access token received (OIDC 2.1)");',
+									'    }',
+									'    ',
+									'    if (jsonData.id_token) {',
+									'        pm.environment.set("id_token", jsonData.id_token);',
+									'        console.log("✅ ID token received (OIDC 2.1)");',
+									'    }',
+									'    ',
+									'    if (jsonData.refresh_token) {',
+									'        pm.environment.set("refresh_token", jsonData.refresh_token);',
+									'        console.log("✅ Refresh token received (offline_access scope requested)");',
+									'    }',
+									'    ',
+									'    // Extract token metadata',
+									'    if (jsonData.token_type) {',
+									'        pm.environment.set("token_type", jsonData.token_type);',
+									'    }',
+									'    if (jsonData.expires_in) {',
+									'        const expiresAt = Date.now() + (jsonData.expires_in * 1000);',
+									'        pm.environment.set("access_token_expires_at", expiresAt.toString());',
+									'        console.log("⏱️ Access token expires in:", jsonData.expires_in, "seconds");',
+									'    }',
+									'    if (jsonData.scope) {',
+									'        pm.environment.set("token_scope", jsonData.scope);',
+									'    }',
+									'    ',
+									'    console.log("✅ Device Code Flow completed successfully (OIDC 2.1)!");',
+									'} else if (pm.response.code === 400) {',
+									'    // Handle polling errors',
+									'    const jsonData = pm.response.json();',
+									'    ',
+									'    if (jsonData.error === "authorization_pending") {',
+									'        console.log("⏳ Authorization pending - user has not authorized yet");',
+									'        console.log("   🔄 Poll again after interval (typically 5 seconds)");',
+									'        const interval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        console.log("   ⏱️ Wait", interval, "seconds before next poll");',
+									'    } else if (jsonData.error === "slow_down") {',
+									'        console.log("⚠️ Slow down - polling too frequently");',
+									'        const currentInterval = parseInt(pm.environment.get("device_code_interval") || "5");',
+									'        const newInterval = currentInterval + 5;',
+									'        pm.environment.set("device_code_interval", newInterval.toString());',
+									'        console.log("   🔄 Increased polling interval to", newInterval, "seconds");',
+									'    } else if (jsonData.error === "expired_token") {',
+									'        console.log("❌ Device code expired - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else if (jsonData.error === "access_denied") {',
+									'        console.log("❌ User denied authorization - restart flow from Request Device Authorization step");',
+									'        pm.environment.unset("device_code");',
+									'        pm.environment.unset("user_code");',
+									'    } else {',
+									'        console.log("❌ Polling failed:", jsonData.error);',
+									'        if (jsonData.error_description) {',
+									'            console.log("   Description:", jsonData.error_description);',
+									'        }',
+									'    }',
+									'} else {',
+									'    console.log("❌ Unexpected response code:", pm.response.code);',
+									'}',
+								],
+								type: 'text/javascript',
+							},
+						},
+					],
+				},
+			],
+		});
+
+		// OIDC 2.1: Introspection and UserInfo (same as OIDC)
+		oidc21Items.push({
+			name: 'Introspect Token',
+			request: {
+				method: 'POST',
+				header: [
+					{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+					{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
+				],
+				body: {
+					mode: 'urlencoded',
+					urlencoded: [
+						{ key: 'token', value: '{{access_token}}' },
+						{ key: 'token_type_hint', value: 'access_token' },
+					],
+				},
+				url: parseUrl(`${baseUrl}/as/introspect`),
+				description:
+					'**Token Introspection - OIDC 2.1**\n\n**Educational Context:**\n- Validates access_token and returns token metadata\n- OIDC 2.1: Enhanced security requirements',
+			},
+		});
+
+		oidc21Items.push({
+			name: 'Get UserInfo',
+			request: {
+				method: 'GET',
+				header: [{ key: 'Authorization', value: 'Bearer {{access_token}}' }],
+				url: parseUrl(`${baseUrl}/as/userinfo`),
+				description:
+					'**UserInfo Endpoint - OIDC 2.1**\n\n**Educational Context:**\n- Returns user claims\n- OIDC 2.1: Enhanced security requirements',
+			},
+		});
+
+		// ============================================
+		// Redirectless (PingOne pi.flow) - Separate Group
+		// ============================================
+		// Redirectless uses a separate API endpoint instead of standard authorization URL
+		const redirectlessItems: PostmanCollectionItem[] = [
+			{
+				name: 'Authentication',
+				item: [
+					{
+						name: '1. Generate PKCE Codes',
+						request: {
+							method: 'GET',
+							url: parseUrl(`${baseUrl}/generate-pkce`),
+							description:
+								"**Generate PKCE Codes for Redirectless**\n\n**Educational Context:**\n- PKCE is REQUIRED for redirectless flows\n- Generates code_verifier (secret) and code_challenge (public)\n- Code challenge is SHA256 hash of code verifier\n- This is a local script step - the actual URL doesn't matter as the pre-request script generates the codes\n- The generated codes are automatically saved to environment variables: code_verifier, code_challenge, code_challenge_method",
+						},
+						event: [
+							{
+								listen: 'prerequest' as const,
+								script: {
+									exec: [
+										'// Generate PKCE code verifier and challenge',
+										'// This script runs BEFORE the request and generates the PKCE codes',
+										'function generateCodeVerifier() {',
+										'    const array = new Uint8Array(32);',
+										'    crypto.getRandomValues(array);',
+										'    return btoa(String.fromCharCode.apply(null, Array.from(array)))',
+										'        .replace(/\\+/g, "-")',
+										'        .replace(/\\//g, "_")',
+										'        .replace(/=/g, "");',
+										'}',
+										'',
+										'function generateCodeChallenge(verifier) {',
+										'    return CryptoJS.SHA256(verifier).toString(CryptoJS.enc.Base64)',
+										'        .replace(/\\+/g, "-")',
+										'        .replace(/\\//g, "_")',
+										'        .replace(/=/g, "");',
+										'}',
+										'',
+										'const codeVerifier = generateCodeVerifier();',
+										'const codeChallenge = generateCodeChallenge(codeVerifier);',
+										'',
+										'pm.environment.set("code_verifier", codeVerifier);',
+										'pm.environment.set("code_challenge", codeChallenge);',
+										'pm.environment.set("code_challenge_method", "S256");',
+										'',
+										'console.log("✅ PKCE codes generated:");',
+										'console.log("   Code Verifier:", codeVerifier);',
+										'console.log("   Code Challenge:", codeChallenge);',
+										'console.log("   Method: S256");',
+									],
+									type: 'text/javascript',
+								},
+							},
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Verify PKCE codes were generated',
+										'const codeVerifier = pm.environment.get("code_verifier");',
+										'const codeChallenge = pm.environment.get("code_challenge");',
+										'',
+										'if (codeVerifier && codeChallenge) {',
+										'    console.log("✅ PKCE codes successfully saved to environment variables");',
+										'    pm.test("PKCE codes generated", function () {',
+										'        pm.expect(codeVerifier).to.be.a("string");',
+										'        pm.expect(codeChallenge).to.be.a("string");',
+										'        pm.expect(codeVerifier.length).to.be.at.least(43);',
+										'        pm.expect(codeChallenge.length).to.be.at.least(43);',
+										'    });',
+										'} else {',
+										'    console.log("❌ PKCE codes generation failed");',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '2. Start Auth Code Flow',
+						request: {
+							method: 'POST',
+							header: [
+								{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+								{ key: 'Accept', value: 'application/json' },
+							],
+							body: {
+								mode: 'urlencoded',
+								urlencoded: [
+									{ key: 'response_type', value: 'code' },
+									{ key: 'client_id', value: '{{client_id}}' },
+									{ key: 'scope', value: '{{scopes_oidc}}' },
+									{ key: 'redirect_uri', value: 'urn:pingidentity:redirectless' },
+									{ key: 'response_mode', value: 'pi.flow' },
+									{ key: 'code_challenge', value: '{{code_challenge}}' },
+									{ key: 'code_challenge_method', value: '{{code_challenge_method}}' },
+									{ key: 'state', value: '{{state}}' },
+								],
+							},
+							url: parseUrl(`${baseUrl}/as/authorize`),
+							description:
+								'**Start Auth Code Flow (PingOne pi.flow)**\n\n**Educational Context:**\n- Starts the redirectless Authorization Code flow with response_mode=pi.flow\n- POST request to /as/authorize (not GET) - returns flow object in JSON response, not redirect\n- Perfect for embedded auth, mobile apps, and headless flows\n- PKCE is REQUIRED for redirectless flows\n- Returns flow object with flowId, status (USERNAME_PASSWORD_REQUIRED, MFA_REQUIRED, COMPLETE), and resumeUrl\n\n**Key Differences from Standard OAuth:**\n- Uses POST instead of GET\n- Includes response_mode=pi.flow parameter\n- Returns JSON flow object, not browser redirect\n- Requires Flows API (/flows/{flowId}) to continue authentication',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Extract flow data from Start Auth Code Flow response',
+										'if (pm.response.code === 200) {',
+										'    const jsonData = pm.response.json();',
+										'    ',
+										'    // Extract flowId (may be in id, _id, or flowId field)',
+										'    const flowId = jsonData.id || jsonData._id || jsonData.flowId;',
+										'    if (flowId) {',
+										'        pm.environment.set("flowId", flowId);',
+										'        pm.environment.set("redirectless_flowId", flowId);',
+										'        console.log("✅ Flow ID saved:", flowId);',
+										'    }',
+										'    ',
+										'    // Extract resumeUrl or construct from flowId',
+										'    if (jsonData.resumeUrl) {',
+										'        pm.environment.set("redirectless_resumeUrl", jsonData.resumeUrl);',
+										'    } else if (flowId) {',
+										'        const envID = pm.environment.get("envID");',
+										// biome-ignore lint/suspicious/noTemplateCurlyInString: This is Postman script code where template literals are valid
+										'        const resumeUrl = `https://auth.pingone.com/${envID}/as/resume?flowId=${flowId}`;',
+										'        pm.environment.set("redirectless_resumeUrl", resumeUrl);',
+										'    }',
+										'    ',
+										'    // Extract sessionId (may be in _sessionId, sessionId, or _links.session.href)',
+										'    const sessionId = jsonData._sessionId || jsonData.sessionId || (jsonData._links && jsonData._links.session && jsonData._links.session.href ? jsonData._links.session.href.split("/").pop() : null);',
+										'    if (sessionId) {',
+										'        pm.environment.set("redirectless_sessionId", sessionId);',
+										'    }',
+										'    ',
+										'    // Extract status',
+										'    if (jsonData.status) {',
+										'        pm.environment.set("redirectless_status", jsonData.status);',
+										'        console.log("✅ Flow status:", jsonData.status);',
+										'    }',
+										'    ',
+										'    // Extract interactionId and interactionToken if present (for Flow API)',
+										'    if (jsonData.interactionId) {',
+										'        pm.environment.set("interactionId", jsonData.interactionId);',
+										'    }',
+										'    if (jsonData.interactionToken) {',
+										'        pm.environment.set("interactionToken", jsonData.interactionToken);',
+										'    }',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '3. Check Username/Password',
+						request: {
+							method: 'POST',
+							header: [
+								{ key: 'Content-Type', value: 'application/json' },
+								{ key: 'Accept', value: 'application/json' },
+							],
+							body: {
+								mode: 'raw',
+								raw: JSON.stringify(
+									{
+										action: 'usernamePassword.check',
+										username: '{{username}}',
+										password: '{{password}}',
+									},
+									null,
+									2
+								),
+								options: {
+									raw: {
+										language: 'json',
+									},
+								},
+							},
+							url: parseUrl(`${baseUrl}/flows/{{flowId}}`),
+							description:
+								'**Check Username/Password (PingOne Flows API)**\n\n**Educational Context:**\n- Validates user credentials using PingOne Flows API\n- POST to /flows/{flowId} with username/password\n- Uses action: "usernamePassword.check" to check credentials\n- Flow may return status: USERNAME_PASSWORD_REQUIRED (retry), MFA_REQUIRED (proceed to MFA), or COMPLETE (proceed to Get Auth Code)\n- If MFA is required, you\'ll need to call this endpoint again with otp_code after receiving MFA_REQUIRED status',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Extract updated flow data from Check Username/Password response',
+										'if (pm.response.code === 200 || pm.response.code === 201) {',
+										'    const jsonData = pm.response.json();',
+										'    ',
+										'    // Update flowId if changed',
+										'    const flowId = jsonData.id || jsonData._id || jsonData.flowId || pm.environment.get("flowId");',
+										'    if (flowId) {',
+										'        pm.environment.set("flowId", flowId);',
+										'        pm.environment.set("redirectless_flowId", flowId);',
+										'    }',
+										'    ',
+										'    // Extract and update status',
+										'    if (jsonData.status) {',
+										'        pm.environment.set("redirectless_status", jsonData.status);',
+										'        console.log("✅ Flow status updated:", jsonData.status);',
+										'        ',
+										'        if (jsonData.status === "MFA_REQUIRED") {',
+										'            console.log("⚠️ MFA required - call Check Username/Password again with otp_code");',
+										'        } else if (jsonData.status === "COMPLETE" || jsonData.status === "READY_TO_RESUME") {',
+										'            console.log("✅ Credentials validated - proceed to Get Auth Code step");',
+										'        }',
+										'    }',
+										'    ',
+										'    // Extract resumeUrl if provided',
+										'    if (jsonData.resumeUrl) {',
+										'        pm.environment.set("redirectless_resumeUrl", jsonData.resumeUrl);',
+										'    }',
+										'    ',
+										'    // Extract sessionId if changed',
+										'    const sessionId = jsonData._sessionId || jsonData.sessionId;',
+										'    if (sessionId) {',
+										'        pm.environment.set("redirectless_sessionId", sessionId);',
+										'    }',
+										'} else {',
+										'    console.log("❌ Username/password check failed:", pm.response.code);',
+										'    const jsonData = pm.response.json();',
+										'    if (jsonData.error) {',
+										'        console.log("   Error:", jsonData.error);',
+										'        if (jsonData.error_description) {',
+										'            console.log("   Description:", jsonData.error_description);',
+										'        }',
+										'    }',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '4. Get Auth Code',
+						request: {
+							method: 'GET',
+							header: [{ key: 'Accept', value: 'application/json' }],
+							url: parseUrl(`${baseUrl}/as/resume?flowId={{flowId}}`),
+							description:
+								'**Get Auth Code (PingOne Resume Flow)**\n\n**Educational Context:**\n- Resumes the redirectless flow to get the authorization code\n- GET to /as/resume?flowId={flowId} after credentials are validated\n- PingOne responds with either:\n  - 302 redirect with Location header containing ?code=abc123&state=xyz (standard)\n  - 200 JSON response with code field (if response_mode=pi.flow on resume)\n- The authorization code is extracted from the Location header or JSON response\n- This code is then used in the Exchange Code for Token step',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Extract authorization code from Get Auth Code response',
+										'if (pm.response.code === 302) {',
+										'    // Handle 302 redirect - extract code from Location header',
+										'    const locationHeader = pm.response.headers.get("Location");',
+										'    if (locationHeader) {',
+										'        const url = new URL(locationHeader);',
+										'        const code = url.searchParams.get("code");',
+										'        const state = url.searchParams.get("state");',
+										'        ',
+										'        if (code) {',
+										'            pm.environment.set("authorization_code", code);',
+										'            console.log("✅ Authorization code extracted from redirect:", code);',
+										'        }',
+										'        if (state) {',
+										'            pm.environment.set("state", state);',
+										'        }',
+										'    }',
+										'} else if (pm.response.code === 200) {',
+										'    // Handle 200 JSON response (response_mode=pi.flow)',
+										'    try {',
+										'        const jsonData = pm.response.json();',
+										'        if (jsonData.code) {',
+										'            pm.environment.set("authorization_code", jsonData.code);',
+										'            console.log("✅ Authorization code extracted from JSON:", jsonData.code);',
+										'        }',
+										'        if (jsonData.state) {',
+										'            pm.environment.set("state", jsonData.state);',
+										'        }',
+										'    } catch (e) {',
+										'        console.log("⚠️ Could not parse JSON response");',
+										'    }',
+										'} else {',
+										'    console.log("❌ Failed to get authorization code:", pm.response.code);',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '5. Exchange Code for Token',
+						request: {
+							method: 'POST',
+							header: [
+								{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
+								{ key: 'Accept', value: 'application/json' },
+							],
+							body: {
+								mode: 'urlencoded',
+								urlencoded: [
+									{ key: 'grant_type', value: 'authorization_code' },
+									{ key: 'code', value: '{{authorization_code}}' },
+									{ key: 'redirect_uri', value: 'urn:pingidentity:redirectless' },
+									{ key: 'client_id', value: '{{client_id}}' },
+									{ key: 'code_verifier', value: '{{code_verifier}}' },
+								],
+							},
+							url: {
+								raw: `${baseUrl}/as/token`,
+							},
+							description:
+								'**Exchange Code for Token (Redirectless Flow)**\n\n**Educational Context:**\n- Exchanges authorization code for tokens (same as standard Authorization Code flow)\n- code_verifier must match code_challenge from Start Auth Code Flow request\n- Returns access_token, id_token (if OIDC), and refresh_token (if offline_access scope requested)\n- Client authenticates using client_id and code_verifier (PKCE)\n- The redirect_uri must match the one used in Start Auth Code Flow',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: generateTokenExtractionScript('oidc'),
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '6. Session Reset (updates (or resets) a flow session)',
+						request: {
+							method: 'POST',
+							header: [
+								{ key: 'Content-Type', value: 'application/json' },
+								{ key: 'Accept', value: 'application/json' },
+							],
+							body: {
+								mode: 'raw',
+								raw: JSON.stringify(
+									{
+										action: 'session.reset',
+									},
+									null,
+									2
+								),
+								options: {
+									raw: {
+										language: 'json',
+									},
+								},
+							},
+							url: parseUrl(`${baseUrl}/flows/{{flowId}}`),
+							description:
+								'**Session Reset (PingOne Flows API)**\n\n**Educational Context:**\n- Resets or updates a flow session\n- POST to /flows/{flowId} with action: "session.reset"\n- Use this to reset the current authentication session if needed\n- May be required if authentication state becomes invalid or needs to be restarted\n- After reset, you may need to restart from Check Username/Password step',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Extract updated flow data after session reset',
+										'if (pm.response.code === 200 || pm.response.code === 201) {',
+										'    const jsonData = pm.response.json();',
+										'    ',
+										'    if (jsonData.status) {',
+										'        pm.environment.set("redirectless_status", jsonData.status);',
+										'        console.log("✅ Session reset - new status:", jsonData.status);',
+										'    }',
+										'    ',
+										'    // Update flowId if changed',
+										'    const flowId = jsonData.id || jsonData._id || jsonData.flowId;',
+										'    if (flowId && flowId !== pm.environment.get("flowId")) {',
+										'        pm.environment.set("flowId", flowId);',
+										'        pm.environment.set("redirectless_flowId", flowId);',
+										'    }',
+										'} else {',
+										'    console.log("❌ Session reset failed:", pm.response.code);',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '7. Password Change Flow (MUST_CHANGE_PASSWORD)',
+						request: {
+							method: 'POST',
+							header: [
+								{
+									key: 'Content-Type',
+									value: 'application/vnd.pingidentity.password.forceChange+json',
+								},
+								{ key: 'Accept', value: 'application/json' },
+								{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
+							],
+							body: {
+								mode: 'raw',
+								raw: JSON.stringify(
+									{
+										currentPassword: '{{current_password}}',
+										newPassword: '{{new_password}}',
+										forceChange: true,
+									},
+									null,
+									2
+								),
+								options: {
+									raw: {
+										language: 'json',
+									},
+								},
+							},
+							url: parseUrl(`{{apiPath}}/v1/environments/{{envID}}/users/{{userId}}/password`),
+							description:
+								'**Password Change Flow (MUST_CHANGE_PASSWORD)**\n\n**Educational Context:**\n- Forces a password change during authentication flow\n- POST to /v1/environments/{envID}/users/{userId}/password with Content-Type: application/vnd.pingidentity.password.forceChange+json\n- Requires worker token (Bearer token) for authentication\n- Used when user account has MUST_CHANGE_PASSWORD status\n- After password change, user can proceed with normal authentication flow\n- This step requires userId to be set (from user lookup or previous authentication)',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Verify password change response',
+										'if (pm.response.code === 200 || pm.response.code === 201 || pm.response.code === 204) {',
+										'    console.log("✅ Password change successful");',
+										'    console.log("⚠️ User can now proceed with normal authentication flow");',
+										'    ',
+										'    // Reset flow status to allow re-authentication',
+										'    pm.environment.set("redirectless_status", "USERNAME_PASSWORD_REQUIRED");',
+										'} else {',
+										'    console.log("❌ Password change failed:", pm.response.code);',
+										'    try {',
+										'        const jsonData = pm.response.json();',
+										'        if (jsonData.error) {',
+										'            console.log("   Error:", jsonData.error);',
+										'            if (jsonData.error_description) {',
+										'                console.log("   Description:", jsonData.error_description);',
+										'            }',
+										'        }',
+										'    } catch (e) {',
+										'        // Response may not be JSON',
+										'    }',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+					{
+						name: '8. Update Password (Self)',
+						request: {
+							method: 'POST',
+							header: [
+								{ key: 'Content-Type', value: 'application/vnd.pingidentity.password.change+json' },
+								{ key: 'Accept', value: 'application/json' },
+								{ key: 'Authorization', value: 'Bearer {{access_token}}' },
+							],
+							body: {
+								mode: 'raw',
+								raw: JSON.stringify(
+									{
+										currentPassword: '{{current_password}}',
+										newPassword: '{{new_password}}',
+									},
+									null,
+									2
+								),
+								options: {
+									raw: {
+										language: 'json',
+									},
+								},
+							},
+							url: parseUrl(`{{apiPath}}/v1/environments/{{envID}}/users/{{userId}}/password`),
+							description:
+								'**Update Password (Self)**\n\n**Educational Context:**\n- Allows authenticated user to change their own password\n- POST to /v1/environments/{envID}/users/{userId}/password with Content-Type: application/vnd.pingidentity.password.change+json\n- Requires user access token (Bearer token) - user must be authenticated\n- Requires current password for security verification\n- This is a self-service password change, not an admin-forced change\n- The userId can be extracted from the ID token claims (sub field) or UserInfo endpoint',
+						},
+						event: [
+							{
+								listen: 'test' as const,
+								script: {
+									exec: [
+										'// Verify password update response',
+										'if (pm.response.code === 200 || pm.response.code === 201 || pm.response.code === 204) {',
+										'    console.log("✅ Password updated successfully");',
+										'    pm.test("Password update successful", function () {',
+										'        pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);',
+										'    });',
+										'} else {',
+										'    console.log("❌ Password update failed:", pm.response.code);',
+										'    try {',
+										'        const jsonData = pm.response.json();',
+										'        if (jsonData.error) {',
+										'            console.log("   Error:", jsonData.error);',
+										'            if (jsonData.error_description) {',
+										'                console.log("   Description:", jsonData.error_description);',
+										'            }',
+										'            if (jsonData.details) {',
+										'                console.log("   Details:", JSON.stringify(jsonData.details, null, 2));',
+										'            }',
+										'        }',
+										'    } catch (e) {',
+										'        // Response may not be JSON',
+										'    }',
+										'}',
+									],
+									type: 'text/javascript',
+								},
+							},
+						],
+					},
+				],
+			},
+		];
+
+		// Generate Worker Token items - used by all collections
+		const workerTokenItems = generateWorkerTokenItems(baseUrl);
+
+		// Create folder structure organized by spec version
+		// Note: Use Cases are NOT included here - they are only included when explicitly requested via generateUseCasesPostmanCollection
+		// Note: Worker Token is FIRST as it's required for many operations
+		const items: PostmanCollectionItem[] = [
+			{
+				name: 'Worker Token',
+				item: workerTokenItems,
+			},
+			{
+				name: 'OAuth 2.0 Authorization Framework (RFC 6749)',
+				item: oauth20Items,
+			},
+			{
+				name: 'OpenID Connect Core 1.0',
+				item: oidcItems,
+			},
+			{
+				name: 'OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0',
+				item: oidc21Items,
+			},
+			{
+				name: 'Redirectless (PingOne pi.flow)',
+				item: redirectlessItems,
+			},
+		];
+
+		const finalizedVariables = finalizeVariables(variables, issues, contextLabel);
+		const collection: PostmanCollection = {
+			info: {
+				name: 'PingOne Unified OAuth/OIDC Flows - Complete Collection',
+				version: COLLECTION_VERSION,
+				description:
+					'Comprehensive Postman collection for all PingOne OAuth and OpenID Connect flows. Organized by specification version:\n\n**Understanding Protocol Names:**\n\n1. **OAuth 2.0 Authorization Framework (RFC 6749):** Baseline OAuth framework standard. Provides authorization without authentication. Supports all flow types including Implicit. No ID tokens - only access tokens and refresh tokens.\n\n2. **OpenID Connect Core 1.0:** Authentication layer on top of OAuth 2.0. Adds identity layer with ID Tokens, openid scope, UserInfo endpoint, and user authentication. Provides both authorization AND authentication.\n\n3. **OAuth 2.1 Authorization Framework (draft):** Consolidated OAuth specification (IETF draft-ietf-oauth-v2-1). Removes deprecated flows (Implicit, ROPC) and enforces modern security practices (PKCE required, HTTPS enforced). **Note: Still an Internet-Draft, not yet an RFC.** When used with OpenID Connect Core 1.0, this means "OpenID Connect Core 1.0 using Authorization Code + PKCE (OAuth 2.1 (draft) baseline)".\n\n**Collection Contents:**\n\n**Worker Token:**\n- Get Worker Token (Client Secret Post)\n- Get Worker Token (Client Secret Basic)\n- Get Worker Token (Client Secret JWT)\n- Get Worker Token (Private Key JWT)\n\n**OAuth 2.0 Authorization Framework (RFC 6749):**\n- Authorization Code (simple, no PKCE, no id_token)\n- Implicit Flow (deprecated in OAuth 2.1 (draft), but still part of OAuth 2.0)\n- Client Credentials\n- Device Code Flow\n\n**OpenID Connect Core 1.0:**\n- Authorization Code (simple + optional PKCE, includes id_token)\n- Implicit Flow (deprecated)\n- Hybrid Flow (code id_token)\n- Device Code Flow\n- Introspection & UserInfo\n\n**OAuth 2.1 Authorization Framework (draft) with OpenID Connect Core 1.0:**\n- Authorization Code (PKCE REQUIRED, includes id_token)\n- Authorization Code with PKCE and PAR\n- Client Credentials\n- Device Code Flow\n- Introspection & UserInfo\n\nGenerated from OAuth Playground.',
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+			},
+			variable: finalizedVariables,
+			item: items,
+		};
+
+		validateCollection(collection, issues, contextLabel);
+		validateEnvironment(finalizedVariables, issues, contextLabel);
+		validatePlaceholders(JSON.stringify(collection), issues, contextLabel);
+		issues.printSummary();
+		issues.throwIfErrors();
+
+		// Enhance all descriptions with Variables Saved information
+		return enhanceCollectionDescriptions(collection);
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
+	}
 };
 
 /**
@@ -9085,292 +9184,304 @@ export const generateComprehensiveMFAPostmanCollection = (credentials?: {
 }): PostmanCollection => {
 	// Collect generation warnings/errors for this run.
 	const issues = new GenerationIssues('generateComprehensiveMFAPostmanCollection');
+	const contextLabel = 'MFA Comprehensive Collection';
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = contextLabel;
 
-	const deviceTypes = ['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2', 'MOBILE'];
+	try {
+		const deviceTypes = ['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2', 'MOBILE'];
 
-	// Build variables
-	const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
-		{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
-		{
-			key: 'envID',
-			value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
-			type: 'string',
-		},
-		{ key: 'workerToken', value: '', type: 'string' },
-		{ key: 'username', value: credentials?.username || '', type: 'string' },
-		{ key: 'userId', value: '{userId}', type: 'string' },
-		{ key: 'deviceId', value: '{deviceId}', type: 'string' },
-		{
-			key: 'deviceAuthenticationPolicyId',
-			value: '{deviceAuthenticationPolicyId}',
-			type: 'string',
-		},
-	];
-
-	// Build registration and authentication items for each device type
-	const registrationItems: PostmanCollectionItem[] = [];
-	const authenticationItems: PostmanCollectionItem[] = [];
-
-	deviceTypes.forEach((deviceType) => {
-		// Registration API calls
-		type RegistrationCall = {
-			step: string;
-			method: string;
-			endpoint: string;
-			description: string;
-			requestBody: Record<string, unknown>;
-			responseBody: Record<string, unknown>;
-		};
-		const registrationCalls: RegistrationCall[] = [
+		// Build variables
+		const variables: Array<{ key: string; value: string; type?: string; description?: string }> = [
+			{ key: 'authPath', value: 'https://auth.pingone.com', type: 'string' },
 			{
-				step: `Register ${deviceType} Device`,
-				method: 'POST',
-				endpoint: `{{authPath}}/{{envID}}/deviceAuthentications`,
-				description: `Create a new ${deviceType} device for the user`,
-				requestBody: {
-					type: deviceType,
-					status: 'ACTIVATION_REQUIRED',
-					policy: {
-						id: '{{deviceAuthenticationPolicyId}}',
-					},
-					...(deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'MOBILE'
-						? { phone: '+1.5125201234' }
-						: deviceType === 'EMAIL'
-							? { email: 'user@example.com' }
-							: {}),
-				},
-				responseBody: {
-					id: '{{deviceId}}',
-					type: deviceType,
-					status: 'ACTIVATION_REQUIRED',
-				},
+				key: 'envID',
+				value: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+				type: 'string',
+			},
+			{ key: 'workerToken', value: '', type: 'string' },
+			{ key: 'username', value: credentials?.username || '', type: 'string' },
+			{ key: 'userId', value: '{userId}', type: 'string' },
+			{ key: 'deviceId', value: '{deviceId}', type: 'string' },
+			{
+				key: 'deviceAuthenticationPolicyId',
+				value: '{deviceAuthenticationPolicyId}',
+				type: 'string',
 			},
 		];
 
-		// Add activation call for OTP devices
-		if (deviceType !== 'FIDO2') {
-			registrationCalls.push({
-				step: `Activate ${deviceType} Device`,
-				method: 'POST',
-				endpoint: `{{authPath}}/{{envID}}/deviceAuthentications/{{deviceId}}/otp/check`,
-				description: `Activate ${deviceType} device with OTP code`,
-				requestBody: {
-					otp: '{otp_code}',
-				},
-				responseBody: {
-					id: '{{deviceId}}',
-					status: 'ACTIVE',
-					type: deviceType,
-				},
-			});
-		}
+		// Build registration and authentication items for each device type
+		const registrationItems: PostmanCollectionItem[] = [];
+		const authenticationItems: PostmanCollectionItem[] = [];
 
-		// Convert to Postman items
-		const deviceRegistrationItems = registrationCalls.map((call) => {
-			const postmanUrl = convertEndpointToPostman(call.endpoint);
-			const urlStructure = parseUrl(postmanUrl);
-			const headers: Array<{ key: string; value: string; type?: string }> = [
-				{ key: 'Content-Type', value: 'application/json' },
-				{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
-			];
-			const body = convertRequestBody(call.requestBody, call.method);
-
-			// Build comprehensive educational description
-			let educationalDescription = call.description || '';
-
-			// Add flow context based on step name
-			if (call.step.includes('Register') || call.step.includes('Create')) {
-				educationalDescription += '\n\n**Educational Context:**\n';
-				educationalDescription += '- This creates a new MFA device for the user\n';
-				if (call.requestBody && typeof call.requestBody === 'object') {
-					const body = call.requestBody as Record<string, unknown>;
-					if (body.status === 'ACTIVE') {
-						educationalDescription +=
-							'- Device status: ACTIVE (immediately usable, no OTP required)\n';
-						educationalDescription += '- Only possible with worker token (Admin Flow)\n';
-					} else if (body.status === 'ACTIVATION_REQUIRED') {
-						educationalDescription +=
-							'- Device status: ACTIVATION_REQUIRED (OTP activation required)\n';
-						educationalDescription += '- PingOne automatically sends OTP to the device\n';
-						educationalDescription += '- User Flow always uses ACTIVATION_REQUIRED\n';
-					}
-				}
-				educationalDescription += '- Device ID is automatically extracted and saved\n';
-				educationalDescription += '- Policy ID links device to MFA authentication policy\n';
-				educationalDescription += '- This is part of the Registration flow\n';
-			} else if (call.step.includes('Activate')) {
-				educationalDescription += '\n\n**Educational Context:**\n';
-				educationalDescription += '- Activates a device created with ACTIVATION_REQUIRED status\n';
-				educationalDescription +=
-					'- OTP code is received via SMS/Email/WhatsApp/OATH TOTP (RFC 6238) app\n';
-				educationalDescription += '- After activation, device status changes to ACTIVE\n';
-				educationalDescription += '- Device can now be used for MFA authentication\n';
-				educationalDescription += '- This is the final step in device registration\n';
-			}
-
-			return {
-				name: call.step,
-				request: {
-					method: call.method,
-					header: headers,
-					...(body && { body }),
-					url: urlStructure,
-					description: educationalDescription,
-				},
+		deviceTypes.forEach((deviceType) => {
+			// Registration API calls
+			type RegistrationCall = {
+				step: string;
+				method: string;
+				endpoint: string;
+				description: string;
+				requestBody: Record<string, unknown>;
+				responseBody: Record<string, unknown>;
 			};
-		});
-
-		registrationItems.push({
-			name: deviceType,
-			item: deviceRegistrationItems,
-		});
-
-		// Authentication API calls
-		type AuthenticationCall = {
-			step: string;
-			method: string;
-			endpoint: string;
-			description: string;
-			requestBody: Record<string, unknown>;
-			responseBody: Record<string, unknown>;
-		};
-		const authenticationCalls: AuthenticationCall[] = [
-			{
-				step: `Initialize ${deviceType} Authentication`,
-				method: 'POST',
-				endpoint: `{{authPath}}/{{envID}}/deviceAuthentications`,
-				description: `Initialize authentication for ${deviceType} device`,
-				requestBody: {
-					user: {
-						id: '{{userId}}',
+			const registrationCalls: RegistrationCall[] = [
+				{
+					step: `Register ${deviceType} Device`,
+					method: 'POST',
+					endpoint: `{{authPath}}/{{envID}}/deviceAuthentications`,
+					description: `Create a new ${deviceType} device for the user`,
+					requestBody: {
+						type: deviceType,
+						status: 'ACTIVATION_REQUIRED',
+						policy: {
+							id: '{{deviceAuthenticationPolicyId}}',
+						},
+						...(deviceType === 'SMS' || deviceType === 'WHATSAPP' || deviceType === 'MOBILE'
+							? { phone: '+1.5125201234' }
+							: deviceType === 'EMAIL'
+								? { email: 'user@example.com' }
+								: {}),
 					},
-					device: {
+					responseBody: {
 						id: '{{deviceId}}',
-					},
-					policy: {
-						id: '{{deviceAuthenticationPolicyId}}',
+						type: deviceType,
+						status: 'ACTIVATION_REQUIRED',
 					},
 				},
-				responseBody: {
-					id: '{deviceAuthenticationId}',
-					status: 'OTP_SENT',
+			];
+
+			// Add activation call for OTP devices
+			if (deviceType !== 'FIDO2') {
+				registrationCalls.push({
+					step: `Activate ${deviceType} Device`,
+					method: 'POST',
+					endpoint: `{{authPath}}/{{envID}}/deviceAuthentications/{{deviceId}}/otp/check`,
+					description: `Activate ${deviceType} device with OTP code`,
+					requestBody: {
+						otp: '{otp_code}',
+					},
+					responseBody: {
+						id: '{{deviceId}}',
+						status: 'ACTIVE',
+						type: deviceType,
+					},
+				});
+			}
+
+			// Convert to Postman items
+			const deviceRegistrationItems = registrationCalls.map((call) => {
+				const postmanUrl = convertEndpointToPostman(call.endpoint);
+				const urlStructure = parseUrl(postmanUrl);
+				const headers: Array<{ key: string; value: string; type?: string }> = [
+					{ key: 'Content-Type', value: 'application/json' },
+					{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
+				];
+				const body = convertRequestBody(call.requestBody, call.method);
+
+				// Build comprehensive educational description
+				let educationalDescription = call.description || '';
+
+				// Add flow context based on step name
+				if (call.step.includes('Register') || call.step.includes('Create')) {
+					educationalDescription += '\n\n**Educational Context:**\n';
+					educationalDescription += '- This creates a new MFA device for the user\n';
+					if (call.requestBody && typeof call.requestBody === 'object') {
+						const body = call.requestBody as Record<string, unknown>;
+						if (body.status === 'ACTIVE') {
+							educationalDescription +=
+								'- Device status: ACTIVE (immediately usable, no OTP required)\n';
+							educationalDescription += '- Only possible with worker token (Admin Flow)\n';
+						} else if (body.status === 'ACTIVATION_REQUIRED') {
+							educationalDescription +=
+								'- Device status: ACTIVATION_REQUIRED (OTP activation required)\n';
+							educationalDescription += '- PingOne automatically sends OTP to the device\n';
+							educationalDescription += '- User Flow always uses ACTIVATION_REQUIRED\n';
+						}
+					}
+					educationalDescription += '- Device ID is automatically extracted and saved\n';
+					educationalDescription += '- Policy ID links device to MFA authentication policy\n';
+					educationalDescription += '- This is part of the Registration flow\n';
+				} else if (call.step.includes('Activate')) {
+					educationalDescription += '\n\n**Educational Context:**\n';
+					educationalDescription +=
+						'- Activates a device created with ACTIVATION_REQUIRED status\n';
+					educationalDescription +=
+						'- OTP code is received via SMS/Email/WhatsApp/OATH TOTP (RFC 6238) app\n';
+					educationalDescription += '- After activation, device status changes to ACTIVE\n';
+					educationalDescription += '- Device can now be used for MFA authentication\n';
+					educationalDescription += '- This is the final step in device registration\n';
+				}
+
+				return {
+					name: call.step,
+					request: {
+						method: call.method,
+						header: headers,
+						...(body && { body }),
+						url: urlStructure,
+						description: educationalDescription,
+					},
+				};
+			});
+
+			registrationItems.push({
+				name: deviceType,
+				item: deviceRegistrationItems,
+			});
+
+			// Authentication API calls
+			type AuthenticationCall = {
+				step: string;
+				method: string;
+				endpoint: string;
+				description: string;
+				requestBody: Record<string, unknown>;
+				responseBody: Record<string, unknown>;
+			};
+			const authenticationCalls: AuthenticationCall[] = [
+				{
+					step: `Initialize ${deviceType} Authentication`,
+					method: 'POST',
+					endpoint: `{{authPath}}/{{envID}}/deviceAuthentications`,
+					description: `Initialize authentication for ${deviceType} device`,
+					requestBody: {
+						user: {
+							id: '{{userId}}',
+						},
+						device: {
+							id: '{{deviceId}}',
+						},
+						policy: {
+							id: '{{deviceAuthenticationPolicyId}}',
+						},
+					},
+					responseBody: {
+						id: '{deviceAuthenticationId}',
+						status: 'OTP_SENT',
+					},
 				},
+			];
+
+			// Add OTP check for OTP devices
+			if (deviceType !== 'FIDO2') {
+				authenticationCalls.push({
+					step: `Validate ${deviceType} OTP`,
+					method: 'POST',
+					endpoint: `{{authPath}}/{{envID}}/deviceAuthentications/{deviceAuthenticationId}/otp/check`,
+					description: `Validate OTP code for ${deviceType} authentication`,
+					requestBody: {
+						otp: '{otp_code}',
+					},
+					responseBody: {
+						id: '{deviceAuthenticationId}',
+						status: 'COMPLETED',
+					},
+				});
+			}
+
+			// Convert to Postman items
+			const deviceAuthenticationItems = authenticationCalls.map((call) => {
+				const postmanUrl = convertEndpointToPostman(call.endpoint);
+				const urlStructure = parseUrl(postmanUrl);
+				const headers: Array<{ key: string; value: string; type?: string }> = [
+					{ key: 'Content-Type', value: 'application/json' },
+					{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
+				];
+				const body = convertRequestBody(call.requestBody, call.method);
+
+				// Build comprehensive educational description
+				let educationalDescription = call.description || '';
+
+				// Add flow context based on step name
+				if (call.step.includes('Initialize')) {
+					educationalDescription += '\n\n**Educational Context:**\n';
+					educationalDescription += '- This starts the MFA authentication process\n';
+					educationalDescription +=
+						'- PingOne sends OTP to the selected device (or prompts for device selection)\n';
+					educationalDescription +=
+						'- Device Authentication ID is automatically extracted and saved\n';
+					educationalDescription += '- This ID is used in subsequent authentication steps\n';
+					educationalDescription += '- Response includes status indicating next required action\n';
+				} else if (call.step.includes('Validate') || call.step.includes('Check OTP')) {
+					educationalDescription += '\n\n**Educational Context:**\n';
+					educationalDescription += '- User enters OTP code received on their device\n';
+					educationalDescription +=
+						'- OTP is validated against the device authentication session\n';
+					educationalDescription += '- If valid, authentication proceeds to completion\n';
+					educationalDescription +=
+						'- Use the otp.check URI from _links in the initialize response\n';
+				} else if (call.step.includes('Complete')) {
+					educationalDescription += '\n\n**Educational Context:**\n';
+					educationalDescription += '- This finalizes the MFA authentication process\n';
+					educationalDescription += '- Authentication is now complete and user can proceed\n';
+					educationalDescription += '- This step is optional if complete link is provided\n';
+				}
+
+				return {
+					name: call.step,
+					request: {
+						method: call.method,
+						header: headers,
+						...(body && { body }),
+						url: urlStructure,
+						description: educationalDescription,
+					},
+				};
+			});
+
+			authenticationItems.push({
+				name: deviceType,
+				item: deviceAuthenticationItems,
+			});
+		});
+
+		// Generate Worker Token items (needed for all MFA operations)
+		const baseUrl = '{{authPath}}/{{envID}}';
+		const workerTokenItems = generateWorkerTokenItems(baseUrl);
+
+		// Create folder structure - Worker Token FIRST as it's required for all MFA operations
+		const items: PostmanCollectionItem[] = [
+			{
+				name: 'Worker Token',
+				item: workerTokenItems,
+			},
+			{
+				name: 'Registration',
+				item: registrationItems,
+			},
+			{
+				name: 'Authentication',
+				item: authenticationItems,
 			},
 		];
 
-		// Add OTP check for OTP devices
-		if (deviceType !== 'FIDO2') {
-			authenticationCalls.push({
-				step: `Validate ${deviceType} OTP`,
-				method: 'POST',
-				endpoint: `{{authPath}}/{{envID}}/deviceAuthentications/{deviceAuthenticationId}/otp/check`,
-				description: `Validate OTP code for ${deviceType} authentication`,
-				requestBody: {
-					otp: '{otp_code}',
-				},
-				responseBody: {
-					id: '{deviceAuthenticationId}',
-					status: 'COMPLETED',
-				},
-			});
-		}
+		const finalizedVariables = finalizeVariables(variables, issues, contextLabel);
+		const collection: PostmanCollection = {
+			info: {
+				name: 'PingOne MFA Flows - Complete Collection',
+				version: COLLECTION_VERSION,
+				description:
+					'Comprehensive Postman collection for all PingOne MFA device types. Includes SMS, Email, WhatsApp, OATH TOTP (RFC 6238), FIDO2, and Mobile device registration and authentication flows. Generated from OAuth Playground.',
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+			},
+			variable: finalizedVariables,
+			item: items,
+		};
 
-		// Convert to Postman items
-		const deviceAuthenticationItems = authenticationCalls.map((call) => {
-			const postmanUrl = convertEndpointToPostman(call.endpoint);
-			const urlStructure = parseUrl(postmanUrl);
-			const headers: Array<{ key: string; value: string; type?: string }> = [
-				{ key: 'Content-Type', value: 'application/json' },
-				{ key: 'Authorization', value: 'Bearer {{workerToken}}' },
-			];
-			const body = convertRequestBody(call.requestBody, call.method);
+		validateCollection(collection, issues, contextLabel);
+		validateEnvironment(finalizedVariables, issues, contextLabel);
+		validatePlaceholders(JSON.stringify(collection), issues, contextLabel);
+		issues.printSummary();
+		issues.throwIfErrors();
 
-			// Build comprehensive educational description
-			let educationalDescription = call.description || '';
-
-			// Add flow context based on step name
-			if (call.step.includes('Initialize')) {
-				educationalDescription += '\n\n**Educational Context:**\n';
-				educationalDescription += '- This starts the MFA authentication process\n';
-				educationalDescription +=
-					'- PingOne sends OTP to the selected device (or prompts for device selection)\n';
-				educationalDescription +=
-					'- Device Authentication ID is automatically extracted and saved\n';
-				educationalDescription += '- This ID is used in subsequent authentication steps\n';
-				educationalDescription += '- Response includes status indicating next required action\n';
-			} else if (call.step.includes('Validate') || call.step.includes('Check OTP')) {
-				educationalDescription += '\n\n**Educational Context:**\n';
-				educationalDescription += '- User enters OTP code received on their device\n';
-				educationalDescription += '- OTP is validated against the device authentication session\n';
-				educationalDescription += '- If valid, authentication proceeds to completion\n';
-				educationalDescription +=
-					'- Use the otp.check URI from _links in the initialize response\n';
-			} else if (call.step.includes('Complete')) {
-				educationalDescription += '\n\n**Educational Context:**\n';
-				educationalDescription += '- This finalizes the MFA authentication process\n';
-				educationalDescription += '- Authentication is now complete and user can proceed\n';
-				educationalDescription += '- This step is optional if complete link is provided\n';
-			}
-
-			return {
-				name: call.step,
-				request: {
-					method: call.method,
-					header: headers,
-					...(body && { body }),
-					url: urlStructure,
-					description: educationalDescription,
-				},
-			};
-		});
-
-		authenticationItems.push({
-			name: deviceType,
-			item: deviceAuthenticationItems,
-		});
-	});
-
-	// Generate Worker Token items (needed for all MFA operations)
-	const baseUrl = '{{authPath}}/{{envID}}';
-	const workerTokenItems = generateWorkerTokenItems(baseUrl);
-
-	// Create folder structure - Worker Token FIRST as it's required for all MFA operations
-	const items: PostmanCollectionItem[] = [
-		{
-			name: 'Worker Token',
-			item: workerTokenItems,
-		},
-		{
-			name: 'Registration',
-			item: registrationItems,
-		},
-		{
-			name: 'Authentication',
-			item: authenticationItems,
-		},
-	];
-
-	const finalizedVariables = finalizeVariables(variables, issues, 'MFA Comprehensive Collection');
-	const collection: PostmanCollection = {
-		info: {
-			name: 'PingOne MFA Flows - Complete Collection',
-			version: COLLECTION_VERSION,
-			description:
-				'Comprehensive Postman collection for all PingOne MFA device types. Includes SMS, Email, WhatsApp, OATH TOTP (RFC 6238), FIDO2, and Mobile device registration and authentication flows. Generated from OAuth Playground.',
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: items,
-	};
-
-	validateCollection(collection, issues, 'MFA Comprehensive Collection');
-	validateEnvironment(finalizedVariables, issues, 'MFA Comprehensive Collection');
-	validatePlaceholders(JSON.stringify(collection), issues, 'MFA Comprehensive Collection');
-	issues.printSummary();
-	issues.throwIfErrors();
-
-	// Enhance all descriptions with Variables Saved information
-	return enhanceCollectionDescriptions(collection);
+		// Enhance all descriptions with Variables Saved information
+		return enhanceCollectionDescriptions(collection);
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
+	}
 };
 
 /**
@@ -9470,101 +9581,111 @@ export const generateCompletePostmanCollection = (credentials?: {
 }): PostmanCollection => {
 	// Collect generation warnings/errors for this run.
 	const issues = new GenerationIssues('generateCompletePostmanCollection');
+	const contextLabel = 'Complete Collection';
+	const previousIssues = activeIssues;
+	const previousContext = activeContextLabel;
+	activeIssues = issues;
+	activeContextLabel = contextLabel;
 
-	// Generate both collections
-	const unifiedCreds: { environmentId?: string; clientId?: string; clientSecret?: string } = {};
-	if (credentials?.environmentId) unifiedCreds.environmentId = credentials.environmentId;
-	if (credentials?.clientId) unifiedCreds.clientId = credentials.clientId;
-	if (credentials?.clientSecret) unifiedCreds.clientSecret = credentials.clientSecret;
+	try {
+		// Generate both collections
+		const unifiedCreds: { environmentId?: string; clientId?: string; clientSecret?: string } = {};
+		if (credentials?.environmentId) unifiedCreds.environmentId = credentials.environmentId;
+		if (credentials?.clientId) unifiedCreds.clientId = credentials.clientId;
+		if (credentials?.clientSecret) unifiedCreds.clientSecret = credentials.clientSecret;
 
-	const unifiedCollection = generateComprehensiveUnifiedPostmanCollection(
-		Object.keys(unifiedCreds).length > 0 ? unifiedCreds : undefined
-	);
+		const unifiedCollection = generateComprehensiveUnifiedPostmanCollection(
+			Object.keys(unifiedCreds).length > 0 ? unifiedCreds : undefined
+		);
 
-	const mfaCreds: { environmentId?: string; username?: string } = {};
-	if (credentials?.environmentId) mfaCreds.environmentId = credentials.environmentId;
-	if (credentials?.username) mfaCreds.username = credentials.username;
+		const mfaCreds: { environmentId?: string; username?: string } = {};
+		if (credentials?.environmentId) mfaCreds.environmentId = credentials.environmentId;
+		if (credentials?.username) mfaCreds.username = credentials.username;
 
-	const mfaCollection = generateComprehensiveMFAPostmanCollection(
-		Object.keys(mfaCreds).length > 0 ? mfaCreds : undefined
-	);
+		const mfaCollection = generateComprehensiveMFAPostmanCollection(
+			Object.keys(mfaCreds).length > 0 ? mfaCreds : undefined
+		);
 
-	// Merge variables (remove duplicates, keep unique keys)
-	const variableMap = new Map<
-		string,
-		{ key: string; value: string; type?: string; description?: string }
-	>();
+		// Merge variables (remove duplicates, keep unique keys)
+		const variableMap = new Map<
+			string,
+			{ key: string; value: string; type?: string; description?: string }
+		>();
 
-	// Add Unified variables first
-	unifiedCollection.variable.forEach((v) => {
-		variableMap.set(v.key, v);
-	});
+		// Add Unified variables first
+		unifiedCollection.variable.forEach((v) => {
+			variableMap.set(v.key, v);
+		});
 
-	// Add MFA variables (will override if duplicate, which is fine)
-	mfaCollection.variable.forEach((v) => {
-		variableMap.set(v.key, v);
-	});
+		// Add MFA variables (will override if duplicate, which is fine)
+		mfaCollection.variable.forEach((v) => {
+			variableMap.set(v.key, v);
+		});
 
-	// Convert map to array
-	const mergedVariables = Array.from(variableMap.values());
-	const finalizedVariables = finalizeVariables(mergedVariables, issues, 'Complete Collection');
+		// Convert map to array
+		const mergedVariables = Array.from(variableMap.values());
+		const finalizedVariables = finalizeVariables(mergedVariables, issues, contextLabel);
 
-	// Extract Worker Token from unified collection (it's at the top level, first item)
-	const unifiedWorkerTokenItem = unifiedCollection.item.find(
-		(item) => item.name === 'Worker Token'
-	);
-	const filteredUnifiedItems = unifiedCollection.item.filter(
-		(item) => item.name !== 'Use Cases' && item.name !== 'Worker Token'
-	);
+		// Extract Worker Token from unified collection (it's at the top level, first item)
+		const unifiedWorkerTokenItem = unifiedCollection.item.find(
+			(item) => item.name === 'Worker Token'
+		);
+		const filteredUnifiedItems = unifiedCollection.item.filter(
+			(item) => item.name !== 'Use Cases' && item.name !== 'Worker Token'
+		);
 
-	// Extract Worker Token from MFA collection (it's at the top level, first item)
-	const mfaWorkerTokenItem = mfaCollection.item.find((item) => item.name === 'Worker Token');
-	const filteredMFAItems = mfaCollection.item.filter((item) => item.name !== 'Worker Token');
+		// Extract Worker Token from MFA collection (it's at the top level, first item)
+		const mfaWorkerTokenItem = mfaCollection.item.find((item) => item.name === 'Worker Token');
+		const filteredMFAItems = mfaCollection.item.filter((item) => item.name !== 'Worker Token');
 
-	// Worker Token should be at the top level, not buried inside folders
-	// Use the one from Unified collection (they're identical, so either one works)
-	const workerTokenItem = unifiedWorkerTokenItem || mfaWorkerTokenItem;
+		// Worker Token should be at the top level, not buried inside folders
+		// Use the one from Unified collection (they're identical, so either one works)
+		const workerTokenItem = unifiedWorkerTokenItem || mfaWorkerTokenItem;
 
-	// Combine items into folder structure with Worker Token FIRST at top level
-	// Note: Use Cases are NOT included in this collection - they are only included when explicitly requested
-	const items: PostmanCollectionItem[] = [];
+		// Combine items into folder structure with Worker Token FIRST at top level
+		// Note: Use Cases are NOT included in this collection - they are only included when explicitly requested
+		const items: PostmanCollectionItem[] = [];
 
-	// Add Worker Token as first item (top level, not buried)
-	if (workerTokenItem) {
-		items.push(workerTokenItem);
+		// Add Worker Token as first item (top level, not buried)
+		if (workerTokenItem) {
+			items.push(workerTokenItem);
+		}
+
+		// Add Unified OAuth/OIDC Flows folder (without Worker Token inside)
+		items.push({
+			name: 'Unified OAuth/OIDC Flows',
+			item: filteredUnifiedItems,
+		});
+
+		// Add MFA Flows folder (without Worker Token inside)
+		items.push({
+			name: 'MFA Flows',
+			item: filteredMFAItems,
+		});
+
+		const collection: PostmanCollection = {
+			info: {
+				name: 'PingOne Complete Collection - Unified & MFA',
+				version: COLLECTION_VERSION,
+				description:
+					'Complete Postman collection for all PingOne OAuth 2.0, OpenID Connect, and MFA flows. Includes:\n\n**Unified OAuth/OIDC Flows:**\n- Authorization Code Grant (7 variations)\n- Implicit Flow\n- Client Credentials Flow\n- Device Code Flow\n- Hybrid Flow\n\n**MFA Flows:**\n- SMS Device Registration & Authentication\n- Email Device Registration & Authentication\n- WhatsApp Device Registration & Authentication\n- OATH TOTP (RFC 6238) Device Registration & Authentication\n- FIDO2 Device Registration & Authentication\n- Mobile Device Registration & Authentication\n\nAll flows include educational comments, variable extraction scripts, and complete OAuth login steps for user flows. Generated from OAuth Playground.',
+				schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
+			},
+			variable: finalizedVariables,
+			item: items,
+		};
+
+		validateCollection(collection, issues, contextLabel);
+		validateEnvironment(finalizedVariables, issues, contextLabel);
+		validatePlaceholders(JSON.stringify(collection), issues, contextLabel);
+		issues.printSummary();
+		issues.throwIfErrors();
+		// Enhance all descriptions with Variables Saved information
+		return enhanceCollectionDescriptions(collection);
+	} finally {
+		activeIssues = previousIssues;
+		activeContextLabel = previousContext;
 	}
-
-	// Add Unified OAuth/OIDC Flows folder (without Worker Token inside)
-	items.push({
-		name: 'Unified OAuth/OIDC Flows',
-		item: filteredUnifiedItems,
-	});
-
-	// Add MFA Flows folder (without Worker Token inside)
-	items.push({
-		name: 'MFA Flows',
-		item: filteredMFAItems,
-	});
-
-	const collection: PostmanCollection = {
-		info: {
-			name: 'PingOne Complete Collection - Unified & MFA',
-			version: COLLECTION_VERSION,
-			description:
-				'Complete Postman collection for all PingOne OAuth 2.0, OpenID Connect, and MFA flows. Includes:\n\n**Unified OAuth/OIDC Flows:**\n- Authorization Code Grant (7 variations)\n- Implicit Flow\n- Client Credentials Flow\n- Device Code Flow\n- Hybrid Flow\n\n**MFA Flows:**\n- SMS Device Registration & Authentication\n- Email Device Registration & Authentication\n- WhatsApp Device Registration & Authentication\n- OATH TOTP (RFC 6238) Device Registration & Authentication\n- FIDO2 Device Registration & Authentication\n- Mobile Device Registration & Authentication\n\nAll flows include educational comments, variable extraction scripts, and complete OAuth login steps for user flows. Generated from OAuth Playground.',
-			schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
-		},
-		variable: finalizedVariables,
-		item: items,
-	};
-
-	validateCollection(collection, issues, 'Complete Collection');
-	validateEnvironment(finalizedVariables, issues, 'Complete Collection');
-	validatePlaceholders(JSON.stringify(collection), issues, 'Complete Collection');
-	issues.printSummary();
-	issues.throwIfErrors();
-	// Enhance all descriptions with Variables Saved information
-	return enhanceCollectionDescriptions(collection);
 };
 
 /**
