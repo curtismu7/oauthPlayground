@@ -6,7 +6,7 @@
  */
 
 // Collection version - update this when making breaking changes or major updates
-export const COLLECTION_VERSION = '8.1.8';
+export const COLLECTION_VERSION = '8.1.9';
 
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import type { ApiCall as TrackedApiCall } from './apiCallTrackerService';
@@ -91,7 +91,7 @@ type GenerationIssue = {
 	context?: Record<string, unknown>;
 };
 
-type VariablePolicy = 'required' | 'user-fill' | 'runtime-set';
+type VariablePolicy = 'required' | 'user-fill';
 
 /**
  * GenerationIssues collects errors and warnings for a single generation run.
@@ -234,14 +234,12 @@ export const allowBlankButWarn = (
 	name: string,
 	value: string | undefined,
 	issues: GenerationIssues,
-	policy: VariablePolicy,
 	context?: Record<string, unknown>
 ): string => {
 	if (isBlank(value)) {
-		const policyLabel =
-			policy === 'runtime-set'
-				? 'Value intentionally blank — set by collection scripts at runtime'
-				: 'Value intentionally blank — user must fill before running collection';
+		const policyLabel = RUNTIME_SET_VARIABLES.has(name)
+			? 'Value intentionally blank — set by collection scripts at runtime'
+			: 'Value intentionally blank — user must fill before running collection';
 		issues.addWarning('INTENTIONALLY_BLANK', `${policyLabel}: "${name}"`, context);
 		return value ?? '';
 	}
@@ -311,9 +309,18 @@ const RUNTIME_SET_VARIABLES = new Set([
 	'SignInUserID',
 	'SignInUsername',
 	'SignInUserEmail',
+	'baseballPlayerFirstName',
+	'baseballPlayerLastName',
+	'baseballPlayerEmail',
+	'baseballPlayerUsername',
 	'groupId',
 	'webAppSignInWithPKCEId',
 	'SignInWithPKCEAppSecret',
+	'SignInSignonPolicyID',
+	'flowID',
+	'authCode',
+	'userPassword',
+	'newPassword',
 	'deviceId',
 	'deviceAuthenticationId',
 	'deviceAuthenticationPolicyId',
@@ -333,7 +340,6 @@ const RUNTIME_SET_VARIABLES = new Set([
  */
 export const resolveVariablePolicy = (key: string): VariablePolicy => {
 	if (VARIABLE_POLICIES[key]) return VARIABLE_POLICIES[key];
-	if (RUNTIME_SET_VARIABLES.has(key)) return 'runtime-set';
 	return 'user-fill';
 };
 
@@ -345,7 +351,8 @@ export const finalizeVariables = (
 	issues: GenerationIssues,
 	contextLabel: string
 ): Array<{ key: string; value: string; type?: string; description?: string }> => {
-	return variables.map((variable) => {
+	const sortedVariables = [...variables].sort((a, b) => a.key.localeCompare(b.key));
+	return sortedVariables.map((variable) => {
 		const key = requireNonBlankString('variable.key', variable.key, issues, {
 			contextLabel,
 			variable,
@@ -356,14 +363,13 @@ export const finalizeVariables = (
 		if (policy === 'required') {
 			value = requireNonBlankString(key, variable.value, issues, { contextLabel, key });
 		} else {
-			value = allowBlankButWarn(key, variable.value, issues, policy, { contextLabel, key });
+			value = allowBlankButWarn(key, variable.value, issues, { contextLabel, key });
 		}
 
 		if (isBlank(value)) {
-			const warningDescription =
-				policy === 'runtime-set'
-					? 'Value intentionally blank — set by collection scripts at runtime.'
-					: 'Value intentionally blank — user must fill before running collection.';
+			const warningDescription = RUNTIME_SET_VARIABLES.has(key)
+				? 'Value intentionally blank — set by collection scripts at runtime.'
+				: 'Value intentionally blank — user must fill before running collection.';
 			const description = variable.description
 				? `${variable.description} ${warningDescription}`
 				: warningDescription;
@@ -382,6 +388,55 @@ export const validateCollection = (
 	issues: GenerationIssues,
 	contextLabel: string
 ): void => {
+	const variableKeys = new Set(collection.variable.map((variable) => variable.key));
+	const postmanBuiltins = new Set([
+		'$timestamp',
+		'$guid',
+		'$randomUUID',
+		'$randomInt',
+		'$randomAlphaNumeric',
+		'$randomBoolean',
+		'$randomFirstName',
+		'$randomLastName',
+		'$randomUserName',
+		'$randomEmail',
+		'$randomPhoneNumber',
+		'$randomCity',
+		'$randomCountry',
+		'$randomStreetAddress',
+		'$randomZipCode',
+	]);
+
+	const extractTemplateVariables = (input?: string): string[] => {
+		if (!input) return [];
+		const matches = input.match(/\{\{([^}]+)\}\}/g) || [];
+		return matches.map((match) => match.replace('{{', '').replace('}}', '').trim());
+	};
+
+	const validateTemplateVariables = (values: string[], currentPath: string): void => {
+		values.forEach((value) => {
+			if (value.startsWith('$')) {
+				if (!postmanBuiltins.has(value)) {
+					issues.addWarning('TEMPLATE_BUILTIN_UNKNOWN', 'Unknown Postman built-in variable.', {
+						currentPath,
+						value,
+					});
+				}
+				return;
+			}
+			if (!variableKeys.has(value)) {
+				issues.addError(
+					'TEMPLATE_VAR_UNKNOWN',
+					'Template variable is not defined in variables list.',
+					{
+						currentPath,
+						value,
+					}
+				);
+			}
+		});
+	};
+
 	if (!collection.info?.name?.trim()) {
 		issues.addError('COLLECTION_NAME_MISSING', 'Collection name is missing.', { contextLabel });
 	}
@@ -408,6 +463,7 @@ export const validateCollection = (
 					rawUrl,
 				});
 			}
+			validateTemplateVariables(extractTemplateVariables(rawUrl), currentPath);
 			if (item.request.header) {
 				item.request.header.forEach((header) => {
 					if (!header.key?.trim()) {
@@ -428,6 +484,34 @@ export const validateCollection = (
 							header,
 						});
 					}
+					validateTemplateVariables(
+						extractTemplateVariables(header.value),
+						`${currentPath} [header:${header.key}]`
+					);
+				});
+			}
+			if (item.request.body?.raw) {
+				validateTemplateVariables(
+					extractTemplateVariables(item.request.body.raw),
+					`${currentPath} [body.raw]`
+				);
+			}
+			if (item.request.body?.urlencoded) {
+				item.request.body.urlencoded.forEach((entry) => {
+					validateTemplateVariables(
+						extractTemplateVariables(entry.value),
+						`${currentPath} [body.urlencoded:${entry.key}]`
+					);
+				});
+			}
+			if (item.event) {
+				item.event.forEach((event) => {
+					event.script.exec.forEach((line, index) => {
+						validateTemplateVariables(
+							extractTemplateVariables(line),
+							`${currentPath} [script:${event.listen}:${index}]`
+						);
+					});
 				});
 			}
 		}
@@ -6681,6 +6765,21 @@ export const generateUseCasesPostmanCollection = (
 		{ key: 'code_verifier', value: '', type: 'string' },
 		{ key: 'code_challenge', value: '', type: 'string' },
 		{ key: 'code_challenge_method', value: 'S256', type: 'string' },
+		{ key: 'codeVerifier', value: '', type: 'string' },
+		{ key: 'codeChallenge', value: '', type: 'string' },
+		{ key: 'codeChallengeMethod', value: 'S256', type: 'string' },
+		{ key: 'basic_auth', value: '', type: 'string' },
+		{ key: 'client_secret_jwt', value: '', type: 'string' },
+		{ key: 'client_assertion_jwt', value: '', type: 'string' },
+		{ key: 'client_assertion_jwt_private', value: '', type: 'string' },
+		{ key: 'user_client_assertion_jwt_private', value: '', type: 'string' },
+		{ key: 'SignUpPopID', value: '', type: 'string' },
+		{ key: 'SignUpUserID', value: '', type: 'string' },
+		{ key: 'SignUpUsername', value: '', type: 'string' },
+		{ key: 'baseballPlayerFirstName', value: '', type: 'string' },
+		{ key: 'baseballPlayerLastName', value: '', type: 'string' },
+		{ key: 'baseballPlayerEmail', value: '', type: 'string' },
+		{ key: 'baseballPlayerUsername', value: '', type: 'string' },
 		// User variables (from Register user Step 1 - used across ALL use cases)
 		{ key: 'SignInUserID', value: '', type: 'string' },
 		{ key: 'SignInUsername', value: '', type: 'string' },
@@ -6688,6 +6787,12 @@ export const generateUseCasesPostmanCollection = (
 		// Application variables (from Sign-in Step 1)
 		{ key: 'webAppSignInWithPKCEId', value: '', type: 'string' },
 		{ key: 'SignInWithPKCEAppSecret', value: '', type: 'secret' },
+		{ key: 'SignInSignonPolicyID', value: '', type: 'string' },
+		{ key: 'flowID', value: '', type: 'string' },
+		{ key: 'authCode', value: '', type: 'string' },
+		{ key: 'userPassword', value: '', type: 'string' },
+		{ key: 'currentPassword', value: '', type: 'string' },
+		{ key: 'newPassword', value: '', type: 'string' },
 		// Legacy user variables (deprecated - use SignInUserID instead)
 		{ key: 'userId', value: '', type: 'string' },
 		{ key: 'username', value: '', type: 'string' },
@@ -6878,12 +6983,18 @@ export const generateComprehensiveUnifiedPostmanCollection = (credentials?: {
 	variables.push({ key: 'password', value: '', type: 'string' });
 	variables.push({ key: 'otp_code', value: '', type: 'string' });
 	variables.push({ key: 'flowId', value: '', type: 'string' });
+	variables.push({ key: 'flowID', value: '', type: 'string' });
 	variables.push({ key: 'interactionId', value: '', type: 'string' });
 	variables.push({ key: 'interactionToken', value: '', type: 'string' });
 	variables.push({ key: 'apiPath', value: 'https://api.pingone.com', type: 'string' });
 	variables.push({ key: 'userId', value: '', type: 'string' });
 	variables.push({ key: 'current_password', value: '', type: 'string' });
 	variables.push({ key: 'new_password', value: '', type: 'string' });
+	variables.push({ key: 'currentPassword', value: '', type: 'string' });
+	variables.push({ key: 'newPassword', value: '', type: 'string' });
+	variables.push({ key: 'userPassword', value: '', type: 'string' });
+	variables.push({ key: 'authCode', value: '', type: 'string' });
+	variables.push({ key: 'SignInSignonPolicyID', value: '', type: 'string' });
 	// Use case variables (default to Babe Ruth for example data)
 	variables.push({ key: 'email', value: 'babe.ruth@example.com', type: 'string' });
 	variables.push({ key: 'givenName', value: 'Babe', type: 'string' });
