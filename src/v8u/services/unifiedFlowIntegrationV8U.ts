@@ -578,28 +578,59 @@ export class UnifiedFlowIntegrationV8U {
 				params.set('code_challenge_method', pkceCodes.codeChallengeMethod);
 			}
 
-			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
-			const responseModeOAuth =
-				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
-			params.set('response_mode', responseModeOAuth);
-			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
+		// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
+		const responseModeOAuth =
+			credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
+		params.set('response_mode', responseModeOAuth);
+		console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
 
-			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-			console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
-				prefixedState: prefixedStateRegular,
-				hasPKCE: !!pkceCodes,
-				responseMode: responseModeOAuth,
-			});
+		// Track authorization URL generation for API documentation
+		const startTime = Date.now();
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const apiCallId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: authorizationEndpoint,
+			actualPingOneUrl: authorizationEndpoint,
+			isProxy: false,
+			headers: {},
+			body: Object.fromEntries(params.entries()),
+			step: 'unified-authorization-url',
+			flowType: 'unified',
+		});
 
-			return {
-				authorizationUrl,
-				state: prefixedStateRegular,
-				...(pkceCodes && {
-					codeVerifier: pkceCodes.codeVerifier,
-					codeChallenge: pkceCodes.codeChallenge,
-				}),
-			};
+		apiCallTrackerService.updateApiCallResponse(
+			apiCallId,
+			{
+				status: 200,
+				statusText: 'OK',
+				data: {
+					authorization_url: authorizationUrl,
+					note: 'Authorization URL generated. User will be redirected to PingOne for authentication.',
+					flow: 'oauth-authz',
+					response_type: 'code',
+					has_pkce: !!pkceCodes,
+					response_mode: responseModeOAuth,
+				},
+			},
+			Date.now() - startTime
+		);
+
+		console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
+			prefixedState: prefixedStateRegular,
+			hasPKCE: !!pkceCodes,
+			responseMode: responseModeOAuth,
+		});
+
+		return {
+			authorizationUrl,
+			state: prefixedStateRegular,
+			...(pkceCodes && {
+				codeVerifier: pkceCodes.codeVerifier,
+				codeChallenge: pkceCodes.codeChallenge,
+			}),
+		};
 		}
 
 		/**
@@ -699,18 +730,51 @@ export class UnifiedFlowIntegrationV8U {
 				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
 
-			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-			console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
-				prefixedState,
-				responseMode: responseModeHybrid,
-			});
+		// Track authorization URL generation for API documentation
+		const hybridStartTime = Date.now();
+		const { apiCallTrackerService: apiCallTrackerServiceHybrid } = await import('@/services/apiCallTrackerService');
+		const hybridApiCallId = apiCallTrackerServiceHybrid.trackApiCall({
+			method: 'GET',
+			url: authorizationEndpoint,
+			actualPingOneUrl: authorizationEndpoint,
+			isProxy: false,
+			headers: {},
+			body: Object.fromEntries(params.entries()),
+			step: 'unified-authorization-url',
+			flowType: 'unified',
+		});
 
-			return {
-				authorizationUrl,
-				state: prefixedState,
-				nonce: result.nonce,
-			};
+		apiCallTrackerServiceHybrid.updateApiCallResponse(
+			hybridApiCallId,
+			{
+				status: 200,
+				statusText: 'OK',
+				data: {
+					authorization_url: authorizationUrl,
+					note: 'Authorization URL generated. User will be redirected to PingOne.',
+					flow: 'hybrid',
+					response_type: hybridCredentials.responseType || 'code id_token',
+					has_pkce: !!pkceCodes,
+					response_mode: responseModeHybrid,
+					returns_in_fragment: 'id_token, access_token (if requested)',
+					returns_in_query: 'code',
+				},
+			},
+			Date.now() - hybridStartTime
+		);
+
+		console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
+			prefixedState,
+			responseMode: responseModeHybrid,
+		});
+
+		return {
+			authorizationUrl,
+			state: prefixedState,
+			nonce: result.nonce,
+		};
 		}
 
 		// Device code flow - returns device authorization response (not authorization URL)
