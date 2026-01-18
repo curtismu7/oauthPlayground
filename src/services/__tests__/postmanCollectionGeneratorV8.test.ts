@@ -4,10 +4,12 @@
 import { describe, expect, it } from 'vitest';
 import {
 	allowBlankButWarn,
+	convertEndpointToPostman,
 	GenerationIssues,
 	generateUseCasesPostmanCollection,
 	isBlank,
 	normalizeUrlForPostman,
+	parseUrl,
 	type PostmanCollectionItem,
 	requireNonBlankString,
 	validatePlaceholders,
@@ -74,6 +76,30 @@ describe('postmanCollectionGeneratorV8 helpers', () => {
 		const issues = new GenerationIssues('test-placeholders');
 		validatePlaceholders('{"bad":"{{}}"}', issues, 'test');
 		expect(issues.getIssues().some((issue) => issue.level === 'error')).toBe(true);
+	});
+
+	it('converts PingOne URLs to Postman variables', () => {
+		// Ensure PingOne auth URLs are normalized with variables.
+		const converted = convertEndpointToPostman(
+			'https://auth.pingone.com/123e4567-e89b-12d3-a456-426614174000/as/authorize'
+		);
+		expect(converted).toBe('{{authPath}}/{{envID}}/as/authorize');
+	});
+
+	it('parses templated URLs with query params without dropping raw', () => {
+		// Ensure query params keep raw URL to avoid Postman blank rendering.
+		const raw =
+			'{{authPath}}/{{envID}}/as/authorize?response_type=code&client_id={{user_client_id}}';
+		const parsed = parseUrl(raw);
+		expect(parsed.raw).toBe(raw);
+		expect(parsed.host).toBeUndefined();
+	});
+
+	it('parses absolute URLs and strips leading slash mistakes', () => {
+		// Ensure leading slash in raw URLs is normalized.
+		const raw = '/https://api.pingone.com/v1/environments/{{envID}}/users';
+		const parsed = parseUrl(raw);
+		expect(parsed.raw).toBe('https://api.pingone.com/v1/environments/{{envID}}/users');
 	});
 });
 

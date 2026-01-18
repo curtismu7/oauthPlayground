@@ -10,10 +10,13 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { FiLoader } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/NewAuthContext';
 import { MFAInfoButtonV8 } from '@/v8/components/MFAInfoButtonV8';
 import { WorkerTokenGaugeV8 } from '@/v8/components/WorkerTokenGaugeV8';
+import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
@@ -124,6 +127,37 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			return true;
 		}
 	});
+
+	// Auto-populate environment ID from worker token credentials
+	React.useEffect(() => {
+		if (!credentials.environmentId && tokenStatus.isValid) {
+			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
+			if (workerCreds?.environmentId) {
+				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Auto-populating environment ID from worker token: ${workerCreds.environmentId}`);
+				setCredentials((prev) => ({
+					...prev,
+					environmentId: workerCreds.environmentId,
+					region: workerCreds.region || prev.region || 'us',
+					customDomain: workerCreds.customDomain || prev.customDomain,
+				}));
+			}
+		}
+	}, [tokenStatus.isValid, credentials.environmentId, setCredentials]);
+
+	// Auto-select first device authentication policy when policies are loaded
+	React.useEffect(() => {
+		if (deviceAuthPolicies.length > 0 && !credentials.deviceAuthenticationPolicyId) {
+			const firstPolicy = deviceAuthPolicies[0];
+			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Auto-selecting default device authentication policy: ${firstPolicy.name} (${firstPolicy.id})`);
+			setCredentials((prev) => ({
+				...prev,
+				deviceAuthenticationPolicyId: firstPolicy.id,
+			}));
+		}
+	}, [deviceAuthPolicies, credentials.deviceAuthenticationPolicyId, setCredentials]);
+	
+	// Loading state for silent worker token retrieval
+	const [isRetrievingWorkerToken, setIsRetrievingWorkerToken] = useState(false);
 
 	// Listen for config updates
 	useEffect(() => {
@@ -268,8 +302,27 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 			});
 			setTokenType('user');
 			// Also ensure credentials.tokenType is 'user'
-			if (credentials.tokenType !== 'user') {
-				setCredentials((prev) => ({ ...prev, tokenType: 'user' }));
+			// Sync user token from user-login-v8 if available
+			if (credentials.tokenType !== 'user' || !credentials.userToken) {
+				const userLoginCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+					flowKey: 'user-login-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				
+				if (userLoginCreds.userToken && userLoginCreds.tokenType === 'user') {
+					console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing user token from user-login-v8 when User Flow selected`);
+					setCredentials((prev) => ({
+						...prev,
+						tokenType: 'user' as const,
+						userToken: userLoginCreds.userToken,
+					}));
+				} else {
+					setCredentials((prev) => ({ ...prev, tokenType: 'user' as const }));
+				}
 			}
 			return;
 		}
@@ -299,26 +352,32 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
 
-		// If we have a token in auth context but not in credentials, sync it
-		// Remove the tokenType/registrationFlowType restriction - always sync if token exists and credentials don't have it
-		if (isAuthenticated && authToken && !credentials.userToken) {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, {
-				hasToken: !!authToken,
-				tokenLength: authToken.length,
-				tokenPreview: authToken.substring(0, 20) + '...',
-				tokenType,
-				registrationFlowType,
-				hasCredentialsToken: !!credentials.userToken,
-			});
-			setCredentials((prev) => ({
-				...prev,
-				userToken: authToken,
-				tokenType: 'user' as const,
-			}));
-			setUserToken(authToken);
-			const status = validateUserToken(authToken);
-			setUserTokenStatus(status);
-			setTokenType('user');
+		// If we have a token in auth context, sync it to credentials
+		// Sync even if credentials.userToken exists but is different (in case user logged in again)
+		if (isAuthenticated && authToken) {
+			// Only sync if credentials don't have a token OR if the token is different (user logged in again)
+			const shouldSync = !credentials.userToken || credentials.userToken !== authToken;
+			
+			if (shouldSync) {
+				console.log(`[⚙️ MFA-CONFIG-STEP-V8] Syncing userToken from auth context`, {
+					hasToken: !!authToken,
+					tokenLength: authToken.length,
+					tokenPreview: authToken.substring(0, 20) + '...',
+					tokenType,
+					registrationFlowType,
+					hasCredentialsToken: !!credentials.userToken,
+					tokenChanged: credentials.userToken !== authToken,
+				});
+				setCredentials((prev) => ({
+					...prev,
+					userToken: authToken,
+					tokenType: 'user' as const,
+				}));
+				setUserToken(authToken);
+				const status = validateUserToken(authToken);
+				setUserTokenStatus(status);
+				setTokenType('user');
+			}
 		}
 	}, [
 		authContext.tokens?.access_token,
@@ -347,16 +406,36 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 		// CRITICAL: If credentials has a userToken and tokenType is 'user', ensure local tokenType is also 'user'
 		// This prevents the token from being cleared when the other useEffect runs
 		if (credentials.userToken && credentials.tokenType === 'user' && tokenType !== 'user') {
-			console.log(`[⚙️ MFA-CONFIG-STEP-V8] Token received - syncing tokenType to 'user' first`);
 			setTokenType('user');
+		}
+
+		// CRITICAL: Check auth context FIRST if credentials.userToken is empty but we're expecting a user token
+		// This handles the case where login happened but credentials haven't been updated yet
+		if (!credentials.userToken && authContext.tokens?.access_token && (tokenType === 'user' || registrationFlowType === 'user')) {
+			const authToken = authContext.tokens.access_token;
+			
+			// Sync to credentials first, then local state will sync from credentials
+			setCredentials((prev) => ({
+				...prev,
+				userToken: authToken,
+				tokenType: 'user' as const,
+			}));
+			// Also update local state immediately for better UX
+			setUserToken(authToken);
+			const status = validateUserToken(authToken);
+			setUserTokenStatus(status);
+			setTokenType('user');
+			return; // Exit early since we've synced
 		}
 
 		// Handle both cases: token added or token removed
 		if (credentials.userToken !== userToken) {
 			if (credentials.userToken) {
+				console.log(`[⚙️ MFA-CONFIG-STEP-V8] ✅ Syncing token from credentials to local state`);
 				setUserToken(credentials.userToken);
 				const status = validateUserToken(credentials.userToken);
 				setUserTokenStatus(status);
+				setTokenType('user'); // Ensure tokenType is 'user' when we have a token
 			} else if (!credentials.userToken && userToken) {
 				// CRITICAL: Don't clear token if modal is open, if we're switching to user flow, or if tokenType is 'user'
 				// This prevents losing the token when the modal opens or during flow type changes
@@ -634,6 +713,10 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 	return (
 		<>
 			<style>{`
+				@keyframes spin {
+					from { transform: rotate(0deg); }
+					to { transform: rotate(360deg); }
+				}
 				@keyframes policy-refresh-spin {
 					from { transform: rotate(0deg); }
 					to { transform: rotate(360deg); }
@@ -760,7 +843,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 													undefined,
 													silentApiRetrieval,  // Page checkbox value takes precedence
 													showTokenAtEnd,      // Page checkbox value takes precedence
-													true                  // Force show modal - user clicked button
+													true,                 // Force show modal - user clicked button
+													setIsRetrievingWorkerToken
 												);
 											}
 										}}
@@ -799,9 +883,12 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										<span>Get Worker Token</span>
 									</button>
 								</div>
-								
-								{/* Worker Token Settings Checkboxes */}
-								<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+							</>
+						) : null}
+						
+						{/* Worker Token Settings Checkboxes - Show when worker token is relevant (admin flow or tokenType is worker) */}
+						{(tokenType === 'worker' || registrationFlowType === 'admin') && (
+							<div style={{ marginTop: tokenType === 'worker' ? '0' : '16px', display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
 								<label
 									style={{
 										display: 'flex',
@@ -846,7 +933,8 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 														undefined,
 														newValue,  // Use new value
 														showTokenAtEnd,
-														false      // Not forced - respect silent setting
+														false,     // Not forced - respect silent setting
+														setIsRetrievingWorkerToken
 													);
 												}
 											}
@@ -920,8 +1008,10 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									</div>
 								</label>
 							</div>
-							</>
-						) : (
+						)}
+						
+						{/* User Token Section */}
+						{tokenType === 'user' ? (
 							<div style={{ flex: 1, minWidth: '300px' }}>
 								<label
 									htmlFor="mfa-user-token"
@@ -1167,7 +1257,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 									</>
 								)}
 							</div>
-						)}
+						) : null}
 
 						{/* Worker Token Button (Optional) - Show when using User Token for loading policies */}
 						{tokenType === 'user' && (
@@ -1193,7 +1283,7 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										// Use helper to check silentApiRetrieval before showing modal
 										// forceShowModal=true because user explicitly clicked the button - always show modal
 										const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
-										await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, undefined, undefined, true);
+										await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, undefined, undefined, true, setIsRetrievingWorkerToken);
 									}
 								}}
 								className="token-button"
@@ -1232,8 +1322,17 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 										: 'Add worker token to load and select device authentication policies'
 								}
 							>
-								<span>🔑</span>
-								<span>{tokenStatus.isValid ? 'Worker Token' : 'Add Worker Token (Optional)'}</span>
+								{isRetrievingWorkerToken ? (
+									<>
+										<FiLoader size={16} style={{ animation: 'spin 1s linear infinite' }} />
+										<span>Retrieving Token...</span>
+									</>
+								) : (
+									<>
+										<span>🔑</span>
+										<span>{tokenStatus.isValid ? 'Worker Token' : 'Add Worker Token (Optional)'}</span>
+									</>
+								)}
 							</button>
 						)}
 
@@ -1384,15 +1483,17 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 							style={{
 								width: '100%',
 								padding: '12px 14px',
-								border: '1px solid #d1d5db',
+								border: credentials.environmentId?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
-								background: 'white',
+								background: credentials.environmentId?.trim() ? 'white' : '#fef2f2',
 								color: '#111827',
 								transition: 'border-color 0.2s ease',
 							}}
 							onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-							onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
+							onBlur={(e) => {
+								e.target.style.borderColor = credentials.environmentId?.trim() ? '#d1d5db' : '#ef4444';
+							}}
 						/>
 						<small
 							style={{
@@ -1745,15 +1846,17 @@ export const MFAConfigurationStepV8: React.FC<MFAConfigurationStepV8Props> = ({
 							style={{
 								width: '100%',
 								padding: '12px 14px',
-								border: '1px solid #d1d5db',
+								border: credentials.username?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
-								background: 'white',
+								background: credentials.username?.trim() ? 'white' : '#fef2f2',
 								color: '#111827',
 								transition: 'border-color 0.2s ease',
 							}}
 							onFocus={(e) => (e.target.style.borderColor = '#3b82f6')}
-							onBlur={(e) => (e.target.style.borderColor = '#d1d5db')}
+							onBlur={(e) => {
+								e.target.style.borderColor = credentials.username?.trim() ? '#d1d5db' : '#ef4444';
+							}}
 						/>
 						<small
 							style={{

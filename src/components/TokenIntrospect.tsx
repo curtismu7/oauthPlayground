@@ -449,7 +449,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 		[onToggleSection]
 	);
 
-	const defaultCompletionMessage = `Nice work! You successfully completed the ${flowName} using reusable ${flowVersion} components.`;
+	const defaultCompletionMessage = `Nice work! You successfully completed the ${flowName} flow.`;
 
 	return (
 		<>

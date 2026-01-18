@@ -147,6 +147,22 @@ This document provides a complete reference for the UI structure, components, st
 - Protocol terminology explanations
 - Clarification about draft status (for OAuth 2.1)
 
+#### Locked State (After Step 0)
+
+**Important:** Once you start a flow (move past Step 0), the specification version selector becomes locked and cannot be changed.
+
+**Visual Indicators:**
+- Radio buttons appear grayed out
+- Help buttons are disabled
+- Label shows "(Locked - flow in progress)"
+- Tooltip explains: "Specification version cannot be changed after starting the flow. Use 'Restart Flow' to change specification version."
+
+**To Change Specification Version:**
+1. Click the "Restart Flow" button
+2. This will reset you to Step 0
+3. You can then change the specification version
+4. Note: Changing specification version may require different credentials or flow configuration
+
 ---
 
 ### 3. Flow Type Selection
@@ -171,6 +187,28 @@ This document provides a complete reference for the UI structure, components, st
 - Authorization Code (PKCE, PKCE+PAR only - PKCE is required)
 - Client Credentials
 - Device Code
+
+#### Locked State (After Step 0)
+
+**Important:** Once you start a flow (move past Step 0), the flow type selector becomes locked and cannot be changed.
+
+**Visual Indicators:**
+- Select dropdown appears grayed out
+- Background changes to light gray
+- Label shows "(Locked - flow in progress)"
+- Tooltip explains: "Flow type cannot be changed after starting the flow. Use 'Restart Flow' to change flow type."
+
+**To Change Flow Type:**
+1. Click the "Restart Flow" button
+2. This will reset you to Step 0
+3. You can then change the flow type
+4. Note: Changing flow type may require different credentials or configuration
+
+**Why Locked?**
+- Prevents configuration errors mid-flow
+- Ensures flow consistency
+- Prevents token/state mismatches
+- Maintains educational flow integrity
 
 ---
 

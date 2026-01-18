@@ -67,6 +67,7 @@ import { UnifiedFlowOptionsServiceV8 } from '@/v8/services/unifiedFlowOptionsSer
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { analytics } from '@/v8/utils/analyticsV8';
 import { AppDiscoveryModalV8U } from './AppDiscoveryModalV8U';
 
 type ClientType = 'public' | 'confidential';
@@ -288,6 +289,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	const [showRefreshTokenRules, setShowRefreshTokenRules] = useState(false);
 	const [showPromptInfoModal, setShowPromptInfoModal] = useState(false);
 	const [showPARInfoModal, setShowPARInfoModal] = useState(false);
+	const [showJARInfoModal, setShowJARInfoModal] = useState(false);
 	const [showScopesEducationModal, setShowScopesEducationModal] = useState(false);
 
 	/**
@@ -561,13 +563,23 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 
 	// Sync checkbox values with credentials (for loading from storage)
 	useEffect(() => {
-		// If flow doesn't support PKCE, clear PKCE enforcement
-		if (!supportsPKCE && pkceEnforcement !== 'OPTIONAL') {
-			console.log(
-				`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
-			);
-			setPkceEnforcement('OPTIONAL');
-			onChange({ ...credentials, pkceEnforcement: 'OPTIONAL', usePKCE: false });
+		// #region agent log
+		analytics.log({ location:'CredentialsFormV8U.tsx:563',message:'Sync useEffect entry - credentials advanced options',data:{flowKey,hasResponseMode:credentials.responseMode!==undefined,hasUsePAR:credentials.usePAR!==undefined,hasMaxAge:credentials.maxAge!==undefined,hasDisplay:credentials.display!==undefined,hasPrompt:credentials.prompt!==undefined,responseMode:credentials.responseMode,usePAR:credentials.usePAR,loginHint:credentials.loginHint} });
+		// #endregion
+		// If flow doesn't support PKCE, clear PKCE enforcement and remove from credentials
+		if (!supportsPKCE) {
+			// Clear PKCE enforcement state
+			if (pkceEnforcement !== 'OPTIONAL') {
+				console.log(
+					`${MODULE_TAG} Flow ${effectiveFlowType} does not support PKCE - clearing PKCE enforcement`
+				);
+				setPkceEnforcement('OPTIONAL');
+			}
+			// Remove PKCE fields from credentials if they exist (implicit, client-credentials, device-code don't use PKCE)
+			if (credentials.pkceEnforcement !== undefined || credentials.usePKCE !== undefined) {
+				const { pkceEnforcement: _, usePKCE: __, ...cleanedCredentials } = credentials;
+				onChange({ ...cleanedCredentials });
+			}
 		}
 
 		// Load pkceEnforcement from credentials if available (priority over legacy usePKCE)
@@ -612,49 +624,90 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			setEnableRefreshToken(credentials.enableRefreshToken);
 		}
 
-		// Load responseMode from credentials if available
-		if (credentials.responseMode && credentials.responseMode !== responseMode) {
-			console.log(`${MODULE_TAG} Syncing responseMode from credentials`, {
-				responseMode: credentials.responseMode,
-			});
-			setResponseMode(credentials.responseMode as ResponseMode);
-		}
-		// Legacy: Convert useRedirectless to responseMode
-		else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
-			console.log(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
-			setResponseMode('pi.flow');
-		}
-
-		// Load loginHint from credentials if available
-		if (credentials.loginHint !== undefined && credentials.loginHint !== loginHint) {
-			console.log(`${MODULE_TAG} Syncing loginHint from credentials`, {
-				loginHint: credentials.loginHint,
-			});
-			setLoginHint(credentials.loginHint);
-		}
-
-		// Load maxAge from credentials if available
-		if (credentials.maxAge !== undefined && credentials.maxAge !== maxAge) {
-			console.log(`${MODULE_TAG} Syncing maxAge from credentials`, {
-				maxAge: credentials.maxAge,
-			});
-			setMaxAge(credentials.maxAge);
-		}
-
-		// Load display from credentials if available
-		if (credentials.display && credentials.display !== display) {
-			console.log(`${MODULE_TAG} Syncing display from credentials`, {
-				display: credentials.display,
-			});
-			setDisplay(credentials.display as DisplayMode);
+		// Load responseMode from credentials if available (skip if recently changed)
+		if (!recentlyChangedFieldsRef.current.has('responseMode')) {
+			if (credentials.responseMode && credentials.responseMode !== responseMode) {
+				console.log(`${MODULE_TAG} Syncing responseMode from credentials`, {
+					responseMode: credentials.responseMode,
+				});
+				setResponseMode(credentials.responseMode as ResponseMode);
+			}
+			// Legacy: Convert useRedirectless to responseMode
+			else if (credentials.useRedirectless && responseMode !== 'pi.flow') {
+				console.log(`${MODULE_TAG} Converting legacy useRedirectless to responseMode=pi.flow`);
+				setResponseMode('pi.flow');
+			}
+			// Apply default if not set
+			else if (!credentials.responseMode && !credentials.useRedirectless) {
+				const defaultResponseMode: ResponseMode =
+					effectiveFlowType === 'implicit' || effectiveFlowType === 'hybrid'
+						? 'fragment'
+						: 'query';
+				if (responseMode !== defaultResponseMode) {
+					console.log(`${MODULE_TAG} Applying default responseMode: ${defaultResponseMode}`);
+					// #region agent log
+					analytics.log({ location:'CredentialsFormV8U.tsx:634',message:'Applying default responseMode',data:{flowKey,defaultResponseMode,currentResponseMode:responseMode,effectiveFlowType} });
+					// #endregion
+					setResponseMode(defaultResponseMode);
+					handleChange('responseMode', defaultResponseMode);
+				}
+			}
 		}
 
-		// Load usePAR from credentials if available
-		if (credentials.usePAR !== undefined && credentials.usePAR !== usePAR) {
-			console.log(`${MODULE_TAG} Syncing usePAR from credentials`, {
-				usePAR: credentials.usePAR,
-			});
-			setUsePAR(credentials.usePAR === true);
+		// Load loginHint from credentials if available (skip if recently changed)
+		if (!recentlyChangedFieldsRef.current.has('loginHint')) {
+			if (credentials.loginHint !== undefined && credentials.loginHint !== loginHint) {
+				console.log(`${MODULE_TAG} Syncing loginHint from credentials`, {
+					loginHint: credentials.loginHint,
+				});
+				setLoginHint(credentials.loginHint);
+			}
+			// Apply default if not set (empty string)
+			else if (credentials.loginHint === undefined && loginHint !== '') {
+				setLoginHint('');
+				handleChange('loginHint', '');
+			}
+		}
+
+		// Load maxAge from credentials if available (skip if recently changed)
+		if (!recentlyChangedFieldsRef.current.has('maxAge')) {
+			if (credentials.maxAge !== undefined && credentials.maxAge !== maxAge) {
+				console.log(`${MODULE_TAG} Syncing maxAge from credentials`, {
+					maxAge: credentials.maxAge,
+				});
+				setMaxAge(credentials.maxAge);
+			}
+			// No default for maxAge - undefined means no constraint (correct default)
+		}
+
+		// Load display from credentials if available (skip if recently changed)
+		if (!recentlyChangedFieldsRef.current.has('display')) {
+			if (credentials.display && credentials.display !== display) {
+				console.log(`${MODULE_TAG} Syncing display from credentials`, {
+					display: credentials.display,
+				});
+				setDisplay(credentials.display as DisplayMode);
+			}
+			// No default for display - undefined means server decides (correct default)
+		}
+
+		// Load usePAR from credentials if available (skip if recently changed)
+		if (!recentlyChangedFieldsRef.current.has('usePAR')) {
+			if (credentials.usePAR !== undefined && credentials.usePAR !== usePAR) {
+				console.log(`${MODULE_TAG} Syncing usePAR from credentials`, {
+					usePAR: credentials.usePAR,
+				});
+				setUsePAR(credentials.usePAR === true);
+			}
+			// Apply default if not set (false)
+			else if (credentials.usePAR === undefined && usePAR !== false) {
+				console.log(`${MODULE_TAG} Applying default usePAR: false`);
+				// #region agent log
+				analytics.log({ location:'CredentialsFormV8U.tsx:688',message:'Applying default usePAR',data:{flowKey,defaultUsePAR:false,currentUsePAR:usePAR} });
+				// #endregion
+				setUsePAR(false);
+				handleChange('usePAR', false);
+			}
 		}
 
 		// Auto-update client type when flow type or spec version changes
@@ -937,6 +990,27 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 					// If no allowedScopes in response, use common OIDC scopes as fallback
 					setAllowedScopes(['openid', 'profile', 'email', 'address', 'phone', 'offline_access']);
 				}
+
+				// Update clientAuthMethod from fetched app config if available
+				// PingOne's tokenEndpointAuthMethod is the source of truth - always use it when available
+				if (appConfig?.tokenEndpointAuthMethod) {
+					// Normalize tokenEndpointAuthMethod to lowercase with underscores
+					// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
+					// But UI expects client_secret_post, client_secret_basic, etc. (lowercase)
+					const normalizeAuthMethod = (method: string): string => {
+						return method.toLowerCase().replace(/-/g, '_');
+					};
+					const pingOneAuthMethod = normalizeAuthMethod(appConfig.tokenEndpointAuthMethod);
+					// Only update if different to avoid unnecessary state changes
+					if (credentials.clientAuthMethod !== pingOneAuthMethod) {
+						console.log(`${MODULE_TAG} Updating clientAuthMethod from PingOne app config:`, {
+							raw: appConfig.tokenEndpointAuthMethod,
+							normalized: pingOneAuthMethod,
+							current: credentials.clientAuthMethod,
+						});
+						handleChange('clientAuthMethod', pingOneAuthMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt');
+					}
+				}
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error fetching allowed scopes:`, error);
 				// Use common OIDC scopes as fallback
@@ -1089,13 +1163,21 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 	]);
 
 	// Set default auth method and response type when flow options change (if not already set)
+	// CRITICAL: Only set defaults if credentials.clientAuthMethod is truly empty/undefined
+	// Do NOT override values that were explicitly set (e.g., from app selection)
 	useEffect(() => {
 		const updated = { ...credentials };
 		let hasChanges = false;
 
-		if (defaultAuthMethod && !credentials.clientAuthMethod) {
+		// Only set default auth method if clientAuthMethod is completely missing/empty
+		// This prevents overriding values set from app selection
+		if (defaultAuthMethod && (!credentials.clientAuthMethod || credentials.clientAuthMethod.trim() === '')) {
 			updated.clientAuthMethod = defaultAuthMethod;
 			hasChanges = true;
+			console.log(`${MODULE_TAG} Setting default auth method`, {
+				defaultAuthMethod,
+				previousValue: credentials.clientAuthMethod,
+			});
 		}
 		if (defaultResponseType && !credentials.responseType) {
 			updated.responseType = defaultResponseType;
@@ -1119,6 +1201,7 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 				console.log(`${MODULE_TAG} Credentials saved after setting defaults`, {
 					flowKey,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
+					authMethodSet: hasChanges && defaultAuthMethod ? updated.clientAuthMethod : 'not set',
 				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error saving credentials after setting defaults`, {
@@ -1272,9 +1355,23 @@ Why it matters: Backend services communicate server-to-server without user conte
 		}
 	}, []);
 
+	// Track fields that were just changed to prevent sync from overwriting them
+	const recentlyChangedFieldsRef = useRef<Set<string>>(new Set());
+
 	const handleChange = useCallback(
 		(field: string, value: string | boolean | number | undefined) => {
 			console.log(`${MODULE_TAG} Credential changed`, { field, flowKey, value });
+			// #region agent log
+			analytics.log({ location:'CredentialsFormV8U.tsx:1328',message:'handleChange called',data:{field,flowKey,value,isAdvancedOption:['responseMode','usePAR','maxAge','display','prompt','loginHint'].includes(field)} });
+			// #endregion
+			
+			// Mark this field as recently changed to prevent sync from overwriting it
+			recentlyChangedFieldsRef.current.add(field);
+			// Clear the flag after a short delay (allows parent to update)
+			setTimeout(() => {
+				recentlyChangedFieldsRef.current.delete(field);
+			}, 100);
+			
 			// Handle boolean fields (usePKCE, enableRefreshToken, usePAR)
 			// Handle pkceEnforcement as a string (OPTIONAL, REQUIRED, S256_REQUIRED)
 			// Handle responseMode as a string (query, fragment, form_post, pi.flow)
@@ -1298,6 +1395,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 				const credsForSave = updated as unknown as Parameters<
 					typeof CredentialsServiceV8.saveCredentials
 				>[1];
+				// #region agent log
+				analytics.log({ location:'CredentialsFormV8U.tsx:1357',message:'Saving credentials to storage',data:{flowKey,field,hasResponseMode:!!updated.responseMode,hasUsePAR:updated.usePAR!==undefined,hasMaxAge:updated.maxAge!==undefined,hasDisplay:!!updated.display,hasPrompt:!!updated.prompt,responseMode:updated.responseMode,usePAR:updated.usePAR} });
+				// #endregion
 				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
@@ -1355,7 +1455,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 								clientSecretValue: fetchedApp.clientSecret
 									? `${fetchedApp.clientSecret.substring(0, 10)}...`
 									: 'none',
+								hasTokenEndpointAuthMethod: 'tokenEndpointAuthMethod' in fetchedApp,
+								tokenEndpointAuthMethod: fetchedApp.tokenEndpointAuthMethod,
+								hasRedirectUris: 'redirectUris' in fetchedApp,
+								redirectUris: fetchedApp.redirectUris,
+								redirectUrisLength: Array.isArray(fetchedApp.redirectUris) ? fetchedApp.redirectUris.length : 0,
 							});
+							// #region agent log
+							analytics.log({ location:'CredentialsFormV8U.tsx:1425',message:'App fetched - checking tokenEndpointAuthMethod and redirectUris',data:{hasTokenEndpointAuthMethod:'tokenEndpointAuthMethod' in fetchedApp,tokenEndpointAuthMethod:fetchedApp.tokenEndpointAuthMethod,hasRedirectUris:'redirectUris' in fetchedApp,redirectUris:fetchedApp.redirectUris,redirectUrisLength:Array.isArray(fetchedApp.redirectUris)?fetchedApp.redirectUris.length:0} });
+							// #endregion
 							if (
 								fetchedApp.clientSecret &&
 								typeof fetchedApp.clientSecret === 'string' &&
@@ -1384,26 +1492,20 @@ Why it matters: Backend services communicate server-to-server without user conte
 				}
 			}
 
-			const updated = {
-				...credentials,
-				clientId: appWithSecret.id,
-				// Set client secret if available from PingOne API
-				...('clientSecret' in appWithSecret &&
-				appWithSecret.clientSecret &&
-				typeof appWithSecret.clientSecret === 'string' &&
-				appWithSecret.clientSecret.trim().length > 0
-					? { clientSecret: appWithSecret.clientSecret as string }
-					: {}),
-				// Note: redirectUri is NOT applied - app dictates this (as user mentioned)
-			};
+			// Extract redirectUri from redirectUris array (use first one if available)
+			const redirectUriFromApp = 
+				('redirectUris' in appWithSecret && 
+				 Array.isArray(appWithSecret.redirectUris) && 
+				 appWithSecret.redirectUris.length > 0)
+					? appWithSecret.redirectUris[0]
+					: ('redirectUris' in app && 
+					   Array.isArray(app.redirectUris) && 
+					   app.redirectUris.length > 0)
+						? app.redirectUris[0]
+						: undefined;
 
-			console.log(`${MODULE_TAG} Updated credentials`, {
-				hasClientSecret: !!updated.clientSecret,
-				clientSecretLength: updated.clientSecret?.length || 0,
-			});
-			// Apply additional fields if available (from AppDiscoveryServiceV8.getAppConfig)
-			// Use appWithSecret for tokenEndpointAuthMethod if available, otherwise fall back to app
-			// Type assertion needed because DiscoveredApp interface doesn't include all PingOne app properties
+			// Extract tokenEndpointAuthMethod from app configuration
+			// Type assertion needed because DiscoveredApp interface might not include all PingOne app properties
 			type AppWithExtendedProps = DiscoveredApp & {
 				tokenEndpointAuthMethod?:
 					| 'none'
@@ -1419,16 +1521,74 @@ Why it matters: Backend services communicate server-to-server without user conte
 			const appWithSecretExtended = appWithSecret as AppWithExtendedProps;
 			const appExtended = app as AppWithExtendedProps;
 
+			// Get tokenEndpointAuthMethod from appWithSecret first, then fall back to app
+			const rawTokenEndpointAuthMethod = 
+				appWithSecretExtended.tokenEndpointAuthMethod || 
+				appExtended.tokenEndpointAuthMethod || 
+				undefined;
+
+			// Normalize tokenEndpointAuthMethod to lowercase with underscores
+			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
+			// But UI expects client_secret_post, client_secret_basic, etc. (lowercase)
+			const normalizeAuthMethod = (method: string | undefined): string | undefined => {
+				if (!method) return undefined;
+				// Convert to lowercase and replace hyphens with underscores
+				// Handles: CLIENT_SECRET_POST -> client_secret_post
+				//          CLIENT_SECRET_BASIC -> client_secret_basic
+				//          client-secret-post -> client_secret_post
+				return method.toLowerCase().replace(/-/g, '_');
+			};
+
+			const tokenEndpointAuthMethodFromApp = normalizeAuthMethod(rawTokenEndpointAuthMethod);
+
+			console.log(`${MODULE_TAG} Normalizing tokenEndpointAuthMethod`, {
+				raw: rawTokenEndpointAuthMethod,
+				normalized: tokenEndpointAuthMethodFromApp,
+				fromAppWithSecret: appWithSecretExtended.tokenEndpointAuthMethod,
+				fromApp: appExtended.tokenEndpointAuthMethod,
+			});
+
+			// #region agent log
+			analytics.log({ location:'CredentialsFormV8U.tsx:1462',message:'Extracting redirectUri and tokenEndpointAuthMethod',data:{hasRedirectUrisInAppWithSecret:'redirectUris' in appWithSecret,redirectUrisFromAppWithSecret:('redirectUris' in appWithSecret)?appWithSecret.redirectUris:undefined,hasRedirectUrisInApp:'redirectUris' in app,redirectUrisFromApp:('redirectUris' in app)?app.redirectUris:undefined,redirectUriExtracted:redirectUriFromApp,hasTokenEndpointAuthMethodInAppWithSecret:!!appWithSecretExtended.tokenEndpointAuthMethod,tokenEndpointAuthMethodFromAppWithSecret:appWithSecretExtended.tokenEndpointAuthMethod,hasTokenEndpointAuthMethodInApp:!!appExtended.tokenEndpointAuthMethod,tokenEndpointAuthMethodFromApp:appExtended.tokenEndpointAuthMethod,rawTokenEndpointAuthMethod,normalizedTokenEndpointAuthMethod:tokenEndpointAuthMethodFromApp} });
+			// #endregion
+
+			const updated = {
+				...credentials,
+				clientId: appWithSecret.id,
+				// Set client secret if available from PingOne API
+				...('clientSecret' in appWithSecret &&
+				appWithSecret.clientSecret &&
+				typeof appWithSecret.clientSecret === 'string' &&
+				appWithSecret.clientSecret.trim().length > 0
+					? { clientSecret: appWithSecret.clientSecret as string }
+					: {}),
+				// Set redirectUri from PingOne app configuration (first redirect URI)
+				...(redirectUriFromApp ? { redirectUri: redirectUriFromApp } : {}),
+				// Set clientAuthMethod from PingOne app configuration (tokenEndpointAuthMethod)
+				// Use normalized value to ensure it matches UI expectations
+				...(tokenEndpointAuthMethodFromApp ? { clientAuthMethod: tokenEndpointAuthMethodFromApp as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' } : {}),
+			};
+
+			console.log(`${MODULE_TAG} Updated credentials`, {
+				hasClientSecret: !!updated.clientSecret,
+				clientSecretLength: updated.clientSecret?.length || 0,
+				hasRedirectUri: !!updated.redirectUri,
+				redirectUri: updated.redirectUri,
+				hasClientAuthMethod: !!updated.clientAuthMethod,
+				clientAuthMethod: updated.clientAuthMethod,
+				rawTokenEndpointAuthMethod,
+				normalizedTokenEndpointAuthMethod: tokenEndpointAuthMethodFromApp,
+			});
+			// #region agent log
+			analytics.log({ location:'CredentialsFormV8U.tsx:1475',message:'Final updated credentials object',data:{hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod,hasClientSecret:!!updated.clientSecret} });
+			// #endregion
+			// Apply additional fields if available (from AppDiscoveryServiceV8.getAppConfig)
 			// Type assertion for updated to include pkceEnforcement
 			const updatedWithPKCE = updated as typeof updated & {
 				pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 			};
 
-			if (appWithSecretExtended.tokenEndpointAuthMethod) {
-				updated.clientAuthMethod = appWithSecretExtended.tokenEndpointAuthMethod;
-			} else if (appExtended.tokenEndpointAuthMethod) {
-				updated.clientAuthMethod = appExtended.tokenEndpointAuthMethod;
-			}
+			// Note: clientAuthMethod is now set in the updated object above, so we don't need to set it here again
 			if (appWithSecretExtended.scopes && Array.isArray(appWithSecretExtended.scopes)) {
 				updated.scopes = appWithSecretExtended.scopes.join(' ');
 			} else if (appExtended.scopes && Array.isArray(appExtended.scopes)) {
@@ -1478,10 +1638,15 @@ Why it matters: Backend services communicate server-to-server without user conte
 			}
 
 			// Save credentials directly to storage using V8U flowKey
+			// IMPORTANT: Save happens AFTER all mutations to 'updated' object
+			// This ensures redirectUri and clientAuthMethod are included
 			try {
 				const credsForSave = updated as unknown as Parameters<
 					typeof CredentialsServiceV8.saveCredentials
 				>[1];
+				// #region agent log
+				analytics.log({ location:'CredentialsFormV8U.tsx:1598',message:'Saving credentials after app selection - final state',data:{flowKey,hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod,hasClientId:!!updated.clientId,hasClientSecret:!!updated.clientSecret,allKeys:Object.keys(updated)} });
+				// #endregion
 				CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
 				// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage (async with disk)
@@ -1499,6 +1664,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 					flowKey,
 					clientId: updated.clientId,
 					hasSharedCreds: !!(sharedCreds.environmentId || sharedCreds.clientId),
+					hasRedirectUri: !!updated.redirectUri,
+					redirectUri: updated.redirectUri,
+					hasClientAuthMethod: !!updated.clientAuthMethod,
+					clientAuthMethod: updated.clientAuthMethod,
 				});
 			} catch (error) {
 				console.error(`${MODULE_TAG} Error saving credentials after app selection`, {
@@ -1507,6 +1676,9 @@ Why it matters: Backend services communicate server-to-server without user conte
 				});
 			}
 
+			// #region agent log
+			analytics.log({ location:'CredentialsFormV8U.tsx:1615',message:'Calling onChange after app selection',data:{flowKey,hasRedirectUri:!!updated.redirectUri,redirectUri:updated.redirectUri,hasClientAuthMethod:!!updated.clientAuthMethod,clientAuthMethod:updated.clientAuthMethod} });
+			// #endregion
 			onChange(updated);
 			toastV8.success(`Applied settings from ${app.name}`);
 		},
@@ -3866,6 +4038,86 @@ Why it matters: Backend services communicate server-to-server without user conte
 									</div>
 								)}
 
+								{/* Offline Access Scope Explanation - Shown for all flow types */}
+								<div className="form-group" style={{ marginTop: '16px' }}>
+									<div
+										style={{
+											padding: '12px',
+											background: '#dbeafe',
+											borderRadius: '4px',
+											border: '1px solid #93c5fd',
+										}}
+									>
+										<div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+											<span style={{ fontSize: '18px', flexShrink: 0 }}>🔄</span>
+											<div style={{ flex: 1 }}>
+												<strong style={{ display: 'block', marginBottom: '6px', color: '#0c4a6e' }}>
+													Understanding the <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>offline_access</code> Scope
+												</strong>
+												<p style={{ margin: '0 0 8px 0', color: '#0c4a6e', lineHeight: '1.5', fontSize: '14px' }}>
+													The <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>offline_access</code> scope is a special OAuth 2.0 / OpenID Connect scope that requests a refresh token along with the access token. When you include this scope in your authorization request:
+												</p>
+												<ul style={{ margin: '8px 0', paddingLeft: '20px', color: '#0c4a6e', lineHeight: '1.6', fontSize: '14px' }}>
+													<li style={{ marginBottom: '4px' }}>
+														<strong>Refresh Token Issued:</strong> PingOne will issue a refresh token along with the access token (if the application is configured to support refresh tokens).
+													</li>
+													<li style={{ marginBottom: '4px' }}>
+														<strong>Long-Lived Sessions:</strong> Refresh tokens allow your application to obtain new access tokens without requiring the user to re-authenticate, enabling seamless session management.
+													</li>
+													<li style={{ marginBottom: '4px' }}>
+														<strong>Background Access:</strong> Your app can access protected resources in the background or when the user is not actively using the app.
+													</li>
+													<li style={{ marginBottom: '4px' }}>
+														<strong>Token Refresh:</strong> When an access token expires, you can use the refresh token to obtain a new access token without user interaction.
+													</li>
+												</ul>
+												{flowOptions.supportsRefreshToken ? (
+													<div
+														style={{
+															marginTop: '12px',
+															padding: '10px',
+															background: '#dcfce7',
+															borderRadius: '4px',
+															border: '1px solid #86efac',
+														}}
+													>
+														<strong style={{ display: 'block', marginBottom: '4px', color: '#065f46' }}>
+															✅ This flow supports refresh tokens
+														</strong>
+														<p style={{ margin: '0', color: '#047857', fontSize: '13px', lineHeight: '1.5' }}>
+															You can enable the "Enable Refresh Token" checkbox below to automatically include <code style={{ background: '#fef3c7', padding: '2px 4px', borderRadius: '2px' }}>offline_access</code> in your scopes, or manually add it to the Scopes field above.
+														</p>
+													</div>
+												) : (
+													<div
+														style={{
+															marginTop: '12px',
+															padding: '10px',
+															background: '#fef3c7',
+															borderRadius: '4px',
+															border: '1px solid #f59e0b',
+														}}
+													>
+														<strong style={{ display: 'block', marginBottom: '4px', color: '#92400e' }}>
+															ℹ️ This flow does not support refresh tokens
+														</strong>
+														<p style={{ margin: '0', color: '#78350f', fontSize: '13px', lineHeight: '1.5' }}>
+															{providedFlowType === 'implicit' 
+																? 'The Implicit Flow does not support refresh tokens. Tokens are returned directly in the URL fragment and are short-lived. For long-lived sessions, consider using the Authorization Code Flow with PKCE instead.'
+																: providedFlowType === 'client-credentials'
+																	? 'The Client Credentials Flow is for machine-to-machine authentication and does not support refresh tokens. Access tokens are obtained directly using client credentials.'
+																	: 'This flow type does not support refresh tokens. You will only receive short-lived access tokens.'}
+														</p>
+													</div>
+												)}
+												<p style={{ margin: '12px 0 0 0', color: '#0c4a6e', fontSize: '13px', lineHeight: '1.5', fontStyle: 'italic' }}>
+													💡 <strong>Note:</strong> Even if you include <code style={{ background: '#fef3c7', padding: '2px 4px', borderRadius: '2px' }}>offline_access</code> in your scopes, a refresh token will only be issued if your PingOne application is configured to support refresh tokens and the flow type supports it.
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
 								{/* Refresh Token Support - Moved below Scopes */}
 								{flowOptions.supportsRefreshToken && (
 									<div className="form-group" style={{ marginTop: '16px' }}>
@@ -4113,6 +4365,69 @@ Why it matters: Backend services communicate server-to-server without user conte
 										</div>
 									)}
 
+									{/* Response Mode - Only for flows that support it */}
+									{flowOptions.requiresRedirectUri && (
+										<div className="form-group" style={{ marginBottom: '16px' }}>
+											<ResponseModeDropdownV8
+												value={responseMode}
+												onChange={(mode) => {
+													console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
+													setResponseMode(mode);
+													handleChange('responseMode', mode);
+												}}
+												flowType={effectiveFlowType as 'oauth-authz' | 'implicit' | 'hybrid'}
+												responseType={credentials.responseType}
+											/>
+											{/* Default indicator */}
+											{(() => {
+												const defaultResponseMode: ResponseMode =
+													effectiveFlowType === 'implicit' || effectiveFlowType === 'hybrid'
+														? 'fragment'
+														: 'query';
+												const isDefault = responseMode === defaultResponseMode;
+												return (
+													<div
+														style={{
+															marginTop: '8px',
+															padding: '6px 10px',
+															background: isDefault ? '#fef3c7' : '#f3f4f6',
+															border: `1px solid ${isDefault ? '#f59e0b' : '#d1d5db'}`,
+															borderRadius: '4px',
+															fontSize: '12px',
+															color: isDefault ? '#78350f' : '#6b7280',
+															display: 'flex',
+															alignItems: 'center',
+															gap: '6px',
+														}}
+													>
+														{isDefault ? (
+															<>
+																<span>✅</span>
+																<span>
+																	<strong>Using default:</strong> {responseMode} (recommended for{' '}
+																	{effectiveFlowType === 'oauth-authz'
+																		? 'authorization code'
+																		: effectiveFlowType === 'implicit'
+																			? 'implicit'
+																			: 'hybrid'}{' '}
+																	flow)
+																</span>
+															</>
+														) : (
+															<>
+																<span>⚙️</span>
+																<span>
+																	<strong>Custom value:</strong> {responseMode} (default for this flow
+																	would be {defaultResponseMode})
+																</span>
+															</>
+														)}
+													</div>
+												);
+											})()}
+										</div>
+									)}
+
 									{/* PAR (Pushed Authorization Requests) - Only for flows that support PAR */}
 									{supportsPKCE && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
@@ -4192,6 +4507,37 @@ Why it matters: Backend services communicate server-to-server without user conte
 														What is this?
 													</button>
 												</label>
+												{/* Default indicator */}
+												<div
+													style={{
+														marginTop: '8px',
+														padding: '6px 10px',
+														background: !usePAR ? '#fef3c7' : '#f3f4f6',
+														border: `1px solid ${!usePAR ? '#f59e0b' : '#d1d5db'}`,
+														borderRadius: '4px',
+														fontSize: '12px',
+														color: !usePAR ? '#78350f' : '#6b7280',
+														display: 'flex',
+														alignItems: 'center',
+														gap: '6px',
+													}}
+												>
+													{!usePAR ? (
+														<>
+															<span>✅</span>
+															<span>
+																<strong>Using default:</strong> PAR disabled (default for all flows)
+															</span>
+														</>
+													) : (
+														<>
+															<span>⚙️</span>
+															<span>
+																<strong>Custom value:</strong> PAR enabled (default is disabled)
+															</span>
+														</>
+													)}
+												</div>
 												{usePAR && (
 													<p
 														style={{
@@ -4241,6 +4587,37 @@ Why it matters: Backend services communicate server-to-server without user conte
 													// Removed toast message - LoginHintInputV8 component shows visual feedback
 												}}
 											/>
+											{/* Default indicator */}
+											<div
+												style={{
+													marginTop: '8px',
+													padding: '6px 10px',
+													background: !loginHint || loginHint.trim() === '' ? '#fef3c7' : '#f3f4f6',
+													border: `1px solid ${!loginHint || loginHint.trim() === '' ? '#f59e0b' : '#d1d5db'}`,
+													borderRadius: '4px',
+													fontSize: '12px',
+													color: !loginHint || loginHint.trim() === '' ? '#78350f' : '#6b7280',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '6px',
+												}}
+											>
+												{!loginHint || loginHint.trim() === '' ? (
+													<>
+														<span>✅</span>
+														<span>
+															<strong>Using default:</strong> Empty (no login hint - server decides)
+														</span>
+													</>
+												) : (
+													<>
+														<span>⚙️</span>
+														<span>
+															<strong>Custom value:</strong> "{loginHint}" (default is empty)
+														</span>
+													</>
+												)}
+											</div>
 										</div>
 									)}
 
@@ -4912,6 +5289,408 @@ Why it matters: Backend services communicate server-to-server without user conte
 						</div>
 					</DraggableModal>
 
+					{/* JAR (JWT-secured Authorization Request) Info Modal */}
+					<DraggableModal
+						isOpen={showJARInfoModal}
+						onClose={() => setShowJARInfoModal(false)}
+						title="JAR (JWT-secured Authorization Request)"
+						width="800px"
+						maxHeight="90vh"
+					>
+						<div style={{ padding: '24px', maxHeight: '85vh', overflowY: 'auto' }}>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+								{/* Introduction */}
+								<div
+									style={{
+										background: '#eff6ff',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #93c5fd',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '18px',
+											fontWeight: '600',
+											color: '#1e40af',
+										}}
+									>
+										🔐 What is JAR (JWT-secured Authorization Request)?
+									</h3>
+									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
+										<strong>JAR</strong> is an OAuth 2.0 extension (RFC 9101) that requires authorization 
+										request parameters to be sent as a <strong>signed JWT</strong> instead of plain query 
+										parameters. This provides additional security by cryptographically signing the 
+										authorization request, preventing parameter tampering and ensuring request authenticity.
+									</p>
+									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
+										<a
+											href="https://datatracker.ietf.org/doc/html/rfc9101"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ textDecoration: 'underline' }}
+										>
+											📖 View RFC 9101 Specification →
+										</a>
+									</p>
+								</div>
+
+								{/* OAuth Playground Support Status */}
+								<div
+									style={{
+										background: '#fef3c7',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #fbbf24',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#92400e',
+										}}
+									>
+										⚠️ OAuth Playground Support Status
+									</h3>
+									<p style={{ margin: '0 0 8px 0', color: '#78350f', lineHeight: '1.6' }}>
+										<strong>❌ JAR is NOT currently supported</strong> by the OAuth Playground. 
+										JAR requires JWT signing capabilities, private key management, and complex request 
+										object construction. For a demo/playground application, this adds significant 
+										complexity without substantial educational value for most OAuth flows.
+									</p>
+									<p style={{ margin: 0, fontSize: '14px', color: '#92400e', fontWeight: '500' }}>
+										💡 <strong>Solution:</strong> Configure your PingOne application to <strong>"Allow unsigned request parameter"</strong> 
+										to use the OAuth Playground. See the configuration guide below.
+									</p>
+								</div>
+
+								{/* PingOne Configuration Options */}
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #e2e8f0',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
+									>
+										⚙️ PingOne Configuration Options
+									</h3>
+									<p style={{ margin: '0 0 12px 0', fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+										In PingOne, you can configure how your application sends authorization request parameters. 
+										Here's what each option means and which ones work with the OAuth Playground:
+									</p>
+
+									{/* Configuration Options Table */}
+									<div style={{ marginTop: '12px', overflowX: 'auto' }}>
+										<table
+											style={{
+												width: '100%',
+												borderCollapse: 'collapse',
+												fontSize: '13px',
+											}}
+										>
+											<thead>
+												<tr style={{ background: '#f1f5f9' }}>
+													<th
+														style={{
+															padding: '10px',
+															textAlign: 'left',
+															border: '1px solid #cbd5e1',
+															fontWeight: '600',
+															color: '#334155',
+														}}
+													>
+														PingOne Setting
+													</th>
+													<th
+														style={{
+															padding: '10px',
+															textAlign: 'center',
+															border: '1px solid #cbd5e1',
+															fontWeight: '600',
+															color: '#334155',
+														}}
+													>
+														OAuth Playground
+													</th>
+													<th
+														style={{
+															padding: '10px',
+															textAlign: 'left',
+															border: '1px solid #cbd5e1',
+															fontWeight: '600',
+															color: '#334155',
+														}}
+													>
+														Description
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															fontWeight: '500',
+														}}
+													>
+														<strong>Default</strong>
+													</td>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															textAlign: 'center',
+														}}
+													>
+														<span style={{ color: '#dc2626', fontWeight: '600' }}>❌ No</span>
+													</td>
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														Allows signed requests only. Requires JWT request objects (not supported).
+													</td>
+												</tr>
+												<tr style={{ background: '#f8fafc' }}>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															fontWeight: '500',
+														}}
+													>
+														<strong>Require signed request parameter</strong>
+													</td>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															textAlign: 'center',
+														}}
+													>
+														<span style={{ color: '#dc2626', fontWeight: '600' }}>❌ No</span>
+													</td>
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														<strong>Most secure:</strong> Only accepts signed request parameters. 
+														This is what causes the error you're seeing.
+													</td>
+												</tr>
+												<tr style={{ background: '#f0fdf4' }}>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															fontWeight: '500',
+														}}
+													>
+														<strong>Allow unsigned request parameter</strong>
+													</td>
+													<td
+														style={{
+															padding: '10px',
+															border: '1px solid #cbd5e1',
+															textAlign: 'center',
+														}}
+													>
+														<span style={{ color: '#16a34a', fontWeight: '600' }}>✅ Yes</span>
+													</td>
+													<td style={{ padding: '10px', border: '1px solid #cbd5e1', color: '#64748b' }}>
+														<strong>Most flexible:</strong> Allows both signed and unsigned requests. 
+														This is the recommended setting for the OAuth Playground.
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+
+									<div
+										style={{
+											marginTop: '16px',
+											padding: '12px',
+											background: '#eff6ff',
+											borderRadius: '6px',
+											border: '1px solid #93c5fd',
+										}}
+									>
+										<p style={{ margin: 0, fontSize: '13px', color: '#1e40af', lineHeight: '1.6' }}>
+											💡 <strong>Recommendation:</strong> Use <strong>"Allow unsigned request parameter"</strong> 
+											when using the OAuth Playground. This provides maximum flexibility and compatibility.
+										</p>
+									</div>
+								</div>
+
+								{/* How to Configure in PingOne */}
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #e2e8f0',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 12px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
+									>
+										🔧 How to Configure in PingOne
+									</h3>
+									<ol
+										style={{ margin: 0, paddingLeft: '20px', color: '#6b7280', lineHeight: '1.8' }}
+									>
+										<li>Navigate to: <strong>Applications</strong> → Your OAuth Client → <strong>Configuration</strong> tab</li>
+										<li>Scroll to <strong>"Request Parameter Signature Requirement"</strong> section</li>
+										<li>Select <strong>"Allow unsigned request parameter"</strong></li>
+										<li>Click <strong>Save</strong></li>
+										<li>Try generating the authorization URL again in the OAuth Playground</li>
+									</ol>
+								</div>
+
+								{/* Why Not Supported - Detailed Explanation */}
+								<div
+									style={{
+										background: '#f3f4f6',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #d1d5e0',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										❓ Why is JAR Not Supported?
+									</h3>
+									<p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
+										JAR support requires:
+									</p>
+									<ul
+										style={{ margin: '0 0 8px 0', paddingLeft: '20px', color: '#4b5563', lineHeight: '1.8' }}
+									>
+										<li>JWT signing capabilities (HMAC or RSA)</li>
+										<li>Private key management and secure key storage</li>
+										<li>Complex request object construction with proper JWT claims</li>
+										<li>Support for multiple signing algorithms (HS256, RS256, ES256, etc.)</li>
+										<li>JWT header and payload encoding/decoding</li>
+										<li>Signature verification and validation</li>
+									</ul>
+									<p style={{ margin: 0, fontSize: '14px', color: '#4b5563', lineHeight: '1.6' }}>
+										For a demo/playground application, this adds significant complexity without substantial 
+										educational value for most OAuth flows. The core OAuth concepts can be demonstrated 
+										without JAR.
+									</p>
+								</div>
+
+								{/* When to Use JAR in Production */}
+								<div
+									style={{
+										background: '#eff6ff',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #93c5fd',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1e40af',
+										}}
+									>
+										🏢 When Would You Use JAR in Production?
+									</h3>
+									<p style={{ margin: 0, color: '#1e3a8a', lineHeight: '1.6' }}>
+										JAR is typically used in high-security environments where:
+									</p>
+									<ul
+										style={{ margin: '8px 0 0 0', paddingLeft: '20px', color: '#1e3a8a', lineHeight: '1.8' }}
+									>
+										<li>Authorization request integrity must be cryptographically guaranteed</li>
+										<li>Request parameters cannot be tampered with in transit</li>
+										<li>Compliance requirements mandate request signing (e.g., FIDO2, banking regulations)</li>
+										<li>Additional security beyond HTTPS is required</li>
+										<li>You need to prove request authenticity and non-repudiation</li>
+									</ul>
+									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#1e40af', fontStyle: 'italic' }}>
+										For most applications, HTTPS provides sufficient security. JAR adds an extra layer for 
+										high-security scenarios.
+									</p>
+								</div>
+
+								{/* RFC Reference */}
+								<div
+									style={{
+										background: '#f8fafc',
+										padding: '16px',
+										borderRadius: '8px',
+										border: '1px solid #e2e8f0',
+									}}
+								>
+									<h3
+										style={{
+											margin: '0 0 8px 0',
+											fontSize: '16px',
+											fontWeight: '600',
+											color: '#1f2937',
+										}}
+									>
+										📚 RFC Reference
+									</h3>
+									<p style={{ margin: 0, color: '#6b7280', lineHeight: '1.6' }}>
+										JAR is defined in <strong>RFC 9101 - The OAuth 2.0 Authorization Framework: JWT-Secured 
+										Authorization Request (JAR)</strong>. It's an extension to OAuth 2.0 that enhances 
+										security by requiring signed request objects.
+									</p>
+									<p style={{ margin: '8px 0 0 0', fontSize: '13px', color: '#3b82f6' }}>
+										<a
+											href="https://datatracker.ietf.org/doc/html/rfc9101"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ textDecoration: 'underline' }}
+										>
+											View RFC 9101 Specification →
+										</a>
+									</p>
+								</div>
+							</div>
+
+							<button
+								onClick={() => setShowJARInfoModal(false)}
+								style={{
+									marginTop: '24px',
+									width: '100%',
+									padding: '10px',
+									background: '#3b82f6',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: 'pointer',
+									fontWeight: '600',
+								}}
+							>
+								Close
+							</button>
+						</div>
+					</DraggableModal>
+
 					{/* Client Secret JWT Configuration Modal */}
 					<DraggableModal
 						isOpen={showClientSecretJwtModal}
@@ -5086,21 +5865,34 @@ Why it matters: Backend services communicate server-to-server without user conte
 											// The JWT is generated fresh for each token request, not stored
 										}
 									}}
+									onPrivateKeyGenerated={(privateKey, keyId) => {
+										console.log(`${MODULE_TAG} Private key generated, saving to credentials`, {
+											hasPrivateKey: !!privateKey,
+											hasKeyId: !!keyId,
+										});
+										// Auto-save private key to credentials
+										handleChange('privateKey', privateKey);
+										if (keyId) {
+											handleChange('keyId', keyId);
+										}
+										toastV8.success('Private key generated and saved to credentials!');
+									}}
 								/>
 								<div
 									style={{
 										marginTop: '1rem',
 										padding: '0.75rem',
-										background: '#fef3c7',
-										border: '1px solid #fcd34d',
+										background: '#d1fae5',
+										border: '1px solid #10b981',
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
-										color: '#92400e',
+										color: '#065f46',
 									}}
 								>
-									<strong>Important:</strong> After entering your private key in the generator
-									above, make sure to save it in your credentials. The private key is used to sign
-									JWT assertions for each token request.
+									<strong>✅ Auto-Save Enabled:</strong> When you click "Generate Key Pair" above,
+									the private key will be automatically saved to your credentials. The private key
+									is used to sign JWT assertions for each token request and for JAR (JWT-secured
+									Authorization Request) signing.
 								</div>
 							</div>
 

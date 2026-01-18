@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiChevronLeft, FiPackage } from 'react-icons/fi';
+import { FiBook, FiChevronLeft, FiPackage, FiShield } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginSuccessModal from '../components/LoginSuccessModal';
+import TokenIntrospect from '../components/TokenIntrospect';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import V7StepperService from '../services/v7StepperService';
@@ -401,12 +402,6 @@ const PingOneAuthenticationResult: React.FC = () => {
 								<DataTerm>Scopes</DataTerm>
 								<DataValue>{result.config.scopes || 'openid'}</DataValue>
 							</div>
-							<div>
-								<DataTerm>Auth URL</DataTerm>
-								<DataValue style={{ fontSize: '0.8rem', lineHeight: 1.4 }}>
-									{result.authUrl}
-								</DataValue>
-							</div>
 						</DataList>
 					</Card>
 
@@ -428,6 +423,89 @@ const PingOneAuthenticationResult: React.FC = () => {
 							)}
 						</TokenCard>
 					</Layout>
+
+					{/* Token Introspection Section */}
+					{result.tokens?.access_token && (
+						<CollapsibleHeader
+							title="Token Introspection"
+							subtitle="Inspect your access token to see its metadata, claims, and expiration"
+							icon={<FiShield />}
+							defaultCollapsed={false}
+							theme="green"
+						>
+							<TokenIntrospect
+								flowName="PingOne Authentication"
+								flowVersion="V7"
+								tokens={result.tokens}
+								credentials={{
+									environmentId: result.config.environmentId,
+									clientId: result.config.clientId,
+									clientSecret: result.config.clientSecret,
+								}}
+								onResetFlow={handleStartOver}
+								onNavigateToTokenManagement={() => navigate('/token-management')}
+							/>
+						</CollapsibleHeader>
+					)}
+
+					{/* Documentation Section */}
+					<CollapsibleHeader
+						title="Documentation & Resources"
+						subtitle="Learn more about OAuth 2.0, OpenID Connect, and PingOne authentication"
+						icon={<FiBook />}
+						defaultCollapsed={true}
+						theme="yellow"
+					>
+						<div style={{ padding: '1.5rem', lineHeight: 1.8 }}>
+							<h3 style={{ marginTop: 0, marginBottom: '1rem', color: '#333' }}>
+								Understanding Your Authentication Result
+							</h3>
+							<p style={{ color: '#666', marginBottom: '1rem' }}>
+								You've successfully completed an OAuth 2.0 authentication flow with PingOne. Here's
+								what happened:
+							</p>
+							<ul style={{ color: '#666', marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
+								<li>
+									<strong>Authorization Request:</strong> Your application requested access to
+									protected resources on your behalf.
+								</li>
+								<li>
+									<strong>User Authentication:</strong> You were redirected to PingOne to
+									authenticate and authorize the request.
+								</li>
+								<li>
+									<strong>Token Exchange:</strong> After successful authentication, PingOne issued
+									tokens that your application can use to access protected resources.
+								</li>
+							</ul>
+							<h4 style={{ color: '#333', marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+								Token Types
+							</h4>
+							<ul style={{ color: '#666', marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
+								<li>
+									<strong>Access Token:</strong> Used to access protected resources. This token is
+									short-lived and should be kept secure.
+								</li>
+								<li>
+									<strong>ID Token:</strong> Contains user identity information (only for OpenID
+									Connect flows).
+								</li>
+								<li>
+									<strong>Refresh Token:</strong> Used to obtain new access tokens without
+									requiring user interaction (if enabled).
+								</li>
+							</ul>
+							<h4 style={{ color: '#333', marginTop: '1.5rem', marginBottom: '0.5rem' }}>
+								Next Steps
+							</h4>
+							<ul style={{ color: '#666', marginBottom: '1.5rem', paddingLeft: '1.5rem' }}>
+								<li>Use the <strong>Token Introspection</strong> section above to inspect your access token.</li>
+								<li>Test API calls with your access token to access protected resources.</li>
+								<li>Review the <strong>Flow Requests & Responses</strong> section to see detailed API interactions.</li>
+								<li>Learn more about OAuth 2.0 and OpenID Connect in the PingOne documentation.</li>
+							</ul>
+						</div>
+					</CollapsibleHeader>
 
 					<CollapsibleHeader
 						title="Flow Requests & Responses (latest session)"
