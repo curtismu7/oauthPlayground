@@ -411,12 +411,21 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 				);
 			}
 
-			// 4. Response Type Validation
-			if (flowType === 'implicit' && credentials.responseType && !credentials.responseType.includes('token')) {
-				warnings.push(
-					`⚠️ Response Type Mismatch: Implicit flow typically requires "token" in response_type, but your configuration has "${credentials.responseType}". This may cause authorization failures.`
-				);
-			}
+		// 4. Response Type Validation
+		if (flowType === 'implicit' && credentials.responseType && !credentials.responseType.includes('token')) {
+			const errorMsg = `❌ Response Type Invalid: Implicit flow requires "token" or "token id_token" in response_type, but your configuration has "${credentials.responseType}". This will cause authorization failures.`;
+			errors.push(errorMsg);
+			
+			// Make this fixable - auto-set correct response type for implicit flow
+			fixableErrors.push({
+				errorIndex: errors.length - 1,
+				error: errorMsg,
+				fix: 'Update response_type to "token id_token" (recommended for OIDC implicit flow)',
+				autoFix: {
+					responseType: specVersion === 'oidc' ? 'token id_token' : 'token',
+				},
+			});
+		}
 
 			if (flowType === 'hybrid' && credentials.responseType) {
 				// Hybrid flow requires both 'code' and 'token' or 'id_token'
