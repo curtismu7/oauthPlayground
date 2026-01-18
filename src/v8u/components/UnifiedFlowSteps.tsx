@@ -5965,7 +5965,92 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							{preFlightValidationResult.fixableErrors && preFlightValidationResult.fixableErrors.length > 0 && (
 								<button
 									type="button"
-									onClick={() => handleFixAllErrors()}
+									onClick={async () => {
+										try {
+											setIsLoading(true);
+											setLoadingMessage('🔧 Fixing errors...');
+											
+											const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+											const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+											const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
+											
+											const fixableErrors = preFlightValidationResult.fixableErrors || [];
+											const fixDescriptions = fixableErrors.map(fe => fe.fix || 'Fix error').join('\n  • ');
+											const fixableCount = fixableErrors.length;
+											
+											const confirmed = await uiNotificationServiceV8.confirm({
+												title: '🔧 Fix All Errors?',
+												message: `Found ${fixableCount} fixable error(s).\n\nThe following will be fixed:\n  • ${fixDescriptions}\n\nWould you like to automatically fix all fixable errors?`,
+												confirmText: 'Yes, Fix All',
+												cancelText: 'No, I\'ll Fix Manually',
+												severity: 'warning',
+											});
+											
+											if (confirmed) {
+												const updatedCredentials = { ...credentials };
+												const fixesApplied: string[] = [];
+												
+												for (const fixableError of fixableErrors) {
+													if (fixableError.autoFix) {
+														if (fixableError.autoFix.redirectUri) {
+															updatedCredentials.redirectUri = fixableError.autoFix.redirectUri;
+															fixesApplied.push(`Redirect URI: ${fixableError.autoFix.redirectUri}`);
+														}
+														if (fixableError.autoFix.enablePKCE) {
+															updatedCredentials.usePKCE = true;
+															fixesApplied.push('PKCE enabled');
+														}
+														if (fixableError.autoFix.authMethod) {
+															updatedCredentials.clientAuthMethod = fixableError.autoFix.authMethod;
+															fixesApplied.push(`Auth Method: ${fixableError.autoFix.authMethod}`);
+														}
+														if (fixableError.autoFix.responseType) {
+															updatedCredentials.responseType = fixableError.autoFix.responseType;
+															fixesApplied.push(`Response Type: ${fixableError.autoFix.responseType}`);
+														}
+														if (fixableError.autoFix.addScope) {
+															const currentScopes = updatedCredentials.scopes || '';
+															if (!currentScopes.includes(fixableError.autoFix.addScope)) {
+																updatedCredentials.scopes = currentScopes ? `${currentScopes} ${fixableError.autoFix.addScope}` : fixableError.autoFix.addScope;
+																fixesApplied.push(`Added scope: ${fixableError.autoFix.addScope}`);
+															}
+														}
+													}
+												}
+												
+												// Apply fixes
+												onCredentialsChange(updatedCredentials);
+												
+												// Save to storage
+												await CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials, {
+													flowType: flowType as 'oauth' | 'oidc',
+													includeClientSecret: true,
+													includeScopes: true,
+													includeRedirectUri: true,
+												});
+												
+												// Save shared credentials
+												await SharedCredentialsServiceV8.saveCredentials({
+													environmentId: updatedCredentials.environmentId,
+													clientId: updatedCredentials.clientId,
+													clientSecret: updatedCredentials.clientSecret,
+													clientAuthMethod: updatedCredentials.clientAuthMethod,
+												});
+												
+												// Clear pre-flight validation result to trigger re-validation
+												setPreFlightValidationResult(null);
+												
+												toastV8.success(`✅ Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
+											}
+										} catch (error) {
+											console.error(`${MODULE_TAG} Error fixing errors:`, error);
+											toastV8.error(`❌ Failed to fix errors: ${error instanceof Error ? error.message : 'Unknown error'}`);
+										} finally {
+											setIsLoading(false);
+											setLoadingMessage('');
+										}
+									}}
+									disabled={isLoading}
 									style={{
 										marginTop: '16px',
 										padding: '12px 24px',
@@ -5975,7 +6060,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										borderRadius: '6px',
 										fontSize: '14px',
 										fontWeight: '600',
-										cursor: 'pointer',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+										opacity: isLoading ? 0.6 : 1,
 										display: 'flex',
 										alignItems: 'center',
 										gap: '8px',
