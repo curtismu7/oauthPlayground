@@ -237,6 +237,9 @@ export class UnifiedFlowIntegrationV8U {
 				console.log(`${MODULE_TAG} ⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`);
 			}
 
+			const startTime = Date.now();
+			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+
 			const result = await ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl(
 				{
 					environmentId: credentials.environmentId,
@@ -267,7 +270,6 @@ export class UnifiedFlowIntegrationV8U {
 			
 			// Rebuild URL using ALL params from generated URL, then update only state
 			// This preserves the exact redirect_uri and all other params from the generated URL
-			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const params = new URLSearchParams(generatedUrl.searchParams); // Copy all params from generated URL
 			params.set('state', prefixedState); // Update only the state parameter
 
@@ -298,6 +300,35 @@ export class UnifiedFlowIntegrationV8U {
 			const responseMode =
 				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'fragment');
 			params.set('response_mode', responseMode);
+
+			// Track authorization URL generation as an API call for documentation
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const apiCallId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: authorizationEndpoint,
+				actualPingOneUrl: authorizationEndpoint,
+				isProxy: false,
+				headers: {},
+				body: Object.fromEntries(params.entries()),
+				step: 'unified-authorization-url',
+				flowType: 'unified',
+			});
+
+			// Update with "response" (authorization URL generated)
+			apiCallTrackerService.updateApiCallResponse(
+				apiCallId,
+				{
+					status: 200,
+					statusText: 'OK',
+					data: {
+						authorization_url: `${authorizationEndpoint}?${params.toString()}`,
+						note: 'Authorization URL generated. User will be redirected to PingOne for authentication.',
+						flow: 'implicit',
+						returns_tokens_in: responseMode === 'fragment' ? 'URL Fragment' : 'Query Parameters',
+					},
+				},
+				Date.now() - startTime
+			);
 			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseMode}`);
 
 			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
