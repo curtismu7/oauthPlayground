@@ -24,6 +24,7 @@ export interface StepperV8UProps {
 	canGoNext?: boolean;
 	canGoPrevious?: boolean;
 	validationErrors?: string[];
+	validationWarnings?: string[];
 }
 
 const getStepLabel = (step: number, flowType: FlowType): string => {
@@ -63,6 +64,7 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 	canGoNext = true,
 	canGoPrevious = true,
 	validationErrors = [],
+	validationWarnings = [],
 }) => {
 	console.log(`${MODULE_TAG} Rendering stepper`, { currentStep, totalSteps, flowType });
 
@@ -185,7 +187,30 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 				})}
 			</div>
 
-			{/* Validation errors */}
+			{/* Validation warnings (orange background - non-blocking) */}
+			{validationWarnings.length > 0 && (
+				<div
+					style={{
+						padding: '12px',
+						background: '#fff7ed',
+						border: '1px solid #fb923c',
+						borderRadius: '6px',
+						marginBottom: '16px',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+						<span style={{ fontSize: '16px' }}>⚠️</span>
+						<strong style={{ color: '#c2410c', fontSize: '14px' }}>Validation Warnings</strong>
+					</div>
+					<ul style={{ margin: 0, paddingLeft: '24px', color: '#9a3412', fontSize: '13px' }}>
+						{validationWarnings.map((warning, idx) => (
+							<li key={idx}>{warning}</li>
+						))}
+					</ul>
+				</div>
+			)}
+
+			{/* Validation errors (red background - blocking) */}
 			{validationErrors.length > 0 && (
 				<div
 					style={{
@@ -197,7 +222,7 @@ export const StepperV8U: React.FC<StepperV8UProps> = ({
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-						<span style={{ fontSize: '16px' }}>⚠️</span>
+						<span style={{ fontSize: '16px' }}>❌</span>
 						<strong style={{ color: '#dc2626', fontSize: '14px' }}>Validation Errors</strong>
 					</div>
 					<ul style={{ margin: 0, paddingLeft: '24px', color: '#991b1b', fontSize: '13px' }}>

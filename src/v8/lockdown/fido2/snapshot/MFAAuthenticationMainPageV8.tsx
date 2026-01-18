@@ -441,7 +441,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
-							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 					}

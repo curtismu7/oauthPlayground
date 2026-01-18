@@ -118,6 +118,32 @@ Before using the Implicit Flow, ensure you have:
 
 **Purpose**: Create and open the authorization URL that will start the authentication process.
 
+#### Pre-Flight Validation
+
+Before generating the authorization URL, the system automatically validates your configuration against PingOne:
+
+**What Happens:**
+1. **Validation Starts**: A small spinner appears with the message "🔍 Validating Configuration against PingOne..."
+2. **Configuration Checked**: The system verifies:
+   - Redirect URI matches PingOne configuration
+   - Response type validity
+   - Scope requirements (OIDC requires `openid` scope)
+   - Client authentication method (must be `none` for implicit)
+
+**Validation Results:**
+- ✅ **Success**: Toast message "Pre-flight validation passed!" - You can proceed
+- ⚠️ **Warnings**: Toast message "Pre-flight validation warnings" - You can proceed, but review warnings
+- ❌ **Errors**: Toast message "Pre-flight validation failed" - Must fix errors before proceeding
+
+**Auto-Fix Available:**
+- If fixable errors are detected, you'll be prompted: "Would you like to automatically fix all fixable errors?"
+- Click **"Yes, Fix All"** to automatically correct:
+  - Redirect URI mismatch (updates to match PingOne)
+  - Missing `openid` scope (adds automatically)
+  - Invalid response type (corrects automatically)
+- After auto-fix, validation runs again automatically
+- Success toast shows: "Fixed {count} error(s): {list of fixes}"
+
 #### What You'll See
 
 1. **Authorization URL** (read-only)

@@ -36,7 +36,7 @@ import { FlowHeader } from '../services/flowHeaderService';
 import { SaveButton } from '../services/saveButtonService';
 import { credentialManager } from '../utils/credentialManager';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
+import { WorkerTokenStatusServiceV8 } from '../v8/services/workerTokenStatusServiceV8';
 import { CredentialsFormV8U } from '../v8u/components/CredentialsFormV8U';
 
 const Container = styled.div`
@@ -542,12 +542,11 @@ const Configuration: React.FC = () => {
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-	const [workerToken, setWorkerToken] = useState('');
-	const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | null>(null);
 	const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
 	const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
 	const [showWorkerToken, setShowWorkerToken] = useState(false);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [tokenStatus, setTokenStatus] = useState(() => WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
 
 	// Load existing credentials on mount
 	useEffect(() => {
@@ -650,65 +649,27 @@ const Configuration: React.FC = () => {
 		</CodeBlock>
 	);
 
-	// Load existing worker token on mount from global service
+	// Check worker token status on mount and when token updates
 	useEffect(() => {
-		const loadWorkerToken = async () => {
-			setWorkerTokenLoading(true);
-			setWorkerTokenError(null);
-
-			try {
-				// Load credentials and token from global service
-				const savedCredentials = await workerTokenServiceV8.loadCredentials();
-				const token = await workerTokenServiceV8.getToken();
-
-				if (token && savedCredentials) {
-					// Check if environment ID matches (if provided)
-					if (
-						credentials.environmentId &&
-						savedCredentials.environmentId !== credentials.environmentId
-					) {
-						console.log('[Configuration] Worker token environment ID mismatch');
-						setWorkerToken('');
-						setWorkerTokenExpiresAt(null);
-					} else {
-						setWorkerToken(token);
-						// Get expiration from stored data
-						try {
-							const stored = localStorage.getItem('v8:worker_token');
-							if (stored) {
-								const data = JSON.parse(stored);
-								setWorkerTokenExpiresAt(data.expiresAt);
-							} else {
-								setWorkerTokenExpiresAt(null);
-							}
-						} catch {
-							setWorkerTokenExpiresAt(null);
-						}
-					}
-				} else {
-					setWorkerToken('');
-					setWorkerTokenExpiresAt(null);
-				}
-			} catch (error) {
-				console.error('[Configuration] Failed to load worker token:', error);
-				setWorkerTokenError('Unable to load saved worker token.');
-			} finally {
-				setWorkerTokenLoading(false);
-			}
+		const checkTokenStatus = () => {
+			const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+			setTokenStatus(currentStatus);
 		};
 
-		void loadWorkerToken();
+		checkTokenStatus();
 
 		// Listen for token updates
 		const handleTokenUpdate = () => {
-			loadWorkerToken();
+			checkTokenStatus();
 		};
+		window.addEventListener('storage', handleTokenUpdate);
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
 
 		return () => {
+			window.removeEventListener('storage', handleTokenUpdate);
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
-	}, [credentials.environmentId]);
+	}, []);
 
 	return (
 		<Container>
@@ -740,13 +701,13 @@ const Configuration: React.FC = () => {
 						</InfoBox>
 					)}
 
-					{workerToken && (
+					{tokenStatus.isValid && tokenStatus.token && (
 						<WorkerTokenDetectedBanner
-							token={workerToken}
+							token={tokenStatus.token}
 							tokenExpiryKey="worker_token_expires_at"
 							message={
-								workerTokenExpiresAt
-									? `Worker token obtained! Config Checker is now available in all flows. Token expires at ${new Date(workerTokenExpiresAt).toLocaleString()}.`
+								tokenStatus.expiresAt
+									? `Worker token obtained! Config Checker is now available in all flows. Token expires at ${new Date(tokenStatus.expiresAt).toLocaleString()}.`
 									: 'Worker token obtained! Config Checker is now available in all flows.'
 							}
 						/>
@@ -765,7 +726,7 @@ const Configuration: React.FC = () => {
 							onClick={() => setShowWorkerTokenModal(true)}
 							disabled={workerTokenLoading}
 							style={{
-								background: workerToken ? '#10b981' : '#3b82f6',
+								background: tokenStatus.isValid ? '#10b981' : '#3b82f6',
 								color: 'white',
 								border: '1px solid #ffffff',
 								borderRadius: '0.5rem',
@@ -781,13 +742,13 @@ const Configuration: React.FC = () => {
 							}}
 							onMouseEnter={(e) => {
 								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = workerToken ? '#059669' : '#2563eb';
+									e.currentTarget.style.backgroundColor = tokenStatus.isValid ? '#059669' : '#2563eb';
 									e.currentTarget.style.borderColor = '#ffffff';
 								}
 							}}
 							onMouseLeave={(e) => {
 								if (!workerTokenLoading) {
-									e.currentTarget.style.backgroundColor = workerToken ? '#10b981' : '#3b82f6';
+									e.currentTarget.style.backgroundColor = tokenStatus.isValid ? '#10b981' : '#3b82f6';
 									e.currentTarget.style.borderColor = '#ffffff';
 								}
 							}}
@@ -799,19 +760,19 @@ const Configuration: React.FC = () => {
 							)}
 							{workerTokenLoading
 								? 'Getting Token...'
-								: workerToken
+								: tokenStatus.isValid
 									? 'Token Obtained'
 									: 'Get Worker Token'}
 						</button>
 						<WorkerTokenStatusLabel
-							token={workerToken}
-							expiresAt={workerTokenExpiresAt}
+							token={tokenStatus.token || ''}
+							expiresAt={tokenStatus.expiresAt}
 							tokenStorageKey="worker_token"
 							tokenExpiryKey="worker_token_expires_at"
 						/>
 					</div>
 
-					{workerToken && (
+					{tokenStatus.isValid && tokenStatus.token && (
 						<div style={{ marginTop: '1rem' }}>
 							<div
 								style={{
@@ -841,7 +802,7 @@ const Configuration: React.FC = () => {
 							</div>
 							<CodeBlockWithCopy label="worker-token">
 								{showWorkerToken
-									? workerToken
+									? tokenStatus.token
 									: '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
 							</CodeBlockWithCopy>
 
@@ -1113,12 +1074,12 @@ const Configuration: React.FC = () => {
 			</CollapsibleHeader>
 
 			{/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
-			{workerToken && credentials.environmentId && credentials.clientId && (
+			{tokenStatus.isValid && credentials.environmentId && credentials.clientId && (
 				<ConfigurationURIChecker
 					flowType="configuration"
 					environmentId={credentials.environmentId}
 					clientId={credentials.clientId}
-					workerToken={workerToken}
+					workerToken={tokenStatus.token || undefined}
 					redirectUri={credentials.redirectUri || ''}
 					postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
 					region={credentials.region || 'us'}
@@ -1611,37 +1572,9 @@ cd oauthPlayground`}
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
 					onContinue={async () => {
-						// Re-check worker token after modal closes from global service
-						const token = await workerTokenServiceV8.getToken();
-						const savedCredentials = await workerTokenServiceV8.loadCredentials();
-
-						if (token && savedCredentials) {
-							// Check if environment ID matches (if provided)
-							if (
-								credentials.environmentId &&
-								savedCredentials.environmentId !== credentials.environmentId
-							) {
-								setWorkerToken('');
-								setWorkerTokenExpiresAt(null);
-							} else {
-								setWorkerToken(token);
-								// Get expiration from stored data
-								try {
-									const stored = localStorage.getItem('v8:worker_token');
-									if (stored) {
-										const data = JSON.parse(stored);
-										setWorkerTokenExpiresAt(data.expiresAt);
-									} else {
-										setWorkerTokenExpiresAt(null);
-									}
-								} catch {
-									setWorkerTokenExpiresAt(null);
-								}
-							}
-						} else {
-							setWorkerToken('');
-							setWorkerTokenExpiresAt(null);
-						}
+						// Re-check worker token status after modal closes
+						const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						setTokenStatus(currentStatus);
 						setShowWorkerTokenModal(false);
 					}}
 					flowType="configuration"

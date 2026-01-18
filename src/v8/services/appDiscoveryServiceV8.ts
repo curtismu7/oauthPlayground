@@ -358,9 +358,32 @@ export class AppDiscoveryServiceV8 {
 
 			const data = await response.json();
 
-			const applications = data._embedded?.applications || [];
+			const rawApplications = data._embedded?.applications || [];
 
-			return applications as DiscoveredApplication[];
+			// Explicitly map all fields including tokenEndpointAuthMethod to ensure it's captured
+			const applications: DiscoveredApplication[] = rawApplications.map((rawApp: any) => ({
+				id: rawApp.id,
+				name: rawApp.name,
+				description: rawApp.description,
+				type: rawApp.type || 'SINGLE_PAGE_APP',
+				enabled: rawApp.enabled !== false, // Default to true if not specified
+				grantTypes: rawApp.grantTypes || [],
+				responseTypes: rawApp.responseTypes || [],
+				redirectUris: rawApp.redirectUris || rawApp.redirect_uris || [],
+				tokenEndpointAuthMethod: rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post',
+				clientSecret: undefined, // Not available in list endpoint - use fetchApplicationWithSecret() for individual app
+				pkceRequired: rawApp.pkceRequired,
+				pkceEnforced: rawApp.pkceEnforced,
+				accessTokenDuration: rawApp.accessTokenDuration,
+				refreshTokenDuration: rawApp.refreshTokenDuration,
+				tokenFormat: rawApp.tokenFormat,
+			}));
+
+			console.log(`${MODULE_TAG} Discovered ${applications.length} applications`, {
+				applicationsWithTokenAuthMethod: applications.filter((app) => app.tokenEndpointAuthMethod).length,
+			});
+
+			return applications;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error discovering applications`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -522,28 +545,69 @@ export class AppDiscoveryServiceV8 {
 				appName: app.name,
 				hasClientSecret: 'clientSecret' in app,
 				clientSecretType: typeof app.clientSecret,
+				clientSecretValue: app.clientSecret,
+				clientSecretIsNull: app.clientSecret === null,
+				clientSecretIsUndefined: app.clientSecret === undefined,
 				clientSecretLength: app.clientSecret?.length || 0,
-				clientSecretValue: app.clientSecret ? `${app.clientSecret.substring(0, 10)}...` : 'none',
+				clientSecretPreview: app.clientSecret ? `${app.clientSecret.substring(0, 10)}...` : (app.clientSecret === null ? 'null' : 'none'),
+				hasTokenEndpointAuthMethod: 'tokenEndpointAuthMethod' in app || 'token_endpoint_auth_method' in app,
+				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || app.token_endpoint_auth_method,
+				hasRedirectUris: 'redirectUris' in app || 'redirect_uris' in app,
+				redirectUris: app.redirectUris || app.redirect_uris,
+				redirectUrisLength: Array.isArray(app.redirectUris || app.redirect_uris) ? (app.redirectUris || app.redirect_uris).length : 0,
 				allKeys: Object.keys(app),
+				// Check if secret might be in a different field
+				hasSecretField: 'secret' in app,
+				secretValue: app.secret ? `${app.secret.substring(0, 10)}...` : (app.secret === null ? 'null' : 'none'),
 			});
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'appDiscoveryServiceV8.ts:543',message:'PingOne API response - checking field names',data:{hasTokenEndpointAuthMethod:'tokenEndpointAuthMethod' in app,hasTokenEndpointAuthMethodSnake:'token_endpoint_auth_method' in app,tokenEndpointAuthMethod:app.tokenEndpointAuthMethod||app.token_endpoint_auth_method,hasRedirectUris:'redirectUris' in app,hasRedirectUrisSnake:'redirect_uris' in app,redirectUris:app.redirectUris||app.redirect_uris,allKeys:Object.keys(app)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
 
 			// Map to DiscoveredApplication format
+			// Handle both camelCase and snake_case from PingOne API
+			// Backend returns clientSecret as null if secret endpoint returns 404 or no permission
+			// Also check for 'secret' field as fallback (in case backend structure changes)
+			const clientSecretValue = app.clientSecret || app.secret;
+			const hasValidClientSecret = 
+				clientSecretValue &&
+				typeof clientSecretValue === 'string' &&
+				clientSecretValue.trim().length > 0;
+			
+			console.log(`${MODULE_TAG} Processing client secret`, {
+				hasClientSecretField: 'clientSecret' in app,
+				hasSecretField: 'secret' in app,
+				clientSecretValue: clientSecretValue,
+				clientSecretType: typeof clientSecretValue,
+				clientSecretIsNull: clientSecretValue === null,
+				hasValidClientSecret,
+				willIncludeSecret: hasValidClientSecret,
+			});
+			
+			// Normalize tokenEndpointAuthMethod to lowercase with underscores
+			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
+			// But UI expects client_secret_post, client_secret_basic, etc. (lowercase)
+			const rawTokenEndpointAuthMethod = app.tokenEndpointAuthMethod || app.token_endpoint_auth_method || 'client_secret_post';
+			const normalizedTokenEndpointAuthMethod = rawTokenEndpointAuthMethod.toLowerCase().replace(/-/g, '_');
+
+			console.log(`${MODULE_TAG} Normalizing tokenEndpointAuthMethod in discoveredApp`, {
+				raw: rawTokenEndpointAuthMethod,
+				normalized: normalizedTokenEndpointAuthMethod,
+				fromTokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+				fromTokenEndpointAuthMethodSnake: app.token_endpoint_auth_method,
+			});
+
 			const discoveredApp: DiscoveredApplication = {
 				id: app.id,
 				name: app.name,
 				description: app.description,
 				type: app.type,
 				enabled: app.enabled !== false,
-				grantTypes: app.grantTypes || [],
-				responseTypes: app.responseTypes || [],
-				redirectUris: app.redirectUris || [],
-				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || 'client_secret_post',
-				clientSecret:
-					app.clientSecret &&
-					typeof app.clientSecret === 'string' &&
-					app.clientSecret.trim().length > 0
-						? app.clientSecret
-						: undefined, // Only set if it's a non-empty string
+				grantTypes: app.grantTypes || app.grant_types || [],
+				responseTypes: app.responseTypes || app.response_types || [],
+				redirectUris: app.redirectUris || app.redirect_uris || [],
+				tokenEndpointAuthMethod: normalizedTokenEndpointAuthMethod,
+				clientSecret: hasValidClientSecret ? clientSecretValue : undefined, // Only set if it's a non-empty string
 				pkceRequired: app.pkceRequired,
 				pkceEnforced: app.pkceEnforced,
 				accessTokenDuration: app.accessTokenDuration,

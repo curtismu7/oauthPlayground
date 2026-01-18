@@ -1634,6 +1634,24 @@ app.post('/api/token-exchange', async (req, res) => {
 				responseData,
 				requestBody: tokenRequestBody.toString(),
 			});
+
+			// Check for MUST_CHANGE_PASSWORD in error response
+			const errorText = JSON.stringify(responseData).toLowerCase();
+			const requiresPasswordChange =
+				errorText.includes('must_change_password') ||
+				errorText.includes('must change password') ||
+				errorText.includes('password_change_required') ||
+				errorText.includes('password change required') ||
+				errorText.includes('password must be changed') ||
+				errorText.includes('force_password_change') ||
+				errorText.includes('force password change');
+
+			if (requiresPasswordChange) {
+				console.log('🔐 [Server] Password change required detected in error response');
+				responseData.requires_password_change = true;
+				responseData.password_change_required = true;
+			}
+
 			return res.status(tokenResponse.status).json(responseData);
 		}
 
@@ -1646,6 +1664,28 @@ app.post('/api/token-exchange', async (req, res) => {
 			scope: responseData.scope,
 			clientId: `${client_id?.substring(0, 8)}...`,
 		});
+
+		// Check ID token for password change requirement
+		if (responseData.id_token) {
+			try {
+				const parts = responseData.id_token.split('.');
+				if (parts.length === 3) {
+					const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+					const passwordState =
+						payload.password_state || payload.password_status || payload.pwd_state;
+
+					if (passwordState === 'MUST_CHANGE_PASSWORD') {
+						console.log('🔐 [Server] Password change required detected in ID token');
+						responseData.requires_password_change = true;
+						responseData.password_change_required = true;
+						responseData.password_state = passwordState;
+						responseData.user_id = payload.sub || payload.user_id;
+					}
+				}
+			} catch (error) {
+				console.warn('⚠️ [Server] Failed to parse ID token for password state check:', error.message);
+			}
+		}
 
 		// Add server-side metadata
 		responseData.server_timestamp = new Date().toISOString();
@@ -9798,6 +9838,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 		// #region agent log
 		// Log the exact JSON body being sent to PingOne (for all device types, especially EMAIL)
 		const jsonBodyString = JSON.stringify(requestBody);
+		// Silently attempt analytics (suppress all errors to prevent console spam)
 		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -9826,7 +9867,9 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 				runId: 'run1',
 				hypothesisId: 'A',
 			}),
-		}).catch(() => {});
+		}).catch(() => {
+			// Silently ignore - analytics server not available
+		});
 		// #endregion
 
 		const startTime = Date.now();
@@ -11736,6 +11779,160 @@ app.post('/api/pingone/mfa/validate-otp', async (req, res) => {
 	} catch (error) {
 		console.error('[MFA Validate OTP] Error:', error);
 		res.status(500).json({ error: 'Failed to validate OTP', message: error.message });
+	}
+});
+
+// Validate OTP for Device Authentication (MFA v1 API)
+// POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
+// API Reference: https://apidocs.pingidentity.com/pingone/mfa/v1/api/#post-validate-otp-for-device
+app.post('/api/pingone/mfa/validate-otp-for-device', async (req, res) => {
+	try {
+		const { environmentId, authenticationId, deviceAuthId, otp, workerToken, region, customDomain } = req.body;
+
+		// Use authenticationId or deviceAuthId (both are accepted)
+		const deviceAuthIdValue = authenticationId || deviceAuthId;
+
+		if (!environmentId || !deviceAuthIdValue || !otp || !workerToken) {
+			return res.status(400).json({
+				error: 'Missing required fields',
+				message: 'environmentId, authenticationId (or deviceAuthId), otp, and workerToken are required',
+			});
+		}
+
+		// Clean and validate worker token
+		let cleanToken = String(workerToken).trim();
+		cleanToken = cleanToken.replace(/^Bearer\s+/i, '');
+		cleanToken = cleanToken.replace(/\s+/g, '').trim();
+
+		if (cleanToken.length === 0) {
+			return res.status(400).json({
+				error: 'Worker token is empty',
+				message: 'Please generate a new worker token using the "Manage Token" button.',
+			});
+		}
+
+		const tokenParts = cleanToken.split('.');
+		if (tokenParts.length !== 3 || tokenParts.some((part) => part.length === 0)) {
+			return res.status(400).json({
+				error: 'Invalid worker token format',
+				message: 'Worker token does not appear to be a valid JWT. Please generate a new token.',
+			});
+		}
+
+		// Determine auth path based on region or custom domain
+		let authPath;
+		if (customDomain) {
+			authPath = `https://${customDomain}`;
+		} else {
+			const tld =
+				region === 'eu'
+					? 'eu'
+					: region === 'ap' || region === 'asia'
+						? 'asia'
+						: region === 'ca'
+							? 'ca'
+							: 'com';
+			authPath = `https://auth.pingone.${tld}`;
+		}
+
+		// PingOne API endpoint for validating OTP via device authentication
+		// POST {authPath}/{environmentId}/deviceAuthentications/{deviceAuthId}/otp
+		const validateEndpoint = `${authPath}/${environmentId}/deviceAuthentications/${deviceAuthIdValue}/otp`;
+
+		const requestHeaders = {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${cleanToken}`,
+		};
+
+		const requestBody = {
+			otp: String(otp).trim(),
+		};
+
+		console.log('[MFA Validate OTP for Device] Request:', {
+			url: validateEndpoint,
+			environmentId,
+			authenticationId: deviceAuthIdValue,
+			otpLength: requestBody.otp.length,
+		});
+
+		const startTime = Date.now();
+		const response = await global.fetch(validateEndpoint, {
+			method: 'POST',
+			headers: requestHeaders,
+			body: JSON.stringify(requestBody),
+		});
+		const duration = Date.now() - startTime;
+
+		const responseClone = response.clone();
+		let responseData;
+		try {
+			responseData = await responseClone.json();
+		} catch {
+			responseData = { error: 'Failed to parse response' };
+		}
+
+		// Comprehensive PingOne API call logging
+		logPingOneApiCall(
+			'Validate OTP for Device Authentication',
+			validateEndpoint,
+			'POST',
+			{
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${cleanToken.substring(0, 20)}...***REDACTED***`,
+			},
+			requestBody,
+			response,
+			responseData,
+			duration,
+			{
+				environmentId,
+				authenticationId: deviceAuthIdValue,
+				otpLength: requestBody.otp.length,
+			}
+		);
+
+		if (!response.ok) {
+			const errorData = responseData || { error: 'Unknown error' };
+			console.error('[MFA Validate OTP for Device] Error:', {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData,
+			});
+
+			// Return 200 with validation result for invalid OTP (not a server error)
+			if (response.status === 400 || response.status === 401) {
+				return res.json({
+					status: 'INVALID',
+					message: errorData.message || 'Invalid OTP code',
+					valid: false,
+					...(errorData.attemptsRemaining !== undefined && { attemptsRemaining: errorData.attemptsRemaining }),
+				});
+			}
+			return res.status(response.status).json(errorData);
+		}
+
+		// responseData was already parsed above for logging
+		const validationData = responseData;
+		console.log('[MFA Validate OTP for Device] Success:', {
+			status: validationData.status,
+			nextStep: validationData.nextStep,
+		});
+
+		res.json({
+			status: validationData.status || 'COMPLETED',
+			message: validationData.message || 'OTP verified successfully',
+			valid: validationData.status === 'COMPLETED' || validationData.status === 'SUCCESS',
+			...(validationData.access_token && { access_token: validationData.access_token }),
+			...(validationData.token_type && { token_type: validationData.token_type }),
+			...(validationData.expires_in !== undefined && { expires_in: validationData.expires_in }),
+			...(validationData._links && { _links: validationData._links }),
+		});
+	} catch (error) {
+		console.error('[MFA Validate OTP for Device] Error:', error);
+		res.status(500).json({
+			error: 'Failed to validate OTP for device authentication',
+			message: error instanceof Error ? error.message : String(error),
+		});
 	}
 });
 

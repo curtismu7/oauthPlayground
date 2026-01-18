@@ -134,17 +134,15 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 	
 	// #region agent log
-	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+		analytics.log({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:132',
 			message: 'Getting PingOne API docs URL for flow',
 			data: { flowType, baseUrl },
-			timestamp: Date.now(),
 			sessionId: 'debug-session',
+			runId: 'run2',
 			hypothesisId: 'F',
-		}),
+		});
 	}).catch(() => {});
 	// #endregion
 
@@ -170,17 +168,15 @@ const getApiDocsUrlForFlow = (flowType: FlowType): string => {
 	}
 	
 	// #region agent log
-	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+		analytics.log({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:153',
 			message: 'Generated PingOne API docs URL',
 			data: { flowType, url, hasAnchor: url.includes('#'), anchor: url.includes('#') ? url.split('#')[1] : null },
-			timestamp: Date.now(),
 			sessionId: 'debug-session',
+			runId: 'run2',
 			hypothesisId: 'F',
-		}),
+		});
 	}).catch(() => {});
 	// #endregion
 	
@@ -275,10 +271,8 @@ export const generateUnifiedFlowMarkdown = (
 	const versionSpecs = SpecUrlServiceV8.getSpecUrls(specVersion);
 	
 	// #region agent log
-	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+		analytics.log({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:231',
 			message: 'Generating documentation references',
 			data: {
@@ -290,10 +284,10 @@ export const generateUnifiedFlowMarkdown = (
 				combinedPrimaryLabel: specUrls.primaryLabel,
 				combinedAllSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
 			},
-			timestamp: Date.now(),
 			sessionId: 'debug-session',
+			runId: 'run2',
 			hypothesisId: 'E',
-		}),
+		});
 	}).catch(() => {});
 	// #endregion
 	
@@ -319,17 +313,15 @@ export const generateUnifiedFlowMarkdown = (
 	const apiDocsUrl = getApiDocsUrlForFlow(flowType);
 	
 	// #region agent log
-	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
+	import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+		analytics.log({
 			location: 'UnifiedFlowDocumentationPageV8U.tsx:257',
 			message: 'Adding PingOne API documentation link',
 			data: { flowType, apiDocsUrl, hasAnchor: apiDocsUrl.includes('#') },
-			timestamp: Date.now(),
 			sessionId: 'debug-session',
+			runId: 'run2',
 			hypothesisId: 'E',
-		}),
+		});
 	}).catch(() => {});
 	// #endregion
 	
@@ -445,7 +437,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 	totalSteps,
 }) => {
 	const navigate = useNavigate();
-	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]));
+	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set()); // All collapsed by default
 
 	// Get tracked API calls and convert to documentation format
 	const trackedCalls = apiCallTrackerService.getApiCalls();
@@ -710,17 +702,164 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 				</div>
 			</div>
 
-			{/* API Calls */}
+			{/* API Calls Summary Table */}
 			{apiCalls.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
 					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-						API Calls
+						API Calls Summary
+					</h3>
+					<div
+						style={{
+							overflowX: 'auto',
+							border: '1px solid #e5e7eb',
+							borderRadius: '8px',
+							background: 'white',
+						}}
+					>
+						<table
+							style={{
+								width: '100%',
+								borderCollapse: 'collapse',
+								fontSize: '14px',
+							}}
+						>
+							<thead>
+								<tr
+									style={{
+										background: '#f9fafb',
+										borderBottom: '2px solid #e5e7eb',
+									}}
+								>
+									<th
+										style={{
+											padding: '12px 16px',
+											textAlign: 'left',
+											fontWeight: '600',
+											color: '#374151',
+											borderRight: '1px solid #e5e7eb',
+										}}
+									>
+										#
+									</th>
+									<th
+										style={{
+											padding: '12px 16px',
+											textAlign: 'left',
+											fontWeight: '600',
+											color: '#374151',
+											borderRight: '1px solid #e5e7eb',
+										}}
+									>
+										Step
+									</th>
+									<th
+										style={{
+											padding: '12px 16px',
+											textAlign: 'left',
+											fontWeight: '600',
+											color: '#374151',
+											borderRight: '1px solid #e5e7eb',
+										}}
+									>
+										Method
+									</th>
+									<th
+										style={{
+											padding: '12px 16px',
+											textAlign: 'left',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
+										Endpoint
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{apiCalls.map((call, index) => (
+									<tr
+										key={index}
+										style={{
+											borderBottom: index < apiCalls.length - 1 ? '1px solid #e5e7eb' : 'none',
+											cursor: 'pointer',
+											transition: 'background 0.2s',
+										}}
+										onClick={() => {
+											// Scroll to the detailed section when clicked
+											const element = document.getElementById(`api-call-${index}`);
+											if (element) {
+												element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+												// Expand the section when clicked from table
+												toggleSection(index);
+											}
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = '#f9fafb';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = 'white';
+										}}
+									>
+										<td
+											style={{
+												padding: '12px 16px',
+												color: '#6b7280',
+												borderRight: '1px solid #e5e7eb',
+											}}
+										>
+											{index + 1}
+										</td>
+										<td
+											style={{
+												padding: '12px 16px',
+												color: '#1f2937',
+												fontWeight: '500',
+												borderRight: '1px solid #e5e7eb',
+											}}
+										>
+											{call.step}
+										</td>
+										<td
+											style={{
+												padding: '12px 16px',
+												color: '#1f2937',
+												fontWeight: '600',
+												borderRight: '1px solid #e5e7eb',
+											}}
+										>
+											{call.method}
+										</td>
+										<td
+											style={{
+												padding: '12px 16px',
+												color: '#f97316',
+												fontFamily: 'monospace',
+												fontSize: '13px',
+												wordBreak: 'break-all',
+											}}
+										>
+											{call.endpoint}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			)}
+
+			{/* API Calls Details */}
+			{apiCalls.length > 0 && (
+				<div style={{ marginBottom: '32px' }}>
+					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+						API Call Details
 					</h3>
 					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 						{apiCalls.map((call, index) => {
 							const isExpanded = expandedSections.has(index);
 							return (
 								<div
+									id={`api-call-${index}`}
 									key={index}
 									style={{
 										border: '1px solid #e5e7eb',

@@ -1,0 +1,2090 @@
+/**
+ * @file FIDO2ConfigurationPageV8.tsx
+ * @module v8/flows/types
+ * @description FIDO2 Configuration and Education Page
+ * @version 8.0.0
+ *
+ * This page provides:
+ * - FIDO2/WebAuthn education and information
+ * - FIDO Policy selection and management
+ * - Device type information
+ * - Configuration before device registration
+ */
+
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiArrowRight,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
+	FiInfo,
+	FiKey,
+	FiSettings,
+	FiShield,
+	FiX,
+} from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FIDO2Service } from '../../dependencies/services/fido2Service.ts';
+import { MFAInfoButtonV8 } from '../../dependencies/v8/components/MFAInfoButtonV8.tsx';
+import { MFANavigationV8 } from '../../dependencies/v8/components/MFANavigationV8.tsx';
+import { SuperSimpleApiDisplayV8 } from '../../dependencies/v8/components/SuperSimpleApiDisplayV8.tsx';
+import { WorkerTokenModalV8 } from '../../dependencies/v8/components/WorkerTokenModalV8.tsx';
+import { apiDisplayServiceV8 } from '../../dependencies/v8/services/apiDisplayServiceV8.ts';
+import { CredentialsServiceV8 } from '../../dependencies/v8/services/credentialsServiceV8.ts';
+import { EnvironmentIdServiceV8 } from '../../dependencies/v8/services/environmentIdServiceV8.ts';
+import { MFAConfigurationServiceV8 } from '../../dependencies/v8/services/mfaConfigurationServiceV8.ts';
+import { MFAEducationServiceV8 } from '../../dependencies/v8/services/mfaEducationServiceV8.ts';
+import { MFAServiceV8 } from '../../dependencies/v8/services/mfaServiceV8.ts';
+import { workerTokenServiceV8 } from '../../dependencies/v8/services/workerTokenServiceV8.ts';
+import { WorkerTokenStatusServiceV8 } from '../../dependencies/v8/services/workerTokenStatusServiceV8.ts';
+import { navigateToMfaHubWithCleanup } from '../../dependencies/v8/utils/mfaFlowCleanupV8.ts';
+import { toastV8 } from '../../dependencies/v8/utils/toastNotificationsV8.ts';
+import type { DeviceAuthenticationPolicy } from '../shared/MFATypes';
+
+const MODULE_TAG = '[🔑 FIDO2-CONFIG-V8]';
+
+export const FIDO2ConfigurationPageV8: React.FC = () => {
+	const navigate = useNavigate();
+	const _location = useLocation();
+
+	// Device type is always FIDO2 (PLATFORM and SECURITY_KEY are deprecated)
+	const currentDeviceType: DeviceType = 'FIDO2';
+
+	const getDeviceTypeDisplayName = useCallback(() => {
+		return 'FIDO2';
+	}, []);
+
+	// Environment and token state
+	const [environmentId, setEnvironmentId] = useState<string>('');
+	const [tokenStatus, setTokenStatus] = useState(
+		WorkerTokenStatusServiceV8.checkWorkerTokenStatus()
+	);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+
+	// Worker Token Settings - Load from config service
+	const [silentApiRetrieval, setSilentApiRetrieval] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.silentApiRetrieval || false;
+		} catch {
+			return false;
+		}
+	});
+	const [showTokenAtEnd, setShowTokenAtEnd] = useState(() => {
+		try {
+			return MFAConfigurationServiceV8.loadConfiguration().workerToken.showTokenAtEnd || true;
+		} catch {
+			return true;
+		}
+	});
+
+	// Listen for config updates
+	useEffect(() => {
+		const handleConfigUpdate = (event: CustomEvent) => {
+			if (event.detail?.workerToken) {
+				setSilentApiRetrieval(event.detail.workerToken.silentApiRetrieval || false);
+				setShowTokenAtEnd(event.detail.workerToken.showTokenAtEnd !== false);
+			}
+		};
+		window.addEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		return () => {
+			window.removeEventListener('mfaConfigurationUpdated', handleConfigUpdate as EventListener);
+		};
+	}, []);
+
+	// WebAuthn support check
+	const [webAuthnSupported, setWebAuthnSupported] = useState(false);
+	const [enhancedCapabilities, setEnhancedCapabilities] = useState({
+		webAuthnSupported: false,
+		platformAuthenticator: false,
+		crossPlatformAuthenticator: false,
+		passkeySupport: false,
+		conditionalUI: false,
+	});
+
+	// FIDO2 Policy state
+	const [fido2Policies, setFido2Policies] = useState<
+		Array<{
+			id?: string;
+			name: string;
+			description?: string;
+			default?: boolean;
+			[key: string]: unknown;
+		}>
+	>([]);
+	const [isLoadingPolicies, setIsLoadingPolicies] = useState(false);
+	const [policiesError, setPoliciesError] = useState<string | null>(null);
+	const [selectedFido2PolicyId, setSelectedFido2PolicyId] = useState<string>('');
+
+	// Device Authentication Policy state
+	const [deviceAuthPolicies, setDeviceAuthPolicies] = useState<DeviceAuthenticationPolicy[]>([]);
+	const [isLoadingDeviceAuthPolicies, setIsLoadingDeviceAuthPolicies] = useState(false);
+	const [deviceAuthPoliciesError, setDeviceAuthPoliciesError] = useState<string | null>(null);
+	const [selectedDeviceAuthPolicy, setSelectedDeviceAuthPolicy] =
+		useState<DeviceAuthenticationPolicy | null>(null);
+
+	// API Display visibility state (for padding adjustment)
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(apiDisplayServiceV8.isVisible());
+
+	// FIDO2 Configuration state - load from service
+	const [fido2Config, setFido2Config] = useState(() => {
+		return MFAConfigurationServiceV8.loadConfiguration().fido2;
+	});
+
+	// Education content
+	const webauthnContent = MFAEducationServiceV8.getContent('fido2.webauthn');
+	const authenticatorContent = MFAEducationServiceV8.getContent('fido2.authenticator');
+	const publicKeyContent = MFAEducationServiceV8.getContent('fido2.publicKey');
+	const phishingContent = MFAEducationServiceV8.getContent('security.phishingResistance');
+	const passkeysVsWebAuthnContent = MFAEducationServiceV8.getContent('fido2.passkeys.vs.webauthn');
+	const passkeysVsDeviceBindingContent = MFAEducationServiceV8.getContent(
+		'fido2.passkeys.vs.device.binding'
+	);
+	const biometricsVsWebAuthnContent = MFAEducationServiceV8.getContent(
+		'fido2.biometrics.vs.webauthn'
+	);
+
+	// Collapsible sections state
+	const [collapsedSections, setCollapsedSections] = useState({
+		advancedConcepts: true,
+		comparisonTable: true,
+	});
+
+	const toggleSection = (key: keyof typeof collapsedSections) => {
+		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+	};
+
+	// Load environment ID from multiple sources
+	useEffect(() => {
+		// Try EnvironmentIdServiceV8 first
+		let envId = EnvironmentIdServiceV8.getEnvironmentId();
+		
+		// Fallback to worker token credentials if not found
+		if (!envId) {
+			try {
+				const credentials = workerTokenServiceV8.loadCredentials();
+				envId = credentials?.environmentId?.trim() || '';
+			} catch {
+				// Ignore errors
+			}
+		}
+		
+		// Fallback to MFA flow credentials if still not found
+		if (!envId) {
+			try {
+				const stored = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+					flowKey: 'mfa-flow-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				envId = stored.environmentId?.trim() || '';
+			} catch {
+				// Ignore errors
+			}
+		}
+		
+		if (envId) {
+			setEnvironmentId(envId);
+		}
+	}, []);
+
+	// Check WebAuthn support
+	useEffect(() => {
+		const initializeWebAuthn = async () => {
+			const supported = FIDO2Service.isWebAuthnSupported();
+			setWebAuthnSupported(supported);
+
+			if (supported) {
+				// Get basic capabilities first
+				const capabilities = FIDO2Service.getCapabilities();
+
+				// Check platform authenticator availability asynchronously
+				try {
+					const platformAvailable = await FIDO2Service.isPlatformAuthenticatorAvailable();
+					// Adapt FIDO2Service capabilities to match expected structure
+					setEnhancedCapabilities({
+						webAuthnSupported: capabilities.webAuthnSupported,
+						platformAuthenticator: platformAvailable,
+						crossPlatformAuthenticator: capabilities.crossPlatformAuthenticator,
+						passkeySupport: platformAvailable || capabilities.crossPlatformAuthenticator,
+						conditionalUI: false, // Conditional UI detection would require additional checks
+					});
+				} catch (error) {
+					console.warn('Failed to check platform authenticator availability:', error);
+					// Fallback to basic capabilities
+					setEnhancedCapabilities({
+						webAuthnSupported: capabilities.webAuthnSupported,
+						platformAuthenticator: capabilities.platformAuthenticator,
+						crossPlatformAuthenticator: capabilities.crossPlatformAuthenticator,
+						passkeySupport:
+							capabilities.platformAuthenticator || capabilities.crossPlatformAuthenticator,
+						conditionalUI: false,
+					});
+				}
+			}
+		};
+
+		initializeWebAuthn();
+	}, []);
+
+	// Load FIDO2 policies function
+	const loadFido2Policies = useCallback(async () => {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:205',message:'loadFido2Policies entry',data:{environmentId,hasToken:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			if (!environmentId || !tokenStatus.isValid) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:207',message:'Early return - missing prerequisites',data:{hasEnvironmentId:!!environmentId,hasToken:tokenStatus.isValid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+				// #endregion
+				return;
+			}
+
+			setIsLoadingPolicies(true);
+			setPoliciesError(null);
+
+			try {
+				const workerToken = await workerTokenServiceV8.getToken();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:214',message:'Worker token retrieved',data:{hasToken:!!workerToken,tokenLength:workerToken?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+				// #endregion
+				if (!workerToken) {
+					throw new Error('Worker token not found');
+				}
+
+				const credentialsData = await workerTokenServiceV8.loadCredentials();
+				const region = credentialsData?.region || 'na';
+
+				const params = new URLSearchParams({
+					environmentId,
+					workerToken: workerToken.trim(),
+					region,
+				});
+				const apiUrl = `/api/pingone/mfa/fido2-policies?${params.toString()}`;
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:227',message:'Before API call',data:{url:apiUrl,environmentId,region},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+
+				const response = await fetch(apiUrl, {
+					method: 'GET',
+					headers: { 'Content-Type': 'application/json' },
+				});
+
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:232',message:'API response received',data:{status:response.status,statusText:response.statusText,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+					const errorMessage =
+						errorData.message ||
+						errorData.error ||
+						`Failed to load FIDO2 policies: ${response.status} ${response.statusText}`;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:239',message:'API error response',data:{status:response.status,errorData},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+					// #endregion
+					console.error(`${MODULE_TAG} API error:`, { status: response.status, errorData });
+					throw new Error(errorMessage);
+				}
+
+				const data = await response.json();
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:243',message:'Raw API response data',data:{hasData:!!data,dataKeys:Object.keys(data||{}),isArray:Array.isArray(data),hasEmbedded:!!data?._embedded,hasItems:!!data?.items},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+				// #endregion
+				console.log(`${MODULE_TAG} FIDO2 policies response:`, data);
+				
+				// Handle different response structures
+				let policiesList: Array<{ id: string; name: string; default?: boolean; description?: string }> = [];
+				
+				if (Array.isArray(data)) {
+					// Direct array response
+					policiesList = data;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:250',message:'Parsed as direct array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+				} else if (data._embedded?.fido2Policies) {
+					// Paginated response with _embedded
+					policiesList = data._embedded.fido2Policies;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:253',message:'Parsed as _embedded.fido2Policies',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+				} else if (data._embedded && Array.isArray(data._embedded)) {
+					// Alternative embedded structure
+					policiesList = data._embedded;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:256',message:'Parsed as _embedded array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+				} else if (data.items && Array.isArray(data.items)) {
+					// Items array
+					policiesList = data.items;
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:259',message:'Parsed as items array',data:{count:policiesList.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+				} else {
+					console.warn(`${MODULE_TAG} Unexpected response structure:`, data);
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:262',message:'Unexpected response structure',data:{dataKeys:Object.keys(data||{}),rawData:JSON.stringify(data).substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+					// Try to extract any array from the response
+					const keys = Object.keys(data);
+					for (const key of keys) {
+						if (Array.isArray(data[key])) {
+							policiesList = data[key];
+							break;
+						}
+					}
+				}
+
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:272',message:'Before setState',data:{policiesCount:policiesList.length,policyIds:policiesList.map(p=>p.id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				// #endregion
+				setFido2Policies(policiesList);
+				setPoliciesError(null); // Clear any previous errors
+
+				// Auto-select default policy
+				if (policiesList.length > 0) {
+					const defaultPolicy =
+						policiesList.find((p: { default?: boolean }) => p.default) || policiesList[0];
+					if (defaultPolicy.id) {
+						setSelectedFido2PolicyId(defaultPolicy.id);
+					}
+				} else {
+					// No policies found - this is not an error, just empty result
+					console.log(`${MODULE_TAG} No FIDO2 policies found in environment ${environmentId}`);
+				}
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to load FIDO2 policies';
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FIDO2ConfigurationPageV8.tsx:290',message:'Error caught',data:{errorMessage,errorType:error?.constructor?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+				// #endregion
+				setPoliciesError(errorMessage);
+				setFido2Policies([]); // Clear policies on error
+				console.error(`${MODULE_TAG} Failed to load FIDO2 policies:`, error);
+			} finally {
+				setIsLoadingPolicies(false);
+			}
+		}, [environmentId, tokenStatus.isValid]);
+
+	// Load FIDO2 policies on mount and when dependencies change
+	useEffect(() => {
+		void loadFido2Policies();
+	}, [loadFido2Policies]);
+
+	// Load Device Authentication Policies
+	useEffect(() => {
+		const loadDeviceAuthPolicies = async () => {
+			if (!environmentId || !tokenStatus.isValid) {
+				return;
+			}
+
+			setIsLoadingDeviceAuthPolicies(true);
+			setDeviceAuthPoliciesError(null);
+
+			try {
+				const policies = await MFAServiceV8.listDeviceAuthenticationPolicies(environmentId);
+				setDeviceAuthPolicies(policies);
+
+				// Auto-select default or first policy
+				if (policies.length > 0) {
+					const defaultPolicy = policies.find((p) => p.default) || policies[0];
+					setSelectedDeviceAuthPolicy(defaultPolicy);
+				}
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Failed to load device authentication policies';
+				setDeviceAuthPoliciesError(errorMessage);
+				console.error(`${MODULE_TAG} Failed to load device authentication policies:`, error);
+			} finally {
+				setIsLoadingDeviceAuthPolicies(false);
+			}
+		};
+
+		void loadDeviceAuthPolicies();
+	}, [environmentId, tokenStatus.isValid]);
+
+	// Subscribe to API display visibility changes
+	useEffect(() => {
+		const unsubscribe = apiDisplayServiceV8.subscribe((visible) => {
+			setIsApiDisplayVisible(visible);
+		});
+		return () => unsubscribe();
+	}, []);
+
+	// Handle proceed to registration
+	const handleProceedToRegistration = useCallback(() => {
+		if (!selectedFido2PolicyId) {
+			toastV8.warning('Please select a FIDO2 policy before proceeding');
+			return;
+		}
+
+		if (!tokenStatus.isValid) {
+			toastV8.warning('Please generate a worker token before proceeding');
+			return;
+		}
+
+		console.log(`${MODULE_TAG} Proceeding to registration with policy:`, selectedFido2PolicyId);
+
+		// Navigate to actual registration flow with policy ID and FIDO2 config in state
+		// Always use FIDO2 route (PLATFORM and SECURITY_KEY are deprecated)
+		navigate(`/v8/mfa/register/fido2/device`, {
+			replace: false,
+			state: {
+				fido2PolicyId: selectedFido2PolicyId,
+				deviceAuthPolicyId: selectedDeviceAuthPolicy?.id,
+				configured: true, // Flag to indicate configuration is complete
+				deviceType: currentDeviceType, // Pass the device type to the flow
+				fido2Config: fido2Config, // Pass FIDO2 configuration options
+			},
+		});
+	}, [navigate, selectedFido2PolicyId, selectedDeviceAuthPolicy, tokenStatus.isValid, fido2Config]);
+
+	return (
+		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+			<MFANavigationV8 currentPage="registration" showBackToMain={true} />
+
+			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
+
+			<div
+				style={{
+					maxWidth: '1200px',
+					margin: '0 auto',
+					padding: '32px 20px',
+					paddingBottom: isApiDisplayVisible ? '450px' : '32px', // Add extra padding when API display is visible
+					transition: 'padding-bottom 0.3s ease',
+				}}
+			>
+				{/* Header */}
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+						borderRadius: '12px',
+						padding: '32px',
+						marginBottom: '32px',
+						boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+					}}
+				>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+						<FiKey size={32} color="white" />
+						<h1 style={{ margin: 0, fontSize: '32px', fontWeight: '700', color: 'white' }}>
+							{getDeviceTypeDisplayName()} / WebAuthn Configuration
+						</h1>
+					</div>
+					<p style={{ margin: 0, fontSize: '18px', color: 'rgba(255, 255, 255, 0.9)' }}>
+						Configure {getDeviceTypeDisplayName()} policies, learn about WebAuthn, and prepare for
+						device registration
+					</p>
+				</div>
+
+				{/* WebAuthn Support Check */}
+				{!webAuthnSupported && (
+					<div
+						style={{
+							background: '#fef2f2',
+							border: '1px solid #fecaca',
+							borderRadius: '8px',
+							padding: '16px',
+							marginBottom: '24px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '12px',
+						}}
+					>
+						<FiInfo size={20} color="#dc2626" />
+						<div>
+							<p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#991b1b' }}>
+								WebAuthn Not Supported
+							</p>
+							<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#7f1d1d' }}>
+								Your browser does not support WebAuthn. Please use a modern browser like Chrome,
+								Firefox, Safari, or Edge.
+							</p>
+						</div>
+					</div>
+				)}
+
+				{/* Worker Token Section */}
+				{!tokenStatus.isValid && (
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							marginBottom: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '600' }}>
+							Worker Token Required
+						</h3>
+						<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+							You need a valid worker token to configure {getDeviceTypeDisplayName()} policies and
+							register devices.
+						</p>
+						<button
+							type="button"
+							onClick={async () => {
+								// Pass current checkbox values to override config (page checkboxes take precedence)
+								// forceShowModal=true because user explicitly clicked the button - always show modal
+								const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+								await handleShowWorkerTokenModal(
+									setShowWorkerTokenModal,
+									setTokenStatus,
+									silentApiRetrieval,  // Page checkbox value takes precedence
+									showTokenAtEnd,      // Page checkbox value takes precedence
+									true                  // Force show modal - user clicked button
+								);
+							}}
+							style={{
+								padding: '10px 20px',
+								border: 'none',
+								borderRadius: '6px',
+								background: '#3b82f6',
+								color: 'white',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+							}}
+						>
+							Get Worker Token
+						</button>
+						
+						{/* Worker Token Settings Checkboxes */}
+						<div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={silentApiRetrieval}
+									onChange={async (e) => {
+										const newValue = e.target.checked;
+										setSilentApiRetrieval(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.silentApiRetrieval = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										toastV8.info(`Silent API Token Retrieval set to: ${newValue}`);
+										
+										// If enabling silent retrieval and token is missing/expired, attempt silent retrieval now
+										if (newValue) {
+											const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+											if (!currentStatus.isValid) {
+												console.log('[FIDO2-CONFIG-V8] Silent API retrieval enabled, attempting to fetch token now...');
+												const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+												await handleShowWorkerTokenModal(
+													setShowWorkerTokenModal,
+													setTokenStatus,
+													newValue,  // Use new value
+													showTokenAtEnd,
+													false      // Not forced - respect silent setting
+												);
+											}
+										}
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Silent API Token Retrieval
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Automatically fetch worker token in the background without showing modals
+									</span>
+								</div>
+							</label>
+
+							<label
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									cursor: 'pointer',
+									userSelect: 'none',
+									padding: '8px',
+									borderRadius: '6px',
+									transition: 'background-color 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f3f4f6';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'transparent';
+								}}
+							>
+								<input
+									type="checkbox"
+									checked={showTokenAtEnd}
+									onChange={async (e) => {
+										const newValue = e.target.checked;
+										setShowTokenAtEnd(newValue);
+										// Update config service immediately (no cache)
+										const config = MFAConfigurationServiceV8.loadConfiguration();
+										config.workerToken.showTokenAtEnd = newValue;
+										MFAConfigurationServiceV8.saveConfiguration(config);
+										// Dispatch event to notify other components
+										window.dispatchEvent(new CustomEvent('mfaConfigurationUpdated', { detail: { workerToken: config.workerToken } }));
+										toastV8.info(`Show Token After Generation set to: ${newValue}`);
+									}}
+									style={{
+										width: '20px',
+										height: '20px',
+										cursor: 'pointer',
+										accentColor: '#6366f1',
+										flexShrink: 0,
+									}}
+								/>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+									<span style={{ fontSize: '14px', color: '#374151', fontWeight: '500' }}>
+										Show Token After Generation
+									</span>
+									<span style={{ fontSize: '12px', color: '#6b7280' }}>
+										Display the generated worker token in a modal after successful retrieval
+									</span>
+								</div>
+							</label>
+						</div>
+					</div>
+				)}
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '24px',
+						marginBottom: '24px',
+					}}
+				>
+					{/* FIDO2 Education */}
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
+							<FiBook size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								About FIDO2 & WebAuthn
+							</h2>
+						</div>
+
+						<div style={{ marginBottom: '20px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								{webauthnContent.title}
+								<MFAInfoButtonV8 contentKey="fido2.webauthn" displayMode="tooltip" />
+							</h3>
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+								{webauthnContent.description}
+							</p>
+						</div>
+
+						<div style={{ marginBottom: '20px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								{authenticatorContent.title}
+								<MFAInfoButtonV8 contentKey="fido2.authenticator" displayMode="tooltip" />
+							</h3>
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+								{authenticatorContent.description}
+							</p>
+						</div>
+
+						<div style={{ marginBottom: '20px' }}>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '16px',
+									fontWeight: '600',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+								}}
+							>
+								{publicKeyContent.title}
+								<MFAInfoButtonV8 contentKey="fido2.publicKey" displayMode="tooltip" />
+							</h3>
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+								{publicKeyContent.description}
+							</p>
+							{publicKeyContent.securityNote && (
+								<p
+									style={{
+										margin: '8px 0 0 0',
+										fontSize: '13px',
+										color: '#10b981',
+										fontWeight: '500',
+									}}
+								>
+									🔒 {publicKeyContent.securityNote}
+								</p>
+							)}
+						</div>
+
+						<div
+							style={{
+								background: '#f0fdf4',
+								border: '1px solid #bbf7d0',
+								borderRadius: '6px',
+								padding: '12px',
+								marginTop: '20px',
+							}}
+						>
+							<h3
+								style={{
+									margin: '0 0 8px 0',
+									fontSize: '14px',
+									fontWeight: '600',
+									color: '#166534',
+								}}
+							>
+								{phishingContent.title}
+							</h3>
+							<p style={{ margin: 0, fontSize: '13px', color: '#166534', lineHeight: '1.5' }}>
+								{phishingContent.description}
+							</p>
+						</div>
+
+						{/* Advanced Concepts - Collapsible Section */}
+						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+							<button
+								type="button"
+								onClick={() => toggleSection('advancedConcepts')}
+								style={{
+									width: '100%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									background: 'none',
+									border: 'none',
+									padding: '8px 0',
+									cursor: 'pointer',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#3b82f6',
+								}}
+							>
+								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<FiBook size={18} />
+									Advanced Concepts: Passkeys, Device Binding & Biometrics
+								</span>
+								{collapsedSections.advancedConcepts ? (
+									<FiChevronDown size={20} />
+								) : (
+									<FiChevronUp size={20} />
+								)}
+							</button>
+
+							{!collapsedSections.advancedConcepts && (
+								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
+									<div style={{ marginBottom: '20px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											{passkeysVsWebAuthnContent.title}
+											<MFAInfoButtonV8
+												contentKey="fido2.passkeys.vs.webauthn"
+												displayMode="tooltip"
+											/>
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{passkeysVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+
+									<div style={{ marginBottom: '20px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											{passkeysVsDeviceBindingContent.title}
+											<MFAInfoButtonV8
+												contentKey="fido2.passkeys.vs.device.binding"
+												displayMode="tooltip"
+											/>
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{passkeysVsDeviceBindingContent.description.split('\n\n').map((para, idx) => (
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+
+									<div style={{ marginBottom: '20px' }}>
+										<h4
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '15px',
+												fontWeight: '600',
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+											}}
+										>
+											{biometricsVsWebAuthnContent.title}
+											<MFAInfoButtonV8
+												contentKey="fido2.biometrics.vs.webauthn"
+												displayMode="tooltip"
+											/>
+										</h4>
+										<div style={{ fontSize: '14px', color: '#6b7280', lineHeight: '1.6' }}>
+											{biometricsVsWebAuthnContent.description.split('\n\n').map((para, idx) => (
+												<p
+													key={idx}
+													style={{ margin: idx > 0 ? '12px 0 0 0' : '0', whiteSpace: 'pre-line' }}
+												>
+													{para.split(/(\*\*.*?\*\*)/).map((part, i) => {
+														if (part.startsWith('**') && part.endsWith('**')) {
+															const text = part.replace(/\*\*/g, '');
+															return (
+																<strong key={i} style={{ fontWeight: '600', color: '#1f2937' }}>
+																	{text}
+																</strong>
+															);
+														}
+														return <span key={i}>{part}</span>;
+													})}
+												</p>
+											))}
+										</div>
+									</div>
+								</div>
+							)}
+						</div>
+
+						{/* Comparison Table - Collapsible Section */}
+						<div style={{ marginTop: '24px', borderTop: '1px solid #e5e7eb', paddingTop: '20px' }}>
+							<button
+								type="button"
+								onClick={() => toggleSection('comparisonTable')}
+								style={{
+									width: '100%',
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+									background: 'none',
+									border: 'none',
+									padding: '8px 0',
+									cursor: 'pointer',
+									fontSize: '16px',
+									fontWeight: '600',
+									color: '#3b82f6',
+								}}
+							>
+								<span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									<FiShield size={18} />
+									WebAuthn vs Device Binding/JWS Verification Comparison
+								</span>
+								{collapsedSections.comparisonTable ? (
+									<FiChevronDown size={20} />
+								) : (
+									<FiChevronUp size={20} />
+								)}
+							</button>
+
+							{!collapsedSections.comparisonTable && (
+								<div style={{ marginTop: '16px', paddingLeft: '4px' }}>
+									<div
+										style={{
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '8px',
+											overflow: 'hidden',
+											boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+										}}
+									>
+										<table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+											<thead>
+												<tr style={{ background: '#f9fafb' }}>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
+														Feature
+													</th>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
+														WebAuthn
+													</th>
+													<th
+														style={{
+															padding: '12px',
+															textAlign: 'left',
+															fontWeight: '600',
+															borderBottom: '2px solid #e5e7eb',
+															color: '#1f2937',
+														}}
+													>
+														Device Binding / JWS Verification
+													</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Technology
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														W3C WebAuthn standard
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														JWS (JSON Web Signature) with device binding
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Credential Storage
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device authenticator (hardware key, TPM, or platform authenticator)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device-specific binding (hardware or software-based)
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														User Experience
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Native browser prompts, biometric authentication
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														App-specific implementation, may require additional steps
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Cross-Device
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Supported via passkeys (synced credentials)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device-bound, not transferable
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Security Model
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Public key cryptography, phishing-resistant
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Device attestation, cryptographic binding
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb', background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Browser Support
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Native browser API support (Chrome, Firefox, Safari, Edge)
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Requires custom implementation or SDK
+													</td>
+												</tr>
+												<tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Use Cases
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Web applications, passwordless authentication, passkeys
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														Mobile apps, high-security scenarios, device-specific authentication
+													</td>
+												</tr>
+												<tr style={{ background: '#f9fafb' }}>
+													<td style={{ padding: '12px', fontWeight: '500', color: '#374151' }}>
+														Standards
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														W3C WebAuthn, FIDO2 CTAP
+													</td>
+													<td style={{ padding: '12px', color: '#6b7280' }}>
+														JWS (RFC 7515), custom device binding protocols
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+									<p
+										style={{
+											margin: '16px 0 0 0',
+											fontSize: '13px',
+											color: '#6b7280',
+											fontStyle: 'italic',
+										}}
+									>
+										Reference:{' '}
+										<a
+											href="https://docs.pingidentity.com/sdks/latest/sdks/use-cases/how-to-go-passwordless-with-passkeys.html"
+											target="_blank"
+											rel="noopener noreferrer"
+											style={{ color: '#3b82f6', textDecoration: 'underline' }}
+										>
+											Ping Identity Passkeys Documentation
+										</a>
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* WebAuthn Capabilities */}
+					{webAuthnSupported && (
+						<div
+							style={{
+								background: 'white',
+								borderRadius: '8px',
+								padding: '24px',
+								boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+							}}
+						>
+							<div
+								style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+							>
+								<FiCheckCircle size={20} color="#10b981" />
+								<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+									Browser Capabilities
+								</h2>
+							</div>
+
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{enhancedCapabilities.platformAuthenticator ? (
+										<FiCheckCircle size={16} color="#10b981" />
+									) : (
+										<FiX size={16} color="#ef4444" />
+									)}
+									<span style={{ fontSize: '14px' }}>
+										Platform Authenticator (Touch ID, Face ID, Windows Hello)
+									</span>
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{enhancedCapabilities.crossPlatformAuthenticator ? (
+										<FiCheckCircle size={16} color="#10b981" />
+									) : (
+										<FiX size={16} color="#ef4444" />
+									)}
+									<span style={{ fontSize: '14px' }}>
+										Cross-Platform Authenticator (Security Keys)
+									</span>
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{enhancedCapabilities.passkeySupport ? (
+										<FiCheckCircle size={16} color="#10b981" />
+									) : (
+										<FiX size={16} color="#ef4444" />
+									)}
+									<span style={{ fontSize: '14px' }}>Passkey Support</span>
+								</div>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+									{enhancedCapabilities.conditionalUI ? (
+										<FiCheckCircle size={16} color="#10b981" />
+									) : (
+										<FiX size={16} color="#ef4444" />
+									)}
+									<span style={{ fontSize: '14px' }}>Conditional UI (Autofill)</span>
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+
+				{/* Policy Selection */}
+				{tokenStatus.isValid && (
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							marginBottom: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
+							<FiSettings size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								FIDO2 Policy Configuration
+							</h2>
+						</div>
+
+						{isLoadingPolicies ? (
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>Loading policies...</p>
+						) : policiesError ? (
+							<div
+								style={{
+									background: '#fef2f2',
+									border: '1px solid #fecaca',
+									borderRadius: '6px',
+									padding: '12px',
+									marginBottom: '16px',
+								}}
+							>
+								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b', marginBottom: '8px' }}>
+									<strong>Error loading FIDO2 policies:</strong> {policiesError}
+								</p>
+								<p style={{ margin: 0, fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+									Please check:
+								</p>
+								<ul style={{ margin: '4px 0', paddingLeft: '20px', fontSize: '12px', color: '#6b7280' }}>
+									<li>Worker token is valid and has not expired</li>
+									<li>Worker token has permissions to read FIDO2 policies</li>
+									<li>Environment ID is correct</li>
+									<li>Check browser console for detailed error information</li>
+								</ul>
+								<button
+									type="button"
+									onClick={() => {
+										setPoliciesError(null);
+										void loadFido2Policies();
+									}}
+									style={{
+										padding: '6px 12px',
+										background: '#ef4444',
+										color: 'white',
+										border: 'none',
+										borderRadius: '4px',
+										fontSize: '12px',
+										cursor: 'pointer',
+										marginTop: '8px',
+									}}
+								>
+									Retry
+								</button>
+							</div>
+						) : fido2Policies.length === 0 ? (
+							<div
+								style={{
+									background: '#fffbeb',
+									border: '1px solid #fde68a',
+									borderRadius: '6px',
+									padding: '12px',
+									marginBottom: '16px',
+								}}
+							>
+								<p style={{ margin: 0, fontSize: '14px', color: '#92400e' }}>
+									No FIDO2 policies found. Create one in the{' '}
+									<a
+										href="https://admin.pingone.com"
+										target="_blank"
+										rel="noopener noreferrer"
+										style={{
+											color: '#3b82f6',
+											textDecoration: 'underline',
+											cursor: 'pointer',
+											fontSize: '14px',
+										}}
+									>
+										PingOne Admin Console
+									</a>
+									.
+								</p>
+							</div>
+						) : (
+							<div>
+								<label
+									htmlFor="fido2-policy-select"
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Select FIDO2 Policy:
+								</label>
+								<select
+									id="fido2-policy-select"
+									value={selectedFido2PolicyId}
+									onChange={(e) => setSelectedFido2PolicyId(e.target.value)}
+									style={{
+										width: '100%',
+										padding: '10px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+										background: 'white',
+									}}
+								>
+									<option value="">-- Select a policy --</option>
+									{fido2Policies.map((policy) => (
+										<option key={policy.id} value={policy.id}>
+											{policy.name} {policy.default ? '(Default)' : ''}
+										</option>
+									))}
+								</select>
+								{selectedFido2PolicyId && (
+									<div style={{ marginTop: '12px' }}>
+										{fido2Policies.find((p) => p.id === selectedFido2PolicyId)?.description && (
+											<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
+												{fido2Policies.find((p) => p.id === selectedFido2PolicyId)?.description}
+											</p>
+										)}
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* Device Authentication Policy */}
+				{tokenStatus.isValid && (
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							marginBottom: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
+							<FiShield size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								Device Authentication Policy
+							</h2>
+						</div>
+
+						{isLoadingDeviceAuthPolicies ? (
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>Loading policies...</p>
+						) : deviceAuthPoliciesError ? (
+							<div
+								style={{
+									background: '#fef2f2',
+									border: '1px solid #fecaca',
+									borderRadius: '6px',
+									padding: '12px',
+								}}
+							>
+								<p style={{ margin: 0, fontSize: '14px', color: '#991b1b' }}>
+									{deviceAuthPoliciesError}
+								</p>
+							</div>
+						) : deviceAuthPolicies.length === 0 ? (
+							<p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+								No device authentication policies found.
+							</p>
+						) : (
+							<div>
+								<label
+									htmlFor="device-auth-policy-select"
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Select Device Authentication Policy:
+								</label>
+								<select
+									id="device-auth-policy-select"
+									value={selectedDeviceAuthPolicy?.id || ''}
+									onChange={(e) => {
+										const policy = deviceAuthPolicies.find((p) => p.id === e.target.value);
+										setSelectedDeviceAuthPolicy(policy || null);
+									}}
+									style={{
+										width: '100%',
+										padding: '10px',
+										border: '1px solid #d1d5db',
+										borderRadius: '6px',
+										fontSize: '14px',
+										background: 'white',
+									}}
+								>
+									<option value="">-- Select a policy --</option>
+									{deviceAuthPolicies.map((policy) => (
+										<option key={policy.id} value={policy.id}>
+											{policy.name} {policy.default ? '(Default)' : ''}
+										</option>
+									))}
+								</select>
+								{selectedDeviceAuthPolicy && (
+									<div style={{ marginTop: '12px' }}>
+										<p style={{ margin: 0, fontSize: '13px', color: '#6b7280' }}>
+											{selectedDeviceAuthPolicy.description || 'No description available'}
+										</p>
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+				)}
+
+				{/* FIDO2 Advanced Configuration */}
+				{tokenStatus.isValid && (
+					<div
+						style={{
+							background: 'white',
+							borderRadius: '8px',
+							padding: '24px',
+							marginBottom: '24px',
+							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<div
+							style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}
+						>
+							<FiSettings size={20} color="#3b82f6" />
+							<h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>
+								FIDO2 Advanced Configuration
+							</h2>
+						</div>
+
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+							{/* Authenticator Attachment */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Authenticator Attachment
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Type of authenticator to use for FIDO2 registration"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['platform', 'cross-platform', 'both'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="authenticatorAttachment"
+												value={option}
+												checked={fido2Config.preferredAuthenticatorType === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, preferredAuthenticatorType: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'platform'
+													? 'Platform'
+													: option === 'cross-platform'
+														? 'Cross-platform'
+														: 'Both'}
+											</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* User Verification */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									User Verification
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether user verification (PIN, biometric) is required"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="userVerification"
+												value={option}
+												checked={fido2Config.userVerification === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, userVerification: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Discoverable Credentials */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Discoverable Credentials
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether to use discoverable (resident) credentials stored on the device"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['discouraged', 'preferred', 'required'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="discoverableCredentials"
+												value={option}
+												checked={fido2Config.discoverableCredentials === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, discoverableCredentials: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Relying Party ID */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Relying Party ID
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="The domain or identifier for your application"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+									{(['pingone', 'custom', 'other'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="relyingPartyIdType"
+												value={option}
+												checked={fido2Config.relyingPartyIdType === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, relyingPartyIdType: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'pingone'
+													? 'PingOne'
+													: option === 'custom'
+														? 'Custom Domain'
+														: 'Other'}
+											</span>
+										</label>
+									))}
+								</div>
+								{(fido2Config.relyingPartyIdType === 'custom' ||
+									fido2Config.relyingPartyIdType === 'other') && (
+									<input
+										type="text"
+										value={fido2Config.relyingPartyId}
+										onChange={(e) => {
+											const newConfig = { ...fido2Config, relyingPartyId: e.target.value };
+											setFido2Config(newConfig);
+											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+											MFAConfigurationServiceV8.saveConfiguration({
+												...fullConfig,
+												fido2: newConfig,
+											});
+										}}
+										placeholder="localhost or your domain"
+										style={{
+											width: '100%',
+											padding: '10px',
+											border: '1px solid #d1d5db',
+											borderRadius: '6px',
+											fontSize: '14px',
+										}}
+									/>
+								)}
+							</div>
+
+							{/* FIDO Device Aggregation */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									FIDO Device Aggregation
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Enable FIDO device aggregation"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['on', 'off'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="fidoDeviceAggregation"
+												value={option}
+												checked={
+													(option === 'on' && fido2Config.fidoDeviceAggregation) ||
+													(option === 'off' && !fido2Config.fidoDeviceAggregation)
+												}
+												onChange={() => {
+													const newConfig = {
+														...fido2Config,
+														fidoDeviceAggregation: option === 'on',
+													};
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{option === 'on' ? 'On' : 'Off'}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Public Key Credential Hints */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Public Key Credential Hints
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Hints for the types of authenticators to use"
+									/>
+								</label>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+									{(
+										[
+											{ value: 'security-key', label: 'Security Key' },
+											{ value: 'client-device', label: 'Client Device' },
+											{ value: 'hybrid', label: 'Hybrid' },
+										] as const
+									).map((hint) => (
+										<label
+											key={hint.value}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="checkbox"
+												checked={fido2Config.publicKeyCredentialHints.includes(hint.value)}
+												onChange={(e) => {
+													const newHints = e.target.checked
+														? [...fido2Config.publicKeyCredentialHints, hint.value]
+														: fido2Config.publicKeyCredentialHints.filter((h) => h !== hint.value);
+													const newConfig = { ...fido2Config, publicKeyCredentialHints: newHints };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>{hint.label}</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Backup Eligibility */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Backup Eligibility
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Whether credentials can be backed up"
+									/>
+								</label>
+								<div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+									{(['allow', 'disallow'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="backupEligibility"
+												value={option}
+												checked={fido2Config.backupEligibility === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, backupEligibility: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option === 'allow' ? 'Allow' : 'Disallow'}
+											</span>
+										</label>
+									))}
+								</div>
+								<label
+									style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+								>
+									<input
+										type="checkbox"
+										checked={fido2Config.enforceBackupEligibilityDuringAuth}
+										onChange={(e) => {
+											const newConfig = {
+												...fido2Config,
+												enforceBackupEligibilityDuringAuth: e.target.checked,
+											};
+											setFido2Config(newConfig);
+											const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+											MFAConfigurationServiceV8.saveConfiguration({
+												...fullConfig,
+												fido2: newConfig,
+											});
+										}}
+										style={{ cursor: 'pointer' }}
+									/>
+									<span style={{ fontSize: '14px' }}>Enforce during authentication</span>
+									<FiInfo
+										size={14}
+										style={{ color: '#6b7280', cursor: 'help' }}
+										title="Enforce backup eligibility during authentication"
+									/>
+								</label>
+							</div>
+
+							{/* Attestation Request */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Attestation Request
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Type of attestation to request from the authenticator"
+									/>
+								</label>
+								<p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#6b7280' }}>
+									Use attestation requests to recognize the devices and authenticators that your
+									service supports.
+								</p>
+								<div style={{ display: 'flex', gap: '16px' }}>
+									{(['none', 'direct', 'enterprise'] as const).map((option) => (
+										<label
+											key={option}
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												cursor: 'pointer',
+											}}
+										>
+											<input
+												type="radio"
+												name="attestationRequest"
+												value={option}
+												checked={fido2Config.attestationRequest === option}
+												onChange={() => {
+													const newConfig = { ...fido2Config, attestationRequest: option };
+													setFido2Config(newConfig);
+													const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+													MFAConfigurationServiceV8.saveConfiguration({
+														...fullConfig,
+														fido2: newConfig,
+													});
+												}}
+												style={{ cursor: 'pointer' }}
+											/>
+											<span style={{ fontSize: '14px' }}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</span>
+										</label>
+									))}
+								</div>
+							</div>
+
+							{/* Additional Display Information */}
+							<div>
+								<label
+									style={{
+										display: 'block',
+										marginBottom: '8px',
+										fontSize: '14px',
+										fontWeight: '500',
+									}}
+								>
+									Additional Display Information
+									<FiInfo
+										size={14}
+										style={{ marginLeft: '6px', color: '#6b7280', cursor: 'help' }}
+										title="Additional information to display during registration"
+									/>
+								</label>
+								<div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+									<label
+										style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+									>
+										<input
+											type="checkbox"
+											checked={fido2Config.includeEnvironmentName}
+											onChange={(e) => {
+												const newConfig = {
+													...fido2Config,
+													includeEnvironmentName: e.target.checked,
+												};
+												setFido2Config(newConfig);
+												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+												MFAConfigurationServiceV8.saveConfiguration({
+													...fullConfig,
+													fido2: newConfig,
+												});
+											}}
+											style={{ cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Include Environment Name</span>
+									</label>
+									<label
+										style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+									>
+										<input
+											type="checkbox"
+											checked={fido2Config.includeOrganizationName}
+											onChange={(e) => {
+												const newConfig = {
+													...fido2Config,
+													includeOrganizationName: e.target.checked,
+												};
+												setFido2Config(newConfig);
+												const fullConfig = MFAConfigurationServiceV8.loadConfiguration();
+												MFAConfigurationServiceV8.saveConfiguration({
+													...fullConfig,
+													fido2: newConfig,
+												});
+											}}
+											style={{ cursor: 'pointer' }}
+										/>
+										<span style={{ fontSize: '14px' }}>Include Organization Name</span>
+									</label>
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
+
+				{/* Proceed Button */}
+				<div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+					<button
+						type="button"
+						onClick={() => navigateToMfaHubWithCleanup(navigate)}
+						style={{
+							padding: '12px 24px',
+							border: '1px solid #d1d5db',
+							borderRadius: '6px',
+							background: 'white',
+							color: '#374151',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: 'pointer',
+						}}
+					>
+						Cancel
+					</button>
+					<button
+						type="button"
+						onClick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+							console.log(`${MODULE_TAG} Button clicked`, {
+								selectedFido2PolicyId,
+								tokenStatusValid: tokenStatus.isValid,
+								disabled: !selectedFido2PolicyId || !tokenStatus.isValid,
+							});
+							handleProceedToRegistration();
+						}}
+						disabled={!selectedFido2PolicyId || !tokenStatus.isValid}
+						style={{
+							padding: '12px 24px',
+							border: 'none',
+							borderRadius: '6px',
+							background: selectedFido2PolicyId && tokenStatus.isValid ? '#3b82f6' : '#9ca3af',
+							color: 'white',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: selectedFido2PolicyId && tokenStatus.isValid ? 'pointer' : 'not-allowed',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						Proceed to Device Registration
+						<FiArrowRight size={18} />
+					</button>
+				</div>
+			</div>
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (() => {
+				// Check if we should show token only (matches MFA pattern)
+				try {
+					const config = MFAConfigurationServiceV8.loadConfiguration();
+					const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					
+					// Show token-only if showTokenAtEnd is ON and token is valid
+					const showTokenOnly = config.workerToken.showTokenAtEnd && tokenStatus.isValid;
+					
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => {
+								setShowWorkerTokenModal(false);
+								// Refresh token status when modal closes (matches MFA pattern)
+								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+							}}
+							showTokenOnly={showTokenOnly}
+						/>
+					);
+				} catch {
+					return (
+						<WorkerTokenModalV8
+							isOpen={showWorkerTokenModal}
+							onClose={() => {
+								setShowWorkerTokenModal(false);
+								setTokenStatus(WorkerTokenStatusServiceV8.checkWorkerTokenStatus());
+							}}
+						/>
+					);
+				}
+			})()}
+		</div>
+	);
+};

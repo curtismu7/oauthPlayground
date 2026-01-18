@@ -18,6 +18,8 @@ import { useNavigate } from 'react-router-dom';
 import type { FlowType } from '@/v8/services/specVersionServiceV8';
 import { ApiDisplayCheckbox } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UnifiedDocumentationModalV8U } from './UnifiedDocumentationModalV8U';
+import { PKCEStorageServiceV8U } from '../services/pkceStorageServiceV8U';
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 
 interface UnifiedNavigationV8UProps {
 	/** Current flow type for highlighting */
@@ -61,14 +63,63 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 		},
 	};
 
+	/**
+	 * Clear all flow state before navigating
+	 * This ensures a clean slate when switching between flows or going back to main
+	 */
+	const clearFlowState = () => {
+		// Clear session storage items
+		sessionStorage.removeItem('v8u_callback_data');
+		sessionStorage.removeItem('v8u_implicit_tokens');
+		sessionStorage.removeItem('v8u_device_code_data');
+		sessionStorage.removeItem('v8u_client_credentials_tokens');
+		
+		// Clear all flow-specific token keys
+		const allPossibleTokenKeys = [
+			'v8u_oauth-authz_tokens',
+			'v8u_implicit_tokens',
+			'v8u_hybrid_tokens',
+			'v8u_client-credentials_tokens',
+			'v8u_device-code_tokens',
+		];
+		
+		allPossibleTokenKeys.forEach((key) => {
+			sessionStorage.removeItem(key);
+		});
+		
+		// Clear PKCE codes for all possible flow keys
+		const specVersions = ['oauth2.0', 'oidc', 'oauth2.1'];
+		const flowTypes: FlowType[] = ['oauth-authz', 'implicit', 'client-credentials', 'device-code', 'hybrid'];
+		
+		specVersions.forEach((spec) => {
+			flowTypes.forEach((flow) => {
+				const flowKey = `${spec}-${flow}-v8u`;
+				PKCEStorageServiceV8U.clearPKCECodes(flowKey).catch((err) => {
+					console.warn(`Failed to clear PKCE codes for ${flowKey}:`, err);
+				});
+			});
+		});
+		
+		// Clear API calls
+		apiCallTrackerService.clearApiCalls();
+	};
+
 	const handleNavigateToFlow = (flowType: FlowType) => {
+		// Clear state before navigating
+		clearFlowState();
+		
 		const flowInfo = flowTypeLabels[flowType];
 		if (flowInfo) {
+			// Navigate to step 0 of the selected flow
+			// This will trigger the URL sync in UnifiedOAuthFlowV8U which will
+			// handle spec version compatibility automatically
 			navigate(flowInfo.path);
 		}
 	};
 
 	const handleBackToMain = () => {
+		// Clear state before navigating to main page
+		clearFlowState();
 		navigate('/v8u/unified');
 	};
 
@@ -92,30 +143,32 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					style={{
 						marginBottom: 0,
 						display: 'flex',
-						gap: '0',
+						gap: '8px',
 						flex: 1,
 						alignItems: 'center',
 					}}
 				>
-					<button
-						type="button"
-						onClick={handleBackToMain}
-						className={`nav-link-btn ${!currentFlowType ? 'active' : ''}`}
-						title="Go to Unified Flow Hub"
-						style={{
-							fontWeight: !currentFlowType ? '600' : '500',
-							flex: 1,
-							background: '#3b82f6',
-							color: 'white',
-							border: '2px solid #3b82f6',
-						}}
-					>
-						🏠 Unified Hub
-					</button>
+					{!currentFlowType && (
+						<button
+							type="button"
+							onClick={handleBackToMain}
+							className="nav-link-btn active nav-btn-hub"
+							title="Unified Flow Hub (Current Page)"
+							style={{
+								fontWeight: '600',
+								flex: 1,
+								background: '#3b82f6',
+								color: 'white',
+								border: '2px solid #3b82f6',
+							}}
+						>
+							🏠 Unified Hub
+						</button>
+					)}
 					<button
 						type="button"
 						onClick={() => handleNavigateToFlow('oauth-authz')}
-						className={`nav-link-btn ${currentFlowType === 'oauth-authz' ? 'active' : ''}`}
+						className={`nav-link-btn nav-btn-authz ${currentFlowType === 'oauth-authz' ? 'active' : ''}`}
 						title="OAuth 2.0 Authorization Code Flow"
 						style={{
 							fontWeight: currentFlowType === 'oauth-authz' ? '600' : '500',
@@ -127,7 +180,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					<button
 						type="button"
 						onClick={() => handleNavigateToFlow('implicit')}
-						className={`nav-link-btn ${currentFlowType === 'implicit' ? 'active' : ''}`}
+						className={`nav-link-btn nav-btn-implicit ${currentFlowType === 'implicit' ? 'active' : ''}`}
 						title="OAuth 2.0 Implicit Flow"
 						style={{
 							fontWeight: currentFlowType === 'implicit' ? '600' : '500',
@@ -139,7 +192,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					<button
 						type="button"
 						onClick={() => handleNavigateToFlow('client-credentials')}
-						className={`nav-link-btn ${currentFlowType === 'client-credentials' ? 'active' : ''}`}
+						className={`nav-link-btn nav-btn-client-creds ${currentFlowType === 'client-credentials' ? 'active' : ''}`}
 						title="OAuth 2.0 Client Credentials Flow"
 						style={{
 							fontWeight: currentFlowType === 'client-credentials' ? '600' : '500',
@@ -151,7 +204,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					<button
 						type="button"
 						onClick={() => handleNavigateToFlow('device-code')}
-						className={`nav-link-btn ${currentFlowType === 'device-code' ? 'active' : ''}`}
+						className={`nav-link-btn nav-btn-device ${currentFlowType === 'device-code' ? 'active' : ''}`}
 						title="OAuth 2.0 Device Authorization Flow"
 						style={{
 							fontWeight: currentFlowType === 'device-code' ? '600' : '500',
@@ -163,7 +216,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					<button
 						type="button"
 						onClick={() => handleNavigateToFlow('hybrid')}
-						className={`nav-link-btn ${currentFlowType === 'hybrid' ? 'active' : ''}`}
+						className={`nav-link-btn nav-btn-hybrid ${currentFlowType === 'hybrid' ? 'active' : ''}`}
 						title="OpenID Connect Hybrid Flow"
 						style={{
 							fontWeight: currentFlowType === 'hybrid' ? '600' : '500',
@@ -175,22 +228,23 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					<button
 						type="button"
 						onClick={() => setShowDocsModal(true)}
-						className="nav-link-btn"
+						className="nav-link-btn nav-btn-docs"
 						title="Download Unified Flow Documentation"
 						style={{
 							fontWeight: '500',
 							flex: 1,
 							background: '#fbbf24',
 							color: 'white',
+							border: '2px solid #fbbf24',
 						}}
 					>
 						📚 Docs
 					</button>
-					{showBackToMain && (
+					{showBackToMain && currentFlowType && (
 						<button
 							type="button"
 							onClick={handleBackToMain}
-							className="nav-link-btn"
+							className="nav-link-btn nav-btn-back"
 							title="Back to Unified Flow Hub"
 							style={{
 								fontWeight: '500',
@@ -203,7 +257,22 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 							🏠 Back to Main
 						</button>
 					)}
-					<div className="nav-link-btn api-display-wrapper" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+					<div 
+						className="nav-link-btn api-display-wrapper" 
+						style={{ 
+							flex: '0 0 auto',
+							minWidth: '120px',
+							maxWidth: '180px',
+							display: 'flex', 
+							alignItems: 'center', 
+							justifyContent: 'center',
+							background: '#f3f4f6',
+							border: '2px solid transparent',
+							borderRadius: '6px',
+							padding: '10px 8px',
+							overflow: 'hidden',
+						}}
+					>
 						<ApiDisplayCheckbox />
 					</div>
 				</div>
@@ -211,7 +280,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 			<style>{`
 				.unified-nav-links {
 					display: flex;
-					gap: 0;
+					gap: 8px;
 					flex-wrap: nowrap;
 					width: 100%;
 				}
@@ -221,8 +290,7 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					background: #f3f4f6;
 					color: #1f2937;
 					border: 2px solid transparent;
-					border-right: 1px solid #e5e7eb;
-					border-radius: 0;
+					border-radius: 6px;
 					font-size: 14px;
 					font-weight: 500;
 					cursor: pointer;
@@ -234,6 +302,43 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					text-align: center;
 					min-width: 0;
 					flex: 1;
+					height: 44px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+
+				/* Different colored outlines for each button */
+				.nav-btn-hub {
+					border-color: #3b82f6 !important;
+				}
+
+				.nav-btn-authz {
+					border-color: #8b5cf6 !important;
+				}
+
+				.nav-btn-implicit {
+					border-color: #f59e0b !important;
+				}
+
+				.nav-btn-client-creds {
+					border-color: #10b981 !important;
+				}
+
+				.nav-btn-device {
+					border-color: #ec4899 !important;
+				}
+
+				.nav-btn-hybrid {
+					border-color: #06b6d4 !important;
+				}
+
+				.nav-btn-docs {
+					border-color: #fbbf24 !important;
+				}
+
+				.nav-btn-back {
+					border-color: #3b82f6 !important;
 				}
 
 				.nav-link-btn:first-child {
@@ -245,48 +350,99 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 				.unified-nav-links > .api-display-wrapper:last-of-type {
 					border-top-right-radius: 6px;
 					border-bottom-right-radius: 6px;
-					border-right: none;
 				}
 
 				.nav-link-btn.active {
 					border: 2px solid #3b82f6;
-					background: #f3f4f6;
+					background: #eff6ff;
 					color: #3b82f6;
 					z-index: 1;
 					position: relative;
+					font-weight: 600;
 				}
 
-				.nav-link-btn:hover {
+				.nav-link-btn.active[style*="background: #3b82f6"],
+				.nav-link-btn.active[style*="background: rgb(59, 130, 246)"] {
+					background: #3b82f6 !important;
+					color: white !important;
+					border-color: #3b82f6 !important;
+				}
+
+				.nav-link-btn.active[style*="background: #fbbf24"],
+				.nav-link-btn.active[style*="background: rgb(251, 191, 36)"] {
+					background: #fbbf24 !important;
+					color: white !important;
+					border-color: #fbbf24 !important;
+				}
+
+				.nav-link-btn:hover:not(.api-display-wrapper) {
 					background: #e5e7eb;
 					color: #3b82f6;
+					transform: translateY(-1px);
+					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 				}
 
-				.nav-link-btn:first-child:hover {
-					background: #2563eb;
-					color: white;
-					border-color: #2563eb;
+				.nav-link-btn[style*="background: #3b82f6"]:hover,
+				.nav-link-btn[style*="background: rgb(59, 130, 246)"]:hover {
+					background: #2563eb !important;
+					color: white !important;
+					border-color: #2563eb !important;
 				}
 
-				.nav-link-btn.active:hover {
-					background: #f3f4f6;
+				.nav-link-btn[style*="background: #fbbf24"]:hover,
+				.nav-link-btn[style*="background: rgb(251, 191, 36)"]:hover {
+					background: #f59e0b !important;
+					border-color: #f59e0b !important;
+				}
+
+				.nav-link-btn.active:hover:not([style*="background: #3b82f6"]):not([style*="background: rgb(59, 130, 246)"]) {
+					background: #eff6ff;
 					border-color: #3b82f6;
-				}
-
-				.nav-link-btn:first-child.active:hover {
-					background: #2563eb;
-					color: white;
-					border-color: #2563eb;
 				}
 
 				.api-display-wrapper {
 					background: #f3f4f6;
-					border: 2px solid transparent;
-					border-right: 1px solid #e5e7eb;
+					border: 2px solid #6366f1 !important;
+					border-radius: 6px;
 					cursor: default;
+					height: 44px;
+					flex-shrink: 0;
 				}
 
 				.api-display-wrapper:hover {
 					background: #f3f4f6;
+				}
+
+				.api-display-wrapper label {
+					margin: 0;
+					padding: 0;
+					background: transparent !important;
+					border: none !important;
+					border-radius: 0 !important;
+					font-size: 13px !important;
+					font-weight: 500 !important;
+					color: #1f2937 !important;
+					display: flex !important;
+					align-items: center !important;
+					gap: 6px !important;
+					cursor: pointer !important;
+					width: 100%;
+					justify-content: center;
+					min-width: 0;
+				}
+
+				.api-display-wrapper label span {
+					font-size: 13px !important;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					max-width: 100%;
+				}
+
+				.api-display-wrapper input[type="checkbox"] {
+					width: 14px !important;
+					height: 14px !important;
+					flex-shrink: 0;
 				}
 			`}</style>
 			<UnifiedDocumentationModalV8U

@@ -104,16 +104,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
 
-		// Debug logging
-		console.log(`${MODULE_TAG} Checking auth context for auto-population`, {
-			isAuthenticated,
-			hasAuthToken: !!authToken,
-			hasUserToken: !!credentials.userToken,
-			tokenType: credentials.tokenType,
-			registrationFlowType,
-			hasAutoPopulated: hasAutoPopulatedRef.current,
-		});
-
 		// Only auto-populate if:
 		// 1. User is authenticated and has an access token
 		// 2. We haven't already auto-populated (prevent re-running)
@@ -515,12 +505,6 @@ export const WhatsAppOTPConfigurationPageV8: React.FC = () => {
 				`${MODULE_TAG} Proceeding to registration with policy:`,
 				credentials.deviceAuthenticationPolicyId
 			);
-			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
-				'Registration Flow Type': registrationFlowType,
-				'Admin Device Status': adminDeviceStatus,
-				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
-			});
-
 			// Navigate to actual WhatsApp registration flow device route
 			navigate('/v8/mfa/register/whatsapp/device', {
 				replace: false,
