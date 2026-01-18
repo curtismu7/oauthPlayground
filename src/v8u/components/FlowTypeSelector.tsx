@@ -19,6 +19,7 @@ export interface FlowTypeSelectorProps {
 	specVersion: SpecVersion;
 	flowType: FlowType;
 	onChange: (flowType: FlowType) => void | Promise<void>;
+	disabled?: boolean;
 }
 
 const FLOW_LABELS: Record<FlowType, string> = {
@@ -34,11 +35,17 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 	specVersion,
 	flowType,
 	onChange,
+	disabled = false,
 }) => {
 	const availableFlows = SpecVersionServiceV8.getAvailableFlows(specVersion);
 
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newFlowType = event.target.value as FlowType;
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'FlowTypeSelector.tsx:42',message:'FlowTypeSelector - USER SELECTED FLOW',data:{specVersion,from:flowType,to:newFlowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'N'})}).catch(()=>{});
+		// #endregion
+		
 		console.log(`${MODULE_TAG} Flow type changed`, {
 			specVersion,
 			from: flowType,
@@ -70,29 +77,46 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 					display: 'block',
 					fontSize: '14px',
 					fontWeight: '700',
-					color: '#1e40af',
+					color: disabled ? '#9ca3af' : '#1e40af',
 					marginBottom: '6px',
 					letterSpacing: '0.01em',
 				}}
 			>
 				Flow Type (Grant type)
+				{disabled && (
+					<span
+						style={{
+							marginLeft: '8px',
+							fontSize: '12px',
+							fontWeight: '400',
+							color: '#6b7280',
+							fontStyle: 'italic',
+						}}
+						title="Flow type cannot be changed after starting the flow"
+					>
+						(Locked - flow in progress)
+					</span>
+				)}
 			</label>
 			<select
 				id="flowTypeSelect"
 				key={`flow-type-${specVersion}-${effectiveFlowType}`}
 				value={effectiveFlowType}
 				onChange={handleChange}
+				disabled={disabled}
 				style={{
 					padding: '8px 10px',
 					borderRadius: '4px',
 					border: '1px solid #d1d5db',
 					fontSize: '14px',
-					color: '#374151',
-					background: '#ffffff',
-					cursor: 'pointer',
+					color: disabled ? '#9ca3af' : '#374151',
+					background: disabled ? '#f3f4f6' : '#ffffff',
+					cursor: disabled ? 'not-allowed' : 'pointer',
 					minWidth: '250px',
 					width: '100%',
+					opacity: disabled ? 0.6 : 1,
 				}}
+				title={disabled ? 'Flow type cannot be changed after starting the flow. Use "Restart Flow" to change flow type.' : undefined}
 			>
 				{availableFlows.map((flow) => (
 					<option key={flow} value={flow}>
