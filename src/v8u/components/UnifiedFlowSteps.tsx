@@ -5862,32 +5862,140 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					)}
 				</CollapsibleSection>
 
-				{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
-					flowState.codeVerifier &&
-					flowState.codeChallenge && (
-						<div
-							style={{
-								background: '#dbeafe',
-								border: '1px solid #3b82f6',
-								borderRadius: '8px',
-								padding: '12px 16px',
-								marginBottom: '32px',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-							}}
-						>
-							<span style={{ fontSize: '20px' }}>🔐</span>
-							<div>
-								<strong style={{ color: '#1e40af' }}>PKCE protection enabled</strong>
-								<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1e3a8a' }}>
-									Your authorization URL will include PKCE parameters for enhanced security.
-								</p>
-							</div>
+			{(flowType === 'oauth-authz' || flowType === 'hybrid') &&
+				flowState.codeVerifier &&
+				flowState.codeChallenge && (
+					<div
+						style={{
+							background: '#dbeafe',
+							border: '1px solid #3b82f6',
+							borderRadius: '8px',
+							padding: '12px 16px',
+							marginBottom: '32px',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						<span style={{ fontSize: '20px' }}>🔐</span>
+						<div>
+							<strong style={{ color: '#1e40af' }}>PKCE protection enabled</strong>
+							<p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#1e3a8a' }}>
+								Your authorization URL will include PKCE parameters for enhanced security.
+							</p>
 						</div>
-					)}
+					</div>
+				)}
 
-				{/* Action Section */}
+			{/* Pre-flight Validation Results Section - Positioned before Action Section */}
+			{preFlightValidationResult && (
+				<CollapsibleSection style={{ marginBottom: '24px' }}>
+					<CollapsibleHeaderButton
+						onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
+						aria-expanded={!preflightValidationCollapsed}
+						style={{
+							background: preFlightValidationResult.errors.length > 0
+								? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
+								: preFlightValidationResult.warnings.length > 0
+									? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
+									: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
+							color:
+								preFlightValidationResult.errors.length > 0
+									? '#991b1b'
+									: preFlightValidationResult.warnings.length > 0
+										? '#c2410c'
+										: '#166534',
+						}}
+					>
+						<CollapsibleTitle>
+							<span style={{ fontSize: '20px', marginRight: '8px' }}>
+								{preFlightValidationResult.errors.length > 0
+									? '❌'
+									: preFlightValidationResult.warnings.length > 0
+										? '⚠️'
+										: '✅'}
+							</span>
+							🔍 Pre-flight Validation Results
+							{preFlightValidationResult.errors.length > 0 && (
+								<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+									({preFlightValidationResult.errors.length} error{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
+								</span>
+							)}
+							{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length > 0 && (
+								<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+									({preFlightValidationResult.warnings.length} warning{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
+								</span>
+							)}
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!preflightValidationCollapsed && (
+						<CollapsibleContent>
+							{/* Same content as in renderStep0 - errors, warnings, fix button */}
+							{preFlightValidationResult.errors.length > 0 && (
+								<div style={{ marginBottom: '16px' }}>
+									<strong style={{ color: '#dc2626', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
+										❌ ERRORS (must be fixed before continuing):
+									</strong>
+									<ul style={{ margin: 0, paddingLeft: '24px', color: '#991b1b' }}>
+										{preFlightValidationResult.errors.map((error, index) => (
+											<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+												{error}
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+							{preFlightValidationResult.warnings.length > 0 && (
+								<div style={{ marginBottom: '16px' }}>
+									<strong style={{ color: '#ea580c', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
+										⚠️ WARNINGS (you can still proceed):
+									</strong>
+									<ul style={{ margin: 0, paddingLeft: '24px', color: '#c2410c' }}>
+										{preFlightValidationResult.warnings.map((warning, index) => (
+											<li key={index} style={{ marginBottom: '8px', lineHeight: '1.6' }}>
+												{warning}
+											</li>
+										))}
+									</ul>
+								</div>
+							)}
+							{preFlightValidationResult.fixableErrors && preFlightValidationResult.fixableErrors.length > 0 && (
+								<button
+									type="button"
+									onClick={() => handleFixAllErrors()}
+									style={{
+										marginTop: '16px',
+										padding: '12px 24px',
+										background: '#dc2626',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: 'pointer',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '8px',
+									}}
+								>
+									<span>🔧</span>
+									<span>Fix All Errors Automatically</span>
+								</button>
+							)}
+							{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
+								<div style={{ color: '#166534', fontSize: '14px' }}>
+									✅ All validation checks passed! You can proceed with confidence.
+								</div>
+							)}
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+			)}
+
+			{/* Action Section */}
 				<div
 					style={{
 						background: '#f9fafb',
