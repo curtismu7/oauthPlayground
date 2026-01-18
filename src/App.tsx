@@ -159,6 +159,10 @@ import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import { PostmanCollectionGenerator } from './pages/PostmanCollectionGenerator';
+import { P1MFASamples } from './pages/P1MFASamples';
+import { FIDO2SampleApp } from './samples/p1mfa/fido2/FIDO2SampleApp';
+import { SMSSampleApp } from './samples/p1mfa/sms/SMSSampleApp';
+import { IntegratedMFASample } from './samples/p1mfa/IntegratedMFASample';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import WorkerTokenTester from './pages/WorkerTokenTester';
@@ -199,6 +203,7 @@ import V8MTokenExchange from './v8m/pages/V8MTokenExchange';
 import CallbackHandlerV8U from './v8u/components/CallbackHandlerV8U';
 import SpiffeSpireFlowV8U from './v8u/flows/SpiffeSpireFlowV8U';
 import UnifiedOAuthFlowV8U from './v8u/flows/UnifiedOAuthFlowV8U';
+import { UnifiedFlowHelperPageV8U } from './v8u/components/UnifiedFlowHelperPageV8U';
 import SpiffeSpireTokenDisplayV8U from './v8u/pages/SpiffeSpireTokenDisplayV8U';
 
 // Import test pages
@@ -724,6 +729,7 @@ const AppRoutes: React.FC = () => {
 							/>
 							{/* V8U Unified Flow - Single UI for all flows with real PingOne APIs */}
 							<Route path="/v8u/unified/:flowType?/:step?" element={<UnifiedOAuthFlowV8U />} />
+							<Route path="/v8u/unified/helper" element={<UnifiedFlowHelperPageV8U />} />
 							{/* V8 Utilities */}
 							<Route path="/v8/delete-all-devices" element={<DeleteAllDevicesUtilityV8 />} />
 							{/* V8U SPIFFE/SPIRE Mock Flow and Token Viewer - multi-step lab */}
@@ -916,6 +922,10 @@ const AppRoutes: React.FC = () => {
 							<Route path="/auto-discover" element={<AutoDiscover />} />
 							<Route path="/token-management" element={<TokenManagement />} />
 							<Route path="/postman-collection-generator" element={<PostmanCollectionGenerator />} />
+							<Route path="/samples/p1mfa" element={<P1MFASamples />} />
+							<Route path="/samples/p1mfa/integrated" element={<IntegratedMFASample />} />
+							<Route path="/samples/p1mfa/fido2" element={<FIDO2SampleApp />} />
+							<Route path="/samples/p1mfa/sms" element={<SMSSampleApp />} />
 							<Route path="/oauth-2-1" element={<OAuth21 />} />
 							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 							<Route path="/par-vs-rar" element={<PARvsRAR />} />

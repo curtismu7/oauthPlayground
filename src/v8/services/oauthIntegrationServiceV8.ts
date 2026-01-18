@@ -17,8 +17,31 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
+import { AuthMethodServiceV8 } from './authMethodServiceV8';
 
 const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
+
+/**
+ * Format authentication method for display
+ * Converts various formats (snake_case, UPPERCASE, etc.) to a readable format
+ */
+function formatAuthMethodForDisplay(method: string | undefined | null): string {
+	if (!method) return 'NOT PROVIDED';
+	
+	// Normalize the method to handle different formats
+	const normalized = method.toLowerCase().replace(/-/g, '_');
+	
+	// Map to display labels
+	const displayMap: Record<string, string> = {
+		'client_secret_basic': 'Client Secret Basic',
+		'client_secret_post': 'Client Secret Post',
+		'client_secret_jwt': 'Client Secret JWT',
+		'private_key_jwt': 'Private Key JWT',
+		'none': 'None (Public Client)',
+	};
+	
+	return displayMap[normalized] || method;
+}
 
 export interface OAuthCredentials {
 	environmentId: string;
@@ -92,11 +115,13 @@ export class OAuthIntegrationServiceV8 {
 	 * Generate authorization URL for user authentication
 	 * @param credentials - OAuth credentials
 	 * @param pkceCodes - Optional PKCE codes (if provided, will be used instead of generating new ones)
+	 * @param appConfig - Optional PingOne application configuration (for JAR detection)
 	 * @returns Authorization URL parameters
 	 */
 	static async generateAuthorizationUrl(
 		credentials: OAuthCredentials,
-		pkceCodes?: PKCECodes
+		pkceCodes?: PKCECodes,
+		appConfig?: { requireSignedRequestObject?: boolean }
 	): Promise<AuthorizationUrlParams> {
 		// Validate required fields
 		if (!credentials.redirectUri) {
@@ -135,6 +160,85 @@ export class OAuthIntegrationServiceV8 {
 		// Build authorization endpoint URL
 		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 
+		// Check if JAR (JWT-secured Authorization Request) is required
+		const requiresJAR = appConfig?.requireSignedRequestObject === true;
+
+		if (requiresJAR) {
+			// Generate JAR request object
+			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+
+			try {
+				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
+
+				// Determine signing algorithm (default to HS256, use RS256 if private key is available)
+				const algorithm = credentials.privateKey ? 'RS256' : 'HS256';
+
+				if (algorithm === 'HS256' && !credentials.clientSecret) {
+					throw new Error(
+						'JAR requires client secret for HS256 signing, but client secret is not provided'
+					);
+				}
+
+				if (algorithm === 'RS256' && !credentials.privateKey) {
+					throw new Error(
+						'JAR requires private key for RS256 signing, but private key is not provided'
+					);
+				}
+
+				// Generate signed request object
+				const jarResult = await jarRequestObjectServiceV8.generateRequestObjectJWT(
+					{
+						clientId: credentials.clientId,
+						responseType: 'code',
+						redirectUri: credentials.redirectUri,
+						scope: finalScopes,
+						state: state,
+						codeChallenge: pkce.codeChallenge,
+						codeChallengeMethod: pkce.codeChallengeMethod,
+					},
+					{
+						algorithm,
+						clientSecret: credentials.clientSecret,
+						privateKey: credentials.privateKey,
+						audience: authorizationEndpoint,
+					}
+				);
+
+				if (!jarResult.success || !jarResult.requestObject) {
+					throw new Error(
+						`Failed to generate JAR request object: ${jarResult.error || 'Unknown error'}`
+					);
+				}
+
+				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
+					algorithm,
+					jti: jarResult.payload?.jti,
+				});
+
+				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
+				const params = new URLSearchParams({
+					client_id: credentials.clientId, // Required by RFC 9101
+					request: jarResult.requestObject, // Signed JWT request object
+				});
+
+				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+
+				return {
+					authorizationUrl,
+					state,
+					codeChallenge: pkce.codeChallenge,
+					codeChallengeMethod: pkce.codeChallengeMethod,
+					codeVerifier: pkce.codeVerifier,
+				};
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Unknown error during JAR generation';
+				console.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
+				throw new Error(`Failed to generate JAR authorization URL: ${errorMessage}`);
+			}
+		}
+
+		// Standard authorization URL (without JAR)
 		// Build query parameters
 		const params = new URLSearchParams({
 			client_id: credentials.clientId,
@@ -223,11 +327,14 @@ export class OAuthIntegrationServiceV8 {
 
 			const bodyParams: Record<string, string> = {
 				grant_type: 'authorization_code',
-				client_id: credentials.clientId,
 				code: code,
 				redirect_uri: credentials.redirectUri,
 				environment_id: credentials.environmentId,
 			};
+			
+			// Always include client_id in body (required by OAuth 2.0 spec)
+			// The backend will handle authentication method (Basic, POST, JWT) based on client_auth_method
+			bodyParams.client_id = credentials.clientId;
 
 			// Add scope parameter (optional but recommended for clarity)
 			// This should match the scopes from the authorization request
@@ -368,6 +475,24 @@ export class OAuthIntegrationServiceV8 {
 				const errorData = responseData as Record<string, unknown>;
 				console.error(`${MODULE_TAG} Error response:`, errorData);
 				
+				// Check for MUST_CHANGE_PASSWORD requirement
+				const requiresPasswordChange =
+					errorData.requires_password_change === true ||
+					errorData.password_change_required === true ||
+					(errorData.error_description as string)?.toLowerCase().includes('must_change_password') ||
+					(errorData.error_description as string)?.toLowerCase().includes('password change required') ||
+					(errorData.error_description as string)?.toLowerCase().includes('must change password');
+
+				if (requiresPasswordChange) {
+					console.log(`${MODULE_TAG} 🔐 Password change required detected`);
+					const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+					(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+					(passwordChangeError as any).requiresPasswordChange = true;
+					(passwordChangeError as any).userId = errorData.user_id || errorData.userId;
+					(passwordChangeError as any).errorData = errorData;
+					throw passwordChangeError;
+				}
+				
 				const errorCode = (errorData.error as string) || 'unknown_error';
 				const errorDescription = (errorData.error_description as string) || '';
 				const correlationId = (errorData.correlation_id as string) || '';
@@ -379,6 +504,158 @@ export class OAuthIntegrationServiceV8 {
 						? `${credentials.clientId.substring(0, 8)}...`
 						: 'NOT PROVIDED';
 					
+					// Helper function to mask client secret
+					const maskSecret = (secret: string | undefined): string => {
+						if (!secret) return 'NOT PROVIDED';
+						if (secret.length <= 8) return '***';
+						return `${secret.substring(0, 4)}...${secret.substring(secret.length - 4)}`;
+					};
+
+					// ALWAYS show comparison section - fetch PingOne config if possible, but show what we have regardless
+					let pingOneConfig: { clientId?: string; clientSecret?: string; tokenEndpointAuthMethod?: string } | null = null;
+					let pingOneConfigError: string | null = null;
+					
+					try {
+						const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+						const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+						
+						if (credentials.environmentId && credentials.clientId) {
+							const workerToken = await workerTokenServiceV8.getToken();
+							if (workerToken) {
+								console.log(`${MODULE_TAG} 🔍 Fetching PingOne app config for error comparison...`);
+								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+									credentials.environmentId,
+									credentials.clientId,
+									workerToken
+								);
+								
+								if (appConfig) {
+									// Fetch client secret if available
+									try {
+										const { appDiscoveryServiceV8 } = await import('@/v8/services/appDiscoveryServiceV8');
+										console.log(`${MODULE_TAG} 🔍 Attempting to fetch application with secret...`, {
+											environmentId: credentials.environmentId,
+											clientId: credentials.clientId,
+											hasWorkerToken: !!workerToken,
+										});
+										
+										const appWithSecret = await appDiscoveryServiceV8.fetchApplicationWithSecret(
+											credentials.environmentId,
+											credentials.clientId,
+											workerToken
+										);
+										
+										console.log(`${MODULE_TAG} 📦 Application with secret response:`, {
+											hasAppWithSecret: !!appWithSecret,
+											hasClientSecret: !!appWithSecret?.clientSecret,
+											clientSecretType: typeof appWithSecret?.clientSecret,
+											clientSecretLength: appWithSecret?.clientSecret?.length || 0,
+											tokenEndpointAuthMethod: appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
+										});
+										
+										pingOneConfig = {
+											clientId: appConfig.id,
+											clientSecret: appWithSecret?.clientSecret || undefined, // Explicitly set to undefined if not present
+											tokenEndpointAuthMethod: appWithSecret?.tokenEndpointAuthMethod || appConfig.tokenEndpointAuthMethod,
+										};
+										
+										if (pingOneConfig.clientSecret) {
+											console.log(`${MODULE_TAG} ✅ PingOne config fetched with client secret for comparison`);
+										} else {
+											console.warn(`${MODULE_TAG} ⚠️ PingOne config fetched but client secret not available (may be a public client or secret not returned by API)`);
+										}
+									} catch (secretError) {
+										// Got app config but couldn't fetch secret - still use what we have
+										console.error(`${MODULE_TAG} ❌ Error fetching application with secret:`, {
+											error: secretError instanceof Error ? secretError.message : String(secretError),
+											stack: secretError instanceof Error ? secretError.stack : undefined,
+										});
+										pingOneConfig = {
+											clientId: appConfig.id,
+											tokenEndpointAuthMethod: appConfig.tokenEndpointAuthMethod,
+										};
+										console.warn(`${MODULE_TAG} ⚠️ Could not fetch client secret, but have app config`);
+									}
+								} else {
+									pingOneConfigError = 'Application not found in PingOne';
+								}
+							} else {
+								pingOneConfigError = 'Worker token not available';
+							}
+						} else {
+							pingOneConfigError = 'Missing environmentId or clientId';
+						}
+					} catch (configError) {
+						pingOneConfigError = configError instanceof Error ? configError.message : 'Unknown error';
+						console.warn(`${MODULE_TAG} ⚠️ Could not fetch PingOne config:`, configError);
+					}
+
+					// ALWAYS build comparison section - show what we have vs what PingOne has (or error fetching)
+					let comparisonSection = `\n🔍 Configuration Comparison:
+
+┌─────────────────────────────────────────────────────────────┐
+│                    Your App Config                          │
+├─────────────────────────────────────────────────────────────┤
+│ Client ID:        ${(credentials.clientId || 'NOT PROVIDED').padEnd(40)} │
+│ Client Secret:    ${maskSecret(credentials.clientSecret).padEnd(40)} │
+│ Auth Method:      ${formatAuthMethodForDisplay(authMethod).padEnd(40)} │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    PingOne Config                           │
+├─────────────────────────────────────────────────────────────┤`;
+
+					if (pingOneConfig) {
+						const clientIdMatch = pingOneConfig.clientId === credentials.clientId;
+						
+						// Normalize auth methods for comparison (handle case differences)
+						const normalizeAuthMethod = (method: string | undefined): string => {
+							if (!method) return '';
+							return method.toLowerCase().replace(/-/g, '_');
+						};
+						
+						const normalizedPingOneMethod = normalizeAuthMethod(pingOneConfig.tokenEndpointAuthMethod);
+						const normalizedConfiguredMethod = normalizeAuthMethod(authMethod);
+						const authMethodMatch = normalizedPingOneMethod === normalizedConfiguredMethod;
+						
+						console.log(`${MODULE_TAG} Comparing auth methods for error display`, {
+							pingOneRaw: pingOneConfig.tokenEndpointAuthMethod,
+							pingOneNormalized: normalizedPingOneMethod,
+							configuredRaw: authMethod,
+							configuredNormalized: normalizedConfiguredMethod,
+							match: authMethodMatch,
+						});
+						
+						comparisonSection += `
+│ Client ID:        ${(pingOneConfig.clientId || 'NOT FOUND').padEnd(40)} │
+│ Client Secret:    ${maskSecret(pingOneConfig.clientSecret).padEnd(40)} │
+│ Auth Method:      ${(pingOneConfig.tokenEndpointAuthMethod ? formatAuthMethodForDisplay(pingOneConfig.tokenEndpointAuthMethod) : 'NOT FOUND').padEnd(40)} │
+└─────────────────────────────────────────────────────────────┘
+
+${!clientIdMatch ? '❌ Client ID mismatch - Your app Client ID does not match PingOne\n' : '✅ Client ID matches\n'}
+${!authMethodMatch ? `❌ Auth Method mismatch - PingOne expects "${formatAuthMethodForDisplay(pingOneConfig.tokenEndpointAuthMethod || '')}" but you're using "${formatAuthMethodForDisplay(authMethod)}"\n` : '✅ Auth Method matches\n'}
+${!credentials.clientSecret && pingOneConfig.clientSecret ? '⚠️  Client Secret missing in your app config but exists in PingOne\n' : ''}
+${credentials.clientSecret && !pingOneConfig.clientSecret ? '⚠️  Client Secret provided but not found in PingOne (may be a public client)\n' : ''}
+`;
+					} else {
+						comparisonSection += `
+│ Status:           ${(pingOneConfigError || 'Could not fetch').padEnd(40)} │
+│                   ${' '.repeat(59)} │
+│ Note:             Unable to fetch PingOne configuration.     │
+│                   Check your worker token and try again.     │
+└─────────────────────────────────────────────────────────────┘
+
+⚠️  Could not compare with PingOne configuration:
+   ${pingOneConfigError || 'Unknown error'}
+
+💡 To see the comparison:
+   1. Ensure you have a valid worker token
+   2. Verify your Environment ID and Client ID are correct
+   3. Check that the application exists in PingOne
+
+`;
+					}
+					
 					const enhancedMessage = `Token exchange failed: invalid_client - ${errorDescription}
 
 📋 Root Cause:
@@ -387,7 +664,7 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 🔍 Diagnostic Information:
 • Client ID: ${clientIdPreview}
 • Authentication Method Used: ${authMethod}
-• Correlation ID: ${correlationId || 'Not provided'}
+• Correlation ID: ${correlationId || 'Not provided'}${comparisonSection}
 
 🔧 How to Fix:
 
@@ -436,6 +713,46 @@ The client credentials (client_id or client_secret) are invalid, or the authenti
 			}
 
 			const tokens: TokenResponse = responseData as TokenResponse;
+
+			// Check for MUST_CHANGE_PASSWORD in successful response (from ID token or response metadata)
+			const requiresPasswordChange =
+				(responseData as Record<string, unknown>).requires_password_change === true ||
+				(responseData as Record<string, unknown>).password_change_required === true;
+
+			if (requiresPasswordChange && tokens.id_token) {
+				// Extract user ID from ID token if available
+				try {
+					const parts = tokens.id_token.split('.');
+					if (parts.length === 3) {
+						const payload = JSON.parse(atob(parts[1]));
+						const passwordState =
+							payload.password_state || payload.password_status || payload.pwd_state;
+
+						if (passwordState === 'MUST_CHANGE_PASSWORD') {
+							console.log(`${MODULE_TAG} 🔐 Password change required detected in ID token`);
+							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+							(passwordChangeError as any).requiresPasswordChange = true;
+							(passwordChangeError as any).userId = payload.sub || payload.user_id;
+							(passwordChangeError as any).accessToken = tokens.access_token; // Store access token for password change API call
+							(passwordChangeError as any).tokens = tokens; // Store tokens for after password change
+							throw passwordChangeError;
+						}
+					}
+				} catch (parseError) {
+					// If parsing fails, check response metadata
+					if (requiresPasswordChange) {
+						console.log(`${MODULE_TAG} 🔐 Password change required detected in response metadata`);
+						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+						(passwordChangeError as any).requiresPasswordChange = true;
+						(passwordChangeError as any).userId = (responseData as Record<string, unknown>).user_id;
+						(passwordChangeError as any).accessToken = tokens.access_token;
+						(passwordChangeError as any).tokens = tokens;
+						throw passwordChangeError;
+					}
+				}
+			}
 
 			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
 				hasAccessToken: !!tokens.access_token,
