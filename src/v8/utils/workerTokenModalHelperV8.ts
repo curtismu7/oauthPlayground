@@ -174,6 +174,7 @@ function shouldShowTokenModal(): boolean {
  * @param overrideSilentApiRetrieval - Optional override for silentApiRetrieval (takes precedence over config)
  * @param overrideShowTokenAtEnd - Optional override for showTokenAtEnd (takes precedence over config)
  * @param forceShowModal - If true, always show modal (user explicitly clicked button)
+ * @param setIsLoading - Optional function to set loading state (for showing spinner during silent retrieval)
  * @returns Promise that resolves when modal handling is complete
  */
 export async function handleShowWorkerTokenModal(
@@ -181,7 +182,8 @@ export async function handleShowWorkerTokenModal(
 	setTokenStatus?: (status: ReturnType<typeof WorkerTokenStatusServiceV8.checkWorkerTokenStatus>) => void,
 	overrideSilentApiRetrieval?: boolean,
 	overrideShowTokenAtEnd?: boolean,
-	forceShowModal: boolean = false // Default to false for automatic calls
+	forceShowModal: boolean = false, // Default to false for automatic calls
+	setIsLoading?: (loading: boolean) => void
 ): Promise<void> {
 	// #region agent log
 	fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenModalHelperV8.ts:147',message:'handleShowWorkerTokenModal called',data:{overrideSilentApiRetrieval,overrideShowTokenAtEnd,forceShowModal},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
@@ -232,29 +234,42 @@ export async function handleShowWorkerTokenModal(
 	// If silentApiRetrieval is ON, attempt silent retrieval
 	if (silentApiRetrieval) {
 		console.log(`${MODULE_TAG} Silent API retrieval is enabled, attempting to fetch token silently...`);
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenModalHelperV8.ts:197',message:'Calling attemptSilentTokenRetrieval',data:{silentApiRetrieval,overrideSilentApiRetrieval,configValue:config.workerToken.silentApiRetrieval},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-		// #endregion
-		const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
-		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenModalHelperV8.ts:200',message:'attemptSilentTokenRetrieval completed',data:{silentRetrievalSucceeded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-		// #endregion
+		
+		// Show spinner if showTokenAtEnd is OFF (silent mode without showing token)
+		if (!showTokenAtEnd && setIsLoading) {
+			setIsLoading(true);
+		}
+		
+		try {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenModalHelperV8.ts:197',message:'Calling attemptSilentTokenRetrieval',data:{silentApiRetrieval,overrideSilentApiRetrieval,configValue:config.workerToken.silentApiRetrieval},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			const silentRetrievalSucceeded = await attemptSilentTokenRetrieval(silentApiRetrieval);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'workerTokenModalHelperV8.ts:200',message:'attemptSilentTokenRetrieval completed',data:{silentRetrievalSucceeded},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
 
-		if (silentRetrievalSucceeded) {
-			// Token was successfully retrieved silently
-			if (setTokenStatus) {
-				const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
-				setTokenStatus(newStatus);
-			}
+			if (silentRetrievalSucceeded) {
+				// Token was successfully retrieved silently
+				if (setTokenStatus) {
+					const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+					setTokenStatus(newStatus);
+				}
 
-			// Only show modal if showTokenAtEnd is also ON (to display the token)
-			if (showTokenAtEnd) {
-				console.log(`${MODULE_TAG} Silent retrieval succeeded, showing token display modal (showTokenAtEnd is ON)`);
-				setShowModal(true);
-			} else {
-				console.log(`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd is OFF)`);
+				// Only show modal if showTokenAtEnd is also ON (to display the token)
+				if (showTokenAtEnd) {
+					console.log(`${MODULE_TAG} Silent retrieval succeeded, showing token display modal (showTokenAtEnd is ON)`);
+					setShowModal(true);
+				} else {
+					console.log(`${MODULE_TAG} Silent retrieval succeeded, not showing modal (showTokenAtEnd is OFF)`);
+				}
+				return;
 			}
-			return;
+		} finally {
+			// Hide spinner when done (whether success or failure)
+			if (!showTokenAtEnd && setIsLoading) {
+				setIsLoading(false);
+			}
 		}
 
 		// Silent retrieval failed
