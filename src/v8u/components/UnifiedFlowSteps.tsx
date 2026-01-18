@@ -2174,6 +2174,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 
 				try {
+					const callbackStartTime = Date.now();
+
 					// Auto-parse the fragment immediately using restored state from sessionStorage
 					// This avoids timing issues with React state updates
 					const result = UnifiedFlowIntegrationV8U.parseCallbackFragment(
@@ -2213,6 +2215,40 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					fragmentParams.forEach((value, key) => {
 						allParams[key] = value;
 					});
+
+					// Track callback as an API call for documentation
+					const callbackUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize/callback`;
+					const apiCallId = apiCallTrackerService.trackApiCall({
+						method: 'GET',
+						url: callbackUrl,
+						actualPingOneUrl: callbackUrl,
+						isProxy: false,
+						headers: {},
+						body: allParams,
+						step: 'unified-authorization-callback',
+						flowType: 'unified',
+					});
+
+					// Update with callback response (tokens extracted)
+					apiCallTrackerService.updateApiCallResponse(
+						apiCallId,
+						{
+							status: 200,
+							statusText: 'OK',
+							data: {
+								note: 'PingOne redirected user back with tokens in URL fragment after successful authentication',
+								access_token: resultWithToken.access_token ? '[REDACTED - view in tokens section]' : undefined,
+								id_token: resultWithToken.id_token ? '[REDACTED - view in tokens section]' : undefined,
+								token_type: resultWithToken.token_type,
+								expires_in: resultWithToken.expires_in,
+								scope: resultWithToken.scope,
+								state: resultWithToken.state,
+								flow: flowType === 'implicit' ? 'implicit' : 'hybrid',
+								received_in: 'URL Fragment (#access_token=...)',
+							},
+						},
+						Date.now() - callbackStartTime
+					);
 
 					// Set callback details for success modal
 					setCallbackDetails({
