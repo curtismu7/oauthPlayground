@@ -58,6 +58,7 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
+import { IDTokenValidationModalV8U } from './IDTokenValidationModalV8U';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
@@ -601,6 +602,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
+	const [showIdTokenValidationModal, setShowIdTokenValidationModal] = useState(false);
 	const [showPollingTimeoutModal, setShowPollingTimeoutModal] = useState(false);
 	const [showDeviceCodeSuccessModal, setShowDeviceCodeSuccessModal] = useState(false);
 	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] =
@@ -11669,7 +11671,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 												<li>Validate claims (iss, aud, exp, iat, nonce)</li>
 												<li>Check the token hasn't expired</li>
 											</ol>
-											<div style={{ marginTop: '8px' }}>
+											<div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+												<button
+													type="button"
+													onClick={() => setShowIdTokenValidationModal(true)}
+													style={{
+														padding: '10px 16px',
+														background: '#667eea',
+														color: 'white',
+														border: 'none',
+														borderRadius: '6px',
+														fontSize: '13px',
+														fontWeight: '500',
+														cursor: 'pointer',
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '6px',
+														alignSelf: 'flex-start',
+													}}
+												>
+													🔐 Validate ID Token Locally
+												</button>
 												<a 
 													href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation" 
 													target="_blank" 
@@ -11677,7 +11699,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 													style={{ 
 														color: '#2563eb', 
 														textDecoration: 'underline',
-														fontWeight: 500
+														fontWeight: 500,
+														fontSize: '13px'
 													}}
 												>
 													📖 Learn more: OIDC ID Token Validation Spec →
@@ -13790,6 +13813,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}}
 				/>
 			)}
+
+			{/* ID Token Validation Modal */}
+			<IDTokenValidationModalV8U
+				isOpen={showIdTokenValidationModal}
+				onClose={() => setShowIdTokenValidationModal(false)}
+				idToken={flowState.tokens?.idToken || ''}
+				clientId={credentials.clientId}
+				environmentId={credentials.environmentId}
+				nonce={flowState.nonce}
+			/>
 		</>
 	);
 };
