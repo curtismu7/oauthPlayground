@@ -398,16 +398,8 @@ const ImplicitCallback: React.FC = () => {
 					{status === 'loading' && 'Processing Implicit Grant'}
 					{status === 'success' && 'Implicit Grant Successful'}
 					{status === 'error' && 'Implicit Grant Failed'}
-					{status === 'warning' && 'Implicit Grant Received (Deprecated)'}
 				</StatusTitle>
 				<StatusMessage>{message}</StatusMessage>
-				{status === 'warning' && (
-					<WarningMessage>
-						<strong>Security Warning:</strong> The Implicit Grant flow is deprecated and not
-						recommended for new applications. Consider using the Authorization Code flow with PKCE
-						instead.
-					</WarningMessage>
-				)}
 				{error && <ErrorDetails>{error}</ErrorDetails>}
 			</StatusCard>
 		</CallbackContainer>
