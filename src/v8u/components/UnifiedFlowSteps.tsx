@@ -38,6 +38,7 @@ import EnhancedFlowInfoCard from '@/components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '@/components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '@/components/FlowSequenceDisplay';
 import RedirectlessLoginModal from '@/components/RedirectlessLoginModal';
+import { PasswordChangeModal } from '@/components/PasswordChangeModal';
 import { type PKCECodes, PKCEService } from '@/services/pkceService';
 import { WorkerTokenVsClientCredentialsEducationModalV8 } from '@/v8/components/WorkerTokenVsClientCredentialsEducationModalV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
@@ -57,6 +58,7 @@ import { TokenDisplayV8U } from './TokenDisplayV8U';
 import { UnifiedFlowDocumentationPageV8U } from './UnifiedFlowDocumentationPageV8U';
 import { LoadingSpinnerModalV8U } from './LoadingSpinnerModalV8U';
 import { UserInfoSuccessModalV8U } from './UserInfoSuccessModalV8U';
+import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 
 // Note: Credentials form is rendered by parent component (UnifiedOAuthFlowV8U)
 
@@ -278,10 +280,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	specVersion,
 	flowType,
 	credentials,
+	onCredentialsChange,
 	onStepChange,
 	onCompletedStepsChange,
 	onFlowReset,
-	appConfig,
+	appConfig: _appConfig, // Unused but kept for API compatibility
 }) => {
 	// Generate flowKey dynamically (matches parent component's logic)
 	// Format: {flowType}_{specVersion}_{uniqueIdentifier}
@@ -397,6 +400,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [showRedirectlessModal, setShowRedirectlessModal] = useState(false);
 	const [redirectlessAuthError, setRedirectlessAuthError] = useState<string | null>(null);
 	const [isRedirectlessAuthenticating, setIsRedirectlessAuthenticating] = useState(false);
+	const [showPasswordChangeModal, setShowPasswordChangeModal] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [passwordChangeUserId, setPasswordChangeUserId] = useState<string | null>(null);
+	// Note: passwordChangeFlowId and passwordChangeState are reserved for future use
+	// @ts-expect-error - Reserved for future use
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [passwordChangeFlowId, setPasswordChangeFlowId] = useState<string | null>(null);
+	// @ts-expect-error - Reserved for future use
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const [passwordChangeState, setPasswordChangeState] = useState<string | null>(null);
+	const [passwordChangeUsername, setPasswordChangeUsername] = useState<string | null>(null);
 	const [showPingOneRequestModal, setShowPingOneRequestModal] = useState(false);
 	const [pendingPingOneRequest, setPendingPingOneRequest] = useState<{
 		url: string;
@@ -404,6 +418,31 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		body: Record<string, unknown>;
 	} | null>(null);
 	const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+	const [preFlightValidationResult, setPreFlightValidationResult] = useState<{
+		passed: boolean;
+		errors: string[];
+		warnings: string[];
+		fixableErrors?: Array<{
+			errorIndex: number;
+			errorType: string;
+			errorMessage: string;
+			fixable: boolean;
+			fixDescription: string;
+			fixData?: {
+				redirectUri?: string;
+				enablePKCE?: boolean;
+				authMethod?: string;
+				addScope?: string;
+				responseType?: string;
+			};
+		}>;
+		appConfig?: {
+			tokenEndpointAuthMethod?: string;
+			pkceEnforced?: boolean;
+			pkceRequired?: boolean;
+			requireSignedRequestObject?: boolean;
+		};
+	} | null>(null);
 
 	// Educational content collapsed state
 	const [isQuickStartCollapsed, setIsQuickStartCollapsed] = useState(false);
@@ -415,8 +454,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	const [deviceCodeDetailsCollapsed, setDeviceCodeDetailsCollapsed] = useState(false);
 	const [clientCredentialsOverviewCollapsed, setClientCredentialsOverviewCollapsed] = useState(false);
 	const [clientCredentialsDetailsCollapsed, setClientCredentialsDetailsCollapsed] = useState(false);
+	const [authzCodeOverviewCollapsed, setAuthzCodeOverviewCollapsed] = useState(false);
+	const [authzCodeDetailsCollapsed, setAuthzCodeDetailsCollapsed] = useState(false);
+	const [hybridOverviewCollapsed, setHybridOverviewCollapsed] = useState(false);
+	const [hybridDetailsCollapsed, setHybridDetailsCollapsed] = useState(false);
 	const [implicitOverviewCollapsed, setImplicitOverviewCollapsed] = useState(false);
 	const [implicitDetailsCollapsed, setImplicitDetailsCollapsed] = useState(false);
+	const [preflightValidationCollapsed, setPreflightValidationCollapsed] = useState(false);
 
 	// Navigation functions using React Router
 	const navigateToStep = useCallback(
@@ -552,10 +596,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	});
 	const [isLoading, setIsLoading] = useState(false);
 	const [loadingMessage, setLoadingMessage] = useState('');
+	const [isPreFlightValidating, setIsPreFlightValidating] = useState(false);
+	const [preFlightStatus, setPreFlightStatus] = useState<string>('');
 	const [error, setError] = useState<string | null>(null);
 	const [showUserInfoModal, setShowUserInfoModal] = useState(false);
 	const [showCallbackSuccessModal, setShowCallbackSuccessModal] = useState(false);
 	const [showPollingTimeoutModal, setShowPollingTimeoutModal] = useState(false);
+	const [showDeviceCodeSuccessModal, setShowDeviceCodeSuccessModal] = useState(false);
 	const [showWorkerTokenVsClientCredentialsModal, setShowWorkerTokenVsClientCredentialsModal] =
 		useState(false);
 	const [callbackDetails, setCallbackDetails] = useState<{
@@ -702,7 +749,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		'access' | 'refresh' | 'id' | null
 	>(null); // Track which token type was introspected
 
+	// Token refresh state
+	const [refreshLoading, setRefreshLoading] = useState(false);
+	const [refreshError, setRefreshError] = useState<string | null>(null);
+	const [refreshResult, setRefreshResult] = useState<{
+		oldTokens: { accessToken?: string; refreshToken?: string };
+		newTokens: { accessToken?: string; refreshToken?: string; expiresIn?: number };
+	} | null>(null);
+
 	// Generate unique IDs for form inputs and modals (accessibility)
+	// Note: callbackUrlDisplayId is reserved for future use
+	// @ts-expect-error - Reserved for future use
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const callbackUrlDisplayId = useId();
 	const fragmentUrlInputId = useId();
 	const callbackSuccessModalTitleId = useId();
@@ -730,7 +788,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							`OAuth 2.0 Authorization Framework (RFC 6749) / OAuth 2.1 Authorization Framework (draft) only returns access_token and refresh_token when used without OpenID Connect. ` +
 							`ID tokens are only part of OpenID Connect Core 1.0.`
 					);
-					const { id_token, ...filteredTokens } = tokens;
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const { id_token: _idToken, ...filteredTokens } = tokens;
 					return filteredTokens as TokenResponse;
 				}
 			}
@@ -1023,6 +1082,14 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		setValidationErrorsState([]);
 		setValidationWarningsState([]);
 		setCompletedSteps([]);
+		setPreFlightValidationResult({
+			passed: false,
+			errors: [],
+			warnings: [],
+			fixableErrors: [],
+		});
+		setIsPreFlightValidating(false);
+		setPreFlightStatus('');
 
 		/**
 		 * Step 5: Notify parent to reload credentials
@@ -1049,6 +1116,27 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			`${MODULE_TAG} Flow restarted successfully - OAuth tokens and state cleared, credentials and worker token preserved`
 		);
 	}, [navigateToStep, setValidationErrorsState, setValidationWarningsState, onFlowReset, flowKey]);
+
+	// CRITICAL: Initialize with clean error state on mount
+	// This ensures errors are cleared when component first loads or when navigating back
+	// Note: When "Back to Main" is clicked, the component unmounts and all state is lost.
+	// When navigating back to a flow, this effect ensures a clean start.
+	useEffect(() => {
+		// Clear all error and validation state on mount
+		setError(null);
+		setValidationErrors([]);
+		setValidationWarnings([]);
+		setPreFlightValidationResult({
+			passed: false,
+			errors: [],
+			warnings: [],
+			fixableErrors: [],
+		});
+		setIsPreFlightValidating(false);
+		setPreFlightStatus('');
+		// Only run on mount - empty dependency array is intentional
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run on mount to clear errors
+	}, []);
 
 	// CRITICAL: Clear tokens and flow state when flow type changes
 	// This ensures tokens from a previous flow type don't persist when switching flows
@@ -1389,7 +1477,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} else if (flowType === 'device-code' || flowType === 'implicit') {
 				tokenStep = 3; // Step 4 (0-indexed: 0, 1, 2, 3)
 			} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-				tokenStep = 4; // Step 5 (PKCE is in Advanced Options, not a separate step)
+				tokenStep = 5; // Step 6 (0-indexed: 0=Config, 1=PKCE, 2=AuthURL, 3=Callback, 4=Exchange, 5=Tokens)
 			}
 
 			// Mark the token step as complete if tokens are available
@@ -1414,7 +1502,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} else if (flowType === 'device-code' || flowType === 'implicit') {
 				tokenStep = 3; // Step 4 (0-indexed: 0, 1, 2, 3)
 			} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-				tokenStep = 4; // Step 5 (PKCE is in Advanced Options, not a separate step)
+				tokenStep = 5; // Step 6 (0-indexed: 0=Config, 1=PKCE, 2=AuthURL, 3=Callback, 4=Exchange, 5=Tokens)
 			}
 
 			// If we're currently on the tokens step and it's not marked complete, mark it
@@ -1424,7 +1512,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 				nav.markStepComplete();
 				// Clear validation errors when tokens are successfully displayed
-				nav.setValidationErrors([]);
+				setValidationErrors([]);
 			}
 		}
 	}, [flowState.tokens?.accessToken, currentStep, flowType, completedSteps, nav]);
@@ -1541,6 +1629,10 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// Check both sessionStorage (set by CallbackHandlerV8U) AND window.location.search/fragment directly
 	// Then automatically parse and extract the code (and tokens for hybrid)
 	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedFlowSteps.tsx:1622',message:'Step 3 useEffect triggered',data:{currentStep,flowType,isStep3:currentStep === 3,isHybridOrAuthz:(flowType === 'oauth-authz' || flowType === 'hybrid'),pathname:window.location.pathname,hash:window.location.hash.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'STEP3_EFFECT'})}).catch(()=>{});
+		// #endregion
+		
 		// Only run on step 3 (callback handling step) for authorization code and hybrid flows
 		if (currentStep === 3 && (flowType === 'oauth-authz' || flowType === 'hybrid')) {
 			console.log(`${MODULE_TAG} Step 3 mounted - checking for callback data`, { flowType });
@@ -1551,23 +1643,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			let hasFragment = false;
 			let fragmentTokens: { access_token?: string; id_token?: string } | null = null;
 
-			// For hybrid flow, check fragment first (tokens come in fragment)
-			if (flowType === 'hybrid' && !flowState.tokens?.accessToken) {
+			// For hybrid flow, check fragment first (tokens come in fragment, code in query)
+			if (flowType === 'hybrid') {
 				const fragment = window.location.hash.substring(1);
-				if (fragment && (fragment.includes('access_token') || fragment.includes('id_token'))) {
-					console.log(`${MODULE_TAG} Hybrid flow: Fragment detected in URL`, {
-						fragmentLength: fragment.length,
+				const hasFragmentTokens = fragment && (fragment.includes('access_token') || fragment.includes('id_token'));
+				const hasQueryCode = window.location.search.includes('code=');
+				
+				// For hybrid flow, we need to parse the full callback URL which includes both query and fragment
+				if ((hasFragmentTokens || hasQueryCode) && (!flowState.tokens?.accessToken || !flowState.authorizationCode)) {
+					console.log(`${MODULE_TAG} Hybrid flow: Parsing full callback URL`, {
+						hasFragmentTokens,
+						hasQueryCode,
+						url: window.location.href.substring(0, 200),
 					});
-					hasFragment = true;
+					hasFragment = !!hasFragmentTokens;
 
 					try {
-						// Parse fragment for tokens
+						// Parse full callback URL (checks both query string for code and fragment for tokens)
 						const fragmentResult = UnifiedFlowIntegrationV8U.parseCallbackFragment(
 							'hybrid',
 							window.location.href,
 							flowState.state || ''
 						);
 
+						// Extract code from result (now includes code from query string)
+						const codeFromResult = (fragmentResult as { code?: string }).code;
+						if (codeFromResult && !detectedCode) {
+							detectedCode = codeFromResult;
+							callbackUrl = window.location.href;
+							detectedState = (fragmentResult as { state?: string }).state || detectedState;
+							console.log(`${MODULE_TAG} Hybrid flow: Code extracted from parseCallbackFragment`, {
+								code: codeFromResult,
+							});
+						}
+
+						// Extract tokens from fragment
 						const accessToken = (fragmentResult as { access_token?: string }).access_token;
 						const idToken = (fragmentResult as { id_token?: string }).id_token;
 						if (accessToken || idToken) {
@@ -1580,12 +1690,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}
 						}
 
-						console.log(`${MODULE_TAG} Hybrid flow: Tokens extracted from fragment`, {
+						console.log(`${MODULE_TAG} Hybrid flow: Callback parsed successfully`, {
+							hasCode: !!codeFromResult,
 							hasAccessToken: !!fragmentTokens?.access_token,
 							hasIdToken: !!fragmentTokens?.id_token,
 						});
 					} catch (err) {
-						console.error(`${MODULE_TAG} Failed to parse fragment for hybrid flow`, err);
+						console.error(`${MODULE_TAG} Failed to parse callback for hybrid flow`, err);
 					}
 				}
 			}
@@ -1640,38 +1751,56 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowType === 'hybrid') {
 				const updates: Partial<FlowState> = {};
 				let hasUpdates = false;
+				let extractedCode: string | null = null;
+				let extractedTokens: NonNullable<FlowState['tokens']> | null = null;
 
 				// Extract authorization code if found
-				if (detectedCode && callbackUrl && !flowState.authorizationCode) {
+				// For hybrid flow, the code might already be in detectedCode (from sessionStorage or URL params)
+				// or we need to parse it from callbackUrl. Use detectedCode directly if available.
+				if (detectedCode && !flowState.authorizationCode) {
+					// Use detectedCode directly - it's already been extracted from sessionStorage or URL params
+					extractedCode = detectedCode;
+					updates.authorizationCode = detectedCode;
+					if (detectedState) {
+						updates.state = detectedState;
+					}
+					hasUpdates = true;
+					console.log(`${MODULE_TAG} Hybrid flow: Authorization code extracted from detectedCode`, {
+						code: detectedCode,
+					});
+				} else if (callbackUrl && !flowState.authorizationCode && !detectedCode) {
+					// Fallback: Try to parse from callbackUrl if detectedCode is not available
 					try {
 						const parsed = UnifiedFlowIntegrationV8U.parseCallbackUrl(
 							callbackUrl,
 							flowState.state || detectedState || ''
 						);
 
+						extractedCode = parsed.code;
 						updates.authorizationCode = parsed.code;
 						if (detectedState) {
 							updates.state = detectedState;
 						}
 						hasUpdates = true;
-						console.log(`${MODULE_TAG} Hybrid flow: Authorization code extracted`, {
+						console.log(`${MODULE_TAG} Hybrid flow: Authorization code extracted from callbackUrl`, {
 							code: parsed.code,
 						});
 					} catch (err) {
 						console.error(`${MODULE_TAG} Failed to parse authorization code for hybrid flow`, err);
+						// Don't set hasUpdates = true here - let the error be logged but don't fail the flow
 					}
 				}
 
 				// Extract tokens from fragment if found
 				if (fragmentTokens && !flowState.tokens?.accessToken) {
-					const tokens: NonNullable<FlowState['tokens']> = {
+					extractedTokens = {
 						accessToken: fragmentTokens.access_token || flowState.tokens?.accessToken || '',
 						expiresIn: 3600,
 					};
 					if (fragmentTokens.id_token) {
-						tokens.idToken = fragmentTokens.id_token;
+						extractedTokens.idToken = fragmentTokens.id_token;
 					}
-					updates.tokens = tokens;
+					updates.tokens = extractedTokens;
 					hasUpdates = true;
 
 					// Save tokens to sessionStorage
@@ -1679,7 +1808,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						sessionStorage.setItem(
 							'v8u_implicit_tokens',
 							JSON.stringify({
-								...tokens,
+								...extractedTokens,
 								extractedAt: Date.now(),
 							})
 						);
@@ -1694,12 +1823,49 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					setFlowState((prev) => ({ ...prev, ...updates }));
 					nav.markStepComplete();
 
+					// Extract all parameters from callback URL for success modal (similar to authorization code flow)
+					const allParams: Record<string, string> = {};
+					
+					// Extract from query string (authorization code)
+					if (callbackUrl) {
+						try {
+							const url = new URL(callbackUrl);
+							url.searchParams.forEach((value, key) => {
+								allParams[key] = value;
+							});
+						} catch (err) {
+							console.warn(`${MODULE_TAG} Failed to parse callback URL for allParams`, err);
+						}
+					}
+					
+					// Extract from fragment (tokens)
+					if (fragmentTokens) {
+						if (fragmentTokens.access_token) {
+							allParams.access_token = fragmentTokens.access_token;
+						}
+						if (fragmentTokens.id_token) {
+							allParams.id_token = fragmentTokens.id_token;
+						}
+					}
+
+					// Set callback details for success modal (matching authorization code flow)
+					setCallbackDetails({
+						url: callbackUrl || window.location.href,
+						code: extractedCode || '',
+						...(detectedState && { state: detectedState }),
+						...(allParams.session_state && { sessionState: allParams.session_state }),
+						allParams,
+					});
+
+					// Show success modal with callback details (matching authorization code flow)
+					setShowCallbackSuccessModal(true);
+
 					if (updates.authorizationCode && updates.tokens) {
-						toastV8.success('Authorization code and tokens extracted automatically!');
+						toastV8.success('✅ Callback URL parsed automatically! Authorization code and tokens extracted.');
 					} else if (updates.authorizationCode) {
-						toastV8.success('Authorization code extracted automatically!');
+						toastV8.success('✅ Callback URL parsed automatically! Authorization code extracted.');
 					} else if (updates.tokens) {
-						toastV8.success('Tokens extracted automatically!');
+						toastV8.success('✅ Tokens extracted automatically!');
 					}
 
 					// Clean up sessionStorage
@@ -1708,9 +1874,19 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					}
 
 					console.log(
-						`${MODULE_TAG} Hybrid flow: Callback data extracted and step marked complete`
+						`${MODULE_TAG} Hybrid flow: Callback data extracted, success modal shown, step marked complete`
 					);
 					return;
+				} else {
+					// If no updates, log what we found for debugging
+					console.warn(`${MODULE_TAG} Hybrid flow: No updates applied`, {
+						hasDetectedCode: !!detectedCode,
+						hasCallbackUrl: !!callbackUrl,
+						hasFragmentTokens: !!fragmentTokens,
+						hasExistingCode: !!flowState.authorizationCode,
+						hasExistingTokens: !!flowState.tokens?.accessToken,
+						currentUrl: window.location.href.substring(0, 200),
+					});
 				}
 			}
 
@@ -1927,7 +2103,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		} catch (err) {
 			const message = err instanceof Error ? err.message : 'Failed to parse callback fragment';
 			setError(message);
-			nav.setValidationErrors([message]);
+			setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
 			setIsLoading(false);
@@ -2551,6 +2727,392 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						</div>
 					)}
 				</div>
+
+				{/* Pre-flight Validation Results Section - Collapsible and positioned after errors */}
+				{preFlightValidationResult && (
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => setPreflightValidationCollapsed(!preflightValidationCollapsed)}
+							aria-expanded={!preflightValidationCollapsed}
+							style={{
+								background: preFlightValidationResult.errors.length > 0
+									? 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)'
+									: preFlightValidationResult.warnings.length > 0
+										? 'linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%)'
+										: 'linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%)',
+								color:
+									preFlightValidationResult.errors.length > 0
+										? '#991b1b'
+										: preFlightValidationResult.warnings.length > 0
+											? '#c2410c'
+											: '#166534',
+							}}
+						>
+							<CollapsibleTitle>
+								<span style={{ fontSize: '20px', marginRight: '8px' }}>
+									{preFlightValidationResult.errors.length > 0
+										? '❌'
+										: preFlightValidationResult.warnings.length > 0
+											? '⚠️'
+											: '✅'}
+								</span>
+								🔍 Pre-flight Validation Results
+								{preFlightValidationResult.errors.length > 0 && (
+									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+										({preFlightValidationResult.errors.length} error{preFlightValidationResult.errors.length !== 1 ? 's' : ''})
+									</span>
+								)}
+								{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length > 0 && (
+									<span style={{ marginLeft: '8px', fontSize: '0.9em' }}>
+										({preFlightValidationResult.warnings.length} warning{preFlightValidationResult.warnings.length !== 1 ? 's' : ''})
+									</span>
+								)}
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={preflightValidationCollapsed}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!preflightValidationCollapsed && (
+							<CollapsibleContent>
+								<div
+									style={{
+										padding: '20px',
+										background: preFlightValidationResult.errors.length > 0
+											? '#fee2e2'
+											: preFlightValidationResult.warnings.length > 0
+												? '#fff7ed'
+												: '#f0fdf4',
+										border: `2px solid ${
+											preFlightValidationResult.errors.length > 0
+												? '#dc2626'
+												: preFlightValidationResult.warnings.length > 0
+													? '#fb923c'
+													: '#22c55e'
+										}`,
+										borderRadius: '12px',
+										marginBottom: '24px',
+										boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+									}}
+								>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
+							<span style={{ fontSize: '24px', flexShrink: 0 }}>
+								{preFlightValidationResult.errors.length > 0
+									? '❌'
+									: preFlightValidationResult.warnings.length > 0
+										? '⚠️'
+										: '✅'}
+							</span>
+							<div style={{ flex: 1 }}>
+								<strong
+									style={{
+										color:
+											preFlightValidationResult.errors.length > 0
+												? '#991b1b'
+												: preFlightValidationResult.warnings.length > 0
+													? '#c2410c'
+													: '#166534',
+										fontSize: '18px',
+										display: 'block',
+										marginBottom: '12px',
+									}}
+								>
+									🔍 Pre-flight Validation Results
+								</strong>
+								
+								{/* Summary */}
+								<div style={{ marginBottom: '16px', fontSize: '14px', color: '#4b5563' }}>
+									{preFlightValidationResult.errors.length > 0 && (
+										<span style={{ color: '#991b1b', fontWeight: '600' }}>
+											{preFlightValidationResult.errors.length} error(s) found
+										</span>
+									)}
+									{preFlightValidationResult.errors.length > 0 && preFlightValidationResult.warnings.length > 0 && (
+										<span style={{ margin: '0 8px' }}>•</span>
+									)}
+									{preFlightValidationResult.warnings.length > 0 && (
+										<span style={{ color: '#c2410c', fontWeight: '600' }}>
+											{preFlightValidationResult.warnings.length} warning(s)
+										</span>
+									)}
+									{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
+										<span style={{ color: '#166534', fontWeight: '600' }}>
+											All validations passed! Configuration matches PingOne settings.
+										</span>
+									)}
+								</div>
+
+								{/* Errors Section */}
+								{preFlightValidationResult.errors.length > 0 && (
+									<div
+										style={{
+											marginBottom: '16px',
+											padding: '12px',
+											background: '#fee2e2',
+											border: '1px solid #dc2626',
+											borderRadius: '8px',
+										}}
+									>
+										<strong
+											style={{
+												color: '#991b1b',
+												fontSize: '15px',
+												display: 'block',
+												marginBottom: '8px',
+											}}
+										>
+											❌ ERRORS (must be fixed before proceeding):
+										</strong>
+										<div
+											style={{
+												color: '#991b1b',
+												fontSize: '14px',
+												lineHeight: '1.8',
+											}}
+										>
+											{preFlightValidationResult.errors.map((err, idx) => (
+												<div key={idx} style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}>
+													• {err}
+												</div>
+											))}
+										</div>
+										{preFlightValidationResult.fixableErrors && preFlightValidationResult.fixableErrors.length > 0 && (
+											<button
+												type="button"
+												onClick={async () => {
+													try {
+														setIsLoading(true);
+														setLoadingMessage('🔧 Fixing errors...');
+														
+														const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+														const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+														const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+														const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+														
+														const fixableErrors = preFlightValidationResult.fixableErrors || [];
+														const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+														const fixableCount = fixableErrors.length;
+														const totalErrors = preFlightValidationResult.errors.length;
+														
+														let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
+														message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
+														message += `Would you like to automatically fix all fixable errors?`;
+														
+														const confirmed = await uiNotificationServiceV8.confirm({
+															title: '🔧 Fix All Errors?',
+															message: message,
+															confirmText: 'Yes, Fix All',
+															cancelText: 'No, I\'ll Fix Manually',
+															severity: 'warning',
+														});
+														
+														if (confirmed) {
+															const updatedCredentials = { ...credentials };
+															const fixesApplied: string[] = [];
+															
+															for (const fixableError of fixableErrors) {
+																if (fixableError.fixData) {
+																	if (fixableError.fixData.redirectUri) {
+																		updatedCredentials.redirectUri = fixableError.fixData.redirectUri;
+																		fixesApplied.push(`Redirect URI: ${fixableError.fixData.redirectUri}`);
+																	}
+																	if (fixableError.fixData.enablePKCE) {
+																		updatedCredentials.usePKCE = true;
+																		fixesApplied.push('PKCE enabled');
+																	}
+																	if (fixableError.fixData.authMethod) {
+																		updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+																		fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
+																	}
+																	if (fixableError.fixData.addScope) {
+																		const currentScopes = updatedCredentials.scopes || '';
+																		if (!currentScopes.includes(fixableError.fixData.addScope)) {
+																			updatedCredentials.scopes = currentScopes.trim()
+																				? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
+																				: fixableError.fixData.addScope;
+																			fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
+																		}
+																	}
+																	if (fixableError.fixData.responseType) {
+																		updatedCredentials.responseType = fixableError.fixData.responseType as 'code' | 'token' | 'id_token' | 'code token' | 'code id_token' | 'token id_token' | 'code token id_token';
+																		fixesApplied.push(`Response type: ${fixableError.fixData.responseType}`);
+																	}
+																}
+															}
+															
+															const flowKey = `${specVersion}-${flowType}-v8u`;
+															CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+															
+															// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
+															// This ensures fixes persist across all flows and browser restarts
+															const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
+															const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
+															if (sharedCreds.environmentId || sharedCreds.clientId || sharedCreds.clientAuthMethod) {
+																// Use sync version for immediate browser storage
+																SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+																// Also save to disk asynchronously (non-blocking)
+																SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+																	console.warn(`[UnifiedFlowSteps] Background disk save failed (non-critical):`, err);
+																});
+															}
+															
+															if (onCredentialsChange) {
+																onCredentialsChange(updatedCredentials);
+															}
+															
+															toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
+															
+															// Re-run validation
+															setLoadingMessage('🔍 Re-validating configuration...');
+															const workerToken = await workerTokenServiceV8.getToken();
+															const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+																specVersion,
+																flowType,
+																credentials: updatedCredentials,
+																...(workerToken && { workerToken }),
+															});
+															
+															setPreFlightValidationResult({
+																passed: newValidationResult.passed,
+																errors: newValidationResult.errors,
+																warnings: newValidationResult.warnings,
+																fixableErrors: newValidationResult.fixableErrors || [],
+																...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
+															});
+															
+															if (newValidationResult.errors.length > 0) {
+																setValidationErrors(newValidationResult.errors);
+																setValidationWarnings([]);
+																toastV8.error('Some errors remain after fixes');
+															} else if (newValidationResult.warnings.length > 0) {
+																setValidationWarnings(newValidationResult.warnings);
+																setValidationErrors([]);
+																toastV8.warning('Pre-flight validation warnings remain');
+															} else {
+																setValidationWarnings([]);
+																setValidationErrors([]);
+																toastV8.success('✅ All errors fixed! Pre-flight validation passed!');
+															}
+														}
+													} catch (error) {
+														console.error(`${MODULE_TAG} Error fixing errors:`, error);
+														toastV8.error('Failed to fix errors');
+													} finally {
+														setIsLoading(false);
+														setLoadingMessage('');
+													}
+												}}
+												disabled={isLoading}
+												style={{
+													marginTop: '12px',
+													padding: '8px 16px',
+													background: '#dc2626',
+													border: 'none',
+													borderRadius: '6px',
+													color: 'white',
+													fontSize: '14px',
+													fontWeight: '500',
+													cursor: isLoading ? 'not-allowed' : 'pointer',
+													opacity: isLoading ? 0.6 : 1,
+													display: 'inline-flex',
+													alignItems: 'center',
+													gap: '6px',
+												}}
+											>
+												🔧 Fix All Errors
+											</button>
+										)}
+									</div>
+								)}
+
+								{/* Warnings Section */}
+								{preFlightValidationResult.warnings.length > 0 && (
+									<div
+										style={{
+											marginBottom: '16px',
+											padding: '12px',
+											background: '#fff7ed',
+											border: '1px solid #fb923c',
+											borderRadius: '8px',
+										}}
+									>
+										<strong
+											style={{
+												color: '#c2410c',
+												fontSize: '15px',
+												display: 'block',
+												marginBottom: '8px',
+											}}
+										>
+											⚠️ WARNINGS (you can still proceed):
+										</strong>
+										<div
+											style={{
+												color: '#9a3412',
+												fontSize: '14px',
+												lineHeight: '1.8',
+											}}
+										>
+											{preFlightValidationResult.warnings.map((warn, idx) => (
+												<div key={idx} style={{ marginTop: idx > 0 ? '8px' : '0', marginLeft: '8px' }}>
+													• {warn}
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+
+								{/* Success Section - Show what matched */}
+								{preFlightValidationResult.errors.length === 0 && preFlightValidationResult.warnings.length === 0 && (
+									<div
+										style={{
+											padding: '12px',
+											background: '#dcfce7',
+											border: '1px solid #22c55e',
+											borderRadius: '8px',
+										}}
+									>
+										<div
+											style={{
+												color: '#166534',
+												fontSize: '14px',
+												lineHeight: '1.8',
+												fontWeight: '500',
+											}}
+										>
+											✅ All pre-flight checks passed! Your configuration is valid and matches PingOne settings.
+										</div>
+										<div
+											style={{
+												marginTop: '12px',
+												padding: '10px',
+												background: 'white',
+												borderRadius: '6px',
+												fontSize: '13px',
+												color: '#166534',
+												lineHeight: '1.6',
+											}}
+										>
+											<strong>Validated:</strong>
+											<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+												<li>✓ Redirect URI matches PingOne configuration</li>
+												<li>✓ Client authentication method matches</li>
+												<li>✓ PKCE requirements satisfied</li>
+												<li>✓ Required scopes present</li>
+												<li>✓ Response type valid for flow</li>
+												{preFlightValidationResult.appConfig?.requireSignedRequestObject && (
+													<li>✓ JAR (signed request object) credentials configured</li>
+												)}
+											</ul>
+										</div>
+									</div>
+								)}
+							</div>
+						</div>
+					</div>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				)}
 			</div>
 		);
 	};
@@ -3240,6 +3802,79 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const status = String(credentialsData.status || '').toUpperCase();
 				const resumeUrl = credentialsData.resumeUrl as string | undefined;
 
+				// Handle MUST_CHANGE_PASSWORD status
+				if (status === 'MUST_CHANGE_PASSWORD') {
+					console.log(`${MODULE_TAG} 🔌 Password change required detected`);
+					
+					// Extract userId from response if available, otherwise we'll need to look it up
+					const credentialsDataTyped = credentialsData as {
+						userId?: string;
+						user?: { id?: string };
+						_embedded?: { user?: { id?: string } };
+					};
+					const userId = (credentialsDataTyped.userId || 
+						credentialsDataTyped.user?.id || 
+						credentialsDataTyped._embedded?.user?.id) as string | undefined;
+					
+					// Store username for user lookup if needed
+					setPasswordChangeUsername(username);
+					
+					if (userId) {
+						setPasswordChangeUserId(userId);
+						setPasswordChangeFlowId(flowId);
+						setPasswordChangeState(stateValue);
+						setShowPasswordChangeModal(true);
+						setShowRedirectlessModal(false);
+						setIsRedirectlessAuthenticating(false);
+						toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+					} else {
+						// If userId is not available, try to look it up by username
+						try {
+							// Get worker token for user lookup
+							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+							const workerToken = await workerTokenServiceV8.getToken();
+							
+							// Look up user by username
+							const lookupResponse = await fetch('/api/pingone/mfa/lookup-user', {
+								method: 'POST',
+								headers: {
+									'Content-Type': 'application/json',
+								},
+								body: JSON.stringify({
+									environmentId: credentials.environmentId,
+									username,
+									workerToken,
+								}),
+							});
+							
+							if (lookupResponse.ok) {
+								const userData = await lookupResponse.json();
+								const foundUserId = userData.id;
+								if (foundUserId) {
+									setPasswordChangeUserId(foundUserId);
+									setPasswordChangeFlowId(flowId);
+									setPasswordChangeState(stateValue);
+									setShowPasswordChangeModal(true);
+									setShowRedirectlessModal(false);
+									setIsRedirectlessAuthenticating(false);
+									toastV8.warning('⚠️ Password change is required. Please update your password to continue.');
+								} else {
+									throw new Error('User ID not found in lookup response');
+								}
+							} else {
+								throw new Error('Failed to lookup user');
+							}
+						} catch (lookupError) {
+							console.error(`${MODULE_TAG} 🔌 Failed to lookup user:`, lookupError);
+							const errorMsg = 'Password change is required, but user ID could not be determined. Please contact your administrator.';
+							setRedirectlessAuthError(errorMsg);
+							toastV8.error(`❌ ${errorMsg}`);
+							setIsRedirectlessAuthenticating(false);
+						}
+					}
+					return; // Stop further processing
+				}
+
 				if (status === 'READY_TO_RESUME' && resumeUrl) {
 					sessionStorage.setItem(`${flowKey}-redirectless-resumeUrl`, resumeUrl);
 					await handleResumeRedirectlessFlow(flowId, stateValue, resumeUrl);
@@ -3383,6 +4018,63 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			handleRedirectlessTokenExchange,
 			flowType,
 		]
+	);
+
+	// Handle password change when MUST_CHANGE_PASSWORD is detected
+	const handlePasswordChange = useCallback(
+		async (_oldPassword: string, newPassword: string) => {
+			if (!passwordChangeUserId || !credentials.environmentId) {
+				throw new Error('Missing user ID or environment ID for password change');
+			}
+
+			try {
+				// For MUST_CHANGE_PASSWORD during login, we need to use worker token
+				// since we don't have user access token yet
+				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+				const workerToken = await workerTokenServiceV8.getToken();
+
+				// Use PUT endpoint to set new password (admin operation with worker token)
+				const response = await fetch('/api/pingone/password/set', {
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environmentId: credentials.environmentId,
+						userId: passwordChangeUserId,
+						workerToken,
+						newPassword,
+						forceChange: false, // Password is being changed, not forced
+					}),
+				});
+
+				if (!response.ok) {
+					const errorData = await response.json().catch(() => ({}));
+					throw new Error(
+						errorData.error_description || errorData.message || 'Failed to change password'
+					);
+				}
+
+				toastV8.success('✅ Password changed successfully!');
+				
+				// Close modal and clear state
+				setShowPasswordChangeModal(false);
+				setPasswordChangeUserId(null);
+				setPasswordChangeFlowId(null);
+				setPasswordChangeState(null);
+				setPasswordChangeUsername(null);
+				
+				// Show message to retry login
+				toastV8.info('Please try signing in again with your new password.');
+				
+				// Re-open the login modal so user can try again
+				setShowRedirectlessModal(true);
+			} catch (error) {
+				console.error(`${MODULE_TAG} 🔌 Password change failed:`, error);
+				throw error; // Re-throw to let modal handle the error display
+			}
+		},
+		[passwordChangeUserId, passwordChangeUsername, credentials.environmentId, handleSubmitRedirectlessCredentials]
 	);
 
 	// Handler for starting redirectless authentication after URL is displayed
@@ -3705,7 +4397,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			const message =
 				err instanceof Error ? err.message : 'Failed to start redirectless authentication';
 			setError(message);
-			nav.setValidationErrors([message]);
+			setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
 			setIsLoading(false);
@@ -3735,19 +4427,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// For implicit, this is Step 1
 	const renderStep1AuthUrl = () => {
 		const handleGenerateAuthUrl = async () => {
+			// Use a local variable to track current credentials (may be updated during auto-fix)
+			let currentCredentials = credentials;
+			
 			console.log(`${MODULE_TAG} Generating authorization URL`, {
 				flowType,
 				hasPKCE: !!(flowState.codeVerifier && flowState.codeChallenge),
-				redirectUri: credentials.redirectUri,
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
+				redirectUri: currentCredentials.redirectUri,
+				environmentId: currentCredentials.environmentId,
+				clientId: currentCredentials.clientId,
 				responseMode:
-					credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : undefined),
-				fullCredentials: credentials,
+					currentCredentials.responseMode || (currentCredentials.useRedirectless ? 'pi.flow' : undefined),
+				fullCredentials: currentCredentials,
 			});
 
 			// Debug: Check if redirectless mode (pi.flow) is enabled
-			const isRedirectless = credentials.responseMode === 'pi.flow' || credentials.useRedirectless;
+			const isRedirectless = currentCredentials.responseMode === 'pi.flow' || currentCredentials.useRedirectless;
 			if (isRedirectless) {
 				console.log(
 					`${MODULE_TAG} ✅ Redirectless mode (response_mode=pi.flow) is ENABLED - will generate URL first, then make POST request`
@@ -3759,12 +4454,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			}
 
 			// Validate required fields
-			if (!credentials.redirectUri) {
+			if (!currentCredentials.redirectUri) {
 				const errorMsg =
 					'Redirect URI is required. Please go back to Step 0 and ensure the Redirect URI field is populated.';
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				toastV8.error(errorMsg);
+				// Clear any pre-flight validation state that might have been set
+				setIsPreFlightValidating(false);
+				setPreFlightStatus('');
 				return;
 			}
 
@@ -3778,14 +4476,418 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg =
 					'PKCE codes are required but missing. Please go back to Step 0 (Configuration) and generate PKCE parameters in Advanced Options.';
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				toastV8.error(errorMsg);
+				// Clear any pre-flight validation state that might have been set
+				setIsPreFlightValidating(false);
+				setPreFlightStatus('');
 				return;
 			}
 
-			setIsLoading(true);
-			setLoadingMessage('🔗 Generating Authorization URL...');
+			// Pre-flight validation: Use service to validate before generating authorization URL
+			setIsPreFlightValidating(true);
+			setPreFlightStatus('🔍 Starting pre-flight validation...');
 			setError(null);
+			toastV8.info('🔍 Starting pre-flight validation...');
+
+			let validationResult: {
+				passed: boolean;
+				errors: string[];
+				warnings: string[];
+				redirectUriValidated: boolean;
+				oauthConfigValidated: boolean;
+				redirectUris?: string[];
+				fixableErrors?: Array<{
+					errorIndex: number;
+					errorType: string;
+					errorMessage: string;
+					fixable: boolean;
+					fixDescription: string;
+					fixData?: {
+						redirectUri?: string;
+						enablePKCE?: boolean;
+						authMethod?: string;
+						addScope?: string;
+						responseType?: string;
+					};
+				}>;
+				appConfig?: {
+					tokenEndpointAuthMethod?: string;
+					pkceEnforced?: boolean;
+					pkceRequired?: boolean;
+				};
+			} | null = null;
+			try {
+				const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+				const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+				
+				setPreFlightStatus('🔑 Retrieving worker token...');
+				let workerToken = await workerTokenServiceV8.getToken();
+				
+				// If no worker token, try silent retrieval (will ask for credentials if missing)
+				if (!workerToken) {
+					try {
+						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+						// Attempt silent retrieval (will show modal if credentials are missing)
+						await handleShowWorkerTokenModal(
+							setShowWorkerTokenModal,
+							undefined, // setTokenStatus
+							true, // silentApiRetrieval - enable silent retrieval
+							false, // showTokenAtEnd
+							false, // forceShowModal - allow silent retrieval (will show modal if credentials needed)
+							setIsLoading // setIsLoading - for spinner during silent retrieval
+						);
+						// Try again after silent retrieval attempt
+						await new Promise(resolve => setTimeout(resolve, 500));
+						workerToken = await workerTokenServiceV8.getToken();
+					} catch (error) {
+						console.warn(`${MODULE_TAG} Silent worker token retrieval failed:`, error);
+						// Continue without worker token - validation will show warnings
+					}
+				}
+				
+				setPreFlightStatus('✅ Validating configuration against PingOne...');
+				
+				// Add timeout to prevent hanging (30 seconds max)
+				const validationPromise = PreFlightValidationServiceV8.validateBeforeAuthUrl({
+					specVersion,
+					flowType,
+					credentials: currentCredentials, // Use currentCredentials (may be updated by auto-fix)
+					...(workerToken && { workerToken }),
+				});
+				
+				const timeoutPromise = new Promise<never>((_, reject) => {
+					setTimeout(() => reject(new Error('Pre-flight validation timed out after 30 seconds')), 30000);
+				});
+				
+				validationResult = await Promise.race([validationPromise, timeoutPromise]);
+
+				if (!validationResult) {
+					throw new Error('Validation result is null');
+				}
+
+				console.log(`${MODULE_TAG} Pre-flight validation result:`, {
+					passed: validationResult.passed,
+					errorCount: validationResult.errors.length,
+					warningCount: validationResult.warnings.length,
+					hasErrors: validationResult.errors.length > 0,
+					hasWarnings: validationResult.warnings.length > 0,
+				});
+
+				// Store validation result for display (include appConfig)
+				setPreFlightValidationResult({
+					passed: validationResult.passed,
+					errors: validationResult.errors,
+					warnings: validationResult.warnings,
+					fixableErrors: validationResult.fixableErrors || [],
+					...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
+				});
+
+				// Build combined error and warning messages separately
+				if (validationResult.errors.length > 0 || validationResult.warnings.length > 0) {
+					// Errors: Block progression
+					if (validationResult.errors.length > 0) {
+						// Check if there are any fixable errors
+						const fixableErrors = validationResult.fixableErrors || [];
+						
+						// If there are fixable errors, offer to fix them
+						if (fixableErrors.length > 0) {
+							const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+							
+							// Build fix description message
+							const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+							const fixableCount = fixableErrors.length;
+							const totalErrors = validationResult.errors.length;
+							const nonFixableCount = totalErrors - fixableCount;
+							
+							let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
+							message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
+							if (nonFixableCount > 0) {
+								message += `Note: ${nonFixableCount} error(s) cannot be auto-fixed and will need manual attention.\n\n`;
+							}
+							message += `Would you like to automatically fix all fixable errors?`;
+							
+							const confirmed = await uiNotificationServiceV8.confirm({
+								title: '🔧 Fix All Errors?',
+								message: message,
+								confirmText: 'Yes, Fix All',
+								cancelText: 'No, I\'ll Fix Manually',
+								severity: 'warning',
+							});
+							
+							if (confirmed) {
+								// Apply all fixes
+								const updatedCredentials = { ...currentCredentials };
+								const fixesApplied: string[] = [];
+								
+								for (const fixableError of fixableErrors) {
+									if (fixableError.fixData) {
+										if (fixableError.fixData.redirectUri) {
+											updatedCredentials.redirectUri = fixableError.fixData.redirectUri;
+											fixesApplied.push(`Redirect URI: ${fixableError.fixData.redirectUri}`);
+										}
+										if (fixableError.fixData.enablePKCE) {
+											updatedCredentials.usePKCE = true;
+											fixesApplied.push('PKCE enabled');
+										}
+									if (fixableError.fixData.authMethod) {
+										updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+										fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
+									}
+										if (fixableError.fixData.addScope) {
+											const currentScopes = updatedCredentials.scopes || '';
+											if (!currentScopes.includes(fixableError.fixData.addScope)) {
+												updatedCredentials.scopes = currentScopes.trim()
+													? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
+													: fixableError.fixData.addScope;
+												fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
+											}
+										}
+									if (fixableError.fixData.responseType) {
+										updatedCredentials.responseType = fixableError.fixData.responseType as 'code' | 'token' | 'id_token' | 'code token' | 'code id_token' | 'token id_token' | 'code token id_token';
+										fixesApplied.push(`Response type: ${fixableError.fixData.responseType}`);
+									}
+									}
+								}
+								
+								// Save updated credentials to flow-specific storage (IndexedDB, localStorage, backend)
+								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+								const flowKey = `${specVersion}-${flowType}-v8u`;
+								// updatedCredentials is compatible with Credentials interface
+								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								
+								// Also save shared credentials (environmentId, clientId, clientAuthMethod) to backup storage
+								// This ensures fixes persist across all flows and browser restarts
+								const { SharedCredentialsServiceV8 } = await import('@/v8/services/sharedCredentialsServiceV8');
+								const sharedCreds = SharedCredentialsServiceV8.extractSharedCredentials(updatedCredentials);
+								if (sharedCreds.environmentId || sharedCreds.clientId || sharedCreds.clientAuthMethod) {
+									// Use sync version for immediate browser storage
+									SharedCredentialsServiceV8.saveSharedCredentialsSync(sharedCreds);
+									// Also save to disk asynchronously (non-blocking)
+									SharedCredentialsServiceV8.saveSharedCredentials(sharedCreds).catch((err) => {
+										console.warn(`[UnifiedFlowSteps] Background disk save failed (non-critical):`, err);
+									});
+								}
+								
+								// Update current credentials for URL generation
+								currentCredentials = updatedCredentials;
+								
+								// Update parent component's credentials
+								if (onCredentialsChange) {
+									onCredentialsChange(updatedCredentials);
+								}
+								
+								toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
+								
+								// Re-run validation with updated credentials
+								setPreFlightStatus('🔍 Re-validating configuration...');
+								toastV8.info('🔍 Re-validating after fixes...');
+								const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+									specVersion,
+									flowType,
+									credentials: updatedCredentials,
+									...(workerToken && { workerToken }),
+								});
+								
+								// Update validation result state (include appConfig)
+								setPreFlightValidationResult({
+									passed: newValidationResult.passed,
+									errors: newValidationResult.errors,
+									warnings: newValidationResult.warnings,
+									fixableErrors: newValidationResult.fixableErrors || [],
+									...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
+								});
+								
+								// Update validation results
+								if (newValidationResult.errors.length > 0) {
+									const errorMessage = [
+										'🔍 Pre-flight Validation Results:',
+										'',
+										'❌ ERRORS (must be fixed before proceeding):',
+										...newValidationResult.errors.map(err => `  ${err}`),
+										'',
+										'🔧 How to Fix:',
+										'1. Go to Step 0 (Configuration)',
+										'2. Review and fix the errors listed above',
+										'3. Try generating the authorization URL again',
+										'',
+										'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+									].join('\n');
+									setError(errorMessage);
+									setValidationErrors([errorMessage]);
+									toastV8.error('Pre-flight validation failed - check error details below');
+									setIsPreFlightValidating(false);
+									setPreFlightStatus('');
+									setIsLoading(false);
+									setLoadingMessage('');
+									return;
+								} else if (newValidationResult.warnings.length > 0) {
+									const warningMessage = [
+										'🔍 Pre-flight Validation Results:',
+										'',
+										'⚠️ WARNINGS (you can still proceed):',
+										...newValidationResult.warnings.map(warn => `  ${warn}`),
+										'',
+										'✅ You can continue with the flow, but be aware that some validations were skipped.'
+									].join('\n');
+									setValidationWarnings([warningMessage]);
+									setValidationErrors([]);
+									toastV8.warning('Pre-flight validation warnings - check details below');
+									setIsPreFlightValidating(false);
+									setPreFlightStatus('');
+									// Continue with flow generation using updated credentials
+								} else {
+									// No errors or warnings - validation passed
+									setValidationWarnings([]);
+									setValidationErrors([]);
+									toastV8.success(`✅ Pre-flight validation passed! Fixed ${fixesApplied.length} error(s).`);
+									setIsPreFlightValidating(false);
+									setPreFlightStatus('');
+									// Continue with flow generation using updated credentials
+								}
+							} else {
+								// User declined auto-fix, show error as normal
+								const errorMessage = [
+									'🔍 Pre-flight Validation Results:',
+									'',
+									'❌ ERRORS (must be fixed before proceeding):',
+									...validationResult.errors.map(err => `  ${err}`),
+									'',
+									'🔧 How to Fix:',
+									'1. Go to Step 0 (Configuration)',
+									'2. Review and fix the errors listed above',
+									'3. Try generating the authorization URL again',
+									'',
+									'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+								].join('\n');
+
+								setError(errorMessage);
+								setValidationErrors([errorMessage]);
+								// Store validation result so "Fix All Errors" button is visible (include appConfig)
+								setPreFlightValidationResult({
+									passed: false,
+									errors: validationResult.errors,
+									warnings: validationResult.warnings,
+									fixableErrors: validationResult.fixableErrors || [],
+									...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
+								});
+								toastV8.error('Pre-flight validation failed - check error details below');
+								setIsPreFlightValidating(false);
+								setPreFlightStatus('');
+								setIsLoading(false);
+								setLoadingMessage('');
+								return;
+							}
+						} else {
+							// Regular error handling (not redirect URI mismatch or no registered URIs available)
+							const errorMessage = [
+								'🔍 Pre-flight Validation Results:',
+								'',
+								'❌ ERRORS (must be fixed before proceeding):',
+								...validationResult.errors.map(err => `  ${err}`),
+								'',
+								'🔧 How to Fix:',
+								'1. Go to Step 0 (Configuration)',
+								'2. Review and fix the errors listed above',
+								'3. Try generating the authorization URL again',
+								'',
+								'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+							].join('\n');
+
+							setError(errorMessage);
+							setValidationErrors([errorMessage]);
+							// Store validation result so "Fix All Errors" button is visible (include appConfig)
+							setPreFlightValidationResult({
+								passed: false,
+								errors: validationResult.errors,
+								warnings: validationResult.warnings,
+								fixableErrors: validationResult.fixableErrors || [],
+								...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
+							});
+							toastV8.error('Pre-flight validation failed - check error details below');
+							setIsPreFlightValidating(false);
+							setPreFlightStatus('');
+							setIsLoading(false);
+							setLoadingMessage('');
+							return;
+						}
+					}
+					
+					// Warnings only: Allow continuation, show with orange background
+					if (validationResult.warnings.length > 0) {
+						const warningMessage = [
+							'🔍 Pre-flight Validation Results:',
+							'',
+							'⚠️ WARNINGS (you can still proceed):',
+							...validationResult.warnings.map(warn => `  ${warn}`),
+							'',
+							'✅ You can continue with the flow, but be aware that some validations were skipped.'
+						].join('\n');
+
+						// Set warning (not error) - this will be displayed with orange background
+						// Don't set error state for warnings - only set validation warnings
+						setValidationWarnings([warningMessage]);
+						toastV8.warning('⚠️ Pre-flight validation warnings - check details below');
+						setIsPreFlightValidating(false);
+						setPreFlightStatus('');
+						// Continue with flow generation (don't return)
+					} else {
+						// No errors or warnings - validation passed
+						toastV8.success('✅ Pre-flight validation passed!');
+						setIsPreFlightValidating(false);
+						setPreFlightStatus('');
+						// Still show success message in validation results
+						setValidationWarnings([]);
+						setValidationErrors([]);
+					}
+				} else {
+					// No errors and no warnings - validation passed completely
+					console.log(`${MODULE_TAG} Pre-flight validation passed with no errors or warnings`);
+					toastV8.success('✅ Pre-flight validation passed!');
+					setValidationWarnings([]);
+					setValidationErrors([]);
+					setIsPreFlightValidating(false);
+					setPreFlightStatus('');
+					// Store success result for display (include appConfig if available)
+					setPreFlightValidationResult({
+						passed: true,
+						errors: [],
+						warnings: [],
+						fixableErrors: [],
+						...(validationResult?.appConfig && { appConfig: validationResult.appConfig }),
+					});
+				}
+			} catch (validationError) {
+				console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
+				const errorMessage = validationError instanceof Error ? validationError.message : 'Unknown error';
+				if (errorMessage.includes('timed out')) {
+					toastV8.error('Pre-flight validation timed out - continuing anyway');
+				} else {
+					toastV8.error('Pre-flight validation encountered an error - continuing anyway');
+				}
+				// Clear spinner and continue
+				setIsPreFlightValidating(false);
+				setPreFlightStatus('');
+				setValidationWarnings([]);
+				setValidationErrors([]);
+				// Store error result for display
+				setPreFlightValidationResult({
+					passed: false,
+					errors: [errorMessage],
+					warnings: [],
+					fixableErrors: [],
+				});
+				// Continue on validation error - don't block user
+			} finally {
+				// Ensure spinner is always cleared, even if something unexpected happens
+				if (isPreFlightValidating) {
+					console.warn(`${MODULE_TAG} ⚠️ Pre-flight validation spinner still active in finally block - clearing it`);
+					setIsPreFlightValidating(false);
+					setPreFlightStatus('');
+				}
+			}
+
+			setLoadingMessage('🔗 Generating Authorization URL...');
 
 			try {
 				// For redirectless mode, first generate the authorization URL to show the user
@@ -3796,14 +4898,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					const urlResult = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
 						specVersion,
 						flowType,
-						credentials,
+						currentCredentials, // Use currentCredentials (may have been updated by auto-fix)
 						flowState.codeVerifier && flowState.codeChallenge
 							? {
 									codeVerifier: flowState.codeVerifier,
 									codeChallenge: flowState.codeChallenge,
 									codeChallengeMethod: 'S256',
 								}
-							: undefined
+							: undefined,
+						preFlightValidationResult?.appConfig // Pass appConfig for JAR detection
 					);
 
 					// Store the authorization URL in flow state so it can be displayed
@@ -3842,17 +4945,32 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				// Standard mode: Generate authorization URL
 				// For flows that use PKCE (oauth-authz, hybrid), use existing PKCE codes from flowState
 				// For implicit flow, PKCE is not used
+				// Load PKCE codes from storage to get the correct codeChallengeMethod
+				let pkceCodesForUrl: { codeVerifier: string; codeChallenge: string; codeChallengeMethod: 'S256' | 'plain' } | undefined;
+				if (flowState.codeVerifier && flowState.codeChallenge) {
+					// Try to load from storage first to check if stored codes have 'plain' method (old version)
+					const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
+					// CRITICAL: Always use 'S256' - if stored codes have 'plain', they're from an old version and should be regenerated
+					// Using 'plain' would cause PKCE mismatch errors during token exchange
+					if (storedPKCE?.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
+						console.warn(
+							`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
+							`Using 'S256' for authorization URL. If you get PKCE mismatch errors, please regenerate PKCE codes in Step 1.`
+						);
+					}
+					const codeChallengeMethod = 'S256' as const;
+					pkceCodesForUrl = {
+						codeVerifier: flowState.codeVerifier,
+						codeChallenge: flowState.codeChallenge,
+						codeChallengeMethod,
+					};
+				}
 				const result = await UnifiedFlowIntegrationV8U.generateAuthorizationUrl(
 					specVersion,
 					flowType,
-					credentials,
-					flowState.codeVerifier && flowState.codeChallenge
-						? {
-								codeVerifier: flowState.codeVerifier,
-								codeChallenge: flowState.codeChallenge,
-								codeChallengeMethod: 'S256',
-							}
-						: undefined
+					currentCredentials, // Use currentCredentials (may have been updated by auto-fix)
+					pkceCodesForUrl,
+					preFlightValidationResult?.appConfig // Pass appConfig for JAR detection
 				);
 
 				const resultWithExtras = result as {
@@ -3883,9 +5001,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to generate authorization URL';
 				setError(message);
-				nav.setValidationErrors([message]);
+				setValidationErrors([message]);
 				toastV8.error(message);
 			} finally {
+				// CRITICAL: Always clear both loading states in finally block
+				setIsPreFlightValidating(false);
+				setPreFlightStatus('');
 				setIsLoading(false);
 				setLoadingMessage('');
 			}
@@ -3900,10 +5021,233 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 		return (
 			<div className="step-content">
+				<style>{`
+					@keyframes spin {
+						from { transform: rotate(0deg); }
+						to { transform: rotate(360deg); }
+					}
+				`}</style>
 				<h2>{stepTitle}</h2>
 				<p style={{ marginBottom: '24px', color: '#6b7280' }}>
 					Generate the authorization URL to redirect the user to authenticate.
 				</p>
+
+				{/* Pre-flight validation status section */}
+				{(isPreFlightValidating || preFlightStatus) && (
+					<div
+						style={{
+							padding: '16px',
+							background: '#eff6ff',
+							border: '1px solid #3b82f6',
+							borderRadius: '8px',
+							marginBottom: '24px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+							{isPreFlightValidating && (
+								<div
+									style={{
+										width: '20px',
+										height: '20px',
+										border: '3px solid #3b82f6',
+										borderTop: '3px solid transparent',
+										borderRadius: '50%',
+										animation: 'spin 1s linear infinite',
+									}}
+								/>
+							)}
+							<span style={{ fontSize: '20px', flexShrink: 0 }}>
+								{isPreFlightValidating ? '🔍' : '✅'}
+							</span>
+							<div style={{ flex: 1 }}>
+								<strong
+									style={{
+										color: '#1e40af',
+										fontSize: '15px',
+										display: 'block',
+										marginBottom: '4px',
+									}}
+								>
+									Pre-flight Validation Status
+								</strong>
+								<div
+									style={{
+										color: '#1e3a8a',
+										fontSize: '14px',
+										lineHeight: '1.6',
+									}}
+								>
+									{preFlightStatus || (isPreFlightValidating ? 'Validating configuration...' : '')}
+								</div>
+							</div>
+						</div>
+					</div>
+				)}
+
+				{/* Display validation warnings with orange background (non-blocking) */}
+				{validationWarnings.length > 0 && (
+					<div
+						style={{
+							padding: '16px',
+							background: '#fff7ed',
+							border: '1px solid #fb923c',
+							borderRadius: '8px',
+							marginBottom: '24px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+							<span style={{ fontSize: '20px', flexShrink: 0 }}>⚠️</span>
+							<div style={{ flex: 1 }}>
+								<strong style={{ color: '#c2410c', fontSize: '15px', display: 'block', marginBottom: '8px' }}>
+									Pre-flight Validation Warnings
+								</strong>
+								<div style={{ color: '#9a3412', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+									{validationWarnings.map((warning, idx) => (
+										<div key={idx} style={{ marginBottom: idx < validationWarnings.length - 1 ? '8px' : '0' }}>
+											{warning}
+										</div>
+									))}
+								</div>
+								{/* Check if any warning mentions worker token - show Get Worker Token button */}
+								{validationWarnings.some(warn => warn.toLowerCase().includes('worker token is not available')) && (
+									<div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+										<button
+											type="button"
+											onClick={async () => {
+												try {
+													setIsLoading(true);
+													setLoadingMessage('🔑 Retrieving Worker Token...');
+													
+													// Import worker token modal helper
+													const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
+													const { WorkerTokenStatusServiceV8 } = await import('@/v8/services/workerTokenStatusServiceV8');
+													
+													// Attempt silent retrieval (silentApiRetrieval=true, forceShowModal=false)
+													await handleShowWorkerTokenModal(
+														setShowWorkerTokenModal,
+														undefined, // setTokenStatus
+														true, // silentApiRetrieval - enable silent retrieval
+														false, // showTokenAtEnd
+														false, // forceShowModal - allow silent retrieval
+														setIsLoading // setIsLoading - for spinner during silent retrieval
+													);
+													
+													// Wait a moment for token to be saved, then check if token is now available
+													await new Promise(resolve => setTimeout(resolve, 500));
+													const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+													if (tokenStatus.isValid) {
+														toastV8.success('Worker token retrieved successfully');
+														
+														// Re-run pre-flight validation
+														setLoadingMessage('🔍 Re-validating Configuration...');
+														const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+														const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+														
+														const newWorkerToken = await workerTokenServiceV8.getToken();
+														const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+															specVersion,
+															flowType,
+															credentials,
+															...(newWorkerToken && { workerToken: newWorkerToken }),
+														});
+														
+														// Update preFlightValidationResult state (CRITICAL: include fixableErrors and appConfig for Fix button)
+														setPreFlightValidationResult({
+															passed: newValidationResult.passed,
+															errors: newValidationResult.errors,
+															warnings: newValidationResult.warnings,
+															fixableErrors: newValidationResult.fixableErrors || [],
+															...(newValidationResult.appConfig && { appConfig: newValidationResult.appConfig }),
+														});
+														
+														// Update validation results
+														if (newValidationResult.errors.length > 0) {
+															const errorMessage = [
+																'🔍 Pre-flight Validation Results:',
+																'',
+																'❌ ERRORS (must be fixed before proceeding):',
+																...newValidationResult.errors.map(err => `  ${err}`),
+																'',
+																'🔧 How to Fix:',
+																'1. Go to Step 0 (Configuration)',
+																'2. Review and fix the errors listed above',
+																'3. Try generating the authorization URL again',
+																'',
+																'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+															].join('\n');
+															setError(errorMessage);
+															setValidationErrors([errorMessage]);
+															setValidationWarnings([]);
+															toastV8.error('Pre-flight validation failed - check error details below');
+														} else if (newValidationResult.warnings.length > 0) {
+															const warningMessage = [
+																'🔍 Pre-flight Validation Results:',
+																'',
+																'⚠️ WARNINGS (you can still proceed):',
+																...newValidationResult.warnings.map(warn => `  ${warn}`),
+																'',
+																'✅ You can continue with the flow, but be aware that some validations were skipped.'
+															].join('\n');
+															setValidationWarnings([warningMessage]);
+															setValidationErrors([]);
+															toastV8.warning('Pre-flight validation warnings - check details below');
+														} else {
+															// No errors or warnings - validation passed
+															setValidationWarnings([]);
+															setValidationErrors([]);
+															toastV8.success('Pre-flight validation passed!');
+														}
+													} else {
+														// Token still not available - user may have cancelled modal or silent retrieval failed
+														// If modal is not showing, silent retrieval failed and user needs to add token manually
+														// If modal is showing, user will handle it in the modal's onClose callback
+														// Don't show warning here - let the modal handle it
+													}
+												} catch (error) {
+													console.error(`${MODULE_TAG} Error retrieving worker token:`, error);
+													toastV8.error('Failed to retrieve worker token. Please try again.');
+												} finally {
+													setIsLoading(false);
+													setLoadingMessage('');
+												}
+											}}
+											disabled={isLoading}
+											style={{
+												padding: '8px 16px',
+												background: '#fb923c',
+												border: 'none',
+												borderRadius: '6px',
+												color: 'white',
+												fontSize: '14px',
+												fontWeight: '500',
+												cursor: isLoading ? 'not-allowed' : 'pointer',
+												opacity: isLoading ? 0.6 : 1,
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '6px',
+											}}
+										>
+											{isLoading ? (
+												<>
+													<span>⏳</span>
+													<span>Retrieving...</span>
+												</>
+											) : (
+												<>
+													<span>🔑</span>
+													<span>Get Worker Token</span>
+												</>
+											)}
+										</button>
+									</div>
+								)}
+								<p style={{ margin: '12px 0 0 0', fontSize: '13px', color: '#c2410c', fontWeight: '500' }}>
+									✅ You can continue with the flow, but be aware that some validations were skipped.
+								</p>
+							</div>
+						</div>
+					</div>
+				)}
 
 				{/* Implicit Flow Educational Sections (only for implicit flow) */}
 				{flowType === 'implicit' && (
@@ -3922,31 +5266,34 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							</CollapsibleHeaderButton>
 							{!implicitOverviewCollapsed && (
 								<CollapsibleContent>
-									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle>Deprecated Grant Type</InfoTitle>
-											<InfoText>
-												The Implicit Flow (RFC 6749 Section 4.2) is deprecated in OAuth 2.1 Authorization Framework (draft) and
-												should not be used for new applications. It was designed for browser-based
-												applications that couldn't securely store client secrets, but modern
-												alternatives provide better security. Note: OAuth 2.1 is still an Internet-Draft, not yet an RFC.
-											</InfoText>
-										</div>
-									</InfoBox>
+					<InfoBox $variant="info">
+						<FiInfo size={20} />
+						<div>
+							<InfoTitle>OAuth 2.0 / OIDC Implicit Flow - Educational Purpose</InfoTitle>
+							<InfoText>
+								<strong>This flow is included for educational purposes.</strong> The Implicit Flow (RFC 6749 Section 4.2) is 
+								<strong> deprecated in OAuth 2.1</strong> (draft) and should not be used for new applications. 
+								However, it is <strong>still valid in OAuth 2.0 and OIDC Core 1.0</strong> specifications.
+								<br /><br />
+								<strong>Important:</strong> To use this flow, you must enable the <strong>Implicit grant type</strong> in your PingOne application settings. 
+								If not enabled, PingOne will reject the authorization request.
+							</InfoText>
+						</div>
+					</InfoBox>
 
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>How Implicit Flow Works</InfoTitle>
-											<InfoText>
-												In the Implicit Flow, tokens are returned directly in the URL fragment
-												after user authorization. The client never receives an authorization code;
-												instead, the access token (and optionally ID token) is returned
-												immediately in the redirect URI fragment.
-											</InfoText>
-										</div>
-									</InfoBox>
+					<InfoBox $variant="success">
+						<FiCheckCircle size={20} />
+						<div>
+							<InfoTitle>How Implicit Flow Works</InfoTitle>
+							<InfoText>
+								In the Implicit Flow, tokens are returned directly in the URL fragment
+								after user authorization. The client never receives an authorization code;
+								instead, the access token (and optionally ID token) is returned
+								immediately in the redirect URI fragment. This was designed for SPAs that
+								couldn't use a backend, but Authorization Code + PKCE is now the recommended approach.
+							</InfoText>
+						</div>
+					</InfoBox>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -4039,6 +5386,296 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
 												<strong>Note:</strong> For all new applications, use Authorization Code Flow
 												with PKCE instead.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				)}
+
+				{/* Authorization Code Flow Educational Sections (only for authorization code flow) */}
+				{flowType === 'oauth-authz' && (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setAuthzCodeOverviewCollapsed(!authzCodeOverviewCollapsed)}
+								aria-expanded={!authzCodeOverviewCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> What is Authorization Code Flow?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={authzCodeOverviewCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!authzCodeOverviewCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Recommended OAuth 2.0 Flow</InfoTitle>
+											<InfoText>
+												The Authorization Code Flow (RFC 6749 Section 4.1) is the most secure and
+												recommended OAuth 2.0 flow for web applications, single-page applications (SPAs),
+												and mobile apps. It's the standard flow used by modern OAuth implementations
+												and is required for OAuth 2.1 / OIDC 2.1 compliance.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>How Authorization Code Flow Works</InfoTitle>
+											<InfoText>
+												The Authorization Code Flow is a two-step process that separates the
+												authorization request from the token exchange. This design prevents tokens from
+												being exposed in URLs or browser history.
+											</InfoText>
+											<InfoList>
+												<li>
+													<strong>Step 1:</strong> User is redirected to PingOne's authorization
+													server where they authenticate and consent
+												</li>
+												<li>
+													<strong>Step 2:</strong> PingOne redirects back with an authorization code
+													(not tokens)
+												</li>
+												<li>
+													<strong>Step 3:</strong> Your application exchanges the code for tokens
+													using a secure back-channel request with your client secret
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setAuthzCodeDetailsCollapsed(!authzCodeDetailsCollapsed)}
+								aria-expanded={!authzCodeDetailsCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Security Features & Best Practices
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={authzCodeDetailsCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!authzCodeDetailsCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>Why Authorization Code Flow is Secure</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>No Tokens in URLs:</strong> Tokens are never exposed in browser
+													history, server logs, or shared URLs
+												</li>
+												<li>
+													<strong>PKCE Support:</strong> Can use PKCE (Proof Key for Code Exchange)
+													for additional security, especially for public clients
+												</li>
+												<li>
+													<strong>Refresh Tokens:</strong> Supports refresh tokens for long-lived
+													sessions (with offline_access scope)
+												</li>
+												<li>
+													<strong>Client Secret Protection:</strong> Client secret is only used in
+													secure back-channel token exchange, never in browser
+												</li>
+												<li>
+													<strong>OAuth 2.1 / OIDC 2.1 Compliant:</strong> This is the recommended
+													flow in current specifications
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>PingOne-Specific Requirements</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>openid Scope:</strong> PingOne requires the <code>openid</code> scope
+													even for pure OAuth 2.0 flows when using OIDC-enabled applications
+												</li>
+												<li>
+													<strong>PKCE Recommended:</strong> While optional in OAuth 2.0, PingOne
+													recommends using PKCE for all public clients (SPAs, mobile apps)
+												</li>
+												<li>
+													<strong>Token Endpoint Authentication:</strong> Supports multiple methods:
+													client_secret_basic, client_secret_post, client_secret_jwt, private_key_jwt
+												</li>
+												<li>
+													<strong>Exact Redirect URI Match:</strong> The redirect_uri in the
+													authorization request must exactly match what's registered in PingOne
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				)}
+
+				{/* Hybrid Flow Educational Sections (only for hybrid flow) */}
+				{flowType === 'hybrid' && (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setHybridOverviewCollapsed(!hybridOverviewCollapsed)}
+								aria-expanded={!hybridOverviewCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> What is Hybrid Flow?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={hybridOverviewCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!hybridOverviewCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>Hybrid Flow Overview</InfoTitle>
+											<InfoText>
+												The Hybrid Flow (OpenID Connect Core 1.0 Section 3.3) combines elements of
+												both Authorization Code Flow and Implicit Flow. It's designed for OIDC flows
+												where you need immediate access to an ID token while still maintaining the
+												security benefits of the Authorization Code Flow.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>How Hybrid Flow Works</InfoTitle>
+											<InfoText>
+												Hybrid Flow uses a <code>response_type</code> that includes both <code>code</code>{' '}
+												and <code>id_token</code>, allowing some tokens to be returned immediately in
+												the front channel (URL fragment or query) while others are obtained via secure
+												back-channel exchange.
+											</InfoText>
+											<InfoList>
+												<li>
+													<strong>Step 1:</strong> User is redirected to PingOne's authorization
+													server with <code>response_type=code id_token</code>
+												</li>
+												<li>
+													<strong>Step 2:</strong> PingOne redirects back with both an authorization
+													code AND an ID token (in URL fragment or query, depending on response_mode)
+												</li>
+												<li>
+													<strong>Step 3:</strong> Your application can use the ID token immediately
+													for user identification
+												</li>
+												<li>
+													<strong>Step 4:</strong> Your application exchanges the authorization code
+													for access token and refresh token via secure back-channel
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setHybridDetailsCollapsed(!hybridDetailsCollapsed)}
+								aria-expanded={!hybridDetailsCollapsed}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Hybrid Flow vs Authorization Code Flow
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={hybridDetailsCollapsed}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!hybridDetailsCollapsed && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>Key Similarities</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Same Security Model:</strong> Both use authorization code exchange
+													for access tokens
+												</li>
+												<li>
+													<strong>PKCE Support:</strong> Both support PKCE for enhanced security
+												</li>
+												<li>
+													<strong>Refresh Tokens:</strong> Both support refresh tokens (with
+													offline_access scope)
+												</li>
+												<li>
+													<strong>Client Secret Protection:</strong> Both use secure back-channel
+													for token exchange
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Key Differences</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Response Type:</strong> Hybrid uses <code>code id_token</code> while
+													Authorization Code uses <code>code</code>
+												</li>
+												<li>
+													<strong>Immediate ID Token:</strong> Hybrid returns ID token immediately in
+													URL fragment/query, while Authorization Code requires token exchange first
+												</li>
+												<li>
+													<strong>Use Case:</strong> Hybrid is useful when you need immediate user
+													identification (ID token) while still getting access/refresh tokens securely
+												</li>
+												<li>
+													<strong>OIDC Only:</strong> Hybrid Flow is an OIDC-specific flow (requires
+													OIDC Core 1.0 specification)
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>When to Use Hybrid Flow</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>OIDC Flows:</strong> When you need both user authentication (ID token)
+													and API authorization (access token)
+												</li>
+												<li>
+													<strong>Immediate User Info:</strong> When you need to identify the user
+													immediately without waiting for token exchange
+												</li>
+												<li>
+													<strong>SPAs with OIDC:</strong> Single-page applications that need ID token
+													for user session management
+												</li>
+											</InfoList>
+											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+												<strong>Note:</strong> For most use cases, Authorization Code Flow with PKCE is
+												sufficient. Use Hybrid Flow only when you specifically need immediate ID token
+												access.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -4267,34 +5904,74 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						)}
 					</div>
 
-					<button
-						type="button"
-						className="btn btn-next"
-						onClick={handleGenerateAuthUrl}
-						disabled={isLoading}
-						style={{
-							minWidth: '280px',
-							padding: '14px 28px',
-							fontSize: '16px',
-							fontWeight: '600',
-							display: 'inline-flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: '8px',
-						}}
-					>
-						{isLoading ? (
-							<>
-								<span>⏳</span>
-								<span>Generating...</span>
-							</>
-						) : (
-							<>
-								<span>🔗</span>
-								<span>Generate Authorization URL</span>
-							</>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-start' }}>
+						<button
+							type="button"
+							className="btn btn-next"
+							onClick={handleGenerateAuthUrl}
+							disabled={isLoading || isPreFlightValidating}
+							style={{
+								minWidth: '280px',
+								padding: '14px 28px',
+								fontSize: '16px',
+								fontWeight: '600',
+								display: 'inline-flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '8px',
+							}}
+						>
+							{isPreFlightValidating ? (
+								<>
+									<span
+										style={{
+											display: 'inline-block',
+											animation: 'spin 1s linear infinite',
+										}}
+									>
+										🔍
+									</span>
+									<span>Validating...</span>
+								</>
+							) : isLoading ? (
+								<>
+									<span>⏳</span>
+									<span>Generating...</span>
+								</>
+							) : (
+								<>
+									<span>🔗</span>
+									<span>Generate Authorization URL</span>
+								</>
+							)}
+						</button>
+						{isPreFlightValidating && preFlightStatus && (
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '8px',
+									padding: '8px 12px',
+									background: '#eff6ff',
+									border: '1px solid #3b82f6',
+									borderRadius: '6px',
+									fontSize: '13px',
+									color: '#1e40af',
+								}}
+							>
+								<span
+									style={{
+										display: 'inline-block',
+										animation: 'spin 1s linear infinite',
+										fontSize: '14px',
+									}}
+								>
+									🔍
+								</span>
+								<span>{preFlightStatus}</span>
+							</div>
 						)}
-					</button>
+					</div>
 				</div>
 
 				{flowState.authorizationUrl && (
@@ -5152,7 +6829,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to parse callback URL';
 				setError(message);
-				nav.setValidationErrors([message]);
+				setValidationErrors([message]);
 				toastV8.error(message);
 			} finally {
 				setIsLoading(false);
@@ -5791,27 +7468,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				{/* Show Callback URL if we have it stored */}
 				{callbackDetails?.url && (
 					<div style={{ marginTop: '24px' }}>
-						<label
-							htmlFor={callbackUrlDisplayId}
-							style={{ display: 'block', marginBottom: '4px', fontWeight: '600' }}
-						>
-							🌐 Full Callback URL
-						</label>
-						<input
-							id={callbackUrlDisplayId}
-							type="text"
-							value={callbackDetails.url}
-							readOnly
-							style={{
-								width: '100%',
-								padding: '10px 12px',
-								borderRadius: '6px',
-								border: '1px solid #cbd5e1',
-								fontSize: '12px',
-								fontFamily: 'monospace',
-								background: '#f8fafc',
-								color: '#1f2937',
-							}}
+						<ColoredUrlDisplay
+							url={callbackDetails.url}
+							label="🌐 Full Callback URL"
+							showCopyButton={true}
+							showInfoButton={false}
+							showOpenButton={false}
+							height="auto"
 						/>
 					</div>
 				)}
@@ -6030,17 +7693,17 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 		// Validate required fields before requesting device authorization
 		if (!credentials.environmentId?.trim()) {
 			setError('Please provide an Environment ID in the configuration above.');
-			nav.setValidationErrors(['Please provide an Environment ID in the configuration above.']);
+			setValidationErrors(['Please provide an Environment ID in the configuration above.']);
 			return;
 		}
 		if (!credentials.clientId?.trim()) {
 			setError('Please provide a Client ID in the configuration above.');
-			nav.setValidationErrors(['Please provide a Client ID in the configuration above.']);
+			setValidationErrors(['Please provide a Client ID in the configuration above.']);
 			return;
 		}
 		if (!credentials.scopes?.trim()) {
 			setError('Please provide at least one scope in the configuration above.');
-			nav.setValidationErrors(['Please provide at least one scope in the configuration above.']);
+			setValidationErrors(['Please provide at least one scope in the configuration above.']);
 			return;
 		}
 
@@ -6066,13 +7729,216 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			pollingTimeoutRef.current = null;
 		}
 
+		// Pre-flight validation for device code flow
+		setIsPreFlightValidating(true);
+		setPreFlightStatus('🔍 Starting pre-flight validation...');
+		setError(null);
+		toastV8.info('🔍 Starting pre-flight validation...');
+
+		let validationResult: {
+			passed: boolean;
+			errors: string[];
+			warnings: string[];
+			fixableErrors?: Array<{
+				errorIndex: number;
+				errorType: string;
+				errorMessage: string;
+				fixable: boolean;
+				fixDescription: string;
+				fixData?: {
+					addScope?: string;
+				};
+			}>;
+		} | null = null;
+
+		try {
+			const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+			const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+			
+			setPreFlightStatus('🔑 Retrieving worker token...');
+			const workerToken = await workerTokenServiceV8.getToken();
+			
+			setPreFlightStatus('✅ Validating configuration against PingOne...');
+			
+			// For device code, only validate OAuth config (no redirect URI needed)
+			const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+				specVersion,
+				flowType,
+				credentials,
+				...(workerToken && { workerToken }),
+			});
+
+			// Analyze fixable errors
+			const fixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+				oauthConfigResult.errors,
+				{ specVersion, flowType, credentials, ...(workerToken && { workerToken }) },
+				undefined, // No redirect URIs for device code
+				undefined // No app config needed for device code
+			);
+
+			validationResult = {
+				passed: oauthConfigResult.passed,
+				errors: oauthConfigResult.errors,
+				warnings: oauthConfigResult.warnings,
+				fixableErrors,
+			};
+
+			console.log(`${MODULE_TAG} Pre-flight validation result:`, {
+				passed: validationResult.passed,
+				errorCount: validationResult.errors.length,
+				warningCount: validationResult.warnings.length,
+			});
+
+			// Store validation result for display
+			setPreFlightValidationResult({
+				passed: validationResult.passed,
+				errors: validationResult.errors,
+				warnings: validationResult.warnings,
+				fixableErrors: validationResult.fixableErrors || [],
+			});
+
+			// Handle errors and warnings
+			if (validationResult.errors.length > 0) {
+				const fixableErrors = validationResult.fixableErrors || [];
+				
+				if (fixableErrors.length > 0) {
+					const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+					const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+					const fixableCount = fixableErrors.length;
+					
+					let message = `Found ${fixableCount} fixable error(s).\n\n`;
+					message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
+					message += `Would you like to automatically fix all fixable errors?`;
+					
+					const confirmed = await uiNotificationServiceV8.confirm({
+						title: '🔧 Fix All Errors?',
+						message: message,
+						confirmText: 'Yes, Fix All',
+						cancelText: 'No, I\'ll Fix Manually',
+						severity: 'warning',
+					});
+					
+					if (confirmed) {
+						const updatedCredentials = { ...credentials };
+						const fixesApplied: string[] = [];
+						
+						for (const fixableError of fixableErrors) {
+							if (fixableError.fixData?.addScope) {
+								const currentScopes = updatedCredentials.scopes || '';
+								if (!currentScopes.includes(fixableError.fixData.addScope)) {
+									updatedCredentials.scopes = currentScopes.trim()
+										? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
+										: fixableError.fixData.addScope;
+									fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
+								}
+							}
+						}
+						
+						const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+						const flowKey = `${specVersion}-${flowType}-v8u`;
+						CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+						
+						if (onCredentialsChange) {
+							onCredentialsChange(updatedCredentials);
+						}
+						
+						toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
+						
+						// Re-run validation
+						setPreFlightStatus('🔍 Re-validating configuration...');
+						const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+							specVersion,
+							flowType,
+							credentials: updatedCredentials,
+							...(workerToken && { workerToken }),
+						});
+						
+					const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+						newOAuthConfigResult.errors,
+						{ specVersion, flowType, credentials: updatedCredentials, ...(workerToken && { workerToken }) },
+						undefined,
+						undefined
+					);
+						
+						setPreFlightValidationResult({
+							passed: newOAuthConfigResult.passed,
+							errors: newOAuthConfigResult.errors,
+							warnings: newOAuthConfigResult.warnings,
+							fixableErrors: newFixableErrors,
+						});
+						
+						if (newOAuthConfigResult.errors.length > 0) {
+							setValidationErrors(newOAuthConfigResult.errors);
+							setValidationWarnings([]);
+							toastV8.error('Some errors remain after fixes');
+							setIsPreFlightValidating(false);
+							setPreFlightStatus('');
+							setIsLoading(false);
+							setLoadingMessage('');
+							return;
+						} else if (newOAuthConfigResult.warnings.length > 0) {
+							setValidationWarnings(newOAuthConfigResult.warnings);
+							setValidationErrors([]);
+							toastV8.warning('Pre-flight validation warnings remain');
+						} else {
+							setValidationWarnings([]);
+							setValidationErrors([]);
+							toastV8.success('✅ All errors fixed! Pre-flight validation passed!');
+						}
+					} else {
+						// User declined auto-fix
+						setValidationErrors(validationResult.errors);
+						setValidationWarnings([]);
+						toastV8.error('Pre-flight validation failed - check error details below');
+						setIsPreFlightValidating(false);
+						setPreFlightStatus('');
+						setIsLoading(false);
+						setLoadingMessage('');
+						return;
+					}
+				} else {
+					// Errors but not fixable
+					setValidationErrors(validationResult.errors);
+					setValidationWarnings([]);
+					toastV8.error('Pre-flight validation failed - check error details below');
+					setIsPreFlightValidating(false);
+					setPreFlightStatus('');
+					setIsLoading(false);
+					setLoadingMessage('');
+					return;
+				}
+			}
+			
+			// Warnings only
+			if (validationResult.warnings.length > 0) {
+				setValidationWarnings(validationResult.warnings);
+				setValidationErrors([]);
+				toastV8.warning('⚠️ Pre-flight validation warnings - check details below');
+			} else {
+				// No errors or warnings - validation passed
+				setValidationWarnings([]);
+				setValidationErrors([]);
+				toastV8.success('✅ Pre-flight validation passed!');
+			}
+		} catch (validationError) {
+			console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
+			toastV8.error('Pre-flight validation encountered an error - continuing anyway');
+			setValidationWarnings([]);
+			setValidationErrors([]);
+			setPreFlightValidationResult({
+				passed: false,
+				errors: [validationError instanceof Error ? validationError.message : 'Unknown error'],
+				warnings: [],
+				fixableErrors: [],
+			});
+		} finally {
+			setIsPreFlightValidating(false);
+			setPreFlightStatus('');
+		}
+
 		setIsLoading(true);
 		setLoadingMessage('📱 Requesting Device Authorization...');
 		setError(null);
-
-		
-
-		
 
 		try {
 			
@@ -6165,18 +8031,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			const message = err instanceof Error ? err.message : 'Failed to request device authorization';
 			setError(message);
-			nav.setValidationErrors([message]);
+			setValidationErrors([message]);
 			toastV8.error(message);
 		} finally {
 			
 
 			
 
-			// Use functional update to ensure we're setting it correctly regardless of closure
-			setIsLoading((prev) => {
-				
-				return false;
-			});
+			setIsLoading(false);
+			setLoadingMessage('');
 
 			
 
@@ -6629,7 +8492,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						responseText = await response.text();
 						
 						errorData = JSON.parse(responseText);
-					} catch (parseErr) {
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					} catch (_parseErr) {
 						
 						console.error(`${MODULE_TAG} Failed to parse error response:`, responseText);
 						throw new Error(`Token polling failed: HTTP ${response.status} ${response.statusText}`);
@@ -6842,6 +8706,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						toastV8.tokenExchangeSuccess();
 						toastV8.stepCompleted(2);
 						
+						// Show success modal for device code flow
+						setShowDeviceCodeSuccessModal(true);
 						
 						
 						return; // Exit polling loop
@@ -6918,7 +8784,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						? { ...prev.pollingStatus, isPolling: false, error: message }
 						: { isPolling: false, pollCount: 0, error: message },
 				}));
-				nav.setValidationErrors([message]);
+				setValidationErrors([message]);
 				toastV8.error(message);
 			});
 		};
@@ -6978,6 +8844,62 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									→ Click "Next Step" below to view your tokens
 								</p>
 							</div>
+						</div>
+					</div>
+				)}
+
+				{/* Authorization Link - Open in Browser */}
+				{flowState.verificationUriComplete && (
+					<div
+						style={{
+							marginTop: '16px',
+							marginBottom: '16px',
+							padding: '16px',
+							background: '#fef3c7',
+							border: '2px solid #fbbf24',
+							borderRadius: '8px',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+							<span style={{ fontSize: '20px' }}>🌐</span>
+							<div style={{ flex: 1, minWidth: '200px' }}>
+								<strong style={{ color: '#92400e', fontSize: '14px', display: 'block', marginBottom: '4px' }}>
+									Authorize Device in Browser
+								</strong>
+								<p style={{ margin: '0', fontSize: '13px', color: '#78350f' }}>
+									Click the button below to open the authorization page in a new browser tab.
+									Enter the user code shown below to authorize this device.
+								</p>
+							</div>
+							<a
+								href={flowState.verificationUriComplete}
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{
+									padding: '10px 20px',
+									background: '#f59e0b',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									fontSize: '14px',
+									fontWeight: '600',
+									textDecoration: 'none',
+									display: 'inline-flex',
+									alignItems: 'center',
+									gap: '8px',
+									cursor: 'pointer',
+									whiteSpace: 'nowrap',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.background = '#d97706';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.background = '#f59e0b';
+								}}
+							>
+								<span>🔗</span>
+								<span>Open Authorization Page</span>
+							</a>
 						</div>
 					</div>
 				)}
@@ -7132,6 +9054,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										try {
 											await navigator.clipboard.writeText(flowState.userCode || '');
 											toastV8.success('User code copied to clipboard');
+										// eslint-disable-next-line @typescript-eslint/no-unused-vars
 										} catch (_err) {
 											toastV8.error('Failed to copy user code');
 										}
@@ -7414,25 +9337,275 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (flowType === 'client-credentials') {
 				if (!credentials.environmentId?.trim()) {
 					setError('Please provide an Environment ID in the configuration above.');
-					nav.setValidationErrors(['Please provide an Environment ID in the configuration above.']);
+					setValidationErrors(['Please provide an Environment ID in the configuration above.']);
 					return;
 				}
 				if (!credentials.clientId?.trim()) {
 					setError('Please provide a Client ID in the configuration above.');
-					nav.setValidationErrors(['Please provide a Client ID in the configuration above.']);
+					setValidationErrors(['Please provide a Client ID in the configuration above.']);
 					return;
 				}
 				if (!credentials.clientSecret?.trim()) {
 					setError('Please provide a Client Secret in the configuration above.');
-					nav.setValidationErrors(['Please provide a Client Secret in the configuration above.']);
+					setValidationErrors(['Please provide a Client Secret in the configuration above.']);
 					return;
 				}
 				if (!credentials.scopes?.trim()) {
 					setError('Please provide at least one scope in the configuration above.');
-					nav.setValidationErrors([
+					setValidationErrors([
 						'Please provide at least one scope in the configuration above.',
 					]);
 					return;
+				}
+			}
+
+			// Pre-flight validation for client credentials flow
+			if (flowType === 'client-credentials') {
+				setIsPreFlightValidating(true);
+				setPreFlightStatus('🔍 Starting pre-flight validation...');
+				setError(null);
+				toastV8.info('🔍 Starting pre-flight validation...');
+
+				let validationResult: {
+					passed: boolean;
+					errors: string[];
+					warnings: string[];
+					fixableErrors?: Array<{
+						errorIndex: number;
+						errorType: string;
+						errorMessage: string;
+						fixable: boolean;
+						fixDescription: string;
+						fixData?: {
+							authMethod?: string;
+							addScope?: string;
+						};
+					}>;
+					appConfig?: {
+						tokenEndpointAuthMethod?: string;
+					};
+				} | null = null;
+
+				try {
+					const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+					
+					setPreFlightStatus('🔑 Retrieving worker token...');
+					const workerToken = await workerTokenServiceV8.getToken();
+					
+					setPreFlightStatus('✅ Validating configuration against PingOne...');
+					
+					// For client credentials, only validate OAuth config (no redirect URI needed)
+					const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+						specVersion,
+						flowType,
+						credentials,
+						...(workerToken && { workerToken }),
+					});
+
+					// Fetch app config for fixable error analysis
+					let appConfig: {
+						tokenEndpointAuthMethod?: string;
+					} | undefined;
+					if (workerToken && credentials.environmentId && credentials.clientId) {
+						try {
+							const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+							const fetchedConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+								credentials.environmentId,
+								credentials.clientId,
+								workerToken
+							);
+							if (fetchedConfig) {
+								appConfig = {
+									tokenEndpointAuthMethod: fetchedConfig.tokenEndpointAuthMethod,
+								};
+							}
+						} catch (error) {
+							console.warn(`${MODULE_TAG} Could not fetch app config for fixable error analysis:`, error);
+						}
+					}
+
+					// Analyze fixable errors
+					const fixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+						oauthConfigResult.errors,
+						{ specVersion, flowType, credentials, ...(workerToken && { workerToken }) },
+						undefined, // No redirect URIs for client credentials
+						appConfig
+					);
+
+					validationResult = {
+						passed: oauthConfigResult.passed,
+						errors: oauthConfigResult.errors,
+						warnings: oauthConfigResult.warnings,
+						fixableErrors,
+						...(appConfig && { appConfig }),
+					};
+
+					console.log(`${MODULE_TAG} Pre-flight validation result:`, {
+						passed: validationResult.passed,
+						errorCount: validationResult.errors.length,
+						warningCount: validationResult.warnings.length,
+					});
+
+					// Store validation result for display
+					if (validationResult) {
+						setPreFlightValidationResult({
+							passed: validationResult.passed,
+							errors: validationResult.errors,
+							warnings: validationResult.warnings,
+							fixableErrors: validationResult.fixableErrors || [],
+							...(validationResult.appConfig && { appConfig: validationResult.appConfig }),
+						});
+					}
+
+					// Handle errors and warnings
+					if (validationResult && validationResult.errors.length > 0) {
+						const fixableErrors = validationResult.fixableErrors || [];
+						
+						if (fixableErrors.length > 0) {
+							const { uiNotificationServiceV8 } = await import('@/v8/services/uiNotificationServiceV8');
+							const fixDescriptions = fixableErrors.map(fe => `  • ${fe.fixDescription}`).join('\n');
+							const fixableCount = fixableErrors.length;
+							const totalErrors = validationResult.errors.length;
+							
+							let message = `Found ${fixableCount} fixable error(s) out of ${totalErrors} total error(s).\n\n`;
+							message += `The following can be automatically fixed:\n${fixDescriptions}\n\n`;
+							message += `Would you like to automatically fix all fixable errors?`;
+							
+							const confirmed = await uiNotificationServiceV8.confirm({
+								title: '🔧 Fix All Errors?',
+								message: message,
+								confirmText: 'Yes, Fix All',
+								cancelText: 'No, I\'ll Fix Manually',
+								severity: 'warning',
+							});
+							
+							if (confirmed) {
+								const updatedCredentials = { ...credentials };
+								const fixesApplied: string[] = [];
+								
+								for (const fixableError of fixableErrors) {
+									if (fixableError.fixData) {
+										if (fixableError.fixData.authMethod) {
+											updatedCredentials.clientAuthMethod = fixableError.fixData.authMethod as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
+											fixesApplied.push(`Auth method: ${fixableError.fixData.authMethod}`);
+										}
+										if (fixableError.fixData.addScope) {
+											const currentScopes = updatedCredentials.scopes || '';
+											if (!currentScopes.includes(fixableError.fixData.addScope)) {
+												updatedCredentials.scopes = currentScopes.trim()
+													? `${currentScopes.trim()} ${fixableError.fixData.addScope}`
+													: fixableError.fixData.addScope;
+												fixesApplied.push(`Added scope: ${fixableError.fixData.addScope}`);
+											}
+										}
+									}
+								}
+								
+								const { CredentialsServiceV8 } = await import('@/v8/services/credentialsServiceV8');
+								const flowKey = `${specVersion}-${flowType}-v8u`;
+								CredentialsServiceV8.saveCredentials(flowKey, updatedCredentials);
+								
+								if (onCredentialsChange) {
+									onCredentialsChange(updatedCredentials);
+								}
+								
+								toastV8.success(`Fixed ${fixesApplied.length} error(s): ${fixesApplied.join(', ')}`);
+								
+								// Re-run validation
+								setPreFlightStatus('🔍 Re-validating configuration...');
+								const newOAuthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+									specVersion,
+									flowType,
+									credentials: updatedCredentials,
+									...(workerToken && { workerToken }),
+								});
+								
+								const newFixableErrors = PreFlightValidationServiceV8.analyzeFixableErrors(
+									newOAuthConfigResult.errors,
+									{ specVersion, flowType, credentials: updatedCredentials, ...(workerToken && { workerToken }) },
+									undefined,
+									appConfig
+								);
+								
+								setPreFlightValidationResult({
+									passed: newOAuthConfigResult.passed,
+									errors: newOAuthConfigResult.errors,
+									warnings: newOAuthConfigResult.warnings,
+									fixableErrors: newFixableErrors,
+								});
+								
+								if (newOAuthConfigResult.errors.length > 0) {
+									setValidationErrors(newOAuthConfigResult.errors);
+									setValidationWarnings([]);
+									toastV8.error('Some errors remain after fixes');
+									setIsPreFlightValidating(false);
+									setPreFlightStatus('');
+									setIsLoading(false);
+									setLoadingMessage('');
+									return;
+								} else if (newOAuthConfigResult.warnings.length > 0) {
+									setValidationWarnings(newOAuthConfigResult.warnings);
+									setValidationErrors([]);
+									toastV8.warning('Pre-flight validation warnings remain');
+								} else {
+									setValidationWarnings([]);
+									setValidationErrors([]);
+									toastV8.success('✅ All errors fixed! Pre-flight validation passed!');
+								}
+							} else {
+								// User declined auto-fix
+								if (validationResult) {
+									setValidationErrors(validationResult.errors);
+									setValidationWarnings([]);
+								}
+								toastV8.error('Pre-flight validation failed - check error details below');
+								setIsPreFlightValidating(false);
+								setPreFlightStatus('');
+								setIsLoading(false);
+								setLoadingMessage('');
+								return;
+							}
+						} else {
+							// Errors but not fixable
+							if (validationResult) {
+								setValidationErrors(validationResult.errors);
+								setValidationWarnings([]);
+							}
+							toastV8.error('Pre-flight validation failed - check error details below');
+							setIsPreFlightValidating(false);
+							setPreFlightStatus('');
+							setIsLoading(false);
+							setLoadingMessage('');
+							return;
+						}
+					}
+					
+					// Warnings only
+					if (validationResult && validationResult.warnings.length > 0) {
+						setValidationWarnings(validationResult.warnings);
+						setValidationErrors([]);
+						toastV8.warning('⚠️ Pre-flight validation warnings - check details below');
+					} else {
+						// No errors or warnings - validation passed
+						setValidationWarnings([]);
+						setValidationErrors([]);
+						toastV8.success('✅ Pre-flight validation passed!');
+					}
+				} catch (validationError) {
+					console.error(`${MODULE_TAG} ⚠️ Pre-flight validation error:`, validationError);
+					toastV8.error('Pre-flight validation encountered an error - continuing anyway');
+					setValidationWarnings([]);
+					setValidationErrors([]);
+					setPreFlightValidationResult({
+						passed: false,
+						errors: [validationError instanceof Error ? validationError.message : 'Unknown error'],
+						warnings: [],
+						fixableErrors: [],
+					});
+				} finally {
+					setIsPreFlightValidating(false);
+					setPreFlightStatus('');
 				}
 			}
 
@@ -7482,7 +9655,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to request token';
 				setError(message);
-				nav.setValidationErrors([message]);
+				setValidationErrors([message]);
 				toastV8.error(message);
 			} finally {
 				setIsLoading(false);
@@ -7782,6 +9955,8 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								params.append('client_secret', credentials.clientSecret?.trim() || '');
 							}
 
+							// @ts-expect-error - Reserved for future use
+							// eslint-disable-next-line @typescript-eslint/no-unused-vars
 							const _requestBody = params.toString();
 							const hasAuthHeader = authMethod === 'client_secret_basic';
 
@@ -7880,6 +10055,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			// flowState can get lost during navigation, but sessionStorage persists
 			let effectiveCodeVerifier = flowState.codeVerifier;
 			let effectiveCodeChallenge = flowState.codeChallenge;
+			let effectiveCodeChallengeMethod: 'S256' | 'plain' = 'S256'; // Default to S256
 
 			// BULLETPROOF: Load PKCE codes from quadruple-redundant storage
 			// Try sync first (fast), then async (includes IndexedDB)
@@ -7893,10 +10069,22 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (storedPKCE) {
 				effectiveCodeVerifier = storedPKCE.codeVerifier;
 				effectiveCodeChallenge = storedPKCE.codeChallenge;
+				// CRITICAL: Always use 'S256' - if stored codes have 'plain', they're from an old version
+				// Using 'plain' would cause PKCE mismatch errors since we now always generate with S256
+				// If the stored method is 'plain', we should regenerate codes, but for now force S256 to avoid immediate errors
+				if (storedPKCE.codeChallengeMethod && storedPKCE.codeChallengeMethod !== 'S256') {
+					console.warn(
+						`${MODULE_TAG} ⚠️ Stored PKCE codes have codeChallengeMethod='${storedPKCE.codeChallengeMethod}' instead of 'S256'. ` +
+						`This may cause PKCE mismatch. Please regenerate PKCE codes in Step 1.`
+					);
+				}
+				effectiveCodeChallengeMethod = 'S256' as const;
 				console.log(`${MODULE_TAG} ✅ Loaded PKCE codes from bulletproof storage`, {
 					codeVerifierLength: effectiveCodeVerifier.length,
 					codeChallengeLength: effectiveCodeChallenge.length,
 					savedAt: new Date(storedPKCE.savedAt).toISOString(),
+					storedMethod: storedPKCE.codeChallengeMethod,
+					usingMethod: effectiveCodeChallengeMethod,
 				});
 
 				// Sync flowState
@@ -7960,7 +10148,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			if (!flowState.authorizationCode) {
 				console.error(`${MODULE_TAG} ❌ VALIDATION FAILED: Missing authorization code`);
 				setError('Authorization code is required. Please complete the callback step first.');
-				nav.setValidationErrors(['Authorization code is required']);
+				setValidationErrors(['Authorization code is required']);
 				return;
 			}
 
@@ -7972,7 +10160,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				);
 				const errorMsg = `PKCE is ${credentials.pkceEnforcement || 'REQUIRED'} but code verifier is missing. Please go back to Step 0 (Configuration) and generate PKCE codes in Advanced Options.`;
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				toastV8.error(errorMsg);
 				return;
 			}
@@ -7989,7 +10177,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg =
 					'Client ID is required for token exchange. Credentials may have been lost. Please check your configuration.';
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				console.error(`${MODULE_TAG} Missing clientId in credentials:`, {
 					credentials,
 					hasClientId: !!credentials.clientId,
@@ -8003,7 +10191,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg =
 					'Environment ID is required for token exchange. Please check your configuration.';
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				console.error(`${MODULE_TAG} Missing environmentId in credentials:`, {
 					credentials,
 					hasEnvironmentId: !!credentials.environmentId,
@@ -8019,7 +10207,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				const errorMsg =
 					'Redirect URI is required for token exchange when PKCE is not required. Please check your configuration.';
 				setError(errorMsg);
-				nav.setValidationErrors([errorMsg]);
+				setValidationErrors([errorMsg]);
 				console.error(`${MODULE_TAG} Missing redirectUri in credentials (PKCE not required):`, {
 					credentials,
 					usePKCE: isPKCERequired,
@@ -8041,11 +10229,47 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				hasCodeVerifier: !!effectiveCodeVerifier,
 				authCodeLength: flowState.authorizationCode.length,
 				codeVerifierLength: effectiveCodeVerifier?.length,
+				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post (default)',
 			});
+
+			// Final safety check: Ensure clientAuthMethod is synced from PingOne before token exchange
+			// This catches cases where app config wasn't fetched earlier or credentials were loaded before app config
+			let effectiveCredentials = credentials;
+			if (credentials.clientId && credentials.environmentId && (!credentials.clientAuthMethod || credentials.clientAuthMethod === 'client_secret_post')) {
+				try {
+					const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+					const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+					const workerToken = await workerTokenServiceV8.getToken();
+					
+					if (workerToken) {
+						console.log(`${MODULE_TAG} 🔍 Final check: Fetching app config to ensure correct auth method...`);
+						const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+							credentials.environmentId,
+							credentials.clientId,
+							workerToken
+						);
+						
+						if (appConfig?.tokenEndpointAuthMethod && credentials.clientAuthMethod !== appConfig.tokenEndpointAuthMethod) {
+							console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne before token exchange:`, {
+								from: credentials.clientAuthMethod || 'client_secret_post (default)',
+								to: appConfig.tokenEndpointAuthMethod,
+							});
+							// Create updated credentials with correct auth method from PingOne
+							effectiveCredentials = {
+								...credentials,
+								clientAuthMethod: appConfig.tokenEndpointAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none',
+							};
+						}
+					}
+				} catch (configError) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config before token exchange (continuing with current auth method):`, configError);
+					// Continue with current auth method - don't fail token exchange
+				}
+			}
 
 			setIsLoading(true);
 			setError(null);
-			nav.setValidationErrors([]);
+			setValidationErrors([]);
 
 			try {
 				console.log(`${MODULE_TAG} 🚀 Calling UnifiedFlowIntegrationV8U.exchangeCodeForTokens...`);
@@ -8054,9 +10278,13 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					codeVerifierLength: effectiveCodeVerifier?.length,
 					codeVerifierPreview: `${effectiveCodeVerifier?.substring(0, 20)}...`,
 				});
+				console.log(`${MODULE_TAG} 🔐 Using auth method:`, {
+					clientAuthMethod: effectiveCredentials.clientAuthMethod || 'client_secret_post (default)',
+					source: effectiveCredentials.clientAuthMethod !== credentials.clientAuthMethod ? 'from PingOne (just fetched)' : credentials.clientAuthMethod ? 'from credentials' : 'default',
+				});
 				const tokens = await UnifiedFlowIntegrationV8U.exchangeCodeForTokens(
 					flowType as 'oauth-authz' | 'hybrid',
-					credentials,
+					effectiveCredentials, // Use effective credentials with correct auth method
 					flowState.authorizationCode,
 					effectiveCodeVerifier // Use the effective code verifier (from flowState or sessionStorage)
 				);
@@ -8067,7 +10295,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasRefreshToken: !!tokens.refresh_token,
 					expiresIn: tokens.expires_in,
 					tokenType: tokens.token_type,
+					enableRefreshToken: credentials.enableRefreshToken,
+					scopesRequested: credentials.scopes,
+					refreshTokenInResponse: !!tokens.refresh_token,
 				});
+
+				// Warn if refresh token was expected but not received
+				if (credentials.enableRefreshToken && !tokens.refresh_token) {
+					console.warn(`${MODULE_TAG} ⚠️ Refresh token expected but not received`, {
+						enableRefreshToken: credentials.enableRefreshToken,
+						scopesRequested: credentials.scopes,
+						hasOfflineAccessScope: credentials.scopes?.includes('offline_access'),
+						note: 'Check that Refresh Token grant is enabled in PingOne application settings',
+					});
+					toastV8.warning('Refresh token not received. Ensure Refresh Token grant is enabled in PingOne and offline_access scope is in allowed scopes.');
+				}
 
 				// Filter tokens based on spec version (OAuth 2.0/2.1 should not have id_token)
 				const filteredTokens = filterTokensBySpec(tokens as TokenResponse);
@@ -8089,7 +10331,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				});
 				nav.markStepComplete();
 				// Clear validation errors when tokens are successfully received
-				nav.setValidationErrors([]);
+				setValidationErrors([]);
 
 				// Fetch UserInfo if OIDC and access token available (using OIDC discovery)
 				if (specVersion === 'oidc' && tokens.access_token) {
@@ -8131,15 +10373,41 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			} catch (err) {
 				const message = err instanceof Error ? err.message : 'Failed to exchange code for tokens';
 
-				// Check if error is about missing code_verifier (PKCE required by server)
-				if (message.includes('code_verifier') || message.includes('PKCE')) {
+				// Check for specific PKCE mismatch error with 'plain' code_challenge_method
+				// This happens when old PKCE codes with 'plain' method were used to generate the authorization URL
+				if (message.includes('plain code_challenge_method') || (message.includes('code_verifier') && message.includes('plain'))) {
+					console.error(`${MODULE_TAG} ❌ PKCE mismatch detected: Authorization URL was generated with 'plain' method`);
+					
+					// Automatically clear old PKCE codes with 'plain' method
+					try {
+						const storedPKCE = PKCEStorageServiceV8U.loadPKCECodes(flowKey);
+						if (storedPKCE?.codeChallengeMethod === 'plain') {
+							console.log(`${MODULE_TAG} 🗑️ Clearing old PKCE codes with 'plain' method...`);
+							await PKCEStorageServiceV8U.clearPKCECodes(flowKey);
+							// Also clear from flowState by creating new state without PKCE properties
+							setFlowState((prev) => {
+								// eslint-disable-next-line @typescript-eslint/no-unused-vars
+								const { codeVerifier: _codeVerifier, codeChallenge: _codeChallenge, ...rest } = prev;
+								return rest;
+							});
+							console.log(`${MODULE_TAG} ✅ Old PKCE codes cleared`);
+						}
+					} catch (clearError) {
+						console.error(`${MODULE_TAG} Failed to clear old PKCE codes:`, clearError);
+					}
+					
+					const enhancedMessage = `${message}\n\n🔧 FIX: Your authorization URL was generated with old PKCE codes using 'plain' method.\n\nPlease:\n1. Go back to Step 1 (Generate PKCE Parameters)\n2. Click "Generate PKCE Parameters" to create new codes with 'S256' method\n3. Go to Step 2 and click "Generate Authorization URL" again\n4. Complete authentication and try token exchange again\n\nNote: Old PKCE codes have been automatically cleared.`;
+					setError(enhancedMessage);
+					setValidationErrors([enhancedMessage]);
+					toastV8.error('PKCE method mismatch - old codes cleared, please regenerate');
+				} else if (message.includes('code_verifier') || message.includes('PKCE')) {
 					const enhancedMessage = `${message}\n\n💡 This error means your PingOne application requires PKCE. Please:\n1. Go back to Step 0 (Configuration)\n2. Open Advanced Options\n3. Generate PKCE parameters\n4. Start the flow again from Step 1`;
 					setError(enhancedMessage);
-					nav.setValidationErrors([enhancedMessage]);
+					setValidationErrors([enhancedMessage]);
 					toastV8.error('PKCE required - please enable PKCE and restart the flow');
 				} else {
 					setError(message);
-					nav.setValidationErrors([message]);
+					setValidationErrors([message]);
 					toastV8.error(message);
 				}
 			} finally {
@@ -8508,12 +10776,107 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 			credentials.clientSecret,
 			credentials.clientAuthMethod,
 			flowState.tokens?.accessToken,
-			credentials.scopes,
-			flowState.tokens?.idToken,
 			flowState.tokens?.refreshToken,
-			flowType,
+			flowState.tokens?.idToken,
 		]
 	);
+
+	// Handle token refresh
+	const handleRefreshToken = useCallback(async () => {
+		if (!flowState.tokens?.refreshToken) {
+			toastV8.error('Refresh token not available');
+			return;
+		}
+
+		if (!credentials.environmentId || !credentials.clientId) {
+			toastV8.error('Missing credentials required for token refresh');
+			return;
+		}
+
+		setRefreshLoading(true);
+		setRefreshError(null);
+		setRefreshResult(null);
+
+		try {
+			const { OAuthIntegrationServiceV8 } = await import('@/v8/services/oauthIntegrationServiceV8');
+
+			// Store old tokens for comparison
+			const oldTokens = {
+				...(flowState.tokens?.accessToken && { accessToken: flowState.tokens.accessToken }),
+				...(flowState.tokens?.refreshToken && { refreshToken: flowState.tokens.refreshToken }),
+			};
+
+			// Refresh the token
+			if (!flowState.tokens?.refreshToken) {
+				throw new Error('No refresh token available to refresh access token');
+			}
+			
+			if (!credentials.redirectUri || !credentials.scopes) {
+				throw new Error('Redirect URI and scopes are required for token refresh');
+			}
+
+			const newTokenResponse = await OAuthIntegrationServiceV8.refreshAccessToken(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					...(credentials.clientSecret && { clientSecret: credentials.clientSecret }),
+					redirectUri: credentials.redirectUri,
+					scopes: credentials.scopes,
+					clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
+				},
+				flowState.tokens.refreshToken
+			);
+
+			// Update flow state with new tokens
+			const newTokens = {
+				accessToken: newTokenResponse.access_token,
+				refreshToken: newTokenResponse.refresh_token || flowState.tokens.refreshToken, // May reuse refresh token
+				expiresIn: newTokenResponse.expires_in,
+			};
+
+			// Update flow state
+			setFlowState((prev) => ({
+				...prev,
+				tokens: {
+					...prev.tokens,
+					...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
+					...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
+					...(newTokenResponse.id_token && { idToken: newTokenResponse.id_token }),
+					...(newTokens.expiresIn && { expiresIn: newTokens.expiresIn }),
+				},
+			}));
+
+			// Store result for visualization
+			setRefreshResult({
+				oldTokens,
+				newTokens: {
+					...(newTokens.accessToken && { accessToken: newTokens.accessToken }),
+					...(newTokens.refreshToken && { refreshToken: newTokens.refreshToken }),
+				},
+			});
+
+			toastV8.success('Access token refreshed successfully!');
+			console.log(`${MODULE_TAG} ✅ Token refresh successful`, {
+				hasNewAccessToken: !!newTokens.accessToken,
+				hasNewRefreshToken: !!newTokens.refreshToken,
+				expiresIn: newTokens.expiresIn,
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Failed to refresh token';
+			console.error(`${MODULE_TAG} ❌ Token refresh failed`, { error: message });
+			setRefreshError(message);
+			toastV8.error(message);
+		} finally {
+			setRefreshLoading(false);
+		}
+	}, [
+		flowState.tokens,
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.clientSecret,
+		credentials.clientAuthMethod,
+		setFlowState,
+	]);
 
 	// Step 3: Display Tokens (all flows - final step)
 	const renderStep3Tokens = () => {
@@ -8696,7 +11059,21 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	// ALWAYS SHOWS - even without tokens, to inform users what they can/cannot do
 	const renderStep6IntrospectionUserInfo = () => {
 		// Get operation rules to determine what's allowed
-		const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, credentials.scopes);
+		// Use the actual scopes that were sent (including offline_access if enableRefreshToken was true)
+		const scopesForRules = credentials.scopes || '';
+		const operationRules = TokenOperationsServiceV8.getOperationRules(flowType, scopesForRules);
+		
+		// Debug logging
+		console.log(`${MODULE_TAG} [INTROSPECTION] Operation rules check`, {
+			flowType,
+			scopes: scopesForRules,
+			canIntrospectAccessToken: operationRules.canIntrospectAccessToken,
+			canIntrospectRefreshToken: operationRules.canIntrospectRefreshToken,
+			hasAccessToken: !!flowState.tokens?.accessToken,
+			hasRefreshToken: !!flowState.tokens?.refreshToken,
+			clientAuthMethod: credentials.clientAuthMethod,
+			introspectionReason: operationRules.introspectionReason,
+		});
 
 		// Check if we have tokens (needed for actual operations)
 		const hasAccessToken = !!flowState.tokens?.accessToken;
@@ -8924,9 +11301,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					style={{
 						marginTop: '24px',
 						padding: '16px',
-						background: operationRules.canIntrospectAccessToken ? '#fef3c7' : '#f3f4f6', // Light yellow if allowed, gray if not
+						background: operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#f3f4f6', // Light yellow if allowed and token available, gray if not
 						borderRadius: '8px',
-						border: `1px solid ${operationRules.canIntrospectAccessToken ? '#f59e0b' : '#9ca3af'}`,
+						border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#9ca3af'}`,
 					}}
 				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -8935,12 +11312,12 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							style={{
 								margin: 0,
 								fontSize: '18px',
-								color: operationRules.canIntrospectAccessToken ? '#92400e' : '#6b7280',
+								color: operationRules.canIntrospectAccessToken && hasAccessToken ? '#92400e' : '#6b7280',
 								flex: 1,
 							}}
 						>
 							Token Introspection
-							{operationRules.canIntrospectAccessToken ? (
+							{operationRules.canIntrospectAccessToken && hasAccessToken ? (
 								<span
 									style={{
 										marginLeft: '8px',
@@ -8960,7 +11337,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										fontWeight: 'normal',
 									}}
 								>
-									❌ Not Available
+									❌ {!hasAccessToken ? 'Access Token Required' : 'Not Available'}
 								</span>
 							)}
 						</h3>
@@ -8970,19 +11347,29 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					<div
 						style={{
 							padding: '12px',
-							background: operationRules.canIntrospectAccessToken ? '#fef3c7' : '#fee2e2',
-							border: `1px solid ${operationRules.canIntrospectAccessToken ? '#f59e0b' : '#ef4444'}`,
+							background: operationRules.canIntrospectAccessToken && hasAccessToken ? '#fef3c7' : '#fee2e2',
+							border: `1px solid ${operationRules.canIntrospectAccessToken && hasAccessToken ? '#f59e0b' : '#ef4444'}`,
 							borderRadius: '6px',
 							marginBottom: '12px',
-							color: operationRules.canIntrospectAccessToken ? '#78350f' : '#991b1b',
+							color: operationRules.canIntrospectAccessToken && hasAccessToken ? '#78350f' : '#991b1b',
 							fontSize: '14px',
 						}}
 					>
-						<strong>{operationRules.canIntrospectAccessToken ? '✅ ' : '❌ '}</strong>
-						{operationRules.introspectionReason}
+						<strong>{operationRules.canIntrospectAccessToken && hasAccessToken ? '✅ ' : '❌ '}</strong>
+						{!hasAccessToken 
+							? 'Access token required - complete the token exchange step first'
+							: !operationRules.canIntrospectAccessToken
+								? operationRules.introspectionReason
+								: operationRules.introspectionReason
+						}
 						{operationRules.introspectionExplanation && (
 							<div style={{ marginTop: '8px', fontSize: '13px', opacity: 0.9 }}>
 								{operationRules.introspectionExplanation}
+								{!hasAccessToken && (
+									<div style={{ marginTop: '8px', fontWeight: '600' }}>
+										💡 Complete Step 3 (Exchange Code for Tokens) to receive an access token.
+									</div>
+								)}
 							</div>
 						)}
 
@@ -9283,6 +11670,214 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					)}
 				</div>
 
+				{/* Token Refresh Section */}
+				{hasRefreshToken && (
+					<div
+						style={{
+							marginTop: '32px',
+							padding: '16px',
+							background: '#f0f9ff',
+							borderRadius: '8px',
+							border: '1px solid #0ea5e9',
+						}}
+					>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+							<span style={{ fontSize: '24px' }}>🔄</span>
+							<h3
+								style={{
+									margin: 0,
+									fontSize: '18px',
+									color: '#0c4a6e',
+									flex: 1,
+								}}
+							>
+								Token Refresh Flow
+							</h3>
+						</div>
+
+						<p
+							style={{
+								margin: '0 0 12px 0',
+								color: '#0c4a6e',
+								fontSize: '14px',
+							}}
+						>
+							Demonstrate token refresh: Use your refresh token to obtain a new access token without
+							requiring the user to authenticate again.
+						</p>
+
+						{refreshError && (
+							<div
+								style={{
+									padding: '12px',
+									background: '#fee2e2',
+									border: '1px solid #ef4444',
+									borderRadius: '6px',
+									color: '#991b1b',
+									marginBottom: '12px',
+								}}
+							>
+								❌ {refreshError}
+							</div>
+						)}
+
+						{refreshResult ? (
+							<>
+								<div
+									style={{
+										padding: '12px',
+										background: '#d1fae5',
+										border: '1px solid #22c55e',
+										borderRadius: '6px',
+										color: '#065f46',
+										marginBottom: '12px',
+									}}
+								>
+									✅ Token refreshed successfully!
+								</div>
+
+								{/* Token Comparison */}
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: '1fr 1fr',
+										gap: '12px',
+										marginBottom: '12px',
+									}}
+								>
+									{/* Old Token */}
+									<div
+										style={{
+											padding: '12px',
+											background: '#fef3c7',
+											border: '1px solid #f59e0b',
+											borderRadius: '6px',
+										}}
+									>
+										<div
+											style={{
+												fontWeight: '600',
+												marginBottom: '8px',
+												color: '#78350f',
+												fontSize: '13px',
+											}}
+										>
+											Before Refresh:
+										</div>
+										<div style={{ fontSize: '12px', color: '#92400e', fontFamily: 'monospace' }}>
+											Access Token: {refreshResult.oldTokens.accessToken?.substring(0, 20)}...
+										</div>
+									</div>
+
+									{/* New Token */}
+									<div
+										style={{
+											padding: '12px',
+											background: '#d1fae5',
+											border: '1px solid #22c55e',
+											borderRadius: '6px',
+										}}
+									>
+										<div
+											style={{
+												fontWeight: '600',
+												marginBottom: '8px',
+												color: '#065f46',
+												fontSize: '13px',
+											}}
+										>
+											After Refresh:
+										</div>
+										<div style={{ fontSize: '12px', color: '#047857', fontFamily: 'monospace' }}>
+											Access Token: {refreshResult.newTokens.accessToken?.substring(0, 20)}...
+										</div>
+										{refreshResult.newTokens.expiresIn && (
+											<div style={{ fontSize: '11px', color: '#047857', marginTop: '4px' }}>
+												Expires in: {refreshResult.newTokens.expiresIn} seconds
+											</div>
+										)}
+									</div>
+								</div>
+
+								{/* Educational Info */}
+								<div
+									style={{
+										padding: '12px',
+										background: '#dbeafe',
+										border: '1px solid #3b82f6',
+										borderRadius: '6px',
+										fontSize: '13px',
+										color: '#1e3a8a',
+									}}
+								>
+									<strong>💡 Token Refresh Lifecycle:</strong>
+									<ul style={{ margin: '8px 0 0 0', paddingLeft: '20px', lineHeight: '1.6' }}>
+										<li>
+											Access tokens expire (typically 1 hour) and need to be refreshed
+										</li>
+										<li>
+											Refresh tokens are long-lived and used to obtain new access tokens
+										</li>
+										<li>
+											The refresh token may be rotated (new one issued) or reused depending on
+											server configuration
+										</li>
+										<li>
+											This allows users to stay authenticated without re-entering credentials
+										</li>
+									</ul>
+								</div>
+
+								<button
+									type="button"
+									onClick={() => {
+										setRefreshResult(null);
+										setRefreshError(null);
+									}}
+									style={{
+										marginTop: '12px',
+										padding: '8px 16px',
+										background: '#6b7280',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										cursor: 'pointer',
+										fontSize: '13px',
+									}}
+								>
+									Clear Results
+								</button>
+							</>
+						) : (
+							<button
+								type="button"
+								onClick={handleRefreshToken}
+								disabled={refreshLoading || !hasRefreshToken}
+								style={{
+									padding: '10px 16px',
+									background: refreshLoading || !hasRefreshToken ? '#9ca3af' : '#0ea5e9',
+									color: 'white',
+									border: 'none',
+									borderRadius: '6px',
+									cursor: refreshLoading || !hasRefreshToken ? 'not-allowed' : 'pointer',
+									fontSize: '14px',
+									fontWeight: '600',
+									opacity: refreshLoading || !hasRefreshToken ? 0.6 : 1,
+								}}
+								title={
+									!hasRefreshToken
+										? 'Refresh token not available'
+										: refreshLoading
+											? 'Refreshing token...'
+											: 'Refresh access token using refresh token'
+								}
+							>
+								{refreshLoading ? '🔄 Refreshing...' : '🔄 Refresh Access Token'}
+							</button>
+						)}
+					</div>
+				)}
+
 				{/* Info Box */}
 				<div
 					style={{
@@ -9312,9 +11907,63 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 								<li>
 									<strong>Introspection:</strong> Returns token metadata (expiration, scopes, etc.)
 								</li>
+								<li>
+									<strong>Token Refresh:</strong> Obtains new access token using refresh token
+								</li>
 							</ul>
 						</div>
 					</div>
+				</div>
+
+				{/* View Documentation Button - At bottom of introspection step */}
+				<div
+					style={{
+						marginTop: '32px',
+						padding: '20px',
+						background: '#f9fafb',
+						borderRadius: '8px',
+						border: '1px solid #e5e7eb',
+						textAlign: 'center',
+					}}
+				>
+					<p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#6b7280' }}>
+						View complete API call documentation with all requests and responses
+					</p>
+					<button
+						type="button"
+						onClick={() => {
+							// Navigate to documentation step
+							nav.goToStep(totalSteps - 1);
+						}}
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							justifyContent: 'center',
+							gap: '8px',
+							padding: '12px 24px',
+							background: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '14px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#2563eb';
+							e.currentTarget.style.transform = 'translateY(-1px)';
+							e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#3b82f6';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = 'none';
+						}}
+					>
+						<FiBook size={18} />
+						<span>View API Documentation</span>
+					</button>
 				</div>
 			</div>
 		);
@@ -9510,6 +12159,147 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 							}}
 						>
 							Request New Device Code
+						</button>
+					</div>
+				</div>
+			</div>
+		);
+	};
+
+	// Device Code Success Modal - shown after successful device authorization
+	const renderDeviceCodeSuccessModal = () => {
+		if (!showDeviceCodeSuccessModal || !flowState.tokens?.accessToken) return null;
+
+		return (
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="device-code-success-title"
+				style={{
+					display: showDeviceCodeSuccessModal ? 'flex' : 'none',
+					position: 'fixed',
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					backgroundColor: 'rgba(0, 0, 0, 0.6)',
+					alignItems: 'center',
+					justifyContent: 'center',
+					zIndex: 10000,
+					padding: '20px',
+				}}
+				onClick={() => setShowDeviceCodeSuccessModal(false)}
+				onKeyDown={(e) => {
+					if (e.key === 'Escape') {
+						setShowDeviceCodeSuccessModal(false);
+					}
+				}}
+			>
+				<div
+					style={{
+						backgroundColor: 'white',
+						borderRadius: '12px',
+						padding: '32px',
+						maxWidth: '550px',
+						width: '100%',
+						boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
+						position: 'relative',
+					}}
+					onClick={(e) => e.stopPropagation()}
+					onKeyDown={(e) => e.stopPropagation()}
+				>
+					{/* Header */}
+					<div style={{ textAlign: 'center', marginBottom: '24px' }}>
+						<div style={{ fontSize: '64px', marginBottom: '16px' }}>✅</div>
+						<h2
+							id="device-code-success-title"
+							style={{
+								margin: 0,
+								fontSize: '24px',
+								fontWeight: '700',
+								color: '#059669',
+							}}
+						>
+							Device Authorization Successful!
+						</h2>
+					</div>
+
+					{/* Success Message */}
+					<div
+						style={{
+							marginBottom: '24px',
+							padding: '20px',
+							background: '#d1fae5',
+							borderRadius: '8px',
+							border: '2px solid #10b981',
+						}}
+					>
+						<div
+							style={{
+								fontSize: '16px',
+								fontWeight: '600',
+								color: '#065f46',
+								marginBottom: '12px',
+							}}
+						>
+							🎉 Access Token Received
+						</div>
+						<div
+							style={{
+								fontSize: '14px',
+								color: '#047857',
+								lineHeight: '1.6',
+							}}
+						>
+							The device has been authorized successfully and tokens have been received. You can
+							now proceed to view your tokens and use them for API calls.
+						</div>
+						{flowState.tokens?.expiresIn && (
+							<div
+								style={{
+									marginTop: '12px',
+									padding: '8px 12px',
+									background: '#ecfdf5',
+									borderRadius: '6px',
+									fontSize: '13px',
+									color: '#047857',
+								}}
+							>
+								<strong>Token expires in:</strong> {flowState.tokens.expiresIn} seconds
+							</div>
+						)}
+					</div>
+
+					{/* Actions */}
+					<div
+						style={{
+							display: 'flex',
+							gap: '12px',
+							justifyContent: 'flex-end',
+						}}
+					>
+						<button
+							type="button"
+							onClick={() => setShowDeviceCodeSuccessModal(false)}
+							style={{
+								padding: '12px 24px',
+								background: '#10b981',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								fontSize: '14px',
+								fontWeight: '600',
+								cursor: 'pointer',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.background = '#059669';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.background = '#10b981';
+							}}
+						>
+							Continue to Tokens
 						</button>
 					</div>
 				</div>
@@ -10099,7 +12889,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 	return (
 		<>
 			<LoadingSpinnerModalV8U
-				show={isLoading && !!loadingMessage}
+				show={isLoading && !!loadingMessage && !(flowState.deviceCode && flowState.verificationUriComplete)}
 				message={loadingMessage}
 				theme="blue"
 			/>
@@ -10378,7 +13168,7 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						} else if (flowType === 'device-code' || flowType === 'implicit') {
 							isTokenStep = currentStep === 3; // Step 4 (0-indexed: 0, 1, 2, 3)
 						} else if (flowType === 'oauth-authz' || flowType === 'hybrid') {
-							isTokenStep = currentStep === 4; // Step 5 (0-indexed: 0, 1, 2, 3, 4)
+							isTokenStep = currentStep === 5; // Step 6 (0-indexed: 0=Config, 1=PKCE, 2=AuthURL, 3=Callback, 4=Exchange, 5=Tokens)
 						}
 						
 						// Enable button if tokens are present on token step, or if no validation errors
@@ -10437,6 +13227,9 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 
 			{/* Polling Timeout Modal */}
 			{renderPollingTimeoutModal()}
+
+			{/* Device Code Success Modal */}
+			{renderDeviceCodeSuccessModal()}
 
 			{/* PingOne Request Details Modal */}
 			{showPingOneRequestModal && pendingPingOneRequest && (
@@ -10614,6 +13407,98 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 				onClose={() => setShowWorkerTokenVsClientCredentialsModal(false)}
 				context={flowType === 'client-credentials' ? 'client-credentials' : 'general'}
 			/>
+
+			{/* Password Change Modal */}
+			{passwordChangeUserId && credentials.environmentId && (
+				<PasswordChangeModal
+					isOpen={showPasswordChangeModal}
+					onClose={() => {
+						setShowPasswordChangeModal(false);
+						setPasswordChangeUserId(null);
+						setPasswordChangeFlowId(null);
+						setPasswordChangeState(null);
+						setPasswordChangeUsername(null);
+					}}
+					onPasswordChange={handlePasswordChange}
+					userId={passwordChangeUserId}
+					environmentId={credentials.environmentId}
+					message="Your password must be changed before you can continue. Please enter your current password and choose a new one."
+				/>
+			)}
+
+			{/* Worker Token Modal */}
+			{showWorkerTokenModal && (
+				<WorkerTokenModalV8
+					isOpen={showWorkerTokenModal}
+					onClose={async () => {
+						setShowWorkerTokenModal(false);
+						// After modal closes, check if token is available and re-run validation
+						const { WorkerTokenStatusServiceV8 } = await import('@/v8/services/workerTokenStatusServiceV8');
+						const tokenStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
+						if (tokenStatus.isValid) {
+							// Re-run pre-flight validation
+							setIsLoading(true);
+							setLoadingMessage('🔍 Re-validating Configuration...');
+							try {
+								const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+								const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+								
+								const newWorkerToken = await workerTokenServiceV8.getToken();
+								const newValidationResult = await PreFlightValidationServiceV8.validateBeforeAuthUrl({
+									specVersion,
+									flowType,
+									credentials,
+									...(newWorkerToken && { workerToken: newWorkerToken }),
+								});
+								
+								// Update validation results
+								if (newValidationResult.errors.length > 0) {
+									const errorMessage = [
+										'🔍 Pre-flight Validation Results:',
+										'',
+										'❌ ERRORS (must be fixed before proceeding):',
+										...newValidationResult.errors.map(err => `  ${err}`),
+										'',
+										'🔧 How to Fix:',
+										'1. Go to Step 0 (Configuration)',
+										'2. Review and fix the errors listed above',
+										'3. Try generating the authorization URL again',
+										'',
+										'⚠️ WARNING: If you proceed with errors, the authorization request will likely fail.'
+									].join('\n');
+									setError(errorMessage);
+									setValidationErrors([errorMessage]);
+									setValidationWarnings([]);
+									toastV8.error('Pre-flight validation failed - check error details below');
+								} else if (newValidationResult.warnings.length > 0) {
+									const warningMessage = [
+										'🔍 Pre-flight Validation Results:',
+										'',
+										'⚠️ WARNINGS (you can still proceed):',
+										...newValidationResult.warnings.map(warn => `  ${warn}`),
+										'',
+										'✅ You can continue with the flow, but be aware that some validations were skipped.'
+									].join('\n');
+									setValidationWarnings([warningMessage]);
+									setValidationErrors([]);
+									toastV8.warning('Pre-flight validation warnings - check details below');
+								} else {
+									// No errors or warnings - validation passed
+									setValidationWarnings([]);
+									setValidationErrors([]);
+									toastV8.success('Pre-flight validation passed!');
+								}
+							} catch (error) {
+								console.error(`${MODULE_TAG} Error re-running validation after token retrieval:`, error);
+								toastV8.error('Failed to re-run validation. Please try again.');
+							} finally {
+								setIsLoading(false);
+								setLoadingMessage('');
+							}
+						}
+					}}
+				/>
+			)}
 		</>
 	);
 };

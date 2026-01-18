@@ -35,6 +35,7 @@ interface JWTConfigV8Props {
 	type: 'client_secret_jwt' | 'private_key_jwt';
 	initialConfig?: Partial<ClientSecretJWTConfig | PrivateKeyJWTConfig>;
 	onJWTGenerated?: (jwt: string, result: JWTGenerationResult) => void;
+	onPrivateKeyGenerated?: (privateKey: string, keyId?: string) => void;
 }
 
 const Container = styled.div`
@@ -223,6 +224,7 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 	type,
 	initialConfig,
 	onJWTGenerated,
+	onPrivateKeyGenerated,
 }) => {
 	const [clientId, setClientId] = useState(initialConfig?.clientId || '');
 	const [tokenEndpoint, setTokenEndpoint] = useState(initialConfig?.tokenEndpoint || '');
@@ -281,6 +283,11 @@ export const JWTConfigV8: React.FC<JWTConfigV8Props> = ({
 			const strength = assessSecurityStrength.keyPair(2048);
 			v4ToastManager.showSuccess(`RSA key pair generated! Key ID: ${generatedKeyPair.keyId}`);
 			v4ToastManager.showInfo(strength.recommendation);
+
+			// Notify parent component if callback is provided
+			if (onPrivateKeyGenerated) {
+				onPrivateKeyGenerated(generatedKeyPair.privateKey, generatedKeyPair.keyId);
+			}
 		} catch (error) {
 			v4ToastManager.showError('Failed to generate RSA key pair');
 			console.error('Key generation error:', error);

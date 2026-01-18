@@ -997,10 +997,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		const { credentials, setCredentials, mfaState, setMfaState, nav, setIsLoading } =
 			props;
 
-		// #region agent log
-		console.log(`${MODULE_TAG} [DEBUG] renderStep1WithSelection called`, {currentStep:nav.currentStep,isConfigured:Boolean(isConfigured),autoNavigateTriggered:autoNavigateRef.current.triggered,autoNavigateStep:autoNavigateRef.current.step});
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TOTPFlowV8.tsx:803',message:'renderStep1WithSelection called',data:{currentStep:nav.currentStep,isConfigured:Boolean(isConfigured),autoNavigateTriggered:autoNavigateRef.current.triggered,autoNavigateStep:autoNavigateRef.current.step},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-		// #endregion
 
 		// Store props in ref for parent-level useEffect hooks to access
 		step1PropsRef.current = props;
@@ -1008,10 +1004,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 		// Extract values for logic (not for hooks - hooks are in parent component)
 		const isConfiguredValue = Boolean(isConfigured);
 
-		// #region agent log
-		console.log(`${MODULE_TAG} [DEBUG] Checking navigation conditions`, {isConfiguredValue,currentStep:nav.currentStep,shouldNavigate:isConfiguredValue && nav.currentStep === 1});
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TOTPFlowV8.tsx:812',message:'Checking navigation conditions',data:{isConfiguredValue,currentStep:nav.currentStep,shouldNavigate:isConfiguredValue && nav.currentStep === 1},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-		// #endregion
 
 		// CRITICAL: During registration flow, Step 1 is completely skipped
 		// Registration flow goes: Config -> Register (Step 2) -> QR (Step 3) -> OTP (Step 4) -> Success
@@ -1569,10 +1561,17 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							display: hasPosition ? 'block' : 'flex',
 							alignItems: hasPosition ? 'normal' : 'center',
 							justifyContent: hasPosition ? 'normal' : 'center',
-							zIndex: 1000,
+							zIndex: 10000, // Ensure modal overlay is above API display (100 < 10000)
+							pointerEvents: 'auto',
 						}}
 						onClick={() => {
 							// Don't close on backdrop click
+						}}
+						onMouseDown={(e) => {
+							// Prevent overlay from interfering with drag
+							if (e.target === e.currentTarget) {
+								e.preventDefault();
+							}
 						}}
 					>
 						{/* biome-ignore lint/a11y/noStaticElementInteractions: Modal content needs click handler */}
@@ -1591,26 +1590,37 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 								boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 								overflow: 'hidden',
 								...step2ModalDrag.modalStyle,
+								pointerEvents: 'auto',
+								position: step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
 							}}
 							onClick={(e) => e.stopPropagation()}
 						>
-							{/* Header with Logo */}
+							{/* Header with Logo - Draggable */}
 							{/* biome-ignore lint/a11y/noStaticElementInteractions: Draggable modal header */}
 							<div
-								onMouseDown={step2ModalDrag.handleMouseDown}
+								onMouseDown={(e) => {
+									// Allow dragging from header, but prevent if clicking on close button
+									if (!(e.target as HTMLElement).closest('button')) {
+										step2ModalDrag.handleMouseDown(e);
+									}
+								}}
 								style={{
 									background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 									padding: '16px 20px 12px 20px',
 									textAlign: 'center',
 									position: 'relative',
-									cursor: 'grab',
+									cursor: step2ModalDrag.isDragging ? 'grabbing' : 'grab',
 									userSelect: 'none',
 								}}
 							>
 								<button
 									type="button"
-									onMouseDown={(e) => e.stopPropagation()}
-									onClick={() => {
+									onMouseDown={(e) => {
+										e.stopPropagation();
+										e.preventDefault();
+									}}
+									onClick={(e) => {
+										e.stopPropagation();
 										setShowModal(false);
 										// Step 2: Navigate back to Step 1 or hub
 										if (isConfigured) {
@@ -1635,6 +1645,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										justifyContent: 'center',
 										cursor: 'pointer',
 										color: 'white',
+										zIndex: 1,
 									}}
 								>
 									<FiX size={16} />
@@ -2116,12 +2127,6 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 			// For ACTIVE devices: Close QR modal and show success page immediately
 			// For ACTIVATION_REQUIRED devices: This button should not be shown (activation modal is shown instead)
 			const handleContinue = () => {
-				console.log(`${MODULE_TAG} [DEBUG] handleContinue called for ACTIVE device`, {
-					deviceStatus: mfaState.deviceStatus,
-					currentStep: nav.currentStep,
-					showQrModal,
-				});
-				
 				// Close QR modal
 				setShowQrModal(false);
 				userClosedQrModalRef.current = true;
@@ -2493,7 +2498,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#6b7280',
 											}}
 										>
-											Then enter the {otpLength}-digit code below to complete setup
+											Then enter the 6-digit code below to complete setup
 										</p>
 										<div
 											style={{
@@ -2515,7 +2520,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									</div>
 								)}
 
-								{/* Manual Secret Entry Section */}
+								{/* Secret Key Display - Always shown alongside QR code for manual entry */}
 								{currentTotpSecret && (
 									<div
 										style={{
@@ -2526,100 +2531,92 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 											border: '1px solid #e5e7eb',
 										}}
 									>
-										<details>
-											<summary
+										<p
+											style={{
+												margin: '0 0 12px 0',
+												fontSize: '14px',
+												fontWeight: '600',
+												color: '#374151',
+											}}
+										>
+											🔑 Secret Key (for manual entry):
+										</p>
+										<p
+											style={{
+												margin: '0 0 8px 0',
+												fontSize: '12px',
+												color: '#6b7280',
+											}}
+										>
+											Can't scan the QR code? Enter this secret manually into your authenticator app:
+										</p>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '8px',
+												background: 'white',
+												padding: '10px',
+												borderRadius: '6px',
+												border: '1px solid #d1d5db',
+											}}
+										>
+											<code
 												style={{
-													cursor: 'pointer',
-													fontWeight: '600',
-													marginBottom: '12px',
+													flex: 1,
+													fontFamily: 'monospace',
 													fontSize: '14px',
-													color: '#374151',
-													listStyle: 'none',
+													wordBreak: 'break-all',
+													color: '#1f2937',
+													margin: 0,
 												}}
 											>
-												<span style={{ marginRight: '6px' }}>📱</span>
-												Can't scan? Use manual setup
-											</summary>
-											<div style={{ marginTop: '8px' }}>
-												<p
-													style={{
-														margin: '0 0 8px 0',
-														fontSize: '13px',
-														fontWeight: '600',
-														color: '#1f2937',
-													}}
-												>
-													🔑 Secret Key:
-												</p>
-												<div
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '8px',
-														background: 'white',
-														padding: '10px',
-														borderRadius: '6px',
-														border: '1px solid #d1d5db',
-													}}
-												>
-													<code
-														style={{
-															flex: 1,
-															fontFamily: 'monospace',
-															fontSize: '14px',
-															wordBreak: 'break-all',
-															color: '#1f2937',
-															margin: 0,
-														}}
-													>
-														{currentTotpSecret}
-													</code>
-													<button
-														type="button"
-														onClick={async () => {
-															const success = await TokenDisplayServiceV8.copyToClipboard(
-																currentTotpSecret,
-																'TOTP Secret'
-															);
-															if (success) {
-																setSecretCopied(true);
-																setTimeout(() => setSecretCopied(false), 2000);
-																toastV8.success('Secret copied to clipboard!');
-															} else {
-																toastV8.error('Failed to copy secret');
-															}
-														}}
-														style={{
-															padding: '4px 8px',
-															background: secretCopied ? '#10b981' : '#f3f4f6',
-															color: secretCopied ? 'white' : '#374151',
-															border: '1px solid #d1d5db',
-															borderRadius: '6px',
-															cursor: 'pointer',
-															fontSize: '12px',
-															fontWeight: '600',
-															whiteSpace: 'nowrap',
-															transition: 'all 0.2s',
-														}}
-													>
-														{secretCopied ? '✓' : '📋'}
-													</button>
-												</div>
-												<div style={{ marginTop: '8px', fontSize: '10px', color: '#6b7280' }}>
-													<p style={{ margin: '0 0 2px 0' }}>
-														Instructions:
-													</p>
-													<ol style={{ margin: '0 0 0 16px', padding: 0 }}>
-														<li>Open authenticator app</li>
-														<li>Select "Add account"</li>
-														<li>Choose "Enter setup key"</li>
-														<li>Enter secret key above</li>
-														<li>Select "Time-based" and "6 digits"</li>
-														<li>Save</li>
-													</ol>
-												</div>
-											</div>
-										</details>
+												{currentTotpSecret}
+											</code>
+											<button
+												type="button"
+												onClick={async () => {
+													const success = await TokenDisplayServiceV8.copyToClipboard(
+														currentTotpSecret,
+														'TOTP Secret'
+													);
+													if (success) {
+														setSecretCopied(true);
+														setTimeout(() => setSecretCopied(false), 2000);
+														toastV8.success('Secret copied to clipboard!');
+													} else {
+														toastV8.error('Failed to copy secret');
+													}
+												}}
+												style={{
+													padding: '4px 8px',
+													background: secretCopied ? '#10b981' : '#f3f4f6',
+													color: secretCopied ? 'white' : '#374151',
+													border: '1px solid #d1d5db',
+													borderRadius: '6px',
+													cursor: 'pointer',
+													fontSize: '12px',
+													fontWeight: '600',
+													whiteSpace: 'nowrap',
+													transition: 'all 0.2s',
+												}}
+											>
+												{secretCopied ? '✓' : '📋'}
+											</button>
+										</div>
+										<div style={{ marginTop: '8px', fontSize: '10px', color: '#6b7280' }}>
+											<p style={{ margin: '0 0 2px 0' }}>
+												Instructions:
+											</p>
+											<ol style={{ margin: '0 0 0 16px', padding: 0 }}>
+												<li>Open authenticator app</li>
+												<li>Select "Add account"</li>
+												<li>Choose "Enter setup key"</li>
+												<li>Enter secret key above</li>
+												<li>Select "Time-based" and "6 digits"</li>
+												<li>Save</li>
+											</ol>
+										</div>
 									</div>
 								)}
 
@@ -2661,7 +2658,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 												color: '#6b7280',
 											}}
 										>
-											After scanning, click to enter the {otpLength}-digit code
+											After scanning, click to enter the 6-digit code
 										</p>
 									</div>
 								)}
@@ -3930,7 +3927,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 									color: 'rgba(255, 255, 255, 0.9)',
 								}}
 							>
-								Enter the {otpLength}-digit code from your authenticator app
+								Enter the 6-digit code from your authenticator app
 							</p>
 						</div>
 
@@ -3999,7 +3996,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 										lineHeight: '1.5',
 									}}
 								>
-									💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator, Authy, etc.) and enter the {otpLength}-digit code shown there.
+									💡 <strong>Tip:</strong> Open your authenticator app (Google Authenticator, Authy, etc.) and enter the 6-digit code shown there.
 								</p>
 							</div>
 						</div>
