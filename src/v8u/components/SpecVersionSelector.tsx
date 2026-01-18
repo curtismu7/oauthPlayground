@@ -15,6 +15,7 @@ const MODULE_TAG = '[📋 SPEC-VERSION-SELECTOR-V8U]';
 export interface SpecVersionSelectorProps {
 	specVersion: SpecVersion;
 	onChange: (specVersion: SpecVersion) => void;
+	disabled?: boolean;
 }
 
 // User guidance for each spec version
@@ -59,6 +60,7 @@ const SPEC_GUIDANCE: Record<
 export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 	specVersion,
 	onChange,
+	disabled = false,
 }) => {
 	const [showGuidance, setShowGuidance] = useState(false);
 	const [selectedGuidance, setSelectedGuidance] = useState<SpecVersion | null>(null);
@@ -103,27 +105,45 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 						display: 'block',
 						fontSize: '13px',
 						fontWeight: '600',
-						color: '#374151',
+						color: disabled ? '#9ca3af' : '#374151',
 					}}
 				>
 					Specification Version
+					{disabled && (
+						<span
+							style={{
+								marginLeft: '8px',
+								fontSize: '12px',
+								fontWeight: '400',
+								color: '#6b7280',
+								fontStyle: 'italic',
+							}}
+							title="Specification version cannot be changed after starting the flow"
+						>
+							(Locked - flow in progress)
+						</span>
+					)}
 				</label>
 				<button
 					type="button"
 					onClick={() => {
-						setShowGuidance(!showGuidance);
-						setSelectedGuidance(null);
+						if (!disabled) {
+							setShowGuidance(!showGuidance);
+							setSelectedGuidance(null);
+						}
 					}}
+					disabled={disabled}
 					style={{
 						background: 'none',
 						border: 'none',
-						cursor: 'pointer',
+						cursor: disabled ? 'not-allowed' : 'pointer',
 						padding: '2px',
 						display: 'flex',
 						alignItems: 'center',
-						color: '#6b7280',
+						color: disabled ? '#9ca3af' : '#6b7280',
+						opacity: disabled ? 0.6 : 1,
 					}}
-					title="Show guidance for all spec versions"
+					title={disabled ? 'Specification version cannot be changed after starting the flow' : 'Show guidance for all spec versions'}
 				>
 					<FiHelpCircle size={16} />
 				</button>
@@ -265,9 +285,10 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 									display: 'inline-flex',
 									alignItems: 'center',
 									gap: '6px',
-									cursor: 'pointer',
+									cursor: disabled ? 'not-allowed' : 'pointer',
 									fontSize: '14px',
-									color: '#374151',
+									color: disabled ? '#9ca3af' : '#374151',
+									opacity: disabled ? 0.6 : 1,
 								}}
 							>
 								<input
@@ -276,25 +297,33 @@ export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
 									value={spec}
 									checked={isSelected}
 									onChange={handleChange}
+									disabled={disabled}
 									style={{
-										cursor: 'pointer',
+										cursor: disabled ? 'not-allowed' : 'pointer',
 									}}
+									title={disabled ? 'Specification version cannot be changed after starting the flow. Use "Restart Flow" to change specification version.' : undefined}
 								/>
 								<span>{label}</span>
 							</label>
 							<button
 								type="button"
-								onClick={(e) => handleGuidanceClick(spec, e)}
+								onClick={(e) => {
+									if (!disabled) {
+										handleGuidanceClick(spec, e);
+									}
+								}}
+								disabled={disabled}
 								style={{
 									background: 'none',
 									border: 'none',
-									cursor: 'pointer',
+									cursor: disabled ? 'not-allowed' : 'pointer',
 									padding: '2px',
 									display: 'flex',
 									alignItems: 'center',
-									color: '#6b7280',
+									color: disabled ? '#9ca3af' : '#6b7280',
+									opacity: disabled ? 0.6 : 1,
 								}}
-								title={`Get guidance for ${label}`}
+								title={disabled ? 'Specification version cannot be changed after starting the flow' : `Get guidance for ${label}`}
 							>
 								<FiHelpCircle size={14} />
 							</button>

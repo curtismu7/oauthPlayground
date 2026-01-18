@@ -99,30 +99,12 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		const authToken = authContext.tokens?.access_token;
 		const isAuthenticated = authContext.isAuthenticated;
 
-		// Debug logging
-		console.log(`[📧 EMAIL-CONFIG-PAGE-V8] Checking auth context for auto-population`, {
-			isAuthenticated,
-			hasAuthToken: !!authToken,
-			hasUserToken: !!credentials.userToken,
-			tokenType: credentials.tokenType,
-			registrationFlowType,
-			hasAutoPopulated: hasAutoPopulatedRef.current,
-		});
-
 		// Only auto-populate if:
 		// 1. User is authenticated and has an access token
 		// 2. We haven't already auto-populated (prevent re-running)
 		// 3. We don't already have a user token in credentials
 		// Removed restriction on registrationFlowType/tokenType - always sync if token exists and credentials don't have it
 		if (isAuthenticated && authToken && !hasAutoPopulatedRef.current && !credentials.userToken) {
-			console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ✅ Auto-populating user token from auth context`, {
-				hasToken: !!authToken,
-				tokenLength: authToken.length,
-				tokenPreview: authToken.substring(0, 20) + '...',
-				currentTokenType: credentials.tokenType,
-				registrationFlowType: registrationFlowType,
-			});
-
 			hasAutoPopulatedRef.current = true;
 			setCredentials((prev) => ({
 				...prev,
@@ -131,13 +113,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			}));
 
 			toastV8.success('User token automatically loaded from your recent login!');
-		} else if (isAuthenticated && authToken && !credentials.userToken) {
-			console.log(`[📧 EMAIL-CONFIG-PAGE-V8] ⚠️ Auth token available but not populating`, {
-				hasAutoPopulated: hasAutoPopulatedRef.current,
-				hasUserToken: !!credentials.userToken,
-				registrationFlowType,
-				tokenType: credentials.tokenType,
-			});
 		}
 
 		// Reset the ref if auth token is cleared (user logged out) or if user token was manually cleared
@@ -158,10 +133,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		const code = searchParams.get('code');
 		const error = searchParams.get('error');
 		const state = searchParams.get('state');
-		const hasUserLoginState = sessionStorage.getItem('user_login_state_v8');
-
-		// Only process if we have a code/error AND stored state (confirms this is from our user login flow)
-		if (!hasUserLoginState) return;
 
 		// If modal is open, let it handle the callback
 		if (showUserLoginModal) return;
@@ -170,6 +141,20 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 		if (isProcessingCallbackRef.current) return;
 
 		const processCallback = async () => {
+			// Read storedState INSIDE the function to ensure it's fresh
+			const storedState = sessionStorage.getItem('user_login_state_v8');
+			
+			// If no stored state but we have code/state in URL, another component likely handled it
+			// Silently clean the URL to prevent false CSRF warnings
+			if (!storedState && (code || state)) {
+				const cleanUrl = window.location.pathname;
+				window.history.replaceState({}, document.title, cleanUrl);
+				return;
+			}
+
+			// Only process if we have a code/error AND stored state (confirms this is from our user login flow)
+			if (!storedState) return;
+
 			if (error) {
 				const errorDescription = searchParams.get('error_description') || '';
 				toastV8.error(`Login failed: ${error}${errorDescription ? ` - ${errorDescription}` : ''}`);
@@ -182,8 +167,8 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (code && state) {
-				// Validate state
-				if (state !== hasUserLoginState) {
+				// Validate state only if both storedState and state from URL exist
+				if (storedState && state && storedState !== state) {
 					console.warn(`[📧 EMAIL-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					toastV8.error('Security validation failed. Please try again.');
 					window.history.replaceState({}, document.title, window.location.pathname);
@@ -510,12 +495,6 @@ export const EmailOTPConfigurationPageV8: React.FC = () => {
 				`${MODULE_TAG} Proceeding to registration with policy:`,
 				credentials.deviceAuthenticationPolicyId
 			);
-			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
-				'Registration Flow Type': registrationFlowType,
-				'Admin Device Status': adminDeviceStatus,
-				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
-			});
-
 			// Navigate to actual Email registration flow device route
 			navigate('/v8/mfa/register/email/device', {
 				replace: false,

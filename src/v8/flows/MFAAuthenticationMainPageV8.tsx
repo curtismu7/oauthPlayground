@@ -214,8 +214,23 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
+		
+		// Auto-populate environment ID from worker token if available
+		let environmentId = stored.environmentId || '';
+		if (!environmentId) {
+			try {
+				const workerCreds = workerTokenServiceV8.loadCredentialsSync();
+				if (workerCreds?.environmentId) {
+					environmentId = workerCreds.environmentId;
+					console.log(`[MFA-AUTH-MAIN-V8] Auto-populated environment ID from worker token: ${environmentId}`);
+				}
+			} catch (error) {
+				// Silently continue if worker token not available
+			}
+		}
+		
 		return {
-			environmentId: stored.environmentId || '',
+			environmentId,
 			username: stored.username || '',
 			deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
 		};
@@ -447,7 +462,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
-							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 					}
@@ -530,6 +545,36 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 		return false; // Error was not handled
 	}, []);
+
+	// Auto-populate environment ID from worker token when token becomes valid
+	useEffect(() => {
+		if (!credentials.environmentId?.trim() && tokenStatus.isValid) {
+			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
+			if (workerCreds?.environmentId) {
+				console.log(`[MFA-AUTH-MAIN-V8] Auto-populating environment ID from worker token: ${workerCreds.environmentId}`);
+				setCredentials((prev) => {
+					if (prev.environmentId?.trim()) {
+						return prev; // Don't overwrite if already set
+					}
+					return { ...prev, environmentId: workerCreds.environmentId };
+				});
+				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+					flowKey: FLOW_KEY,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				if (!stored.environmentId?.trim()) {
+					CredentialsServiceV8.saveCredentials(FLOW_KEY, {
+						...stored,
+						environmentId: workerCreds.environmentId,
+					});
+				}
+			}
+		}
+	}, [tokenStatus.isValid, credentials.environmentId]);
 
 	// Clear auth state when username changes to prevent showing wrong user's data
 	useEffect(() => {
@@ -823,11 +868,17 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			lastFetchedPolicyEnvIdRef.current = envId;
 			setDeviceAuthPolicies(policies);
 
-			// Auto-select if only one policy
-			if (!credentials.deviceAuthenticationPolicyId && policies.length === 1) {
+			// Auto-select default policy (marked as default) or first policy if none selected
+			if (!credentials.deviceAuthenticationPolicyId && policies.length > 0) {
+				// Find default policy first, otherwise use first policy
+				const defaultPolicy = policies.find((p) => p.default) || policies[0];
+				const policyId = defaultPolicy.id;
+				
+				console.log(`[MFA-AUTH-MAIN-V8] Auto-selecting device authentication policy: ${defaultPolicy.name} (${policyId})`);
+				
 				const updatedCredentials = {
 					...credentials,
-					deviceAuthenticationPolicyId: policies[0].id,
+					deviceAuthenticationPolicyId: policyId,
 				};
 				setCredentials(updatedCredentials);
 				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
@@ -840,7 +891,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				});
 				CredentialsServiceV8.saveCredentials(FLOW_KEY, {
 					...stored,
-					deviceAuthenticationPolicyId: policies[0].id,
+					deviceAuthenticationPolicyId: policyId,
 				});
 			}
 
@@ -1977,9 +2028,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '8px 12px',
-								border: '1px solid #d1d5db',
+								border: credentials.environmentId?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
+								background: credentials.environmentId?.trim() ? 'white' : '#fef2f2',
+								transition: 'border-color 0.2s ease, background-color 0.2s ease',
+							}}
+							onFocus={(e) => {
+								e.target.style.borderColor = '#3b82f6';
+								e.target.style.background = 'white';
+							}}
+							onBlur={(e) => {
+								e.target.style.borderColor = credentials.environmentId?.trim() ? '#d1d5db' : '#ef4444';
+								e.target.style.background = credentials.environmentId?.trim() ? 'white' : '#fef2f2';
 							}}
 						/>
 					</div>
@@ -2028,9 +2089,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 							style={{
 								width: '100%',
 								padding: '8px 12px',
-								border: '1px solid #d1d5db',
+								border: usernameInput?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
 								borderRadius: '6px',
 								fontSize: '14px',
+								background: usernameInput?.trim() ? 'white' : '#fef2f2',
+								transition: 'border-color 0.2s ease, background-color 0.2s ease',
+							}}
+							onFocus={(e) => {
+								e.target.style.borderColor = '#3b82f6';
+								e.target.style.background = 'white';
+							}}
+							onBlur={(e) => {
+								e.target.style.borderColor = usernameInput?.trim() ? '#d1d5db' : '#ef4444';
+								e.target.style.background = usernameInput?.trim() ? 'white' : '#fef2f2';
 							}}
 						/>
 					</div>
@@ -4469,15 +4540,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																toastV8.success('Device selected successfully');
 															}
 														} catch (error) {
-															console.error(`${MODULE_TAG} Failed to select device:`, error);
-															
-															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															const errorWithCode = error as Error & {
 																errorCode?: string;
 																deliveryMethod?: string;
 																coolDownExpiresAt?: number;
 															};
 															
+															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
 																const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
 																setCooldownError({
@@ -4486,10 +4555,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 																	...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
 																});
 																toastV8.warning(errorMessage);
-															} else {
-																toastV8.error(
-																	error instanceof Error ? error.message : 'Failed to select device'
-																);
+															} 
+															// For all other errors, show in UI (Device Failure Modal) and toast
+															else {
+																const errorMessage = error instanceof Error ? error.message : 'Failed to select device';
+																console.error(`${MODULE_TAG} Failed to select device:`, error);
+																
+																// Show error in UI (Device Failure Modal) - not just toast
+																setDeviceFailureError(errorMessage);
+																setUnavailableDevices([]);
+																setShowDeviceFailureModal(true);
+																
+																// Also show toast for immediate feedback
+																toastV8.error(errorMessage);
 															}
 															setAuthState((prev) => ({ ...prev, isLoading: false }));
 														}
@@ -4954,7 +5032,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 										try {
 											// Get userId if not already available
-											const userId = authState.userId;
+											let userId = authState.userId;
 											if (!userId) {
 												const user = await MFAServiceV8.lookupUserByUsername(
 													credentials.environmentId,
@@ -4964,49 +5042,42 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 												setAuthState((prev) => ({ ...prev, userId }));
 											}
 
-											// Re-select device to trigger new OTP
-											// According to cursor-optimized.md: Only use verified endpoints
-											// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
-											const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
-												{
-													environmentId: credentials.environmentId,
-													username: usernameInput.trim(),
-													userId,
-													authenticationId: authState.authenticationId,
-													deviceId: authState.selectedDeviceId,
-													region: credentials.region,
-													customDomain: credentials.customDomain,
-												},
-												{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
-											);
+											// Use the new resendOTPForActiveDevice method which:
+											// 1. Tries cancel + re-initialize (most reliable)
+											// 2. Falls back to re-select device if cancel fails
+											const data = await MfaAuthenticationServiceV8.resendOTPForActiveDevice({
+												environmentId: credentials.environmentId,
+												username: usernameInput.trim(),
+												userId,
+												authenticationId: authState.authenticationId,
+												deviceId: authState.selectedDeviceId,
+												region: credentials.region,
+												customDomain: credentials.customDomain,
+											});
 
-											// Read device authentication to get updated state
-											let authDetails: Record<string, unknown> | null = null;
-											try {
-												authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
-													credentials.environmentId,
-													userId || usernameInput.trim(),
-													authState.authenticationId,
-													{ isUserId: !!userId }
-												);
-											} catch (readError) {
-												console.warn(
-													`${MODULE_TAG} Failed to read device authentication after resend:`,
-													readError
-												);
+											// If cancel + re-initialize was used, we have a new authenticationId
+											// Update auth state with new authentication ID if changed
+											if (data.id && data.id !== authState.authenticationId) {
+												setAuthState((prev) => ({
+													...prev,
+													authenticationId: data.id as string,
+													status: data.status || prev.status,
+													nextStep: data.nextStep || prev.nextStep,
+													_links: (data._links as Record<string, { href: string }>) || prev._links,
+												}));
+											} else {
+												// Update auth state with new links
+												const status = data.status || authState.status;
+												const nextStep = data.nextStep || authState.nextStep;
+												const links = (data._links as Record<string, { href: string }>) || {};
+
+												setAuthState((prev) => ({
+													...prev,
+													status,
+													nextStep,
+													_links: { ...prev._links, ...links },
+												}));
 											}
-
-											// Update auth state with new links
-											const status = (authDetails?.status as string) || data.status || '';
-											const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
-											const links = (data._links as Record<string, { href: string }>) || {};
-
-											setAuthState((prev) => ({
-												...prev,
-												status,
-												nextStep,
-												_links: { ...prev._links, ...links },
-											}));
 
 											toastV8.success(
 												'New verification code has been sent. Please check your device.'

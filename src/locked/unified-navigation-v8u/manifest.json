@@ -1,0 +1,33 @@
+{
+  "feature": "unified-navigation-v8u",
+  "version": "1.0.0",
+  "lockedAt": "2026-01-17T12:00:00.000Z",
+  "description": "Locked-down Unified Navigation component for all OAuth/OIDC flow pages. This component provides consistent navigation across all unified flow pages and is protected from breaking changes.",
+  "files": {
+    "src/v8u/components/UnifiedNavigationV8U.tsx": {
+      "lockedPath": "feature/v8u/components/UnifiedNavigationV8U.tsx",
+      "hash": "locked",
+      "type": "feature"
+    },
+    "src/v8u/components/UnifiedDocumentationModalV8U.tsx": {
+      "lockedPath": "dependencies/v8u/components/UnifiedDocumentationModalV8U.tsx",
+      "hash": "locked",
+      "type": "dependency"
+    },
+    "src/v8u/components/UnifiedFlowDocumentationPageV8U.tsx": {
+      "lockedPath": "dependencies/v8u/components/UnifiedFlowDocumentationPageV8U.tsx",
+      "hash": "locked",
+      "type": "dependency"
+    },
+    "src/v8/components/SuperSimpleApiDisplayV8.tsx": {
+      "lockedPath": "dependencies/v8/components/SuperSimpleApiDisplayV8.tsx",
+      "hash": "locked",
+      "type": "dependency"
+    }
+  },
+  "summary": {
+    "totalFiles": 4,
+    "featureFiles": 1,
+    "dependencyFiles": 3
+  }
+}

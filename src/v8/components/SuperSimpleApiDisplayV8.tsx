@@ -550,15 +550,17 @@ export const ApiDisplayCheckbox: React.FC = () => {
 				display: 'inline-flex',
 				alignItems: 'center',
 				gap: '8px',
-				padding: '8px 12px',
-				background: '#f9fafb',
-				border: '1px solid #e5e7eb',
-				borderRadius: '6px',
+				padding: '0',
+				background: 'transparent',
+				border: 'none',
+				borderRadius: '0',
 				cursor: 'pointer',
-				fontSize: '13px',
+				fontSize: '14px',
 				fontWeight: '500',
 				color: '#1f2937',
 				userSelect: 'none',
+				width: '100%',
+				justifyContent: 'center',
 			}}
 		>
 			<input
@@ -569,9 +571,12 @@ export const ApiDisplayCheckbox: React.FC = () => {
 					width: '16px',
 					height: '16px',
 					cursor: 'pointer',
+					flexShrink: 0,
 				}}
 			/>
-			<span>⚡ Show API Calls ({callCount})</span>
+			<span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+				⚡ API ({callCount})
+			</span>
 		</label>
 	);
 };

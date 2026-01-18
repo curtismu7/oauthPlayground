@@ -666,6 +666,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'p1mfa-sdk-samples',
+						path: '/samples/p1mfa',
+						label: '📦 P1MFA SDK Samples',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="P1MFA SDK sample applications for FIDO2 and SMS MFA">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'p1mfa-sdk-fido2',
+						path: '/samples/p1mfa/fido2',
+						label: '🔐 P1MFA SDK - FIDO2',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="FIDO2/WebAuthn MFA sample application">
+								FIDO2
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'p1mfa-sdk-sms',
+						path: '/samples/p1mfa/sms',
+						label: '📱 P1MFA SDK - SMS',
+						icon: (
+							<ColoredIcon $color="#0ea5e9">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="SMS OTP MFA sample application">
+								SMS
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
@@ -1002,6 +1047,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							<ColoredIcon $color="#10b981">
 								<FiPackage />
 							</ColoredIcon>
+						),
+					},
+					{
+						id: 'p1mfa-sdk-samples',
+						path: '/samples/p1mfa',
+						label: '📦 P1MFA SDK Samples',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiCode />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="P1MFA SDK sample applications for FIDO2 and SMS MFA">
+								NEW
+							</MigrationBadge>
 						),
 					},
 				],
