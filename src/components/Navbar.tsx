@@ -38,16 +38,29 @@ const Logo = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  gap: 0.75rem;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
   
   img {
-    height: 32px;
-    margin-right: 0.75rem;
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+    background: transparent;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: optimize-quality;
+  }
+  
+  > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .user-info {
@@ -323,15 +336,18 @@ const Navbar: React.FC<NavbarProps> = ({
 			</MenuButton>
 
 			<Logo>
-				<span>PingOne OAuth/OIDC Playground</span>
-				<div className="user-info" aria-live="polite">
-					Version {APP_VERSION}
-				</div>
-				{isAuthenticated && user && (
+				<img src="/images/ping-identity-logo.png" alt="Ping Identity" />
+				<div>
+					<span>PingOne OAuth/OIDC Playground</span>
 					<div className="user-info" aria-live="polite">
-						Welcome, {user.name || user.email}
+						Version {APP_VERSION}
 					</div>
-				)}
+					{isAuthenticated && user && (
+						<div className="user-info" aria-live="polite">
+							Welcome, {user.name || user.email}
+						</div>
+					)}
+				</div>
 			</Logo>
 
 			<NavItems role="navigation" aria-label="Main navigation">

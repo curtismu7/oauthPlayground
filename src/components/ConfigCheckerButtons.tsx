@@ -44,7 +44,7 @@ const P1Logo = ({ size = 14, style = {} }) => (
 );
 
 // Helper function to format JSON values more compactly
-const formatCompactJson = (value: any) => {
+const formatCompactJson = (value: unknown) => {
 	const jsonStr = JSON.stringify(value);
 	if (jsonStr.length > 80) {
 		// For long arrays, show first few items + count
@@ -498,7 +498,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [showAuthErrorModal, setShowAuthErrorModal] = useState(false);
 	const [showCreationResultModal, setShowCreationResultModal] = useState(false);
-	const [creationResult, setCreationResult] = useState<any>(null);
+	const [creationResult, setCreationResult] = useState<{ success: boolean; [key: string]: unknown } | null>(null);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [lastCheckTime, setLastCheckTime] = useState<number | null>(null);
 	const [selectedDiffs, setSelectedDiffs] = useState<Set<string>>(new Set());

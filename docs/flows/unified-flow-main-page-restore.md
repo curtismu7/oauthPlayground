@@ -37,7 +37,154 @@ This document provides implementation details, code snippets, and restoration gu
 
 ## Critical Implementation Details
 
-### 1. Protocol Terminology
+### 1. Locked Selector Behavior (After Step 0)
+
+**Contract:** Specification version and flow type selectors MUST be locked and disabled after Step 0.
+
+**Correct Implementation:**
+```typescript
+// In UnifiedOAuthFlowV8U.tsx
+const currentStep = useMemo(() => {
+  if (urlStep) {
+    const stepNum = parseInt(urlStep, 10);
+    if (!Number.isNaN(stepNum) && stepNum >= 0) {
+      return stepNum;
+    }
+  }
+  return 0;
+}, [urlStep]);
+
+// Pass disabled prop to selectors
+<SpecVersionSelector
+  specVersion={specVersion}
+  onChange={handleSpecVersionChange}
+  disabled={currentStep > 0}  // Locked after Step 0
+/>
+<FlowTypeSelector
+  specVersion={specVersion}
+  flowType={flowType}
+  onChange={handleFlowTypeChange}
+  disabled={currentStep > 0}  // Locked after Step 0
+/>
+```
+
+**In SpecVersionSelector.tsx:**
+```typescript
+export interface SpecVersionSelectorProps {
+  specVersion: SpecVersion;
+  onChange: (specVersion: SpecVersion) => void;
+  disabled?: boolean;  // Required prop
+}
+
+export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
+  specVersion,
+  onChange,
+  disabled = false,
+}) => {
+  // ... component implementation
+  
+  // Radio buttons must be disabled when disabled={true}
+  <input
+    type="radio"
+    name="specVersion"
+    value={spec}
+    checked={isSelected}
+    onChange={handleChange}
+    disabled={disabled}  // Critical
+    style={{
+      cursor: disabled ? 'not-allowed' : 'pointer',
+    }}
+  />
+  
+  // Label must show "(Locked - flow in progress)" when disabled
+  <label>
+    Specification Version
+    {disabled && (
+      <span style={{ marginLeft: '8px', fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>
+        (Locked - flow in progress)
+      </span>
+    )}
+  </label>
+};
+```
+
+**In FlowTypeSelector.tsx:**
+```typescript
+export interface FlowTypeSelectorProps {
+  specVersion: SpecVersion;
+  flowType: FlowType;
+  onChange: (flowType: FlowType) => void | Promise<void>;
+  disabled?: boolean;  // Required prop
+}
+
+export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
+  specVersion,
+  flowType,
+  onChange,
+  disabled = false,
+}) => {
+  // ... component implementation
+  
+  // Select must be disabled when disabled={true}
+  <select
+    id="flowTypeSelect"
+    value={effectiveFlowType}
+    onChange={handleChange}
+    disabled={disabled}  // Critical
+    style={{
+      color: disabled ? '#9ca3af' : '#374151',
+      background: disabled ? '#f3f4f6' : '#ffffff',
+      cursor: disabled ? 'not-allowed' : 'pointer',
+      opacity: disabled ? 0.6 : 1,
+    }}
+    title={disabled ? 'Flow type cannot be changed after starting the flow. Use "Restart Flow" to change flow type.' : undefined}
+  >
+    {/* options */}
+  </select>
+  
+  // Label must show "(Locked - flow in progress)" when disabled
+  <label>
+    Flow Type (Grant type)
+    {disabled && (
+      <span style={{ marginLeft: '8px', fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>
+        (Locked - flow in progress)
+      </span>
+    )}
+  </label>
+};
+```
+
+**Visual Requirements:**
+- When `disabled={true}`:
+  - Radio buttons/select must be grayed out (color: `#9ca3af`)
+  - Background must be `#f3f4f6` for select
+  - Opacity must be 0.6
+  - Cursor must be `not-allowed`
+  - Label must show "(Locked - flow in progress)"
+  - Tooltip must explain how to change (use "Restart Flow")
+
+**Incorrect Implementation (DO NOT DO THIS):**
+```typescript
+// ❌ WRONG - Not checking currentStep
+<SpecVersionSelector
+  specVersion={specVersion}
+  onChange={handleSpecVersionChange}
+  // Missing disabled prop - selectors can be changed mid-flow
+/>
+
+// ❌ WRONG - Not implementing disabled state
+export const SpecVersionSelector: React.FC<SpecVersionSelectorProps> = ({
+  specVersion,
+  onChange,
+  // Missing disabled prop
+}) => {
+  // No disabled handling - selectors remain interactive
+};
+```
+
+---
+
+### 2. Protocol Terminology
 
 **Contract:** All educational content and UI labels MUST use correct protocol terminology.
 

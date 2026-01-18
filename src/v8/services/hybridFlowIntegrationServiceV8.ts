@@ -71,16 +71,18 @@ export class HybridFlowIntegrationServiceV8 {
 	 * Generate authorization URL for hybrid flow
 	 * @param credentials - OAuth credentials
 	 * @param pkceCodes - Optional PKCE codes (if provided, will be used instead of generating new ones)
+	 * @param appConfig - Optional PingOne application configuration (for JAR detection)
 	 * @returns Authorization URL parameters
 	 */
-	static generateAuthorizationUrl(
+	static async generateAuthorizationUrl(
 		credentials: HybridFlowCredentials,
 		pkceCodes?: {
 			codeVerifier: string;
 			codeChallenge: string;
 			codeChallengeMethod: 'S256' | 'plain';
-		}
-	): HybridAuthorizationUrlParams {
+		},
+		appConfig?: { requireSignedRequestObject?: boolean }
+	): Promise<HybridAuthorizationUrlParams> {
 		console.log(`${MODULE_TAG} Generating authorization URL`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
@@ -117,6 +119,102 @@ export class HybridFlowIntegrationServiceV8 {
 		// Default response type
 		const responseType = credentials.responseType || 'code id_token';
 
+		// Check if JAR (JWT-secured Authorization Request) is required
+		const requiresJAR = appConfig?.requireSignedRequestObject === true;
+
+		if (requiresJAR) {
+			// Generate JAR request object
+			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+
+			try {
+				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
+
+				// Determine signing algorithm (default to HS256, use RS256 if private key is available)
+				const algorithm = credentials.privateKey ? 'RS256' : 'HS256';
+
+				if (algorithm === 'HS256' && !credentials.clientSecret) {
+					throw new Error(
+						'JAR requires client secret for HS256 signing, but client secret is not provided'
+					);
+				}
+
+				if (algorithm === 'RS256' && !credentials.privateKey) {
+					throw new Error(
+						'JAR requires private key for RS256 signing, but private key is not provided'
+					);
+				}
+
+				// Prepare PKCE codes if needed
+				let codeChallenge: string | undefined;
+				let codeChallengeMethod: string | undefined;
+				let codeVerifier: string | undefined;
+
+				if (responseType.includes('code')) {
+					const pkce = pkceCodes || await HybridFlowIntegrationServiceV8.generatePKCECodes();
+					codeChallenge = pkce.codeChallenge;
+					codeChallengeMethod = pkce.codeChallengeMethod;
+					codeVerifier = pkce.codeVerifier;
+				}
+
+				// Generate signed request object
+				const jarResult = await jarRequestObjectServiceV8.generateRequestObjectJWT(
+					{
+						clientId: credentials.clientId,
+						responseType: responseType,
+						redirectUri: credentials.redirectUri,
+						scope: finalScopes,
+						state: state,
+						nonce: nonce,
+						codeChallenge: codeChallenge,
+						codeChallengeMethod: codeChallengeMethod,
+					},
+					{
+						algorithm,
+						clientSecret: credentials.clientSecret,
+						privateKey: credentials.privateKey,
+						audience: authorizationEndpoint,
+					}
+				);
+
+				if (!jarResult.success || !jarResult.requestObject) {
+					throw new Error(
+						`Failed to generate JAR request object: ${jarResult.error || 'Unknown error'}`
+					);
+				}
+
+				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
+					algorithm,
+					jti: jarResult.payload?.jti,
+				});
+
+				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
+				const params = new URLSearchParams({
+					client_id: credentials.clientId, // Required by RFC 9101
+					request: jarResult.requestObject, // Signed JWT request object
+				});
+
+				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+
+				const result: HybridAuthorizationUrlParams = {
+					authorizationUrl,
+					state,
+					nonce,
+				};
+
+				if (codeChallenge) result.codeChallenge = codeChallenge;
+				if (codeChallengeMethod) result.codeChallengeMethod = codeChallengeMethod;
+				if (codeVerifier) result.codeVerifier = codeVerifier;
+
+				return result;
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Unknown error during JAR generation';
+				console.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
+				throw new Error(`Failed to generate JAR authorization URL: ${errorMessage}`);
+			}
+		}
+
+		// Standard authorization URL (without JAR)
 		// Build query parameters
 		const params = new URLSearchParams({
 			client_id: credentials.clientId,
@@ -135,12 +233,16 @@ export class HybridFlowIntegrationServiceV8 {
 		// Add PKCE if response type includes 'code'
 		if (responseType.includes('code')) {
 			// Use provided PKCE codes or generate new ones
-			const pkce = pkceCodes || HybridFlowIntegrationServiceV8.generatePKCECodes();
+			const pkce = pkceCodes || await HybridFlowIntegrationServiceV8.generatePKCECodes();
 			params.append('code_challenge', pkce.codeChallenge);
 			params.append('code_challenge_method', pkce.codeChallengeMethod);
 			codeChallenge = pkce.codeChallenge;
 			codeChallengeMethod = pkce.codeChallengeMethod;
 			codeVerifier = pkce.codeVerifier;
+			
+			// #region agent log - verify PKCE codes in authorization URL
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:242',message:'PKCE codes in authorization URL',data:{codeChallengeMethod:pkce.codeChallengeMethod,codeChallengeLength:pkce.codeChallenge?.length||0,codeVerifierLength:pkce.codeVerifier?.length||0,codeChallengePrefix:pkce.codeChallenge?.substring(0,20)||'none',codeVerifierPrefix:pkce.codeVerifier?.substring(0,20)||'none',hadProvidedPKCE:!!pkceCodes},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
 		}
 
 		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
@@ -165,6 +267,11 @@ export class HybridFlowIntegrationServiceV8 {
 
 	/**
 	 * Parse callback URL fragment to extract tokens and code
+	 * 
+	 * For hybrid flow, the callback contains:
+	 * - Authorization code in query string (?code=...)
+	 * - ID token and access token in fragment (#id_token=...&access_token=...)
+	 * 
 	 * @param callbackUrl - Full callback URL with fragment
 	 * @param expectedState - Expected state parameter for validation
 	 * @returns Parsed code and tokens
@@ -173,26 +280,35 @@ export class HybridFlowIntegrationServiceV8 {
 		callbackUrl: string,
 		expectedState: string
 	): { code?: string; access_token?: string; id_token?: string; state: string } {
-		console.log(`${MODULE_TAG} Parsing callback fragment`);
+		console.log(`${MODULE_TAG} Parsing callback fragment for hybrid flow`);
 
 		try {
 			const url = new URL(callbackUrl);
+			
+			// For hybrid flow, check BOTH query string and fragment
+			// - Authorization code is in query string (?code=...)
+			// - ID token and access token are in fragment (#id_token=...&access_token=...)
+			const queryParams = new URLSearchParams(url.search);
 			const fragment = url.hash.substring(1); // Remove '#'
-			const params = new URLSearchParams(fragment);
+			const fragmentParams = fragment ? new URLSearchParams(fragment) : null;
 
-			// Check for error in callback
-			const error = params.get('error');
-			const errorDescription = params.get('error_description');
+			// Check for error in either query or fragment
+			const error = fragmentParams?.get('error') || queryParams.get('error');
+			const errorDescription = fragmentParams?.get('error_description') || queryParams.get('error_description');
 
 			if (error) {
 				throw new Error(`Authorization failed: ${error} - ${errorDescription || ''}`);
 			}
 
-			// Extract values
-			const code = params.get('code');
-			const accessToken = params.get('access_token');
-			const idToken = params.get('id_token');
-			const state = params.get('state');
+			// Extract authorization code from query string (hybrid flow standard)
+			const code = queryParams.get('code');
+			
+			// Extract tokens from fragment (hybrid flow standard)
+			const accessToken = fragmentParams?.get('access_token') || null;
+			const idToken = fragmentParams?.get('id_token') || null;
+			
+			// State can be in either query or fragment (check both)
+			const state = fragmentParams?.get('state') || queryParams.get('state');
 
 			// Validate state
 			if (!state) {
@@ -205,13 +321,15 @@ export class HybridFlowIntegrationServiceV8 {
 
 			// Validate that we have at least code or tokens
 			if (!code && !accessToken && !idToken) {
-				throw new Error('No authorization code or tokens found in callback');
+				throw new Error('No authorization code or ID token found in callback URL');
 			}
 
-			console.log(`${MODULE_TAG} Callback fragment parsed successfully`, {
+			console.log(`${MODULE_TAG} Callback parsed successfully`, {
 				hasCode: !!code,
 				hasAccessToken: !!accessToken,
 				hasIdToken: !!idToken,
+				codeSource: code ? 'query' : 'none',
+				tokenSource: (accessToken || idToken) ? 'fragment' : 'none',
 			});
 
 			const result: { code?: string; access_token?: string; id_token?: string; state: string } = {
@@ -248,11 +366,12 @@ export class HybridFlowIntegrationServiceV8 {
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl =
+			// Use relative URL for development (leverages Vite proxy to http://localhost:3001)
+			// This avoids SSL protocol errors - backend runs on HTTP, not HTTPS
+			const tokenEndpoint =
 				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
-			const tokenEndpoint = `${backendUrl}/api/token-exchange`;
+					? 'https://oauth-playground.vercel.app/api/token-exchange'
+					: '/api/token-exchange';
 
 			const bodyParams: Record<string, string> = {
 				grant_type: 'authorization_code',
@@ -265,6 +384,9 @@ export class HybridFlowIntegrationServiceV8 {
 			// Add PKCE code verifier if provided
 			if (codeVerifier) {
 				bodyParams.code_verifier = codeVerifier;
+				// #region agent log - verify code verifier in token exchange
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:385',message:'Code verifier in token exchange',data:{codeVerifierLength:codeVerifier.length,codeVerifierPrefix:codeVerifier.substring(0,20)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+				// #endregion
 			}
 
 			// Handle client authentication based on method
@@ -315,14 +437,17 @@ export class HybridFlowIntegrationServiceV8 {
 				// Basic authentication methods (client_secret_basic, client_secret_post, none)
 				if (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post') {
 					if (credentials.clientSecret) {
+						// Always include client_secret in body for backend proxy to use
+						// Backend will use it for client_secret_post OR reconstruct Basic auth header for client_secret_basic
+						bodyParams.client_secret = credentials.clientSecret;
+						
 						if (authMethod === 'client_secret_post') {
-							bodyParams.client_secret = credentials.clientSecret;
 							console.log(
 								`${MODULE_TAG} ✅ Including client_secret in request (client_secret_post)`
 							);
 						} else {
-							// client_secret_basic - will be handled in Authorization header
-							console.log(`${MODULE_TAG} ✅ Will use client_secret_basic authentication`);
+							// client_secret_basic - backend will reconstruct Authorization header from client_secret in body
+							console.log(`${MODULE_TAG} ✅ Including client_secret in body for backend to construct Basic auth`);
 						}
 					} else {
 						throw new Error(`Client secret is required for ${authMethod} authentication`);
@@ -332,6 +457,13 @@ export class HybridFlowIntegrationServiceV8 {
 					console.log(`${MODULE_TAG} ⚠️ No client authentication (public client)`);
 				}
 			}
+
+			// Include client_auth_method in request body so backend knows which method to use
+			bodyParams.client_auth_method = authMethod;
+
+			// #region agent log - log full request body before sending
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:455',message:'Token exchange request body before sending',data:{authMethod:authMethod,hasClientSecret:!!credentials.clientSecret,clientSecretLength:credentials.clientSecret?.length||0,bodyParamsKeys:Object.keys(bodyParams),hasClientAuthMethod:!!bodyParams.client_auth_method,clientAuthMethodValue:bodyParams.client_auth_method,hasClientAssertion:!!bodyParams.client_assertion,hasClientSecretInBody:!!bodyParams.client_secret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
 
 			// Prepare request headers
 			const headers: Record<string, string> = {
@@ -353,6 +485,9 @@ export class HybridFlowIntegrationServiceV8 {
 
 			if (!response.ok) {
 				const errorData = await response.json();
+				// #region agent log - log error response details
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'hybridFlowIntegrationServiceV8.ts:477',message:'Token exchange error response',data:{status:response.status,statusText:response.statusText,error:errorData.error,errorDescription:errorData.error_description,correlationId:errorData.correlation_id,requestAuthMethod:authMethod,hasClientSecret:!!credentials.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+				// #endregion
 				throw new Error(
 					`Token exchange failed: ${errorData.error} - ${errorData.error_description || ''}`
 				);
@@ -458,16 +593,16 @@ export class HybridFlowIntegrationServiceV8 {
 	 * Generate PKCE codes for secure authorization code flow
 	 * @returns PKCE codes (verifier and challenge)
 	 */
-	private static generatePKCECodes(): {
+	private static async generatePKCECodes(): Promise<{
 		codeVerifier: string;
 		codeChallenge: string;
 		codeChallengeMethod: 'S256';
-	} {
+	}> {
 		// Generate random code verifier (43-128 characters)
 		const codeVerifier = HybridFlowIntegrationServiceV8.generateRandomString(128);
 
-		// Generate code challenge from verifier using SHA256
-		const codeChallenge = HybridFlowIntegrationServiceV8.generateCodeChallenge(codeVerifier);
+		// Generate code challenge from verifier using SHA256 (properly async)
+		const codeChallenge = await HybridFlowIntegrationServiceV8.generateCodeChallenge(codeVerifier);
 
 		return {
 			codeVerifier,
@@ -478,15 +613,30 @@ export class HybridFlowIntegrationServiceV8 {
 
 	/**
 	 * Generate code challenge from code verifier using SHA256
-	 * Uses browser-compatible encoding
+	 * Uses browser-compatible Web Crypto API for SHA-256 hashing (RFC 7636 compliant)
 	 * @param codeVerifier - Code verifier
-	 * @returns Code challenge
+	 * @returns Code challenge (SHA-256 hash of code verifier, base64url encoded)
 	 */
-	private static generateCodeChallenge(codeVerifier: string): string {
-		// Browser-compatible base64url encoding
-		// Note: For production, this should hash with SHA-256 first using Web Crypto API
-		// For now, using simple base64url encoding for compatibility
-		return HybridFlowIntegrationServiceV8.base64UrlEncode(codeVerifier);
+	private static async generateCodeChallenge(codeVerifier: string): Promise<string> {
+		try {
+			// Use proper crypto.subtle.digest for SHA-256 hashing (RFC 7636 compliant)
+			const encoder = new TextEncoder();
+			const data = encoder.encode(codeVerifier);
+
+			// Generate SHA-256 hash using Web Crypto API
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+			// Convert ArrayBuffer to base64url
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashBase64 = btoa(String.fromCharCode(...hashArray));
+
+			// Convert to base64url (RFC 4648 §5)
+			return hashBase64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+		} catch (err) {
+			console.error(`${MODULE_TAG} Failed to generate code challenge with Web Crypto`, err);
+			// Fallback to base64url encoding (not secure, but better than failing)
+			return HybridFlowIntegrationServiceV8.base64UrlEncode(codeVerifier);
+		}
 	}
 
 	/**

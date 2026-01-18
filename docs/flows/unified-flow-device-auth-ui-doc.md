@@ -117,6 +117,32 @@ After entering credentials:
 
 **Purpose:** Request device authorization and receive device code, user code, and verification URI
 
+#### Pre-Flight Validation
+
+Before requesting device authorization, the system automatically validates your configuration against PingOne:
+
+**What Happens:**
+1. **Validation Starts**: A small spinner appears with the message "🔍 Validating Configuration against PingOne..."
+2. **Configuration Checked**: The system verifies:
+   - Client secret requirements
+   - Token endpoint authentication method compatibility
+   - Scope requirements
+   - Device code flow compatibility
+
+**Validation Results:**
+- ✅ **Success**: Toast message "Pre-flight validation passed!" - You can proceed
+- ⚠️ **Warnings**: Toast message "Pre-flight validation warnings" - You can proceed, but review warnings
+- ❌ **Errors**: Toast message "Pre-flight validation failed" - Must fix errors before proceeding
+
+**Auto-Fix Available:**
+- If fixable errors are detected, you'll be prompted: "Would you like to automatically fix all fixable errors?"
+- Click **"Yes, Fix All"** to automatically correct:
+  - Auth method mismatch (updates to match PingOne)
+- After auto-fix, validation runs again automatically
+- Success toast shows: "Fixed {count} error(s): {list of fixes}"
+
+**Note:** The spinner does not block the UI during device authorization. Once the QR code is displayed, the spinner is hidden to allow you to scan the QR code.
+
 #### What Happens
 
 When you click **"Request Device Authorization"**:

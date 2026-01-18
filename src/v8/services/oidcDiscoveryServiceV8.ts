@@ -39,16 +39,34 @@ export class OidcDiscoveryServiceV8 {
 	/**
 	 * Discover OIDC configuration from issuer URL
 	 * @param issuerUrl - The OIDC issuer URL
+	 * @param environmentId - Optional environment ID for cache key
 	 * @returns Discovery result with endpoints
 	 * @example
 	 * const result = await OidcDiscoveryServiceV8.discover('https://auth.example.com');
 	 */
-	static async discover(issuerUrl: string): Promise<DiscoveryResult> {
-		console.log(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl });
+	static async discover(issuerUrl: string, environmentId?: string): Promise<DiscoveryResult> {
+		console.log(`${MODULE_TAG} Starting OIDC discovery`, { issuerUrl, environmentId });
 
 		try {
 			// Normalize issuer URL
 			const normalized = OidcDiscoveryServiceV8.normalizeIssuerUrl(issuerUrl);
+
+			// Try cache first
+			if (typeof window !== 'undefined') {
+				try {
+					const { getCachedDiscoveryDocument } = await import('./discoveryCacheServiceV8');
+					const cached = await getCachedDiscoveryDocument(normalized, environmentId);
+					if (cached) {
+						console.log(`${MODULE_TAG} ✅ Using cached discovery document`, { issuerUrl: normalized });
+						return {
+							success: true,
+							data: cached as DiscoveryResult['data'],
+						};
+					}
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Cache check failed, fetching fresh`, { error });
+				}
+			}
 
 			console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
 
@@ -104,19 +122,31 @@ Original error: ${errorMessage}`;
 
 			console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
 
+			const discoveryData = {
+				issuer: data.issuer,
+				authorizationEndpoint: data.authorization_endpoint,
+				tokenEndpoint: data.token_endpoint,
+				userInfoEndpoint: data.userinfo_endpoint,
+				introspectionEndpoint: data.introspection_endpoint,
+				jwksUri: data.jwks_uri,
+				scopesSupported: data.scopes_supported,
+				responseTypesSupported: data.response_types_supported,
+				grantTypesSupported: data.grant_types_supported,
+			};
+
+			// Cache the discovery document for future use
+			if (typeof window !== 'undefined') {
+				try {
+					const { cacheDiscoveryDocument } = await import('./discoveryCacheServiceV8');
+					await cacheDiscoveryDocument(normalized, discoveryData, environmentId);
+				} catch (error) {
+					console.warn(`${MODULE_TAG} ⚠️ Failed to cache discovery document (non-critical)`, { error });
+				}
+			}
+
 			return {
 				success: true,
-				data: {
-					issuer: data.issuer,
-					authorizationEndpoint: data.authorization_endpoint,
-					tokenEndpoint: data.token_endpoint,
-					userInfoEndpoint: data.userinfo_endpoint,
-					introspectionEndpoint: data.introspection_endpoint,
-					jwksUri: data.jwks_uri,
-					scopesSupported: data.scopes_supported,
-					responseTypesSupported: data.response_types_supported,
-					grantTypesSupported: data.grant_types_supported,
-				},
+				data: discoveryData,
 			};
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
