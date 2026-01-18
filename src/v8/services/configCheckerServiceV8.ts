@@ -156,11 +156,11 @@ export class ConfigCheckerServiceV8 {
 			// The backend returns all applications, so we need to find the one matching clientId
 			// In PingOne, the application ID is the client ID
 			const applications = data._embedded?.applications || [];
-			const app = applications.find(
+			const rawApp = applications.find(
 				(app: { id: string; clientId?: string }) => app.id === clientId || app.clientId === clientId
 			);
 
-			if (!app) {
+			if (!rawApp) {
 				console.error(`${MODULE_TAG} Application not found`, {
 					clientId,
 					availableApps: applications.map((a: { id: string; clientId?: string }) => ({
@@ -171,14 +171,44 @@ export class ConfigCheckerServiceV8 {
 				return null;
 			}
 
+			// Explicitly map all fields including tokenEndpointAuthMethod to ensure it's captured
+			// Normalize tokenEndpointAuthMethod to lowercase with underscores
+			// PingOne API may return CLIENT_SECRET_POST, CLIENT_SECRET_BASIC, etc. (uppercase)
+			// But UI expects client_secret_post, client_secret_basic, etc. (lowercase)
+			const rawTokenEndpointAuthMethod = rawApp.tokenEndpointAuthMethod || rawApp.token_endpoint_auth_method || 'client_secret_post';
+			const normalizedTokenEndpointAuthMethod = rawTokenEndpointAuthMethod.toLowerCase().replace(/-/g, '_');
+
+			const app: PingOneApplication = {
+				id: rawApp.id,
+				name: rawApp.name,
+				description: rawApp.description,
+				enabled: rawApp.enabled !== false, // Default to true if not specified
+				type: rawApp.type || 'SINGLE_PAGE_APP',
+				grantTypes: rawApp.grantTypes || [],
+				responseTypes: rawApp.responseTypes || [],
+				tokenEndpointAuthMethod: normalizedTokenEndpointAuthMethod,
+				redirectUris: rawApp.redirectUris || rawApp.redirect_uris || [],
+				allowedOrigins: rawApp.allowedOrigins || rawApp.allowed_origins,
+				postLogoutRedirectUris: rawApp.postLogoutRedirectUris || rawApp.post_logout_redirect_uris,
+				initiateLoginUri: rawApp.initiateLoginUri || rawApp.initiate_login_uri,
+				logoUri: rawApp.logoUri || rawApp.logo_uri,
+				policyUri: rawApp.policyUri || rawApp.policy_uri,
+				termsOfServiceUri: rawApp.termsOfServiceUri || rawApp.terms_of_service_uri,
+				clientUri: rawApp.clientUri || rawApp.client_uri,
+				contacts: rawApp.contacts || [],
+				createdAt: rawApp.createdAt || rawApp.created_at || new Date().toISOString(),
+				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
+			};
+
 			console.log(`${MODULE_TAG} App config fetched successfully`, {
 				appId: app.id,
 				appName: app.name,
 				grantTypes: app.grantTypes,
 				responseTypes: app.responseTypes,
+				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
 			});
 
-			return app as PingOneApplication;
+			return app;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error fetching app config`, {
 				error: error instanceof Error ? error.message : String(error),
@@ -259,8 +289,12 @@ export class ConfigCheckerServiceV8 {
 		}
 
 		// Check token endpoint auth method
+		// Normalize both values for comparison (handle case differences)
 		if (userConfig.clientAuthMethod) {
-			const matches = pingOneConfig.tokenEndpointAuthMethod === userConfig.clientAuthMethod;
+			const normalizeAuthMethod = (method: string) => method.toLowerCase().replace(/-/g, '_');
+			const normalizedPingOneMethod = normalizeAuthMethod(pingOneConfig.tokenEndpointAuthMethod);
+			const normalizedUserMethod = normalizeAuthMethod(userConfig.clientAuthMethod);
+			const matches = normalizedPingOneMethod === normalizedUserMethod;
 			comparison.tokenEndpointAuthMethod = {
 				match: matches,
 				message: matches

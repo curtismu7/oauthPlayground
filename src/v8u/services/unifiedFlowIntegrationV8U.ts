@@ -187,7 +187,8 @@ export class UnifiedFlowIntegrationV8U {
 			codeVerifier: string;
 			codeChallenge: string;
 			codeChallengeMethod: 'S256' | 'plain';
-		}
+		},
+		appConfig?: { requireSignedRequestObject?: boolean }
 	) {
 		console.log(`${MODULE_TAG} 🔍 Generating authorization URL`, {
 			specVersion,
@@ -202,23 +203,26 @@ export class UnifiedFlowIntegrationV8U {
 		});
 
 		/**
-		 * CRITICAL FIX: Always use the correct redirect URI for the flow type
+		 * CRITICAL FIX: Use user's configured redirect URI if set, otherwise use flow-specific default
 		 *
-		 * Problem: credentials.redirectUri might be from a different flow type
-		 * (e.g., user switches from implicit to authz flow but redirect URI wasn't updated)
+		 * Problem: We were prioritizing the auto-generated redirect URI over the user's configured URI,
+		 * causing "invalid redirect URI" errors when the user's URI (which matches PingOne) was different.
 		 *
-		 * Solution: Look up the correct redirect URI for this specific flow type
-		 * This ensures callbacks are routed to the correct handler
+		 * Solution: Prioritize credentials.redirectUri if set (user knows what's configured in PingOne),
+		 * only fall back to auto-generated URI if credentials.redirectUri is empty.
 		 */
 		const flowKey = `${flowType}-v8u`;
-		const correctRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
+		const defaultRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
+		// Prioritize user's configured redirect URI (matches PingOne config) over auto-generated default
+		const redirectUriToUse = credentials.redirectUri?.trim() || defaultRedirectUri || '';
 
 		console.log(`${MODULE_TAG} Redirect URI validation`, {
 			flowType,
 			flowKey,
 			credentialsRedirectUri: credentials.redirectUri,
-			correctRedirectUri,
-			willUseCorrect: !!correctRedirectUri,
+			defaultRedirectUri,
+			redirectUriToUse,
+			usingConfigured: !!credentials.redirectUri?.trim(),
 		});
 
 		// Implicit flow
@@ -226,26 +230,46 @@ export class UnifiedFlowIntegrationV8U {
 			console.log(
 				`${MODULE_TAG} ✅ Using IMPLICIT FLOW - generating URL with response_type=token id_token`
 			);
-			const result = ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				redirectUri: correctRedirectUri || credentials.redirectUri || '',
-				scopes: credentials.scopes || 'openid profile email',
+			// Ensure offline_access is included if enableRefreshToken is true (though implicit flow doesn't support refresh tokens)
+			let scopesToUse = credentials.scopes || 'openid profile email';
+			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
+				scopesToUse = scopesToUse.trim() + ' offline_access';
+				console.log(`${MODULE_TAG} ⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`);
+			}
+
+			const result = await ImplicitFlowIntegrationServiceV8.generateAuthorizationUrl(
+				{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+					privateKey: credentials.privateKey,
+					redirectUri: redirectUriToUse,
+					scopes: scopesToUse,
+					clientAuthMethod: credentials.clientAuthMethod,
+				},
+				appConfig
+			);
+
+			// CRITICAL FIX: Use the exact redirect_uri from the generated URL, not from storage
+			// Parse the generated URL to extract the redirect_uri that was actually used
+			const generatedUrl = new URL(result.authorizationUrl);
+			const redirectUriFromUrl = generatedUrl.searchParams.get('redirect_uri') || '';
+			
+			console.log(`${MODULE_TAG} Using redirect_uri from generated URL:`, {
+				redirectUriFromUrl,
+				redirectUriToUse,
+				match: redirectUriFromUrl === redirectUriToUse,
+				generatedUrlPreview: result.authorizationUrl.substring(0, 200),
 			});
 
-			// CRITICAL FIX: Prefix state with flow type BEFORE building the URL
-			// We need to rebuild the authorization URL with the prefixed state
+			// Prefix state with flow type for callback routing
 			const prefixedState = `v8u-implicit-${result.state}`;
+			
+			// Rebuild URL using ALL params from generated URL, then update only state
+			// This preserves the exact redirect_uri and all other params from the generated URL
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
-			const params = new URLSearchParams({
-				client_id: credentials.clientId,
-				response_type: 'token id_token',
-				redirect_uri: correctRedirectUri || credentials.redirectUri || '',
-				scope: credentials.scopes || 'openid profile email',
-				state: prefixedState, // Use prefixed state here!
-				nonce: result.nonce,
-				response_mode: 'fragment',
-			});
+			const params = new URLSearchParams(generatedUrl.searchParams); // Copy all params from generated URL
+			params.set('state', prefixedState); // Update only the state parameter
 
 			// Add prompt parameter if specified
 			if (credentials.prompt) {
@@ -343,7 +367,7 @@ export class UnifiedFlowIntegrationV8U {
 						flowType,
 						{
 							...credentials,
-							redirectUri: correctRedirectUri || credentials.redirectUri || '',
+							redirectUri: redirectUriToUse,
 						},
 						prefixedState,
 						undefined, // nonce - not needed for authz code flow
@@ -437,19 +461,34 @@ export class UnifiedFlowIntegrationV8U {
 			}
 
 			// Regular flow (no PAR) - use existing logic
+			// Ensure offline_access is included if enableRefreshToken is true
+			let scopesToUse = credentials.scopes || 'openid profile email';
+			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
+				scopesToUse = scopesToUse.trim() + ' offline_access';
+				console.log(`${MODULE_TAG} ✅ Added offline_access scope for refresh token`);
+			}
+
 			const oauthCredentials: OAuthCredentials = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
-				redirectUri: correctRedirectUri || credentials.redirectUri || '',
-				scopes: credentials.scopes || 'openid profile email',
+				redirectUri: redirectUriToUse,
+				scopes: scopesToUse,
 			};
 			// Client secret is optional for public clients (PKCE is used instead)
 			if (credentials.clientSecret) {
 				oauthCredentials.clientSecret = credentials.clientSecret;
 			}
+			// Add private key for JAR RS256 signing if available
+			if (credentials.privateKey) {
+				oauthCredentials.privateKey = credentials.privateKey;
+			}
+			if (credentials.clientAuthMethod) {
+				oauthCredentials.clientAuthMethod = credentials.clientAuthMethod;
+			}
 			const result = await OAuthIntegrationServiceV8.generateAuthorizationUrl(
 				oauthCredentials,
-				pkceCodes
+				pkceCodes,
+				appConfig
 			);
 
 			/**
@@ -460,12 +499,23 @@ export class UnifiedFlowIntegrationV8U {
 			 */
 			const prefixedStateRegular = `v8u-oauth-authz-${result.state}`;
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+			// Reuse scopesToUse that was already calculated above
+
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
 				response_type: 'code',
-				redirect_uri: correctRedirectUri || credentials.redirectUri || '',
-				scope: credentials.scopes || 'openid profile email',
+				redirect_uri: redirectUriToUse,
+				scope: scopesToUse, // Reuse scopesToUse from above (includes offline_access if enableRefreshToken is true)
 				state: prefixedStateRegular, // Use prefixed state
+			});
+
+			// Debug logging for scope verification
+			console.log(`${MODULE_TAG} [AUTHZ URL] Scope verification`, {
+				enableRefreshToken: credentials.enableRefreshToken,
+				originalScopes: credentials.scopes,
+				finalScopes: scopesToUse,
+				hasOfflineAccess: scopesToUse.includes('offline_access'),
+				scopeParam: params.get('scope'),
 			});
 
 			// Add prompt parameter if specified
@@ -544,7 +594,7 @@ export class UnifiedFlowIntegrationV8U {
 			const hybridCredentials: HybridFlowCredentials = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
-				redirectUri: correctRedirectUri || credentials.redirectUri || '',
+				redirectUri: redirectUriToUse,
 				scopes: credentials.scopes || 'openid profile email',
 				// Default to 'code id_token' if not specified (most common hybrid response type)
 				responseType:
@@ -554,9 +604,16 @@ export class UnifiedFlowIntegrationV8U {
 			if (credentials.clientSecret) {
 				hybridCredentials.clientSecret = credentials.clientSecret;
 			}
+			if (credentials.privateKey) {
+				hybridCredentials.privateKey = credentials.privateKey;
+			}
+			if (credentials.clientAuthMethod) {
+				hybridCredentials.clientAuthMethod = credentials.clientAuthMethod;
+			}
 			const result = await HybridFlowIntegrationServiceV8.generateAuthorizationUrl(
 				hybridCredentials,
-				pkceCodes
+				pkceCodes,
+				appConfig
 			);
 
 			/**
@@ -568,10 +625,17 @@ export class UnifiedFlowIntegrationV8U {
 			const prefixedState = `v8u-hybrid-${result.state}`;
 			const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 			const params = new URLSearchParams();
+			// Ensure offline_access is included if enableRefreshToken is true
+			let scopesToUse = credentials.scopes || 'openid profile email';
+			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
+				scopesToUse = scopesToUse.trim() + ' offline_access';
+				console.log(`${MODULE_TAG} ✅ Added offline_access scope for refresh token`);
+			}
+
 			params.set('client_id', credentials.clientId);
 			params.set('response_type', hybridCredentials.responseType || 'code id_token');
-			params.set('redirect_uri', correctRedirectUri || credentials.redirectUri || '');
-			params.set('scope', credentials.scopes || 'openid profile email');
+			params.set('redirect_uri', redirectUriToUse);
+			params.set('scope', scopesToUse);
 			params.set('state', prefixedState); // Use prefixed state
 			params.set('nonce', result.nonce);
 
@@ -1054,6 +1118,8 @@ export class UnifiedFlowIntegrationV8U {
 				redirectUri: oauthCredentials.redirectUri,
 				scopes: oauthCredentials.scopes,
 				hasClientSecret: !!oauthCredentials.clientSecret,
+				clientAuthMethod: oauthCredentials.clientAuthMethod,
+				authMethodSource: credentials.clientAuthMethod ? 'from credentials' : 'default (client_secret_post)',
 			});
 
 			console.log(`${MODULE_TAG} 🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);

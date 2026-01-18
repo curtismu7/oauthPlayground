@@ -132,6 +132,29 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 			includeScopes: false,
 		});
 
+		// Backup: Sync user token from user-login-v8 if available and not already in mfa-flow-v8
+		if (!stored.userToken) {
+			try {
+				const userLoginCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+					flowKey: 'user-login-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
+					console.log(`${MODULE_TAG} ✅ Initial sync: User token from user-login-v8 to mfa-flow-v8`);
+					// Update stored to include the user token
+					stored.userToken = userLoginCreds.userToken;
+					stored.tokenType = 'user';
+				}
+			} catch (error) {
+				// Never fail - silently continue if sync fails
+				console.warn(`${MODULE_TAG} Initial user token sync failed (non-critical):`, error);
+			}
+		}
+
 		return {
 			environmentId: stored.environmentId || '',
 			clientId: stored.clientId || '',
@@ -263,6 +286,74 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	useEffect(() => {
 		CredentialsServiceV8.saveCredentials(FLOW_KEY, credentials);
 	}, [credentials]);
+
+	/**
+	 * Backup sync function - safely syncs user token from user-login-v8 to mfa-flow-v8
+	 * This is wrapped in try-catch to never fail, ensuring robustness
+	 */
+	const syncUserTokenFromUserLogin = useCallback(() => {
+		try {
+			// Only sync if we don't have a user token or if tokenType is 'user'
+			if (!credentials.userToken || credentials.tokenType === 'user') {
+				const userLoginCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+					flowKey: 'user-login-v8',
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				
+				// If user-login-v8 has a user token and we don't, or if it's different, sync it
+				if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
+					if (!credentials.userToken || credentials.userToken !== userLoginCreds.userToken) {
+						console.log(`${MODULE_TAG} 🔄 Backup sync: Syncing user token from user-login-v8 to mfa-flow-v8`);
+						setCredentials((prev) => ({
+							...prev,
+							userToken: userLoginCreds.userToken,
+							tokenType: 'user' as const,
+						}));
+						return true; // Indicates sync happened
+					}
+				}
+			}
+		} catch (error) {
+			// Never fail - silently catch any errors
+			console.warn(`${MODULE_TAG} Backup sync failed (non-critical):`, error);
+		}
+		return false; // Indicates no sync was needed or failed
+	}, [credentials.userToken, credentials.tokenType, setCredentials]);
+
+	// Sync user token from user-login-v8 if available (for user flow)
+	// This handles the case where user logs in after MFA flow has already loaded
+	useEffect(() => {
+		syncUserTokenFromUserLogin();
+	}, [syncUserTokenFromUserLogin]);
+
+	// Backup: Periodic sync every 2 seconds to catch any missed updates
+	useEffect(() => {
+		const interval = setInterval(() => {
+			syncUserTokenFromUserLogin();
+		}, 2000); // Check every 2 seconds
+
+		return () => clearInterval(interval);
+	}, [syncUserTokenFromUserLogin]);
+
+	// Backup: Listen for storage events to catch when user-login-v8 is updated
+	useEffect(() => {
+		const handleStorageChange = (e: StorageEvent) => {
+			// Check if user-login-v8 credentials were updated
+			if (e.key?.includes('user-login-v8') || e.key?.includes('credentials')) {
+				// Small delay to ensure the storage write is complete
+				setTimeout(() => {
+					syncUserTokenFromUserLogin();
+				}, 100);
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		return () => window.removeEventListener('storage', handleStorageChange);
+	}, [syncUserTokenFromUserLogin]);
 
 	// Fetch device authentication policies when environment or token changes
 	// Only fetch if environment actually changed (not on every token status check)
@@ -513,16 +604,59 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 	const isNextDisabled = () => {
 		if (isLoading) return true;
 		if (nav.currentStep === 0) {
+			// Backup: Sync user token right before validation check
+			// This ensures we have the latest token even if other syncs missed it
+			if (credentials.tokenType === 'user' && !credentials.userToken) {
+				syncUserTokenFromUserLogin();
+			}
+
 			// Per rightTOTP.md: Check token validity based on token type (worker or user)
 			const tokenType = credentials.tokenType || 'worker';
+			// Re-check credentials after sync attempt (with backup fallback)
+			let effectiveUserToken = credentials.userToken;
+			try {
+				const currentCreds = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
+					flowKey: FLOW_KEY,
+					flowType: 'oidc',
+					includeClientSecret: false,
+					includeRedirectUri: false,
+					includeLogoutUri: false,
+					includeScopes: false,
+				});
+				effectiveUserToken = currentCreds.userToken || credentials.userToken;
+				
+				// Final backup: if still no token, try one more sync from user-login-v8
+				if (!effectiveUserToken && tokenType === 'user') {
+					const userLoginCreds = CredentialsServiceV8.loadCredentials('user-login-v8', {
+						flowKey: 'user-login-v8',
+						flowType: 'oidc',
+						includeClientSecret: false,
+						includeRedirectUri: false,
+						includeLogoutUri: false,
+						includeScopes: false,
+					});
+					if (userLoginCreds?.userToken && userLoginCreds?.tokenType === 'user') {
+						effectiveUserToken = userLoginCreds.userToken;
+						// Update credentials immediately
+						setCredentials((prev) => ({
+							...prev,
+							userToken: userLoginCreds.userToken,
+							tokenType: 'user' as const,
+						}));
+					}
+				}
+			} catch (error) {
+				// Fallback to current credentials if load fails
+				console.warn(`${MODULE_TAG} Backup credential check failed, using current state:`, error);
+			}
 			const isTokenValid =
-				tokenType === 'worker' ? tokenStatus.isValid : !!credentials.userToken?.trim();
+				tokenType === 'worker' ? tokenStatus.isValid : !!effectiveUserToken?.trim();
 
 			// Debug logging for token validation
 			if (tokenType === 'user' && !isTokenValid) {
 				console.log(`${MODULE_TAG} [DEBUG] Next button disabled - user token validation`, {
-					hasUserToken: !!credentials.userToken,
-					userTokenLength: credentials.userToken?.length,
+					hasUserToken: !!effectiveUserToken,
+					userTokenLength: effectiveUserToken?.length,
 					tokenType,
 					environmentId: !!credentials.environmentId.trim(),
 					username: !!credentials.username.trim(),

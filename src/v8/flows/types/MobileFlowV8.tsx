@@ -1698,7 +1698,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 						paddingTop: hasPosition ? '0' : '5vh',
 						paddingBottom: hasPosition ? '0' : '5vh',
 						overflowY: 'auto',
-						zIndex: 1000,
+						zIndex: 10000, // Ensure modal overlay is above API display (100 < 10000)
 						pointerEvents: 'auto',
 					}}
 					onClick={() => {
@@ -1726,25 +1726,35 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 							overflow: 'hidden',
 							...step2ModalDrag.modalStyle,
 							pointerEvents: 'auto',
+							position: step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
-						{/* Header with Logo */}
+						{/* Header with Logo - Draggable */}
 						<div
-							onMouseDown={step2ModalDrag.handleMouseDown}
+							onMouseDown={(e) => {
+								// Allow dragging from header, but prevent if clicking on close button
+								if (!(e.target as HTMLElement).closest('button')) {
+									step2ModalDrag.handleMouseDown(e);
+								}
+							}}
 							style={{
 								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 								padding: '16px 20px 12px 20px',
 								textAlign: 'center',
 								position: 'relative',
-								cursor: 'grab',
+								cursor: step2ModalDrag.isDragging ? 'grabbing' : 'grab',
 								userSelect: 'none',
 							}}
 						>
 							<button
 								type="button"
-								onMouseDown={(e) => e.stopPropagation()}
-								onClick={() => {
+								onMouseDown={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+								}}
+								onClick={(e) => {
+									e.stopPropagation();
 									setShowModal(false);
 									nav.goToPrevious();
 								}}
@@ -1762,6 +1772,7 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									justifyContent: 'center',
 									cursor: 'pointer',
 									color: 'white',
+									zIndex: 1,
 								}}
 							>
 								<FiX size={18} />
@@ -3238,9 +3249,35 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 									onClick={async () => {
 										setIsLoading(true);
 										try {
-											// For ACTIVATION_REQUIRED devices, use resendPairingCode endpoint
-											// For ACTIVE devices, use sendOTP (device authentication flow)
-											if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
+											if (mfaState.authenticationId && mfaState.deviceId) {
+												const { MfaAuthenticationServiceV8 } = await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
+												
+												// Get userId if not already available
+												let userId = mfaState.userId;
+												if (!userId) {
+													const user = await MFAServiceV8.lookupUserByUsername(
+														credentials.environmentId,
+														credentials.username
+													);
+													userId = user.id as string;
+												}
+
+												// Resend OTP for ACTIVE device using cancel + re-initialize or re-select
+												await MfaAuthenticationServiceV8.resendOTPForActiveDevice({
+													environmentId: credentials.environmentId,
+													username: credentials.username,
+													userId,
+													authenticationId: mfaState.authenticationId,
+													deviceId: mfaState.deviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												});
+												toastV8.success('OTP code resent successfully!');
+											}
+											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
+											else if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
 												await MFAServiceV8.resendPairingCode({
 													environmentId: credentials.environmentId,
 													username: credentials.username,
@@ -3249,17 +3286,22 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 													customDomain: credentials.customDomain,
 												});
 												toastV8.success('OTP code resent successfully!');
-											} else {
-												// For ACTIVE devices or if status is unknown, use sendOTP
-												await controller.sendOTP(
+											}
+											// For registration flow with ACTIVE devices, re-initialize device authentication
+											else if (mfaState.deviceId) {
+												const authResult = await controller.initializeDeviceAuthentication(
 													credentials,
-													mfaState.deviceId,
-													otpState,
-													updateOtpState,
-													nav,
-													setIsLoading
+													mfaState.deviceId
 												);
+												setMfaState((prev) => ({
+													...prev,
+													authenticationId: authResult.authenticationId,
+													deviceAuthId: authResult.authenticationId,
+													nextStep: authResult.nextStep ?? authResult.status,
+												}));
 												toastV8.success('OTP code resent successfully!');
+											} else {
+												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';

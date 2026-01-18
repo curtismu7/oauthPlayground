@@ -1,0 +1,416 @@
+/**
+ * @file useUnifiedOTPFlow.ts
+ * @module v8/flows/shared
+ * @description Shared hook for SMS and Email OTP-based MFA flows
+ * @version 8.3.0
+ *
+ * This hook consolidates the common logic between SMS and Email flows.
+ * The only differences are:
+ * - Device type: "SMS" vs "EMAIL"
+ * - Contact field: phone vs email
+ * - Phone number formatting/validation (SMS only)
+ * - Some UI text differences
+ */
+
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useStepNavigationV8 } from '../../hooks/useStepNavigationV8.ts';
+import { apiDisplayServiceV8 } from '../../services/apiDisplayServiceV8.ts';
+import { CredentialsServiceV8 } from '../../services/credentialsServiceV8.ts';
+import { MFAServiceV8 } from '../../services/mfaServiceV8.ts';
+import { WorkerTokenStatusServiceV8 } from '../../services/workerTokenStatusServiceV8.ts';
+import { toastV8 } from '../../utils/toastNotificationsV8.ts';
+import { getFullPhoneNumber } from '../controllers/SMSFlowController';
+import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory';
+import type { MFAFlowBaseRenderProps } from './MFAFlowBaseV8';
+import type { DeviceType, MFACredentials } from './MFATypes';
+
+export type UnifiedOTPDeviceType = 'SMS' | 'EMAIL' | 'WHATSAPP';
+
+export type DeviceSelectionState = {
+	existingDevices: Record<string, unknown>[];
+	loadingDevices: boolean;
+	selectedExistingDevice: string;
+	showRegisterForm: boolean;
+};
+
+export type OTPState = {
+	otpSent: boolean;
+	sendError: string | null;
+	sendRetryCount: number;
+};
+
+export type ValidationState = {
+	validationAttempts: number;
+	lastValidationError: string | null;
+};
+
+export interface UseUnifiedOTPFlowOptions {
+	deviceType: UnifiedOTPDeviceType;
+	configPageRoute: string;
+}
+
+export interface UseUnifiedOTPFlowReturn {
+	// State
+	deviceSelection: DeviceSelectionState;
+	setDeviceSelection: React.Dispatch<React.SetStateAction<DeviceSelectionState>>;
+	otpState: OTPState;
+	setOtpState: React.Dispatch<React.SetStateAction<OTPState>>;
+	updateOtpState: (update: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => void;
+	validationState: ValidationState;
+	setValidationState: React.Dispatch<React.SetStateAction<ValidationState>>;
+	updateValidationState: (
+		update: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)
+	) => void;
+	showModal: boolean;
+	setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+	showValidationModal: boolean;
+	setShowValidationModal: React.Dispatch<React.SetStateAction<boolean>>;
+	registrationFlowType: 'admin' | 'user';
+	setRegistrationFlowType: React.Dispatch<React.SetStateAction<'admin' | 'user'>>;
+	adminDeviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	setAdminDeviceStatus: React.Dispatch<React.SetStateAction<'ACTIVE' | 'ACTIVATION_REQUIRED'>>;
+	deviceRegisteredActive: {
+		deviceId: string;
+		deviceName: string;
+		deviceType: UnifiedOTPDeviceType;
+		status: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+		username?: string;
+		userId?: string;
+		createdAt?: string;
+		updatedAt?: string;
+		environmentId?: string;
+	} | null;
+	setDeviceRegisteredActive: React.Dispatch<
+		React.SetStateAction<{
+			deviceId: string;
+			deviceName: string;
+			deviceType: UnifiedOTPDeviceType;
+			status: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+			username?: string;
+			userId?: string;
+			createdAt?: string;
+			updatedAt?: string;
+			environmentId?: string;
+		} | null>
+	>;
+	isApiDisplayVisible: boolean;
+	apiDisplayHeight: number;
+	isCheckingCredentials: boolean;
+
+	// Controllers and utilities
+	controller: ReturnType<typeof MFAFlowControllerFactory.create>;
+	navigate: ReturnType<typeof useNavigate>;
+	location: ReturnType<typeof useLocation>;
+	isConfigured: boolean;
+
+	// Helper functions
+	getContactDisplay: (credentials: MFACredentials) => string;
+	getContactLabel: () => string;
+	getDeviceTypeDisplay: () => string;
+	MODULE_TAG: string;
+}
+
+/**
+ * Shared hook for SMS and Email OTP flows
+ * Consolidates all common state and logic
+ */
+export function useUnifiedOTPFlow(options: UseUnifiedOTPFlowOptions): UseUnifiedOTPFlowReturn {
+	const { deviceType, configPageRoute } = options;
+	const MODULE_TAG =
+		deviceType === 'SMS'
+			? '[📱 SMS-FLOW-V8]'
+			: deviceType === 'WHATSAPP'
+				? '[📲 WHATSAPP-MFA]'
+				: '[📧 EMAIL-FLOW-V8]';
+	const location = useLocation();
+	const navigate = useNavigate();
+	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
+
+	// Redirect to config page if accessed directly without proper setup
+	const [isCheckingCredentials, setIsCheckingCredentials] = useState(true);
+
+	useEffect(() => {
+		const locationState = location.state as {
+			configured?: boolean;
+			deviceAuthenticationPolicyId?: string;
+			environmentId?: string;
+			username?: string;
+		} | null;
+
+		// If we have state from navigation, credentials are good
+		if (locationState && (isConfigured || locationState.deviceAuthenticationPolicyId)) {
+			setIsCheckingCredentials(false);
+			return;
+		}
+
+		// Check if we're on a device route (ends with /device)
+		// For OTP flows (SMS, Email, WhatsApp), we have separate config and device routes, so we should redirect to config page
+		const isDeviceRoute = location.pathname.endsWith('/device');
+		const isOTPFlow = deviceType === 'SMS' || deviceType === 'EMAIL' || deviceType === 'WHATSAPP';
+
+		// Check if we have credentials in storage (always check, even if we have location state)
+		const storedCredentials = CredentialsServiceV8.loadCredentials('mfa-flow-v8', {
+			flowKey: 'mfa-flow-v8',
+			flowType: 'oidc',
+			includeClientSecret: false,
+			includeRedirectUri: false,
+			includeLogoutUri: false,
+			includeScopes: false,
+		});
+
+		// If we have stored credentials, we're already in the flow - don't redirect
+		// This prevents redirects when navigating between steps or after OAuth callbacks
+		if (
+			storedCredentials?.environmentId?.trim() &&
+			storedCredentials?.username?.trim() &&
+			storedCredentials?.deviceAuthenticationPolicyId?.trim()
+		) {
+			console.log(`${MODULE_TAG} Found stored credentials, staying in flow`);
+			setIsCheckingCredentials(false);
+			return;
+		}
+
+		// If no state passed and no configured flag, check stored credentials
+		if (!locationState && !isConfigured) {
+			// For OTP flow device routes: redirect to config page if no proper state
+			if (
+				isDeviceRoute &&
+				isOTPFlow &&
+				(!storedCredentials?.environmentId?.trim() ||
+					!storedCredentials?.username?.trim() ||
+					!storedCredentials?.deviceAuthenticationPolicyId?.trim())
+			) {
+				console.log(
+					`${MODULE_TAG} Device route accessed directly without proper state, redirecting to config page`
+				);
+				navigate(configPageRoute, { replace: true });
+				return;
+			}
+
+			// If no stored credentials and not a device route, just show Step 0 (configuration)
+			if (
+				!storedCredentials?.environmentId?.trim() ||
+				!storedCredentials?.username?.trim() ||
+				!storedCredentials?.deviceAuthenticationPolicyId?.trim()
+			) {
+				console.log(`${MODULE_TAG} No credentials found, will show Step 0 (configuration)`);
+				setIsCheckingCredentials(false);
+				return;
+			}
+		}
+
+		// Credentials check complete
+		setIsCheckingCredentials(false);
+	}, [
+		location.state,
+		location.pathname,
+		isConfigured,
+		deviceType,
+		configPageRoute,
+		navigate,
+		MODULE_TAG,
+	]);
+
+	// Initialize controller using factory
+	const controller = useMemo(() => MFAFlowControllerFactory.create({ deviceType }), [deviceType]);
+
+	// Device selection state
+	const [deviceSelection, setDeviceSelection] = useState<DeviceSelectionState>({
+		existingDevices: [],
+		loadingDevices: false,
+		selectedExistingDevice: '',
+		showRegisterForm: false,
+	});
+
+	// OTP state
+	const [otpState, setOtpState] = useState<OTPState>({
+		otpSent: false,
+		sendError: null,
+		sendRetryCount: 0,
+	});
+
+	// Track successful registration
+	const [deviceRegisteredActive, setDeviceRegisteredActive] = useState<{
+		deviceId: string;
+		deviceName: string;
+		deviceType: UnifiedOTPDeviceType;
+		status: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+		username?: string;
+		userId?: string;
+		createdAt?: string;
+		updatedAt?: string;
+		environmentId?: string;
+	} | null>(null);
+
+	// Validation state
+	const [validationState, setValidationState] = useState<ValidationState>({
+		validationAttempts: 0,
+		lastValidationError: null,
+	});
+
+	// Modal state for step 2 registration
+	const [showModal, setShowModal] = useState(true);
+
+	// Modal state for step 4 OTP validation
+	const [showValidationModal, setShowValidationModal] = useState(true);
+
+	// Device registration flow type: 'admin' (can choose ACTIVE or ACTIVATION_REQUIRED) or 'user' (always ACTIVATION_REQUIRED)
+	const initialLocationState = location.state as {
+		registrationFlowType?: 'admin' | 'user';
+		adminDeviceStatus?: 'ACTIVE' | 'ACTIVATION_REQUIRED';
+	} | null;
+	const [registrationFlowType, setRegistrationFlowType] = useState<'admin' | 'user'>(
+		initialLocationState?.registrationFlowType || 'admin'
+	);
+	const [adminDeviceStatus, setAdminDeviceStatus] = useState<'ACTIVE' | 'ACTIVATION_REQUIRED'>(
+		initialLocationState?.adminDeviceStatus || 'ACTIVE'
+	);
+
+	const updateOtpState = useCallback(
+		(update: Partial<OTPState> | ((prev: OTPState) => Partial<OTPState>)) => {
+			setOtpState((prev) => {
+				const patch = typeof update === 'function' ? update(prev) : update;
+				return { ...prev, ...patch };
+			});
+		},
+		[]
+	);
+
+	const updateValidationState = useCallback(
+		(update: Partial<ValidationState> | ((prev: ValidationState) => Partial<ValidationState>)) => {
+			setValidationState((prev) => {
+				const patch = typeof update === 'function' ? update(prev) : update;
+				return { ...prev, ...patch };
+			});
+		},
+		[]
+	);
+
+	// Track API display visibility and height for dynamic padding
+	const [isApiDisplayVisible, setIsApiDisplayVisible] = useState(false);
+	const [apiDisplayHeight, setApiDisplayHeight] = useState(0);
+
+	useEffect(() => {
+		const checkVisibility = () => {
+			const visible = apiDisplayServiceV8.isVisible();
+			setIsApiDisplayVisible(visible);
+		};
+
+		const unsubscribe = apiDisplayServiceV8.subscribe(checkVisibility);
+		checkVisibility(); // Initial check
+
+		return unsubscribe;
+	}, []);
+
+	// Observe API Display height changes for dynamic padding
+	useEffect(() => {
+		if (!isApiDisplayVisible) {
+			setApiDisplayHeight(0);
+			return;
+		}
+
+		const updateHeight = () => {
+			const apiDisplayElement = document.querySelector('.super-simple-api-display') as HTMLElement;
+			if (apiDisplayElement) {
+				// Use getBoundingClientRect to get actual rendered height including borders
+				const rect = apiDisplayElement.getBoundingClientRect();
+				const height = rect.height > 0 ? rect.height : apiDisplayElement.offsetHeight;
+				// Ensure we have a valid height
+				if (height > 0) {
+					setApiDisplayHeight(height);
+				}
+			}
+		};
+
+		// Initial measurement with multiple delays to catch different render stages
+		const initialTimeout1 = setTimeout(updateHeight, 50);
+		const initialTimeout2 = setTimeout(updateHeight, 100);
+		const initialTimeout3 = setTimeout(updateHeight, 300);
+
+		const resizeObserver = new ResizeObserver(() => {
+			updateHeight();
+		});
+
+		const apiDisplayElement = document.querySelector('.super-simple-api-display');
+		if (apiDisplayElement) {
+			resizeObserver.observe(apiDisplayElement);
+		}
+
+		// Also check periodically in case ResizeObserver doesn't catch all changes
+		const interval = setInterval(updateHeight, 200);
+
+		return () => {
+			clearTimeout(initialTimeout1);
+			clearTimeout(initialTimeout2);
+			clearTimeout(initialTimeout3);
+			resizeObserver.disconnect();
+			clearInterval(interval);
+		};
+	}, [isApiDisplayVisible]);
+
+	// Get contact info display helper
+	const getContactDisplay = useCallback(
+		(credentials: MFACredentials): string => {
+			if (deviceType === 'SMS' || deviceType === 'WHATSAPP') {
+				// WhatsApp uses the same phone format as SMS
+				return getFullPhoneNumber(credentials);
+			} else {
+				return credentials.email || 'Not set';
+			}
+		},
+		[deviceType]
+	);
+
+	// Get contact label
+	const getContactLabel = useCallback((): string => {
+		if (deviceType === 'SMS' || deviceType === 'WHATSAPP') {
+			return 'Phone Number';
+		}
+		return 'Email Address';
+	}, [deviceType]);
+
+	// Get device type display name
+	const getDeviceTypeDisplay = useCallback((): string => {
+		if (deviceType === 'SMS') return 'SMS';
+		if (deviceType === 'WHATSAPP') return 'WhatsApp';
+		return 'Email';
+	}, [deviceType]);
+
+	return {
+		// State
+		deviceSelection,
+		setDeviceSelection,
+		otpState,
+		setOtpState,
+		updateOtpState,
+		validationState,
+		setValidationState,
+		updateValidationState,
+		showModal,
+		setShowModal,
+		showValidationModal,
+		setShowValidationModal,
+		registrationFlowType,
+		setRegistrationFlowType,
+		adminDeviceStatus,
+		setAdminDeviceStatus,
+		deviceRegisteredActive,
+		setDeviceRegisteredActive,
+		isApiDisplayVisible,
+		apiDisplayHeight,
+		isCheckingCredentials,
+
+		// Controllers and utilities
+		controller,
+		navigate,
+		location,
+		isConfigured,
+
+		// Helper functions
+		getContactDisplay,
+		getContactLabel,
+		getDeviceTypeDisplay,
+		MODULE_TAG,
+	};
+}

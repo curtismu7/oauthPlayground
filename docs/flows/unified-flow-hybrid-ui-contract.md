@@ -93,6 +93,45 @@ const isValid =
 **Service:** `UnifiedFlowIntegrationV8U.generateAuthorizationUrl()`  
 **Purpose:** Build and display authorization URL with hybrid response type
 
+#### Pre-Flight Validation
+
+Before generating the authorization URL, the system performs comprehensive pre-flight validation:
+
+**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+
+**Validation Checks:**
+- ✅ Redirect URI matches PingOne configuration
+- ✅ PKCE requirements (spec version and PingOne policy)
+- ✅ Client secret requirements
+- ✅ Token endpoint authentication method compatibility
+- ✅ PAR (Pushed Authorization Requests) support
+- ✅ Response type validity (must be valid hybrid response type)
+- ✅ Scope requirements (OIDC requires `openid` scope)
+- ✅ HTTPS requirements (OAuth 2.1)
+
+**UI Feedback:**
+- **Small Inline Spinner**: Shows during validation with message "🔍 Validating Configuration against PingOne..."
+- **Toast Messages**:
+  - ✅ Success: "Pre-flight validation passed!" (if no errors/warnings)
+  - ⚠️ Warning: "Pre-flight validation warnings - check details below" (if warnings only)
+  - ❌ Error: "Pre-flight validation failed - check error details below" (if errors found)
+
+**Auto-Fix Functionality:**
+- If fixable errors are detected, user is prompted to auto-fix them
+- Fixable errors include:
+  - Redirect URI mismatch (can update to match PingOne)
+  - Missing PKCE (can enable if required)
+  - Auth method mismatch (can update to match PingOne)
+  - Missing `openid` scope (can add automatically)
+  - Invalid response type (can correct)
+- After auto-fix, validation is re-run automatically
+- Toast message shows: "Fixed {count} error(s): {list of fixes}"
+
+**Validation Result:**
+- **Errors**: Block progression, must be fixed before continuing
+- **Warnings**: Allow continuation, but user should be aware
+- **Passed**: Continue with authorization URL generation
+
 #### Inputs
 
 - `credentials`: Full credentials object from Step 0

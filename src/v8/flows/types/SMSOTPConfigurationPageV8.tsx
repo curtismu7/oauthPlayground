@@ -20,9 +20,11 @@ import { UserLoginModalV8 } from '@/v8/components/UserLoginModalV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
+import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
+import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
@@ -154,6 +156,27 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 	// Process callback code directly if modal isn't open (fallback processing)
 	const isProcessingCallbackRef = React.useRef(false);
 	useEffect(() => {
+		// Backup: Clean up malformed URLs with multiple query parameter sets
+		// This handles cases where OAuth redirects accumulate in the URL
+		const currentSearch = window.location.search;
+		if (currentSearch && currentSearch.includes('?code=') && currentSearch.split('?code=').length > 2) {
+			// URL has multiple code parameters - extract only the first valid pair
+			const firstCodeMatch = currentSearch.match(/[?&]code=([^&?]+)/);
+			const firstStateMatch = currentSearch.match(/[?&]state=([^&?]+)/);
+			
+			if (firstCodeMatch && firstStateMatch) {
+				// Reconstruct clean URL with only the first code/state pair
+				const cleanUrl = `${window.location.pathname}?code=${firstCodeMatch[1]}&state=${firstStateMatch[1]}`;
+				window.history.replaceState({}, document.title, cleanUrl);
+				// Return early - let the effect re-run with the cleaned URL
+				return;
+			} else {
+				// Can't parse - just clean the URL completely
+				window.history.replaceState({}, document.title, window.location.pathname);
+				return;
+			}
+		}
+
 		const code = searchParams.get('code');
 		const error = searchParams.get('error');
 		const state = searchParams.get('state');
@@ -177,16 +200,29 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 		});
 		// #endregion
 
-		// Only process if we have a code/error AND stored state (confirms this is from our user login flow)
-		if (!hasUserLoginState) return;
-
 		// If modal is open, let it handle the callback
 		if (showUserLoginModal) return;
+
+		// If no code/error in URL, nothing to process
+		if (!code && !error) return;
 
 		// Prevent concurrent processing
 		if (isProcessingCallbackRef.current) return;
 
 		const processCallback = async () => {
+			// Get stored state fresh (may have been cleared by another component)
+			const storedState = sessionStorage.getItem('user_login_state_v8');
+			
+			// If no stored state but we have code/state in URL, this was already processed by another component
+			// Clean up URL silently and return
+			if (!storedState && (code || state)) {
+				window.history.replaceState({}, document.title, window.location.pathname);
+				return;
+			}
+			
+			// If no stored state and no code/error, nothing to do
+			if (!storedState) return;
+
 			// #region agent log
 			sendAnalyticsLog({
 				location: 'SMSOTPConfigurationPageV8.tsx:159',
@@ -195,9 +231,9 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					hasCode: !!code,
 					hasError: !!error,
 					hasState: !!state,
-					hasUserLoginState: !!hasUserLoginState,
+					hasStoredState: !!storedState,
 					stateFromUrl: state,
-					storedState: hasUserLoginState,
+					storedState: storedState,
 				},
 				timestamp: Date.now(),
 				sessionId: 'debug-session',
@@ -218,13 +254,14 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			}
 
 			if (code && state) {
-				// Validate state
-				if (state !== hasUserLoginState) {
+				// Only validate state if we have both stored state and URL state
+				// If stored state is missing, another component may have already processed this callback
+				if (storedState && state !== storedState) {
 					// #region agent log
 					sendAnalyticsLog({
 						location: 'SMSOTPConfigurationPageV8.tsx:173',
 						message: 'State validation failed',
-						data: { stateFromUrl: state, storedState: hasUserLoginState },
+						data: { stateFromUrl: state, storedState: storedState },
 						timestamp: Date.now(),
 						sessionId: 'debug-session',
 						runId: 'run3',
@@ -233,6 +270,16 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					// #endregion
 					console.warn(`[📱 SMS-CONFIG-PAGE-V8] State mismatch - possible CSRF attack`);
 					toastV8.error('Security validation failed. Please try again.');
+					sessionStorage.removeItem('user_login_state_v8');
+					sessionStorage.removeItem('user_login_code_verifier_v8');
+					sessionStorage.removeItem('user_login_credentials_temp_v8');
+					sessionStorage.removeItem('user_login_redirect_uri_v8');
+					window.history.replaceState({}, document.title, window.location.pathname);
+					return;
+				}
+				
+				// If we have code but no stored state, another component already processed it - clean up URL silently
+				if (!storedState) {
 					window.history.replaceState({}, document.title, window.location.pathname);
 					return;
 				}

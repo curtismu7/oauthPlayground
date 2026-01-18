@@ -1,7 +1,7 @@
 # MFA FIDO2 Restore Document
 
 **Last Updated:** 2026-01-27  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Purpose:** Implementation details for restoring the FIDO2 flow if it breaks or drifts  
 **Usage:** Use this document to restore correct implementations when FIDO2 flows break or regress
 
@@ -246,6 +246,72 @@ const fetchFido2Policies = useCallback(async () => {
 
 ---
 
+### 4. React Hook Dependencies and Imports (CRITICAL FIX - 2026-01-27)
+
+**Issue:** `FIDO2FlowV8.tsx` crashes with `ReferenceError: useCallback is not defined` and `ReferenceError: credentials is not defined` errors.
+
+**Root Cause:** 
+1. Missing `useCallback` import from React
+2. Incorrect `useMemo` dependency array includes props values (`credentials`, `setCredentials`, `tokenStatus`) that don't exist in component scope
+
+**Symptoms:**
+- Console error: `FIDO2FlowV8.tsx:569 Uncaught ReferenceError: useCallback is not defined`
+- Console error: `FIDO2FlowV8.tsx:1360 Uncaught ReferenceError: credentials is not defined`
+- Component fails to render
+- React error boundary catches the error
+
+**Correct Implementation:**
+
+**Fix 1: Add `useCallback` to React imports**
+```typescript
+// In FIDO2FlowV8.tsx - Line 8
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+```
+
+**Fix 2: Correct `useMemo` dependency array**
+```typescript
+// In FIDO2FlowV8.tsx - Line 1360
+// ❌ WRONG: Includes props values that don't exist in component scope
+}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, credentials, setCredentials, tokenStatus]);
+
+// ✅ CORRECT: Only includes values from component scope
+}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, location]);
+```
+
+**Explanation:**
+- `credentials`, `setCredentials`, and `tokenStatus` come from `props` passed to the render function inside `useMemo`, not from component scope
+- The dependency array should only include values from the component scope that the callback actually uses
+- `location` is added because `locationState` (derived from `location.state`) is used in the callback
+
+**Incorrect Implementation (DO NOT DO THIS):**
+```typescript
+// ❌ WRONG: Missing useCallback import
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+
+// ❌ WRONG: Including props values in dependency array
+const renderStep0 = useMemo(() => {
+    return (props: MFAFlowBaseRenderProps) => {
+        const { credentials, setCredentials, tokenStatus } = props;
+        // ... uses credentials, setCredentials, tokenStatus
+    };
+}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, credentials, setCredentials, tokenStatus]);
+//                                                                                                                                    ^^^^^^^^^^^  ^^^^^^^^^^^^^^^  ^^^^^^^^^^^
+//                                                                                                                                    These don't exist in component scope!
+```
+
+**Verification:**
+1. Check that `useCallback` is in the React imports
+2. Verify dependency array only includes component-scope variables
+3. Ensure component renders without errors
+4. Check browser console for any `ReferenceError` messages
+
+**Related Code Locations:**
+- `src/v8/flows/types/FIDO2FlowV8.tsx:8` - React imports
+- `src/v8/flows/types/FIDO2FlowV8.tsx:740` - `renderStep0` useMemo definition
+- `src/v8/flows/types/FIDO2FlowV8.tsx:1360` - Dependency array
+
+---
+
 ## Postman Collection Downloads
 
 ### Overview
@@ -316,6 +382,20 @@ The generated Postman collection follows the [PingOne Postman Environment Templa
 **Cause:** `selectedFido2PolicyId` state not updating.
 
 **Fix:** Verify `setSelectedFido2PolicyId` is called after policies load, and check that policy IDs are valid strings.
+
+### Issue: Component Crashes with "useCallback is not defined" or "credentials is not defined"
+
+**Cause:** Missing React hook import or incorrect `useMemo` dependency array.
+
+**Symptoms:**
+- `ReferenceError: useCallback is not defined` at line 569
+- `ReferenceError: credentials is not defined` at line 1360
+- Component fails to render, caught by error boundary
+
+**Fix:** 
+1. Ensure `useCallback` is imported from React (see Critical Implementation Detail #4)
+2. Remove props values (`credentials`, `setCredentials`, `tokenStatus`) from `useMemo` dependency array
+3. Only include component-scope variables in dependency arrays
 
 ---
 

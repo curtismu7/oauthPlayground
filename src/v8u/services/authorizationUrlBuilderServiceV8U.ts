@@ -47,20 +47,26 @@ export interface AuthorizationUrlResult {
 export class AuthorizationUrlBuilderService {
 	/**
 	 * Get the correct redirect URI for the flow type
+	 * 
+	 * Prioritizes user's configured redirect URI (matches PingOne config) over auto-generated default.
+	 * Only falls back to auto-generated URI if credentials.redirectUri is empty.
 	 */
 	private static getRedirectUri(flowType: FlowType, credentials: UnifiedFlowCredentials): string {
 		const flowKey = `${flowType}-v8u`;
-		const correctRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
+		const defaultRedirectUri = RedirectUriServiceV8.getRedirectUriForFlow(flowKey);
+		// Prioritize user's configured redirect URI (matches PingOne config) over auto-generated default
+		const redirectUriToUse = credentials.redirectUri?.trim() || defaultRedirectUri || '';
 
 		UnifiedFlowLoggerService.debug('Redirect URI validation', {
 			flowType,
 			flowKey,
 			credentialsRedirectUri: credentials.redirectUri,
-			correctRedirectUri,
-			willUseCorrect: !!correctRedirectUri,
+			defaultRedirectUri,
+			redirectUriToUse,
+			usingConfigured: !!credentials.redirectUri?.trim(),
 		});
 
-		return correctRedirectUri || credentials.redirectUri || '';
+		return redirectUriToUse;
 	}
 
 	/**

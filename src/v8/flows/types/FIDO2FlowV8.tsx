@@ -5,7 +5,7 @@
  * @version 8.2.0
  */
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FiShield } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FIDO2Service } from '@/services/fido2Service';
@@ -1357,7 +1357,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				</div>
 			);
 		};
-	}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, credentials, setCredentials, tokenStatus]);
+	}, [isConfigured, webAuthnSupported, webAuthnCapabilities, fido2Policies, isLoadingFido2Policies, fido2PoliciesError, fetchFido2Policies, location]);
 
 	// Ref to store pending trigger update (to avoid setState during render)
 	const pendingTriggerRef = React.useRef<{
