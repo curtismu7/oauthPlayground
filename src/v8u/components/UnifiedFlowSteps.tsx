@@ -11606,11 +11606,51 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 									{operationRules.canIntrospectRefreshToken ? '✅' : '❌'} Refresh Token
 									{hasRefreshToken ? ' (available)' : ' (not issued in this flow)'}
 								</li>
-								<li style={{ marginTop: '4px' }}>
-									{operationRules.canIntrospectIdToken ? '✅' : '❌'} ID Token
-									{hasIdToken ? ' (available)' : ' (not issued in this flow)'}
-									{!operationRules.canIntrospectIdToken && ' - Validate locally instead'}
-								</li>
+							<li style={{ marginTop: '4px' }}>
+								{operationRules.canIntrospectIdToken ? '✅' : '❌'} ID Token
+								{hasIdToken ? ' (available)' : ' (not issued in this flow)'}
+								{!operationRules.canIntrospectIdToken && hasIdToken && (
+									<>
+										{' - '}
+										<span style={{ fontWeight: 600, color: '#dc2626' }}>
+											Do not introspect ID tokens
+										</span>
+										<div style={{ 
+											marginTop: '8px', 
+											marginLeft: '20px',
+											padding: '8px 12px',
+											background: '#fef3c7',
+											border: '1px solid #fbbf24',
+											borderRadius: '6px',
+											fontSize: '13px',
+											lineHeight: '1.6'
+										}}>
+											<strong>Why?</strong> ID tokens are JWTs designed to be validated locally by your application, not by calling the introspection endpoint.
+											<br /><br />
+											<strong>How to validate:</strong>
+											<ol style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+												<li>Verify the JWT signature using the JWKS endpoint</li>
+												<li>Validate claims (iss, aud, exp, iat, nonce)</li>
+												<li>Check the token hasn't expired</li>
+											</ol>
+											<div style={{ marginTop: '8px' }}>
+												<a 
+													href="https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation" 
+													target="_blank" 
+													rel="noopener noreferrer"
+													style={{ 
+														color: '#2563eb', 
+														textDecoration: 'underline',
+														fontWeight: 500
+													}}
+												>
+													📖 Learn more: OIDC ID Token Validation Spec →
+												</a>
+											</div>
+										</div>
+									</>
+								)}
+							</li>
 							</ul>
 						</div>
 					</div>
