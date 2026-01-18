@@ -401,12 +401,53 @@ flowState.deviceCodeInterval = Math.max(errorData.interval, currentInterval + 5)
 | Introspect Access Token | ✅ | ✅ | ✅ | Requires `introspect-access` scope |
 | Introspect Refresh Token | ✅ | ✅ | ✅ | Requires `introspect-refresh` scope |
 | Introspect ID Token | ❌ | ❌ | ❌ | ID tokens should be validated locally, not introspected |
+| Validate ID Token Locally | ❌ | ❌ | ✅ | Available when ID token is present |
 | Call UserInfo | ❌ | ❌ | ✅ | Requires `openid` scope and access token |
+
+#### ID Token Validation
+
+**Feature:** Local ID Token Validation Modal  
+**Component:** `IDTokenValidationModalV8U`  
+**Service:** `IDTokenValidationServiceV8`
+
+**Trigger:**
+- Button: "🔐 Validate ID Token Locally"
+- Location: Introspection section, below "What can be introspected"
+- Visibility: Only shown when ID token is available (OIDC flow with `openid` scope)
+
+**Behavior:**
+1. User clicks "Validate ID Token Locally" button
+2. Modal opens with validation UI
+3. Auto-validates ID token on open
+4. Displays comprehensive validation results
+
+**Validation Process:**
+1. Fetch JWKS from PingOne: `https://auth.pingone.com/{envId}/as/.well-known/jwks.json`
+2. Verify JWT signature using matching key (by kid)
+3. Validate all required claims per OIDC Core 1.0
+4. Display results with green checkmarks (valid) or red X (invalid)
+
+**Result Display:**
+- Overall status: Valid ✅ or Invalid ❌
+- Individual check results for each validation
+- Error messages for failures
+- Warning messages for non-critical issues
+- Link to OIDC specification
+
+**State:**
+```typescript
+{
+  idToken: string;  // From flowState.tokens.idToken
+  clientId: string;  // From credentials
+  environmentId: string;  // From credentials
+  nonce?: string;  // From flowState.nonce
+}
+```
 
 #### Output
 
 - **Display**: Operation buttons with results
-- **Actions**: Introspect tokens, call UserInfo endpoint
+- **Actions**: Introspect tokens, validate ID token locally, call UserInfo endpoint
 - **Results**: Displayed in modals or inline cards
 
 ---

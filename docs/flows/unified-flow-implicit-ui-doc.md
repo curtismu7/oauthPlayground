@@ -401,6 +401,36 @@ When you click "Decode", you'll see:
 - `picture`: Profile picture URL
 - Additional claims based on requested scopes
 
+#### ID Token Local Validation
+
+**Purpose**: Validate ID tokens locally without calling the introspection endpoint.
+
+**Why Local Validation?**
+- ID tokens are JWTs designed for local validation by your application
+- The introspection endpoint is NOT meant for ID tokens
+- Local validation follows OIDC Core 1.0 specification
+- Public clients (implicit flow) may not have introspection access
+
+**How to Use**:
+1. After receiving your ID token (from URL fragment), navigate to the Introspection step
+2. Find the "What can be introspected" section
+3. Click **"🔐 Validate ID Token Locally"** button
+4. Review validation results:
+   - ✅ JWT Signature verification
+   - ✅ Claims validation (iss, aud, exp, iat, nonce)
+   - Any errors or warnings
+
+**What Gets Validated**:
+- **JWT Signature**: Verified using JWKS from PingOne
+- **Issuer (iss)**: Matches your PingOne environment
+- **Audience (aud)**: Matches your client ID
+- **Expiration (exp)**: Token hasn't expired
+- **Issued At (iat)**: Valid timestamp
+- **Nonce**: Matches authorization request (CRITICAL for implicit flow security)
+
+**Learn More**:
+- [OIDC ID Token Validation Spec](https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation)
+
 #### Educational Content
 
 This step also explains:
