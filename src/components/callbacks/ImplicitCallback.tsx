@@ -155,22 +155,38 @@ const ImplicitCallback: React.FC = () => {
 					return;
 				}
 
-				if (accessToken || idToken) {
-					// Check which flow this is from by looking for flow context
-					// DEBUG: V8 flows store context as 'implicit-v8-flow-active'
-					const v8Context = sessionStorage.getItem('implicit-v8-flow-active');
-					const v7Context =
-						sessionStorage.getItem('implicit-flow-v7-oauth-active') ||
-						sessionStorage.getItem('implicit-flow-v7-oidc-active');
-					const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
-					const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
-					const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
-					const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
-					const v3FlowContext =
-						sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
-						sessionStorage.getItem('oauth2_implicit_v3_flow_context');
+			if (accessToken || idToken) {
+				// FIRST: Check if this is a V8U unified flow by checking state parameter
+				// This must be done BEFORE checking flow contexts because V8U doesn't use sessionStorage contexts
+				const stateParam = hashParams.get('state');
+				if (stateParam?.startsWith('v8u-implicit-')) {
+					// V8U Unified Flow - redirect to CallbackHandlerV8U with fragment preserved
+					logger.auth('ImplicitCallback', 'V8U unified flow detected - redirecting to unified callback handler', {
+						state: stateParam,
+						hasAccessToken: !!accessToken,
+						hasIdToken: !!idToken,
+					});
+					
+					// Use window.location.replace for immediate redirect with fragment
+					window.location.replace(`/authz-callback${window.location.hash}`);
+					return; // Exit early
+				}
 
-					if (v8Context) {
+				// Check which flow this is from by looking for flow context
+				// DEBUG: V8 flows store context as 'implicit-v8-flow-active'
+				const v8Context = sessionStorage.getItem('implicit-v8-flow-active');
+				const v7Context =
+					sessionStorage.getItem('implicit-flow-v7-oauth-active') ||
+					sessionStorage.getItem('implicit-flow-v7-oidc-active');
+				const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
+				const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
+				const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
+				const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
+				const v3FlowContext =
+					sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
+					sessionStorage.getItem('oauth2_implicit_v3_flow_context');
+
+				if (v8Context) {
 						// DEBUG: This is a V8 flow - redirect back to V8 flow with tokens
 						setStatus('success');
 						setMessage('Tokens received - returning to V8 flow');
