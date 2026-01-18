@@ -52,7 +52,7 @@ import {
 	generateCompletePostmanCollection,
 	downloadPostmanCollectionWithEnvironment,
 } from '@/services/postmanCollectionGeneratorV8';
-import { FiPackage } from 'react-icons/fi';
+import { FiBook, FiPackage } from 'react-icons/fi';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -95,16 +95,26 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	 * @returns {number} Current step number (0-indexed), defaults to 0 if invalid
 	 */
 	const currentStep = useMemo(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:97',message:'Parsing currentStep from URL',data:{urlStep,urlFlowType,pathname:location.pathname,hash:window.location.hash.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'STEP_PARSING'})}).catch(()=>{});
+		// #endregion
+		
 		if (urlStep) {
 			const stepNum = parseInt(urlStep, 10);
 			// Validate step number is a valid non-negative integer
 			if (!Number.isNaN(stepNum) && stepNum >= 0) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:102',message:'Step parsed successfully',data:{stepNum,urlStep},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'STEP_PARSING'})}).catch(()=>{});
+				// #endregion
 				return stepNum;
 			}
 		}
 		// Default to step 0 (configuration) if no valid step in URL
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:106',message:'Defaulting to step 0',data:{urlStep,reason:urlStep ? 'Invalid step number' : 'No step in URL'},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'STEP_PARSING'})}).catch(()=>{});
+		// #endregion
 		return 0;
-	}, [urlStep]);
+	}, [urlStep, location.pathname]);
 
 	/**
 	 * Flow type state - determines which OAuth flow is currently active
@@ -169,8 +179,23 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const lastSyncedUrlFlowTypeRef = useRef<string | null>(null);
 
 	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:181',message:'URL sync effect - ENTRY',data:{urlFlowType,flowType,specVersion,lastSynced:lastSyncedUrlFlowTypeRef.current,isUserChanging:isUserChangingFlowRef.current,pathname:location.pathname},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'A'})}).catch(()=>{});
+		// #endregion
+		
 		// Prevent syncing the same URL flow type multiple times
 		if (lastSyncedUrlFlowTypeRef.current === urlFlowType) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:184',message:'URL sync effect - SKIP (already synced)',data:{urlFlowType,lastSynced:lastSyncedUrlFlowTypeRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			return;
+		}
+
+		// Don't sync if user is actively changing flow type (prevents interference)
+		if (isUserChangingFlowRef.current) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:189',message:'URL sync effect - SKIP (user changing)',data:{urlFlowType,flowType,isUserChanging:isUserChangingFlowRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'B'})}).catch(()=>{});
+			// #endregion
 			return;
 		}
 
@@ -185,19 +210,76 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			) &&
 			urlFlowType !== flowType
 		) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:196',message:'URL sync effect - CHECKING COMPATIBILITY',data:{urlFlowType,flowType,specVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+			
+			// CRITICAL: Check if the URL flow type is available for the current spec version
+			// If not, automatically switch to a compatible spec version (just like handleFlowTypeChange does)
+			const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:205',message:'URL sync effect - AVAILABLE FLOWS CHECK',data:{specVersion,currentAvailableFlows,urlFlowType,isAvailable:currentAvailableFlows.includes(urlFlowType as FlowType)},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+			
+			if (!currentAvailableFlows.includes(urlFlowType as FlowType)) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:207',message:'URL sync effect - FLOW NOT AVAILABLE, FINDING COMPATIBLE SPEC',data:{urlFlowType,specVersion,currentAvailableFlows},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'D'})}).catch(()=>{});
+				// #endregion
+				
+				// Find a spec version that supports this flow type
+				const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
+				const compatibleSpec = compatibleSpecVersions.find((spec) => {
+					const flows = UnifiedFlowIntegrationV8U.getAvailableFlows(spec);
+					return flows.includes(urlFlowType as FlowType);
+				});
+
+				if (compatibleSpec) {
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:214',message:'URL sync effect - SWITCHING SPEC VERSION',data:{urlFlowType,fromSpec:specVersion,toSpec:compatibleSpec},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+					
+					// Switch spec version first, then flow type
+					setSpecVersion(compatibleSpec);
+					FlowSettingsServiceV8U.saveSpecVersion(urlFlowType as FlowType, compatibleSpec);
+				} else {
+					// #region agent log
+					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:219',message:'URL sync effect - NO COMPATIBLE SPEC FOUND',data:{urlFlowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'D'})}).catch(()=>{});
+					// #endregion
+					
+					console.warn(`${MODULE_TAG} ⚠️ No compatible spec version found for URL flow type`, {
+						urlFlowType,
+					});
+					// Mark as synced to prevent loops, but don't change flow type
+					lastSyncedUrlFlowTypeRef.current = urlFlowType;
+					return;
+				}
+			}
+
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:228',message:'URL sync effect - SETTING FLOW TYPE',data:{urlFlowType,flowType,specVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'C'})}).catch(()=>{});
+			// #endregion
+			
 			// Mark as synced BEFORE updating to prevent re-runs
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
 			// Reset the last processed flow type ref so spec version loading can run
 			lastProcessedFlowTypeRef.current = null;
 			setFlowType(urlFlowType as FlowType);
 		} else if (urlFlowType === flowType) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:233',message:'URL sync effect - IN SYNC',data:{urlFlowType,flowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			
 			// URL and state are in sync - mark as synced
 			lastSyncedUrlFlowTypeRef.current = urlFlowType;
 		} else if (!urlFlowType) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:237',message:'URL sync effect - NO URL FLOW TYPE',data:{flowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'A'})}).catch(()=>{});
+			// #endregion
+			
 			// URL doesn't have a flow type - mark current flow as synced to prevent loops
 			lastSyncedUrlFlowTypeRef.current = flowType;
 		}
-	}, [urlFlowType, flowType, currentStep, location.pathname]);
+	}, [urlFlowType, flowType, specVersion, currentStep, location.pathname]);
 
 	/**
 	 * Load spec version when flow type changes and update last used timestamp
@@ -215,31 +297,72 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const lastProcessedFlowTypeRef = useRef<FlowType | null>(null);
 
 	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:257',message:'Spec version loading effect - ENTRY',data:{flowType,specVersion,lastProcessed:lastProcessedFlowTypeRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'E'})}).catch(()=>{});
+		// #endregion
+		
 		// Prevent processing the same flowType multiple times
 		if (lastProcessedFlowTypeRef.current === flowType) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:259',message:'Spec version loading effect - SKIP (already processed)',data:{flowType,lastProcessed:lastProcessedFlowTypeRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'E'})}).catch(()=>{});
+			// #endregion
 			return;
 		}
 
 		const savedSpecVersion = FlowSettingsServiceV8U.getSpecVersion(flowType);
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:263',message:'Spec version loading effect - LOADED SAVED SPEC',data:{flowType,savedSpecVersion,currentSpecVersion:specVersion,willUpdate:savedSpecVersion !== specVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'F'})}).catch(()=>{});
+		// #endregion
 
 		// Mark as processed BEFORE any state updates to prevent re-runs
 		lastProcessedFlowTypeRef.current = flowType;
 
-		// Only update state if the saved version differs from current
-		// This prevents unnecessary re-renders
+		// CRITICAL: Only update spec version if the saved version:
+		// 1. Differs from current spec version
+		// 2. Supports the current flow type (prevents auto-correct from switching flows)
+		// This prevents the saved spec from overriding a valid spec that was set during flow type change
 		if (savedSpecVersion !== specVersion) {
-			setSpecVersion(savedSpecVersion);
+			// Check if saved spec version supports the current flow type
+			const savedSpecAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(savedSpecVersion);
+			const savedSpecSupportsFlow = savedSpecAvailableFlows.includes(flowType);
+			
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:323',message:'Spec version loading effect - CHECKING SAVED SPEC COMPATIBILITY',data:{flowType,savedSpecVersion,savedSpecAvailableFlows,savedSpecSupportsFlow},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'F'})}).catch(()=>{});
+			// #endregion
+			
+			if (savedSpecSupportsFlow) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:328',message:'Spec version loading effect - UPDATING SPEC VERSION',data:{flowType,fromSpec:specVersion,toSpec:savedSpecVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'F'})}).catch(()=>{});
+				// #endregion
+				
+				setSpecVersion(savedSpecVersion);
+			} else {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:333',message:'Spec version loading effect - SKIP (saved spec does not support flow)',data:{flowType,savedSpecVersion,savedSpecAvailableFlows,currentSpec:specVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'F'})}).catch(()=>{});
+				// #endregion
+				
+				// Don't update spec version - keep current spec that supports the flow type
+				// Also save current spec version as the new preference for this flow type
+				FlowSettingsServiceV8U.saveSpecVersion(flowType, specVersion);
+			}
 		}
 
 		// Update last used timestamp for analytics/tracking
 		// This helps identify which flows are most commonly used
+		// Use current spec version (either unchanged, or updated from saved)
+		// This ensures we save the correct spec version preference
+		const finalSpecVersion = savedSpecVersion !== specVersion && 
+			UnifiedFlowIntegrationV8U.getAvailableFlows(savedSpecVersion).includes(flowType)
+			? savedSpecVersion 
+			: specVersion;
+		
 		FlowSettingsServiceV8U.saveSettings(flowType, {
-			specVersion: savedSpecVersion,
+			specVersion: finalSpecVersion,
 		});
 		// CRITICAL: Only depend on flowType, NOT specVersion to avoid loops
 		// Intentionally omitting specVersion from dependencies to prevent loops
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [flowType]);
+	}, [flowType]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Credentials section collapsed state - collapsed by default after step 0
 	const [isCredentialsCollapsed, setIsCredentialsCollapsed] = useState(() => {
@@ -281,10 +404,26 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 	// Redirect base route to step 0
 	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:283',message:'Checking if redirect needed',data:{pathname:location.pathname,isBaseRoute:location.pathname === '/v8u/unified',currentStep,flowType},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'REDIRECT_CHECK'})}).catch(()=>{});
+		// #endregion
+		
 		if (location.pathname === '/v8u/unified') {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:286',message:'Redirecting base route to step 0',data:{flowType},timestamp:Date.now(),sessionId:'debug-session',runId:'hybrid-redirect',hypothesisId:'REDIRECT_CHECK'})}).catch(()=>{});
+			// #endregion
 			navigateToStep(0, flowType);
 		}
-	}, [location.pathname, navigateToStep, flowType]);
+	}, [location.pathname, navigateToStep, flowType, currentStep]);
+
+	/**
+	 * Generate storage key that includes specVersion + flowType
+	 * Format: {specVersion}-{flowType}-v8u
+	 * Example: oidc-oauth-authz-v8u, oauth2.0-implicit-v8u
+	 */
+	const getFlowKey = useCallback((spec: SpecVersion, flow: FlowType): string => {
+		return `${spec}-${flow}-v8u`;
+	}, []);
 
 	// Credentials state - load from storage synchronously on mount to prevent empty initial state
 	// Redirect URI will be auto-initialized by CredentialsFormV8U based on flow type
@@ -297,7 +436,9 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			)
 				? urlFlowType
 				: 'oauth-authz';
-		return `${urlFlow}-v8u`;
+		// Use default spec version for initial load (will be updated when specVersion state loads)
+		const defaultSpec: SpecVersion = 'oidc';
+		return getFlowKey(defaultSpec, urlFlow as FlowType);
 	};
 
 	const [credentials, setCredentials] = useState<UnifiedFlowCredentials>(() => {
@@ -493,6 +634,17 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		return fallback;
 	}, [flowType, availableFlows, specVersion]);
 
+	// Calculate current flow key (specVersion + flowType) - MUST be after effectiveFlowType is defined
+	const flowKey = useMemo(() => {
+		const key = getFlowKey(specVersion, effectiveFlowType);
+		// #region agent log
+		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+			analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:509',message:'FlowKey calculated',data:{flowKey:key,specVersion,effectiveFlowType} });
+		}).catch(()=>{});
+		// #endregion
+		return key;
+	}, [specVersion, effectiveFlowType, getFlowKey]);
+
 	/**
 	 * Show modal when selected flow is not available for current spec version
 	 *
@@ -523,19 +675,34 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const isUserChangingFlowRef = useRef(false);
 
 	useEffect(() => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:594',message:'Auto-correct effect - ENTRY',data:{specVersion,flowType,lastSpecVersion:lastSpecVersionRef.current,isUserChanging:isUserChangingFlowRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'G'})}).catch(()=>{});
+		// #endregion
+		
 		// Only auto-correct when spec version changes, not when flow type changes
 		if (lastSpecVersionRef.current === specVersion) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:596',message:'Auto-correct effect - SKIP (spec unchanged)',data:{specVersion,lastSpecVersion:lastSpecVersionRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'G'})}).catch(()=>{});
+			// #endregion
 			return;
 		}
 
 		// Don't auto-correct if user is actively changing the flow type
 		if (isUserChangingFlowRef.current) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:601',message:'Auto-correct effect - SKIP (user changing)',data:{specVersion,flowType,isUserChanging:isUserChangingFlowRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'H'})}).catch(()=>{});
+			// #endregion
+			
 			lastSpecVersionRef.current = specVersion;
 			return;
 		}
 
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
 		const isFlowAvailable = currentAvailableFlows.includes(flowType);
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:606',message:'Auto-correct effect - CHECKING AVAILABILITY',data:{specVersion,flowType,currentAvailableFlows,isFlowAvailable},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'I'})}).catch(()=>{});
+		// #endregion
 
 		// Mark this spec version as processed
 		lastSpecVersionRef.current = specVersion;
@@ -544,6 +711,11 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// This only happens when spec version changes, not when user selects a flow
 		if (!isFlowAvailable && currentAvailableFlows.length > 0) {
 			const fallbackFlow = currentAvailableFlows[0];
+			
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:614',message:'Auto-correct effect - SWITCHING TO FALLBACK',data:{specVersion,fromFlow:flowType,toFlow:fallbackFlow,currentStep},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'I'})}).catch(()=>{});
+			// #endregion
+			
 			setFlowType(fallbackFlow);
 			// Update URL to reflect new flow type
 			if (currentStep !== undefined) {
@@ -571,14 +743,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		return UnifiedFlowIntegrationV8U.getComplianceWarnings(specVersion, effectiveFlowType);
 	}, [specVersion, effectiveFlowType]);
 
-	// Flow key for CredentialsFormV8U - includes flow type, spec version, and unique identifier
-	// Format: {flowType}_{specVersion}_{uniqueIdentifier}
-	// Example: implicit_oauth2.0_v8u
-	const flowKey = useMemo(() => {
-		// Normalize spec version for storage key (remove dots, lowercase)
-		const normalizedSpecVersion = specVersion.replace(/\./g, '').toLowerCase();
-		return `${effectiveFlowType}_${normalizedSpecVersion}_v8u`;
-	}, [effectiveFlowType, specVersion]);
+	// flowKey is already declared above (line 403) using getFlowKey() function
+	// Format: {specVersion}-{flowType}-v8u (e.g., oidc-oauth-authz-v8u)
 
 	// Load credentials from storage on mount, when flow type changes, and on page visibility
 	// IMPORTANT: Credentials are independent of worker token - they persist regardless of token status
@@ -607,7 +773,16 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				};
 
 				// Load flow-specific credentials (does not depend on worker token)
-				const flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config);
+				// Try sync first for immediate results, then async with IndexedDB backup fallback
+				const flowSpecificSync = CredentialsServiceV8.loadCredentials(flowKey, config);
+				const flowSpecific = await CredentialsServiceV8.loadCredentialsWithBackup(flowKey, config)
+					.catch((err) => {
+						console.warn(
+							`${MODULE_TAG} Error loading flow-specific credentials with backup (using sync result)`,
+							err
+						);
+						return flowSpecificSync; // Use sync result as fallback
+					});
 
 				// Load shared credentials (environmentId, clientId, clientSecret, etc.) - independent of worker token
 				// Try sync first for immediate results, then async for disk fallback
@@ -628,6 +803,12 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Merge credentials: flow-specific takes priority (allows per-flow clientId/environmentId)
 				// Fall back to shared credentials if flow-specific not available
 				// Use explicit trimming and fallback logic
+				// IMPORTANT: Load ALL fields from UnifiedFlowCredentials to ensure nothing is lost
+				// #region agent log
+				import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+					analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:650',message:'Loading credentials - flowSpecific advanced options',data:{flowKey,hasResponseMode:!!flowSpecific.responseMode,hasUsePAR:flowSpecific.usePAR!==undefined,hasMaxAge:flowSpecific.maxAge!==undefined,hasDisplay:!!flowSpecific.display,hasPrompt:!!flowSpecific.prompt,hasPkceEnforcement:!!flowSpecific.pkceEnforcement,hasPrivateKey:!!flowSpecific.privateKey,responseMode:flowSpecific.responseMode,usePAR:flowSpecific.usePAR,pkceEnforcement:flowSpecific.pkceEnforcement} });
+				}).catch(()=>{});
+				// #endregion
 				const merged: UnifiedFlowCredentials = {
 					// Flow-specific credentials take priority (allows per-flow clientId/environmentId)
 					// Fall back to shared credentials if flow-specific not available
@@ -663,11 +844,23 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(flowSpecific.postLogoutRedirectUri?.trim()
 						? { postLogoutRedirectUri: flowSpecific.postLogoutRedirectUri.trim() }
 						: {}),
+					...(flowSpecific.logoutUri?.trim()
+						? { logoutUri: flowSpecific.logoutUri.trim() }
+						: {}),
 					scopes: (flowSpecific.scopes?.trim() || 'openid').trim(),
 					...(flowSpecific.responseType?.trim()
 						? { responseType: flowSpecific.responseType.trim() }
 						: {}),
+					// Advanced options - include in merge (CRITICAL: Load ALL advanced options)
+					// IMPORTANT: Load ALL advanced options to ensure they persist across flow type changes
+					...(flowSpecific.responseMode ? { responseMode: flowSpecific.responseMode } : {}),
+					...(flowSpecific.usePAR !== undefined ? { usePAR: flowSpecific.usePAR } : {}),
+					...(flowSpecific.maxAge !== undefined ? { maxAge: flowSpecific.maxAge } : {}),
+					...(flowSpecific.maxAge === null ? { maxAge: undefined } : {}), // Explicitly handle null
+					...(flowSpecific.display ? { display: flowSpecific.display } : {}),
+					...(flowSpecific.prompt ? { prompt: flowSpecific.prompt } : {}),
 					...(flowSpecific.loginHint?.trim() ? { loginHint: flowSpecific.loginHint.trim() } : {}),
+					...(flowSpecific.loginHint === '' ? { loginHint: '' } : {}), // Explicitly handle empty string
 					// Checkbox values - load from flow-specific storage
 					...(typeof flowSpecific.usePKCE === 'boolean' ? { usePKCE: flowSpecific.usePKCE } : {}),
 					...(typeof flowSpecific.enableRefreshToken === 'boolean'
@@ -676,7 +869,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					...(typeof flowSpecific.useRedirectless === 'boolean'
 						? { useRedirectless: flowSpecific.useRedirectless }
 						: {}),
+					// PKCE enforcement - load from flow-specific storage (CRITICAL: was missing!)
+					...(flowSpecific.pkceEnforcement
+						? { pkceEnforcement: flowSpecific.pkceEnforcement }
+						: {}),
+					// Private key for private_key_jwt authentication
+					...(flowSpecific.privateKey ? { privateKey: flowSpecific.privateKey } : {}),
 				};
+				// #region agent log
+				import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+					analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:698',message:'Merged credentials - ALL fields in merged object',data:{flowKey,hasResponseMode:!!merged.responseMode,hasUsePAR:merged.usePAR!==undefined,hasMaxAge:merged.maxAge!==undefined,hasDisplay:!!merged.display,hasPrompt:!!merged.prompt,hasPkceEnforcement:!!merged.pkceEnforcement,hasPrivateKey:!!merged.privateKey,hasLoginHint:merged.loginHint!==undefined,responseMode:merged.responseMode,usePAR:merged.usePAR,pkceEnforcement:merged.pkceEnforcement,allKeys:Object.keys(merged)} });
+				}).catch(()=>{});
+				// #endregion
 
 
 				// Update credentials from storage if we have any data
@@ -845,9 +1049,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					lastSavedCredsRef.current = credsString;
 
 					// Save flow-specific credentials (redirectUri, scopes, responseType, etc.)
+					// IMPORTANT: Save ALL fields from UnifiedFlowCredentials to ensure nothing is lost
 					const credsForSave = credentials as unknown as Parameters<
 						typeof CredentialsServiceV8.saveCredentials
 					>[1];
+					// #region agent log
+					import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+						analytics.log({ location:'UnifiedOAuthFlowV8U.tsx:897',message:'Auto-saving credentials - ALL fields',data:{flowKey,hasResponseMode:!!credentials.responseMode,hasUsePAR:credentials.usePAR!==undefined,hasMaxAge:credentials.maxAge!==undefined,hasDisplay:!!credentials.display,hasPrompt:!!credentials.prompt,hasPkceEnforcement:!!credentials.pkceEnforcement,hasPrivateKey:!!credentials.privateKey,hasLoginHint:credentials.loginHint!==undefined,hasRedirectUri:!!credentials.redirectUri,hasClientAuthMethod:!!credentials.clientAuthMethod,allKeys:Object.keys(credentials)} });
+					}).catch(()=>{});
+					// #endregion
 					CredentialsServiceV8.saveCredentials(flowKey, credsForSave);
 
 					// Save shared credentials (environmentId, clientId, clientSecret, etc.) to shared storage
@@ -1019,15 +1229,31 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	};
 
 	const handleFlowTypeChange = async (newFlowType: FlowType) => {
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1129',message:'handleFlowTypeChange - ENTRY',data:{newFlowType,currentFlowType:flowType,specVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'J'})}).catch(()=>{});
+		// #endregion
+		
 		// Prevent changing to the same flow type (prevents loops)
 		if (newFlowType === flowType) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1131',message:'handleFlowTypeChange - SKIP (same flow)',data:{newFlowType,flowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'J'})}).catch(()=>{});
+			// #endregion
 			return;
 		}
 
 		// CRITICAL: Validate that the new flow type is available for the current spec version
 		// If not, automatically switch to a compatible spec version
 		const currentAvailableFlows = UnifiedFlowIntegrationV8U.getAvailableFlows(specVersion);
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1137',message:'handleFlowTypeChange - CHECKING COMPATIBILITY',data:{newFlowType,specVersion,currentAvailableFlows,isAvailable:currentAvailableFlows.includes(newFlowType)},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'K'})}).catch(()=>{});
+		// #endregion
+		
 		if (!currentAvailableFlows.includes(newFlowType)) {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1138',message:'handleFlowTypeChange - FLOW NOT AVAILABLE, FINDING COMPATIBLE SPEC',data:{newFlowType,specVersion,currentAvailableFlows},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'L'})}).catch(()=>{});
+			// #endregion
+			
 			// Find a spec version that supports this flow type
 			const compatibleSpecVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
 			const compatibleSpec = compatibleSpecVersions.find((spec) => {
@@ -1036,10 +1262,18 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			});
 
 			if (compatibleSpec) {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1146',message:'handleFlowTypeChange - SWITCHING SPEC VERSION',data:{newFlowType,fromSpec:specVersion,toSpec:compatibleSpec},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'L'})}).catch(()=>{});
+				// #endregion
+				
 				// Switch spec version first, then flow type
 				setSpecVersion(compatibleSpec);
 				FlowSettingsServiceV8U.saveSpecVersion(newFlowType, compatibleSpec);
 			} else {
+				// #region agent log
+				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1150',message:'handleFlowTypeChange - NO COMPATIBLE SPEC FOUND',data:{newFlowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'L'})}).catch(()=>{});
+				// #endregion
+				
 				console.error(`${MODULE_TAG} ❌ No compatible spec version found for flow type`, {
 					newFlowType,
 				});
@@ -1078,6 +1312,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 
 		// CRITICAL: Mark that user is changing flow type to prevent auto-correct from interfering
 		isUserChangingFlowRef.current = true;
+		
+		// #region agent log
+		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1187',message:'handleFlowTypeChange - SETTING FLAGS AND STATE',data:{newFlowType,currentFlowType:flowType,specVersion,currentStep,isUserChanging:isUserChangingFlowRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'M'})}).catch(()=>{});
+		// #endregion
 
 		// CRITICAL: Mark URL as synced BEFORE updating flow type and URL
 		// This prevents the URL sync effect from resetting the flow type
@@ -1090,11 +1328,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		// Navigate to current step with new flow type to update URL
 		if (currentStep !== undefined) {
 			const path = `/v8u/unified/${newFlowType}/${currentStep}`;
+			
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1200',message:'handleFlowTypeChange - NAVIGATING',data:{newFlowType,currentStep,path},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'M'})}).catch(()=>{});
+			// #endregion
+			
 			navigate(path, { replace: true });
 		}
 
 		// Reset the flag after a short delay to allow state updates to complete
 		setTimeout(() => {
+			// #region agent log
+			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'UnifiedOAuthFlowV8U.tsx:1205',message:'handleFlowTypeChange - RESETTING USER CHANGING FLAG',data:{newFlowType},timestamp:Date.now(),sessionId:'debug-session',runId:'flow-type-debug',hypothesisId:'M'})}).catch(()=>{});
+			// #endregion
+			
 			isUserChangingFlowRef.current = false;
 		}, 100);
 	};
@@ -1103,17 +1350,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+			analytics.log({
 				location: 'UnifiedOAuthFlowV8U.tsx:1103',
 				message: 'Generating PingOne API documentation URL',
 				data: { flowType: flow, baseUrl },
-				timestamp: Date.now(),
 				sessionId: 'debug-session',
+				runId: 'run2',
 				hypothesisId: 'A',
-			}),
+			});
 		}).catch(() => {});
 		// #endregion
 
@@ -1139,17 +1384,15 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+			analytics.log({
 				location: 'UnifiedOAuthFlowV8U.tsx:1125',
 				message: 'Generated PingOne API documentation URL',
 				data: { flowType: flow, url, hasAnchor: url.includes('#') },
-				timestamp: Date.now(),
 				sessionId: 'debug-session',
+				runId: 'run2',
 				hypothesisId: 'A',
-			}),
+			});
 		}).catch(() => {});
 		// #endregion
 
@@ -1222,7 +1465,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				<p
 					style={{
 						fontSize: '16px',
-						margin: 0,
+						margin: '0 0 16px 0',
 						opacity: 0.9,
 						position: 'relative',
 						zIndex: 1,
@@ -1230,6 +1473,155 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				>
 					Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs
 				</p>
+
+				{/* Helper Page Button */}
+				<div
+					style={{
+						display: 'flex',
+						gap: '12px',
+						flexWrap: 'wrap',
+						position: 'relative',
+						zIndex: 1,
+						marginBottom: '16px',
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => navigate('/v8u/unified/helper')}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '6px',
+							padding: '8px 16px',
+							background: '#f59e0b',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '13px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 6px rgba(245, 158, 11, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#d97706';
+							e.currentTarget.style.boxShadow = '0 3px 10px rgba(245, 158, 11, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#f59e0b';
+							e.currentTarget.style.boxShadow = '0 2px 6px rgba(245, 158, 11, 0.3)';
+						}}
+						title="View comprehensive comparison guide for OAuth/OIDC specifications and flow types"
+					>
+						<FiBook size={16} />
+						📚 Flow & Spec Comparison Guide
+					</button>
+				</div>
+
+				{/* Postman Collection Download Buttons - Compact in Header */}
+				<div
+					style={{
+						display: 'flex',
+						gap: '12px',
+						flexWrap: 'wrap',
+						position: 'relative',
+						zIndex: 1,
+					}}
+				>
+					<button
+						type="button"
+						onClick={() => {
+							const collection = generateComprehensiveUnifiedPostmanCollection({
+								environmentId: credentials.environmentId,
+								clientId: credentials.clientId,
+								clientSecret: credentials.clientSecret,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-unified-flows-complete-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Unified Flows Environment');
+							toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all Unified flows.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '6px',
+							padding: '8px 16px',
+							background: '#8b5cf6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '13px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 6px rgba(139, 92, 246, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.boxShadow = '0 3px 10px rgba(139, 92, 246, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.boxShadow = '0 2px 6px rgba(139, 92, 246, 0.3)';
+						}}
+						title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
+					>
+						<FiPackage size={16} />
+						Postman Unified Flows
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							// Get MFA credentials
+							const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
+								flowKey: 'mfa-v8',
+								flowType: 'oauth' as const,
+								includeClientSecret: false,
+								includeScopes: false,
+								includeRedirectUri: false,
+								includeLogoutUri: false,
+							});
+							
+							const collection = generateCompletePostmanCollection({
+								environmentId: credentials.environmentId,
+								clientId: credentials.clientId,
+								clientSecret: credentials.clientSecret,
+								username: mfaCreds?.username,
+							});
+							const date = new Date().toISOString().split('T')[0];
+							const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+							downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
+							toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
+						}}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '6px',
+							padding: '8px 16px',
+							background: '#10b981',
+							color: 'white',
+							border: 'none',
+							borderRadius: '6px',
+							fontSize: '13px',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 3px 10px rgba(16, 185, 129, 0.4)';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
+						}}
+						title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
+					>
+						<FiPackage size={16} />
+						Postman Complete (Unified + MFA)
+					</button>
+				</div>
 			</div>
 
 			{/* Compact Selectors Row with API Docs Link */}
@@ -1251,117 +1643,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						marginBottom: '12px',
 					}}
 				>
-					<SpecVersionSelector specVersion={specVersion} onChange={handleSpecVersionChange} />
+					<SpecVersionSelector
+						specVersion={specVersion}
+						onChange={handleSpecVersionChange}
+						disabled={currentStep > 0}
+					/>
 					<FlowTypeSelector
 						specVersion={specVersion}
 						flowType={flowType}
 						onChange={handleFlowTypeChange}
+						disabled={currentStep > 0}
 					/>
 				</div>
 
-					{/* Postman Collection Download Button */}
-					<div
-						style={{
-							marginBottom: '12px',
-						}}
-					>
-						<button
-							type="button"
-							onClick={() => {
-								const collection = generateComprehensiveUnifiedPostmanCollection({
-									environmentId: credentials.environmentId,
-									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret,
-								});
-								const date = new Date().toISOString().split('T')[0];
-								const filename = `pingone-unified-flows-complete-${date}-collection.json`;
-								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Unified Flows Environment');
-								toastV8.success('Postman collection and environment downloaded! Import both into Postman to test all Unified flows.');
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#8b5cf6',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
-								transition: 'all 0.2s ease',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#7c3aed';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#8b5cf6';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(139, 92, 246, 0.3)';
-							}}
-							title="Download comprehensive Postman collection for all Unified flows (Authorization Code, Implicit, Client Credentials, Device Code, Hybrid) grouped by Registration and Authentication"
-						>
-							<FiPackage size={18} />
-							Download All Unified Flows Postman Collection
-						</button>
-						<button
-							type="button"
-							onClick={() => {
-								// Get MFA credentials
-								const mfaCreds = CredentialsServiceV8.loadCredentials('mfa-v8', {
-									flowKey: 'mfa-v8',
-									flowType: 'oauth' as const,
-									includeClientSecret: false,
-									includeScopes: false,
-									includeRedirectUri: false,
-									includeLogoutUri: false,
-								});
-								
-								const collection = generateCompletePostmanCollection({
-									environmentId: credentials.environmentId,
-									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret,
-									username: mfaCreds?.username,
-								});
-								const date = new Date().toISOString().split('T')[0];
-								const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
-								downloadPostmanCollectionWithEnvironment(collection, filename, 'PingOne Complete Collection Environment');
-								toastV8.success('Complete Postman collection (Unified + MFA) downloaded! Import both files into Postman.');
-							}}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '8px',
-								padding: '12px 24px',
-								background: '#10b981',
-								color: 'white',
-								border: 'none',
-								borderRadius: '8px',
-								fontSize: '15px',
-								fontWeight: '600',
-								cursor: 'pointer',
-								boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)',
-								transition: 'all 0.2s ease',
-								marginTop: '12px',
-							}}
-							onMouseEnter={(e) => {
-								e.currentTarget.style.background = '#059669';
-								e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-							}}
-							onMouseLeave={(e) => {
-								e.currentTarget.style.background = '#10b981';
-								e.currentTarget.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-							}}
-							title="Download complete Postman collection for all Unified OAuth/OIDC flows AND all MFA device types in one collection"
-						>
-							<FiPackage size={18} />
-							Download Complete Collection (Unified + MFA)
-						</button>
-					</div>
-
-					{/* API Documentation and Specification Links */}
+				{/* API Documentation and Specification Links */}
 				<div
 					style={{
 						display: 'flex',
@@ -1405,10 +1700,8 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 					{(() => {
 						const specUrls = SpecUrlServiceV8.getCombinedSpecUrls(specVersion, effectiveFlowType);
 						// #region agent log
-						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({
+						import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+							analytics.log({
 								location: 'UnifiedOAuthFlowV8U.tsx:1369',
 								message: 'Generating specification URLs',
 								data: {
@@ -1419,10 +1712,10 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 									allSpecsCount: specUrls.allSpecs.length,
 									allSpecs: specUrls.allSpecs.map((s) => ({ label: s.label, url: s.url, isPrimary: s.isPrimary })),
 								},
-								timestamp: Date.now(),
 								sessionId: 'debug-session',
+								runId: 'run2',
 								hypothesisId: 'B',
-							}),
+							});
 						}).catch(() => {});
 						// #endregion
 						return (
@@ -1574,17 +1867,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				</div>
 			)}
 
-			{/* API Display Toggle - Show/Hide API Calls */}
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'flex-end',
-					marginBottom: '16px',
-				}}
-			>
-				<ApiDisplayCheckbox />
-			</div>
-
 			{/* Credentials Form - Collapsible */}
 			<div
 				style={{
@@ -1717,9 +1999,20 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 							}
 						);
 
-						// Use standardized credential reload service
-						const reloaded = reloadCredentialsAfterReset(flowKey);
-						setCredentials(reloaded);
+						// Use standardized credential reload service (now async)
+						reloadCredentialsAfterReset(flowKey).then((reloaded) => {
+							console.log(`${MODULE_TAG} ✅ Credentials reloaded after reset`, {
+								flowKey,
+								hasRedirectUri: !!reloaded.redirectUri,
+								redirectUri: reloaded.redirectUri,
+								hasClientAuthMethod: !!reloaded.clientAuthMethod,
+								clientAuthMethod: reloaded.clientAuthMethod,
+							});
+							setCredentials(reloaded);
+						}).catch((error) => {
+							console.error(`${MODULE_TAG} ❌ Error reloading credentials after reset`, { flowKey, error });
+							// Fall back to current credentials if reload fails
+						});
 
 						// Spec version and flow type are already preserved in React state
 						// No need to do anything - they will remain as-is
