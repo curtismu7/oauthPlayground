@@ -1,0 +1,678 @@
+{
+  "feature": "email-v8",
+  "version": "1.0.0",
+  "lockedAt": "2026-01-16T22:35:25.457Z",
+  "files": {
+    "src/v8/flows/types/EmailFlowV8.tsx": {
+      "lockedPath": "feature/flows/types/EmailFlowV8.tsx",
+      "hash": "48a54492906c6ddacaea168c124c23f10c57724e304f6bebe2e82131c1814103",
+      "type": "feature"
+    },
+    "src/v8/flows/types/EmailOTPConfigurationPageV8.tsx": {
+      "lockedPath": "feature/flows/types/EmailOTPConfigurationPageV8.tsx",
+      "hash": "cf5e380c5a35d25af17d84569b1cde54e0c5720a460080cbb1729c773f60f185",
+      "type": "feature"
+    },
+    "src/v8/services/mfaServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/mfaServiceV8.ts",
+      "hash": "46b98ff11abcbe38ef03aa8ff7c948f813ddf2ad6a8db61aecaf3ad7a4e7ffd7",
+      "type": "dependency"
+    },
+    "src/v8/services/mfaAuthenticationServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/mfaAuthenticationServiceV8.ts",
+      "hash": "7c1515d523eee1810626baa872ca1e225db520094346aa16fb4a48043698531e",
+      "type": "dependency"
+    },
+    "src/v8/services/mfaConfigurationServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/mfaConfigurationServiceV8.ts",
+      "hash": "5e9d5bda21c5d6cd32bafee1e0131345465e6c661369563e104d9bd294d0af95",
+      "type": "dependency"
+    },
+    "src/v8/services/credentialsServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/credentialsServiceV8.ts",
+      "hash": "d2a2842a4aab51828476b8c9f379ea745421a01bf0f8356ad22e6a4a5d2fa691",
+      "type": "dependency"
+    },
+    "src/v8/services/workerTokenServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/workerTokenServiceV8.ts",
+      "hash": "ca5d9d9ba969d2343850588f13aaeb1441eee948a468fd98f3b7382739bba23f",
+      "type": "dependency"
+    },
+    "src/v8/services/workerTokenStatusServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/workerTokenStatusServiceV8.ts",
+      "hash": "e28efc0e70a774b7eea41ed900cd47dde0ba5c0423dc144bc82169e98562fb89",
+      "type": "dependency"
+    },
+    "src/v8/services/apiDisplayServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/apiDisplayServiceV8.ts",
+      "hash": "1626ab4729b176971be98cf36356e7b1d1cfc1c0d5c7572515d7aaad16e63e14",
+      "type": "dependency"
+    },
+    "src/v8/flows/shared/MFAFlowBaseV8.tsx": {
+      "lockedPath": "dependencies/v8/flows/shared/MFAFlowBaseV8.tsx",
+      "hash": "d52145a04f9b7e306a2d7151fc219f11e18538ed43fd5f235f6a8fd54001a79d",
+      "type": "dependency"
+    },
+    "src/v8/flows/shared/MFATypes.ts": {
+      "lockedPath": "dependencies/v8/flows/shared/MFATypes.ts",
+      "hash": "d2870881ca196182493af2e5ff2f76ba789f4afd79881097e85a635238379a4a",
+      "type": "dependency"
+    },
+    "src/v8/flows/shared/MFAConfigurationStepV8.tsx": {
+      "lockedPath": "dependencies/v8/flows/shared/MFAConfigurationStepV8.tsx",
+      "hash": "1798a659b7cef3f889c8d4ea99b68633e57c2e21e53a67bcda992d5f9af3c476",
+      "type": "dependency"
+    },
+    "src/v8/flows/shared/mfaSuccessPageServiceV8.tsx": {
+      "lockedPath": "dependencies/v8/flows/shared/mfaSuccessPageServiceV8.tsx",
+      "hash": "6c0d30f1efa1666f7c0d6d67d69619c1508145950d911a66ead73743845b2d7f",
+      "type": "dependency"
+    },
+    "src/v8/flows/shared/useUnifiedOTPFlow.ts": {
+      "lockedPath": "dependencies/v8/flows/shared/useUnifiedOTPFlow.ts",
+      "hash": "65adef34d5c454bef2796e47aa900a7bdf1066b517da5437d2a5e398bdc56d48",
+      "type": "dependency"
+    },
+    "src/v8/flows/controllers/MFAFlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/MFAFlowController.ts",
+      "hash": "4bd47b27ad0e53f0cb8bf868213ce6af461d011496259b8af6fa86133d872d7f",
+      "type": "dependency"
+    },
+    "src/v8/flows/factories/MFAFlowControllerFactory.ts": {
+      "lockedPath": "dependencies/v8/flows/factories/MFAFlowControllerFactory.ts",
+      "hash": "70c1256723aa21484a6c7fe726b8f3cd79c599a820a9b34a38a20b0f9a503f0a",
+      "type": "dependency"
+    },
+    "src/v8/components/MFAInfoButtonV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFAInfoButtonV8.tsx",
+      "hash": "2fd9107bb3f6d06444a86a52fbd362b2f42f76de6898199fde6bb59e103cc755",
+      "type": "dependency"
+    },
+    "src/v8/components/SuperSimpleApiDisplayV8.tsx": {
+      "lockedPath": "dependencies/v8/components/SuperSimpleApiDisplayV8.tsx",
+      "hash": "4b8607d67865833410d7355b69c462f6fd0d30ccd424b9c80fd4ffdab57666b5",
+      "type": "dependency"
+    },
+    "src/v8/hooks/useStepNavigationV8.ts": {
+      "lockedPath": "dependencies/v8/hooks/useStepNavigationV8.ts",
+      "hash": "b25f33bdfc7e43e028bf5bd9f9e9b679542a2066da36461fde9b8a3a2e56b6e1",
+      "type": "dependency"
+    },
+    "src/v8/hooks/useDraggableModal.ts": {
+      "lockedPath": "dependencies/v8/hooks/useDraggableModal.ts",
+      "hash": "00753abf898fe9a0c8a0dff26825b4f26f63fda5ed1c5e8196794fb3e05b9776",
+      "type": "dependency"
+    },
+    "src/v8/utils/toastNotificationsV8.ts": {
+      "lockedPath": "dependencies/v8/utils/toastNotificationsV8.ts",
+      "hash": "44389157150ac4c223b84aa2a5ccfd47050bed50d2b4bdfdecd39a91c61359f1",
+      "type": "dependency"
+    },
+    "src/v8/utils/mfaFlowCleanupV8.ts": {
+      "lockedPath": "dependencies/v8/utils/mfaFlowCleanupV8.ts",
+      "hash": "0be804e590e9907614ea4f63222a1e22e764016954df713ae46888616292ff5d",
+      "type": "dependency"
+    },
+    "src/v8/services/mfaEducationServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/mfaEducationServiceV8.ts",
+      "hash": "b226e06e19da50c2b2ef227a73a4bedb5d597c730208781ae94e663e5d3ad791",
+      "type": "transitive"
+    },
+    "src/services/apiCallTrackerService.ts": {
+      "lockedPath": "dependencies/services/apiCallTrackerService.ts",
+      "hash": "788455ff8e62f07050a5cf74524589f9b6f8d747fd75593c7c009ee0e9b1a62c",
+      "type": "transitive"
+    },
+    "src/utils/pingOneFetch.ts": {
+      "lockedPath": "dependencies/utils/pingOneFetch.ts",
+      "hash": "bef3dd38e11e722aaf3c2d5b7b89ea4e49868a506ee8f890f9ee718f012fc8d5",
+      "type": "transitive"
+    },
+    "src/v8/utils/analyticsLoggerV8.ts": {
+      "lockedPath": "dependencies/v8/utils/analyticsLoggerV8.ts",
+      "hash": "7f00ccfc2fd93a0753051788db23e4081e7a884927a73033971e729cf4415929",
+      "type": "transitive"
+    },
+    "src/utils/v4ToastMessages.ts": {
+      "lockedPath": "dependencies/utils/v4ToastMessages.ts",
+      "hash": "bbbf768942fa4ddf68993e172dc94e2e524afd90411ec04a7c020f108d79e054",
+      "type": "transitive"
+    },
+    "src/v8/flows/components/MFADeviceSelector.tsx": {
+      "lockedPath": "dependencies/v8/flows/components/MFADeviceSelector.tsx",
+      "hash": "86c97d1feae452ab7c2f4b8bfe6de90be41943e7f29c97f9fd7424d8f2d9155e",
+      "type": "transitive"
+    },
+    "src/v8/flows/components/MFAOTPInput.tsx": {
+      "lockedPath": "dependencies/v8/flows/components/MFAOTPInput.tsx",
+      "hash": "eaf405688c4d4ff083b7658c68f7f8e0fd74514e576f2032131b398d9d167a9f",
+      "type": "transitive"
+    },
+    "src/v8/flows/controllers/EmailFlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/EmailFlowController.ts",
+      "hash": "83c2ac5f3f4c8ad347c79e60896d1539f70711bfad5eea9f0992fb849956dfbe",
+      "type": "transitive"
+    },
+    "src/v8/flows/controllers/FIDO2FlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/FIDO2FlowController.ts",
+      "hash": "e740157ea30177f9004d59cd41d6f5612e9a252b0b040ee9c1371112e88640b9",
+      "type": "transitive"
+    },
+    "src/v8/flows/controllers/SMSFlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/SMSFlowController.ts",
+      "hash": "a7217fcca2ee97294dcd68a5629f70f19c840ab29aa81203eb912b33f4aada79",
+      "type": "transitive"
+    },
+    "src/v8/utils/phoneValidationV8.ts": {
+      "lockedPath": "dependencies/v8/utils/phoneValidationV8.ts",
+      "hash": "2e8f3da9f9ef7532c65386067412c406882113bbb0a7fcb1ace7be5fcf3457c1",
+      "type": "transitive"
+    },
+    "src/v8/flows/controllers/TOTPFlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/TOTPFlowController.ts",
+      "hash": "36b47612f60106edf47e26ae8cfa07186e681fc70d1049f03a15d92dd9e49ae9",
+      "type": "transitive"
+    },
+    "src/v8/flows/controllers/WhatsAppFlowController.ts": {
+      "lockedPath": "dependencies/v8/flows/controllers/WhatsAppFlowController.ts",
+      "hash": "f867156784de40a0cb835570ed4003775d9f447c9297ff8b59b3d71f66438361",
+      "type": "transitive"
+    },
+    "src/services/flowContextUtils.ts": {
+      "lockedPath": "dependencies/services/flowContextUtils.ts",
+      "hash": "71881af04295e30ccb3ebdd066d7f3ac90f123246491e6c8733ce0d270967649",
+      "type": "transitive"
+    },
+    "src/services/flowContextService.ts": {
+      "lockedPath": "dependencies/services/flowContextService.ts",
+      "hash": "0f4ac7bd192c76a057d587a4c9e48bfee4a19eff0b73992c54416116b229dcd2",
+      "type": "transitive"
+    },
+    "src/services/redirectStateManager.ts": {
+      "lockedPath": "dependencies/services/redirectStateManager.ts",
+      "hash": "2d364c022e1e668450c04b11adb21496e72d9e20cf5ccc7940c7ef2c73866dd8",
+      "type": "transitive"
+    },
+    "src/services/flowCredentialService.ts": {
+      "lockedPath": "dependencies/services/flowCredentialService.ts",
+      "hash": "2e6d6baa15dce5b41adb240496b9005c5fbeaca300b5557f23129d3c36acf406",
+      "type": "transitive"
+    },
+    "src/components/steps/CommonSteps.tsx": {
+      "lockedPath": "dependencies/components/steps/CommonSteps.tsx",
+      "hash": "aa5f6eecacbbd36f84e6a357e4a664737e0168b419bbf4eb07d2484799fd9304",
+      "type": "transitive"
+    },
+    "src/utils/clientAuthentication.ts": {
+      "lockedPath": "dependencies/utils/clientAuthentication.ts",
+      "hash": "3cdfcdc49e7330fb3370dca995ba85e9ab3186f3ff291c5f0a6cb148ff1c122d",
+      "type": "transitive"
+    },
+    "src/utils/clipboard.ts": {
+      "lockedPath": "dependencies/utils/clipboard.ts",
+      "hash": "02966b771457e06015a8b90aa2099bf478f20bd8096acec85465b02539249eb0",
+      "type": "transitive"
+    },
+    "src/components/ColorCodedURL.tsx": {
+      "lockedPath": "dependencies/components/ColorCodedURL.tsx",
+      "hash": "01303c2f31c4a53223e98e616ef9f8a9534a603245333650bd5e8341c10ea4aa",
+      "type": "transitive"
+    },
+    "src/components/EnhancedStepFlowV2.tsx": {
+      "lockedPath": "dependencies/components/EnhancedStepFlowV2.tsx",
+      "hash": "46241802853a50bddd7bd813e74b7727a2ef94bcca0129f250c741846e8e7e19",
+      "type": "transitive"
+    },
+    "src/utils/logger.ts": {
+      "lockedPath": "dependencies/utils/logger.ts",
+      "hash": "546b738d1568593b526cdb2c526385a3d31c776ac735b1765f889fad6e68973e",
+      "type": "transitive"
+    },
+    "src/components/worker/WorkerTokenDisplay.tsx": {
+      "lockedPath": "dependencies/components/worker/WorkerTokenDisplay.tsx",
+      "hash": "c43481ed9be052b56ec304dd545323e6c05b43a2515d82efb049321b98208eac",
+      "type": "transitive"
+    },
+    "src/utils/workerToken.ts": {
+      "lockedPath": "dependencies/utils/workerToken.ts",
+      "hash": "937388c22e418029120e89eca19312c16e04910b5efe1c83e5a7812670cd40f2",
+      "type": "transitive"
+    },
+    "src/utils/credentialManager.ts": {
+      "lockedPath": "dependencies/utils/credentialManager.ts",
+      "hash": "5a4e386f301b79577c4a573eb22851353049b5d075d9192e0bd655a0ffce24df",
+      "type": "transitive"
+    },
+    "src/services/oidcDiscoveryService.ts": {
+      "lockedPath": "dependencies/services/oidcDiscoveryService.ts",
+      "hash": "89e7fd20f1a6574344cd9d1665d44a1b288a31eb247876c0f4d6f5c700007963",
+      "type": "transitive"
+    },
+    "src/utils/callbackUrls.ts": {
+      "lockedPath": "dependencies/utils/callbackUrls.ts",
+      "hash": "b6d472ebc5f2873a32016670ad2d657357efe709d03abcbeaaa37a7ca8de8c59",
+      "type": "transitive"
+    },
+    "src/utils/secureJson.ts": {
+      "lockedPath": "dependencies/utils/secureJson.ts",
+      "hash": "21d68973ed8e20e9225f0be38b501a17a8c79303eada52c0206f0c9dd6ce5813",
+      "type": "transitive"
+    },
+    "src/services/flowCredentialIsolationService.ts": {
+      "lockedPath": "dependencies/services/flowCredentialIsolationService.ts",
+      "hash": "b9a479a6054f5dc30749f7824d0aff7696dca13014dedeaef9289e28abd45664",
+      "type": "transitive"
+    },
+    "src/services/flowStorageService.ts": {
+      "lockedPath": "dependencies/services/flowStorageService.ts",
+      "hash": "c7e98c1785e269f7f7b5bef950a698d6845bf8a8f9bad3d98dd1ec881bfdb85f",
+      "type": "transitive"
+    },
+    "src/services/pingoneConfigService.ts": {
+      "lockedPath": "dependencies/services/pingoneConfigService.ts",
+      "hash": "d065bc88d856b4d154109cd1ceed000d69a3e52134ad1116de2ec87e4d6d5fb0",
+      "type": "transitive"
+    },
+    "src/utils/oauth.ts": {
+      "lockedPath": "dependencies/utils/oauth.ts",
+      "hash": "80f899fb1d68e7bcd052374645c993fb25b3d77ce5e8367eebb18ccfd2d47a57",
+      "type": "transitive"
+    },
+    "src/utils/protocolUtils.ts": {
+      "lockedPath": "dependencies/utils/protocolUtils.ts",
+      "hash": "4f509706299ac635d1f24580792cc7e8da97ee642772903a625bdb96163d06b9",
+      "type": "transitive"
+    },
+    "src/utils/storage.ts": {
+      "lockedPath": "dependencies/utils/storage.ts",
+      "hash": "d433bc60119aa32d292e7d36e03694b7ae5cd7ef179a050f3b7deab48091468a",
+      "type": "transitive"
+    },
+    "src/utils/urlValidation.ts": {
+      "lockedPath": "dependencies/utils/urlValidation.ts",
+      "hash": "1b7eec5a87a18ec1aafef162fa5702d8e793ee03e49dc5ae63b2a7a5ef5b30ad",
+      "type": "transitive"
+    },
+    "src/v8/components/WorkerTokenGaugeV8.tsx": {
+      "lockedPath": "dependencies/v8/components/WorkerTokenGaugeV8.tsx",
+      "hash": "02a06077b0b65eae8a3ce78b7131c5efebfdc285eec662d791710ff82e8d5792",
+      "type": "transitive"
+    },
+    "src/utils/scrollManager.ts": {
+      "lockedPath": "dependencies/utils/scrollManager.ts",
+      "hash": "60da2e4cb0b53f09ddabf4b0059a249c107c37e2c16f1e83f4828bfe6d57e15f",
+      "type": "transitive"
+    },
+    "src/v8/components/MFADeviceLimitModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFADeviceLimitModalV8.tsx",
+      "hash": "4c077dd02a84f9c19b4347ce0d9ac793d0581abf9f127041998d7f33b791a391",
+      "type": "transitive"
+    },
+    "src/services/commonImportsService.ts": {
+      "lockedPath": "dependencies/services/commonImportsService.ts",
+      "hash": "4080ff7c905cf81eee5c95ed5612304367dbb8e5e4a3801f3cff15710c0d89be",
+      "type": "transitive"
+    },
+    "src/components/ClientAuthMethodSelector.tsx": {
+      "lockedPath": "dependencies/components/ClientAuthMethodSelector.tsx",
+      "hash": "eec7c33c38156fb03348049a5272690e4a9497df13ed51056bbb67146ff237cc",
+      "type": "transitive"
+    },
+    "src/components/ComprehensiveDiscoveryInput.tsx": {
+      "lockedPath": "dependencies/components/ComprehensiveDiscoveryInput.tsx",
+      "hash": "81a3f92d3dba99639d807d479ae0c6a33315ce833dc75d7586730153be069d5b",
+      "type": "transitive"
+    },
+    "src/services/comprehensiveDiscoveryService.ts": {
+      "lockedPath": "dependencies/services/comprehensiveDiscoveryService.ts",
+      "hash": "db416859811fd05178e6807773b7162ba54a0d3c037ba10ac76ab7a317568e09",
+      "type": "transitive"
+    },
+    "src/services/bulletproofDiscoveryService.ts": {
+      "lockedPath": "dependencies/services/bulletproofDiscoveryService.ts",
+      "hash": "932fa651802d60b1b37e6d885ab40f8f559babd9772ca33d5228dc08050910e9",
+      "type": "transitive"
+    },
+    "src/services/copyButtonService.tsx": {
+      "lockedPath": "dependencies/services/copyButtonService.tsx",
+      "hash": "6d4b9fdc74a5bf1c04c65d2d0d992578ab9eea78f7625a080853e43fef9422ac",
+      "type": "transitive"
+    },
+    "src/services/discoveryPersistenceService.ts": {
+      "lockedPath": "dependencies/services/discoveryPersistenceService.ts",
+      "hash": "705666fe4e1ca1661e5a8c688bbb082de778bcaed2ef2e23620d61c03c6c9ed5",
+      "type": "transitive"
+    },
+    "src/components/ConfigCheckerButtons.tsx": {
+      "lockedPath": "dependencies/components/ConfigCheckerButtons.tsx",
+      "hash": "6e758e4173bb00c1427f8dc3a6e71b58fdeef473b3d32f0e2c76e80e13c61d1f",
+      "type": "transitive"
+    },
+    "src/services/configComparisonService.ts": {
+      "lockedPath": "dependencies/services/configComparisonService.ts",
+      "hash": "3451addbdf5e36d7014342b7028cffb263b441c3d693706e7eafa3fec5d1f55c",
+      "type": "transitive"
+    },
+    "src/utils/apiClient.ts": {
+      "lockedPath": "dependencies/utils/apiClient.ts",
+      "hash": "d8290e3e27c8a3601faf7d311be5fd2c3dcd7d74eb045cedb2437c65d2a71572",
+      "type": "transitive"
+    },
+    "src/services/pingOneAppCreationService.ts": {
+      "lockedPath": "dependencies/services/pingOneAppCreationService.ts",
+      "hash": "ac52cea5e25548929bfb6eddcc1adec06e46899b905046c279230bab606ea556",
+      "type": "transitive"
+    },
+    "src/components/DraggableModal.tsx": {
+      "lockedPath": "dependencies/components/DraggableModal.tsx",
+      "hash": "da58030c4fdfd0ec6065eafbcfa6f3623a6d112c2235fc7557ad951caedaca1c",
+      "type": "transitive"
+    },
+    "src/components/CredentialsInput.tsx": {
+      "lockedPath": "dependencies/components/CredentialsInput.tsx",
+      "hash": "2c539ba54096c16d68651272f068bfd18658b76d330e30b5d67685ed2c89f251",
+      "type": "transitive"
+    },
+    "src/services/callbackUriService.ts": {
+      "lockedPath": "dependencies/services/callbackUriService.ts",
+      "hash": "cb9844c633cd906ff6fdcd8c9bc0a9d3e30d8be34371f6069bde9f37a13f9ffc",
+      "type": "transitive"
+    },
+    "src/utils/flowRedirectUriMapping.ts": {
+      "lockedPath": "dependencies/utils/flowRedirectUriMapping.ts",
+      "hash": "0240dc0f526361d7e22274bde978c29a1ef641dba51be392173f55cb032c276c",
+      "type": "transitive"
+    },
+    "src/components/EnvironmentIdInput.tsx": {
+      "lockedPath": "dependencies/components/EnvironmentIdInput.tsx",
+      "hash": "0722e23153463d21932304d4d3a09802c4beddeb7896dfb3a887a7d1307d9058",
+      "type": "transitive"
+    },
+    "src/components/LogoutUriInfoPanel.tsx": {
+      "lockedPath": "dependencies/components/LogoutUriInfoPanel.tsx",
+      "hash": "036987e197dc01568afbe913e357c7799a4b81a9814440bd1978ef0edbe51dc2",
+      "type": "transitive"
+    },
+    "src/components/response-modes/ResponseModeSelector.tsx": {
+      "lockedPath": "dependencies/components/response-modes/ResponseModeSelector.tsx",
+      "hash": "5a357099de80fad1198dd5fbd5721ccfa3d7b909e68a0fbd925c0c115f8e9000",
+      "type": "transitive"
+    },
+    "src/components/WorkerTokenDetectedBanner.tsx": {
+      "lockedPath": "dependencies/components/WorkerTokenDetectedBanner.tsx",
+      "hash": "969a686b62e9acb9f203f9c6e730658b0d2b3eb490274fd255e6eae69d1650e3",
+      "type": "transitive"
+    },
+    "src/services/tokenExpirationService.ts": {
+      "lockedPath": "dependencies/services/tokenExpirationService.ts",
+      "hash": "53ff445dd1a7b2f0e774a978104557161e388a2e582a7e6d8b4a66c030af4a8a",
+      "type": "transitive"
+    },
+    "src/components/WorkerTokenModal.tsx": {
+      "lockedPath": "dependencies/components/WorkerTokenModal.tsx",
+      "hash": "38a8537c6f3a7cfacdfb91da94562111af7ef3be4009f50bf9c434cea20692b6",
+      "type": "transitive"
+    },
+    "src/utils/trackedFetch.ts": {
+      "lockedPath": "dependencies/utils/trackedFetch.ts",
+      "hash": "74e10d7f9ee87eee111d8d7a6de1419ca62d774751bb7112600450350b3cab69",
+      "type": "transitive"
+    },
+    "src/components/WorkerTokenRequestModal.tsx": {
+      "lockedPath": "dependencies/components/WorkerTokenRequestModal.tsx",
+      "hash": "0fbdbb0226ee5ddce3176ba01320811bc25967323a0e6d24d9d524b542a87ea9",
+      "type": "transitive"
+    },
+    "src/components/ColoredUrlDisplay.tsx": {
+      "lockedPath": "dependencies/components/ColoredUrlDisplay.tsx",
+      "hash": "1875dc89356e9cdfbc27157b864f48b3adff10c77090071706cc5b90fe7b038d",
+      "type": "transitive"
+    },
+    "src/services/codeHighlightingService.ts": {
+      "lockedPath": "dependencies/services/codeHighlightingService.ts",
+      "hash": "e31e20b69bf87c6763863653b604a89211ea351f8b93299f141c71b4961df09b",
+      "type": "transitive"
+    },
+    "src/services/collapsibleHeaderService.tsx": {
+      "lockedPath": "dependencies/services/collapsibleHeaderService.tsx",
+      "hash": "9606cfba12c3eccd9bee04873d865d6b15d31a5e9f16985cdcad7e76b2022586",
+      "type": "transitive"
+    },
+    "src/services/comprehensiveCredentialsService.tsx": {
+      "lockedPath": "dependencies/services/comprehensiveCredentialsService.tsx",
+      "hash": "d499e60a0353d97a0e59de504491ee832031ea3641228b33f283568a97a8cea1",
+      "type": "transitive"
+    },
+    "src/components/EnvironmentIdPersistenceStatus.tsx": {
+      "lockedPath": "dependencies/components/EnvironmentIdPersistenceStatus.tsx",
+      "hash": "e4c8fc134549c89d01f35968280a79ed254cf96d907958ca3df5da35b76742d1",
+      "type": "transitive"
+    },
+    "src/services/environmentIdPersistenceService.ts": {
+      "lockedPath": "dependencies/services/environmentIdPersistenceService.ts",
+      "hash": "7a9a699d3b81e491f896a35faec8ad6e402958547f1ea6f111bc9832669465bf",
+      "type": "transitive"
+    },
+    "src/components/JwksKeySourceSelector.tsx": {
+      "lockedPath": "dependencies/components/JwksKeySourceSelector.tsx",
+      "hash": "4ebbea7d3961d1c97f68e0f646bd99fbbede4a1252a7c4f772add8a0fe1844db",
+      "type": "transitive"
+    },
+    "src/utils/jwks.ts": {
+      "lockedPath": "dependencies/utils/jwks.ts",
+      "hash": "6591a1c143982a91d5291a62a37b444ed7480dbabeb7fe9e15f49370063e4343",
+      "type": "transitive"
+    },
+    "src/utils/jwksConverter.ts": {
+      "lockedPath": "dependencies/utils/jwksConverter.ts",
+      "hash": "16acbe7066af82434f1f46889e9ccaccc035e1657a249796d8b528cbbe3280a6",
+      "type": "transitive"
+    },
+    "src/components/PingOneApplicationPicker.tsx": {
+      "lockedPath": "dependencies/components/PingOneApplicationPicker.tsx",
+      "hash": "7388119fff90ca5cb724080c9fa1741bbea4fb9dd41c06419dbf680181ce892c",
+      "type": "transitive"
+    },
+    "src/services/pingOneApplicationService.ts": {
+      "lockedPath": "dependencies/services/pingOneApplicationService.ts",
+      "hash": "2e3a15dd5cbb85e71dd415dd85f5d65257b1cdd85cd12fdb1ac6d49fca5a238b",
+      "type": "transitive"
+    },
+    "src/components/PingOneApplicationConfig.tsx": {
+      "lockedPath": "dependencies/components/PingOneApplicationConfig.tsx",
+      "hash": "0ca688ebc3520f6b481ea3dc60f6d976aa781fbb964e46073afad3518b811b9a",
+      "type": "transitive"
+    },
+    "src/services/dpopService.ts": {
+      "lockedPath": "dependencies/services/dpopService.ts",
+      "hash": "bc9d08d62f3b6f903abfa1fdf4ca72e0cf7e4d080583828d9564e7552e250a7a",
+      "type": "transitive"
+    },
+    "src/services/flowRedirectUriService.ts": {
+      "lockedPath": "dependencies/services/flowRedirectUriService.ts",
+      "hash": "bcd81502847b826875b58e26dd18267fbcf2b9b7ab68dd47976a5e72540f11ea",
+      "type": "transitive"
+    },
+    "src/services/flowScopeMappingService.ts": {
+      "lockedPath": "dependencies/services/flowScopeMappingService.ts",
+      "hash": "ec26bb06596cb91abbcae0c90877202896b51ce00b723ba1d4bf30ff64ba1d9c",
+      "type": "transitive"
+    },
+    "src/services/config.ts": {
+      "lockedPath": "dependencies/services/config.ts",
+      "hash": "b092dc7e489ad31463c18d76014d3660cffc24daa882e8a7ba91287c5707afa6",
+      "type": "transitive"
+    },
+    "src/services/credentialsValidationService.ts": {
+      "lockedPath": "dependencies/services/credentialsValidationService.ts",
+      "hash": "11014eb41d92e386518fd731b33c05102f34780cba89ad29977de77849dee69e",
+      "type": "transitive"
+    },
+    "src/services/flowConfigService.ts": {
+      "lockedPath": "dependencies/services/flowConfigService.ts",
+      "hash": "d78f18d57b361d5978b462bf11215d97da0758f3c753e04dc3001b1b93e31fcd",
+      "type": "transitive"
+    },
+    "src/services/flowStateService.ts": {
+      "lockedPath": "dependencies/services/flowStateService.ts",
+      "hash": "de124c11de239b52be9cfde80f590ce9cb57f942acf19f5a83fe6084912d9086",
+      "type": "transitive"
+    },
+    "src/services/workerTokenCredentialsService.ts": {
+      "lockedPath": "dependencies/services/workerTokenCredentialsService.ts",
+      "hash": "5135b7762fa1dd449918fc185bed14c1eddc5d3a9817f3154870ab57cf45aa6d",
+      "type": "transitive"
+    },
+    "src/v8/components/MFANavigationV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFANavigationV8.tsx",
+      "hash": "d713afe09a418e2f5db9dcd1430dc3c130774df42b492ae976cd11a3c731c076",
+      "type": "transitive"
+    },
+    "src/v8/services/uiNotificationServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/uiNotificationServiceV8.ts",
+      "hash": "5f0efcec38bfc667badbeac215ff8124c1f65145fa6caf6e00673b506a5e1dd3",
+      "type": "transitive"
+    },
+    "src/v8/components/MFADocumentationModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFADocumentationModalV8.tsx",
+      "hash": "0f230a44c4eb55df2765b2088d1f7c74094fac2be4cc247109144136295918bd",
+      "type": "transitive"
+    },
+    "src/v8/components/MFADocumentationPageV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFADocumentationPageV8.tsx",
+      "hash": "0b6e892a39a0e04f8d8bc685899497aef4b95a5f684b70b0a48806bb90135581",
+      "type": "transitive"
+    },
+    "src/services/postmanCollectionGeneratorV8.ts": {
+      "lockedPath": "dependencies/services/postmanCollectionGeneratorV8.ts",
+      "hash": "7eeb53626f22d05e543533ae09e45a7435bc3cce45deccc05d1bb13820236a3f",
+      "type": "transitive"
+    },
+    "src/v8/services/specVersionServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/specVersionServiceV8.ts",
+      "hash": "968bdb0f2bfedb4c0e92a2c77a2187f397d107e9a32490a8a40d82d2eb2621e2",
+      "type": "transitive"
+    },
+    "src/v8/components/MFASettingsModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/MFASettingsModalV8.tsx",
+      "hash": "ac7e9d64b064e23730c26e30b3818701ec72ef333250b41f9ca8563a3400666d",
+      "type": "transitive"
+    },
+    "src/v8/components/StepActionButtonsV8.tsx": {
+      "lockedPath": "dependencies/v8/components/StepActionButtonsV8.tsx",
+      "hash": "9fa880cc5032bdaecae5e0933afa2796e87b454c1451f99b8c26e4cfac6d611b",
+      "type": "transitive"
+    },
+    "src/v8/types/stepNavigation.ts": {
+      "lockedPath": "dependencies/v8/types/stepNavigation.ts",
+      "hash": "65ab7c0a83e5a72a83f51160901aaa7f96712495640b5fcaa311ff328bfb8e8b",
+      "type": "transitive"
+    },
+    "src/v8/components/StepValidationFeedbackV8.tsx": {
+      "lockedPath": "dependencies/v8/components/StepValidationFeedbackV8.tsx",
+      "hash": "7f2ccd7e314489c698f3a39540838a4f228ed6e9d9c87c31ee3d5326a2d839ce",
+      "type": "transitive"
+    },
+    "src/v8/components/UserLoginModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/UserLoginModalV8.tsx",
+      "hash": "ca9504afa063bd3ef13044235966481f67ba6c51b77ae11c0b1e86486b1869f6",
+      "type": "transitive"
+    },
+    "src/v8/components/AppPickerV8.tsx": {
+      "lockedPath": "dependencies/v8/components/AppPickerV8.tsx",
+      "hash": "28882b2ccdeff562dcadeb1f4264533417bbf259e38a5a209ca9dcbfee589c41",
+      "type": "transitive"
+    },
+    "src/v8/services/appDiscoveryServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/appDiscoveryServiceV8.ts",
+      "hash": "50212956ca8cddd607c6780546026328940b559253a491ed6d0cb3c5848723be",
+      "type": "transitive"
+    },
+    "src/v8/services/dualStorageServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/dualStorageServiceV8.ts",
+      "hash": "5d0d05aabfec0318033a6b0eee7e93616724555e1c9a06b692c896882d0b4d31",
+      "type": "transitive"
+    },
+    "src/utils/fileStorageUtil.ts": {
+      "lockedPath": "dependencies/utils/fileStorageUtil.ts",
+      "hash": "643b0ee7b0fea0055e5aa27dcdbae9ca9f038fa19134e654acb94897193d0d68",
+      "type": "transitive"
+    },
+    "src/v8/components/ConfirmModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/ConfirmModalV8.tsx",
+      "hash": "d9061d408148f3386d0089aa013f01ca9dd02ad9b28e61b5a1c75c49f9c3e6c1",
+      "type": "transitive"
+    },
+    "src/v8/components/WorkerTokenModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/WorkerTokenModalV8.tsx",
+      "hash": "99e02c2b190eb9c503caaacd6e769c082b9e5bbfd45b1fb14c012396e9cde2db",
+      "type": "transitive"
+    },
+    "src/services/credentialExportImportService.ts": {
+      "lockedPath": "dependencies/services/credentialExportImportService.ts",
+      "hash": "90ca5760f3794d785fbb7db52af79787306ea5782789de4ca9391bf512d635c5",
+      "type": "transitive"
+    },
+    "src/services/unifiedTokenDisplayService.tsx": {
+      "lockedPath": "dependencies/services/unifiedTokenDisplayService.tsx",
+      "hash": "ad2cbd1a751ff6b89cf28bbe875663e5ffd6056b1ab555a96c6edbac1971db9b",
+      "type": "transitive"
+    },
+    "src/services/tokenDisplayService.ts": {
+      "lockedPath": "dependencies/services/tokenDisplayService.ts",
+      "hash": "442dcda4c513a17caadedf243ed73d62f8cbd45a6fbc1effcdbe23b167c58dd0",
+      "type": "transitive"
+    },
+    "src/v8/config/constants.ts": {
+      "lockedPath": "dependencies/v8/config/constants.ts",
+      "hash": "d29d26677bf20d0c4e7159c742cb73fa786b16e0032d5bf189f3dd08a5224f9b",
+      "type": "transitive"
+    },
+    "src/v8/services/authMethodServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/authMethodServiceV8.ts",
+      "hash": "f09a89c7f3da472bef473bfcb4aac46b6c9438bea43f2fe5af11eb731339a178",
+      "type": "transitive"
+    },
+    "src/v8/components/WorkerTokenRequestModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/WorkerTokenRequestModalV8.tsx",
+      "hash": "c3b7cdc7524f1085363acf2f03873821178ffdc5052d67ee6155aa0967ab4363",
+      "type": "transitive"
+    },
+    "src/v8u/components/CompactAppPickerV8U.tsx": {
+      "lockedPath": "dependencies/v8u/components/CompactAppPickerV8U.tsx",
+      "hash": "ca64bba70ccbbdd5c24c63caa96c461178e0ff6ca2572e5a8b4f6f523f92d4ba",
+      "type": "transitive"
+    },
+    "src/v8/services/configCheckerServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/configCheckerServiceV8.ts",
+      "hash": "cdac8caa9a552f4dcb3d0c0c88757a7b1747a6ef1695aed89555c3abb58c0820",
+      "type": "transitive"
+    },
+    "src/v8/services/oauthIntegrationServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/oauthIntegrationServiceV8.ts",
+      "hash": "c978fe5ac21bf90c052b5612146b7e4686da8bfa7e6ff1bd5e9d8c7b39b15a19",
+      "type": "transitive"
+    },
+    "src/v8/components/UserAuthenticationSuccessPageV8.tsx": {
+      "lockedPath": "dependencies/v8/components/UserAuthenticationSuccessPageV8.tsx",
+      "hash": "7621091cd8b6fecf2385bc5c963162b8ac78eec840996a775107a1c09a9fd485",
+      "type": "transitive"
+    },
+    "src/v8/services/tokenDisplayServiceV8.ts": {
+      "lockedPath": "dependencies/v8/services/tokenDisplayServiceV8.ts",
+      "hash": "cfd0cd5b032d3fbde7b5921e81bc9d2f59b3a938e9e60e78e6f5f5f9634fe6fe",
+      "type": "transitive"
+    },
+    "src/v8/components/WorkerTokenPromptModalV8.tsx": {
+      "lockedPath": "dependencies/v8/components/WorkerTokenPromptModalV8.tsx",
+      "hash": "61ea95441a70b5eac9365b5c61bab5ac291d1f5a1a64515ecccc17ca04317b17",
+      "type": "transitive"
+    }
+  },
+  "summary": {
+    "totalFiles": 133,
+    "featureFiles": 2,
+    "dependencyFiles": 20,
+    "transitiveFiles": 111
+  }
+}
