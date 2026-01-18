@@ -291,9 +291,9 @@ const ImplicitCallback: React.FC = () => {
 							}
 						}, 2000);
 					} else {
-						// Legacy flow - show warning and redirect to dashboard
-						setStatus('warning');
-						setMessage('Implicit grant received (deprecated flow)');
+						// Legacy flow - show success and redirect to dashboard
+						setStatus('success');
+						setMessage('Implicit grant received successfully');
 						logger.auth('ImplicitCallback', 'Legacy implicit grant received', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
