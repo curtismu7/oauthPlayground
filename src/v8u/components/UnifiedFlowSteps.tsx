@@ -5365,27 +5365,48 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 										</div>
 									</InfoBox>
 
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>⚙️ PingOne Configuration Required</InfoTitle>
+											<InfoText>
+												<strong>Before using this flow:</strong> Ensure the <strong>Implicit grant type</strong> is enabled 
+												in your PingOne application configuration:
+											</InfoText>
+											<InfoList style={{ fontSize: '13px', marginTop: '8px' }}>
+												<li>Log into PingOne Admin Console</li>
+												<li>Go to Applications → Your Application → Configuration</li>
+												<li>Under Grant Types, enable <strong>Implicit</strong></li>
+												<li>Ensure your Redirect URI is registered: <code style={{ background: '#fef3c7', padding: '2px 6px', borderRadius: '3px' }}>{credentials.redirectUri || `${window.location.origin}/authz-callback`}</code></li>
+												<li>Save changes</li>
+											</InfoList>
+											<InfoText style={{ marginTop: '12px', color: '#dc2626', fontWeight: 600 }}>
+												❌ <strong>If Implicit is not enabled:</strong> PingOne will reject the request with a "grant type not enabled" or "deprecated" message.
+											</InfoText>
+										</div>
+									</InfoBox>
+
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>When to Use Implicit Flow (Legacy Only)</InfoTitle>
+											<InfoTitle>When to Use Implicit Flow (Educational Purpose)</InfoTitle>
 											<InfoList>
 												<li>
 													<strong>Legacy SPAs:</strong> Existing applications that haven't migrated
 													yet
 												</li>
 												<li>
-													<strong>Educational Purposes:</strong> Understanding deprecated patterns and
-													OAuth history
+													<strong>Educational Purposes:</strong> Understanding deprecated patterns,
+													OAuth history, and why Authorization Code + PKCE is now preferred
 												</li>
 												<li>
-													<strong>Specific Requirements:</strong> Only if you have a specific
-													requirement that cannot be met by Authorization Code + PKCE
+													<strong>Learning:</strong> Comparing security models between old and new approaches
 												</li>
 											</InfoList>
 											<InfoText style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
-												<strong>Note:</strong> For all new applications, use Authorization Code Flow
-												with PKCE instead.
+												<strong>Note:</strong> This flow is <strong>deprecated in OAuth 2.1</strong> (draft) but 
+												<strong> still valid in OAuth 2.0 and OIDC Core 1.0</strong>. 
+												For all new applications, use Authorization Code Flow with PKCE instead.
 											</InfoText>
 										</div>
 									</InfoBox>
