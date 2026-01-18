@@ -170,10 +170,14 @@ const WhatsAppDeviceSelectionStep: React.FC<
 					toastV8.success('Authentication successful!');
 					break;
 				case 'OTP_REQUIRED':
+					// PingOne automatically sends OTP when initializeDeviceAuthentication returns OTP_REQUIRED
+					// No need to manually send - go directly to validation step
 					updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
 					nav.markStepComplete();
-					nav.goToStep(3); // Proceed to Send OTP step (Step 3)
-					toastV8.success('OTP sent to your WhatsApp. Proceed to validate the code.');
+					setTimeout(() => {
+						nav.goToStep(4); // Go directly to validation step (Step 4) - OTP already sent automatically
+					}, 100);
+					toastV8.success('OTP sent to your WhatsApp automatically. Please enter the code.');
 					break;
 				case 'SELECTION_REQUIRED':
 					nav.setValidationErrors([
@@ -182,14 +186,29 @@ const WhatsAppDeviceSelectionStep: React.FC<
 					toastV8.warning('Please select a specific device');
 					break;
 				default:
-					updateOtpState({
-						otpSent: nextStep === 'OTP_REQUIRED',
-						sendRetryCount: 0,
-						sendError: null,
-					});
-					nav.markStepComplete();
-					nav.goToStep(3); // Default to Send OTP step (Step 3)
-					toastV8.success('Device selected for authentication. Follow the next step to continue.');
+					// For OTP_REQUIRED or unknown status that requires OTP, PingOne sends it automatically
+					if (nextStep === 'OTP_REQUIRED' || authResult.status === 'OTP_REQUIRED') {
+						updateOtpState({
+							otpSent: true,
+							sendRetryCount: 0,
+							sendError: null,
+						});
+						nav.markStepComplete();
+						setTimeout(() => {
+							nav.goToStep(4); // Go directly to validation step (Step 4) - OTP already sent automatically
+						}, 100);
+						toastV8.success('OTP sent to your WhatsApp automatically. Please enter the code.');
+					} else {
+						// For other cases, go to Send OTP step as fallback
+						updateOtpState({
+							otpSent: false,
+							sendRetryCount: 0,
+							sendError: null,
+						});
+						nav.markStepComplete();
+						nav.goToStep(3); // Default to Send OTP step (Step 3) for manual sending
+						toastV8.success('Device selected for authentication. Follow the next step to continue.');
+					}
 			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Unknown error';
@@ -1059,18 +1078,6 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 					// - User Flow: Always ACTIVATION_REQUIRED (enforced by PingOne API)
 					const deviceStatus: 'ACTIVE' | 'ACTIVATION_REQUIRED' =
 						registrationFlowType === 'admin' ? adminDeviceStatus : 'ACTIVATION_REQUIRED';
-
-					console.log(`${MODULE_TAG} 🔍 DEVICE STATUS SELECTION DEBUG (same as SMS):`, {
-						'Registration Flow Type': registrationFlowType,
-						'Admin Device Status State': adminDeviceStatus,
-						'Calculated Device Status': deviceStatus,
-						'Will send to API': deviceStatus,
-						'Status Source':
-							registrationFlowType === 'admin'
-								? `Admin Flow - User selected: ${adminDeviceStatus}`
-								: 'User Flow - Always ACTIVATION_REQUIRED (enforced)',
-						note: 'Status respects user selection: Admin Flow (user chooses) or User Flow (always ACTIVATION_REQUIRED)',
-					});
 
 					const result = await controller.registerDevice(
 						registrationCredentials,
@@ -2014,10 +2021,17 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 						display: hasPosition ? 'block' : 'flex',
 						alignItems: hasPosition ? 'normal' : 'center',
 						justifyContent: hasPosition ? 'normal' : 'center',
-						zIndex: 1000,
+						zIndex: 10000, // Ensure modal overlay is above API display (100 < 10000)
+						pointerEvents: 'auto',
 					}}
 					onClick={() => {
 						// Don't close on backdrop click - require explicit action
+					}}
+					onMouseDown={(e) => {
+						// Prevent overlay from interfering with drag
+						if (e.target === e.currentTarget) {
+							e.preventDefault();
+						}
 					}}
 				>
 					<div
@@ -2031,25 +2045,36 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
 							overflow: 'hidden',
 							...step4ModalDrag.modalStyle,
+							pointerEvents: 'auto',
+							position: step4ModalDrag.modalPosition.x !== 0 || step4ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
-						{/* Header with Logo */}
+						{/* Header with Logo - Draggable */}
 						<div
-							onMouseDown={step4ModalDrag.handleMouseDown}
+							onMouseDown={(e) => {
+								// Allow dragging from header, but prevent if clicking on close button
+								if (!(e.target as HTMLElement).closest('button')) {
+									step4ModalDrag.handleMouseDown(e);
+								}
+							}}
 							style={{
 								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 								padding: '16px 20px 12px 20px',
 								textAlign: 'center',
 								position: 'relative',
-								cursor: 'grab',
+								cursor: step4ModalDrag.isDragging ? 'grabbing' : 'grab',
 								userSelect: 'none',
 							}}
 						>
 							<button
 								type="button"
-								onMouseDown={(e) => e.stopPropagation()}
-								onClick={() => {
+								onMouseDown={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+								}}
+								onClick={(e) => {
+									e.stopPropagation();
 									setShowValidationModal(false);
 									setUserClosedValidationModal(true); // Track that user explicitly closed modal
 								}}
@@ -2067,6 +2092,7 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									justifyContent: 'center',
 									cursor: 'pointer',
 									color: 'white',
+									zIndex: 1,
 								}}
 							>
 								<FiX size={18} />
@@ -2347,60 +2373,89 @@ const WhatsAppFlowV8WithDeviceSelection: React.FC = () => {
 									{isLoading ? '🔄 Validating...' : 'Validate OTP'}
 								</button>
 
-								{/* Only show resend button for registration flow (not authentication) */}
-								{!mfaState.authenticationId && (
-									<button
-										type="button"
-										disabled={isLoading}
-										onClick={async () => {
-											setIsLoading(true);
-											try {
-												// For ACTIVATION_REQUIRED devices, use resendPairingCode endpoint
-												// For ACTIVE devices, use sendOTP (device authentication flow)
-												if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
-													await MFAServiceV8.resendPairingCode({
-														environmentId: credentials.environmentId,
-														username: credentials.username,
-														deviceId: mfaState.deviceId,
-														region: credentials.region,
-														customDomain: credentials.customDomain,
-													});
-													toastV8.success('OTP code resent successfully!');
-												} else {
-													// For ACTIVE devices or if status is unknown, use sendOTP
-													await controller.sendOTP(
-														credentials,
-														mfaState.deviceId,
-														otpState,
-														updateOtpState,
-														nav,
-														setIsLoading
+								{/* Resend OTP button - works for both registration and authentication flows */}
+								<button
+									type="button"
+									disabled={isLoading}
+									onClick={async () => {
+										setIsLoading(true);
+										try {
+											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
+											if (mfaState.authenticationId && mfaState.deviceId) {
+												const { MfaAuthenticationServiceV8 } = await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
+												
+												// Get userId if not already available
+												let userId = mfaState.userId;
+												if (!userId) {
+													const user = await MFAServiceV8.lookupUserByUsername(
+														credentials.environmentId,
+														credentials.username
 													);
-													toastV8.success('OTP code resent successfully!');
+													userId = user.id as string;
 												}
-											} catch (error) {
-												const errorMessage =
-													error instanceof Error ? error.message : 'Unknown error';
-												toastV8.error(`Failed to resend OTP: ${errorMessage}`);
-											} finally {
-												setIsLoading(false);
+
+												// Resend OTP for ACTIVE device using cancel + re-initialize or re-select
+												await MfaAuthenticationServiceV8.resendOTPForActiveDevice({
+													environmentId: credentials.environmentId,
+													username: credentials.username,
+													userId,
+													authenticationId: mfaState.authenticationId,
+													deviceId: mfaState.deviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												});
+												toastV8.success('OTP code resent successfully!');
 											}
-										}}
-										style={{
-											flex: 1,
-											padding: '12px 20px',
-											background: '#f3f4f6',
-											color: '#374151',
-											border: '1px solid #d1d5db',
-											borderRadius: '8px',
-											fontSize: '14px',
-											fontWeight: '600',
-											cursor: isLoading ? 'not-allowed' : 'pointer',
-										}}
-									>
-										{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
-									</button>
-								)}
+											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
+											else if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+												await MFAServiceV8.resendPairingCode({
+													environmentId: credentials.environmentId,
+													username: credentials.username,
+													deviceId: mfaState.deviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												});
+												toastV8.success('OTP code resent successfully!');
+											}
+											// For registration flow with ACTIVE devices, re-initialize device authentication
+											else if (mfaState.deviceId) {
+												const authResult = await controller.initializeDeviceAuthentication(
+													credentials,
+													mfaState.deviceId
+												);
+												setMfaState((prev) => ({
+													...prev,
+													authenticationId: authResult.authenticationId,
+													deviceAuthId: authResult.authenticationId,
+													nextStep: authResult.nextStep ?? authResult.status,
+												}));
+												toastV8.success('OTP code resent successfully!');
+											} else {
+												throw new Error('Device ID is required to resend OTP');
+											}
+										} catch (error) {
+											const errorMessage =
+												error instanceof Error ? error.message : 'Unknown error';
+											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
+										} finally {
+											setIsLoading(false);
+										}
+									}}
+									style={{
+										flex: 1,
+										padding: '12px 20px',
+										background: '#f3f4f6',
+										color: '#374151',
+										border: '1px solid #d1d5db',
+										borderRadius: '8px',
+										fontSize: '14px',
+										fontWeight: '600',
+										cursor: isLoading ? 'not-allowed' : 'pointer',
+									}}
+								>
+									{isLoading ? '🔄 Sending...' : '🔄 Resend OTP Code'}
+								</button>
 							</div>
 
 							{/* Error Display */}

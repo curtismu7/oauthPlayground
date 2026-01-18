@@ -408,21 +408,9 @@ export class MfaAuthenticationServiceV8 {
 							throw error;
 						}
 
-						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find(
-							(d) =>
-								d.code === 'INVALID_VALUE' &&
-								typeof d.message === 'string' &&
-								d.message.toLowerCase().includes('could not find suitable content')
-						);
-
-						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
-							const error = new Error(
-								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
-							) as Error & { errorCode?: string };
-							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
-							throw error;
-						}
+						// TODO: Removed WhatsApp policy error detection - it was causing false positives
+						// The "Could not find suitable content" error does not reliably indicate policy issues
+						// If policy validation is needed, check the policy configuration directly, not error messages
 					}
 				}
 
@@ -905,11 +893,11 @@ export class MfaAuthenticationServiceV8 {
 			);
 
 			if (!response.ok) {
-				// Log full error response for debugging
+				// Log full error response for debugging (including raw responseData to understand actual error)
 				console.error(`${MODULE_TAG} Device selection failed:`, {
 					status: response.status,
 					statusText: response.statusText,
-					responseData,
+					responseData: JSON.stringify(responseData, null, 2), // Stringify for full details
 					requestBody: {
 						environmentId: params.environmentId,
 						deviceAuthId: params.authenticationId,
@@ -1025,21 +1013,9 @@ export class MfaAuthenticationServiceV8 {
 							throw error;
 						}
 
-						// WhatsApp device selection not supported / INVALID_DATA "Could not find suitable content."
-						const invalidValueDetail = pingErrorDetails.find(
-							(d) =>
-								d.code === 'INVALID_VALUE' &&
-								typeof d.message === 'string' &&
-								d.message.toLowerCase().includes('could not find suitable content')
-						);
-
-						if (pingError.code === 'INVALID_DATA' && invalidValueDetail) {
-							const error = new Error(
-								'This WhatsApp device cannot be used for authentication with the current PingOne policy. Try another device (for example SMS or FIDO2), or update your PingOne Device Authentication Policy to allow WhatsApp for authentication.'
-							) as Error & { errorCode?: string };
-							error.errorCode = 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED';
-							throw error;
-						}
+						// TODO: Removed WhatsApp policy error detection - it was causing false positives
+						// The "Could not find suitable content" error does not reliably indicate policy issues
+						// If policy validation is needed, check the policy configuration directly, not error messages
 					}
 				}
 
@@ -1115,7 +1091,13 @@ export class MfaAuthenticationServiceV8 {
 
 			return result as DeviceAuthenticationResponse;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+			// For expected policy errors (like WhatsApp not allowed), use warn instead of error
+			const errorWithCode = error as Error & { errorCode?: string };
+			if (errorWithCode.errorCode === 'WHATSAPP_DEVICE_SELECTION_NOT_SUPPORTED') {
+				console.warn(`${MODULE_TAG} WhatsApp device selection not supported by policy:`, error);
+			} else {
+				console.error(`${MODULE_TAG} Error selecting device for authentication`, error);
+			}
 			throw error;
 		}
 	}
@@ -2040,6 +2022,144 @@ export class MfaAuthenticationServiceV8 {
 			return data;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error checking FIDO2 assertion`, error);
+			throw error;
+		}
+	}
+
+	/**
+	 * Resend OTP for an ACTIVE device during authentication
+	 * This method attempts multiple strategies in order:
+	 * 1. Cancel the current authentication and re-initialize it (most reliable)
+	 * 2. Re-select the device (fallback, may not always trigger new OTP)
+	 * 
+	 * @param params - Parameters for resending OTP
+	 * @returns Updated device authentication response with new OTP sent
+	 */
+	static async resendOTPForActiveDevice(params: {
+		environmentId: string;
+		username: string;
+		userId?: string;
+		authenticationId: string;
+		deviceId: string;
+		region?: 'us' | 'eu' | 'ap' | 'ca' | 'na';
+		customDomain?: string;
+	}): Promise<DeviceAuthenticationResponse> {
+		console.log(`${MODULE_TAG} Resending OTP for ACTIVE device`, {
+			authenticationId: params.authenticationId,
+			deviceId: params.deviceId,
+			username: params.username,
+		});
+
+		try {
+			// Lookup userId if not provided
+			let userId = params.userId;
+			if (!userId) {
+				const { MFAServiceV8 } = await import('./mfaServiceV8');
+				const user = await MFAServiceV8.lookupUserByUsername(params.environmentId, params.username);
+				userId = user.id as string;
+			}
+
+			// Strategy 1: Read current authentication to check for cancel link
+			let authData: DeviceAuthenticationResponse;
+			try {
+				authData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+					params.environmentId,
+					userId,
+					params.authenticationId,
+					{
+						isUserId: true,
+						region: params.region,
+						customDomain: params.customDomain,
+					}
+				);
+			} catch (readError) {
+				console.warn(`${MODULE_TAG} Could not read device authentication, proceeding with re-select:`, readError);
+				// Fall through to re-select strategy
+				authData = {} as DeviceAuthenticationResponse;
+			}
+
+			const links = MfaAuthenticationServiceV8.extractAvailableLinks(authData);
+
+			// Strategy 1: Cancel + Re-initialize (most reliable for triggering new OTP)
+			if (links.cancel) {
+				console.log(`${MODULE_TAG} Attempting cancel + re-initialize to resend OTP`);
+				try {
+					// Cancel the current authentication
+					await MfaAuthenticationServiceV8.cancelDeviceAuthentication(
+						params.environmentId,
+						params.username,
+						params.authenticationId,
+						params.region,
+						params.customDomain
+					);
+
+					// Re-initialize device authentication (this will trigger a new OTP)
+					const { MFAServiceV8 } = await import('./mfaServiceV8');
+					const newAuthResult = await MFAServiceV8.sendOTP({
+						environmentId: params.environmentId,
+						username: params.username,
+						deviceId: params.deviceId,
+						region: params.region,
+						customDomain: params.customDomain,
+					});
+
+					// Read the new authentication to get full response
+					const newAuthData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+						params.environmentId,
+						userId,
+						newAuthResult.deviceAuthId,
+						{
+							isUserId: true,
+							region: params.region,
+							customDomain: params.customDomain,
+						}
+					);
+
+					console.log(`${MODULE_TAG} Successfully resent OTP via cancel + re-initialize`);
+					return newAuthData;
+				} catch (cancelError) {
+					console.warn(
+						`${MODULE_TAG} Cancel + re-initialize failed, falling back to re-select:`,
+						cancelError
+					);
+					// Fall through to re-select strategy
+				}
+			}
+
+			// Strategy 2: Re-select device (fallback)
+			console.log(`${MODULE_TAG} Attempting re-select device to resend OTP`);
+			const reselectResult = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+				{
+					environmentId: params.environmentId,
+					username: params.username,
+					userId,
+					authenticationId: params.authenticationId,
+					deviceId: params.deviceId,
+					region: params.region,
+					customDomain: params.customDomain,
+				},
+				{ stepName: 'mfa-Resend OTP Code (Re-select)' }
+			);
+
+			// Read updated authentication to get full response
+			try {
+				const updatedAuthData = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+					params.environmentId,
+					userId,
+					params.authenticationId,
+					{
+						isUserId: true,
+						region: params.region,
+						customDomain: params.customDomain,
+					}
+				);
+				return updatedAuthData;
+			} catch {
+				// If read fails, return the reselect result
+				return reselectResult;
+			}
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error resending OTP for ACTIVE device:`, error);
 			throw error;
 		}
 	}

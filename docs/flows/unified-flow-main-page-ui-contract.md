@@ -85,15 +85,39 @@ This document defines the UI contract for the Unified OAuth/OIDC Flow main page.
 - Must update educational content based on selected spec version
 - Must persist selection in `localStorage` via `CredentialsServiceV8`
 
+#### Locked State Behavior
+
+**CRITICAL:** Once a flow has started (currentStep > 0), the specification version selector **MUST** be locked and disabled.
+
+**Locked State Requirements:**
+- **When Locked:** After Step 0 (Configuration step) is completed
+- **Visual Indication:**
+  - Radio buttons must be grayed out (color: `#9ca3af`)
+  - Radio buttons must have reduced opacity (0.6)
+  - Cursor must be `not-allowed` when hovering
+  - Help buttons must be disabled
+- **Label Text:** Must display "(Locked - flow in progress)" next to the title
+- **Tooltip:** Must show tooltip: "Specification version cannot be changed after starting the flow. Use 'Restart Flow' to change specification version."
+- **User Guidance:** Must inform user that they can use "Restart Flow" button to change specification version
+
+**Implementation:**
+- Component must accept `disabled` prop
+- When `disabled={true}`, all interactive elements must be disabled
+- Locked state is determined by `currentStep > 0` in parent component
+
 #### Validation Rules
 
 - At least one spec version must be selected
 - Selection must match available flows
 - Flow availability must be validated against selected spec version
+- Spec version cannot be changed after flow has started (Step 0 completed)
 
 ---
 
 ### 2. Flow Type Selection
+
+**Component:** `FlowTypeSelector.tsx`  
+**Location:** Unified Flow Main Page
 
 **Contract:** Flow types available must be filtered by selected spec version.
 
@@ -122,11 +146,32 @@ This document defines the UI contract for the Unified OAuth/OIDC Flow main page.
 - ❌ Authorization Code without PKCE (PKCE is required in OAuth 2.1)
 - ❌ Hybrid (OIDC-only, not in OAuth 2.1 baseline)
 
+#### Locked State Behavior
+
+**CRITICAL:** Once a flow has started (currentStep > 0), the flow type selector **MUST** be locked and disabled.
+
+**Locked State Requirements:**
+- **When Locked:** After Step 0 (Configuration step) is completed
+- **Visual Indication:**
+  - Select dropdown must be grayed out (color: `#9ca3af`)
+  - Background must be `#f3f4f6` (light gray)
+  - Cursor must be `not-allowed` when hovering
+  - Opacity must be reduced to 0.6
+- **Label Text:** Must display "(Locked - flow in progress)" next to the title
+- **Tooltip:** Must show tooltip: "Flow type cannot be changed after starting the flow. Use 'Restart Flow' to change flow type."
+- **User Guidance:** Must inform user that they can use "Restart Flow" button to change flow type
+
+**Implementation:**
+- Component must accept `disabled` prop
+- When `disabled={true}`, select dropdown must be disabled
+- Locked state is determined by `currentStep > 0` in parent component
+
 #### Validation Rules
 
 - Flows not available in selected spec version must be hidden or disabled
 - User must be informed why certain flows are not available
 - Flow selection must validate against spec version compliance
+- Flow type cannot be changed after flow has started (Step 0 completed)
 
 ---
 
@@ -225,6 +270,7 @@ This document defines the UI contract for the Unified OAuth/OIDC Flow main page.
 
 ## Version History
 
+- **v1.1.0** (2025-01-27): Added locked selector behavior - specification version and flow type selectors are locked after Step 0
 - **v1.0.0** (2026-01-27): Initial Unified Flow Main Page UI contract with protocol terminology requirements (OAuth 2.0, OIDC Core 1.0, OAuth 2.1 / OIDC 2.1)
 
 ---
