@@ -185,16 +185,54 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 
 					const credentials = JSON.parse(storedCredentials);
 
+					// Fetch app config from PingOne to ensure correct token endpoint auth method
+					let effectiveCredentials = credentials;
+					if (credentials.clientId && credentials.environmentId) {
+						try {
+							const { workerTokenServiceV8 } = await import('@/v8/services/workerTokenServiceV8');
+							const { ConfigCheckerServiceV8 } = await import('@/v8/services/configCheckerServiceV8');
+							const workerToken = await workerTokenServiceV8.getToken();
+							
+							if (workerToken) {
+								console.log(`[⏱️ TOTP-CONFIG-V8] 🔍 Fetching app config to ensure correct auth method...`);
+								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+									credentials.environmentId,
+									credentials.clientId,
+									workerToken
+								);
+								
+								if (appConfig?.tokenEndpointAuthMethod) {
+									const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
+									const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
+									
+									if (currentAuthMethod !== pingOneAuthMethod) {
+										console.log(`[⏱️ TOTP-CONFIG-V8] ✅ Updating clientAuthMethod from PingOne:`, {
+											from: currentAuthMethod,
+											to: pingOneAuthMethod,
+										});
+										effectiveCredentials = {
+											...credentials,
+											clientAuthMethod: pingOneAuthMethod as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none',
+										};
+									}
+								}
+							}
+						} catch (configError) {
+							console.warn(`[⏱️ TOTP-CONFIG-V8] ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+							// Continue with stored credentials - don't fail token exchange
+						}
+					}
+
 					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 						{
-							environmentId: credentials.environmentId,
-							clientId: credentials.clientId,
-							clientSecret: credentials.clientSecret,
-							redirectUri: credentials.redirectUri,
-							scopes: credentials.scopes,
+							environmentId: effectiveCredentials.environmentId,
+							clientId: effectiveCredentials.clientId,
+							clientSecret: effectiveCredentials.clientSecret,
+							redirectUri: effectiveCredentials.redirectUri,
+							scopes: effectiveCredentials.scopes,
 							clientAuthMethod:
-								credentials.clientAuthMethod ||
-								credentials.tokenEndpointAuthMethod ||
+								effectiveCredentials.clientAuthMethod ||
+								effectiveCredentials.tokenEndpointAuthMethod ||
 								'client_secret_post',
 						},
 						code,
@@ -317,13 +355,6 @@ export const TOTPConfigurationPageV8: React.FC = () => {
 				);
 				return;
 			}
-
-			console.log(`${MODULE_TAG} Proceeding to registration with credentials:`, credentials);
-			console.log(`${MODULE_TAG} 📊 NAVIGATION STATE DEBUG:`, {
-				'Registration Flow Type': registrationFlowType,
-				'Admin Device Status': adminDeviceStatus,
-				'Will pass to flow': { registrationFlowType, adminDeviceStatus },
-			});
 
 			navigate('/v8/mfa/register/totp/device', {
 				replace: false,

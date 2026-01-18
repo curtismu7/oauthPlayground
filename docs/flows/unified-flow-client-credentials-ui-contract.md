@@ -82,6 +82,37 @@ const isValid =
 **Service:** `UnifiedFlowIntegrationV8U.requestToken()`  
 **Purpose:** Request access token using client credentials
 
+#### Pre-Flight Validation
+
+Before requesting tokens, the system performs comprehensive pre-flight validation:
+
+**Service:** `PreFlightValidationServiceV8.validateBeforeAuthUrl()`
+
+**Validation Checks:**
+- ✅ Client secret requirements
+- ✅ Token endpoint authentication method compatibility
+- ✅ Scope requirements
+- ✅ Client credentials flow compatibility
+
+**UI Feedback:**
+- **Small Inline Spinner**: Shows during validation with message "🔍 Validating Configuration against PingOne..."
+- **Toast Messages**:
+  - ✅ Success: "Pre-flight validation passed!" (if no errors/warnings)
+  - ⚠️ Warning: "Pre-flight validation warnings - check details below" (if warnings only)
+  - ❌ Error: "Pre-flight validation failed - check error details below" (if errors found)
+
+**Auto-Fix Functionality:**
+- If fixable errors are detected, user is prompted to auto-fix them
+- Fixable errors include:
+  - Auth method mismatch (can update to match PingOne)
+- After auto-fix, validation is re-run automatically
+- Toast message shows: "Fixed {count} error(s): {list of fixes}"
+
+**Validation Result:**
+- **Errors**: Block progression, must be fixed before continuing
+- **Warnings**: Allow continuation, but user should be aware
+- **Passed**: Continue with token request
+
 #### Inputs
 
 - `credentials`: Full credentials object from Step 0

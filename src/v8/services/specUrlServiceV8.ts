@@ -125,17 +125,15 @@ export class SpecUrlServiceV8 {
 		console.log(`${MODULE_TAG} Getting flow spec info for`, { flowType });
 		
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+			analytics.log({
 				location: 'specUrlServiceV8.ts:124',
 				message: 'Getting flow-specific specification info',
 				data: { flowType },
-				timestamp: Date.now(),
 				sessionId: 'debug-session',
+				runId: 'run2',
 				hypothesisId: 'C',
-			}),
+			});
 		}).catch(() => {});
 		// #endregion
 
@@ -233,10 +231,8 @@ export class SpecUrlServiceV8 {
 		versionSpecs: ReturnType<typeof SpecUrlServiceV8.getSpecUrls>
 	): void {
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
+			analytics.log({
 				location: 'specUrlServiceV8.ts:205',
 				message: 'Specification URL results',
 				data: {
@@ -249,10 +245,10 @@ export class SpecUrlServiceV8 {
 					versionPrimaryLabel: versionSpecs.primaryLabel,
 					versionRelatedSpecs: versionSpecs.related.map((s) => ({ label: s.label, url: s.url })),
 				},
-				timestamp: Date.now(),
 				sessionId: 'debug-session',
+				runId: 'run2',
 				hypothesisId: 'D',
-			}),
+			});
 		}).catch(() => {});
 		// #endregion
 	}
