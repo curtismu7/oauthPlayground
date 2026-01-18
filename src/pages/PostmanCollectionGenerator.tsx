@@ -2,7 +2,7 @@
  * @file PostmanCollectionGenerator.tsx
  * @module pages
  * @description Dedicated page for generating custom Postman collections
- * @version 8.1.0
+ * @version 9.0.0
  *
  * Allows users to select:
  * - All collections (Unified + MFA)
@@ -10,7 +10,7 @@
  * - Just Unified (all, OAuth 2.0 Authorization Framework (RFC 6749), OpenID Connect Core 1.0, OAuth 2.1 Authorization Framework (draft), or combinations)
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { FiChevronDown, FiChevronRight, FiDownload, FiPackage } from 'react-icons/fi';
 import { usePageScroll } from '@/hooks/usePageScroll';
 import {
@@ -287,6 +287,178 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	const [expandedUseCases, setExpandedUseCases] = useState(false); // Collapsed by default - for Use Cases selection
 
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [validationErrors, setValidationErrors] = useState<Record<string, boolean>>({});
+
+	// Refs for input fields
+	const environmentIdRef = useRef<HTMLInputElement>(null);
+	const clientIdRef = useRef<HTMLInputElement>(null);
+	const clientSecretRef = useRef<HTMLInputElement>(null);
+	const usernameRef = useRef<HTMLInputElement>(null);
+
+	// Helper function to find and highlight blank fields
+	const validateAndHighlightFields = (
+		credentials: {
+			environmentId?: string;
+			clientId?: string;
+			clientSecret?: string;
+			username?: string;
+		},
+		requiredFields: Array<{ key: keyof typeof credentials; ref: React.RefObject<HTMLInputElement>; label: string }>
+	): boolean => {
+		const errors: Record<string, boolean> = {};
+		let firstBlankField: { ref: React.RefObject<HTMLInputElement>; label: string; key: string } | null = null;
+
+		// Check each required field
+		for (const field of requiredFields) {
+			const value = credentials[field.key];
+			if (!value || value.trim() === '') {
+				errors[field.key] = true;
+				if (!firstBlankField) {
+					firstBlankField = { ...field, key: field.key as string };
+				}
+			}
+		}
+
+		setValidationErrors(errors);
+
+		// If there are errors, scroll to and highlight the first blank field
+		if (firstBlankField) {
+			// Try to find the input element using multiple strategies
+			let inputElement: HTMLInputElement | null = null;
+
+			// Strategy 1: Use ref if available
+			if (firstBlankField.ref.current) {
+				inputElement = firstBlankField.ref.current;
+			} else {
+				// Strategy 2: Try various selectors
+				const fieldKey = firstBlankField.key.toLowerCase();
+				const labelText = firstBlankField.label.toLowerCase();
+
+				const selectors = [
+					`input[data-field="${fieldKey}"]`,
+					`input[data-field="${firstBlankField.key}"]`,
+					`input[id*="${fieldKey}"]`,
+					`input[id*="${firstBlankField.key}"]`,
+					`input[name*="${fieldKey}"]`,
+					`input[name*="${firstBlankField.key}"]`,
+					`input[placeholder*="${labelText}"]`,
+					`input[placeholder*="${firstBlankField.label}"]`,
+				];
+
+				// Also try finding by label text
+				const labels = document.querySelectorAll('label');
+				for (const label of labels) {
+					const labelTextContent = label.textContent?.toLowerCase() || '';
+					if (labelTextContent.includes(labelText) || labelTextContent.includes(fieldKey)) {
+						const labelFor = label.getAttribute('for');
+						if (labelFor) {
+							const found = document.getElementById(labelFor) as HTMLInputElement;
+							if (found && found.tagName === 'INPUT') {
+								inputElement = found;
+								break;
+							}
+						}
+						// Try finding input next to or inside the label
+						const nearbyInput = label.querySelector('input') || label.nextElementSibling?.querySelector('input');
+						if (nearbyInput && nearbyInput.tagName === 'INPUT') {
+							inputElement = nearbyInput as HTMLInputElement;
+							break;
+						}
+					}
+				}
+
+				// If still not found, try the selectors
+				if (!inputElement) {
+					for (const selector of selectors) {
+						const found = document.querySelector<HTMLInputElement>(selector);
+						if (found) {
+							inputElement = found;
+							break;
+						}
+					}
+				}
+
+				// Last resort: search all inputs and try to match by placeholder or nearby label
+				if (!inputElement) {
+					const allInputs = document.querySelectorAll<HTMLInputElement>('input[type="text"], input[type="email"], input:not([type="hidden"])');
+					for (const input of allInputs) {
+						const placeholder = input.placeholder?.toLowerCase() || '';
+						if (placeholder.includes(fieldKey) || placeholder.includes(labelText)) {
+							inputElement = input;
+							break;
+						}
+					}
+				}
+			}
+
+			// If we found the input, highlight it
+			if (inputElement) {
+				// Scroll to the element
+				inputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+				// Wait a bit for scroll to complete, then focus and highlight
+				setTimeout(() => {
+					inputElement?.focus();
+					
+					// Store original styles
+					const originalBorder = inputElement.style.border;
+					const originalBoxShadow = inputElement.style.boxShadow;
+					
+					// Apply red highlight
+					inputElement.style.border = '2px solid #ef4444';
+					inputElement.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+					inputElement.style.transition = 'border 0.2s ease, box-shadow 0.2s ease';
+					
+					// Remove highlight after 3 seconds
+					setTimeout(() => {
+						inputElement.style.border = originalBorder;
+						inputElement.style.boxShadow = originalBoxShadow;
+					}, 3000);
+				}, 300);
+
+				toastV8.error(`${firstBlankField.label} is required. Please fill in this field.`);
+				return false;
+			} else {
+				// If we can't find the input, at least show the error
+				toastV8.error(`${firstBlankField.label} is required. Please fill in this field.`);
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	// Validate credentials based on selected collection types
+	const validateCredentials = (credentials: {
+		environmentId?: string;
+		clientId?: string;
+		clientSecret?: string;
+		username?: string;
+	}): boolean => {
+		const requiredFields: Array<{
+			key: keyof typeof credentials;
+			ref: React.RefObject<HTMLInputElement>;
+			label: string;
+		}> = [];
+
+		// Environment ID is always required
+		requiredFields.push({
+			key: 'environmentId',
+			ref: environmentIdRef,
+			label: 'Environment ID',
+		});
+
+		// If Unified or Use Cases are included, Client ID is required
+		if (includeUnified || includeUseCases) {
+			requiredFields.push({
+				key: 'clientId',
+				ref: clientIdRef,
+				label: 'Client ID',
+			});
+		}
+
+		return validateAndHighlightFields(credentials, requiredFields);
+	};
 
 	// Get credentials
 	const getCredentials = () => {
@@ -924,9 +1096,14 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			return;
 		}
 
+		// Validate credentials
+		const credentials = getCredentials();
+		if (!validateCredentials(credentials)) {
+			return;
+		}
+
 		setIsGenerating(true);
 		try {
-			const credentials = getCredentials();
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
@@ -976,9 +1153,14 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			return;
 		}
 
+		// Validate credentials
+		const credentials = getCredentials();
+		if (!validateCredentials(credentials)) {
+			return;
+		}
+
 		setIsGenerating(true);
 		try {
-			const credentials = getCredentials();
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
@@ -1025,9 +1207,14 @@ export const PostmanCollectionGenerator: React.FC = () => {
 			return;
 		}
 
+		// Validate credentials
+		const credentials = getCredentials();
+		if (!validateCredentials(credentials)) {
+			return;
+		}
+
 		setIsGenerating(true);
 		try {
-			const credentials = getCredentials();
 			const collection = generateCollectionBasedOnSelections(credentials);
 
 			if (!collection) {
@@ -1056,6 +1243,51 @@ export const PostmanCollectionGenerator: React.FC = () => {
 	};
 
 	const deviceTypes: DeviceType[] = ['SMS', 'EMAIL', 'WHATSAPP', 'TOTP', 'FIDO2', 'MOBILE'];
+
+	// Quick download handlers
+	const handleQuickDownloadMFAOnly = async () => {
+		const credentials = getCredentials();
+		if (!validateCredentials(credentials)) {
+			return;
+		}
+
+		setIsGenerating(true);
+		try {
+			const collection = generateComprehensiveMFAPostmanCollection(credentials);
+			const date = new Date().toISOString().split('T')[0];
+			const filename = `pingone-mfa-all-${date}-collection.json`;
+			const environmentName = `${collection.info.name} Environment`;
+			downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
+			toastV8.success('MFA Flows Postman collection downloaded!');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error downloading MFA collection:`, error);
+			toastV8.error('Failed to download MFA collection. Please try again.');
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	const handleQuickDownloadComplete = async () => {
+		const credentials = getCredentials();
+		if (!validateCredentials(credentials)) {
+			return;
+		}
+
+		setIsGenerating(true);
+		try {
+			const collection = generateCompletePostmanCollection(credentials);
+			const date = new Date().toISOString().split('T')[0];
+			const filename = `pingone-complete-unified-mfa-${date}-collection.json`;
+			const environmentName = `${collection.info.name} Environment`;
+			downloadPostmanCollectionWithEnvironment(collection, filename, environmentName);
+			toastV8.success('Complete Collection downloaded!');
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error downloading complete collection:`, error);
+			toastV8.error('Failed to download complete collection. Please try again.');
+		} finally {
+			setIsGenerating(false);
+		}
+	};
 
 	return (
 		<div
@@ -2080,6 +2312,92 @@ export const PostmanCollectionGenerator: React.FC = () => {
 						tracking
 					</li>
 				</ul>
+			</div>
+
+			{/* Quick Download Buttons - Bottom of Page */}
+			<div
+				style={{
+					background: 'white',
+					padding: '2rem',
+					borderRadius: '12px',
+					boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+					marginTop: '2rem',
+					display: 'flex',
+					gap: '1rem',
+					justifyContent: 'center',
+					flexWrap: 'wrap',
+				}}
+			>
+				<button
+					type="button"
+					onClick={handleQuickDownloadMFAOnly}
+					disabled={isGenerating}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						padding: '16px 32px',
+						background: isGenerating ? '#9ca3af' : '#8b5cf6',
+						color: 'white',
+						border: 'none',
+						borderRadius: '10px',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						cursor: isGenerating ? 'not-allowed' : 'pointer',
+						boxShadow: isGenerating ? 'none' : '0 4px 12px rgba(139, 92, 246, 0.3)',
+						transition: 'all 0.2s',
+					}}
+					onMouseEnter={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#7c3aed';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(139, 92, 246, 0.4)';
+						}
+					}}
+					onMouseLeave={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#8b5cf6';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.3)';
+						}
+					}}
+				>
+					<FiPackage size={20} />
+					Download All MFA Flows Postman Collection
+				</button>
+				<button
+					type="button"
+					onClick={handleQuickDownloadComplete}
+					disabled={isGenerating}
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						gap: '12px',
+						padding: '16px 32px',
+						background: isGenerating ? '#9ca3af' : '#10b981',
+						color: 'white',
+						border: 'none',
+						borderRadius: '10px',
+						fontSize: '1.1rem',
+						fontWeight: '600',
+						cursor: isGenerating ? 'not-allowed' : 'pointer',
+						boxShadow: isGenerating ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+						transition: 'all 0.2s',
+					}}
+					onMouseEnter={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#059669';
+							e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
+						}
+					}}
+					onMouseLeave={(e) => {
+						if (!isGenerating) {
+							e.currentTarget.style.background = '#10b981';
+							e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+						}
+					}}
+				>
+					<FiPackage size={20} />
+					Download Complete Collection (Unified + MFA)
+				</button>
 			</div>
 
 			<style>{`

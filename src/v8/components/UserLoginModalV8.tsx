@@ -12,7 +12,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FiEye, FiEyeOff, FiInfo } from 'react-icons/fi';
 import { useLocation, useSearchParams } from 'react-router-dom';
+import type { DiscoveredApp } from '@/v8/components/AppPickerV8';
+import { CompactAppPickerV8U } from '@/v8u/components/CompactAppPickerV8U';
+import { AppDiscoveryServiceV8 } from '@/v8/services/appDiscoveryServiceV8';
 import { AuthMethodServiceV8, type AuthMethodV8 } from '@/v8/services/authMethodServiceV8';
+import { ConfigCheckerServiceV8 } from '@/v8/services/configCheckerServiceV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
@@ -214,12 +218,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Check for callback authorization code on mount and when URL changes
 	useEffect(() => {
-		console.log(`${MODULE_TAG} [DEBUG] Callback processing useEffect running`, {
-			isOpen,
-			locationSearch: location.search,
-			showSuccessPage,
-			hasSessionInfo: !!sessionInfo,
-		});
 
 		// #region agent log
 		sendAnalyticsLog({
@@ -275,15 +273,23 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 			// Only process if we have a stored state (confirms this is from our user login flow)
 			const storedState = sessionStorage.getItem('user_login_state_v8');
-			if (!storedState && code) {
-				// Not our callback, ignore it
+			if (!storedState) {
+				// No stored state - either not our callback or already processed by another component
+				// If we have code/state in URL, clean it up silently
+				if (code || state) {
+					window.history.replaceState({}, document.title, window.location.pathname);
+				}
 				return;
 			}
 
-			// Validate state if we stored one
-			if (storedState && state && storedState !== state) {
+			// Validate state if we have both stored state and URL state
+			if (state && storedState !== state) {
 				console.warn(`${MODULE_TAG} State mismatch - possible CSRF attack`);
 				toastV8.error('Security validation failed. Please try again.');
+				sessionStorage.removeItem('user_login_state_v8');
+				sessionStorage.removeItem('user_login_code_verifier_v8');
+				sessionStorage.removeItem('user_login_credentials_temp_v8');
+				sessionStorage.removeItem('user_login_redirect_uri_v8');
 				window.history.replaceState({}, document.title, window.location.pathname);
 				return;
 			}
@@ -335,7 +341,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 				}
 
 				try {
-					const credentials = JSON.parse(storedCredentials);
+					let credentials = JSON.parse(storedCredentials);
 
 					// #region agent log
 					sendAnalyticsLog({
@@ -354,6 +360,42 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						hypothesisId: 'F',
 					});
 					// #endregion
+
+					// CRITICAL: Fetch app config from PingOne to ensure we use the correct auth method
+					// This prevents "Unsupported authentication method" errors
+					if (credentials.environmentId && credentials.clientId) {
+						try {
+							const workerToken = await workerTokenServiceV8.getToken();
+							if (workerToken) {
+								console.log(`${MODULE_TAG} Fetching app config from PingOne before token exchange...`);
+								const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+									credentials.environmentId,
+									credentials.clientId,
+									workerToken
+								);
+								
+								if (appConfig?.tokenEndpointAuthMethod) {
+									const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
+									const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
+									
+									if (currentAuthMethod !== pingOneAuthMethod) {
+										console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+											from: currentAuthMethod,
+											to: pingOneAuthMethod,
+										});
+										credentials = {
+											...credentials,
+											clientAuthMethod: pingOneAuthMethod as AuthMethodV8,
+											tokenEndpointAuthMethod: pingOneAuthMethod as AuthMethodV8,
+										};
+									}
+								}
+							}
+						} catch (configError) {
+							console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+							// Continue with stored credentials - don't fail token exchange
+						}
+					}
 
 					// Exchange authorization code for tokens
 					const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
@@ -394,6 +436,19 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					sessionStorage.removeItem('user_login_credentials_temp_v8');
 					sessionStorage.removeItem('user_login_redirect_uri_v8');
 
+					// CRITICAL: Save user token to credentials so MFA flows can find it
+					// This ensures credentials.userToken is set and all flows look in the same place
+					const FLOW_KEY = 'user-login-v8';
+					const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY) || {};
+					const updatedCredentials = {
+						...currentCredentials,
+						...credentials, // Preserve all original credentials
+						userToken: tokenResponse.access_token, // Save the access token as userToken
+						tokenType: 'user', // Mark as user token type
+					};
+					CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
+					console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
+
 					// Store session info for success page
 					const newSessionInfo: SessionInfo = {
 						accessToken: tokenResponse.access_token,
@@ -405,18 +460,9 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						environmentId: credentials.environmentId,
 					};
 
-					console.log(`${MODULE_TAG} [DEBUG] Setting session info and showing success page`, {
-						hasAccessToken: !!newSessionInfo.accessToken,
-						hasIdToken: !!newSessionInfo.idToken,
-						tokenType: newSessionInfo.tokenType,
-						environmentId: newSessionInfo.environmentId,
-						sessionInfoKeys: Object.keys(newSessionInfo),
-					});
-
 					setSessionInfo(newSessionInfo);
 
 					// Show success page - CRITICAL: Set this AFTER sessionInfo to ensure both are set
-					console.log(`${MODULE_TAG} [DEBUG] Setting showSuccessPage to true`);
 					setShowSuccessPage(true);
 
 					// #region agent log
@@ -460,38 +506,11 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					// Call onTokenReceived callback but DON'T close modal yet - let success page show
 					// The modal will close when user clicks "Continue" on the success page
 					// NOTE: Even if parent component closes modal in onTokenReceived, success page will still show
-					console.log(`${MODULE_TAG} [DEBUG] Calling onTokenReceived callback`, {
-						hasCallback: !!onTokenReceived,
-						tokenLength: tokenResponse.access_token?.length,
-						showSuccessPage: true,
-						hasSessionInfo: !!newSessionInfo,
-						sessionInfoSet: true,
-						successPageSetRef: successPageSetRef.current,
-					});
-
 					// IMPORTANT: Call onTokenReceived AFTER setting success page state
 					// Even if parent closes modal, success page should still show because:
 					// 1. successPageSetRef.current = true prevents useEffect from clearing it
 					// 2. Success page check happens BEFORE isOpen check in render
 					onTokenReceived?.(tokenResponse.access_token);
-
-					console.log(`${MODULE_TAG} [DEBUG] After onTokenReceived callback`, {
-						showSuccessPage: true,
-						hasSessionInfo: !!newSessionInfo,
-						isOpen,
-						successPageSetRef: successPageSetRef.current,
-					});
-
-					// Use setTimeout to verify state after all updates
-					setTimeout(() => {
-						console.log(`${MODULE_TAG} [DEBUG] State check after setTimeout`, {
-							showSuccessPage,
-							hasSessionInfo: !!sessionInfo,
-							isOpen,
-							sessionInfoKeys: sessionInfo ? Object.keys(sessionInfo) : [],
-							successPageSetRef: successPageSetRef.current,
-						});
-					}, 200);
 
 					toastV8.success('Access token received successfully!');
 				} catch (error) {
@@ -649,7 +668,44 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					}
 
 					try {
-						const credentials = JSON.parse(storedCredentials);
+						let credentials = JSON.parse(storedCredentials);
+
+						// CRITICAL: Fetch app config from PingOne to ensure we use the correct auth method
+						// This prevents "Unsupported authentication method" errors
+						if (credentials.environmentId && credentials.clientId) {
+							try {
+								const workerToken = await workerTokenServiceV8.getToken();
+								if (workerToken) {
+									console.log(`${MODULE_TAG} Fetching app config from PingOne before token exchange...`);
+									const appConfig = await ConfigCheckerServiceV8.fetchAppConfig(
+										credentials.environmentId,
+										credentials.clientId,
+										workerToken
+									);
+									
+									if (appConfig?.tokenEndpointAuthMethod) {
+										const pingOneAuthMethod = appConfig.tokenEndpointAuthMethod;
+										const currentAuthMethod = credentials.clientAuthMethod || credentials.tokenEndpointAuthMethod || 'client_secret_post';
+										
+										if (currentAuthMethod !== pingOneAuthMethod) {
+											console.log(`${MODULE_TAG} ✅ Updating clientAuthMethod from PingOne:`, {
+												from: currentAuthMethod,
+												to: pingOneAuthMethod,
+											});
+											credentials = {
+												...credentials,
+												clientAuthMethod: pingOneAuthMethod as AuthMethodV8,
+												tokenEndpointAuthMethod: pingOneAuthMethod as AuthMethodV8,
+											};
+										}
+									}
+								}
+							} catch (configError) {
+								console.warn(`${MODULE_TAG} ⚠️ Failed to fetch app config (continuing with stored auth method):`, configError);
+								// Continue with stored credentials - don't fail token exchange
+							}
+						}
+
 						const tokenResponse = await OAuthIntegrationServiceV8.exchangeCodeForTokens(
 							{
 								environmentId: credentials.environmentId,
@@ -670,6 +726,18 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 						sessionStorage.removeItem('user_login_code_verifier_v8');
 						sessionStorage.removeItem('user_login_credentials_temp_v8');
 						sessionStorage.removeItem('user_login_redirect_uri_v8');
+
+						// CRITICAL: Save user token to credentials so MFA flows can find it
+						const FLOW_KEY = 'user-login-v8';
+						const currentCredentials = CredentialsServiceV8.loadCredentials(FLOW_KEY) || {};
+						const updatedCredentials = {
+							...currentCredentials,
+							...credentials, // Preserve all original credentials
+							userToken: tokenResponse.access_token, // Save the access token as userToken
+							tokenType: 'user', // Mark as user token type
+						};
+						CredentialsServiceV8.saveCredentials(FLOW_KEY, updatedCredentials);
+						console.log(`${MODULE_TAG} ✅ Saved user token to credentials.userToken`);
 
 						handleTokenReceived(tokenResponse.access_token);
 					} catch (error) {
@@ -993,12 +1061,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 	// This ensures the success page can render even if isOpen becomes false
 	// Show success page if authentication was successful
 	if (showSuccessPage && sessionInfo) {
-		console.log(`${MODULE_TAG} [DEBUG] Rendering success page`, {
-			showSuccessPage,
-			hasSessionInfo: !!sessionInfo,
-			isOpen,
-			sessionInfoKeys: sessionInfo ? Object.keys(sessionInfo) : [],
-		});
 
 		return (
 			<div
@@ -1025,7 +1087,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					<UserAuthenticationSuccessPageV8
 						sessionInfo={sessionInfo}
 						onClose={() => {
-							console.log(`${MODULE_TAG} [DEBUG] Success page onClose called`);
 							successPageSetRef.current = false; // Reset ref when user closes success page
 							setShowSuccessPage(false);
 							setSessionInfo(null);
@@ -1039,11 +1100,6 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 	// Only return null if modal is not open AND we're not showing success page
 	if (!isOpen) {
-		console.log(`${MODULE_TAG} [DEBUG] Modal not open, returning null`, {
-			isOpen,
-			showSuccessPage,
-			hasSessionInfo: !!sessionInfo,
-		});
 		return null;
 	}
 
@@ -1108,6 +1164,14 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 					.user-login-modal-v8 textarea {
 						overflow: hidden;
 						text-overflow: ellipsis;
+					}
+					.user-login-modal-v8 .app-search-tooltip {
+						opacity: 0;
+						transition: opacity 0.2s ease;
+					}
+					.user-login-modal-v8 button:hover + .app-search-tooltip,
+					.user-login-modal-v8 button:focus + .app-search-tooltip {
+						opacity: 1;
 					}
 				`}</style>
 				{/* Header with PingOne branding */}
@@ -1286,38 +1350,120 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 
 						{/* Client ID */}
 						<div>
-							<label
-								htmlFor="user-login-client-id"
-								style={{
-									display: 'block',
-									fontSize: '14px',
-									fontWeight: '600',
-									color: '#374151',
-									marginBottom: '6px',
-								}}
-							>
-								Client ID <span style={{ color: '#ef4444' }}>*</span>
-							</label>
-							<input
-								id="user-login-client-id"
-								type="text"
-								value={clientId}
-								onChange={(e) => setClientId(e.target.value)}
-								placeholder="Your OAuth client ID"
-								style={{
-									width: '100%',
-									padding: '10px 12px',
-									border: '1px solid #d1d5db',
-									borderRadius: '6px',
-									fontSize: '14px',
-								}}
-							/>
-							<small
-								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
-							>
-								OAuth client ID configured for Authorization Code Flow
-							</small>
-						</div>
+							<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+								<label
+									htmlFor="user-login-client-id"
+									style={{
+										display: 'block',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#374151',
+										margin: 0,
+									}}
+								>
+									Client ID <span style={{ color: '#ef4444' }}>*</span>
+								</label>
+								{environmentId.trim() && (
+									<div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+										<small
+											style={{
+												fontSize: '11px',
+												color: '#6b7280',
+												whiteSpace: 'nowrap',
+											}}
+										>
+											🔍 Lookup app
+										</small>
+										<CompactAppPickerV8U
+											environmentId={environmentId}
+											onAppSelected={async (app: DiscoveredApp) => {
+												try {
+													console.log(`${MODULE_TAG} App selected:`, { appId: app.id, appName: app.name });
+												
+													// Fetch the application with its client secret from PingOne API
+													let appWithSecret = app;
+													if (environmentId.trim()) {
+														try {
+															const workerToken = await workerTokenServiceV8.getToken();
+															if (workerToken) {
+																console.log(`${MODULE_TAG} Fetching application secret from PingOne API...`);
+																const fetchedApp = await AppDiscoveryServiceV8.fetchApplicationWithSecret(
+																	environmentId.trim(),
+																	app.id,
+																	workerToken
+																);
+																if (fetchedApp && fetchedApp.clientSecret) {
+																	appWithSecret = fetchedApp;
+																	toastV8.success('Application secret retrieved from PingOne');
+																}
+															}
+														} catch (error) {
+															console.warn(`${MODULE_TAG} Could not fetch app secret, continuing with app data:`, error);
+														}
+													}
+
+													// Populate all fields from the selected app
+													setClientId(appWithSecret.id);
+													
+													// Set client secret if available
+													if (appWithSecret.clientSecret && typeof appWithSecret.clientSecret === 'string') {
+														setClientSecret(appWithSecret.clientSecret);
+													}
+
+													// Set redirect URI (use first one if available)
+													if (appWithSecret.redirectUris && appWithSecret.redirectUris.length > 0) {
+														setRedirectUri(appWithSecret.redirectUris[0]);
+													}
+
+													// Set token endpoint auth method (validate it's a supported method)
+													if (appWithSecret.tokenEndpointAuthMethod) {
+														const methodValue = appWithSecret.tokenEndpointAuthMethod;
+														const validMethods: AuthMethodV8[] = [
+															'none',
+															'client_secret_basic',
+															'client_secret_post',
+															'client_secret_jwt',
+															'private_key_jwt',
+														];
+														if (validMethods.includes(methodValue as AuthMethodV8)) {
+															setAuthMethod(methodValue as AuthMethodV8);
+														} else {
+															console.warn(
+																`${MODULE_TAG} Unsupported auth method from app: ${methodValue}, using default`
+															);
+														}
+													}
+
+													toastV8.success(`Application "${app.name}" loaded`);
+												} catch (error) {
+													console.error(`${MODULE_TAG} Error applying app selection:`, error);
+													toastV8.error('Failed to load application details');
+												}
+											}}
+									/>
+									</div>
+								)}
+							</div>
+						<input
+							id="user-login-client-id"
+							type="text"
+							value={clientId}
+							onChange={(e) => setClientId(e.target.value)}
+							placeholder="Your OAuth client ID"
+							style={{
+								width: '100%',
+								padding: '10px 12px',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '14px',
+							}}
+						/>
+						<small
+							style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
+						>
+							OAuth client ID configured for Authorization Code Flow
+						</small>
+					</div>
 
 						{/* Client Secret */}
 						<div>
@@ -1414,7 +1560,7 @@ export const UserLoginModalV8: React.FC<UserLoginModalV8Props> = ({
 							<small
 								style={{ display: 'block', marginTop: '4px', fontSize: '12px', color: '#6b7280' }}
 							>
-								{AuthMethodServiceV8.getMethodConfig(authMethod).description}
+								{AuthMethodServiceV8.getMethodConfig(authMethod)?.description || 'Token endpoint authentication method'}
 							</small>
 						</div>
 

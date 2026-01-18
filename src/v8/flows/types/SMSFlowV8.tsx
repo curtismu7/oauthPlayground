@@ -180,7 +180,7 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 			switch (nextStep) {
 				case 'COMPLETED':
 					nav.markStepComplete();
-					nav.goToStep(4);
+					nav.goToStep(3);
 					toastV8.success('Authentication successful!');
 					break;
 				case 'OTP_REQUIRED':
@@ -1375,7 +1375,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						// Navigate to Step 4 after a short delay to ensure state updates complete
 						// This matches the pattern that works for admin flow
 						setTimeout(() => {
-							nav.goToStep(4); // Go directly to validation step (Step 4) - skip Send OTP step (Step 3)
+							nav.goToStep(3); // Go directly to validation step (Step 3)
 						}, 100);
 
 						const deviceTypeLabel2 =
@@ -1614,8 +1614,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				);
 			}
 
-			// If we're on Step 4, don't render Step 2 content - let Step 4 handle rendering
-			if (nav.currentStep === 4) {
+			// If we're on Step 3, don't render Step 2 content - let Step 3 handle rendering
+			if (nav.currentStep === 3) {
 				return null;
 			}
 
@@ -1698,7 +1698,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						paddingTop: hasPosition ? '0' : '5vh',
 						paddingBottom: hasPosition ? '0' : '5vh',
 						overflowY: 'auto',
-						zIndex: 1000,
+						zIndex: 10000, // Ensure modal overlay is above API display (100 < 10000)
 						pointerEvents: 'auto',
 					}}
 					onClick={() => {
@@ -1726,25 +1726,35 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 							overflow: 'hidden',
 							...step2ModalDrag.modalStyle,
 							pointerEvents: 'auto',
+							position: step2ModalDrag.modalPosition.x !== 0 || step2ModalDrag.modalPosition.y !== 0 ? 'fixed' : 'relative',
 						}}
 						onClick={(e) => e.stopPropagation()}
 					>
-						{/* Header with Logo */}
+						{/* Header with Logo - Draggable */}
 						<div
-							onMouseDown={step2ModalDrag.handleMouseDown}
+							onMouseDown={(e) => {
+								// Allow dragging from header, but prevent if clicking on close button
+								if (!(e.target as HTMLElement).closest('button')) {
+									step2ModalDrag.handleMouseDown(e);
+								}
+							}}
 							style={{
 								background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
 								padding: '16px 20px 12px 20px',
 								textAlign: 'center',
 								position: 'relative',
-								cursor: 'grab',
+								cursor: step2ModalDrag.isDragging ? 'grabbing' : 'grab',
 								userSelect: 'none',
 							}}
 						>
 							<button
 								type="button"
-								onMouseDown={(e) => e.stopPropagation()}
-								onClick={() => {
+								onMouseDown={(e) => {
+									e.stopPropagation();
+									e.preventDefault();
+								}}
+								onClick={(e) => {
+									e.stopPropagation();
 									setShowModal(false);
 									nav.goToPrevious();
 								}}
@@ -1762,6 +1772,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									justifyContent: 'center',
 									cursor: 'pointer',
 									color: 'white',
+									zIndex: 1,
 								}}
 							>
 								<FiX size={18} />
@@ -2525,222 +2536,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 		]
 	);
 
-	// Step 3: Send OTP (using controller)
-	const createRenderStep3 = () => {
-		return (props: MFAFlowBaseRenderProps) => {
-			const { credentials, mfaState, nav, setIsLoading, isLoading, tokenStatus } = props;
-			// navigate is available from component level (line 451)
-
-			const handleSendOTP = async () => {
-				// Guardrail: Ensure required credentials before sending OTP
-				if (
-					!credentials.environmentId?.trim() ||
-					!credentials.username?.trim() ||
-					!tokenStatus.isValid
-				) {
-					nav.setValidationErrors([
-						'Missing required configuration. Please ensure Environment ID, Username, and Worker Token are set.',
-					]);
-					toastV8.error('Cannot send OTP: Missing required configuration');
-					return;
-				}
-
-				await controller.sendOTP(
-					credentials,
-					mfaState.deviceId,
-					otpState,
-					updateOtpState,
-					nav,
-					setIsLoading
-				);
-			};
-
-			const handleViewDeviceAuthentication = () => {
-				if (!mfaState.authenticationId) {
-					return;
-				}
-
-				const params = new URLSearchParams({
-					environmentId: credentials.environmentId?.trim() || '',
-					authenticationId: mfaState.authenticationId,
-				});
-
-				if (credentials.deviceAuthenticationPolicyId?.trim()) {
-					params.set('policyId', credentials.deviceAuthenticationPolicyId.trim());
-				}
-
-				if (credentials.username?.trim()) {
-					params.set('username', credentials.username.trim());
-				}
-
-				if (mfaState.deviceId) {
-					params.set('deviceId', mfaState.deviceId);
-				}
-
-				navigate(`/v8/mfa/device-authentication-details?${params.toString()}`, {
-					state: { autoFetch: true },
-				});
-			};
-
-			return (
-				<div className="step-content">
-					<h2>
-						Send OTP Code
-						<MFAInfoButtonV8 contentKey="factor.sms" displayMode="modal" />
-					</h2>
-					<p>Send a one-time password to the registered device</p>
-
-					<div className="info-box">
-						<p>
-							<strong>Device ID:</strong> {mfaState.deviceId}
-						</p>
-						<p>
-							<strong>Phone Number:</strong> {getFullPhoneNumber(credentials)}
-						</p>
-						{otpState.sendRetryCount > 0 && (
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#92400e' }}>
-								⚠️ Attempt {otpState.sendRetryCount + 1} - If you continue to have issues, check your
-								phone number and try again.
-							</p>
-						)}
-					</div>
-
-					{mfaState.authenticationId && (
-						<div
-							style={{
-								marginTop: '16px',
-								padding: '14px 16px',
-								background: '#f0f9ff',
-								border: '1px solid #bae6fd',
-								borderRadius: '10px',
-								display: 'flex',
-								flexDirection: 'column',
-								gap: '8px',
-							}}
-						>
-							<div
-								style={{
-									display: 'flex',
-									justifyContent: 'space-between',
-									alignItems: 'center',
-									flexWrap: 'wrap',
-									gap: '8px',
-								}}
-							>
-								<div>
-									<p style={{ margin: 0, fontSize: '14px', color: '#0c4a6e', fontWeight: 600 }}>
-										Device Authentication ID
-									</p>
-									<p style={{ margin: '2px 0 0', fontFamily: 'monospace', color: '#1f2937' }}>
-										{mfaState.authenticationId}
-									</p>
-								</div>
-								<button
-									type="button"
-									onClick={handleViewDeviceAuthentication}
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '6px',
-										padding: '8px 12px',
-										borderRadius: '8px',
-										border: '1px solid #3b82f6',
-										background: '#ffffff',
-										color: '#1d4ed8',
-										fontWeight: 600,
-										cursor: 'pointer',
-									}}
-								>
-									<FiShield />
-									View Session Details
-								</button>
-							</div>
-							<p style={{ margin: 0, fontSize: '13px', color: '#0c4a6e' }}>
-								Open the Device Authentication Details page to inspect the real-time status returned
-								by PingOne after initialization.
-							</p>
-						</div>
-					)}
-
-					<div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-						<button
-							type="button"
-							className="btn btn-primary"
-							onClick={handleSendOTP}
-							disabled={isLoading}
-						>
-							{isLoading
-								? '🔄 Sending...'
-								: otpState.otpSent
-									? '🔄 Resend OTP Code'
-									: 'Send OTP Code'}
-						</button>
-
-						{otpState.otpSent && (
-							<button
-								type="button"
-								className="btn"
-								onClick={() => {
-									updateOtpState({
-										otpSent: false,
-										sendRetryCount: 0,
-										sendError: null,
-									});
-								}}
-								style={{
-									background: '#f3f4f6',
-									color: '#374151',
-									border: '1px solid #d1d5db',
-								}}
-							>
-								Clear Status
-							</button>
-						)}
-					</div>
-
-					{otpState.sendError && (
-						<div
-							className="info-box"
-							style={{
-								background: '#fef2f2',
-								border: '1px solid #fecaca',
-								color: '#991b1b',
-								marginTop: '8px',
-							}}
-						>
-							<h4 style={{ margin: '0 0 8px 0', fontSize: '15px' }}>⚠️ Error Sending OTP</h4>
-							<p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>{otpState.sendError}</p>
-							<div style={{ marginTop: '12px', fontSize: '13px' }}>
-								<strong>Recovery Options:</strong>
-								<ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-									<li>Verify your phone number is correct</li>
-									<li>Check that your worker token is valid</li>
-									<li>Wait a few minutes and try again (rate limiting)</li>
-									<li>Go back and select a different device</li>
-								</ul>
-							</div>
-						</div>
-					)}
-
-					{otpState.otpSent && !otpState.sendError && (
-						<div className="success-box" style={{ marginTop: '10px' }}>
-							<h3>✅ OTP Sent</h3>
-							<p>Check your phone for the verification code</p>
-							<p style={{ marginTop: '12px', fontSize: '14px' }}>
-								After receiving the code, proceed to the next step to validate it.
-							</p>
-							<p style={{ marginTop: '8px', fontSize: '13px', color: '#6b7280' }}>
-								💡 <strong>Tip:</strong> OTP codes typically expire after 5-10 minutes. If you don't
-								receive the code, click "Resend OTP Code" above.
-							</p>
-						</div>
-					)}
-				</div>
-			);
-		};
-	};
-
-	// Step 4: Validate OTP (using controller)
+	// Step 3: Validate OTP (using controller) - Step 3 renamed from Step 4 after removing Send OTP step
 	const createRenderStep4 = () => {
 		return (props: MFAFlowBaseRenderProps) => {
 			const { credentials, mfaState, setMfaState, nav, setIsLoading, isLoading, tokenStatus } =
@@ -2799,8 +2595,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 			}
 
 			// Only show validation modal for ACTIVATION_REQUIRED devices
-			// If device is ACTIVE and we're on step 4, show success page instead of redirecting
-			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 4) {
+			// If device is ACTIVE and we're on step 3, show success page instead of redirecting
+			if (mfaState.deviceStatus === 'ACTIVE' && nav.currentStep === 3) {
 				// Device is already active, show success page
 				// Check if we have deviceRegisteredActive (just registered) or verificationResult (just activated)
 				if (deviceRegisteredActive || mfaState.verificationResult) {
@@ -2839,9 +2635,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				);
 			}
 
-			// Show validation UI as modal - always show when on step 4 (unless validation is complete)
-			// If modal is closed but we're on step 4, automatically reopen it
-			if (!showValidationModal && nav.currentStep === 4) {
+			// Show validation UI as modal - always show when on step 3 (unless validation is complete)
+			// If modal is closed but we're on step 3, automatically reopen it
+			if (!showValidationModal && nav.currentStep === 3) {
 				// Use setTimeout to avoid state updates during render
 				setTimeout(() => {
 					setShowValidationModal(true);
@@ -3174,7 +2970,7 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 												}));
 
 												nav.markStepComplete();
-												nav.goToStep(4); // Ensure we're on step 4 to show success page
+												nav.goToStep(3); // Ensure we're on step 3 to show success page
 												toastV8.success('Device activated successfully!');
 											} catch (error) {
 												const errorMessage =
@@ -3238,9 +3034,35 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 									onClick={async () => {
 										setIsLoading(true);
 										try {
-											// For ACTIVATION_REQUIRED devices, use resendPairingCode endpoint
-											// For ACTIVE devices, use sendOTP (device authentication flow)
-											if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
+											// For authentication flow (when authenticationId exists), use selectDeviceForAuthentication
+											if (mfaState.authenticationId && mfaState.deviceId) {
+												const { MfaAuthenticationServiceV8 } = await import('@/v8/services/mfaAuthenticationServiceV8');
+												const { MFAServiceV8 } = await import('@/v8/services/mfaServiceV8');
+												
+												// Get userId if not already available
+												let userId = mfaState.userId;
+												if (!userId) {
+													const user = await MFAServiceV8.lookupUserByUsername(
+														credentials.environmentId,
+														credentials.username
+													);
+													userId = user.id as string;
+												}
+
+												// Resend OTP for ACTIVE device using cancel + re-initialize or re-select
+												await MfaAuthenticationServiceV8.resendOTPForActiveDevice({
+													environmentId: credentials.environmentId,
+													username: credentials.username,
+													userId,
+													authenticationId: mfaState.authenticationId,
+													deviceId: mfaState.deviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												});
+												toastV8.success('OTP code resent successfully!');
+											}
+											// For registration flow with ACTIVATION_REQUIRED devices, use resendPairingCode
+											else if (mfaState.deviceStatus === 'ACTIVATION_REQUIRED' && mfaState.deviceId) {
 												await MFAServiceV8.resendPairingCode({
 													environmentId: credentials.environmentId,
 													username: credentials.username,
@@ -3249,17 +3071,22 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 													customDomain: credentials.customDomain,
 												});
 												toastV8.success('OTP code resent successfully!');
-											} else {
-												// For ACTIVE devices or if status is unknown, use sendOTP
-												await controller.sendOTP(
+											}
+											// For registration flow with ACTIVE devices, re-initialize device authentication
+											else if (mfaState.deviceId) {
+												const authResult = await controller.initializeDeviceAuthentication(
 													credentials,
-													mfaState.deviceId,
-													otpState,
-													updateOtpState,
-													nav,
-													setIsLoading
+													mfaState.deviceId
 												);
+												setMfaState((prev) => ({
+													...prev,
+													authenticationId: authResult.authenticationId,
+													deviceAuthId: authResult.authenticationId,
+													nextStep: authResult.nextStep ?? authResult.status,
+												}));
 												toastV8.success('OTP code resent successfully!');
+											} else {
+												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
 											const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -3428,10 +3255,9 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 				renderStep0={renderStep0}
 				renderStep1={renderStep1WithSelection}
 				renderStep2={renderStep2Register}
-				renderStep3={createRenderStep3()}
-				renderStep4={createRenderStep4()}
+				renderStep3={createRenderStep4()}
 				validateStep0={validateStep0}
-				stepLabels={['Configure', 'Select Device', 'Register Device', 'Send OTP', 'Validate']}
+				stepLabels={['Configure', 'Select Device', 'Register Device', 'Validate']}
 				shouldHideNextButton={(props) => {
 					// Hide Next button on step 2 when showing success page for ACTIVE devices
 					if (
@@ -3441,8 +3267,8 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 					) {
 						return true;
 					}
-					// Hide final button on success step (step 4) - we have our own "Start Again" button
-					if (props.nav.currentStep === 4) {
+					// Hide final button on success step (step 3) - we have our own "Start Again" button
+					if (props.nav.currentStep === 3) {
 						return true;
 					}
 					return false;

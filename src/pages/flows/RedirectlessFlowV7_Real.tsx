@@ -5,6 +5,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertCircle,
 	FiArrowRight,
 	FiCheckCircle,
 	FiCode,
@@ -46,6 +47,7 @@ import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplaySe
 import { V7StepperService } from '../../services/v7StepperService';
 import { v4ToastManager } from '../../utils/v4ToastManager';
 import { PKCEStorageServiceV8U } from '../../v8u/services/pkceStorageServiceV8U';
+import { PasswordChangeModal } from '../../components/PasswordChangeModal';
 
 // Import config
 import { STEP_METADATA } from './config/RedirectlessFlow.config';
@@ -260,6 +262,15 @@ const RedirectlessFlowV7Real: React.FC = () => {
 		password: 'P@ssw0rd123',
 	});
 	const [isAuthenticating, setIsAuthenticating] = useState(false);
+
+	// Password change required state
+	const [passwordChangeRequired, setPasswordChangeRequired] = useState<{
+		required: boolean;
+		userId?: string;
+		accessToken?: string;
+		tokens?: Record<string, unknown>;
+		environmentId?: string;
+	}>({ required: false });
 
 	// Scroll to top on step change
 	useEffect(() => {
@@ -507,6 +518,25 @@ const RedirectlessFlowV7Real: React.FC = () => {
 						string,
 						unknown
 					>;
+					
+					// Check for MUST_CHANGE_PASSWORD requirement
+					const requiresPasswordChange =
+						errorData.requires_password_change === true ||
+						errorData.password_change_required === true ||
+						String(errorData.error_description || '').toLowerCase().includes('must_change_password') ||
+						String(errorData.error_description || '').toLowerCase().includes('password change required') ||
+						String(errorData.error_description || '').toLowerCase().includes('must change password');
+
+					if (requiresPasswordChange) {
+						console.log('🔐 [Redirectless V7] Password change required detected');
+						const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+						(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+						(passwordChangeError as any).requiresPasswordChange = true;
+						(passwordChangeError as any).userId = errorData.user_id || errorData.userId;
+						(passwordChangeError as any).errorData = errorData;
+						throw passwordChangeError;
+					}
+
 					const errorDesc = (errorData.error_description ||
 						errorData.error ||
 						'Please check your configuration.') as string;
@@ -516,6 +546,46 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				}
 
 				const tokenData = (await tokenResponse.json()) as Record<string, unknown>;
+				
+				// Check for MUST_CHANGE_PASSWORD in successful response (from ID token)
+				const requiresPasswordChange =
+					tokenData.requires_password_change === true ||
+					tokenData.password_change_required === true;
+
+				if (requiresPasswordChange && tokenData.id_token) {
+					try {
+						const parts = String(tokenData.id_token).split('.');
+						if (parts.length === 3) {
+							const payload = JSON.parse(atob(parts[1]));
+							const passwordState =
+								payload.password_state || payload.password_status || payload.pwd_state;
+
+							if (passwordState === 'MUST_CHANGE_PASSWORD') {
+								console.log('🔐 [Redirectless V7] Password change required detected in ID token');
+								const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+								(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+								(passwordChangeError as any).requiresPasswordChange = true;
+								(passwordChangeError as any).userId = payload.sub || payload.user_id;
+								(passwordChangeError as any).accessToken = tokenData.access_token;
+								(passwordChangeError as any).tokens = tokenData;
+								throw passwordChangeError;
+							}
+						}
+					} catch (parseError) {
+						// If parsing fails but requiresPasswordChange is true, still throw
+						if (requiresPasswordChange) {
+							console.log('🔐 [Redirectless V7] Password change required detected in response metadata');
+							const passwordChangeError = new Error('MUST_CHANGE_PASSWORD');
+							(passwordChangeError as any).code = 'MUST_CHANGE_PASSWORD';
+							(passwordChangeError as any).requiresPasswordChange = true;
+							(passwordChangeError as any).userId = tokenData.user_id;
+							(passwordChangeError as any).accessToken = tokenData.access_token;
+							(passwordChangeError as any).tokens = tokenData;
+							throw passwordChangeError;
+						}
+					}
+				}
+
 				console.log('🔐 [Redirectless V7] Token exchange successful:', tokenData);
 
 				if (!tokenData.access_token) {
@@ -617,6 +687,26 @@ const RedirectlessFlowV7Real: React.FC = () => {
 					`🎉 Redirectless authentication successful! Tokens returned directly - no browser redirects!`
 				);
 			} catch (error: unknown) {
+				// Check for MUST_CHANGE_PASSWORD requirement
+				if (
+					error instanceof Error &&
+					((error as any).code === 'MUST_CHANGE_PASSWORD' ||
+						(error as any).requiresPasswordChange === true)
+				) {
+					console.log('🔐 [Redirectless V7] Password change required - showing modal');
+					// Store password change info for modal
+					setPasswordChangeRequired({
+						required: true,
+						userId: (error as any).userId,
+						accessToken: (error as any).accessToken,
+						tokens: (error as any).tokens,
+						environmentId: controller.credentials.environmentId,
+					});
+					setIsAuthenticating(false);
+					setIsLoading(false);
+					return;
+				}
+
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 				console.error('🔐 [Redirectless V7] Token exchange failed:', errorMessage);
 				_setError(errorMessage);
@@ -669,10 +759,40 @@ const RedirectlessFlowV7Real: React.FC = () => {
 			});
 
 			if (!credentialsResponse.ok) {
-				const errorText = await credentialsResponse.text();
-				throw new Error(
-					`Credentials submission failed: ${credentialsResponse.status} ${credentialsResponse.statusText}. ${errorText}`
-				);
+				let errorMessage = `Credentials submission failed: ${credentialsResponse.status} ${credentialsResponse.statusText}`;
+				try {
+					const errorData = await credentialsResponse.json();
+					// PingOne error format
+					if (errorData.error_description) {
+						errorMessage = errorData.error_description;
+					} else if (errorData.message) {
+						errorMessage = errorData.message;
+					} else if (errorData.error) {
+						errorMessage = errorData.error;
+					} else if (errorData.details?.message) {
+						errorMessage = errorData.details.message;
+					} else {
+						errorMessage = JSON.stringify(errorData);
+					}
+					
+					// Check for MUST_CHANGE_PASSWORD in error response
+					const errorText = JSON.stringify(errorData).toLowerCase();
+					if (
+						errorText.includes('must_change_password') ||
+						errorText.includes('password change required') ||
+						errorText.includes('must change password')
+					) {
+						console.log('🔐 [Redirectless V7] Password change required detected in credentials check');
+						// We can't change password here since we don't have userId yet
+						// But we can show a helpful message
+						errorMessage = 'Password change is required. Please contact your administrator or use the password reset flow.';
+					}
+				} catch {
+					// If JSON parsing fails, try text
+					const errorText = await credentialsResponse.text().catch(() => 'Unknown error');
+					errorMessage = errorText || errorMessage;
+				}
+				throw new Error(errorMessage);
 			}
 
 			const credentialsData = (await credentialsResponse.json()) as Record<string, unknown>;
@@ -1613,9 +1733,10 @@ const RedirectlessFlowV7Real: React.FC = () => {
 							<LoginFormInput
 								type="email"
 								value={loginCredentials.username}
-								onChange={(e) =>
-									setLoginCredentials((prev) => ({ ...prev, username: e.target.value }))
-								}
+								onChange={(e) => {
+									setLoginCredentials((prev) => ({ ...prev, username: e.target.value }));
+									_setError(null); // Clear error when user types
+								}}
 								placeholder="Enter your username or email"
 								disabled={isAuthenticating}
 							/>
@@ -1626,13 +1747,34 @@ const RedirectlessFlowV7Real: React.FC = () => {
 							<LoginFormInput
 								type="password"
 								value={loginCredentials.password}
-								onChange={(e) =>
-									setLoginCredentials((prev) => ({ ...prev, password: e.target.value }))
-								}
+								onChange={(e) => {
+									setLoginCredentials((prev) => ({ ...prev, password: e.target.value }));
+									_setError(null); // Clear error when user types
+								}}
 								placeholder="Enter your password"
 								disabled={isAuthenticating}
 							/>
 						</LoginFormField>
+
+						{_error && (
+							<div
+								style={{
+									background: '#fef2f2',
+									border: '1px solid #fecaca',
+									color: '#991b1b',
+									padding: '0.75rem',
+									borderRadius: '0.375rem',
+									marginBottom: '1rem',
+									fontSize: '0.875rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
+								<FiAlertCircle style={{ flexShrink: 0 }} />
+								<span>{_error}</span>
+							</div>
+						)}
 
 						<div
 							style={{
@@ -1680,6 +1822,64 @@ const RedirectlessFlowV7Real: React.FC = () => {
 					</LoginFormModal>
 				</LoginFormOverlay>
 			)}
+
+			{/* Password Change Modal */}
+			<PasswordChangeModal
+				isOpen={passwordChangeRequired.required}
+				onClose={() => setPasswordChangeRequired({ required: false })}
+				onPasswordChange={async (oldPassword, newPassword) => {
+					if (!passwordChangeRequired.userId || !passwordChangeRequired.environmentId) {
+						throw new Error('Missing user ID or environment ID for password change');
+					}
+
+					// Call password change API
+					const response = await fetch('/api/pingone/password/change', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({
+							environmentId: passwordChangeRequired.environmentId,
+							userId: passwordChangeRequired.userId,
+							accessToken: passwordChangeRequired.accessToken || controller.tokens?.accessToken,
+							oldPassword,
+							newPassword,
+						}),
+					});
+
+					if (!response.ok) {
+						const errorData = await response.json().catch(() => ({}));
+						throw new Error(
+							errorData.error_description ||
+								errorData.message ||
+								'Failed to change password'
+						);
+					}
+
+					// Password changed successfully - retry token exchange if we have stored tokens
+					if (passwordChangeRequired.tokens) {
+						// Store tokens and show success
+						_setTokens(passwordChangeRequired.tokens);
+						controller.setTokens({
+							access_token: passwordChangeRequired.tokens.access_token as string,
+							refreshToken: passwordChangeRequired.tokens.refresh_token as string,
+							idToken: passwordChangeRequired.tokens.id_token as string,
+							tokenType: passwordChangeRequired.tokens.token_type as string,
+							expiresIn: passwordChangeRequired.tokens.expires_in as number,
+							scope: passwordChangeRequired.tokens.scope as string,
+						});
+						v4ToastManager.showSuccess('✅ Password changed successfully! Tokens received.');
+					} else {
+						v4ToastManager.showSuccess('✅ Password changed successfully! Please sign in again.');
+					}
+
+					// Close modal
+					setPasswordChangeRequired({ required: false });
+				}}
+				userId={passwordChangeRequired.userId}
+				environmentId={passwordChangeRequired.environmentId}
+				message="Your password must be changed before you can continue. Please enter your current password and choose a new password."
+			/>
 		</Container>
 	);
 };

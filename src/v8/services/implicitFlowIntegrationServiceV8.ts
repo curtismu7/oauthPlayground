@@ -21,8 +21,16 @@ const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 export interface ImplicitFlowCredentials {
 	environmentId: string;
 	clientId: string;
+	clientSecret?: string;
+	privateKey?: string; // For private_key_jwt authentication
 	redirectUri: string;
 	scopes: string;
+	clientAuthMethod?:
+		| 'none'
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt';
 }
 
 export interface ImplicitAuthorizationUrlParams {
@@ -55,11 +63,13 @@ export class ImplicitFlowIntegrationServiceV8 {
 	/**
 	 * Generate authorization URL for implicit flow
 	 * @param credentials - OAuth credentials
+	 * @param appConfig - Optional PingOne application configuration (for JAR detection)
 	 * @returns Authorization URL parameters
 	 */
-	static generateAuthorizationUrl(
-		credentials: ImplicitFlowCredentials
-	): ImplicitAuthorizationUrlParams {
+	static async generateAuthorizationUrl(
+		credentials: ImplicitFlowCredentials,
+		appConfig?: { requireSignedRequestObject?: boolean }
+	): Promise<ImplicitAuthorizationUrlParams> {
 		console.log(`${MODULE_TAG} Generating authorization URL`, {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
@@ -91,6 +101,89 @@ export class ImplicitFlowIntegrationServiceV8 {
 		// Build authorization endpoint URL
 		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
 
+		// Check if JAR (JWT-secured Authorization Request) is required
+		const requiresJAR = appConfig?.requireSignedRequestObject === true;
+
+		if (requiresJAR) {
+			// Generate JAR request object
+			console.log(`${MODULE_TAG} 🔐 JAR required - generating signed request object...`);
+
+			try {
+				const { jarRequestObjectServiceV8 } = await import('./jarRequestObjectServiceV8');
+
+				// Determine signing algorithm (default to HS256, use RS256 if private key is available)
+				const algorithm = credentials.privateKey ? 'RS256' : 'HS256';
+
+				if (algorithm === 'HS256' && !credentials.clientSecret) {
+					throw new Error(
+						'JAR requires client secret for HS256 signing, but client secret is not provided'
+					);
+				}
+
+				if (algorithm === 'RS256' && !credentials.privateKey) {
+					throw new Error(
+						'JAR requires private key for RS256 signing, but private key is not provided'
+					);
+				}
+
+				// Generate signed request object
+				const jarResult = await jarRequestObjectServiceV8.generateRequestObjectJWT(
+					{
+						clientId: credentials.clientId,
+						responseType: 'token id_token',
+						redirectUri: credentials.redirectUri,
+						scope: finalScopes,
+						state: state,
+						nonce: nonce,
+					},
+					{
+						algorithm,
+						clientSecret: credentials.clientSecret,
+						privateKey: credentials.privateKey,
+						audience: authorizationEndpoint,
+					}
+				);
+
+				if (!jarResult.success || !jarResult.requestObject) {
+					throw new Error(
+						`Failed to generate JAR request object: ${jarResult.error || 'Unknown error'}`
+					);
+				}
+
+				console.log(`${MODULE_TAG} ✅ JAR request object generated successfully`, {
+					algorithm,
+					jti: jarResult.payload?.jti,
+				});
+
+				// Build JAR authorization URL (RFC 9101: client_id must remain in query, request parameter contains JWT)
+				const params = new URLSearchParams({
+					client_id: credentials.clientId, // Required by RFC 9101
+					request: jarResult.requestObject, // Signed JWT request object
+				});
+
+				const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+
+				console.log(`${MODULE_TAG} ✅ Authorization URL generated for IMPLICIT FLOW (JAR)`, {
+					url: `${authorizationUrl.substring(0, 150)}...`,
+					response_type: 'token id_token',
+					response_mode: 'fragment',
+					redirect_uri: credentials.redirectUri,
+				});
+
+				return {
+					authorizationUrl,
+					state,
+					nonce,
+				};
+			} catch (error) {
+				const errorMessage =
+					error instanceof Error ? error.message : 'Unknown error during JAR generation';
+				console.error(`${MODULE_TAG} ❌ JAR generation failed:`, errorMessage);
+				throw new Error(`Failed to generate JAR authorization URL: ${errorMessage}`);
+			}
+		}
+
+		// Standard authorization URL (without JAR)
 		// Build query parameters
 		const params = new URLSearchParams({
 			client_id: credentials.clientId,

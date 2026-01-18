@@ -38,10 +38,10 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 				if (!trimmed) return null;
 
 				// Check if this is a heading (starts with emoji and bold text)
-				const isHeading = /^[📋💡⚠️🔧📝📚🔍]/.test(trimmed);
+				const isHeading = /^[📋💡⚠️🔧📝📚🔍]/u.test(trimmed);
 				
 				// Check if this is a bullet list item
-				const isBulletItem = /^[•\-\*]\s/.test(trimmed);
+				const isBulletItem = /^[•\-*]\s/.test(trimmed);
 				
 				// Check if this is a numbered list item
 				const isNumberedItem = /^\d+\.\s/.test(trimmed);
@@ -58,7 +58,7 @@ const FormattedErrorMessage: React.FC<{ error: string }> = ({ error }) => {
 						displayText = numberMatch[2];
 					}
 				} else if (isBulletItem) {
-					const bulletMatch = trimmed.match(/^([•\-\*]\s)(.+)$/);
+					const bulletMatch = trimmed.match(/^([•\-*]\s)(.+)$/);
 					if (bulletMatch) {
 						bulletPrefix = bulletMatch[1];
 						displayText = bulletMatch[2];
@@ -348,60 +348,7 @@ export const ErrorDisplayWithRetry: React.FC<ErrorDisplayWithRetryProps> = ({
 				</div>
 			)}
 
-			{/* Retry Button */}
-			{onRetry && (
-				<div
-					style={{
-						marginTop: '12px',
-						display: 'flex',
-						gap: '8px',
-						alignItems: 'center',
-					}}
-				>
-					<button
-						type="button"
-						onClick={onRetry}
-						disabled={isLoading}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '6px',
-							padding: '8px 16px',
-							background: isLoading ? '#9ca3af' : '#dc2626',
-							color: 'white',
-							border: 'none',
-							borderRadius: '6px',
-							fontSize: '13px',
-							fontWeight: '500',
-							cursor: isLoading ? 'not-allowed' : 'pointer',
-							transition: 'background 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							if (!isLoading) {
-								e.currentTarget.style.background = '#b91c1c';
-							}
-						}}
-						onMouseLeave={(e) => {
-							if (!isLoading) {
-								e.currentTarget.style.background = '#dc2626';
-							}
-						}}
-					>
-						<FiRefreshCw
-							size={14}
-							style={{
-								animation: isLoading ? 'spin 1s linear infinite' : 'none',
-							}}
-						/>
-						{isLoading ? 'Retrying...' : isRetryable ? 'Retry' : 'Try Again'}
-					</button>
-					{isRetryable && (
-						<span style={{ fontSize: '12px', color: '#7f1d1d' }}>
-							This error may be temporary. Retrying is recommended.
-						</span>
-					)}
-				</div>
-			)}
+			{/* Retry Button - REMOVED: User requested removal as it does nothing */}
 
 			<style>{`
 				@keyframes spin {
