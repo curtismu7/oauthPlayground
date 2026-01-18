@@ -228,23 +228,25 @@ You can still proceed, but the authorization request may fail if there's a misma
 		passed: boolean;
 		errors: string[];
 		warnings: string[];
+		fixableErrors?: FixableError[];
 	}> {
 		const { specVersion, flowType, credentials, workerToken } = options;
 		const errors: string[] = [];
 		const warnings: string[] = [];
+		const fixableErrors: FixableError[] = [];
 
 		if (!credentials.environmentId || !credentials.clientId) {
 			warnings.push(
 				`⚠️ Cannot Validate OAuth Configuration: Environment ID or Client ID is missing. Some validations were skipped.`
 			);
-			return { passed: true, errors, warnings };
+			return { passed: true, errors, warnings, fixableErrors };
 		}
 
 		if (!workerToken) {
 			warnings.push(
 				`⚠️ Cannot Validate OAuth Configuration: Worker token is not available. Some validations were skipped. Add a Worker Token in Step 0 (Configuration) to enable full validation.`
 			);
-			return { passed: true, errors, warnings };
+			return { passed: true, errors, warnings, fixableErrors };
 		}
 
 		try {
@@ -558,6 +560,7 @@ JAR (JWT-secured Authorization Request) is an OAuth 2.0 extension (RFC 9101) tha
 			passed: errors.length === 0,
 			errors,
 			warnings,
+			fixableErrors: fixableErrors.length > 0 ? fixableErrors : undefined,
 		};
 	}
 
