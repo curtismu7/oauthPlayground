@@ -675,3 +675,36 @@ The generated Postman collection includes:
 
 **Note:** This documentation is for the Unified Flow implementation of Device Authorization Flow. For other implementations, refer to their specific documentation.
 
+
+---
+
+## API Calls Documentation
+
+All API calls made during this flow are automatically tracked and documented. You can view complete request/response details on the **API Documentation** page.
+
+### API Call Categories
+
+**🔐 Management API** (if Worker Token is configured)
+- **Worker Token Retrieval**: Obtain access token for PingOne Management API
+- **Application Discovery**: List applications in environment  
+- **Application Details**: Fetch app configuration and credentials
+
+**📋 OIDC Metadata** (if OIDC Discovery is used)
+- **OIDC Discovery**: Fetch `/.well-known/openid-configuration`
+- **JWKS Fetching**: Retrieve signing keys for ID token validation
+
+**✅ Pre-flight Validation** (if enabled)
+- **Configuration Checks**: Validate redirect URI, auth method, PKCE settings
+
+**🔄 OAuth Flow** (always tracked)
+- **Device Authorization Request**: Request device code and user code (RFC 8628)
+- **Token Polling**: Poll token endpoint for authorization status
+- **Token Introspection**: Validate token status
+- **UserInfo**: Retrieve user profile (OIDC only)
+
+### How to Access
+
+1. Complete any step in the flow
+2. Click **"View API Documentation"** button at the bottom
+3. View detailed request/response for each call
+4. Download as Postman collection for testing
