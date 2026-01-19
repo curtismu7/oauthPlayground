@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiBook, FiCheckCircle, FiInfo, FiShield, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
+import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 
 const MODULE_TAG = '[📚 UNIFIED-FLOW-HELPER-V8U]';
 
@@ -25,29 +26,6 @@ const PageContainer = styled.div`
 	padding: 2rem;
 	background: #f8fafc;
 	min-height: 100vh;
-`;
-
-const Header = styled.div`
-	margin-bottom: 32px;
-	padding: 24px;
-	background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-	border-radius: 12px;
-	color: #0c4a6e;
-`;
-
-const HeaderTitle = styled.h1`
-	font-size: 32px;
-	font-weight: 700;
-	margin: 0 0 8px 0;
-	display: flex;
-	align-items: center;
-	gap: 12px;
-`;
-
-const HeaderDescription = styled.p`
-	font-size: 16px;
-	margin: 0;
-	opacity: 0.9;
 `;
 
 const BackButton = styled.button`
@@ -192,16 +170,13 @@ export const UnifiedFlowHelperPageV8U: React.FC = () => {
 				Back to Unified Start
 			</BackButton>
 
-			<Header>
-				<HeaderTitle>
-					<FiBook size={32} />
-					OAuth/OIDC Flow & Specification Comparison Guide
-				</HeaderTitle>
-				<HeaderDescription>
-					Comprehensive reference comparing specification versions and flow types, including PingOne-specific
-					requirements and implementations.
-				</HeaderDescription>
-			</Header>
+			<PageHeaderV8
+				title="OAuth/OIDC Flow & Specification Comparison Guide"
+				subtitle="Comprehensive reference comparing specification versions and flow types, including PingOne-specific requirements and implementations."
+				gradient={PageHeaderGradients.unifiedOAuth}
+				textColor={PageHeaderTextColors.darkBlue}
+				icon={<FiBook size={32} />}
+			/>
 
 			{/* Specification Versions Comparison */}
 			<Section>

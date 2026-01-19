@@ -4,6 +4,7 @@ import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
 import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
+import { FlowStateProvider } from './v8/contexts/FlowStateContext';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
@@ -1235,14 +1236,16 @@ function AppContent() {
 					<AuthErrorBoundary>
 						<NotificationProvider>
 							<AuthProvider>
-								<StartupWrapper>
-									<PageStyleProvider>
-										<GlobalStyle />
-										<NotificationContainer />
-										<ApiRequestModalProvider />
-										<AppRoutes />
-									</PageStyleProvider>
-								</StartupWrapper>
+								<FlowStateProvider>
+									<StartupWrapper>
+										<PageStyleProvider>
+											<GlobalStyle />
+											<NotificationContainer />
+											<ApiRequestModalProvider />
+											<AppRoutes />
+										</PageStyleProvider>
+									</StartupWrapper>
+								</FlowStateProvider>
 							</AuthProvider>
 						</NotificationProvider>
 					</AuthErrorBoundary>
