@@ -7,7 +7,16 @@
 
 import React, { type CSSProperties } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'info' | 'purple' | 'orange' | 'teal';
+export type ButtonVariant =
+	| 'primary'
+	| 'secondary'
+	| 'success'
+	| 'warning'
+	| 'danger'
+	| 'info'
+	| 'purple'
+	| 'orange'
+	| 'teal';
 export type ButtonSize = 'small' | 'medium' | 'large';
 
 export interface ActionButtonProps {
@@ -113,7 +122,7 @@ const sizes: Record<ButtonSize, { padding: string; fontSize: string; iconSize: s
 
 /**
  * Shared action button component with consistent styling
- * 
+ *
  * @example
  * // Primary button with icon
  * <ActionButtonV8
@@ -123,7 +132,7 @@ const sizes: Record<ButtonSize, { padding: string; fontSize: string; iconSize: s
  * >
  *   Submit
  * </ActionButtonV8>
- * 
+ *
  * @example
  * // Button with loading state
  * <ActionButtonV8
@@ -133,7 +142,7 @@ const sizes: Record<ButtonSize, { padding: string; fontSize: string; iconSize: s
  * >
  *   Get Token
  * </ActionButtonV8>
- * 
+ *
  * @example
  * // Success button, full width
  * <ActionButtonV8
@@ -160,20 +169,20 @@ export const ActionButtonV8: React.FC<ActionButtonProps> = ({
 	type = 'button',
 }) => {
 	const [isHovered, setIsHovered] = React.useState(false);
-	
+
 	const variantStyle = variants[variant];
 	const sizeStyle = sizes[size];
-	
+
 	// Button is effectively disabled if disabled prop or loading
 	const isDisabled = disabled || isLoading;
-	
+
 	const buttonStyle: CSSProperties = {
 		display: 'inline-flex',
 		alignItems: 'center',
 		justifyContent: 'center',
 		gap: '6px',
 		padding: sizeStyle.padding,
-		background: isDisabled ? '#d1d5db' : (isHovered ? variantStyle.hover : variantStyle.bg),
+		background: isDisabled ? '#d1d5db' : isHovered ? variantStyle.hover : variantStyle.bg,
 		color: isDisabled ? '#9ca3af' : variantStyle.color,
 		border: 'none',
 		borderRadius: '8px',
@@ -181,8 +190,12 @@ export const ActionButtonV8: React.FC<ActionButtonProps> = ({
 		fontWeight: '600',
 		cursor: isDisabled ? 'not-allowed' : 'pointer',
 		transition: 'all 0.2s ease',
-		boxShadow: isDisabled ? 'none' : (isHovered ? `0 4px 8px rgba(0, 0, 0, 0.15)` : `0 2px 4px rgba(0, 0, 0, 0.1)`),
-		transform: isDisabled ? 'none' : (isHovered ? 'translateY(-1px)' : 'none'),
+		boxShadow: isDisabled
+			? 'none'
+			: isHovered
+				? `0 4px 8px rgba(0, 0, 0, 0.15)`
+				: `0 2px 4px rgba(0, 0, 0, 0.1)`,
+		transform: isDisabled ? 'none' : isHovered ? 'translateY(-1px)' : 'none',
 		width: fullWidth ? '100%' : 'auto',
 		opacity: isDisabled ? 0.6 : 1,
 		position: 'relative',
@@ -208,7 +221,7 @@ export const ActionButtonV8: React.FC<ActionButtonProps> = ({
 					to { transform: rotate(360deg); }
 				}
 			`}</style>
-			
+
 			<button
 				type={type}
 				onClick={isDisabled ? undefined : onClick}
@@ -225,7 +238,9 @@ export const ActionButtonV8: React.FC<ActionButtonProps> = ({
 						<span style={{ visibility: 'hidden', position: 'absolute' }}>
 							{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
 							{children}
-							{iconAfter && <span style={{ display: 'flex', alignItems: 'center' }}>{iconAfter}</span>}
+							{iconAfter && (
+								<span style={{ display: 'flex', alignItems: 'center' }}>{iconAfter}</span>
+							)}
 						</span>
 						Loading...
 					</>
@@ -233,7 +248,9 @@ export const ActionButtonV8: React.FC<ActionButtonProps> = ({
 					<>
 						{icon && <span style={{ display: 'flex', alignItems: 'center' }}>{icon}</span>}
 						{children}
-						{iconAfter && <span style={{ display: 'flex', alignItems: 'center' }}>{iconAfter}</span>}
+						{iconAfter && (
+							<span style={{ display: 'flex', alignItems: 'center' }}>{iconAfter}</span>
+						)}
 					</>
 				)}
 			</button>
