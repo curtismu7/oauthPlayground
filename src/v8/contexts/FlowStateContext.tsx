@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import React, { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import React, { createContext, type ReactNode, useCallback, useContext, useState } from 'react';
 
 export interface FlowStateContextType {
 	isActionInProgress: boolean;
@@ -33,7 +33,9 @@ export const FlowStateProvider: React.FC<{ children: ReactNode }> = ({ children 
 	}, [currentAction]);
 
 	return (
-		<FlowStateContext.Provider value={{ isActionInProgress, currentAction, startAction, endAction }}>
+		<FlowStateContext.Provider
+			value={{ isActionInProgress, currentAction, startAction, endAction }}
+		>
 			{children}
 		</FlowStateContext.Provider>
 	);
