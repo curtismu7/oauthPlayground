@@ -27,6 +27,7 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/WhatsAppFlowController';
@@ -211,10 +212,19 @@ const WhatsAppDeviceSelectionStep: React.FC<
 					}
 			}
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-			toastV8.error(`Authentication failed: ${message}`);
+			UnifiedFlowErrorHandler.handleError(
+				error,
+				{
+					flowType: 'mfa' as any,
+					deviceType: 'WHATSAPP',
+					operation: 'authenticateExistingDevice',
+				},
+				{
+					showToast: true,
+					setValidationErrors: (errors) => nav.setValidationErrors(errors),
+					logError: true,
+				}
+			);
 			updateOtpState({ otpSent: false });
 		} finally {
 			setIsLoading(false);
