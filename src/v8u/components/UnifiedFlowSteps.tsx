@@ -2175,9 +2175,11 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasState: !!restoredState,
 				});
 
-			try {
-				const callbackStartTime = Date.now();
-				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			// Use async IIFE to handle await inside useEffect
+			(async () => {
+				try {
+					const callbackStartTime = Date.now();
+					const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
 				// Auto-parse the fragment immediately using restored state from sessionStorage
 				// This avoids timing issues with React state updates
@@ -2278,14 +2280,15 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						console.error(`${MODULE_TAG} Failed to save tokens to sessionStorage`, err);
 					}
 
-					nav.markStepComplete();
-					toastV8.success('Tokens extracted automatically from URL fragment');
-				} catch (err) {
-					console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
-					// Fall back to manual parsing via handleParseFragment
-					handleParseFragment();
-				}
-			} else {
+				nav.markStepComplete();
+				toastV8.success('Tokens extracted automatically from URL fragment');
+			} catch (err) {
+				console.error(`${MODULE_TAG} ❌ Failed to auto-parse fragment`, err);
+				// Fall back to manual parsing via handleParseFragment
+				handleParseFragment();
+			}
+			})(); // End async IIFE
+		} else {
 				// Check sessionStorage for previously extracted tokens
 				const storedTokens = sessionStorage.getItem('v8u_implicit_tokens');
 				if (storedTokens) {
