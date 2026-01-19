@@ -172,7 +172,7 @@ export function getMostRecentFlow(): FlowType | null {
 	let mostRecent: { flowType: FlowType; timestamp: number } | null = null;
 
 	for (const [flowType, settings] of Object.entries(allSettings)) {
-		if (settings && settings.lastUsed) {
+		if (settings?.lastUsed) {
 			if (!mostRecent || settings.lastUsed > mostRecent.timestamp) {
 				mostRecent = {
 					flowType: flowType as FlowType,

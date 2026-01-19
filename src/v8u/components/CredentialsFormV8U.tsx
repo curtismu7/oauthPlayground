@@ -577,7 +577,8 @@ export const CredentialsFormV8U: React.FC<CredentialsFormV8UProps> = ({
 			}
 			// Remove PKCE fields from credentials if they exist (implicit, client-credentials, device-code don't use PKCE)
 			if (credentials.pkceEnforcement !== undefined || credentials.usePKCE !== undefined) {
-				const { pkceEnforcement: _, usePKCE: __, ...cleanedCredentials } = credentials;
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const { pkceEnforcement: _, usePKCE: __, ...cleanedCredentials } = credentials;
 				onChange({ ...cleanedCredentials });
 			}
 		}
@@ -3297,10 +3298,10 @@ Why it matters: Backend services communicate server-to-server without user conte
 												// Update scopes immediately - allows any custom scope to be entered
 												handleChange('scopes', newValue);
 											}}
-											onBlur={(e) => {
-												// Optional: Only filter invalid scopes on blur (when user finishes typing)
-												// Allow all scopes to be typed freely
-											}}
+										onBlur={() => {
+											// Optional: Only filter invalid scopes on blur (when user finishes typing)
+											// Allow all scopes to be typed freely
+										}}
 											aria-label="Scopes"
 										/>
 										<small>
@@ -4368,16 +4369,16 @@ Why it matters: Backend services communicate server-to-server without user conte
 									{/* Response Mode - Only for flows that support it */}
 									{flowOptions.requiresRedirectUri && (
 										<div className="form-group" style={{ marginBottom: '16px' }}>
-											<ResponseModeDropdownV8
-												value={responseMode}
-												onChange={(mode) => {
-													console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
-													setResponseMode(mode);
-													handleChange('responseMode', mode);
-												}}
-												flowType={effectiveFlowType as 'oauth-authz' | 'implicit' | 'hybrid'}
-												responseType={credentials.responseType}
-											/>
+										<ResponseModeDropdownV8
+											value={responseMode}
+											onChange={(mode) => {
+												console.log(`${MODULE_TAG} Response mode changed to ${mode}`);
+												setResponseMode(mode);
+												handleChange('responseMode', mode);
+											}}
+											flowType={effectiveFlowType as 'oauth-authz' | 'implicit' | 'hybrid'}
+											responseType={credentials.responseType || 'code'}
+										/>
 											{/* Default indicator */}
 											{(() => {
 												const defaultResponseMode: ResponseMode =
