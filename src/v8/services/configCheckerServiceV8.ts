@@ -129,27 +129,56 @@ export class ConfigCheckerServiceV8 {
 				workerToken: workerToken,
 			});
 
-			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
+		const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
+		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
 
-			console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
+		console.log(`${MODULE_TAG} Fetching app config via backend proxy`, { proxyUrl });
 
-			// Fetch from backend proxy
-			const response = await fetch(proxyUrl, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
+		// Track API call for documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const callId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: proxyUrl,
+			actualPingOneUrl: actualPingOneUrl,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'Bearer [WORKER_TOKEN]',
+			},
+			step: 'preflight-validation-fetch-config',
+			flowType: 'preflight-validation',
+			isProxy: true,
+		});
+
+		// Fetch from backend proxy
+		const response = await fetch(proxyUrl, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			console.error(`${MODULE_TAG} Failed to fetch app config`, {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData,
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				console.error(`${MODULE_TAG} Failed to fetch app config`, {
+			// Update API call tracking with error
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
 					status: response.status,
 					statusText: response.statusText,
-					error: errorData,
-				});
-				return null;
-			}
+					data: errorData,
+				},
+				Date.now() - startTime
+			);
+
+			return null;
+		}
 
 			const data = await response.json();
 
@@ -200,15 +229,37 @@ export class ConfigCheckerServiceV8 {
 				updatedAt: rawApp.updatedAt || rawApp.updated_at || new Date().toISOString(),
 			};
 
-			console.log(`${MODULE_TAG} App config fetched successfully`, {
-				appId: app.id,
-				appName: app.name,
-				grantTypes: app.grantTypes,
-				responseTypes: app.responseTypes,
-				tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
-			});
+		console.log(`${MODULE_TAG} App config fetched successfully`, {
+			appId: app.id,
+			appName: app.name,
+			grantTypes: app.grantTypes,
+			responseTypes: app.responseTypes,
+			tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+		});
 
-			return app;
+		// Update API call tracking with success
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				data: {
+					note: 'Application configuration fetched successfully for pre-flight validation',
+					appId: app.id,
+					appName: app.name,
+					grantTypes: app.grantTypes,
+					responseTypes: app.responseTypes,
+					tokenEndpointAuthMethod: app.tokenEndpointAuthMethod,
+					redirectUris: app.redirectUris,
+					pkceEnforced: app.pkceEnforced,
+					pkceRequired: app.pkceRequired,
+					requireSignedRequestObject: app.requireSignedRequestObject,
+				},
+			},
+			Date.now() - startTime
+		);
+
+		return app;
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error fetching app config`, {
 				error: error instanceof Error ? error.message : String(error),
