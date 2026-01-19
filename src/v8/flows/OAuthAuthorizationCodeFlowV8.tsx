@@ -10,7 +10,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
+import { useActionButton } from '@/v8/hooks/useActionButton';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
@@ -116,6 +118,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	// Also restore from bulletproof storage on mount
 	const storedPKCEInitial = PKCEStorageServiceV8U.loadPKCECodes(FLOW_KEY);
 	const codeVerifierRef = useRef<string>(storedPKCEInitial?.codeVerifier || '');
+
+	// Button state management with global flow state
+	const step1Action = useActionButton();
+	const step2Action = useActionButton();
+	const step3Action = useActionButton();
 
 	// Persist PKCE codes to bulletproof storage whenever they change
 	useEffect(() => {
@@ -227,10 +234,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					: 'Generate the authorization URL to redirect the user to the authorization server.'}
 			</p>
 
-			<button
-				type="button"
-				className="btn btn-next"
+			<PrimaryButton
 				onClick={async () => {
+					setIsActionInProgress(true);
 					console.log(
 						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
 					);
@@ -334,34 +340,36 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						nav.setValidationErrors([
 							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
+					} finally {
+						setIsActionInProgress(false);
 					}
 				}}
+				isLoading={isActionInProgress}
+				disabled={isActionInProgress}
 			>
 				{useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
-			</button>
+			</PrimaryButton>
 
 			{!useRedirectless && authState.authorizationUrl && (
 				<div className="code-block">
 					<pre>{authState.authorizationUrl}</pre>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					<SecondaryButton
 						onClick={() => {
 							navigator.clipboard.writeText(authState.authorizationUrl);
 							alert('URL copied to clipboard!');
 						}}
+						disabled={isActionInProgress}
 					>
 						Copy URL
-					</button>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					</SecondaryButton>
+					<SecondaryButton
 						onClick={() => {
 							window.open(authState.authorizationUrl, '_blank');
 						}}
+						disabled={isActionInProgress}
 					>
 						Open in Browser
-					</button>
+					</SecondaryButton>
 				</div>
 			)}
 
@@ -392,11 +400,10 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 				<small>Paste the full callback URL here</small>
 			</div>
 
-			<button
-				type="button"
-				className="btn btn-primary"
+			<PrimaryButton
 				onClick={() => {
 					console.log(`${MODULE_TAG} Parsing callback URL`);
+					setIsActionInProgress(true);
 					try {
 						const parsed = OAuthIntegrationServiceV8.parseCallbackUrl(
 							authState.authorizationCode,
@@ -412,11 +419,15 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						nav.setValidationErrors([
 							`Failed to parse callback URL: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
+					} finally {
+						setIsActionInProgress(false);
 					}
 				}}
+				isLoading={isActionInProgress}
+				disabled={isActionInProgress}
 			>
 				Parse Callback URL
-			</button>
+			</PrimaryButton>
 		</div>
 	);
 
@@ -431,12 +442,28 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						<h3>🎫 Access Token</h3>
 						<div className="code-block">
 							<pre>{authState.tokens.accessToken}</pre>
-							<button type="button" className="btn btn-secondary">
+							<SecondaryButton
+								onClick={() => {
+									navigator.clipboard.writeText(authState.tokens.accessToken);
+									alert('Token copied to clipboard!');
+								}}
+								disabled={isActionInProgress}
+							>
 								Copy
-							</button>
-							<button type="button" className="btn btn-secondary">
+							</SecondaryButton>
+							<SecondaryButton
+								onClick={() => {
+									try {
+										const decoded = OAuthIntegrationServiceV8.decodeToken(authState.tokens.accessToken);
+										alert(JSON.stringify(decoded.payload, null, 2));
+									} catch (error) {
+										alert(`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+									}
+								}}
+								disabled={isActionInProgress}
+							>
 								Decode
-							</button>
+							</SecondaryButton>
 						</div>
 					</div>
 
@@ -445,12 +472,28 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<h3>🆔 ID Token</h3>
 							<div className="code-block">
 								<pre>{authState.tokens.idToken}</pre>
-								<button type="button" className="btn btn-secondary">
+								<SecondaryButton
+									onClick={() => {
+										navigator.clipboard.writeText(authState.tokens.idToken || '');
+										alert('Token copied to clipboard!');
+									}}
+									disabled={isActionInProgress}
+								>
 									Copy
-								</button>
-								<button type="button" className="btn btn-secondary">
+								</SecondaryButton>
+								<SecondaryButton
+									onClick={() => {
+										try {
+											const decoded = OAuthIntegrationServiceV8.decodeToken(authState.tokens.idToken || '');
+											alert(JSON.stringify(decoded.payload, null, 2));
+										} catch (error) {
+											alert(`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+										}
+									}}
+									disabled={isActionInProgress}
+								>
 									Decode
-								</button>
+								</SecondaryButton>
 							</div>
 						</div>
 					)}
@@ -460,9 +503,15 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<h3>🔄 Refresh Token</h3>
 							<div className="code-block">
 								<pre>{authState.tokens.refreshToken}</pre>
-								<button type="button" className="btn btn-secondary">
+								<SecondaryButton
+									onClick={() => {
+										navigator.clipboard.writeText(authState.tokens.refreshToken || '');
+										alert('Token copied to clipboard!');
+									}}
+									disabled={isActionInProgress}
+								>
 									Copy
-								</button>
+								</SecondaryButton>
 							</div>
 						</div>
 					)}
@@ -568,9 +617,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					}}
 				/>
 
-				<button
-					type="button"
-					className="btn btn-reset"
+				<DangerButton
 					onClick={() => {
 						console.log(`${MODULE_TAG} Resetting flow`);
 						FlowResetServiceV8.resetFlow('oauth-authz-v8');
@@ -593,10 +640,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						setCredentials(reloaded);
 						nav.reset();
 					}}
-					title="Reset flow and clear all data"
+					disabled={isActionInProgress}
+				title="Reset flow and clear all data"
 				>
 					Reset Flow
-				</button>
+				</DangerButton>
 			</div>
 
 			<style>{`

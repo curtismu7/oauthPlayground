@@ -291,12 +291,12 @@ export const ImplicitFlowV8: React.FC = () => {
 						nav.setValidationErrors([
 							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
-			} finally {
-				setIsActionInProgress(false);
-			}
-		}}
-		isLoading={isActionInProgress}
-		disabled={isActionInProgress}
+					}
+				}}
+			>
+				{useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
+			</PrimaryButton>
+
 			{!useRedirectless && flowState.authorizationUrl && (
 				<div className="code-block">
 					<pre>{flowState.authorizationUrl}</pre>
@@ -305,7 +305,6 @@ export const ImplicitFlowV8: React.FC = () => {
 							navigator.clipboard.writeText(flowState.authorizationUrl);
 							alert('URL copied to clipboard!');
 						}}
-						disabled={isActionInProgress}
 					>
 						Copy URL
 					</SecondaryButton>
@@ -313,7 +312,6 @@ export const ImplicitFlowV8: React.FC = () => {
 						onClick={() => {
 							window.open(flowState.authorizationUrl, '_blank');
 						}}
-						disabled={isActionInProgress}
 					>
 						Open in Browser
 					</SecondaryButton>
@@ -349,7 +347,6 @@ export const ImplicitFlowV8: React.FC = () => {
 
 		<PrimaryButton
 				onClick={() => {
-					setIsActionInProgress(true);
 					console.log(`${MODULE_TAG} Parsing callback URL`);
 					try {
 						const fragment = flowState.authorizationUrl.split('#')[1];

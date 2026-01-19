@@ -53,6 +53,7 @@ import {
 	downloadPostmanCollectionWithEnvironment,
 } from '@/services/postmanCollectionGeneratorV8';
 import { FiBook, FiPackage } from 'react-icons/fi';
+import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 
 const MODULE_TAG = '[🎯 UNIFIED-OAUTH-FLOW-V8U]';
 
@@ -1413,66 +1414,21 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 			<UnifiedNavigationV8U currentFlowType={effectiveFlowType} showBackToMain={true} />
 
 			{/* Header with Flow Step Breadcrumbs at Top */}
-			<div
-				style={{
-					marginBottom: '32px',
-					padding: '24px',
-					background: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
-					borderRadius: '12px',
-					color: '#0c4a6e',
-					position: 'relative',
-					overflow: 'hidden',
-				}}
+			<PageHeaderV8
+				title="🎯 Unified OAuth/OIDC Flow"
+				subtitle="Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs"
+				gradient={PageHeaderGradients.unifiedOAuth}
+				textColor={PageHeaderTextColors.darkBlue}
 			>
-				{/* Decorative background pattern */}
-				<div
-					style={{
-						position: 'absolute',
-						top: 0,
-						right: 0,
-						width: '300px',
-						height: '100%',
-						background:
-							'radial-gradient(circle at top right, rgba(255,255,255,0.3) 0%, transparent 70%)',
-						pointerEvents: 'none',
-					}}
-				/>
-
-				{/* Flow Step Breadcrumbs - Rendered here by UnifiedFlowSteps */}
+				{/* Flow Step Breadcrumbs */}
 				<div
 					id="v8u-flow-breadcrumbs"
 					style={{
-						marginBottom: '16px',
-						position: 'relative',
-						zIndex: 1,
 						minHeight: '40px',
 					}}
 				>
 					{/* Breadcrumbs will be injected here */}
 				</div>
-
-				<h1
-					style={{
-						fontSize: '32px',
-						fontWeight: '700',
-						margin: '0 0 8px 0',
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					🎯 Unified OAuth/OIDC Flow
-				</h1>
-				<p
-					style={{
-						fontSize: '16px',
-						margin: '0 0 16px 0',
-						opacity: 0.9,
-						position: 'relative',
-						zIndex: 1,
-					}}
-				>
-					Single UI for all OAuth 2.0, OAuth 2.1 / OIDC 2.1, and OIDC Core 1.0 flows using real PingOne APIs
-				</p>
 
 				{/* Helper Page Button */}
 				<div
@@ -1480,9 +1436,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						display: 'flex',
 						gap: '12px',
 						flexWrap: 'wrap',
-						position: 'relative',
-						zIndex: 1,
-						marginBottom: '16px',
+						marginTop: '16px',
 					}}
 				>
 					<button
@@ -1622,7 +1576,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						Postman Complete (Unified + MFA)
 					</button>
 				</div>
-			</div>
+			</PageHeaderV8>
 
 			{/* Compact Selectors Row with API Docs Link */}
 			<div
