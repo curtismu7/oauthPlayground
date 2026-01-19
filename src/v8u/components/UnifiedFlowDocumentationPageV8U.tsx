@@ -530,7 +530,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 	return (
 		<div
 			style={{
-				maxWidth: '1000px',
+				maxWidth: '1400px',
 				margin: '0 auto',
 				padding: '32px',
 				background: 'white',
