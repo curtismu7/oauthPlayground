@@ -16,6 +16,8 @@ import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { ImplicitFlowIntegrationServiceV8 } from '@/v8/services/implicitFlowIntegrationServiceV8';
 import { RedirectlessServiceV8 } from '@/v8/services/redirectlessServiceV8';
 import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
+import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+import { useActionButton } from '@/v8/hooks/useActionButton';
 
 const MODULE_TAG = '[🔓 IMPLICIT-FLOW-V8]';
 const FLOW_KEY = 'implicit-flow-v8';
@@ -88,6 +90,11 @@ export const ImplicitFlowV8: React.FC = () => {
 		username: '',
 		password: '',
 	});
+
+	// Action button hooks for button state management
+	const generateUrlAction = useActionButton();
+	const handleCallbackAction = useActionButton();
+	const resetFlowAction = useActionButton();
 
 	useEffect(() => {
 		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
@@ -282,9 +289,7 @@ export const ImplicitFlowV8: React.FC = () => {
 								nonce: result.nonce,
 							});
 							nav.markStepComplete();
-						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} Error in step 1`, error);
+						} Error in step 1`, error);
 						nav.setValidationErrors([
 							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
