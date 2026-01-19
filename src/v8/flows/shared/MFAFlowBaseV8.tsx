@@ -25,6 +25,7 @@ import { MFAServiceV8 } from '@/v8/services/mfaServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import type { DeviceAuthenticationPolicy, DeviceType, MFACredentials, MFAState } from './MFATypes';
 
 const MODULE_TAG = '[📱 MFA-FLOW-BASE-V8]';
@@ -249,10 +250,15 @@ export const MFAFlowBaseV8: React.FC<MFAFlowBaseProps> = ({
 				});
 			}
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			setPoliciesError(message);
-			console.error(`${MODULE_TAG} Failed to load device authentication policies`, error);
-			toastV8.error(`Failed to load device authentication policies: ${message}`);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				deviceType: 'GENERIC',
+				operation: 'loadDeviceAuthenticationPolicies',
+			}, {
+				showToast: true,
+				logError: true,
+			});
+			setPoliciesError(parsed.userFriendlyMessage);
 		} finally {
 			// eslint-disable-next-line require-atomic-updates
 			isFetchingPoliciesRef.current = false;
