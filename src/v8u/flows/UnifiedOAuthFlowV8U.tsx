@@ -1141,13 +1141,13 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 				// Update last saved reference to prevent duplicate saves
 				lastSavedCredsRef.current = JSON.stringify(credentials);
 
-				toastV8.success('Credentials saved successfully');
+				toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth configuration stored successfully');
 			} else {
 				toastV8.warning('No credentials to save');
 			}
 		} catch (error) {
 			console.error(`${MODULE_TAG} Error manually saving credentials:`, error);
-			toastV8.error('Failed to save credentials');
+			toastV8.unifiedFlowError('Credentials save', 'Failed to store OAuth configuration');
 		}
 	}, [credentials, flowKey]);
 

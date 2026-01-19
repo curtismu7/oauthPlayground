@@ -22,6 +22,18 @@ import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServi
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
 import { isValidPhoneFormat, validateAndNormalizePhone } from '@/v8/utils/phoneValidationV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import { 
+	MessageBoxV8, 
+	SuccessMessage, 
+	ErrorMessage, 
+	WarningMessage,
+	InfoMessage 
+} from '@/v8/components/shared/MessageBoxV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 import { type Device, MFADeviceSelector } from '../components/MFADeviceSelector';
 import { MFAOTPInput } from '../components/MFAOTPInput';
 import { getFullPhoneNumber } from '../controllers/SMSFlowController';
@@ -79,6 +91,7 @@ const MobileDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigu
 	isConfigured = false,
 }) => {
 	const lastLookupRef = React.useRef<{ environmentId: string; username: string } | null>(null);
+	const loadingManager = useMFALoadingStateManager();
 
 	const environmentId = credentials.environmentId?.trim();
 	const username = credentials.username?.trim();
@@ -163,57 +176,56 @@ const MobileDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigu
 	]);
 
 	const authenticateExistingDevice = async (deviceId: string) => {
-		setIsLoading(true);
-		try {
-			const authResult = await controller.initializeDeviceAuthentication(credentials, deviceId);
-			const nextStep = authResult.nextStep ?? authResult.status;
+		await loadingManager.withLoading(async () => {
+			try {
+				const authResult = await controller.initializeDeviceAuthentication(credentials, deviceId);
+				const nextStep = authResult.nextStep ?? authResult.status;
 
-			setMfaState((prev) => ({
-				...prev,
-				deviceId,
-				authenticationId: authResult.authenticationId,
-				deviceAuthId: authResult.authenticationId,
-				environmentId: credentials.environmentId,
-				...(nextStep ? { nextStep } : {}),
-			}));
+				setMfaState((prev) => ({
+					...prev,
+					deviceId,
+					authenticationId: authResult.authenticationId,
+					deviceAuthId: authResult.authenticationId,
+					environmentId: credentials.environmentId,
+					...(nextStep ? { nextStep } : {}),
+				}));
 
-			switch (nextStep) {
-				case 'COMPLETED':
-					nav.markStepComplete();
-					nav.goToStep(4);
-					toastV8.success('Authentication successful!');
-					break;
-				case 'OTP_REQUIRED':
-					updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
-					nav.markStepComplete();
-					nav.goToStep(3);
-					toastV8.success('OTP sent to your device. Proceed to validate the code.');
-					break;
-				case 'SELECTION_REQUIRED':
-					nav.setValidationErrors([
-						'Multiple devices require selection. Please choose the specific device to authenticate.',
-					]);
-					toastV8.warning('Please select a specific device');
-					break;
-				default:
-					updateOtpState({
-						otpSent: nextStep === 'OTP_REQUIRED',
-						sendRetryCount: 0,
-						sendError: null,
-					});
-					nav.markStepComplete();
-					nav.goToStep(3);
-					toastV8.success('Device selected for authentication. Follow the next step to continue.');
+				switch (nextStep) {
+					case 'COMPLETED':
+						nav.markStepComplete();
+						nav.goToStep(4);
+						toastV8.success('Authentication successful!');
+						break;
+					case 'OTP_REQUIRED':
+						updateOtpState({ otpSent: true, sendRetryCount: 0, sendError: null });
+						nav.markStepComplete();
+						nav.goToStep(3);
+						toastV8.success('OTP sent to your device. Proceed to validate the code.');
+						break;
+					case 'SELECTION_REQUIRED':
+						nav.setValidationErrors([
+							'Multiple devices require selection. Please choose the specific device to authenticate.',
+						]);
+						toastV8.warning('Please select a specific device');
+						break;
+					default:
+						updateOtpState({
+							otpSent: nextStep === 'OTP_REQUIRED',
+							sendRetryCount: 0,
+							sendError: null,
+						});
+						nav.markStepComplete();
+						nav.goToStep(3);
+						toastV8.success('Device selected for authentication. Follow the next step to continue.');
+				}
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Unknown error';
+				console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
+				nav.setValidationErrors([`Failed to authenticate: ${message}`]);
+				toastV8.error(`Authentication failed: ${message}`);
+				updateOtpState({ otpSent: false });
 			}
-		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-			toastV8.error(`Authentication failed: ${message}`);
-			updateOtpState({ otpSent: false });
-		} finally {
-			setIsLoading(false);
-		}
+		});
 	};
 
 	const handleSelectExistingDevice = (deviceId: string) => {
@@ -294,15 +306,14 @@ const MobileDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigu
 			/>
 
 			{mfaState.deviceId && (
-				<div className="success-box" style={{ marginTop: '10px' }}>
-					<h3>✅ Device Ready</h3>
+				<SuccessMessage title="Device Ready">
 					<p>
 						<strong>Device ID:</strong> {mfaState.deviceId}
 					</p>
 					<p>
 						<strong>Status:</strong> {mfaState.deviceStatus}
 					</p>
-				</div>
+				</SuccessMessage>
 			)}
 		</div>
 	);
@@ -684,6 +695,9 @@ const MobileFlowV8WithDeviceSelection: React.FC = () => {
 		deviceType: 'MOBILE',
 		configPageRoute: '/v8/mfa/register/mobile',
 	});
+
+	// Initialize loading state manager
+	const loadingManager = useMFALoadingStateManager();
 
 	// Destructure from shared hook
 	const {

@@ -46,6 +46,7 @@ import { MFANavigationV8 } from '@/v8/components/MFANavigationV8';
 import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8';
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
+import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
 import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
@@ -67,6 +68,13 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
+import {
+	MFAPolicyInfoModal,
+	MFADeviceSelectionInfoModal,
+	MFAOTPInputModal,
+	MFAPushConfirmationModal,
+	MFAFIDO2ChallengeModal,
+} from './components/modals';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -1411,23 +1419,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Page Header */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-					borderRadius: '12px',
-					padding: '32px',
-					marginBottom: '32px',
-					color: 'white',
-					boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-				}}
-			>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '700', color: 'white' }}>
-					🔐 MFA Authentication
-				</h1>
-				<p style={{ margin: 0, fontSize: '16px', color: 'white', opacity: 0.9 }}>
-					Unified authentication flow for all MFA device types
-				</p>
-			</div>
+			<PageHeaderV8
+				title="🔐 MFA Authentication"
+				subtitle="Unified authentication flow for all MFA device types"
+				gradient={PageHeaderGradients.mfaAuth}
+				textColor={PageHeaderTextColors.white}
+			/>
 
 			{/* Postman Collection Download Buttons */}
 			<div
@@ -4619,546 +4616,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* OTP Modal */}
-			{showFIDO2Modal && (
-				<div
-					style={{
-						position: 'fixed',
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
-						background: 'rgba(0, 0, 0, 0.5)',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						zIndex: 1000,
-					}}
-					onClick={() => setShowFIDO2Modal(false)}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '16px',
-							padding: '0',
-							maxWidth: '500px',
-							width: '90%',
-							boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
-							overflow: 'hidden',
-						}}
-						onClick={(e) => e.stopPropagation()}
-					>
-						{/* Header with Logo */}
-						<div
-							style={{
-								background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-								padding: '32px 32px 24px 32px',
-								textAlign: 'center',
-								position: 'relative',
-							}}
-						>
-							<button
-								type="button"
-								onClick={() => {
-									setShowFIDO2Modal(false);
-									setFido2Error(null);
-								}}
-								style={{
-									position: 'absolute',
-									top: '16px',
-									right: '16px',
-									background: 'rgba(255, 255, 255, 0.2)',
-									border: 'none',
-									borderRadius: '50%',
-									width: '32px',
-									height: '32px',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									color: 'white',
-								}}
-							>
-								<FiX size={18} />
-							</button>
-							<PingIdentityLogo size={48} />
-							<h3
-								style={{
-									margin: '0',
-									fontSize: '22px',
-									fontWeight: '600',
-									color: 'white',
-									textAlign: 'center',
-								}}
-							>
-								{typeof navigator !== 'undefined' &&
-								navigator.platform.toLowerCase().includes('mac')
-									? 'Use your Passkey'
-									: 'Use your security key'}
-							</h3>
-						</div>
-						<div style={{ padding: '32px' }}>
-							<p
-								style={{
-									margin: '0 0 24px 0',
-									color: '#6b7280',
-									fontSize: '15px',
-									lineHeight: '1.5',
-									textAlign: 'center',
-								}}
-							>
-								{typeof navigator !== 'undefined' &&
-								navigator.platform.toLowerCase().includes('mac')
-									? 'Please use your Passkey (Touch ID or Face ID) to complete authentication.'
-									: 'Please use your security key, Touch ID, Face ID, or Windows Hello to complete authentication.'}
-							</p>
-
-							{fido2Error && (
-								<div
-									style={{
-										padding: '12px',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
-										borderRadius: '6px',
-										color: '#991b1b',
-										fontSize: '14px',
-										marginBottom: '16px',
-									}}
-								>
-									{fido2Error}
-								</div>
-							)}
-
-							{!WebAuthnAuthenticationServiceV8.isWebAuthnSupported() && (
-								<div
-									style={{
-										padding: '12px',
-										background: '#fef2f2',
-										border: '1px solid #fecaca',
-										borderRadius: '6px',
-										color: '#991b1b',
-										fontSize: '14px',
-										marginBottom: '16px',
-									}}
-								>
-									WebAuthn is not supported in this browser. Please use a modern browser.
-								</div>
-							)}
-
-							<div style={{ display: 'flex', gap: '12px' }}>
-								<button
-									type="button"
-									onClick={async () => {
-										// This modal is for username-based FIDO2 authentication
-										// It requires either challengeId OR publicKeyCredentialRequestOptions
-										if (!authState.authenticationId) {
-											console.error(`${MODULE_TAG} ❌ Missing authenticationId`);
-											setFido2Error(
-												'Authentication session not found. Please try selecting the device again.'
-											);
-											return;
-										}
-
-										// Check if we have either challengeId or publicKeyCredentialRequestOptions
-										const hasChallengeId = !!authState.challengeId;
-										const hasPublicKeyOptions = !!authState.publicKeyCredentialRequestOptions;
-
-										if (!hasChallengeId && !hasPublicKeyOptions) {
-											console.error(
-												`${MODULE_TAG} ❌ Missing both challengeId and publicKeyCredentialRequestOptions`
-											);
-											setFido2Error(
-												'WebAuthn challenge not found. Please try selecting the device again.'
-											);
-											return;
-										}
-
-										if (!WebAuthnAuthenticationServiceV8.isWebAuthnSupported()) {
-											console.error(`${MODULE_TAG} ❌ WebAuthn not supported`);
-											setFido2Error('WebAuthn is not supported in this browser');
-											return;
-										}
-
-										setIsAuthenticatingFIDO2(true);
-										setFido2Error(null);
-
-										try {
-											// Check for session cookies and native app context to prefer FIDO2 platform devices
-											// Per PingOne MFA API:
-											// 1. If session cookie exists, use FIDO2 platform device even if not default
-											// 2. If native app with device authorization, use native device
-											const {
-												shouldPreferFIDO2PlatformDevice,
-												getAuthenticatorSelectionPreferences,
-											} = await import('@/v8/services/fido2SessionCookieServiceV8');
-											const platformPreference = shouldPreferFIDO2PlatformDevice();
-											const authenticatorPrefs = getAuthenticatorSelectionPreferences();
-
-											// Detect if we're on macOS to prefer Passkeys (platform authenticators)
-											const isMac =
-												typeof navigator !== 'undefined' &&
-												navigator.platform.toLowerCase().includes('mac');
-
-											// Perform WebAuthn authentication
-											// If publicKeyCredentialRequestOptions is available, use it directly (preferred)
-											// Otherwise, fall back to challengeId
-											const webAuthnParams: Parameters<
-												typeof WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn
-											>[0] = {
-												rpId: window.location.hostname,
-												userName: usernameInput.trim(),
-												userVerification: 'preferred',
-											};
-
-											// Use publicKeyCredentialRequestOptions if available (from PingOne response)
-											if (hasPublicKeyOptions) {
-												// Parse if it's a string, otherwise use as-is
-												let publicKeyOptions: PublicKeyCredentialRequestOptions;
-												if (typeof authState.publicKeyCredentialRequestOptions === 'string') {
-													try {
-														publicKeyOptions = JSON.parse(
-															authState.publicKeyCredentialRequestOptions
-														) as PublicKeyCredentialRequestOptions;
-													} catch (parseError) {
-														console.error(
-															`${MODULE_TAG} Failed to parse publicKeyCredentialRequestOptions:`,
-															parseError
-														);
-														throw new Error('Invalid publicKeyCredentialRequestOptions format');
-													}
-												} else {
-													publicKeyOptions =
-														authState.publicKeyCredentialRequestOptions as PublicKeyCredentialRequestOptions;
-												}
-
-												webAuthnParams.publicKeyOptions = publicKeyOptions;
-											} else if (hasChallengeId) {
-												// Fallback to challengeId
-												webAuthnParams.challengeId = authState.challengeId!;
-											}
-
-											// Prefer platform authenticators if:
-											// 1. Session cookie exists (FIDO2 platform device should be used even if not default)
-											// 2. Native app with device authorization enabled
-											// 3. macOS (Passkeys)
-											if (platformPreference.prefer || isMac) {
-												webAuthnParams.authenticatorSelection = {
-													authenticatorAttachment: 'platform',
-													userVerification: 'preferred',
-												};
-											}
-
-											const webAuthnResult =
-												await WebAuthnAuthenticationServiceV8.authenticateWithWebAuthn(
-													webAuthnParams
-												);
-
-											if (!webAuthnResult.success) {
-												throw new Error(webAuthnResult.error || 'WebAuthn authentication failed');
-											}
-
-											// Send assertion result to PingOne using check-assertion endpoint
-											// Build assertion object according to PingOne API spec
-											if (!authState.authenticationId) {
-												throw new Error('Missing authentication ID for assertion check');
-											}
-
-											const assertion = {
-												id: webAuthnResult.credentialId || '',
-												rawId: webAuthnResult.rawId || webAuthnResult.credentialId || '',
-												type: 'public-key',
-												response: {
-													clientDataJSON: webAuthnResult.clientDataJSON || '',
-													authenticatorData: webAuthnResult.authenticatorData || '',
-													signature: webAuthnResult.signature || '',
-													...(webAuthnResult.userHandle && {
-														userHandle: webAuthnResult.userHandle,
-													}),
-												},
-											};
-
-											// Call check-assertion endpoint
-											// Pass environmentId from credentials to avoid loading from storage
-											const assertionResult = await MfaAuthenticationServiceV8.checkFIDO2Assertion(
-												authState.authenticationId,
-												assertion,
-												credentials.environmentId,
-												credentials.region, // Pass region from credentials
-												credentials.customDomain, // Pass custom domain from credentials
-												window.location.origin // Pass origin for PingOne API
-											);
-
-											// Check if PingOne returned new publicKeyCredentialRequestOptions in the assertion check response
-											// This can happen if the assertion needs to be retried with different options
-											const newPublicKeyOptions = (
-												assertionResult as { publicKeyCredentialRequestOptions?: unknown }
-											).publicKeyCredentialRequestOptions;
-											if (newPublicKeyOptions) {
-												console.log(
-													`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
-												);
-												// Update auth state with new options for potential retry
-												setAuthState((prev) => ({
-													...prev,
-													publicKeyCredentialRequestOptions: newPublicKeyOptions,
-												}));
-											}
-
-											// After sending assertion, check status and complete authentication
-											// The assertion result may have a poll link or complete link
-											const assertionLinks =
-												(assertionResult._links as Record<string, { href: string }>) || {};
-
-											// Try to complete authentication if complete link is available
-											let completionResult = null;
-											if (
-												assertionLinks['complete']?.href ||
-												authState._links?.['complete']?.href
-											) {
-												try {
-													completionResult =
-														await MfaAuthenticationServiceV8.completeAuthentication(
-															assertionLinks['complete']?.href ||
-																authState._links!['complete']!.href
-														);
-												} catch (completeError) {
-													console.warn(
-														`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
-														completeError
-													);
-													// Continue even if completion fails - authentication was successful
-												}
-											}
-
-											// If status is COMPLETED or we have a completion result, navigate to success
-											if (assertionResult.status === 'COMPLETED' || completionResult) {
-												setShowFIDO2Modal(false);
-												setFido2Error(null);
-
-												// Get selected device details
-												const selectedDevice = authState.devices.find(
-													(d) => d.id === authState.selectedDeviceId
-												);
-												const selectedPolicy = deviceAuthPolicies.find(
-													(p) => p.id === credentials.deviceAuthenticationPolicyId
-												);
-												const policyName = selectedPolicy?.name;
-												const deviceSelectionBehavior = selectedPolicy?.authentication
-													?.deviceSelection as string | undefined;
-
-												// Navigate to success page with completion result
-												navigate('/v8/mfa/authentication/success', {
-													state: {
-														completionResult: completionResult
-															? {
-																	...completionResult, // Include all fields from completion result
-																}
-															: null,
-														username: usernameInput.trim(),
-														userId: authState.userId,
-														environmentId: credentials.environmentId,
-														deviceType: selectedDevice?.type || 'FIDO2',
-														deviceId: authState.selectedDeviceId,
-														deviceDetails: selectedDevice
-															? {
-																	id: selectedDevice.id,
-																	type: selectedDevice.type,
-																	nickname: selectedDevice.nickname,
-																	name: selectedDevice.name,
-																	phone: selectedDevice.phone,
-																	email: selectedDevice.email,
-																	status: selectedDevice.status,
-																}
-															: null,
-														policyId: credentials.deviceAuthenticationPolicyId,
-														policyName: policyName,
-														authenticationId: authState.authenticationId,
-														challengeId: authState.challengeId,
-														timestamp: new Date().toISOString(),
-														deviceSelectionBehavior: deviceSelectionBehavior,
-													},
-												});
-											} else {
-												// If assertion check didn't complete, try polling if poll link is available
-												if (
-													assertionLinks['challenge.poll']?.href ||
-													authState._links?.['challenge.poll']?.href
-												) {
-													const pollResult =
-														await MfaAuthenticationServiceV8.pollAuthenticationStatus(
-															assertionLinks['challenge.poll']?.href ||
-																authState._links!['challenge.poll']!.href
-														);
-
-													if (pollResult.status === 'COMPLETED') {
-														// Complete authentication to get access token if complete link is available
-														let pollCompletionResult = null;
-														const pollLinks =
-															(pollResult._links as Record<string, { href: string }>) || {};
-														if (
-															pollLinks['complete']?.href ||
-															authState._links?.['complete']?.href
-														) {
-															try {
-																pollCompletionResult =
-																	await MfaAuthenticationServiceV8.completeAuthentication(
-																		pollLinks['complete']?.href ||
-																			authState._links!['complete']!.href
-																	);
-															} catch (completeError) {
-																console.warn(
-																	`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
-																	completeError
-																);
-															}
-														}
-
-														setShowFIDO2Modal(false);
-														setFido2Error(null);
-
-														// Get selected device details
-														const selectedDevice = authState.devices.find(
-															(d) => d.id === authState.selectedDeviceId
-														);
-														const selectedPolicy = deviceAuthPolicies.find(
-															(p) => p.id === credentials.deviceAuthenticationPolicyId
-														);
-														const policyName = selectedPolicy?.name;
-														const deviceSelectionBehavior = selectedPolicy?.authentication
-															?.deviceSelection as string | undefined;
-
-														// Navigate to success page
-														navigate('/v8/mfa/authentication/success', {
-															state: {
-																completionResult: pollCompletionResult
-																	? {
-																			...pollCompletionResult,
-																		}
-																	: null,
-																username: usernameInput.trim(),
-																userId: authState.userId,
-																environmentId: credentials.environmentId,
-																deviceType: selectedDevice?.type || 'FIDO2',
-																deviceId: authState.selectedDeviceId,
-																deviceDetails: selectedDevice
-																	? {
-																			id: selectedDevice.id,
-																			type: selectedDevice.type,
-																			nickname: selectedDevice.nickname,
-																			name: selectedDevice.name,
-																			phone: selectedDevice.phone,
-																			email: selectedDevice.email,
-																			status: selectedDevice.status,
-																		}
-																	: null,
-																policyId: credentials.deviceAuthenticationPolicyId,
-																policyName: policyName,
-																authenticationId: authState.authenticationId,
-																challengeId: authState.challengeId,
-																timestamp: new Date().toISOString(),
-																deviceSelectionBehavior: deviceSelectionBehavior,
-															},
-														});
-													} else {
-														setFido2Error('Authentication is still pending. Please try again.');
-													}
-												} else {
-													// If no poll URL and assertion didn't complete, show error
-													setFido2Error(
-														'Authentication completed but status is unclear. Please try again.'
-													);
-												}
-											}
-										} catch (error) {
-											console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
-											setFido2Error(
-												error instanceof Error
-													? error.message
-													: 'Failed to complete WebAuthn authentication'
-											);
-										} finally {
-											setIsAuthenticatingFIDO2(false);
-										}
-									}}
-									disabled={
-										isAuthenticatingFIDO2 ||
-										!WebAuthnAuthenticationServiceV8.isWebAuthnSupported() ||
-										(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-									}
-									title={
-										!authState.challengeId && !authState.publicKeyCredentialRequestOptions
-											? 'WebAuthn challenge not found. Please try selecting the device again.'
-											: !WebAuthnAuthenticationServiceV8.isWebAuthnSupported()
-												? 'WebAuthn is not supported in this browser'
-												: isAuthenticatingFIDO2
-													? 'Authenticating...'
-													: 'Click to authenticate with your Passkey or security key'
-									}
-									style={{
-										flex: 1,
-										padding: '10px 24px',
-										border: 'none',
-										borderRadius: '6px',
-										background:
-											isAuthenticatingFIDO2 ||
-											(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-												? '#9ca3af'
-												: '#3b82f6',
-										color: 'white',
-										fontSize: '16px',
-										fontWeight: '600',
-										cursor:
-											isAuthenticatingFIDO2 ||
-											(!authState.challengeId && !authState.publicKeyCredentialRequestOptions)
-												? 'not-allowed'
-												: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: '8px',
-										transition: 'background 0.2s ease',
-									}}
-								>
-									{isAuthenticatingFIDO2 ? (
-										<>
-											<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-											Authenticating...
-										</>
-									) : (
-										<>
-											<FiKey />
-											{typeof navigator !== 'undefined' &&
-											navigator.platform.toLowerCase().includes('mac')
-												? 'Authenticate with Passkey'
-												: 'Authenticate with Security Key'}
-										</>
-									)}
-								</button>
-								<button
-									type="button"
-									onClick={() => {
-										setShowFIDO2Modal(false);
-										setFido2Error(null);
-									}}
-									style={{
-										padding: '10px 24px',
-										border: '1px solid #d1d5db',
-										borderRadius: '6px',
-										background: 'white',
-										color: '#6b7280',
-										fontSize: '16px',
-										fontWeight: '500',
-										cursor: 'pointer',
-									}}
-								>
-									Cancel
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			)}
-
 			{/* Device Registration Modal */}
 			{showRegistrationModal && (
 				<div
@@ -5695,6 +5152,219 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			<MFAPushConfirmationModal
 				show={showPushModal}
 				onClose={() => setShowPushModal(false)}
+			/>
+
+			{/* FIDO2/Passkey Authentication Modal */}
+			<MFAFIDO2ChallengeModal
+				show={showFIDO2Modal}
+				onClose={() => {
+					setShowFIDO2Modal(false);
+					setFido2Error(null);
+				}}
+				onAuthenticate={async () => {
+					if (!authState.challengeId && !authState.publicKeyCredentialRequestOptions) {
+						setFido2Error('WebAuthn challenge not found. Please try selecting the device again.');
+						return;
+					}
+
+					setIsAuthenticatingFIDO2(true);
+					setFido2Error(null);
+
+					try {
+						console.log(`${MODULE_TAG} Starting FIDO2 authentication...`);
+
+						// Get the WebAuthn credential
+						const assertion = await WebAuthnAuthenticationServiceV8.getWebAuthnAssertion(
+							authState.publicKeyCredentialRequestOptions
+						);
+
+						// Check assertion with PingOne
+						const assertionResult = await MfaAuthenticationServiceV8.checkAssertion(
+							authState.challengeId!,
+							assertion
+						);
+
+						// Handle new publicKeyCredentialRequestOptions if returned
+						const newPublicKeyOptions = (
+							assertionResult as { publicKeyCredentialRequestOptions?: unknown }
+						).publicKeyCredentialRequestOptions;
+						if (newPublicKeyOptions) {
+							console.log(
+								`${MODULE_TAG} PingOne returned new publicKeyCredentialRequestOptions from assertion check response`
+							);
+							setAuthState((prev) => ({
+								...prev,
+								publicKeyCredentialRequestOptions: newPublicKeyOptions,
+							}));
+						}
+
+						// After sending assertion, check status and complete authentication
+						const assertionLinks =
+							(assertionResult._links as Record<string, { href: string }>) || {};
+
+						// Try to complete authentication if complete link is available
+						let completionResult = null;
+						if (assertionLinks['complete']?.href || authState._links?.['complete']?.href) {
+							try {
+								completionResult = await MfaAuthenticationServiceV8.completeAuthentication(
+									assertionLinks['complete']?.href || authState._links!['complete']!.href
+								);
+							} catch (completeError) {
+								console.warn(
+									`${MODULE_TAG} Failed to complete FIDO2 authentication:`,
+									completeError
+								);
+							}
+						}
+
+						// If status is COMPLETED or we have a completion result, navigate to success
+						if (assertionResult.status === 'COMPLETED' || completionResult) {
+							setShowFIDO2Modal(false);
+							setFido2Error(null);
+
+							// Get selected device details
+							const selectedDevice = authState.devices.find(
+								(d) => d.id === authState.selectedDeviceId
+							);
+							const selectedPolicy = deviceAuthPolicies.find(
+								(p) => p.id === credentials.deviceAuthenticationPolicyId
+							);
+							const policyName = selectedPolicy?.name;
+							const deviceSelectionBehavior = selectedPolicy?.authentication
+								?.deviceSelection as string | undefined;
+
+							// Navigate to success page with completion result
+							navigate('/v8/mfa/authentication/success', {
+								state: {
+									completionResult: completionResult
+										? { ...completionResult }
+										: null,
+									username: usernameInput.trim(),
+									userId: authState.userId,
+									environmentId: credentials.environmentId,
+									deviceType: selectedDevice?.type || 'FIDO2',
+									deviceId: authState.selectedDeviceId,
+									deviceDetails: selectedDevice
+										? {
+												id: selectedDevice.id,
+												type: selectedDevice.type,
+												nickname: selectedDevice.nickname,
+												name: selectedDevice.name,
+												phone: selectedDevice.phone,
+												email: selectedDevice.email,
+												status: selectedDevice.status,
+											}
+										: null,
+									policyId: credentials.deviceAuthenticationPolicyId,
+									policyName: policyName,
+									authenticationId: authState.authenticationId,
+									challengeId: authState.challengeId,
+									timestamp: new Date().toISOString(),
+									deviceSelectionBehavior: deviceSelectionBehavior,
+								},
+							});
+						} else {
+							// If assertion check didn't complete, try polling if poll link is available
+							if (
+								assertionLinks['challenge.poll']?.href ||
+								authState._links?.['challenge.poll']?.href
+							) {
+								const pollResult = await MfaAuthenticationServiceV8.pollAuthenticationStatus(
+									assertionLinks['challenge.poll']?.href ||
+										authState._links!['challenge.poll']!.href
+								);
+
+								if (pollResult.status === 'COMPLETED') {
+									// Complete authentication to get access token if complete link is available
+									let pollCompletionResult = null;
+									const pollLinks =
+										(pollResult._links as Record<string, { href: string }>) || {};
+									if (
+										pollLinks['complete']?.href ||
+										authState._links?.['complete']?.href
+									) {
+										try {
+											pollCompletionResult =
+												await MfaAuthenticationServiceV8.completeAuthentication(
+													pollLinks['complete']?.href ||
+														authState._links!['complete']!.href
+												);
+										} catch (completeError) {
+											console.warn(
+												`${MODULE_TAG} Failed to complete FIDO2 authentication (via poll):`,
+												completeError
+											);
+										}
+									}
+
+									setShowFIDO2Modal(false);
+									setFido2Error(null);
+
+									// Get selected device details
+									const selectedDevice = authState.devices.find(
+										(d) => d.id === authState.selectedDeviceId
+									);
+									const selectedPolicy = deviceAuthPolicies.find(
+										(p) => p.id === credentials.deviceAuthenticationPolicyId
+									);
+									const policyName = selectedPolicy?.name;
+									const deviceSelectionBehavior = selectedPolicy?.authentication
+										?.deviceSelection as string | undefined;
+
+									// Navigate to success page
+									navigate('/v8/mfa/authentication/success', {
+										state: {
+											completionResult: pollCompletionResult
+												? { ...pollCompletionResult }
+												: null,
+											username: usernameInput.trim(),
+											userId: authState.userId,
+											environmentId: credentials.environmentId,
+											deviceType: selectedDevice?.type || 'FIDO2',
+											deviceId: authState.selectedDeviceId,
+											deviceDetails: selectedDevice
+												? {
+														id: selectedDevice.id,
+														type: selectedDevice.type,
+														nickname: selectedDevice.nickname,
+														name: selectedDevice.name,
+														phone: selectedDevice.phone,
+														email: selectedDevice.email,
+														status: selectedDevice.status,
+													}
+												: null,
+											policyId: credentials.deviceAuthenticationPolicyId,
+											policyName: policyName,
+											authenticationId: authState.authenticationId,
+											challengeId: authState.challengeId,
+											timestamp: new Date().toISOString(),
+											deviceSelectionBehavior: deviceSelectionBehavior,
+										},
+									});
+								} else {
+									setFido2Error('Authentication is still pending. Please try again.');
+								}
+							} else {
+								setFido2Error(
+									'Authentication completed but status is unclear. Please try again.'
+								);
+							}
+						}
+					} catch (error) {
+						console.error(`${MODULE_TAG} FIDO2 authentication failed:`, error);
+						setFido2Error(
+							error instanceof Error
+								? error.message
+								: 'Failed to complete WebAuthn authentication'
+						);
+					} finally {
+						setIsAuthenticatingFIDO2(false);
+					}
+				}}
+				fido2Error={fido2Error}
+				isAuthenticating={isAuthenticatingFIDO2}
+				isWebAuthnSupported={WebAuthnAuthenticationServiceV8.isWebAuthnSupported()}
+				hasChallengeData={!!authState.challengeId || !!authState.publicKeyCredentialRequestOptions}
 			/>
 		</div>
 	);

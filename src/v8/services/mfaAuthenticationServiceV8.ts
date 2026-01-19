@@ -22,6 +22,7 @@
  */
 
 import { pingOneFetch } from '@/utils/pingOneFetch';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 
 const MODULE_TAG = '[🔐 MFA-AUTHENTICATION-SERVICE-V8]';
@@ -433,7 +434,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -565,7 +573,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error initializing one-time device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'initializeOneTimeDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error initializing one-time device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
@@ -689,7 +704,14 @@ export class MfaAuthenticationServiceV8 {
 
 			return data;
 		} catch (error) {
-			console.error(`${MODULE_TAG} Error reading device authentication`, error);
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'readDeviceAuthentication',
+			}, {
+				logError: true,
+				showToast: false,
+			});
+			console.error(`${MODULE_TAG} Error reading device authentication:`, parsed.userFriendlyMessage);
 			throw error;
 		}
 	}
