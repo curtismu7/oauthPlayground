@@ -66,6 +66,9 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
+import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
+import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -173,9 +176,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						console.error(
-							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
-						);
+						UnifiedFlowLoggerService.error('Invalid return path detected', {
+							operation: 'initializeFromUrl',
+							flowType: 'mfa-authentication',
+							mfaPath
+						});
 						throw new Error(`Invalid return path: ${mfaPath}`);
 					}
 
@@ -193,15 +198,19 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					window.location.replace(redirectUrl);
 					return;
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
+					UnifiedFlowLoggerService.error('Failed to parse return path', {
+						operation: 'initializeFromUrl',
+						flowType: 'mfa-authentication'
+					}, error as Error);
 				}
 			}
 
 			// If no return path, stay on the MFA hub page
 			// Don't redirect based on stored.deviceType as it might be from a different flow
-			console.warn(
-				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`
-			);
+			UnifiedFlowLoggerService.warn('OAuth callback detected but no return path found', {
+				operation: 'initializeFromUrl',
+				flowType: 'mfa-authentication'
+			});
 		}
 	}, [searchParams]);
 
@@ -223,7 +232,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				const workerCreds = workerTokenServiceV8.loadCredentialsSync();
 				if (workerCreds?.environmentId) {
 					environmentId = workerCreds.environmentId;
-					console.log(`[MFA-AUTH-MAIN-V8] Auto-populated environment ID from worker token: ${environmentId}`);
+					UnifiedFlowLoggerService.info('Auto-populated environment ID from worker token', {
+						operation: 'loadMFACredentials',
+						flowType: 'mfa-authentication',
+						environmentId
+					});
 				}
 			} catch (error) {
 				// Silently continue if worker token not available
@@ -363,9 +376,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					return; // Token still has enough time
 				}
 
-				console.log(
-					`${MODULE_TAG} Worker token expires in ${timeRemainingSeconds}s (threshold: ${renewalThreshold}s), attempting auto-refresh...`
-				);
+UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refresh', {
+				operation: 'autoRefreshWorkerToken',
+				flowType: 'mfa-authentication',
+				timeRemainingSeconds,
+				renewGWThreshold: renewalThreshold
+			});
 
 				// Attempt to refresh token with retries
 				let lastError: Error | null = null;
@@ -374,10 +390,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						// Load stored credentials for token refresh
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (!credentials) {
-							console.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
-							return;
-						}
-
+						UnifiedFlowLoggerService.warn('No stored credentials for auto-refresh', {
+							operation: 'autoRefreshWorkerToken',
+							flowType: 'mfa-authentication'
+						});
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
 						const apiBase =
@@ -440,9 +456,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 								await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
-								console.log(`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`);
-								window.dispatchEvent(new Event('workerTokenUpdated'));
-								
+					UnifiedFlowLoggerService.success('Worker token auto-refreshed successfully', {
+						operation: 'autoRefreshWorkerToken',
+						flowType: 'mfa-authentication',
+						attempt,
+						expiresIn
+					});
 								// Update token status
 								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 								setTokenStatus(newStatus);
@@ -456,11 +475,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 						throw new Error(`Token refresh failed with status ${response.status}`);
 					} catch (error) {
 						lastError = error instanceof Error ? error : new Error(String(error));
-						console.warn(
-							`${MODULE_TAG} ⚠️ Auto-refresh attempt ${attempt}/${retryAttempts} failed:`,
-							lastError.message
-						);
-
+				UnifiedFlowLoggerService.warn('Auto-refresh attempt failed', {
+					operation: 'autoRefreshWorkerToken',
+					flowType: 'mfa-authentication',
+					attempt,
+					retryAttempts
+				}, lastError);
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
 							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
@@ -471,9 +491,14 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				// All retries failed
 				if (lastError) {
-					console.error(
-						`${MODULE_TAG} ❌ Worker token auto-refresh failed after ${retryAttempts} attempts:`,
-						lastError.message
+					UnifiedFlowLoggerService.error(
+						`Worker token auto-refresh failed after ${retryAttempts} attempts`,
+						{
+							operation: 'autoRefreshWorkerToken',
+							flowType: 'mfa-authentication',
+							retryAttempts
+						},
+						lastError
 					);
 					toastV8.warning(
 						`Worker token auto-refresh failed. Token expires in ${timeRemainingSeconds} seconds.`
@@ -552,7 +577,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		if (!credentials.environmentId?.trim() && tokenStatus.isValid) {
 			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
 			if (workerCreds?.environmentId) {
-				console.log(`[MFA-AUTH-MAIN-V8] Auto-populating environment ID from worker token: ${workerCreds.environmentId}`);
+				UnifiedFlowLoggerService.info('Auto-populating environment ID from worker token', {
+					operation: 'autoPopulateEnvironmentId',
+					flowType: 'mfa-authentication',
+					environmentId: workerCreds.environmentId
+				});
 				setCredentials((prev) => {
 					if (prev.environmentId?.trim()) {
 						return prev; // Don't overwrite if already set
@@ -715,10 +744,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					});
 				}
 			} catch (error) {
-				console.error(`${MODULE_TAG} Push polling error:`, error);
-				// Continue polling on error
-			}
-		}, 2000); // Poll every 2 seconds
+			UnifiedFlowLoggerService.error('Push polling error', {
+				operation: 'pollPushAuthentication',
+				flowType: 'mfa-authentication'
+			}, error instanceof Error ? error : new Error(String(error)));
 
 		return () => clearInterval(pollInterval);
 	}, [showPushModal, authState._links]);
@@ -875,7 +904,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				const defaultPolicy = policies.find((p) => p.default) || policies[0];
 				const policyId = defaultPolicy.id;
 				
-				console.log(`[MFA-AUTH-MAIN-V8] Auto-selecting device authentication policy: ${defaultPolicy.name} (${policyId})`);
+				UnifiedFlowLoggerService.info('Auto-selecting device authentication policy', {
+					operation: 'loadPolicies',
+					flowType: 'mfa-authentication',
+					policyName: defaultPolicy.name,
+					policyId
+				});
 				
 				const updatedCredentials = {
 					...credentials,
@@ -1094,7 +1128,10 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			// Other error - show error message
 			toastV8.error(authResult.error || 'Authentication failed');
 		} catch (error) {
-			console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
+			UnifiedFlowLoggerService.error('Usernameless FIDO2 authentication failed', {
+				operation: 'handleUsernamelessFIDO2',
+				flowType: 'mfa-authentication'
+			}, error as Error);
 
 			// Check for NO_USABLE_DEVICES error
 			if (handleDeviceFailureError(error)) {
@@ -1253,7 +1290,11 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 			// Validate that we got an authenticationId from the response
 			if (!response.id) {
-				console.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
+				UnifiedFlowLoggerService.error('Authentication initialized but no ID in response', {
+					operation: 'handleStartMFA',
+					flowType: 'mfa-authentication',
+					response
+				});
 				toastV8.error(
 					'Failed to initialize authentication: No authentication ID received from PingOne'
 				);
@@ -1454,26 +1495,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Page Header */}
-			<div
-				style={{
-					background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-					borderRadius: '12px',
-					padding: '32px',
-					marginBottom: '32px',
-					color: 'white',
-					boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-				}}
-			>
-				<h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '700', color: 'white' }}>
-					🔐 MFA Authentication
-				</h1>
-				<p style={{ margin: 0, fontSize: '16px', color: 'white', opacity: 0.9 }}>
-					Unified authentication flow for all MFA device types
-				</p>
-			</div>
-
-			{/* Postman Collection Download Buttons */}
-			<div
+		<PageHeaderV8
+			title="🔐 MFA Authentication"
+			subtitle="Unified authentication flow for all MFA device types"
+			gradient={PageHeaderGradients.mfaAuth}
+			textColor={PageHeaderTextColors.white}
+		/>
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -1617,148 +1644,45 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
 					{/* Primary Button: Start MFA */}
-					<button
-						type="button"
-						onClick={handleStartMFA}
-						disabled={
-							authState.isLoading ||
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#3b82f6'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						{authState.isLoading ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Starting...
-							</>
-						) : (
-							<>
-								<FiShield />
-								Start Authentication
-							</>
-						)}
-					</button>
-
-					{/* Registration Button */}
-					<button
-						type="button"
-						onClick={() => setShowRegistrationModal(true)}
-						disabled={
-							!tokenStatus.isValid ||
-							!credentials.environmentId ||
-							!credentials.deviceAuthenticationPolicyId
-						}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? '#10b981'
-									: '#9ca3af',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor:
-								tokenStatus.isValid &&
-								credentials.environmentId &&
-								credentials.deviceAuthenticationPolicyId
-									? 'pointer'
-									: 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiPlus />
-						Register Device
-					</button>
-
+				<PrimaryButton
+					onClick={handleStartMFA}
+					disabled={
+						authState.isLoading ||
+						!tokenStatus.isValid ||
+						!credentials.environmentId ||
+						!credentials.deviceAuthenticationPolicyId
+					}
+					icon={authState.isLoading ? <FiLoader style={{ animation: 'spin 1s linear infinite' }} /> : <FiShield />}
+				>
+					{authState.isLoading ? 'Starting...' : 'Start Authentication'}
+				</PrimaryButton>
+				<SuccessButton
+					onClick={() => setShowRegistrationModal(true)}
+					disabled={
+						!tokenStatus.isValid ||
+						!credentials.environmentId ||
+						!credentials.deviceAuthenticationPolicyId
+					}
+					icon={<FiPlus />}
+				>
+					Register Device
+				</SuccessButton>
 					{/* Secondary Button: Username-less FIDO2 */}
-					<button
-						type="button"
-						onClick={handleUsernamelessFIDO2}
-						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
-						style={{
-							padding: '10px 24px',
-							border: '2px solid #3b82f6',
-							borderRadius: '6px',
-							background: 'white',
-							color: '#3b82f6',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-						}}
-					>
-						<FiKey />
-						Use Passkey / FaceID (username-less)
-					</button>
-
+				<SecondaryButton
+					onClick={handleUsernamelessFIDO2}
+					disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
+					icon={<FiKey />}
+				>
+					Use Passkey / FaceID (username-less)
+				</SecondaryButton>
 					{/* Clear Tokens & Session Button */}
-					<button
-						type="button"
-						onClick={() => setShowClearTokensModal(true)}
-						disabled={isClearingTokens}
-						style={{
-							padding: '10px 24px',
-							border: 'none',
-							borderRadius: '6px',
-							background: isClearingTokens ? '#9ca3af' : '#ef4444',
-							color: 'white',
-							fontSize: '16px',
-							fontWeight: '600',
-							cursor: isClearingTokens ? 'not-allowed' : 'pointer',
-							display: 'flex',
-							alignItems: 'center',
-							gap: '8px',
-							opacity: isClearingTokens ? 0.6 : 1,
-							transition: 'all 0.2s ease',
-						}}
-					>
-						{isClearingTokens ? (
-							<>
-								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
-								Clearing...
-							</>
-						) : (
-							<>
-								<FiTrash2 />
-								Clear Tokens & Session
-							</>
-						)}
-					</button>
-				</div>
-			</div>
-
+				<DangerButton
+					onClick={() => setShowClearTokensModal(true)}
+					disabled={isClearingTokens}
+					icon={isClearingTokens ? <FiLoader style={{ animation: 'spin 1s linear infinite' }} /> : <FiTrash2 />}
+				>
+					{isClearingTokens ? 'Clearing...' : 'Clear Tokens & Session'}
+				</DangerButton>
 			{/* Clear Tokens Confirmation Modal */}
 			<ConfirmModalV8
 				isOpen={showClearTokensModal}

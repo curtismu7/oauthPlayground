@@ -37,6 +37,7 @@ import {
 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -1504,7 +1505,18 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						}
 					}
 				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					const parsed = UnifiedFlowErrorHandler.handleError(error, {
+						flowType: 'mfa' as any,
+						deviceType: 'SMS',
+						operation: 'registerDevice',
+					}, {
+						showToast: true,
+						setValidationErrors: (errs) => nav.setValidationErrors(errs),
+						logError: true,
+					});
+
+					// Handle special cases based on parsed error
+					const errorMessage = parsed.userFriendlyMessage;
 					const isDeviceLimitError =
 						errorMessage.toLowerCase().includes('exceed') ||
 						errorMessage.toLowerCase().includes('limit') ||
@@ -1518,8 +1530,6 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 
 					if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
-						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-						toastV8.error('Device limit exceeded. Please delete an existing device first.');
 					} else if (isWorkerTokenError) {
 						// Use helper to show worker token modal (respects silent API retrieval setting)
 						const { handleShowWorkerTokenModal } = await import('@/v8/utils/workerTokenModalHelperV8');
@@ -1531,11 +1541,6 @@ const SMSFlowV8WithDeviceSelection: React.FC = () => {
 						fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SMSFlowV8.tsx:1510',message:'Calling handleShowWorkerTokenModal from error handler',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
 						// #endregion
 						await handleShowWorkerTokenModal(setShowWorkerTokenModal, undefined, silentApiRetrieval, showTokenAtEnd);
-						nav.setValidationErrors([`Registration failed: ${errorMessage}`]);
-						toastV8.error(`Registration failed: ${errorMessage}`);
-					} else {
-						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-						toastV8.error(`Registration failed: ${errorMessage}`);
 					}
 				} finally {
 					setIsLoading(false);

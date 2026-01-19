@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
+import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
@@ -88,6 +89,9 @@ export const ImplicitFlowV8: React.FC = () => {
 		username: '',
 		password: '',
 	});
+
+	// Button state management - only one action at a time
+	const [isActionInProgress, setIsActionInProgress] = useState(false);
 
 	useEffect(() => {
 		const result = ValidationServiceV8.validateCredentials(credentials, 'oauth');
@@ -209,10 +213,9 @@ export const ImplicitFlowV8: React.FC = () => {
 					: 'Redirect user to authenticate and authorize'}
 			</p>
 
-			<button
-				type="button"
-				className="btn btn-next"
+			<PrimaryButton
 				onClick={async () => {
+					setIsActionInProgress(true);
 					console.log(
 						`${MODULE_TAG} ${useRedirectless ? 'Starting redirectless flow' : 'Generating authorization URL'}`
 					);
@@ -288,34 +291,32 @@ export const ImplicitFlowV8: React.FC = () => {
 						nav.setValidationErrors([
 							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);
-					}
-				}}
-			>
-				{useRedirectless ? 'Authenticate with PingOne' : 'Generate Authorization URL'}
-			</button>
-
+			} finally {
+				setIsActionInProgress(false);
+			}
+		}}
+		isLoading={isActionInProgress}
+		disabled={isActionInProgress}
 			{!useRedirectless && flowState.authorizationUrl && (
 				<div className="code-block">
 					<pre>{flowState.authorizationUrl}</pre>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					<SecondaryButton
 						onClick={() => {
 							navigator.clipboard.writeText(flowState.authorizationUrl);
 							alert('URL copied to clipboard!');
 						}}
+						disabled={isActionInProgress}
 					>
 						Copy URL
-					</button>
-					<button
-						type="button"
-						className="btn btn-secondary"
+					</SecondaryButton>
+					<SecondaryButton
 						onClick={() => {
 							window.open(flowState.authorizationUrl, '_blank');
 						}}
+						disabled={isActionInProgress}
 					>
 						Open in Browser
-					</button>
+					</SecondaryButton>
 				</div>
 			)}
 
@@ -346,10 +347,9 @@ export const ImplicitFlowV8: React.FC = () => {
 				<small>Paste the full callback URL here (tokens in fragment)</small>
 			</div>
 
-			<button
-				type="button"
-				className="btn btn-primary"
+		<PrimaryButton
 				onClick={() => {
+					setIsActionInProgress(true);
 					console.log(`${MODULE_TAG} Parsing callback URL`);
 					try {
 						const fragment = flowState.authorizationUrl.split('#')[1];
@@ -379,7 +379,7 @@ export const ImplicitFlowV8: React.FC = () => {
 				}}
 			>
 				Parse Callback URL
-			</button>
+			</PrimaryButton>
 		</div>
 	);
 
@@ -394,19 +394,15 @@ export const ImplicitFlowV8: React.FC = () => {
 						<h3>🎫 Access Token</h3>
 						<div className="code-block">
 							<pre>{flowState.accessToken}</pre>
-							<button
-								type="button"
-								className="btn btn-secondary"
+							<SecondaryButton
 								onClick={() => {
 									navigator.clipboard.writeText(flowState.accessToken);
 									alert('Token copied to clipboard!');
 								}}
 							>
 								Copy
-							</button>
-							<button
-								type="button"
-								className="btn btn-secondary"
+							</SecondaryButton>
+							<SecondaryButton
 								onClick={() => {
 									try {
 										const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
@@ -421,7 +417,7 @@ export const ImplicitFlowV8: React.FC = () => {
 								}}
 							>
 								Decode
-							</button>
+							</SecondaryButton>
 						</div>
 						<small>
 							Type: {flowState.tokenType} | Expires: {flowState.expiresIn}s
@@ -433,19 +429,15 @@ export const ImplicitFlowV8: React.FC = () => {
 							<h3>🆔 ID Token</h3>
 							<div className="code-block">
 								<pre>{flowState.idToken}</pre>
-								<button
-									type="button"
-									className="btn btn-secondary"
+								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(flowState.idToken || '');
 										alert('Token copied to clipboard!');
 									}}
 								>
 									Copy
-								</button>
-								<button
-									type="button"
-									className="btn btn-secondary"
+								</SecondaryButton>
+								<SecondaryButton
 									onClick={() => {
 										try {
 											const decoded = ImplicitFlowIntegrationServiceV8.decodeToken(
@@ -460,7 +452,7 @@ export const ImplicitFlowV8: React.FC = () => {
 									}}
 								>
 									Decode
-								</button>
+								</SecondaryButton>
 							</div>
 						</div>
 					)}
@@ -547,9 +539,7 @@ export const ImplicitFlowV8: React.FC = () => {
 					}}
 				/>
 
-				<button
-					type="button"
-					className="btn btn-reset"
+				<DangerButton
 					onClick={() => {
 						console.log(`${MODULE_TAG} Resetting flow`);
 						FlowResetServiceV8.resetFlow('implicit-flow-v8');
@@ -570,14 +560,7 @@ export const ImplicitFlowV8: React.FC = () => {
 					title="Reset flow and clear all data"
 				>
 					Reset Flow
-				</button>
-			</div>
-
-			<style>{`
-				.implicit-flow-v8 {
-					max-width: 1000px;
-					margin: 0 auto;
-					background: #f8f9fa;
+			</DangerButton>
 					min-height: 100vh;
 				}
 
