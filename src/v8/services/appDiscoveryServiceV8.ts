@@ -323,40 +323,86 @@ export class AppDiscoveryServiceV8 {
 				throw new Error('Invalid worker token: must be a non-empty string');
 			}
 
-			console.log(`${MODULE_TAG} Discovering applications`, {
-				environmentId,
-				tokenPreview: `${workerToken.substring(0, 20)}...`,
-				tokenType: typeof workerToken,
+		console.log(`${MODULE_TAG} Discovering applications`, {
+			environmentId,
+			tokenPreview: `${workerToken.substring(0, 20)}...`,
+			tokenType: typeof workerToken,
+		});
+
+		// Use backend proxy to avoid CORS issues
+		const searchParams = new URLSearchParams({
+			environmentId: environmentId,
+			region: 'na', // Default to North America region
+			workerToken: workerToken.trim(),
+		});
+
+		const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
+		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications`;
+
+		// Track API call for documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const callId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: proxyUrl,
+			actualPingOneUrl: actualPingOneUrl,
+			headers: { 
+				'Content-Type': 'application/json',
+				Authorization: 'Bearer [WORKER_TOKEN]'
+			},
+			step: 'application-discovery',
+			flowType: 'management-api',
+			isProxy: true,
+		});
+
+		// Fetch from backend proxy
+		const response = await fetch(proxyUrl, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			console.error(`${MODULE_TAG} Failed to discover applications`, {
+				status: response.status,
+				statusText: response.statusText,
+				error: errorData,
 			});
-
-			// Use backend proxy to avoid CORS issues
-			const searchParams = new URLSearchParams({
-				environmentId: environmentId,
-				region: 'na', // Default to North America region
-				workerToken: workerToken.trim(),
-			});
-
-			const proxyUrl = `/api/pingone/applications?${searchParams.toString()}`;
-
-			// Fetch from backend proxy
-			const response = await fetch(proxyUrl, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				console.error(`${MODULE_TAG} Failed to discover applications`, {
+			
+			// Update API call tracking with error
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
 					status: response.status,
 					statusText: response.statusText,
-					error: errorData,
-				});
-				return [];
-			}
+					data: errorData,
+				},
+				Date.now() - startTime
+			);
+			
+			return [];
+		}
 
-			const data = await response.json();
+		const data = await response.json();
+		
+		// Update API call tracking with success
+		const applicationCount = data._embedded?.applications?.length || 0;
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				data: {
+					note: `Found ${applicationCount} application(s) in environment`,
+					applicationCount,
+					// Don't include full app list to keep response concise
+					applications: applicationCount > 0 ? '[See application list below]' : [],
+				},
+			},
+			Date.now() - startTime
+		);
 
 			const rawApplications = data._embedded?.applications || [];
 
@@ -495,49 +541,96 @@ export class AppDiscoveryServiceV8 {
 		region: string = 'na'
 	): Promise<DiscoveredApplication | null> {
 		try {
-			console.log(`${MODULE_TAG} Fetching application with secret`, {
-				environmentId,
-				appId,
-				region,
+		console.log(`${MODULE_TAG} Fetching application with secret`, {
+			environmentId,
+			appId,
+			region,
+		});
+
+		// Use backend proxy to avoid CORS
+		const searchParams = new URLSearchParams({
+			environmentId,
+			region,
+			workerToken: workerToken.trim(),
+		});
+
+		const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
+		const actualPingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/applications/${appId}`;
+
+		console.log(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
+
+		// Track API call for documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const callId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: proxyUrl,
+			actualPingOneUrl: actualPingOneUrl,
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: 'Bearer [WORKER_TOKEN]'
+			},
+			step: 'application-details',
+			flowType: 'management-api',
+			isProxy: true,
+		});
+
+		const response = await fetch(proxyUrl, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			let errorData: unknown = {};
+			try {
+				errorData = JSON.parse(errorText);
+			} catch {
+				errorData = { message: errorText };
+			}
+			console.error(`${MODULE_TAG} Failed to fetch application with secret`, {
+				status: response.status,
+				statusText: response.statusText,
+				url: proxyUrl,
+				error: errorData,
+				errorText: errorText.substring(0, 500), // First 500 chars of error text
 			});
-
-			// Use backend proxy to avoid CORS
-			const searchParams = new URLSearchParams({
-				environmentId,
-				region,
-				workerToken: workerToken.trim(),
-			});
-
-			const proxyUrl = `/api/pingone/applications/${appId}?${searchParams.toString()}`;
-
-			console.log(`${MODULE_TAG} Fetching via backend proxy: ${proxyUrl}`);
-
-			const response = await fetch(proxyUrl, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorData: unknown = {};
-				try {
-					errorData = JSON.parse(errorText);
-				} catch {
-					errorData = { message: errorText };
-				}
-				console.error(`${MODULE_TAG} Failed to fetch application with secret`, {
+			
+			// Update API call tracking with error
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
 					status: response.status,
 					statusText: response.statusText,
-					url: proxyUrl,
-					error: errorData,
-					errorText: errorText.substring(0, 500), // First 500 chars of error text
-				});
-				return null;
-			}
+					data: errorData,
+				},
+				Date.now() - startTime
+			);
+			
+			return null;
+		}
 
-			const app = await response.json();
+		const app = await response.json();
+		
+		// Update API call tracking with success
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				data: {
+					note: 'Successfully fetched application configuration and credentials',
+					appId: app.id,
+					appName: app.name,
+					hasClientSecret: !!(app.clientSecret || app.secret),
+					tokenEndpointAuthMethod: app.tokenEndpointAuthMethod || app.token_endpoint_auth_method,
+					redirectUrisCount: (app.redirectUris || app.redirect_uris || []).length,
+				},
+			},
+			Date.now() - startTime
+		);
 
 			// Log the full response to debug clientSecret availability
 			console.log(`${MODULE_TAG} Application response received`, {
