@@ -6,11 +6,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-	type FlowType,
-	type SpecVersion,
-	SpecVersionServiceV8,
-} from '@/v8/services/specVersionServiceV8';
+import { type SpecVersion, SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from '../unifiedFlowIntegrationV8U';
 import { UnifiedFlowIntegrationV8U } from '../unifiedFlowIntegrationV8U';
 
@@ -100,7 +96,7 @@ describe('UnifiedFlowIntegrationV8U - Integration Tests', () => {
 			);
 			expect(url).toBeTruthy();
 			expect(url).toContain('response_type=code');
-			expect(url).toContain('client_id=' + mockCredentials.clientId);
+			expect(url).toContain(`client_id=${mockCredentials.clientId}`);
 		});
 
 		it('should generate authorization URL for OIDC authorization code flow', () => {
