@@ -136,6 +136,8 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					border: '1px solid #e5e7eb',
 					borderRadius: '8px',
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+					maxWidth: '100%',
+					width: '100%',
 				}}
 			>
 				<div
@@ -143,9 +145,10 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					style={{
 						marginBottom: 0,
 						display: 'flex',
-						gap: '8px',
+						gap: '6px',
 						flex: 1,
 						alignItems: 'center',
+						width: '100%',
 					}}
 				>
 					{!currentFlowType && (
@@ -285,28 +288,28 @@ export const UnifiedNavigationV8U: React.FC<UnifiedNavigationV8UProps> = ({
 					width: 100%;
 				}
 
-				.nav-link-btn {
-					padding: 10px 16px;
-					background: #f3f4f6;
-					color: #1f2937;
-					border: 2px solid transparent;
-					border-radius: 6px;
-					font-size: 14px;
-					font-weight: 500;
-					cursor: pointer;
-					transition: all 0.2s ease;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					gap: 8px;
-					text-align: center;
-					min-width: 0;
-					flex: 1;
-					height: 44px;
-					white-space: nowrap;
-					overflow: hidden;
-					text-overflow: ellipsis;
-				}
+			.nav-link-btn {
+				padding: 8px 10px;
+				background: #f3f4f6;
+				color: #1f2937;
+				border: 2px solid transparent;
+				border-radius: 6px;
+				font-size: 12px;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				gap: 4px;
+				text-align: center;
+				min-width: 0;
+				flex: 1;
+				height: 40px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 
 				/* Different colored outlines for each button */
 				.nav-btn-hub {
