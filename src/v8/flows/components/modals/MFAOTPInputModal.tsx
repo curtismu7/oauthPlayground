@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiX, FiLoader } from 'react-icons/fi';
 import { PingIdentityLogo } from '@/v8/components/shared/PingIdentityLogo';
-import { MFAOTPInput } from '@/v8/components/MFAOTPInput';
+import { MFAOTPInput } from '../MFAOTPInput';
 
 export interface MFAOTPInputModalProps {
 	show: boolean;
