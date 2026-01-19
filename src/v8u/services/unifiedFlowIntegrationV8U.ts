@@ -233,8 +233,10 @@ export class UnifiedFlowIntegrationV8U {
 			// Ensure offline_access is included if enableRefreshToken is true (though implicit flow doesn't support refresh tokens)
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
-				scopesToUse = scopesToUse.trim() + ' offline_access';
-				console.log(`${MODULE_TAG} ⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`);
+				scopesToUse = `${scopesToUse.trim()} offline_access`;
+				console.log(
+					`${MODULE_TAG} ⚠️ Note: Implicit flow doesn't support refresh tokens, but adding offline_access scope anyway`
+				);
 			}
 
 			const startTime = Date.now();
@@ -257,7 +259,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Parse the generated URL to extract the redirect_uri that was actually used
 			const generatedUrl = new URL(result.authorizationUrl);
 			const redirectUriFromUrl = generatedUrl.searchParams.get('redirect_uri') || '';
-			
+
 			console.log(`${MODULE_TAG} Using redirect_uri from generated URL:`, {
 				redirectUriFromUrl,
 				redirectUriToUse,
@@ -267,7 +269,7 @@ export class UnifiedFlowIntegrationV8U {
 
 			// Prefix state with flow type for callback routing
 			const prefixedState = `v8u-implicit-${result.state}`;
-			
+
 			// Rebuild URL using ALL params from generated URL, then update only state
 			// This preserves the exact redirect_uri and all other params from the generated URL
 			const params = new URLSearchParams(generatedUrl.searchParams); // Copy all params from generated URL
@@ -495,7 +497,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Ensure offline_access is included if enableRefreshToken is true
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
-				scopesToUse = scopesToUse.trim() + ' offline_access';
+				scopesToUse = `${scopesToUse.trim()} offline_access`;
 				console.log(`${MODULE_TAG} ✅ Added offline_access scope for refresh token`);
 			}
 
@@ -578,59 +580,59 @@ export class UnifiedFlowIntegrationV8U {
 				params.set('code_challenge_method', pkceCodes.codeChallengeMethod);
 			}
 
-		// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
-		const responseModeOAuth =
-			credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
-		params.set('response_mode', responseModeOAuth);
-		console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
+			// Add response_mode parameter (supports query, fragment, form_post, pi.flow)
+			const responseModeOAuth =
+				credentials.responseMode || (credentials.useRedirectless ? 'pi.flow' : 'query');
+			params.set('response_mode', responseModeOAuth);
+			console.log(`${MODULE_TAG} 🔗 Response mode set to: ${responseModeOAuth}`);
 
-		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-		// Track authorization URL generation for API documentation
-		const startTime = Date.now();
-		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-		const apiCallId = apiCallTrackerService.trackApiCall({
-			method: 'GET',
-			url: authorizationEndpoint,
-			actualPingOneUrl: authorizationEndpoint,
-			isProxy: false,
-			headers: {},
-			body: Object.fromEntries(params.entries()),
-			step: 'unified-authorization-url',
-			flowType: 'unified',
-		});
+			// Track authorization URL generation for API documentation
+			const startTime = Date.now();
+			const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+			const apiCallId = apiCallTrackerService.trackApiCall({
+				method: 'GET',
+				url: authorizationEndpoint,
+				actualPingOneUrl: authorizationEndpoint,
+				isProxy: false,
+				headers: {},
+				body: Object.fromEntries(params.entries()),
+				step: 'unified-authorization-url',
+				flowType: 'unified',
+			});
 
-		apiCallTrackerService.updateApiCallResponse(
-			apiCallId,
-			{
-				status: 200,
-				statusText: 'OK',
-				data: {
-					authorization_url: authorizationUrl,
-					note: 'Authorization URL generated. User will be redirected to PingOne for authentication.',
-					flow: 'oauth-authz',
-					response_type: 'code',
-					has_pkce: !!pkceCodes,
-					response_mode: responseModeOAuth,
+			apiCallTrackerService.updateApiCallResponse(
+				apiCallId,
+				{
+					status: 200,
+					statusText: 'OK',
+					data: {
+						authorization_url: authorizationUrl,
+						note: 'Authorization URL generated. User will be redirected to PingOne for authentication.',
+						flow: 'oauth-authz',
+						response_type: 'code',
+						has_pkce: !!pkceCodes,
+						response_mode: responseModeOAuth,
+					},
 				},
-			},
-			Date.now() - startTime
-		);
+				Date.now() - startTime
+			);
 
-		console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
-			prefixedState: prefixedStateRegular,
-			hasPKCE: !!pkceCodes,
-			responseMode: responseModeOAuth,
-		});
+			console.log(`${MODULE_TAG} ✅ OAuth authz URL generated with prefixed state`, {
+				prefixedState: prefixedStateRegular,
+				hasPKCE: !!pkceCodes,
+				responseMode: responseModeOAuth,
+			});
 
-		return {
-			authorizationUrl,
-			state: prefixedStateRegular,
-			...(pkceCodes && {
-				codeVerifier: pkceCodes.codeVerifier,
-				codeChallenge: pkceCodes.codeChallenge,
-			}),
-		};
+			return {
+				authorizationUrl,
+				state: prefixedStateRegular,
+				...(pkceCodes && {
+					codeVerifier: pkceCodes.codeVerifier,
+					codeChallenge: pkceCodes.codeChallenge,
+				}),
+			};
 		}
 
 		/**
@@ -690,7 +692,7 @@ export class UnifiedFlowIntegrationV8U {
 			// Ensure offline_access is included if enableRefreshToken is true
 			let scopesToUse = credentials.scopes || 'openid profile email';
 			if (credentials.enableRefreshToken && !scopesToUse.includes('offline_access')) {
-				scopesToUse = scopesToUse.trim() + ' offline_access';
+				scopesToUse = `${scopesToUse.trim()} offline_access`;
 				console.log(`${MODULE_TAG} ✅ Added offline_access scope for refresh token`);
 			}
 
@@ -730,51 +732,53 @@ export class UnifiedFlowIntegrationV8U {
 				console.log(`${MODULE_TAG} 🖥️ Added display: ${credentials.display}`);
 			}
 
-		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+			const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
 
-		// Track authorization URL generation for API documentation
-		const hybridStartTime = Date.now();
-		const { apiCallTrackerService: apiCallTrackerServiceHybrid } = await import('@/services/apiCallTrackerService');
-		const hybridApiCallId = apiCallTrackerServiceHybrid.trackApiCall({
-			method: 'GET',
-			url: authorizationEndpoint,
-			actualPingOneUrl: authorizationEndpoint,
-			isProxy: false,
-			headers: {},
-			body: Object.fromEntries(params.entries()),
-			step: 'unified-authorization-url',
-			flowType: 'unified',
-		});
+			// Track authorization URL generation for API documentation
+			const hybridStartTime = Date.now();
+			const { apiCallTrackerService: apiCallTrackerServiceHybrid } = await import(
+				'@/services/apiCallTrackerService'
+			);
+			const hybridApiCallId = apiCallTrackerServiceHybrid.trackApiCall({
+				method: 'GET',
+				url: authorizationEndpoint,
+				actualPingOneUrl: authorizationEndpoint,
+				isProxy: false,
+				headers: {},
+				body: Object.fromEntries(params.entries()),
+				step: 'unified-authorization-url',
+				flowType: 'unified',
+			});
 
-		apiCallTrackerServiceHybrid.updateApiCallResponse(
-			hybridApiCallId,
-			{
-				status: 200,
-				statusText: 'OK',
-				data: {
-					authorization_url: authorizationUrl,
-					note: 'Authorization URL generated. User will be redirected to PingOne.',
-					flow: 'hybrid',
-					response_type: hybridCredentials.responseType || 'code id_token',
-					has_pkce: !!pkceCodes,
-					response_mode: responseModeHybrid,
-					returns_in_fragment: 'id_token, access_token (if requested)',
-					returns_in_query: 'code',
+			apiCallTrackerServiceHybrid.updateApiCallResponse(
+				hybridApiCallId,
+				{
+					status: 200,
+					statusText: 'OK',
+					data: {
+						authorization_url: authorizationUrl,
+						note: 'Authorization URL generated. User will be redirected to PingOne.',
+						flow: 'hybrid',
+						response_type: hybridCredentials.responseType || 'code id_token',
+						has_pkce: !!pkceCodes,
+						response_mode: responseModeHybrid,
+						returns_in_fragment: 'id_token, access_token (if requested)',
+						returns_in_query: 'code',
+					},
 				},
-			},
-			Date.now() - hybridStartTime
-		);
+				Date.now() - hybridStartTime
+			);
 
-		console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
-			prefixedState,
-			responseMode: responseModeHybrid,
-		});
+			console.log(`${MODULE_TAG} ✅ Hybrid flow URL generated with prefixed state`, {
+				prefixedState,
+				responseMode: responseModeHybrid,
+			});
 
-		return {
-			authorizationUrl,
-			state: prefixedState,
-			nonce: result.nonce,
-		};
+			return {
+				authorizationUrl,
+				state: prefixedState,
+				nonce: result.nonce,
+			};
 		}
 
 		// Device code flow - returns device authorization response (not authorization URL)
@@ -1214,7 +1218,9 @@ export class UnifiedFlowIntegrationV8U {
 				scopes: oauthCredentials.scopes,
 				hasClientSecret: !!oauthCredentials.clientSecret,
 				clientAuthMethod: oauthCredentials.clientAuthMethod,
-				authMethodSource: credentials.clientAuthMethod ? 'from credentials' : 'default (client_secret_post)',
+				authMethodSource: credentials.clientAuthMethod
+					? 'from credentials'
+					: 'default (client_secret_post)',
 			});
 
 			console.log(`${MODULE_TAG} 🚀 Calling OAuthIntegrationServiceV8.exchangeCodeForTokens...`);
