@@ -646,3 +646,35 @@ If you encounter issues not covered in this documentation:
 4. Verify all prerequisites are met
 5. Contact PingOne support if configuration issues persist
 
+
+---
+
+## API Calls Documentation
+
+All API calls made during this flow are automatically tracked and documented. You can view complete request/response details on the **API Documentation** page.
+
+### API Call Categories
+
+**🔐 Management API** (if Worker Token is configured)
+- **Worker Token Retrieval**: Obtain access token for PingOne Management API
+- **Application Discovery**: List applications in environment  
+- **Application Details**: Fetch app configuration and credentials
+
+**📋 OIDC Metadata** (if OIDC Discovery is used)
+- **OIDC Discovery**: Fetch `/.well-known/openid-configuration`
+- **JWKS Fetching**: Retrieve signing keys for ID token validation
+
+**✅ Pre-flight Validation** (if enabled)
+- **Configuration Checks**: Validate redirect URI, auth method, PKCE settings
+
+**🔄 OAuth Flow** (always tracked)
+- **Authorization URL Generation**: Build OAuth/OIDC authorization request
+- **Authorization Callback**: Handle redirect with tokens in URL fragment
+- **UserInfo**: Retrieve user profile (OIDC only)
+
+### How to Access
+
+1. Complete any step in the flow
+2. Click **"View API Documentation"** button at the bottom
+3. View detailed request/response for each call
+4. Download as Postman collection for testing
