@@ -289,7 +289,9 @@ export const ImplicitFlowV8: React.FC = () => {
 								nonce: result.nonce,
 							});
 							nav.markStepComplete();
-						} Error in step 1`, error);
+						}
+					} catch (error) {
+						console.error(`${MODULE_TAG} Error in step 1`, error);
 						nav.setValidationErrors([
 							`Failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
 						]);

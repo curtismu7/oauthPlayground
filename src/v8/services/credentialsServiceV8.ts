@@ -25,6 +25,8 @@
 const MODULE_TAG = '[💾 CREDENTIALS-SERVICE-V8]';
 const ENABLE_CREDENTIALS_DEBUG_LOGGING = false;
 
+import { safeAnalyticsFetch } from '@/v8/utils/analyticsServerCheckV8';
+
 const debugLog = (...args: unknown[]): void => {
 	if (!ENABLE_CREDENTIALS_DEBUG_LOGGING) return;
 	console.log(...args);
@@ -318,7 +320,7 @@ export class CredentialsServiceV8 {
 				const parsed = JSON.parse(stored);
 				debugLog(`${MODULE_TAG} Credentials loaded from storage`, { flowKey });
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'credentialsServiceV8.ts:310',message:'Credentials loaded from localStorage',data:{flowKey,storageKey,hasRedirectUri:!!parsed.redirectUri,redirectUri:parsed.redirectUri,hasClientAuthMethod:!!parsed.clientAuthMethod,clientAuthMethod:parsed.clientAuthMethod,allKeys:Object.keys(parsed)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+				safeAnalyticsFetch({location:'credentialsServiceV8.ts:310',message:'Credentials loaded from localStorage',data:{flowKey,storageKey,hasRedirectUri:!!parsed.redirectUri,redirectUri:parsed.redirectUri,hasClientAuthMethod:!!parsed.clientAuthMethod,clientAuthMethod:parsed.clientAuthMethod,allKeys:Object.keys(parsed)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'});
 				// #endregion
 				return parsed;
 			}

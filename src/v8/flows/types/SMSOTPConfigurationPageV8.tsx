@@ -28,6 +28,7 @@ import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
 import { navigateToMfaHubWithCleanup } from '@/v8/utils/mfaFlowCleanupV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
 import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import type { DeviceAuthenticationPolicy, MFACredentials } from '../shared/MFATypes';
@@ -394,18 +395,14 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 					});
 					// #endregion
 
-					console.error(`[📱 SMS-CONFIG-PAGE-V8] Failed to exchange code for tokens`, error);
-					const errorMessage =
-						error instanceof Error
-							? error.message
-							: 'Failed to exchange authorization code for tokens';
-					if (errorMessage.includes('invalid_grant') || errorMessage.includes('expired')) {
-						toastV8.error(
-							'Authorization code expired or already used. Please try logging in again.'
-						);
-					} else {
-						toastV8.error(errorMessage);
-					}
+					UnifiedFlowErrorHandler.handleError(error, {
+						flowType: 'mfa' as any,
+						deviceType: 'SMS',
+						operation: 'processCallback',
+					}, {
+						showToast: true,
+						logError: true,
+					});
 
 					sessionStorage.removeItem('user_login_state_v8');
 					sessionStorage.removeItem('user_login_code_verifier_v8');
@@ -537,13 +534,15 @@ export const SMSOTPConfigurationPageV8: React.FC = () => {
 			);
 			setDeviceAuthPolicies(policies);
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to load policies:`, error);
-			setPoliciesError(errorMessage);
-			// Only show error toast if worker token is available (user expects it to work)
-			if (tokenStatus.isValid) {
-				toastV8.error(`Failed to load policies: ${errorMessage}`);
-			}
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				deviceType: 'SMS',
+				operation: 'loadPolicies',
+			}, {
+				showToast: tokenStatus.isValid, // Only show toast if worker token is valid
+				logError: true,
+			});
+			setPoliciesError(parsed.userFriendlyMessage);
 		} finally {
 			setIsLoadingPolicies(false);
 		}

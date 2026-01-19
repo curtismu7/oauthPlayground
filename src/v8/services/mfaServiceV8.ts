@@ -32,6 +32,7 @@ import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import { pingOneFetch } from '@/utils/pingOneFetch';
 import type { DeviceAuthenticationPolicy } from '@/v8/flows/shared/MFATypes';
 import { sendAnalyticsLog } from '@/v8/utils/analyticsLoggerV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { workerTokenServiceV8 } from './workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from './workerTokenStatusServiceV8';
 
@@ -330,8 +331,15 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'allowMfaBypass',
+			}, {
+				logError: true,
+				showToast: false,
+			});
 			console.error(`${MODULE_TAG} Exception in allowMfaBypass:`, {
-				error: error instanceof Error ? error.message : 'Unknown error',
+				error: parsed.userFriendlyMessage,
 				requestId,
 			});
 			throw error;
@@ -387,8 +395,15 @@ export class MFAServiceV8 {
 
 			return data;
 		} catch (error) {
+			const parsed = UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				operation: 'checkMfaBypassStatus',
+			}, {
+				logError: true,
+				showToast: false,
+			});
 			console.error(`${MODULE_TAG} Exception in checkMfaBypassStatus:`, {
-				error: error instanceof Error ? error.message : 'Unknown error',
+				error: parsed.userFriendlyMessage,
 				requestId,
 			});
 			throw error;

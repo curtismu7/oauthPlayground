@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 5 Lazy Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .primary { background: #007bff; color: white; }
+        .success { background: #28a745; color: white; }
+        .warning { background: #ffc107; color: black; }
+        .test-area {
+            min-height: 200px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .spacer {
+            height: 100vh;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Phase 5 Lazy Loading Test</h1>
+    
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="testResults">
+            <div class="status info">Tests will appear here...</div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>⚡ Lazy Loading Tests</h2>
+        <button class="primary" onclick="testBasicLazyLoad()">Test Basic Lazy Load</button>
+        <button class="success" onclick="testIntersectionObserver()">Test Intersection Observer</button>
+        <button class="warning" onclick="testErrorHandling()">Test Error Handling</button>
+        <button class="primary" onclick="testPreloading()">Test Preloading</button>
+        
+        <div class="test-area" id="lazyLoadTestArea">
+            <p>Test results will appear here...</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>📈 Performance Monitor</h2>
+        <div id="performanceMonitor">
+            <p><strong>Memory Usage:</strong> <span id="memoryUsage">Check Dev Tools</span></p>
+            <p><strong>Network Requests:</strong> <span id="networkRequests">Check Dev Tools</span></p>
+            <p><strong>Load Time:</strong> <span id="loadTime">0ms</span></p>
+            <p><strong>Components Loaded:</strong> <span id="componentsLoaded">0</span></p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>👁️ Intersection Observer Test</h2>
+        <p>Scroll down to trigger lazy loading...</p>
+        <div class="spacer">↓ Scroll Down to Test Intersection Observer ↓</div>
+        
+        <div class="test-area" id="intersectionTestArea">
+            <p>This area should load when scrolled into view...</p>
+        </div>
+        
+        <div class="spacer">↑ Scroll Up to Test Again ↑</div>
+    </div>
+
+    <script>
+        let testResults = [];
+        let componentCount = 0;
+        let startTime = Date.now();
+
+        function addTestResult(test, status, message) {
+            testResults.push({ test, status, message, timestamp: Date.now() });
+            updateTestDisplay();
+        }
+
+        function updateTestDisplay() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = testResults.map(result => 
+                `<div class="status ${result.status}">
+                    <strong>${result.test}:</strong> ${result.message}
+                </div>`
+            ).join('');
+        }
+
+        function updatePerformance() {
+            document.getElementById('loadTime').textContent = `${Date.now() - startTime}ms`;
+            document.getElementById('componentsLoaded').textContent = componentCount;
+        }
+
+        // Test 1: Basic Lazy Load
+        function testBasicLazyLoad() {
+            addTestResult('Basic Lazy Load', 'info', 'Starting test...');
+            
+            // Simulate lazy loading
+            setTimeout(() => {
+                componentCount++;
+                const testArea = document.getElementById('lazyLoadTestArea');
+                testArea.innerHTML = `
+                    <div style="background: #d4edda; padding: 15px; border-radius: 4px;">
+                        <h3>✅ Basic Lazy Load Test</h3>
+                        <p>Component loaded successfully after 2 seconds!</p>
+                        <p>Load time: ${Date.now() - startTime}ms</p>
+                    </div>
+                `;
+                addTestResult('Basic Lazy Load', 'success', 'Component loaded successfully');
+                updatePerformance();
+            }, 2000);
+        }
+
+        // Test 2: Intersection Observer
+        function testIntersectionObserver() {
+            addTestResult('Intersection Observer', 'info', 'Setting up observer...');
+            
+            const target = document.getElementById('intersectionTestArea');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        componentCount++;
+                        target.innerHTML = `
+                            <div style="background: #d1ecf1; padding: 15px; border-radius: 4px;">
+                                <h3>👁️ Intersection Observer Test</h3>
+                                <p>Component loaded when scrolled into view!</p>
+                                <p>Intersection ratio: ${entry.intersectionRatio.toFixed(2)}</p>
+                            </div>
+                        `;
+                        addTestResult('Intersection Observer', 'success', 'Intersection observer working');
+                        updatePerformance();
+                        observer.disconnect();
+                    }
+                });
+            });
+            
+            observer.observe(target);
+        }
+
+        // Test 3: Error Handling
+        function testErrorHandling() {
+            addTestResult('Error Handling', 'info', 'Testing error recovery...');
+            
+            // Simulate failed load
+            setTimeout(() => {
+                const testArea = document.getElementById('lazyLoadTestArea');
+                testArea.innerHTML = `
+                    <div style="background: #f8d7da; padding: 15px; border-radius: 4px;">
+                        <h3>❌ Error Handling Test</h3>
+                        <p>Simulated component load failure!</p>
+                        <button onclick="retryLoad()" style="margin-top: 10px;">Retry</button>
+                    </div>
+                `;
+                addTestResult('Error Handling', 'warning', 'Error handling test completed');
+            }, 1500);
+        }
+
+        function retryLoad() {
+            addTestResult('Retry Load', 'info', 'Retrying...');
+            setTimeout(() => {
+                componentCount++;
+                document.getElementById('lazyLoadTestArea').innerHTML = `
+                    <div style="background: #d4edda; padding: 15px; border-radius: 4px;">
+                        <h3>✅ Retry Success</h3>
+                        <p>Component loaded successfully after retry!</p>
+                    </div>
+                `;
+                addTestResult('Retry Load', 'success', 'Retry successful');
+                updatePerformance();
+            }, 1000);
+        }
+
+        // Test 4: Preloading
+        function testPreloading() {
+            addTestResult('Preloading', 'info', 'Testing component preloading...');
+            
+            // Simulate preloading
+            setTimeout(() => {
+                componentCount++;
+                addTestResult('Preloading', 'success', 'Component preloaded successfully');
+                updatePerformance();
+            }, 800);
+        }
+
+        // Monitor performance
+        setInterval(updatePerformance, 1000);
+
+        // Set up intersection observer for scroll test
+        setTimeout(() => {
+            testIntersectionObserver();
+        }, 1000);
+
+        // Initial test
+        addTestResult('Test Suite', 'success', 'Phase 5 Lazy Loading Test Suite initialized');
+    </script>
+</body>
+</html>

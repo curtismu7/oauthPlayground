@@ -35,8 +35,18 @@ import { MFAConfigurationStepV8 } from '../shared/MFAConfigurationStepV8';
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials, MFAState } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import { 
+	MessageBoxV8, 
+	SuccessMessage, 
+	ErrorMessage, 
+	WarningMessage,
+	InfoMessage 
+} from '@/v8/components/shared/MessageBoxV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[🔐 TOTP-FLOW-V8]';
 
@@ -473,6 +483,7 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 	const navigate = useNavigate();
 	const isConfigured = (location.state as { configured?: boolean })?.configured === true;
 	const credentialsUpdatedRef = React.useRef(false);
+	const loadingManager = useMFALoadingStateManager();
 
 	// Get configured OTP length - reload on config updates
 	const [otpLength, setOtpLength] = useState(() => {
@@ -1096,8 +1107,9 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 					return;
 				}
 
-				setIsLoading(true);
+				// Use loading manager pattern - wrap the entire operation
 				try {
+					setIsLoading(true);
 					const authResult = await controller.initializeDeviceAuthentication(
 						credentials,
 						deviceSelection.selectedExistingDevice
@@ -1141,8 +1153,12 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 							...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
 						});
 					} else {
-						nav.setValidationErrors([`Failed to authenticate: ${errorMessage}`]);
-						toastV8.error(`Authentication failed: ${errorMessage}`);
+						const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
+							operation: 'authenticate',
+							deviceType: 'TOTP',
+						});
+						nav.setValidationErrors([formattedError.userFriendlyMessage]);
+						toastV8.error(`Authentication failed: ${formattedError.userFriendlyMessage}`);
 					}
 				} finally {
 					setIsLoading(false);
@@ -1472,11 +1488,19 @@ const TOTPFlowV8WithDeviceSelection: React.FC = () => {
 
 					if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
-						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
+						const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
+							operation: 'register',
+							deviceType: 'TOTP',
+						});
+						nav.setValidationErrors([formattedError.userFriendlyMessage]);
 						toastV8.error('Device limit exceeded. Please delete an existing device first.');
 					} else {
-						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-						toastV8.error(`Registration failed: ${errorMessage}`);
+						const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
+							operation: 'register',
+							deviceType: 'TOTP',
+						});
+						nav.setValidationErrors([formattedError.userFriendlyMessage]);
+						toastV8.error(`Registration failed: ${formattedError.userFriendlyMessage}`);
 					}
 				} finally {
 					setIsLoading(false);

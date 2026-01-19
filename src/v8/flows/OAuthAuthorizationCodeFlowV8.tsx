@@ -87,6 +87,8 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 		password: '',
 	});
 
+	const [isActionInProgress, setIsActionInProgress] = useState<boolean>(false);
+
 	// Initialize auth state and restore PKCE codes from bulletproof storage if available
 	const [authState, setAuthState] = useState<AuthorizationState>(() => {
 		const initialState: AuthorizationState = {
