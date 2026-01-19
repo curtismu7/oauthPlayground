@@ -2175,17 +2175,18 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 					hasState: !!restoredState,
 				});
 
-				try {
-					const callbackStartTime = Date.now();
+			try {
+				const callbackStartTime = Date.now();
+				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
 
-					// Auto-parse the fragment immediately using restored state from sessionStorage
-					// This avoids timing issues with React state updates
-					const result = UnifiedFlowIntegrationV8U.parseCallbackFragment(
-						flowType as 'implicit' | 'hybrid',
-						window.location.href,
-						restoredState || '',
-						flowState.nonce
-					);
+				// Auto-parse the fragment immediately using restored state from sessionStorage
+				// This avoids timing issues with React state updates
+				const result = UnifiedFlowIntegrationV8U.parseCallbackFragment(
+					flowType as 'implicit' | 'hybrid',
+					window.location.href,
+					restoredState || '',
+					flowState.nonce
+				);
 
 					const resultWithToken = result as {
 						access_token: string;
@@ -2211,18 +2212,16 @@ export const UnifiedFlowSteps: React.FC<UnifiedFlowStepsProps> = ({
 						};
 					});
 
-					// Extract all parameters from fragment for success modal
-				const fragmentParams = new URLSearchParams(fragment);
-				const allParams: Record<string, string> = {};
-				fragmentParams.forEach((value, key) => {
-					allParams[key] = value;
-				});
+				// Extract all parameters from fragment for success modal
+			const fragmentParams = new URLSearchParams(fragment);
+			const allParams: Record<string, string> = {};
+			fragmentParams.forEach((value, key) => {
+				allParams[key] = value;
+			});
 
-				// Track callback as an API call for documentation
-				const callbackStartTime = Date.now();
-				const callbackUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize/callback`;
-				const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
-				const apiCallId = apiCallTrackerService.trackApiCall({
+			// Track callback as an API call for documentation
+			const callbackUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize/callback`;
+			const apiCallId = apiCallTrackerService.trackApiCall({
 					method: 'GET',
 					url: callbackUrl,
 					actualPingOneUrl: callbackUrl,
