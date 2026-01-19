@@ -1402,7 +1402,7 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	return (
 		<div
 			style={{
-				maxWidth: '1200px',
+				maxWidth: '1400px',
 				margin: '0 auto',
 				padding: '2rem',
 				background: '#f8fafc',
