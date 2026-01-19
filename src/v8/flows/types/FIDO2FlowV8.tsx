@@ -33,6 +33,7 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
