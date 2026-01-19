@@ -50,7 +50,6 @@ import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U'
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
-import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { MFAConfigurationServiceV8 } from '@/v8/services/mfaConfigurationServiceV8';
 import { MfaAuthenticationServiceV8 } from '@/v8/services/mfaAuthenticationServiceV8';
@@ -59,6 +58,8 @@ import { WebAuthnAuthenticationServiceV8 } from '@/v8/services/webAuthnAuthentic
 import { workerTokenServiceV8 } from '@/v8/services/workerTokenServiceV8';
 import { WorkerTokenStatusServiceV8 } from '@/v8/services/workerTokenStatusServiceV8';
 import { toastV8 } from '@/v8/utils/toastNotificationsV8';
+import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+import { useActionButton } from '@/v8/hooks/useActionButton';
 import {
 	generateComprehensiveMFAPostmanCollection,
 	generateCompletePostmanCollection,
@@ -66,9 +67,6 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
-import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import { PrimaryButton, SecondaryButton, SuccessButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
-import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -148,6 +146,13 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 	const authContext = useAuth();
 	const [isClearingTokens, setIsClearingTokens] = useState(false);
 	const [showClearTokensModal, setShowClearTokensModal] = useState(false);
+	
+	// Action button hooks for consistent button state management
+	const startMFAAction = useActionButton();
+	const registerDeviceAction = useActionButton();
+	const usernamelessFIDO2Action = useActionButton();
+	const clearTokensAction = useActionButton();
+	
 	usePageScroll({ pageName: 'MFA Authentication', force: true });
 
 	// Check for OAuth callback code and redirect to the correct flow page
@@ -176,11 +181,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 
 					// Validate that the path looks correct
 					if (!mfaPath.startsWith('/v8/mfa')) {
-						UnifiedFlowLoggerService.error('Invalid return path detected', {
-							operation: 'initializeFromUrl',
-							flowType: 'mfa-authentication',
-							mfaPath
-						});
+						console.error(
+							`${MODULE_TAG} ❌ Invalid return path (doesn't start with /v8/mfa): ${mfaPath}`
+						);
 						throw new Error(`Invalid return path: ${mfaPath}`);
 					}
 
@@ -198,19 +201,15 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					window.location.replace(redirectUrl);
 					return;
 				} catch (error) {
-					UnifiedFlowLoggerService.error('Failed to parse return path', {
-						operation: 'initializeFromUrl',
-						flowType: 'mfa-authentication'
-					}, error as Error);
+					console.error(`${MODULE_TAG} Failed to parse return path:`, error);
 				}
 			}
 
 			// If no return path, stay on the MFA hub page
 			// Don't redirect based on stored.deviceType as it might be from a different flow
-			UnifiedFlowLoggerService.warn('OAuth callback detected but no return path found', {
-				operation: 'initializeFromUrl',
-				flowType: 'mfa-authentication'
-			});
+			console.warn(
+				`${MODULE_TAG} OAuth callback detected but no return path found. Staying on MFA hub page.`
+			);
 		}
 	}, [searchParams]);
 
@@ -224,27 +223,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 			includeLogoutUri: false,
 			includeScopes: false,
 		});
-		
-		// Auto-populate environment ID from worker token if available
-		let environmentId = stored.environmentId || '';
-		if (!environmentId) {
-			try {
-				const workerCreds = workerTokenServiceV8.loadCredentialsSync();
-				if (workerCreds?.environmentId) {
-					environmentId = workerCreds.environmentId;
-					UnifiedFlowLoggerService.info('Auto-populated environment ID from worker token', {
-						operation: 'loadMFACredentials',
-						flowType: 'mfa-authentication',
-						environmentId
-					});
-				}
-			} catch (error) {
-				// Silently continue if worker token not available
-			}
-		}
-		
 		return {
-			environmentId,
+			environmentId: stored.environmentId || '',
 			username: stored.username || '',
 			deviceAuthenticationPolicyId: stored.deviceAuthenticationPolicyId || '',
 		};
@@ -376,12 +356,9 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 					return; // Token still has enough time
 				}
 
-UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refresh', {
-				operation: 'autoRefreshWorkerToken',
-				flowType: 'mfa-authentication',
-				timeRemainingSeconds,
-				renewGWThreshold: renewalThreshold
-			});
+				console.log(
+					`${MODULE_TAG} Worker token expires in ${timeRemainingSeconds}s (threshold: ${renewalThreshold}s), attempting auto-refresh...`
+				);
 
 				// Attempt to refresh token with retries
 				let lastError: Error | null = null;
@@ -390,10 +367,10 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 						// Load stored credentials for token refresh
 						const credentials = await workerTokenServiceV8.loadCredentials();
 						if (!credentials) {
-						UnifiedFlowLoggerService.warn('No stored credentials for auto-refresh', {
-							operation: 'autoRefreshWorkerToken',
-							flowType: 'mfa-authentication'
-						});
+							console.warn(`${MODULE_TAG} No stored credentials for auto-refresh`);
+							return;
+						}
+
 						// Use the same logic as attemptSilentTokenRetrieval
 						const region = credentials.region || 'us';
 						const apiBase =
@@ -456,12 +433,9 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 								await workerTokenServiceV8.saveToken(data.access_token, expiresAt);
 
-					UnifiedFlowLoggerService.success('Worker token auto-refreshed successfully', {
-						operation: 'autoRefreshWorkerToken',
-						flowType: 'mfa-authentication',
-						attempt,
-						expiresIn
-					});
+								console.log(`${MODULE_TAG} ✅ Worker token auto-refreshed successfully (attempt ${attempt})`);
+								window.dispatchEvent(new Event('workerTokenUpdated'));
+								
 								// Update token status
 								const newStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 								setTokenStatus(newStatus);
@@ -475,15 +449,14 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 						throw new Error(`Token refresh failed with status ${response.status}`);
 					} catch (error) {
 						lastError = error instanceof Error ? error : new Error(String(error));
-				UnifiedFlowLoggerService.warn('Auto-refresh attempt failed', {
-					operation: 'autoRefreshWorkerToken',
-					flowType: 'mfa-authentication',
-					attempt,
-					retryAttempts
-				}, lastError);
+						console.warn(
+							`${MODULE_TAG} ⚠️ Auto-refresh attempt ${attempt}/${retryAttempts} failed:`,
+							lastError.message
+						);
+
 						// Wait before retrying (exponential backoff)
 						if (attempt < retryAttempts) {
-							const delay = retryDelay * 2 ** (attempt - 1); // Exponential backoff
+							const delay = retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
 							await new Promise((resolve) => setTimeout(resolve, delay));
 						}
 					}
@@ -491,14 +464,9 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 				// All retries failed
 				if (lastError) {
-					UnifiedFlowLoggerService.error(
-						`Worker token auto-refresh failed after ${retryAttempts} attempts`,
-						{
-							operation: 'autoRefreshWorkerToken',
-							flowType: 'mfa-authentication',
-							retryAttempts
-						},
-						lastError
+					console.error(
+						`${MODULE_TAG} ❌ Worker token auto-refresh failed after ${retryAttempts} attempts:`,
+						lastError.message
 					);
 					toastV8.warning(
 						`Worker token auto-refresh failed. Token expires in ${timeRemainingSeconds} seconds.`
@@ -571,40 +539,6 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 		return false; // Error was not handled
 	}, []);
-
-	// Auto-populate environment ID from worker token when token becomes valid
-	useEffect(() => {
-		if (!credentials.environmentId?.trim() && tokenStatus.isValid) {
-			const workerCreds = workerTokenServiceV8.loadCredentialsSync();
-			if (workerCreds?.environmentId) {
-				UnifiedFlowLoggerService.info('Auto-populating environment ID from worker token', {
-					operation: 'autoPopulateEnvironmentId',
-					flowType: 'mfa-authentication',
-					environmentId: workerCreds.environmentId
-				});
-				setCredentials((prev) => {
-					if (prev.environmentId?.trim()) {
-						return prev; // Don't overwrite if already set
-					}
-					return { ...prev, environmentId: workerCreds.environmentId };
-				});
-				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
-					flowKey: FLOW_KEY,
-					flowType: 'oidc',
-					includeClientSecret: false,
-					includeRedirectUri: false,
-					includeLogoutUri: false,
-					includeScopes: false,
-				});
-				if (!stored.environmentId?.trim()) {
-					CredentialsServiceV8.saveCredentials(FLOW_KEY, {
-						...stored,
-						environmentId: workerCreds.environmentId,
-					});
-				}
-			}
-		}
-	}, [tokenStatus.isValid, credentials.environmentId]);
 
 	// Clear auth state when username changes to prevent showing wrong user's data
 	useEffect(() => {
@@ -744,10 +678,10 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 					});
 				}
 			} catch (error) {
-			UnifiedFlowLoggerService.error('Push polling error', {
-				operation: 'pollPushAuthentication',
-				flowType: 'mfa-authentication'
-			}, error instanceof Error ? error : new Error(String(error)));
+				console.error(`${MODULE_TAG} Push polling error:`, error);
+				// Continue polling on error
+			}
+		}, 2000); // Poll every 2 seconds
 
 		return () => clearInterval(pollInterval);
 	}, [showPushModal, authState._links]);
@@ -898,22 +832,11 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 			lastFetchedPolicyEnvIdRef.current = envId;
 			setDeviceAuthPolicies(policies);
 
-			// Auto-select default policy (marked as default) or first policy if none selected
-			if (!credentials.deviceAuthenticationPolicyId && policies.length > 0) {
-				// Find default policy first, otherwise use first policy
-				const defaultPolicy = policies.find((p) => p.default) || policies[0];
-				const policyId = defaultPolicy.id;
-				
-				UnifiedFlowLoggerService.info('Auto-selecting device authentication policy', {
-					operation: 'loadPolicies',
-					flowType: 'mfa-authentication',
-					policyName: defaultPolicy.name,
-					policyId
-				});
-				
+			// Auto-select if only one policy
+			if (!credentials.deviceAuthenticationPolicyId && policies.length === 1) {
 				const updatedCredentials = {
 					...credentials,
-					deviceAuthenticationPolicyId: policyId,
+					deviceAuthenticationPolicyId: policies[0].id,
 				};
 				setCredentials(updatedCredentials);
 				const stored = CredentialsServiceV8.loadCredentials(FLOW_KEY, {
@@ -926,7 +849,7 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 				});
 				CredentialsServiceV8.saveCredentials(FLOW_KEY, {
 					...stored,
-					deviceAuthenticationPolicyId: policyId,
+					deviceAuthenticationPolicyId: policies[0].id,
 				});
 			}
 
@@ -1128,10 +1051,7 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 			// Other error - show error message
 			toastV8.error(authResult.error || 'Authentication failed');
 		} catch (error) {
-			UnifiedFlowLoggerService.error('Usernameless FIDO2 authentication failed', {
-				operation: 'handleUsernamelessFIDO2',
-				flowType: 'mfa-authentication'
-			}, error as Error);
+			console.error(`${MODULE_TAG} Usernameless FIDO2 failed:`, error);
 
 			// Check for NO_USABLE_DEVICES error
 			if (handleDeviceFailureError(error)) {
@@ -1290,11 +1210,7 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 			// Validate that we got an authenticationId from the response
 			if (!response.id) {
-				UnifiedFlowLoggerService.error('Authentication initialized but no ID in response', {
-					operation: 'handleStartMFA',
-					flowType: 'mfa-authentication',
-					response
-				});
+				console.error(`${MODULE_TAG} Authentication initialized but no ID in response:`, response);
 				toastV8.error(
 					'Failed to initialize authentication: No authentication ID received from PingOne'
 				);
@@ -1495,12 +1411,26 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
 			{/* Page Header */}
-		<PageHeaderV8
-			title="🔐 MFA Authentication"
-			subtitle="Unified authentication flow for all MFA device types"
-			gradient={PageHeaderGradients.mfaAuth}
-			textColor={PageHeaderTextColors.white}
-		/>
+			<div
+				style={{
+					background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+					borderRadius: '12px',
+					padding: '32px',
+					marginBottom: '32px',
+					color: 'white',
+					boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
+				}}
+			>
+				<h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '700', color: 'white' }}>
+					🔐 MFA Authentication
+				</h1>
+				<p style={{ margin: 0, fontSize: '16px', color: 'white', opacity: 0.9 }}>
+					Unified authentication flow for all MFA device types
+				</p>
+			</div>
+
+			{/* Postman Collection Download Buttons */}
+			<div
 				style={{
 					background: 'white',
 					borderRadius: '12px',
@@ -1644,45 +1574,148 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 				<div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
 					{/* Primary Button: Start MFA */}
-				<PrimaryButton
-					onClick={handleStartMFA}
-					disabled={
-						authState.isLoading ||
-						!tokenStatus.isValid ||
-						!credentials.environmentId ||
-						!credentials.deviceAuthenticationPolicyId
-					}
-					icon={authState.isLoading ? <FiLoader style={{ animation: 'spin 1s linear infinite' }} /> : <FiShield />}
-				>
-					{authState.isLoading ? 'Starting...' : 'Start Authentication'}
-				</PrimaryButton>
-				<SuccessButton
-					onClick={() => setShowRegistrationModal(true)}
-					disabled={
-						!tokenStatus.isValid ||
-						!credentials.environmentId ||
-						!credentials.deviceAuthenticationPolicyId
-					}
-					icon={<FiPlus />}
-				>
-					Register Device
-				</SuccessButton>
+					<button
+						type="button"
+						onClick={handleStartMFA}
+						disabled={
+							authState.isLoading ||
+							!tokenStatus.isValid ||
+							!credentials.environmentId ||
+							!credentials.deviceAuthenticationPolicyId
+						}
+						style={{
+							padding: '10px 24px',
+							border: 'none',
+							borderRadius: '6px',
+							background:
+								tokenStatus.isValid &&
+								credentials.environmentId &&
+								credentials.deviceAuthenticationPolicyId
+									? '#3b82f6'
+									: '#9ca3af',
+							color: 'white',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor:
+								tokenStatus.isValid &&
+								credentials.environmentId &&
+								credentials.deviceAuthenticationPolicyId
+									? 'pointer'
+									: 'not-allowed',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						{authState.isLoading ? (
+							<>
+								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+								Starting...
+							</>
+						) : (
+							<>
+								<FiShield />
+								Start Authentication
+							</>
+						)}
+					</button>
+
+					{/* Registration Button */}
+					<button
+						type="button"
+						onClick={() => setShowRegistrationModal(true)}
+						disabled={
+							!tokenStatus.isValid ||
+							!credentials.environmentId ||
+							!credentials.deviceAuthenticationPolicyId
+						}
+						style={{
+							padding: '10px 24px',
+							border: 'none',
+							borderRadius: '6px',
+							background:
+								tokenStatus.isValid &&
+								credentials.environmentId &&
+								credentials.deviceAuthenticationPolicyId
+									? '#10b981'
+									: '#9ca3af',
+							color: 'white',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor:
+								tokenStatus.isValid &&
+								credentials.environmentId &&
+								credentials.deviceAuthenticationPolicyId
+									? 'pointer'
+									: 'not-allowed',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						<FiPlus />
+						Register Device
+					</button>
+
 					{/* Secondary Button: Username-less FIDO2 */}
-				<SecondaryButton
-					onClick={handleUsernamelessFIDO2}
-					disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
-					icon={<FiKey />}
-				>
-					Use Passkey / FaceID (username-less)
-				</SecondaryButton>
+					<button
+						type="button"
+						onClick={handleUsernamelessFIDO2}
+						disabled={authState.isLoading || !tokenStatus.isValid || !credentials.environmentId}
+						style={{
+							padding: '10px 24px',
+							border: '2px solid #3b82f6',
+							borderRadius: '6px',
+							background: 'white',
+							color: '#3b82f6',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: tokenStatus.isValid && credentials.environmentId ? 'pointer' : 'not-allowed',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+						}}
+					>
+						<FiKey />
+						Use Passkey / FaceID (username-less)
+					</button>
+
 					{/* Clear Tokens & Session Button */}
-				<DangerButton
-					onClick={() => setShowClearTokensModal(true)}
-					disabled={isClearingTokens}
-					icon={isClearingTokens ? <FiLoader style={{ animation: 'spin 1s linear infinite' }} /> : <FiTrash2 />}
-				>
-					{isClearingTokens ? 'Clearing...' : 'Clear Tokens & Session'}
-				</DangerButton>
+					<button
+						type="button"
+						onClick={() => setShowClearTokensModal(true)}
+						disabled={isClearingTokens}
+						style={{
+							padding: '10px 24px',
+							border: 'none',
+							borderRadius: '6px',
+							background: isClearingTokens ? '#9ca3af' : '#ef4444',
+							color: 'white',
+							fontSize: '16px',
+							fontWeight: '600',
+							cursor: isClearingTokens ? 'not-allowed' : 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '8px',
+							opacity: isClearingTokens ? 0.6 : 1,
+							transition: 'all 0.2s ease',
+						}}
+					>
+						{isClearingTokens ? (
+							<>
+								<FiLoader style={{ animation: 'spin 1s linear infinite' }} />
+								Clearing...
+							</>
+						) : (
+							<>
+								<FiTrash2 />
+								Clear Tokens & Session
+							</>
+						)}
+					</button>
+				</div>
+			</div>
+
 			{/* Clear Tokens Confirmation Modal */}
 			<ConfirmModalV8
 				isOpen={showClearTokensModal}
@@ -1953,19 +1986,9 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 							style={{
 								width: '100%',
 								padding: '8px 12px',
-								border: credentials.environmentId?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
+								border: '1px solid #d1d5db',
 								borderRadius: '6px',
 								fontSize: '14px',
-								background: credentials.environmentId?.trim() ? 'white' : '#fef2f2',
-								transition: 'border-color 0.2s ease, background-color 0.2s ease',
-							}}
-							onFocus={(e) => {
-								e.target.style.borderColor = '#3b82f6';
-								e.target.style.background = 'white';
-							}}
-							onBlur={(e) => {
-								e.target.style.borderColor = credentials.environmentId?.trim() ? '#d1d5db' : '#ef4444';
-								e.target.style.background = credentials.environmentId?.trim() ? 'white' : '#fef2f2';
 							}}
 						/>
 					</div>
@@ -2014,19 +2037,9 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 							style={{
 								width: '100%',
 								padding: '8px 12px',
-								border: usernameInput?.trim() ? '1px solid #d1d5db' : '2px solid #ef4444',
+								border: '1px solid #d1d5db',
 								borderRadius: '6px',
 								fontSize: '14px',
-								background: usernameInput?.trim() ? 'white' : '#fef2f2',
-								transition: 'border-color 0.2s ease, background-color 0.2s ease',
-							}}
-							onFocus={(e) => {
-								e.target.style.borderColor = '#3b82f6';
-								e.target.style.background = 'white';
-							}}
-							onBlur={(e) => {
-								e.target.style.borderColor = usernameInput?.trim() ? '#d1d5db' : '#ef4444';
-								e.target.style.background = usernameInput?.trim() ? 'white' : '#fef2f2';
 							}}
 						/>
 					</div>
@@ -4465,13 +4478,15 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 																toastV8.success('Device selected successfully');
 															}
 														} catch (error) {
+															console.error(`${MODULE_TAG} Failed to select device:`, error);
+															
+															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															const errorWithCode = error as Error & {
 																errorCode?: string;
 																deliveryMethod?: string;
 																coolDownExpiresAt?: number;
 															};
 															
-															// Check for LIMIT_EXCEEDED error (cooldown/lockout)
 															if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
 																const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
 																setCooldownError({
@@ -4480,19 +4495,10 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 																	...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
 																});
 																toastV8.warning(errorMessage);
-															} 
-															// For all other errors, show in UI (Device Failure Modal) and toast
-															else {
-																const errorMessage = error instanceof Error ? error.message : 'Failed to select device';
-																console.error(`${MODULE_TAG} Failed to select device:`, error);
-																
-																// Show error in UI (Device Failure Modal) - not just toast
-																setDeviceFailureError(errorMessage);
-																setUnavailableDevices([]);
-																setShowDeviceFailureModal(true);
-																
-																// Also show toast for immediate feedback
-																toastV8.error(errorMessage);
+															} else {
+																toastV8.error(
+																	error instanceof Error ? error.message : 'Failed to select device'
+																);
 															}
 															setAuthState((prev) => ({ ...prev, isLoading: false }));
 														}
@@ -4957,7 +4963,7 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 
 										try {
 											// Get userId if not already available
-											let userId = authState.userId;
+											const userId = authState.userId;
 											if (!userId) {
 												const user = await MFAServiceV8.lookupUserByUsername(
 													credentials.environmentId,
@@ -4967,42 +4973,49 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 												setAuthState((prev) => ({ ...prev, userId }));
 											}
 
-											// Use the new resendOTPForActiveDevice method which:
-											// 1. Tries cancel + re-initialize (most reliable)
-											// 2. Falls back to re-select device if cancel fails
-											const data = await MfaAuthenticationServiceV8.resendOTPForActiveDevice({
-												environmentId: credentials.environmentId,
-												username: usernameInput.trim(),
-												userId,
-												authenticationId: authState.authenticationId,
-												deviceId: authState.selectedDeviceId,
-												region: credentials.region,
-												customDomain: credentials.customDomain,
-											});
+											// Re-select device to trigger new OTP
+											// According to cursor-optimized.md: Only use verified endpoints
+											// Re-selecting device triggers a new OTP via selectDeviceForAuthentication endpoint
+											const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
+												{
+													environmentId: credentials.environmentId,
+													username: usernameInput.trim(),
+													userId,
+													authenticationId: authState.authenticationId,
+													deviceId: authState.selectedDeviceId,
+													region: credentials.region,
+													customDomain: credentials.customDomain,
+												},
+												{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
+											);
 
-											// If cancel + re-initialize was used, we have a new authenticationId
-											// Update auth state with new authentication ID if changed
-											if (data.id && data.id !== authState.authenticationId) {
-												setAuthState((prev) => ({
-													...prev,
-													authenticationId: data.id as string,
-													status: data.status || prev.status,
-													nextStep: data.nextStep || prev.nextStep,
-													_links: (data._links as Record<string, { href: string }>) || prev._links,
-												}));
-											} else {
-												// Update auth state with new links
-												const status = data.status || authState.status;
-												const nextStep = data.nextStep || authState.nextStep;
-												const links = (data._links as Record<string, { href: string }>) || {};
-
-												setAuthState((prev) => ({
-													...prev,
-													status,
-													nextStep,
-													_links: { ...prev._links, ...links },
-												}));
+											// Read device authentication to get updated state
+											let authDetails: Record<string, unknown> | null = null;
+											try {
+												authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
+													credentials.environmentId,
+													userId || usernameInput.trim(),
+													authState.authenticationId,
+													{ isUserId: !!userId }
+												);
+											} catch (readError) {
+												console.warn(
+													`${MODULE_TAG} Failed to read device authentication after resend:`,
+													readError
+												);
 											}
+
+											// Update auth state with new links
+											const status = (authDetails?.status as string) || data.status || '';
+											const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
+											const links = (data._links as Record<string, { href: string }>) || {};
+
+											setAuthState((prev) => ({
+												...prev,
+												status,
+												nextStep,
+												_links: { ...prev._links, ...links },
+											}));
 
 											toastV8.success(
 												'New verification code has been sent. Please check your device.'
@@ -6072,6 +6085,12 @@ UnifiedFlowLoggerService.info('Worker token expires soon, attempting auto-refres
 			)}
 
 			{/* Device Selection Info Modal */}
+			{/* Device Selection Behavior Info Modal */}
+			<MFADeviceSelectionInfoModal
+				show={showDeviceSelectionInfoModal}
+				onClose={() => setShowDeviceSelectionInfoModal(false)}
+			/>
+
 			{showDeviceSelectionInfoModal && (
 				<div
 					style={{
