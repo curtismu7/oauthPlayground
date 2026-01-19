@@ -6,6 +6,9 @@
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
+	"overrides": {
+		"popper.js": "npm:@popperjs/core@^2.11.8"
+	},
 	"scripts": {
 		"start": "./scripts/dev/start-full-stack.sh",
 		"start:frontend": "vite",
