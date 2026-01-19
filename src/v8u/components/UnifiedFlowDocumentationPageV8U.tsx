@@ -49,17 +49,18 @@ interface DocumentationApiCall {
 
 /**
  * Convert tracked API calls to documentation format
+ * Now includes ALL API calls (management, OIDC metadata, pre-flight, OAuth flow)
  */
 export const convertTrackedCallsToDocumentation = (
 	trackedCalls: TrackedApiCall[],
 	flowType: FlowType,
 	specVersion: SpecVersion
 ): DocumentationApiCall[] => {
-	const filteredCalls = trackedCalls.filter(
-		(call) => call.flowType === 'unified' || call.step?.startsWith('unified-')
-	);
+	// Include ALL tracked calls (no filtering by flowType)
+	// We'll organize by category in the UI instead
+	const allCalls = trackedCalls;
 
-	return filteredCalls.map((call, index) => {
+	return allCalls.map((call, index) => {
 		// Extract step name from call.step or generate one
 		const stepName = call.step
 			? call.step.replace(/^unified-/, '').replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
@@ -446,6 +447,28 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 		[trackedCalls, flowType, specVersion]
 	);
 
+	// Group API calls by category for better organization
+	const groupedCalls = useMemo(() => {
+		const allCalls = apiCallTrackerService.getApiCalls();
+		
+		return {
+			managementApi: allCalls.filter(call => 
+				call.flowType === 'management-api' || 
+				call.flowType === 'worker-token'
+			),
+			oidcMetadata: allCalls.filter(call => 
+				call.flowType === 'oidc-metadata'
+			),
+			preflightValidation: allCalls.filter(call => 
+				call.flowType === 'preflight-validation'
+			),
+			oauthFlow: allCalls.filter(call => 
+				call.flowType === 'unified' || 
+				call.step?.startsWith('unified-')
+			),
+		};
+	}, [trackedCalls]);
+
 	const toggleSection = (index: number): void => {
 		setExpandedSections((prev) => {
 			const next = new Set(prev);
@@ -702,11 +725,99 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 				</div>
 			</div>
 
+			{/* API Calls by Category */}
+			{apiCalls.length > 0 && (
+				<div style={{ marginBottom: '32px' }}>
+					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
+						API Calls by Category
+					</h3>
+					<div style={{ 
+						display: 'grid', 
+						gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+						gap: '16px',
+						marginBottom: '32px'
+					}}>
+						{groupedCalls.managementApi.length > 0 && (
+							<div style={{
+								padding: '16px',
+								background: '#fef3c7',
+								borderRadius: '8px',
+								borderLeft: '4px solid #f59e0b',
+							}}>
+								<div style={{ fontSize: '14px', fontWeight: '600', color: '#92400e', marginBottom: '4px' }}>
+									🔐 Management API
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#78350f' }}>
+									{groupedCalls.managementApi.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>
+									Worker Token, App Discovery
+								</div>
+							</div>
+						)}
+						{groupedCalls.oidcMetadata.length > 0 && (
+							<div style={{
+								padding: '16px',
+								background: '#dbeafe',
+								borderRadius: '8px',
+								borderLeft: '4px solid #3b82f6',
+							}}>
+								<div style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af', marginBottom: '4px' }}>
+									📋 OIDC Metadata
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#1e3a8a' }}>
+									{groupedCalls.oidcMetadata.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#1e40af', marginTop: '4px' }}>
+									Discovery, JWKS
+								</div>
+							</div>
+						)}
+						{groupedCalls.preflightValidation.length > 0 && (
+							<div style={{
+								padding: '16px',
+								background: '#dcfce7',
+								borderRadius: '8px',
+								borderLeft: '4px solid #16a34a',
+							}}>
+								<div style={{ fontSize: '14px', fontWeight: '600', color: '#15803d', marginBottom: '4px' }}>
+									✅ Pre-flight Validation
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#166534' }}>
+									{groupedCalls.preflightValidation.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#15803d', marginTop: '4px' }}>
+									Config Checks
+								</div>
+							</div>
+						)}
+						{groupedCalls.oauthFlow.length > 0 && (
+							<div style={{
+								padding: '16px',
+								background: '#f3e8ff',
+								borderRadius: '8px',
+								borderLeft: '4px solid #9333ea',
+							}}>
+								<div style={{ fontSize: '14px', fontWeight: '600', color: '#7e22ce', marginBottom: '4px' }}>
+									🔄 OAuth Flow
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#6b21a8' }}>
+									{groupedCalls.oauthFlow.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#7e22ce', marginTop: '4px' }}>
+									Authorization, Tokens
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
+
 			{/* API Calls Summary Table */}
 			{apiCalls.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
 					<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-						API Calls Summary
+						Complete API Calls List
 					</h3>
 					<div
 						style={{
