@@ -67,6 +67,12 @@ import {
 } from '@/services/postmanCollectionGeneratorV8';
 import { type Device, MFADeviceSelector } from './components/MFADeviceSelector';
 import { MFAOTPInput } from './components/MFAOTPInput';
+import { 
+	MFAPolicyInfoModal, 
+	MFADeviceSelectionInfoModal,
+	MFAOTPInputModal,
+	MFAPushConfirmationModal
+} from './components/modals';
 
 const MODULE_TAG = '[🔐 MFA-AUTHN-MAIN-V8]';
 const FLOW_KEY = 'mfa-flow-v8';
@@ -4619,7 +4625,7 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* OTP Modal */}
+			{/* FIDO2 Modal */}
 			{showFIDO2Modal && (
 				<div
 					style={{
@@ -5154,12 +5160,12 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 									Cancel
 								</button>
 							</div>
-						</div>
 					</div>
 				</div>
 			)}
 
-			{/* Push Modal */}
+			{/* Device Registration Modal */}
+			{showRegistrationModal && (
 				<div
 					style={{
 						position: 'fixed',
@@ -5449,254 +5455,3 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				show={showDeviceSelectionInfoModal}
 				onClose={() => setShowDeviceSelectionInfoModal(false)}
 			/>
-
-			{/* OTP Input Modal */}
-			<MFAOTPInputModal
-				show={showOTPModal}
-				onClose={() => {
-					setShowOTPModal(false);
-					setOtpCode('');
-					setOtpError(null);
-				}}
-				otpCode={otpCode}
-				setOtpCode={setOtpCode}
-				otpError={otpError}
-				setOtpError={setOtpError}
-				isValidatingOTP={isValidatingOTP}
-				onVerifyCode={async () => {
-					if (otpCode.length !== 6) {
-						setOtpError('Please enter a 6-digit code');
-						return;
-					}
-
-					if (!authState.authenticationId) {
-						setOtpError('Authentication session not found');
-						return;
-					}
-
-					setIsValidatingOTP(true);
-					setOtpError(null);
-
-					try {
-						const otpCheckUrl = authState._links?.['otp.check']?.href;
-						if (!otpCheckUrl) {
-							throw new Error('OTP check URL not available');
-						}
-						const result = await MfaAuthenticationServiceV8.validateOTP({
-							environmentId: credentials.environmentId,
-							username: usernameInput.trim(),
-							authenticationId: authState.authenticationId,
-							otp: otpCode,
-							otpCheckUrl,
-						});
-
-						if (result.valid) {
-							// Update auth state with new links from OTP validation response
-							const newLinks = (result._links as Record<string, { href: string }>) || {};
-							const updatedLinks = { ...authState._links, ...newLinks };
-
-							// Complete authentication to get access token if complete link is available
-							let completionResult = null;
-							if (updatedLinks['complete']?.href) {
-								try {
-									completionResult =
-										await MfaAuthenticationServiceV8.completeAuthentication(
-											updatedLinks['complete'].href
-										);
-								} catch (completeError) {
-									console.warn(
-										`${MODULE_TAG} Failed to complete authentication:`,
-										completeError
-									);
-									// Continue even if completion fails - OTP was validated successfully
-								}
-							}
-
-							setShowOTPModal(false);
-							setOtpCode('');
-							setOtpError(null);
-
-							// Get selected device details
-							const selectedDevice = authState.devices.find(
-								(d) => d.id === authState.selectedDeviceId
-							);
-							const selectedPolicy = deviceAuthPolicies.find(
-								(p) => p.id === credentials.deviceAuthenticationPolicyId
-							);
-							const policyName = selectedPolicy?.name;
-							const deviceSelectionBehavior = selectedPolicy?.authentication
-								?.deviceSelection as string | undefined;
-
-							// Navigate to success page with completion result
-							navigate('/v8/mfa/authentication/success', {
-								state: {
-									completionResult: completionResult
-										? {
-												...completionResult, // Include all fields from completion result
-											}
-										: null,
-									username: usernameInput.trim(),
-									userId: authState.userId,
-									environmentId: credentials.environmentId,
-									deviceType: selectedDevice?.type || 'OTP',
-									deviceId: authState.selectedDeviceId,
-									deviceDetails: selectedDevice
-										? {
-												id: selectedDevice.id,
-												type: selectedDevice.type,
-												nickname: selectedDevice.nickname,
-												name: selectedDevice.name,
-												phone: selectedDevice.phone,
-												email: selectedDevice.email,
-												status: selectedDevice.status,
-											}
-										: null,
-									policyId: credentials.deviceAuthenticationPolicyId,
-									policyName: policyName,
-									authenticationId: authState.authenticationId,
-									challengeId: authState.challengeId,
-									timestamp: new Date().toISOString(),
-									deviceSelectionBehavior: deviceSelectionBehavior,
-								},
-							});
-						} else {
-							setOtpError(
-								result.message || 'Invalid verification code. Please try again.'
-							);
-							setOtpCode('');
-						}
-					} catch (error) {
-						console.error(`${MODULE_TAG} OTP validation failed:`, error);
-						setOtpError(
-							error instanceof Error ? error.message : 'Failed to validate code'
-						);
-						setOtpCode('');
-					} finally {
-						setIsValidatingOTP(false);
-					}
-				}}
-				onResendCode={async () => {
-					// Resend OTP by re-selecting the device
-					if (!authState.authenticationId || !authState.selectedDeviceId) {
-						setOtpError('Authentication session or device not found');
-						return;
-					}
-
-					setIsValidatingOTP(true);
-					setOtpError(null);
-					setOtpCode(''); // Clear existing code
-
-					try {
-						// Get userId if not already available
-						let userId = authState.userId;
-						if (!userId) {
-							const user = await MFAServiceV8.lookupUserByUsername(
-								credentials.environmentId,
-								usernameInput.trim()
-							);
-							userId = user.id as string;
-							setAuthState((prev) => ({ ...prev, userId }));
-						}
-
-						// Re-select device to trigger new OTP
-						const data = await MfaAuthenticationServiceV8.selectDeviceForAuthentication(
-							{
-								environmentId: credentials.environmentId,
-								username: usernameInput.trim(),
-								userId,
-								authenticationId: authState.authenticationId,
-								deviceId: authState.selectedDeviceId,
-								region: credentials.region,
-								customDomain: credentials.customDomain,
-							},
-							{ stepName: 'mfa-Resend OTP Code' } // Custom step name for API display
-						);
-
-						// Read device authentication to get updated state
-						let authDetails: Record<string, unknown> | null = null;
-						try {
-							authDetails = await MfaAuthenticationServiceV8.readDeviceAuthentication(
-								credentials.environmentId,
-								userId || usernameInput.trim(),
-								authState.authenticationId,
-								{ isUserId: !!userId }
-							);
-						} catch (readError) {
-							console.warn(
-								`${MODULE_TAG} Failed to read device authentication after resend:`,
-								readError
-							);
-						}
-
-						// Update auth state with new links
-						const status = (authDetails?.status as string) || data.status || '';
-						const nextStep = (authDetails?.nextStep as string) || data.nextStep || '';
-						const links = (data._links as Record<string, { href: string }>) || {};
-
-						setAuthState((prev) => ({
-							...prev,
-							status,
-							nextStep,
-							_links: { ...prev._links, ...links },
-						}));
-
-						toastV8.success(
-							'New verification code has been sent. Please check your device.'
-						);
-					} catch (error) {
-						console.error(`${MODULE_TAG} Failed to resend OTP:`, error);
-						
-						// Check for LIMIT_EXCEEDED error (cooldown/lockout)
-						const errorWithCode = error as Error & {
-							errorCode?: string;
-							deliveryMethod?: string;
-							coolDownExpiresAt?: number;
-						};
-						
-						if (errorWithCode.errorCode === 'LIMIT_EXCEEDED') {
-							const errorMessage = error instanceof Error ? error.message : 'Authentication temporarily locked';
-							setCooldownError({
-								message: errorMessage,
-								...(errorWithCode.deliveryMethod ? { deliveryMethod: errorWithCode.deliveryMethod } : {}),
-								...(errorWithCode.coolDownExpiresAt ? { coolDownExpiresAt: errorWithCode.coolDownExpiresAt } : {}),
-							});
-							toastV8.warning(errorMessage);
-						} else {
-							const errorMessage =
-								error instanceof Error ? error.message : 'Failed to resend code';
-							setOtpError(errorMessage);
-							toastV8.error(`Failed to resend code: ${errorMessage}`);
-						}
-					} finally {
-						setIsValidatingOTP(false);
-					}
-				}}
-				selectedDeviceInfo={(() => {
-					// Try to find device in authState.devices first, then fallback to userDevices
-					let selectedDevice = authState.devices.find(
-						(d) => d.id === authState.selectedDeviceId
-					);
-					if (!selectedDevice && authState.selectedDeviceId) {
-						selectedDevice = userDevices.find(
-							(d) => (d.id as string) === authState.selectedDeviceId
-						) as Device | undefined;
-					}
-					return selectedDevice && (selectedDevice.phone || selectedDevice.email)
-						? {
-								phone: selectedDevice.phone,
-								email: selectedDevice.email,
-							}
-						: null;
-				})()}
-			/>
-
-			{/* Push Confirmation Modal */}
-			<MFAPushConfirmationModal
-				show={showPushModal}
-				onClose={() => setShowPushModal(false)}
-			/>
-		</div>
-	);
-};
-
-export default MFAAuthenticationMainPageV8;
