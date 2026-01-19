@@ -588,3 +588,33 @@ If you encounter issues not covered in this documentation:
 4. Verify all prerequisites are met
 5. Contact PingOne support if configuration issues persist
 
+
+---
+
+## API Calls Documentation
+
+All API calls made during this flow are automatically tracked and documented. You can view complete request/response details on the **API Documentation** page.
+
+### API Call Categories
+
+**🔐 Management API** (if Worker Token is configured)
+- **Worker Token Retrieval**: Obtain access token for PingOne Management API
+- **Application Discovery**: List applications in environment  
+- **Application Details**: Fetch app configuration and credentials
+
+**📋 OIDC Metadata** (if OIDC Discovery is used)
+- **OIDC Discovery**: Fetch `/.well-known/openid-configuration`
+
+**✅ Pre-flight Validation** (if enabled)
+- **Configuration Checks**: Validate client credentials, auth method
+
+**🔄 OAuth Flow** (always tracked)
+- **Token Request**: Exchange client credentials for access token
+- **Token Introspection**: Validate token status (optional)
+
+### How to Access
+
+1. Complete any step in the flow
+2. Click **"View API Documentation"** button at the bottom
+3. View detailed request/response for each call
+4. Download as Postman collection for testing
