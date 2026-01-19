@@ -135,7 +135,7 @@ import V7RMCondensedMock from './pages/flows/V7RMCondensedMock';
 import V7RMOAuthAuthorizationCodeFlow_Condensed from './pages/flows/V7RMOAuthAuthorizationCodeFlow_Condensed';
 import V7RMOIDCResourceOwnerPasswordFlow from './pages/flows/V7RMOIDCResourceOwnerPasswordFlow';
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
-import InteractiveTutorials from './pages/InteractiveTutorials';
+// import InteractiveTutorials from './pages/InteractiveTutorials'; // Removed - unused tutorial feature
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
 import OAuth21 from './pages/OAuth21';
@@ -961,7 +961,7 @@ const AppRoutes: React.FC = () => {
 								element={<AdvancedSecuritySettingsComparison />}
 							/>
 							<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
-							<Route path="/tutorials" element={<InteractiveTutorials />} />
+							{/* <Route path="/tutorials" element={<InteractiveTutorials />} /> */} {/* Removed - unused tutorial feature */}
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
