@@ -78,67 +78,68 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 					boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
 				}}
 			>
-				<div
-					className="mfa-nav-links"
+			<div
+				className="mfa-nav-links"
+				style={{
+					marginBottom: 0,
+					display: 'flex',
+					gap: '6px',
+					flex: 1,
+					alignItems: 'center',
+					width: '100%',
+				}}
+			>
+				<button
+					type="button"
+					onClick={() => navigateToMfaHubWithCleanup(navigate)}
+					className={`nav-link-btn nav-btn-hub ${currentPage === 'hub' ? 'active' : ''}`}
+					title="Go to MFA Hub"
 					style={{
-						marginBottom: 0,
-						display: 'flex',
-						gap: '0',
+						fontWeight: currentPage === 'hub' ? '600' : '500',
 						flex: 1,
-						alignItems: 'center',
+						background: '#3b82f6',
+						color: 'white',
+						border: '2px solid #3b82f6',
 					}}
 				>
-					<button
-						type="button"
-						onClick={() => navigateToMfaHubWithCleanup(navigate)}
-						className={`nav-link-btn ${currentPage === 'hub' ? 'active' : ''}`}
-						title="Go to MFA Hub"
-						style={{
-							fontWeight: currentPage === 'hub' ? '600' : '500',
-							flex: 1,
-							background: '#3b82f6',
-							color: 'white',
-							border: '2px solid #3b82f6',
-						}}
-					>
-						🏠 MFA Hub
-					</button>
-					<button
-						type="button"
-						onClick={() => navigate('/v8/mfa-device-management')}
-						className={`nav-link-btn ${currentPage === 'management' ? 'active' : ''}`}
-						title="Manage MFA Devices"
-						style={{
-							fontWeight: currentPage === 'management' ? '600' : '500',
-							flex: 1,
-						}}
-					>
-						🔧 Device Management
-					</button>
-					<button
-						type="button"
-						onClick={() => navigate('/v8/mfa-device-ordering')}
-						className={`nav-link-btn ${currentPage === 'ordering' ? 'active' : ''}`}
-						title="Configure MFA device ordering"
-						style={{
-							fontWeight: currentPage === 'ordering' ? '600' : '500',
-							flex: 1,
-						}}
-					>
-						📋 Device Ordering
-					</button>
-					<button
-						type="button"
-						onClick={() => navigate('/v8/mfa-reporting')}
-						className={`nav-link-btn ${currentPage === 'reporting' ? 'active' : ''}`}
-						title="View MFA Reports"
-						style={{
-							fontWeight: currentPage === 'reporting' ? '600' : '500',
-							flex: 1,
-						}}
-					>
-						📊 Reporting
-					</button>
+					🏠 MFA Hub
+				</button>
+				<button
+					type="button"
+					onClick={() => navigate('/v8/mfa-device-management')}
+					className={`nav-link-btn nav-btn-management ${currentPage === 'management' ? 'active' : ''}`}
+					title="Manage MFA Devices"
+					style={{
+						fontWeight: currentPage === 'management' ? '600' : '500',
+						flex: 1,
+					}}
+				>
+					🔧 Device Management
+				</button>
+				<button
+					type="button"
+					onClick={() => navigate('/v8/mfa-device-ordering')}
+					className={`nav-link-btn nav-btn-ordering ${currentPage === 'ordering' ? 'active' : ''}`}
+					title="Configure MFA device ordering"
+					style={{
+						fontWeight: currentPage === 'ordering' ? '600' : '500',
+						flex: 1,
+					}}
+				>
+					📋 Device Ordering
+				</button>
+				<button
+					type="button"
+					onClick={() => navigate('/v8/mfa-reporting')}
+					className={`nav-link-btn nav-btn-reporting ${currentPage === 'reporting' ? 'active' : ''}`}
+					title="View MFA Reports"
+					style={{
+						fontWeight: currentPage === 'reporting' ? '600' : '500',
+						flex: 1,
+					}}
+				>
+					📊 Reporting
+				</button>
 					<button
 						type="button"
 						onClick={() => navigate('/v8/mfa-config')}
@@ -208,86 +209,108 @@ export const MFANavigationV8: React.FC<MFANavigationV8Props> = ({
 			<style>{`
 				.mfa-nav-links {
 					display: flex;
-					gap: 0;
+					gap: 6px;
 					flex-wrap: nowrap;
 					width: 100%;
 				}
 
 				.nav-link-btn {
-					padding: 10px 16px;
+					padding: 8px 12px;
 					background: #f3f4f6;
 					color: #1f2937;
 					border: 2px solid transparent;
-					border-right: 1px solid #e5e7eb;
-					border-radius: 0;
-					font-size: 14px;
+					border-radius: 6px;
+					font-size: 12px;
 					font-weight: 500;
 					cursor: pointer;
 					transition: all 0.2s ease;
 					display: flex;
 					align-items: center;
 					justify-content: center;
-					gap: 8px;
+					gap: 4px;
 					text-align: center;
-					min-width: 0;
+					min-width: fit-content;
 					flex: 1;
+					height: 40px;
+					white-space: nowrap;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 
-				.nav-link-btn:first-child {
-					border-top-left-radius: 6px;
-					border-bottom-left-radius: 6px;
+				/* Different colored outlines for each button */
+				.nav-btn-hub {
+					border-color: #3b82f6 !important;
 				}
 
-				.mfa-nav-links > .nav-link-btn:last-of-type,
-				.mfa-nav-links > .api-display-wrapper:last-of-type {
-					border-top-right-radius: 6px;
-					border-bottom-right-radius: 6px;
-					border-right: none;
+				.nav-btn-management {
+					border-color: #10b981 !important;
+				}
+
+				.nav-btn-ordering {
+					border-color: #f59e0b !important;
+				}
+
+				.nav-btn-reporting {
+					border-color: #8b5cf6 !important;
+				}
+
+				.nav-btn-config {
+					border-color: #06b6d4 !important;
+				}
+
+				.nav-btn-docs {
+					border-color: #fbbf24 !important;
+				}
+
+				.nav-btn-back {
+					border-color: #3b82f6 !important;
+				}
+
+				.nav-btn-restart {
+					border-color: #ef4444 !important;
 				}
 
 				.nav-link-btn.active {
-					border: 2px solid #3b82f6;
 					background: #f3f4f6;
-					color: #3b82f6;
-					z-index: 1;
-					position: relative;
+					color: #1f2937;
+					font-weight: 600;
 				}
 
 				.nav-link-btn:hover {
 					background: #e5e7eb;
-					color: #3b82f6;
+					transform: translateY(-1px);
+					box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 				}
 
-				.nav-link-btn:first-child:hover {
-					background: #2563eb;
+				/* Active state overrides */
+				.nav-btn-hub.active,
+				.nav-btn-back {
+					background: #3b82f6;
 					color: white;
-					border-color: #2563eb;
 				}
 
-				.nav-link-btn.active:hover {
+				.nav-btn-docs {
+					background: #fbbf24;
+					color: white;
+				}
+
+				.nav-btn-restart {
 					background: #f3f4f6;
-					border-color: #3b82f6;
-				}
-
-				.nav-link-btn:first-child.active:hover {
-					background: #2563eb;
-					color: white;
-					border-color: #2563eb;
-				}
-
-				.nav-link-btn.restart-btn:hover {
 					color: #ef4444;
 				}
 
+				.nav-btn-restart:hover {
+					background: #fee2e2;
+				}
+
 				.api-display-wrapper {
-					background: #f3f4f6;
-					border: 2px solid transparent;
-					border-right: 1px solid #e5e7eb;
 					cursor: default;
 				}
 
 				.api-display-wrapper:hover {
 					background: #f3f4f6;
+					transform: none;
+					box-shadow: none;
 				}
 			`}</style>
 		</>
