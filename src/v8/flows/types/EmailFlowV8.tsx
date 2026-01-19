@@ -28,6 +28,7 @@ import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
+import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -128,7 +129,14 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 				if (cancelled) {
 					return;
 				}
-				console.error(`${MODULE_TAG} Failed to load devices`, error);
+				UnifiedFlowErrorHandler.handleError(error, {
+					flowType: 'mfa' as any,
+					deviceType: 'EMAIL',
+					operation: 'loadExistingDevices',
+				}, {
+					showToast: false, // Silent failure for background operation
+					logError: true,
+				});
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -199,10 +207,15 @@ const EmailDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigur
 					toastV8.success('Device selected for authentication. Follow the next step to continue.');
 			}
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-			toastV8.error(`Authentication failed: ${message}`);
+			UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				deviceType: 'EMAIL',
+				operation: 'initializeAuthentication',
+			}, {
+				showToast: true,
+				setValidationErrors: (errs) => nav.setValidationErrors(errs),
+				logError: true,
+			});
 			updateOtpState({ otpSent: false });
 		} finally {
 			setIsLoading(false);
