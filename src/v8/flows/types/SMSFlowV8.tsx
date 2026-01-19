@@ -36,6 +36,7 @@ import {
 	MFASuccessPageV8,
 } from '../shared/mfaSuccessPageServiceV8';
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
+import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 
 const MODULE_TAG = '[📱 SMS-FLOW-V8]';
 
@@ -136,7 +137,14 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 				if (cancelled) {
 					return;
 				}
-				console.error(`${MODULE_TAG} Failed to load devices`, error);
+				UnifiedFlowErrorHandler.handleError(error, {
+					flowType: 'mfa' as any,
+					deviceType: 'SMS',
+					operation: 'loadExistingDevices',
+				}, {
+					showToast: false, // Silent failure for background operation
+					logError: true,
+				});
 				setDeviceSelection((prev) => ({
 					...prev,
 					loadingDevices: false,
@@ -206,10 +214,15 @@ const SMSDeviceSelectionStep: React.FC<DeviceSelectionStepProps & { isConfigured
 					toastV8.success('Device selected for authentication. Follow the next step to continue.');
 			}
 		} catch (error) {
-			const message = error instanceof Error ? error.message : 'Unknown error';
-			console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-			nav.setValidationErrors([`Failed to authenticate: ${message}`]);
-			toastV8.error(`Authentication failed: ${message}`);
+			UnifiedFlowErrorHandler.handleError(error, {
+				flowType: 'mfa' as any,
+				deviceType: 'SMS',
+				operation: 'initializeAuthentication',
+			}, {
+				showToast: true,
+				setValidationErrors: (errs) => nav.setValidationErrors(errs),
+				logError: true,
+			});
 			updateOtpState({ otpSent: false });
 		} finally {
 			setIsLoading(false);
