@@ -10,9 +10,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import CredentialsFormV8 from '@/v8/components/CredentialsFormV8';
 import StepActionButtonsV8 from '@/v8/components/StepActionButtonsV8';
 import StepValidationFeedbackV8 from '@/v8/components/StepValidationFeedbackV8';
-import { PrimaryButton, SecondaryButton, DangerButton } from '@/v8/components/shared/ActionButtonV8';
+import {
+	DangerButton,
+	PrimaryButton,
+	SecondaryButton,
+} from '@/v8/components/shared/ActionButtonV8';
 import { useStepNavigationV8 } from '@/v8/hooks/useStepNavigationV8';
-import { useActionButton } from '@/v8/hooks/useActionButton';
 import { CredentialsServiceV8 } from '@/v8/services/credentialsServiceV8';
 import { FlowResetServiceV8 } from '@/v8/services/flowResetServiceV8';
 import { OAuthIntegrationServiceV8 } from '@/v8/services/oauthIntegrationServiceV8';
@@ -120,9 +123,10 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 	const codeVerifierRef = useRef<string>(storedPKCEInitial?.codeVerifier || '');
 
 	// Button state management with global flow state
-	const step1Action = useActionButton();
-	const step2Action = useActionButton();
-	const step3Action = useActionButton();
+	// TODO: Replace remaining manual loading states with useActionButton()
+	// const step1Action = useActionButton();
+	// const step2Action = useActionButton();
+	// const step3Action = useActionButton();
 
 	// Persist PKCE codes to bulletproof storage whenever they change
 	useEffect(() => {
@@ -140,8 +144,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 		nav.setValidationErrors(result.errors.map((e) => e.message));
 		nav.setValidationWarnings(result.warnings.map((w) => w.message));
 		CredentialsServiceV8.saveCredentials('oauth-authz-v8', credentials);
-		// biome-ignore lint/correctness/useExhaustiveDependencies: nav object methods are stable from hook
-	}, [credentials]);
+	}, [credentials, nav.setValidationErrors, nav.setValidationWarnings]);
 
 	useEffect(() => {
 		sessionStorage.setItem(`${FLOW_KEY}_use_redirectless`, useRedirectless.toString());
@@ -286,9 +289,9 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								codeChallengeMethod: result.codeChallengeMethod,
 								username: redirectlessCredentials.username,
 								password: redirectlessCredentials.password,
-								onAuthCodeReceived: (code, state) => {
+								onAuthCodeReceived: (code, _state) => {
 									console.log(`${MODULE_TAG} Received authorization code via redirectless`, {
-										codePreview: code.substring(0, 20) + '...',
+										codePreview: `${code.substring(0, 20)}...`,
 									});
 								},
 							});
@@ -454,10 +457,14 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<SecondaryButton
 								onClick={() => {
 									try {
-										const decoded = OAuthIntegrationServiceV8.decodeToken(authState.tokens.accessToken);
+										const decoded = OAuthIntegrationServiceV8.decodeToken(
+											authState.tokens.accessToken
+										);
 										alert(JSON.stringify(decoded.payload, null, 2));
 									} catch (error) {
-										alert(`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+										alert(
+											`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`
+										);
 									}
 								}}
 								disabled={isActionInProgress}
@@ -484,10 +491,14 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										try {
-											const decoded = OAuthIntegrationServiceV8.decodeToken(authState.tokens.idToken || '');
+											const decoded = OAuthIntegrationServiceV8.decodeToken(
+												authState.tokens.idToken || ''
+											);
 											alert(JSON.stringify(decoded.payload, null, 2));
 										} catch (error) {
-											alert(`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`);
+											alert(
+												`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`
+											);
 										}
 									}}
 									disabled={isActionInProgress}
@@ -641,7 +652,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 						nav.reset();
 					}}
 					disabled={isActionInProgress}
-				title="Reset flow and clear all data"
+					title="Reset flow and clear all data"
 				>
 					Reset Flow
 				</DangerButton>

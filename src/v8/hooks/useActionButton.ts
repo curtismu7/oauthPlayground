@@ -5,7 +5,7 @@
  * @version 1.0.0
  */
 
-import { useState, useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useFlowState } from '../contexts/FlowStateContext';
 
 export interface UseActionButtonResult {
@@ -23,7 +23,7 @@ export const useActionButton = (): UseActionButtonResult => {
 	const { isActionInProgress, startAction, endAction } = useFlowState();
 
 	const executeAction = useCallback(
-		async <T,>(actionFn: () => Promise<T>, actionName: string): Promise<T | null> => {
+		async <T>(actionFn: () => Promise<T>, actionName: string): Promise<T | null> => {
 			if (isActionInProgress) {
 				console.warn('[useActionButton] Action blocked - another action in progress');
 				return null;
