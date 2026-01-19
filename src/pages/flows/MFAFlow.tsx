@@ -331,19 +331,17 @@ console.log('Access token for MFA API:', access_token);`,
 				setDemoStatus('loading');
 
 				try {
-					// Get access token for PingOne MFA API
-					const tokenResponse = await fetch(
-						`https://auth.pingone.com/${formData.environmentId}/as/token`,
-						{
-							method: 'POST',
-							headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-							body: new URLSearchParams({
-								grant_type: 'client_credentials',
-								client_id: formData.clientId,
-								client_secret: formData.clientSecret,
-							}),
-						}
-					);
+					// Get access token for PingOne MFA API via backend proxy
+					const tokenResponse = await fetch('/api/token-exchange', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							grant_type: 'client_credentials',
+							client_id: formData.clientId,
+							client_secret: formData.clientSecret,
+							environment_id: formData.environmentId,
+						}),
+					});
 
 					if (!tokenResponse.ok) {
 						throw new Error('Failed to get access token for MFA API');
@@ -429,14 +427,20 @@ console.log('MFA method selection result:', selectionResult);`,
 						throw new Error('Access token not available for MFA API');
 					}
 
+					// Get region from worker_credentials
+					const workerCredsStr = localStorage.getItem('worker_credentials');
+					const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
+					const region = (workerCreds?.region as string) || 'us';
+
 					// Get available MFA methods from PingOne MFA API
 					const mfaMethodsResponse = await fetch(
-						`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods`,
+						`/api/pingone/proxy/v1/environments/${formData.environmentId}/mfa/methods`,
 						{
 							method: 'GET',
 							headers: {
 								Authorization: `Bearer ${accessToken}`,
 								'Content-Type': 'application/json',
+								'x-pingone-region': region,
 							},
 						}
 					);
@@ -449,12 +453,13 @@ console.log('MFA method selection result:', selectionResult);`,
 
 					// Select MFA method
 					const mfaSelectionResponse = await fetch(
-						`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/select`,
+						`/api/pingone/proxy/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/select`,
 						{
 							method: 'POST',
 							headers: {
 								Authorization: `Bearer ${accessToken}`,
 								'Content-Type': 'application/json',
+								'x-pingone-region': region,
 							},
 							body: JSON.stringify({
 								method: formData.selectedMFA,
@@ -530,14 +535,20 @@ if (verificationResponse.ok) {
 						throw new Error('Access token not available for MFA API');
 					}
 
+					// Get region from worker_credentials
+					const workerCredsStr = localStorage.getItem('worker_credentials');
+					const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
+					const region = (workerCreds?.region as string) || 'us';
+
 					// Verify MFA code using PingOne MFA API
 					const verificationResponse = await fetch(
-						`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/verify`,
+						`/api/pingone/proxy/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/verify`,
 						{
 							method: 'POST',
 							headers: {
 								Authorization: `Bearer ${accessToken}`,
 								'Content-Type': 'application/json',
+								'x-pingone-region': region,
 							},
 							body: JSON.stringify({
 								method: formData.selectedMFA,
