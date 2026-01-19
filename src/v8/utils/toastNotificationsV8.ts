@@ -286,6 +286,118 @@ export class ToastNotificationsV8 {
 	static environmentIdExtracted(): void {
 		ToastNotificationsV8.success('Environment ID extracted from discovery');
 	}
+
+	/**
+	 * Show formatted success message with Message: X, Detail: Y format
+	 * @param message - Primary message
+	 * @param detail - Optional detail information
+	 * @example
+	 * toastV8.formattedSuccess('Device registered', 'SMS device is now active');
+	 */
+	static formattedSuccess(message: string, detail?: string): void {
+		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		ToastNotificationsV8.success(formattedMessage);
+	}
+
+	/**
+	 * Show formatted error message with Message: X, Detail: Y format
+	 * @param message - Primary error message
+	 * @param detail - Optional detail information
+	 * @example
+	 * toastV8.formattedError('Registration failed', 'Device limit exceeded');
+	 */
+	static formattedError(message: string, detail?: string): void {
+		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		ToastNotificationsV8.error(formattedMessage);
+	}
+
+	/**
+	 * Show formatted warning message with Message: X, Detail: Y format
+	 * @param message - Primary warning message
+	 * @param detail - Optional detail information
+	 * @example
+	 * toastV8.formattedWarning('Policy required', 'Device authentication policy must be selected');
+	 */
+	static formattedWarning(message: string, detail?: string): void {
+		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		ToastNotificationsV8.warning(formattedMessage);
+	}
+
+	/**
+	 * Show formatted info message with Message: X, Detail: Y format
+	 * @param message - Primary info message
+	 * @param detail - Optional detail information
+	 * @example
+	 * toastV8.formattedInfo('Token loaded', 'User token retrieved from OAuth login');
+	 */
+	static formattedInfo(message: string, detail?: string): void {
+		const formattedMessage = detail ? `Message: ${message} | Detail: ${detail}` : `Message: ${message}`;
+		ToastNotificationsV8.info(formattedMessage);
+	}
+
+	/**
+	 * Show MFA device registration success with standardized format
+	 * @param deviceType - Type of MFA device (SMS, Email, WhatsApp, etc.)
+	 * @param status - Device status (ACTIVE, ACTIVATION_REQUIRED, etc.)
+	 * @example
+	 * toastV8.mfaDeviceRegistered('SMS', 'ACTIVE');
+	 */
+	static mfaDeviceRegistered(deviceType: string, status?: string): void {
+		const message = `${deviceType} device registered successfully`;
+		const detail = status ? `Device status: ${status}` : 'Device is ready to use';
+		ToastNotificationsV8.formattedSuccess(message, detail);
+	}
+
+	/**
+	 * Show MFA authentication success with standardized format
+	 * @param deviceType - Type of MFA device used
+	 * @param username - Username that authenticated
+	 * @example
+	 * toastV8.mfaAuthenticationSuccess('SMS', 'john.doe@example.com');
+	 */
+	static mfaAuthenticationSuccess(deviceType: string, username?: string): void {
+		const message = `${deviceType} authentication successful`;
+		const detail = username ? `User: ${username}` : 'Authentication completed';
+		ToastNotificationsV8.formattedSuccess(message, detail);
+	}
+
+	/**
+	 * Show MFA operation error with standardized format
+	 * @param operation - Type of operation (registration, authentication, etc.)
+	 * @param reason - Reason for failure
+	 * @example
+	 * toastV8.mfaOperationError('registration', 'Device limit exceeded');
+	 */
+	static mfaOperationError(operation: string, reason: string): void {
+		const message = `MFA ${operation} failed`;
+		const detail = reason;
+		ToastNotificationsV8.formattedError(message, detail);
+	}
+
+	/**
+	 * Show Unified flow operation success with standardized format
+	 * @param operation - Type of operation (credentials saved, flow completed, etc.)
+	 * @param detail - Additional detail about the operation
+	 * @example
+	 * toastV8.unifiedFlowSuccess('Credentials saved', 'OAuth 2.0 configuration stored');
+	 */
+	static unifiedFlowSuccess(operation: string, detail?: string): void {
+		const message = `Unified flow: ${operation}`;
+		ToastNotificationsV8.formattedSuccess(message, detail);
+	}
+
+	/**
+	 * Show Unified flow operation error with standardized format
+	 * @param operation - Type of operation (token exchange, authorization, etc.)
+	 * @param reason - Reason for failure
+	 * @example
+	 * toastV8.unifiedFlowError('Token exchange', 'Invalid authorization code');
+	 */
+	static unifiedFlowError(operation: string, reason: string): void {
+		const message = `Unified flow: ${operation} failed`;
+		const detail = reason;
+		ToastNotificationsV8.formattedError(message, detail);
+	}
 }
 
 // Export singleton instance

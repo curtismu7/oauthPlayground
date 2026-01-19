@@ -18,43 +18,52 @@ let lastCheckTime: number = 0;
 let hasEverSucceeded = false; // Track if server has ever been available
 
 /**
- * Check if analytics server is available
- * Uses cached result to avoid repeated checks and console spam
- * Once it fails, caches the failure for longer to reduce error frequency
- * 
- * Note: This check is performed silently - no console errors are logged
+ * Check if analytics server is available (silent during development)
  */
 export async function isAnalyticsServerAvailable(): Promise<boolean> {
-	// Return cached result if still valid
 	const now = Date.now();
-	const cacheDuration = serverAvailable === false && !hasEverSucceeded 
-		? FAILED_CACHE_DURATION 
-		: CACHE_DURATION;
 	
-	if (serverAvailable !== null && now - lastCheckTime < cacheDuration) {
+	// If we've never succeeded, check less frequently to avoid console spam
+	const checkInterval = hasEverSucceeded ? CACHE_DURATION : FAILED_CACHE_DURATION;
+	
+	// Return cached result if still valid
+	if (serverAvailable !== null && now - lastCheckTime < checkInterval) {
 		return serverAvailable;
 	}
 
-	// Check server availability by attempting a minimal POST request to the actual endpoint
-	// Use a test payload and catch all errors silently
+	// In development, always assume server is not available unless explicitly enabled
+	if (process.env.NODE_ENV === 'development' && !hasEverSucceeded) {
+		serverAvailable = false;
+		lastCheckTime = now;
+		return false;
+	}
+
 	try {
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), CHECK_TIMEOUT);
 
 		// Perform a silent check by sending a minimal test payload
-		// Wrap in multiple catch blocks to ensure no errors propagate
+		// Use no-cors mode to prevent console errors, but this means we can't check response status
 		const checkPromise = fetch(ANALYTICS_SERVER_ENDPOINT, {
 			method: 'POST',
+			mode: 'no-cors', // This prevents console errors for cross-origin/cors issues
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ test: true }),
 			signal: controller.signal,
-		}).catch(() => null).catch(() => null); // Double catch to suppress all errors
+			// Add keepalive to prevent connection pooling issues
+			keepalive: false,
+		});
 
-		await checkPromise;
+		// Wait for the promise with timeout
+		await Promise.race([
+			checkPromise,
+			new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), CHECK_TIMEOUT))
+		]);
+		
 		clearTimeout(timeoutId);
 		
 		// If we get here without throwing, assume server is available
-		// Note: We can't check response status in no-cors mode, but if the request completes, server is up
+		// Note: With no-cors mode, we can't check response status, but if the request completes without error, server is up
 		serverAvailable = true;
 		hasEverSucceeded = true;
 		lastCheckTime = now;
@@ -62,6 +71,7 @@ export async function isAnalyticsServerAvailable(): Promise<boolean> {
 	} catch {
 		// Server is not available - suppress error completely
 		// Don't log anything - this is expected behavior when analytics server is not running
+		// Common errors: network errors, CORS errors, timeout, abort
 		serverAvailable = false;
 		lastCheckTime = now;
 		return false;
@@ -79,13 +89,22 @@ export async function safeAnalyticsFetch(data: Record<string, unknown>): Promise
 	}
 
 	try {
-		await fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
+		// Use the same error suppression techniques as the availability check
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout for actual analytics
+
+		await fetch(ANALYTICS_SERVER_ENDPOINT, {
 			method: 'POST',
+			mode: 'no-cors', // Prevent console errors
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(data),
+			signal: controller.signal,
+			keepalive: false,
 		}).catch(() => {
 			// Silently ignore fetch errors
 		});
+		
+		clearTimeout(timeoutId);
 	} catch {
 		// Silently ignore all errors
 	}

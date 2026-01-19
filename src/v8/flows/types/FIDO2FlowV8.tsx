@@ -33,8 +33,18 @@ import { MFAFlowControllerFactory } from '../factories/MFAFlowControllerFactory'
 import { type MFAFlowBaseRenderProps, MFAFlowBaseV8 } from '../shared/MFAFlowBaseV8';
 import type { DeviceType, MFACredentials } from '../shared/MFATypes';
 import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPageServiceV8';
+import { CollapsibleSectionV8 } from '@/v8/components/shared/CollapsibleSectionV8';
+import { 
+	MessageBoxV8, 
+	SuccessMessage, 
+	ErrorMessage, 
+	WarningMessage,
+	InfoMessage 
+} from '@/v8/components/shared/MessageBoxV8';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { useMFALoadingStateManager } from '@/v8/utils/loadingStateManagerV8';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[🔑 FIDO2-FLOW-V8]';
 
@@ -292,6 +302,9 @@ const _extractFido2AssertionOptions = (
 // Device selection state management wrapper
 const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 	const location = useLocation();
+
+	// Initialize loading state manager
+	const loadingManager = useMFALoadingStateManager();
 
 	// Extended location state type to include policy IDs and FIDO2 config from configuration page
 	const locationState = location.state as {
@@ -1608,10 +1621,13 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 						toastV8.success('Device selected successfully!');
 					}
 				} catch (error) {
-					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 					console.error(`${MODULE_TAG} Failed to initialize authentication:`, error);
-					nav.setValidationErrors([`Failed to authenticate: ${errorMessage}`]);
-					toastV8.error(`Authentication failed: ${errorMessage}`);
+					const formattedError = ValidationServiceV8.formatMFAError(error as Error, {
+						operation: 'authenticate',
+						deviceType: 'FIDO2',
+					});
+					nav.setValidationErrors([formattedError.userFriendlyMessage]);
+					toastV8.error(`Authentication failed: ${formattedError.userFriendlyMessage}`);
 				} finally {
 					setIsLoading(false);
 				}
@@ -2330,8 +2346,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 				)}
 
 				{mfaState.deviceId && (
-					<div className="success-box" style={{ marginTop: '20px' }}>
-						<h3>✅ Device Ready</h3>
+					<SuccessMessage title="Device Ready">
 						<p>
 							<strong>Device ID:</strong> {mfaState.deviceId}
 						</p>
@@ -2350,7 +2365,7 @@ const FIDO2FlowV8WithDeviceSelection: React.FC = () => {
 								<strong>Credential ID:</strong> {credentialId.substring(0, 40)}...
 							</p>
 						)}
-					</div>
+					</SuccessMessage>
 				)}
 			</div>
 		);

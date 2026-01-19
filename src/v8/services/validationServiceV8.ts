@@ -758,6 +758,371 @@ export class ValidationServiceV8 {
 
 		return warnings.map((warning) => `• ${warning.message}`).join('\n');
 	}
+
+	/**
+	 * Validate phone number format
+	 * @param phoneNumber - Phone number to validate
+	 * @returns Whether phone number is valid
+	 */
+	static validatePhoneNumber(phoneNumber: string): boolean {
+		if (!phoneNumber || phoneNumber.trim().length === 0) {
+			return false;
+		}
+
+		// Remove common formatting characters
+		const cleanNumber = phoneNumber.replace(/[\s\-\(\)]+/g, '');
+		
+		// International format: + followed by 7-15 digits
+		const internationalPattern = /^\+\d{7,15}$/;
+		
+		// US format: 10 digits
+		const usPattern = /^\d{10}$/;
+		
+		return internationalPattern.test(cleanNumber) || usPattern.test(cleanNumber);
+	}
+
+	/**
+	 * Validate email address format
+	 * @param email - Email address to validate
+	 * @returns Whether email address is valid
+	 */
+	static validateEmail(email: string): boolean {
+		if (!email || email.trim().length === 0) {
+			return false;
+		}
+
+		// Basic email validation regex
+		const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		
+		// More comprehensive validation
+		const comprehensivePattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		
+		return comprehensivePattern.test(email) && emailPattern.test(email);
+	}
+
+	// ============================================================================
+	// MFA-SPECIFIC VALIDATION
+	// ============================================================================
+
+	/**
+	 * Validate MFA device registration parameters
+	 * @param params - Device registration parameters
+	 * @param deviceType - Type of MFA device
+	 * @returns Validation result
+	 */
+	static validateMFADeviceRegistration(
+		params: {
+			phoneNumber?: string;
+			emailAddress?: string;
+			deviceName?: string;
+			username?: string;
+		},
+		deviceType: 'SMS' | 'EMAIL' | 'WHATSAPP' | 'TOTP' | 'FIDO2' | 'VOICE'
+	): ValidationResult {
+		const errors: ValidationError[] = [];
+		const warnings: ValidationWarning[] = [];
+
+		// Common validations
+		if (!params.username || params.username.trim().length === 0) {
+			errors.push({
+				field: 'username',
+				message: 'Username is required for device registration',
+				suggestion: 'Please enter a valid username',
+				code: 'USERNAME_REQUIRED',
+			});
+		}
+
+		if (!params.deviceName || params.deviceName.trim().length === 0) {
+			errors.push({
+				field: 'deviceName',
+				message: 'Device name is required',
+				suggestion: 'Please provide a descriptive name for your device',
+				code: 'DEVICE_NAME_REQUIRED',
+			});
+		} else if (params.deviceName.length > 50) {
+			errors.push({
+				field: 'deviceName',
+				message: 'Device name must be 50 characters or less',
+				suggestion: 'Please use a shorter device name',
+				code: 'DEVICE_NAME_TOO_LONG',
+			});
+		}
+
+		// Device-specific validations
+		switch (deviceType) {
+			case 'SMS':
+			case 'VOICE':
+				if (!params.phoneNumber) {
+					errors.push({
+						field: 'phoneNumber',
+						message: 'Phone number is required',
+						suggestion: 'Please enter a valid phone number',
+						code: 'PHONE_NUMBER_REQUIRED',
+					});
+				} else if (!this.validatePhoneNumber(params.phoneNumber)) {
+					errors.push({
+						field: 'phoneNumber',
+						message: 'Invalid phone number format',
+						suggestion: 'Please enter a valid phone number in international format (+1234567890)',
+						code: 'INVALID_PHONE_FORMAT',
+					});
+				}
+				break;
+
+			case 'EMAIL':
+			case 'WHATSAPP':
+				if (!params.emailAddress) {
+					errors.push({
+						field: 'emailAddress',
+						message: 'Email address is required',
+						suggestion: 'Please enter a valid email address',
+						code: 'EMAIL_ADDRESS_REQUIRED',
+					});
+				} else if (!this.validateEmail(params.emailAddress)) {
+					errors.push({
+						field: 'emailAddress',
+						message: 'Invalid email address format',
+						suggestion: 'Please enter a valid email address (e.g., user@example.com)',
+						code: 'INVALID_EMAIL_FORMAT',
+					});
+				}
+				break;
+		}
+
+		return {
+			valid: errors.length === 0,
+			errors,
+			warnings,
+			canProceed: errors.length === 0,
+		};
+	}
+
+	/**
+	 * Validate MFA authentication parameters
+	 * @param params - Authentication parameters
+	 * @param deviceType - Type of MFA device
+	 * @returns Validation result
+	 */
+	static validateMFAAuthentication(
+		params: {
+			otpCode?: string;
+			deviceId?: string;
+			username?: string;
+		},
+		deviceType: 'SMS' | 'EMAIL' | 'WHATSAPP' | 'TOTP' | 'FIDO2'
+	): ValidationResult {
+		const errors: ValidationError[] = [];
+		const warnings: ValidationWarning[] = [];
+
+		// OTP validation for SMS/Email/WhatsApp/TOTP
+		if (['SMS', 'EMAIL', 'WHATSAPP', 'TOTP'].includes(deviceType)) {
+			if (!params.otpCode) {
+				errors.push({
+					field: 'otpCode',
+					message: 'Verification code is required',
+					suggestion: 'Please enter the verification code sent to your device',
+					code: 'OTP_CODE_REQUIRED',
+				});
+			} else if (!/^\d{6}$/.test(params.otpCode)) {
+				errors.push({
+					field: 'otpCode',
+					message: 'Invalid verification code format',
+					suggestion: 'Please enter a 6-digit verification code',
+					code: 'INVALID_OTP_FORMAT',
+				});
+			}
+		}
+
+		// Device selection validation
+		if (!params.deviceId) {
+			errors.push({
+				field: 'deviceId',
+				message: 'Please select a device to authenticate',
+				suggestion: 'Choose from your registered devices or register a new one',
+				code: 'DEVICE_SELECTION_REQUIRED',
+			});
+		}
+
+		return {
+			valid: errors.length === 0,
+			errors,
+			warnings,
+			canProceed: errors.length === 0,
+		};
+	}
+
+	/**
+	 * Parse and format MFA error messages for user display
+	 * @param error - Raw error from API or service
+	 * @param context - Context of the error (operation, device type, etc.)
+	 * @returns Formatted error message
+	 */
+	static formatMFAError(
+		error: Error | string,
+		context: {
+			operation: 'register' | 'authenticate' | 'send-otp' | 'validate-otp';
+			deviceType: string;
+		}
+	): { userFriendlyMessage: string; technicalDetails: string; suggestions: string[] } {
+		const errorMessage = error instanceof Error ? error.message : error;
+		const { operation, deviceType } = context;
+
+		// Common error patterns
+		if (errorMessage.toLowerCase().includes('limit') || errorMessage.toLowerCase().includes('exceed')) {
+			return {
+				userFriendlyMessage: `Device limit exceeded for ${deviceType}`,
+				technicalDetails: errorMessage,
+				suggestions: [
+					'Delete an existing device to make room',
+					'Contact your administrator to increase device limits',
+					'Use a different device type if available',
+				],
+			};
+		}
+
+		if (errorMessage.toLowerCase().includes('invalid') && errorMessage.toLowerCase().includes('code')) {
+			return {
+				userFriendlyMessage: 'Invalid verification code',
+				technicalDetails: errorMessage,
+				suggestions: [
+					'Check the code and try again',
+					'Request a new verification code',
+					'Ensure you have the latest code',
+				],
+			};
+		}
+
+		if (errorMessage.toLowerCase().includes('expired')) {
+			return {
+				userFriendlyMessage: 'Verification code has expired',
+				technicalDetails: errorMessage,
+				suggestions: [
+					'Request a new verification code',
+					'Use the code promptly after receiving it',
+					'Check your device for the latest code',
+				],
+			};
+		}
+
+		// Operation-specific formatting
+		switch (operation) {
+			case 'register':
+				return {
+					userFriendlyMessage: `Failed to register ${deviceType} device`,
+					technicalDetails: errorMessage,
+					suggestions: [
+						'Check your network connection',
+						'Verify your account permissions',
+						'Try again in a few moments',
+					],
+				};
+
+			case 'authenticate':
+				return {
+					userFriendlyMessage: `Authentication failed for ${deviceType}`,
+					technicalDetails: errorMessage,
+					suggestions: [
+						'Verify your credentials',
+						'Check device availability',
+						'Ensure device is properly registered',
+					],
+				};
+
+			case 'send-otp':
+				return {
+					userFriendlyMessage: `Failed to send verification code to ${deviceType}`,
+					technicalDetails: errorMessage,
+					suggestions: [
+						'Check device connectivity',
+						'Verify phone number/email address',
+						'Try again in a few moments',
+					],
+				};
+
+			case 'validate-otp':
+				return {
+					userFriendlyMessage: 'Verification code validation failed',
+					technicalDetails: errorMessage,
+					suggestions: [
+						'Enter the correct verification code',
+						'Request a new code if needed',
+						'Ensure code has not expired',
+					],
+				};
+
+			default:
+				return {
+					userFriendlyMessage: `An error occurred with ${deviceType}`,
+					technicalDetails: errorMessage,
+					suggestions: [
+						'Try again in a few moments',
+						'Contact support if the issue persists',
+						'Check your network connection',
+					],
+				};
+		}
+	}
+
+	/**
+	 * Create standardized validation error for UI display
+	 * @param field - Field that failed validation
+	 * @param message - Error message
+	 * @param suggestion - Optional suggestion
+	 * @param code - Optional error code
+	 * @returns Formatted validation error
+	 */
+	static createValidationError(
+		field: string,
+		message: string,
+		suggestion?: string,
+		code?: string
+	): ValidationError {
+		return {
+			field,
+			message,
+			suggestion,
+			code,
+		};
+	}
+
+	/**
+	 * Create batch validation errors for multiple fields
+	 * @param fields - Object with field names as keys and error messages as values
+	 * @returns Array of validation errors
+	 */
+	static createBatchValidationErrors(
+		fields: Record<string, { message: string; suggestion?: string; code?: string }>
+	): ValidationError[] {
+		return Object.entries(fields).map(([field, error]) =>
+			this.createValidationError(field, error.message, error.suggestion, error.code)
+		);
+	}
+
+	/**
+	 * Check if validation error is blocking (prevents proceeding)
+	 * @param error - Validation error
+	 * @returns Whether error blocks proceeding
+	 */
+	static isBlockingError(error: ValidationError): boolean {
+		// Define non-blocking error codes
+		const nonBlockingCodes = ['WARNING', 'INFO', 'DEPRECATED'];
+		return !nonBlockingCodes.includes(error.code || '');
+	}
+
+	/**
+	 * Filter validation errors by severity
+	 * @param errors - Array of validation errors
+	 * @param includeBlocking - Whether to include blocking errors
+	 * @returns Filtered array of errors
+	 */
+	static filterErrorsBySeverity(
+		errors: ValidationError[],
+		includeBlocking: boolean = true
+	): ValidationError[] {
+		return errors.filter(error => 
+			includeBlocking ? this.isBlockingError(error) : !this.isBlockingError(error)
+		);
+	}
 }
 
 // ============================================================================
