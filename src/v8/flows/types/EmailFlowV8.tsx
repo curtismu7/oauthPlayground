@@ -29,6 +29,7 @@ import { buildSuccessPageData, MFASuccessPageV8 } from '../shared/mfaSuccessPage
 import { useUnifiedOTPFlow } from '../shared/useUnifiedOTPFlow';
 import { UnifiedFlowErrorHandler } from '@/v8u/services/unifiedFlowErrorHandlerV8U';
 import { UnifiedFlowLoggerService } from '@/v8u/services/unifiedFlowLoggerServiceV8U';
+import { ValidationServiceV8 } from '@/v8/services/validationServiceV8';
 
 const MODULE_TAG = '[📧 EMAIL-FLOW-V8]';
 
@@ -849,7 +850,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						showRegisterForm: devices.length === 0,
 					});
 				} catch (error) {
-					console.error(`${MODULE_TAG} Failed to load devices`, error);
+					UnifiedFlowErrorHandler.handleError(error, {
+						flowType: 'mfa' as any,
+						deviceType: 'EMAIL',
+						operation: 'loadExistingDevices',
+					}, {
+						showToast: false, // Silent failure for background operation
+						logError: true,
+					});
 					setDeviceSelection((prev) => ({
 						...prev,
 						loadingDevices: false,
@@ -920,7 +928,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 				}
 			} catch (error) {
 				// Silently fail - user can manually enter email
-				console.error(`${MODULE_TAG} Failed to fetch user email from PingOne:`, error);
+				UnifiedFlowErrorHandler.handleError(error, {
+					flowType: 'mfa' as any,
+					deviceType: 'EMAIL',
+					operation: 'fetchUserEmail',
+				}, {
+					showToast: false, // Silent failure
+					logError: true,
+				});
 			}
 		};
 
@@ -1270,27 +1285,37 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 						);
 					} else {
 						// Unknown status - default behavior
-						console.warn(
-							`${MODULE_TAG} Device registered with unknown status: ${actualDeviceStatus}, defaulting to OTP flow`
-						);
+						UnifiedFlowLoggerService.warn('Device registered with unknown status, defaulting to OTP flow', {
+							flowType: 'mfa' as any,
+							deviceType: 'EMAIL',
+							operation: 'registerDevice',
+							actualDeviceStatus,
+						});
 						nav.markStepComplete();
 						nav.goToStep(4);
 						toastV8.success('Email device registered successfully!');
 					}
 				} catch (error) {
 					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-					const isDeviceLimitError =
+					
+					// Use ValidationServiceV8 for consistent error formatting
+					const formattedError = ValidationServiceV8.formatMFAError(error, {
+						operation: 'register',
+						deviceType: 'EMAIL',
+					});
+					
+					const isDeviceLimitError = 
 						errorMessage.toLowerCase().includes('exceed') ||
 						errorMessage.toLowerCase().includes('limit') ||
 						errorMessage.toLowerCase().includes('maximum');
 
 					if (isDeviceLimitError) {
 						setShowDeviceLimitModal(true);
-						nav.setValidationErrors([`Device registration failed: ${errorMessage}`]);
-						toastV8.error('Device limit exceeded. Please delete an existing device first.');
+						nav.setValidationErrors([formattedError.userFriendlyMessage]);
+						toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
 					} else {
-						nav.setValidationErrors([`Failed to register device: ${errorMessage}`]);
-						toastV8.error(`Registration failed: ${errorMessage}`);
+						nav.setValidationErrors([formattedError.userFriendlyMessage]);
+						toastV8.mfaOperationError('registration', formattedError.userFriendlyMessage);
 					}
 				} finally {
 					setIsLoading(false);
@@ -2568,13 +2593,17 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 												nav.goToStep(3);
 												toastV8.success('Device activated successfully!');
 												} catch (error) {
-													const errorMessage =
-														error instanceof Error ? error.message : 'Unknown error';
-													console.error(`${MODULE_TAG} Failed to activate device:`, error);
+													const parsed = UnifiedFlowErrorHandler.handleError(error, {
+														flowType: 'mfa' as any,
+														deviceType: 'EMAIL',
+														operation: 'activateDevice',
+													}, {
+														showToast: true,
+														logError: true,
+													});
 													setValidationAttempts((prev) => prev + 1);
-													setLastValidationError(errorMessage);
-													nav.setValidationErrors([`Activation failed: ${errorMessage}`]);
-													toastV8.error(`Activation failed: ${errorMessage}`);
+													setLastValidationError(parsed.userFriendlyMessage);
+													nav.setValidationErrors([`Activation failed: ${parsed.userFriendlyMessage}`]);
 												} finally {
 													setIsLoading(false);
 												}
@@ -2698,9 +2727,14 @@ const EmailFlowV8WithDeviceSelection: React.FC = () => {
 												throw new Error('Device ID is required to resend OTP');
 											}
 										} catch (error) {
-											const errorMessage =
-												error instanceof Error ? error.message : 'Unknown error';
-											toastV8.error(`Failed to resend OTP: ${errorMessage}`);
+											UnifiedFlowErrorHandler.handleError(error, {
+												flowType: 'mfa' as any,
+												deviceType: 'EMAIL',
+												operation: 'resendOTP',
+											}, {
+												showToast: true,
+												logError: true,
+											});
 										} finally {
 											setIsLoading(false);
 										}
