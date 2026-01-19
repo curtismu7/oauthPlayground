@@ -12,3 +12,4 @@ export { MFAPolicyInfoModal, type MFAPolicyInfoModalProps } from './MFAPolicyInf
 export { MFADeviceSelectionInfoModal, type MFADeviceSelectionInfoModalProps } from './MFADeviceSelectionInfoModal';
 export { MFAOTPInputModal, type MFAOTPInputModalProps } from './MFAOTPInputModal';
 export { MFAPushConfirmationModal, type MFAPushConfirmationModalProps } from './MFAPushConfirmationModal';
+export { MFAFIDO2ChallengeModal, type MFAFIDO2ChallengeModalProps } from './MFAFIDO2ChallengeModal';

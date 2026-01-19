@@ -5159,7 +5159,8 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 				</div>
 			)}
 
-			{/* Push Modal */}
+			{/* Device Registration Modal */}
+			{showRegistrationModal && (
 				<div
 					style={{
 						position: 'fixed',
