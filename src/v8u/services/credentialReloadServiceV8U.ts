@@ -42,43 +42,57 @@ function mergeAllCredentialFields(
 			''
 		).trim(),
 		clientId: (
-			(flowSpecific.clientId as string)?.trim() || 
-			(shared.clientId as string)?.trim() || 
+			(flowSpecific.clientId as string)?.trim() ||
+			(shared.clientId as string)?.trim() ||
 			''
 		).trim(),
 		// Client secret: prefer flow-specific, then shared, but only if not empty
-		...(flowSpecific.clientSecret && typeof flowSpecific.clientSecret === 'string' && flowSpecific.clientSecret.trim()
+		...(flowSpecific.clientSecret &&
+		typeof flowSpecific.clientSecret === 'string' &&
+		flowSpecific.clientSecret.trim()
 			? { clientSecret: flowSpecific.clientSecret.trim() }
 			: shared.clientSecret && typeof shared.clientSecret === 'string' && shared.clientSecret.trim()
 				? { clientSecret: shared.clientSecret.trim() }
 				: {}),
 		// Issuer URL: prefer flow-specific, then shared
-		...(flowSpecific.issuerUrl && typeof flowSpecific.issuerUrl === 'string' && flowSpecific.issuerUrl.trim()
+		...(flowSpecific.issuerUrl &&
+		typeof flowSpecific.issuerUrl === 'string' &&
+		flowSpecific.issuerUrl.trim()
 			? { issuerUrl: flowSpecific.issuerUrl.trim() }
 			: shared.issuerUrl && typeof shared.issuerUrl === 'string' && shared.issuerUrl.trim()
 				? { issuerUrl: shared.issuerUrl.trim() }
 				: {}),
 		// Client auth method: prefer flow-specific, then shared
 		...(flowSpecific.clientAuthMethod
-			? { clientAuthMethod: flowSpecific.clientAuthMethod as UnifiedFlowCredentials['clientAuthMethod'] }
+			? {
+					clientAuthMethod:
+						flowSpecific.clientAuthMethod as UnifiedFlowCredentials['clientAuthMethod'],
+				}
 			: shared.clientAuthMethod
-				? { clientAuthMethod: shared.clientAuthMethod as UnifiedFlowCredentials['clientAuthMethod'] }
+				? {
+						clientAuthMethod: shared.clientAuthMethod as UnifiedFlowCredentials['clientAuthMethod'],
+					}
 				: {}),
 		// Flow-specific credentials (not shared)
-		...(flowSpecific.redirectUri && typeof flowSpecific.redirectUri === 'string' && flowSpecific.redirectUri.trim()
+		...(flowSpecific.redirectUri &&
+		typeof flowSpecific.redirectUri === 'string' &&
+		flowSpecific.redirectUri.trim()
 			? { redirectUri: flowSpecific.redirectUri.trim() }
 			: {}),
-		...(flowSpecific.postLogoutRedirectUri && typeof flowSpecific.postLogoutRedirectUri === 'string' && flowSpecific.postLogoutRedirectUri.trim()
+		...(flowSpecific.postLogoutRedirectUri &&
+		typeof flowSpecific.postLogoutRedirectUri === 'string' &&
+		flowSpecific.postLogoutRedirectUri.trim()
 			? { postLogoutRedirectUri: flowSpecific.postLogoutRedirectUri.trim() }
 			: {}),
-		...(flowSpecific.logoutUri && typeof flowSpecific.logoutUri === 'string' && flowSpecific.logoutUri.trim()
+		...(flowSpecific.logoutUri &&
+		typeof flowSpecific.logoutUri === 'string' &&
+		flowSpecific.logoutUri.trim()
 			? { logoutUri: flowSpecific.logoutUri.trim() }
 			: {}),
-		scopes: (
-			(flowSpecific.scopes as string)?.trim() || 
-			'openid'
-		).trim(),
-		...(flowSpecific.responseType && typeof flowSpecific.responseType === 'string' && flowSpecific.responseType.trim()
+		scopes: ((flowSpecific.scopes as string)?.trim() || 'openid').trim(),
+		...(flowSpecific.responseType &&
+		typeof flowSpecific.responseType === 'string' &&
+		flowSpecific.responseType.trim()
 			? { responseType: flowSpecific.responseType.trim() }
 			: {}),
 		// Checkbox values - load from flow-specific storage
@@ -92,7 +106,10 @@ function mergeAllCredentialFields(
 		...(typeof flowSpecific.usePAR === 'boolean' ? { usePAR: flowSpecific.usePAR } : {}),
 		// PKCE enforcement - load from flow-specific storage (CRITICAL: was missing!)
 		...(flowSpecific.pkceEnforcement
-			? { pkceEnforcement: flowSpecific.pkceEnforcement as UnifiedFlowCredentials['pkceEnforcement'] }
+			? {
+					pkceEnforcement:
+						flowSpecific.pkceEnforcement as UnifiedFlowCredentials['pkceEnforcement'],
+				}
 			: {}),
 		// Private key for private_key_jwt authentication
 		...(flowSpecific.privateKey && typeof flowSpecific.privateKey === 'string'
@@ -164,7 +181,9 @@ function mergeAllCredentialFields(
  *
  * @throws Never throws - always returns valid credentials object (may be minimal defaults)
  */
-export async function reloadCredentialsAfterReset(flowKey: string): Promise<UnifiedFlowCredentials> {
+export async function reloadCredentialsAfterReset(
+	flowKey: string
+): Promise<UnifiedFlowCredentials> {
 	console.log(`${MODULE_TAG} Reloading credentials from storage for flow reset`, { flowKey });
 
 	// Debug: Check what's actually in localStorage for this flowKey
@@ -183,10 +202,16 @@ export async function reloadCredentialsAfterReset(flowKey: string): Promise<Unif
 				allKeys: Object.keys(parsedStored),
 			});
 		} else {
-			console.warn(`${MODULE_TAG} ⚠️ DEBUG: No data in localStorage for flowKey`, { flowKey, storageKey });
+			console.warn(`${MODULE_TAG} ⚠️ DEBUG: No data in localStorage for flowKey`, {
+				flowKey,
+				storageKey,
+			});
 		}
 	} catch (debugError) {
-		console.warn(`${MODULE_TAG} ⚠️ DEBUG: Error checking localStorage`, { flowKey, error: debugError });
+		console.warn(`${MODULE_TAG} ⚠️ DEBUG: Error checking localStorage`, {
+			flowKey,
+			error: debugError,
+		});
 	}
 
 	try {
@@ -210,10 +235,10 @@ export async function reloadCredentialsAfterReset(flowKey: string): Promise<Unif
 		 *
 		 * These are credentials stored specifically for this flow type.
 		 * Examples: redirectUri (different per flow), scopes (may vary by flow)
-		 * 
+		 *
 		 * CRITICAL: Use loadCredentialsWithBackup to ensure we get credentials from
 		 * all storage sources (localStorage, IndexedDB, server backup)
-		 * 
+		 *
 		 * CRITICAL: loadCredentials returns the ENTIRE JSON object from storage,
 		 * including ALL fields (redirectUri, clientAuthMethod, etc.)
 		 */
@@ -226,9 +251,12 @@ export async function reloadCredentialsAfterReset(flowKey: string): Promise<Unif
 		} catch (error) {
 			console.warn(`${MODULE_TAG} ⚠️ Async load failed, using sync fallback`, { flowKey, error });
 			// Fall back to sync version
-			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<string, unknown>;
+			flowSpecific = CredentialsServiceV8.loadCredentials(flowKey, config) as Record<
+				string,
+				unknown
+			>;
 		}
-		
+
 		// Debug: Log what was loaded to verify redirectUri and clientAuthMethod are present
 		console.log(`${MODULE_TAG} 🔍 Loaded flow-specific credentials`, {
 			flowKey,
@@ -239,9 +267,22 @@ export async function reloadCredentialsAfterReset(flowKey: string): Promise<Unif
 			allKeys: Object.keys(flowSpecific),
 		});
 		// #region agent log
-		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-			analytics.log({ location:'credentialReloadServiceV8U.ts:190',message:'Loaded flow-specific credentials from storage',data:{flowKey,hasRedirectUri:!!flowSpecific.redirectUri,redirectUri:flowSpecific.redirectUri,hasClientAuthMethod:!!flowSpecific.clientAuthMethod,clientAuthMethod:flowSpecific.clientAuthMethod,allKeys:Object.keys(flowSpecific)} });
-		}).catch(()=>{});
+		import('@/v8/utils/analyticsV8')
+			.then(({ analytics }) => {
+				analytics.log({
+					location: 'credentialReloadServiceV8U.ts:190',
+					message: 'Loaded flow-specific credentials from storage',
+					data: {
+						flowKey,
+						hasRedirectUri: !!flowSpecific.redirectUri,
+						redirectUri: flowSpecific.redirectUri,
+						hasClientAuthMethod: !!flowSpecific.clientAuthMethod,
+						clientAuthMethod: flowSpecific.clientAuthMethod,
+						allKeys: Object.keys(flowSpecific),
+					},
+				});
+			})
+			.catch(() => {});
 		// #endregion
 
 		/**
@@ -311,9 +352,30 @@ export async function reloadCredentialsAfterReset(flowKey: string): Promise<Unif
 			hasPrivateKey: !!merged.privateKey,
 		});
 		// #region agent log
-		import('@/v8/utils/analyticsV8').then(({ analytics }) => {
-			analytics.log({ location:'credentialReloadServiceV8U.ts:232',message:'Credentials reloaded - ALL fields check',data:{flowKey,hasRedirectUri:!!merged.redirectUri?.trim(),redirectUri:merged.redirectUri,hasClientAuthMethod:!!merged.clientAuthMethod,clientAuthMethod:merged.clientAuthMethod,hasResponseMode:!!merged.responseMode,hasUsePAR:merged.usePAR!==undefined,hasMaxAge:merged.maxAge!==undefined,hasDisplay:!!merged.display,hasPrompt:!!merged.prompt,hasLoginHint:merged.loginHint!==undefined,hasPkceEnforcement:!!merged.pkceEnforcement,hasPrivateKey:!!merged.privateKey,allKeys:Object.keys(merged)} });
-		}).catch(()=>{});
+		import('@/v8/utils/analyticsV8')
+			.then(({ analytics }) => {
+				analytics.log({
+					location: 'credentialReloadServiceV8U.ts:232',
+					message: 'Credentials reloaded - ALL fields check',
+					data: {
+						flowKey,
+						hasRedirectUri: !!merged.redirectUri?.trim(),
+						redirectUri: merged.redirectUri,
+						hasClientAuthMethod: !!merged.clientAuthMethod,
+						clientAuthMethod: merged.clientAuthMethod,
+						hasResponseMode: !!merged.responseMode,
+						hasUsePAR: merged.usePAR !== undefined,
+						hasMaxAge: merged.maxAge !== undefined,
+						hasDisplay: !!merged.display,
+						hasPrompt: !!merged.prompt,
+						hasLoginHint: merged.loginHint !== undefined,
+						hasPkceEnforcement: !!merged.pkceEnforcement,
+						hasPrivateKey: !!merged.privateKey,
+						allKeys: Object.keys(merged),
+					},
+				});
+			})
+			.catch(() => {});
 		// #endregion
 
 		return merged;

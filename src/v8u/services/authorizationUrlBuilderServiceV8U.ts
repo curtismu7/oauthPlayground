@@ -15,7 +15,7 @@ import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import { UnifiedFlowLoggerService } from './unifiedFlowLoggerServiceV8U';
 
-const MODULE_TAG = '[🔗 AUTHORIZATION-URL-BUILDER-V8U]';
+const _MODULE_TAG = '[🔗 AUTHORIZATION-URL-BUILDER-V8U]';
 
 export interface AuthorizationUrlParams {
 	specVersion: SpecVersion;
@@ -47,7 +47,7 @@ export interface AuthorizationUrlResult {
 export class AuthorizationUrlBuilderService {
 	/**
 	 * Get the correct redirect URI for the flow type
-	 * 
+	 *
 	 * Prioritizes user's configured redirect URI (matches PingOne config) over auto-generated default.
 	 * Only falls back to auto-generated URI if credentials.redirectUri is empty.
 	 */
@@ -102,7 +102,7 @@ export class AuthorizationUrlBuilderService {
 	 * Build base authorization URL parameters
 	 */
 	private static buildBaseParams(
-		flowType: FlowType,
+		_flowType: FlowType,
 		credentials: UnifiedFlowCredentials,
 		state: string,
 		redirectUri: string
