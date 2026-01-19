@@ -359,7 +359,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 					<SecondaryButton
 						onClick={() => {
 							navigator.clipboard.writeText(authState.authorizationUrl);
-							alert('URL copied to clipboard!');
+							console.log(`${MODULE_TAG} URL copied to clipboard`);
 						}}
 						disabled={isActionInProgress}
 					>
@@ -448,7 +448,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 							<SecondaryButton
 								onClick={() => {
 									navigator.clipboard.writeText(authState.tokens.accessToken);
-									alert('Token copied to clipboard!');
+									console.log(`${MODULE_TAG} Token copied to clipboard`);
 								}}
 								disabled={isActionInProgress}
 							>
@@ -460,10 +460,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 										const decoded = OAuthIntegrationServiceV8.decodeToken(
 											authState.tokens.accessToken
 										);
-										alert(JSON.stringify(decoded.payload, null, 2));
+										console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
 									} catch (error) {
-										alert(
-											`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`
+										console.error(
+											`${MODULE_TAG} Error decoding token:`,
+											error instanceof Error ? error.message : 'Unknown error'
 										);
 									}
 								}}
@@ -482,7 +483,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.idToken || '');
-										alert('Token copied to clipboard!');
+										console.log(`${MODULE_TAG} Token copied to clipboard`);
 									}}
 									disabled={isActionInProgress}
 								>
@@ -494,10 +495,11 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 											const decoded = OAuthIntegrationServiceV8.decodeToken(
 												authState.tokens.idToken || ''
 											);
-											alert(JSON.stringify(decoded.payload, null, 2));
+											console.log(`${MODULE_TAG} Decoded token:`, decoded.payload);
 										} catch (error) {
-											alert(
-												`Error decoding token: ${error instanceof Error ? error.message : 'Unknown error'}`
+											console.error(
+												`${MODULE_TAG} Error decoding token:`,
+												error instanceof Error ? error.message : 'Unknown error'
 											);
 										}
 									}}
@@ -517,7 +519,7 @@ export const OAuthAuthorizationCodeFlowV8: React.FC = () => {
 								<SecondaryButton
 									onClick={() => {
 										navigator.clipboard.writeText(authState.tokens.refreshToken || '');
-										alert('Token copied to clipboard!');
+										console.log(`${MODULE_TAG} Token copied to clipboard`);
 									}}
 									disabled={isActionInProgress}
 								>
