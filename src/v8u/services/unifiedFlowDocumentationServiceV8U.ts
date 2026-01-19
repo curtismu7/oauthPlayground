@@ -5,14 +5,14 @@
  * @version 8.0.0
  */
 
+import { apiCallTrackerService } from '@/services/apiCallTrackerService';
 import type { FlowType, SpecVersion } from '@/v8/services/specVersionServiceV8';
 import { SpecVersionServiceV8 } from '@/v8/services/specVersionServiceV8';
-import { apiCallTrackerService } from '@/services/apiCallTrackerService';
-import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 import {
 	convertTrackedCallsToDocumentation,
 	generateUnifiedFlowMarkdown,
 } from '../components/UnifiedFlowDocumentationPageV8U';
+import type { UnifiedFlowCredentials } from './unifiedFlowIntegrationV8U';
 
 interface UseCase {
 	flowType: FlowType;
@@ -34,7 +34,13 @@ export const generateAllUseCasesDocumentation = (): string => {
 	};
 
 	const specVersions: SpecVersion[] = ['oauth2.0', 'oauth2.1', 'oidc'];
-	const flowTypes: FlowType[] = ['oauth-authz', 'hybrid', 'implicit', 'client-credentials', 'device-code'];
+	const flowTypes: FlowType[] = [
+		'oauth-authz',
+		'hybrid',
+		'implicit',
+		'client-credentials',
+		'device-code',
+	];
 
 	const generatedDate = new Date().toLocaleString('en-US', {
 		year: 'numeric',
