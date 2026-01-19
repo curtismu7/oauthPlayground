@@ -68,59 +68,108 @@ export class OidcDiscoveryServiceV8 {
 				}
 			}
 
-			console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
+		console.log(`${MODULE_TAG} Using backend proxy for discovery`, { issuerUrl: normalized });
 
-			// Use backend proxy to avoid CORS issues
-			const response = await fetch('/api/pingone/oidc-discovery', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					issuerUrl: normalized,
-				}),
-			});
+		// Track API call for documentation
+		const { apiCallTrackerService } = await import('@/services/apiCallTrackerService');
+		const startTime = Date.now();
+		const wellKnownUrl = `${normalized}/.well-known/openid-configuration`;
+		const callId = apiCallTrackerService.trackApiCall({
+			method: 'GET',
+			url: '/api/pingone/oidc-discovery',
+			actualPingOneUrl: wellKnownUrl,
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: { issuerUrl: normalized },
+			step: 'oidc-discovery',
+			flowType: 'oidc-metadata',
+			isProxy: true,
+		});
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorBody: { error?: string; message?: string; details?: string };
-				try {
-					errorBody = JSON.parse(errorText) as {
-						error?: string;
-						message?: string;
-						details?: string;
-					};
-				} catch {
-					errorBody = { error: errorText };
-				}
+		// Use backend proxy to avoid CORS issues
+		const response = await fetch('/api/pingone/oidc-discovery', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				issuerUrl: normalized,
+			}),
+		});
 
-				// Provide more helpful error messages
-				let errorMessage =
-					errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`;
+		if (!response.ok) {
+			const errorText = await response.text();
+			let errorBody: { error?: string; message?: string; details?: string };
+			try {
+				errorBody = JSON.parse(errorText) as {
+					error?: string;
+					message?: string;
+					details?: string;
+				};
+			} catch {
+				errorBody = { error: errorText };
+			}
 
-				if (response.status === 403) {
-					errorMessage = `OIDC Discovery forbidden (403). This may indicate:
+			// Provide more helpful error messages
+			let errorMessage =
+				errorBody.error || errorBody.message || `HTTP ${response.status}: ${response.statusText}`;
+
+			if (response.status === 403) {
+				errorMessage = `OIDC Discovery forbidden (403). This may indicate:
 - The issuer URL is incorrect or the environment doesn't exist
 - The PingOne environment requires authentication for discovery
 - Network or CORS restrictions
 
 Original error: ${errorMessage}`;
-				} else if (response.status === 404) {
-					errorMessage = `OIDC Discovery endpoint not found (404). Please verify the issuer URL is correct: ${normalized}`;
-				}
-
-				console.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
-					issuerUrl: normalized,
-					error: errorMessage,
-					details: errorBody.details,
-				});
-
-				throw new Error(errorMessage);
+			} else if (response.status === 404) {
+				errorMessage = `OIDC Discovery endpoint not found (404). Please verify the issuer URL is correct: ${normalized}`;
 			}
 
-			const data = await response.json();
+			console.error(`${MODULE_TAG} Discovery failed with status ${response.status}`, {
+				issuerUrl: normalized,
+				error: errorMessage,
+				details: errorBody.details,
+			});
 
-			console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
+			// Update API call tracking with error
+			apiCallTrackerService.updateApiCallResponse(
+				callId,
+				{
+					status: response.status,
+					statusText: response.statusText,
+					data: { error: errorMessage, ...errorBody },
+				},
+				Date.now() - startTime
+			);
+
+			throw new Error(errorMessage);
+		}
+
+		const data = await response.json();
+
+		console.log(`${MODULE_TAG} Discovery successful`, { issuer: data.issuer });
+
+		// Update API call tracking with success
+		apiCallTrackerService.updateApiCallResponse(
+			callId,
+			{
+				status: response.status,
+				statusText: response.statusText,
+				data: {
+					note: 'OIDC Discovery document retrieved successfully',
+					issuer: data.issuer,
+					authorization_endpoint: data.authorization_endpoint,
+					token_endpoint: data.token_endpoint,
+					userinfo_endpoint: data.userinfo_endpoint,
+					jwks_uri: data.jwks_uri,
+					scopes_supported: data.scopes_supported,
+					response_types_supported: data.response_types_supported,
+					grant_types_supported: data.grant_types_supported,
+				},
+			},
+			Date.now() - startTime
+		);
 
 			const discoveryData = {
 				issuer: data.issuer,
