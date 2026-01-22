@@ -870,7 +870,7 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 				</div>
 			)}
 
-			{/* OAuth Flow API Calls Table */}
+			{/* OAuth Flow API Calls */}
 			{groupedCalls.oauthFlow.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
 					<h3
@@ -878,151 +878,127 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 					>
 						🔄 OAuth Flow API Calls
 					</h3>
-					<div
-						style={{
-							overflowX: 'auto',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							background: 'white',
-						}}
-					>
-						<table
-							style={{
-								width: '100%',
-								borderCollapse: 'collapse',
-								fontSize: '14px',
-							}}
-						>
-							<thead>
-								<tr
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						{groupedCalls.oauthFlow.map((call, index) => {
+							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const isExpanded = expandedSections.has(globalIndex);
+							return (
+								<div
+									key={index}
 									style={{
-										background: '#f3e8ff',
-										borderBottom: '2px solid #9333ea',
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										overflow: 'hidden',
 									}}
 								>
-									<th
+									<button
+										type="button"
+										onClick={() => toggleSection(globalIndex)}
 										style={{
-											padding: '12px 16px',
+											width: '100%',
+											padding: '16px 20px',
+											background: isExpanded ? '#f3f4f6' : 'white',
+											border: 'none',
+											borderRadius: '8px',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
 											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
 										}}
 									>
-										#
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
-										}}
-									>
-										Step
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
-										}}
-									>
-										Method
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Endpoint
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{groupedCalls.oauthFlow.map((call, index) => {
-									const globalIndex = apiCalls.findIndex((c) => c === call);
-									return (
-										<tr
-											key={index}
-											style={{
-												borderBottom:
-													index < groupedCalls.oauthFlow.length - 1 ? '1px solid #e5e7eb' : 'none',
-												cursor: 'pointer',
-												transition: 'background 0.2s',
-											}}
-											onClick={() => {
-												// Scroll to the detailed section when clicked
-												const element = document.getElementById(`api-call-${globalIndex}`);
-												if (element) {
-													element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-													// Expand the section when clicked from table
-													toggleSection(globalIndex);
-												}
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#faf5ff';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'white';
-											}}
-										>
-											<td
+										<div style={{ flex: 1 }}>
+											<div
 												style={{
-													padding: '12px 16px',
-													color: '#6b7280',
-													borderRight: '1px solid #e5e7eb',
-												}}
-											>
-												{index + 1}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
+													fontSize: '16px',
+													fontWeight: '600',
 													color: '#1f2937',
-													fontWeight: '500',
-													borderRight: '1px solid #e5e7eb',
+													marginBottom: '4px',
 												}}
 											>
 												{call.step}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
-													color: '#1f2937',
-													fontWeight: '600',
-													borderRight: '1px solid #e5e7eb',
-												}}
-											>
-												{call.method}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
-													color: '#f97316',
-													fontFamily: 'monospace',
-													fontSize: '13px',
-													wordBreak: 'break-all',
-												}}
-											>
-												{call.actualPingOneUrl || call.url}
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
+											</div>
+											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
+												<strong>{call.method}</strong>{' '}
+												<span style={{ color: '#f97316' }}>
+													{call.actualPingOneUrl || call.url}
+												</span>
+											</div>
+										</div>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+											{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+										</div>
+									</button>
+
+									{isExpanded && (
+										<div style={{ padding: '0 20px 20px 20px' }}>
+											{call.body && (
+												<div style={{ marginBottom: '16px' }}>
+													<div
+														style={{
+															fontSize: '14px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Request Body:
+													</div>
+													<pre
+														style={{
+															background: '#f3f4f6',
+															padding: '12px',
+															borderRadius: '4px',
+															overflow: 'auto',
+															fontSize: '13px',
+															lineHeight: '1.5',
+														}}
+													>
+														<code>
+															{typeof call.body === 'string'
+																? call.body
+																: JSON.stringify(call.body, null, 2)}
+														</code>
+													</pre>
+												</div>
+											)}
+
+											{call.response?.data && (
+												<div>
+													<div
+														style={{
+															fontSize: '14px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Response:
+													</div>
+													<pre
+														style={{
+															background: '#f3f4f6',
+															padding: '12px',
+															borderRadius: '4px',
+															overflow: 'auto',
+															fontSize: '13px',
+															lineHeight: '1.5',
+														}}
+													>
+														<code>{String(JSON.stringify(call.response.data, null, 2))}</code>
+													</pre>
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			)}
 
-			{/* Pre-flight Validation API Calls Table */}
+			{/* Pre-flight Validation API Calls */}
 			{groupedCalls.preflightValidation.length > 0 && (
 				<div style={{ marginBottom: '32px' }}>
 					<h3
@@ -1030,148 +1006,122 @@ export const UnifiedFlowDocumentationPageV8U: React.FC<UnifiedFlowDocumentationP
 					>
 						✅ Pre-flight Validation API Calls
 					</h3>
-					<div
-						style={{
-							overflowX: 'auto',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							background: 'white',
-						}}
-					>
-						<table
-							style={{
-								width: '100%',
-								borderCollapse: 'collapse',
-								fontSize: '14px',
-							}}
-						>
-							<thead>
-								<tr
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						{groupedCalls.preflightValidation.map((call, index) => {
+							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const isExpanded = expandedSections.has(globalIndex);
+							return (
+								<div
+									key={index}
 									style={{
-										background: '#dcfce7',
-										borderBottom: '2px solid #16a34a',
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										overflow: 'hidden',
 									}}
 								>
-									<th
+									<button
+										type="button"
+										onClick={() => toggleSection(globalIndex)}
 										style={{
-											padding: '12px 16px',
+											width: '100%',
+											padding: '16px 20px',
+											background: isExpanded ? '#f3f4f6' : 'white',
+											border: 'none',
+											borderRadius: '8px',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
 											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
 										}}
 									>
-										#
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
-										}}
-									>
-										Check
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-											borderRight: '1px solid #e5e7eb',
-										}}
-									>
-										Method
-									</th>
-									<th
-										style={{
-											padding: '12px 16px',
-											textAlign: 'left',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Endpoint
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-								{groupedCalls.preflightValidation.map((call, index) => {
-									const globalIndex = apiCalls.findIndex((c) => c === call);
-									return (
-										<tr
-											key={index}
-											style={{
-												borderBottom:
-													index < groupedCalls.preflightValidation.length - 1
-														? '1px solid #e5e7eb'
-														: 'none',
-												cursor: 'pointer',
-												transition: 'background 0.2s',
-											}}
-											onClick={() => {
-												// Scroll to the detailed section when clicked
-												const element = document.getElementById(`api-call-${globalIndex}`);
-												if (element) {
-													element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-													// Expand the section when clicked from table
-													toggleSection(globalIndex);
-												}
-											}}
-											onMouseEnter={(e) => {
-												e.currentTarget.style.background = '#f0fdf4';
-											}}
-											onMouseLeave={(e) => {
-												e.currentTarget.style.background = 'white';
-											}}
-										>
-											<td
+										<div style={{ flex: 1 }}>
+											<div
 												style={{
-													padding: '12px 16px',
-													color: '#6b7280',
-													borderRight: '1px solid #e5e7eb',
-												}}
-											>
-												{index + 1}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
+													fontSize: '16px',
+													fontWeight: '600',
 													color: '#1f2937',
-													fontWeight: '500',
-													borderRight: '1px solid #e5e7eb',
+													marginBottom: '4px',
 												}}
 											>
 												{call.step}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
-													color: '#1f2937',
-													fontWeight: '600',
-													borderRight: '1px solid #e5e7eb',
-												}}
-											>
-												{call.method}
-											</td>
-											<td
-												style={{
-													padding: '12px 16px',
-													color: '#f97316',
-													fontFamily: 'monospace',
-													fontSize: '13px',
-													wordBreak: 'break-all',
-												}}
-											>
-												{call.actualPingOneUrl || call.url}
-											</td>
-										</tr>
-									);
-								})}
-							</tbody>
-						</table>
+											</div>
+											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
+												<strong>{call.method}</strong>{' '}
+												<span style={{ color: '#f97316' }}>
+													{call.actualPingOneUrl || call.url}
+												</span>
+											</div>
+										</div>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+											{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+										</div>
+									</button>
+
+									{isExpanded && (
+										<div style={{ padding: '0 20px 20px 20px' }}>
+											{call.body && (
+												<div style={{ marginBottom: '16px' }}>
+													<div
+														style={{
+															fontSize: '14px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Request Body:
+													</div>
+													<pre
+														style={{
+															background: '#f3f4f6',
+															padding: '12px',
+															borderRadius: '4px',
+															overflow: 'auto',
+															fontSize: '13px',
+															lineHeight: '1.5',
+														}}
+													>
+														<code>
+															{typeof call.body === 'string'
+																? call.body
+																: JSON.stringify(call.body, null, 2)}
+														</code>
+													</pre>
+												</div>
+											)}
+
+											{call.response?.data && (
+												<div>
+													<div
+														style={{
+															fontSize: '14px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Response:
+													</div>
+													<pre
+														style={{
+															background: '#f3f4f6',
+															padding: '12px',
+															borderRadius: '4px',
+															overflow: 'auto',
+															fontSize: '13px',
+															lineHeight: '1.5',
+														}}
+													>
+														<code>{String(JSON.stringify(call.response.data, null, 2))}</code>
+													</pre>
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							);
+						})}
 					</div>
 				</div>
 			)}
