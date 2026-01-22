@@ -280,9 +280,28 @@ export class MfaAuthenticationServiceV8 {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
+					'Cache-Control': 'no-cache',
+					'Pragma': 'no-cache',
 				},
 				body: JSON.stringify(requestBody),
 			});
+
+			// Check if response is ok before parsing
+			if (!response.ok) {
+				console.error(`${MODULE_TAG} Initialize device authentication failed:`, {
+					status: response.status,
+					statusText: response.statusText,
+					url: '/api/pingone/mfa/initialize-device-authentication',
+				});
+				throw new Error(`Failed to initialize device authentication: ${response.status} ${response.statusText}`);
+			}
+
+			// Check if response has content
+			const contentLength = response.headers.get('content-length');
+			if (contentLength === '0') {
+				console.error(`${MODULE_TAG} Empty response received from initialize device authentication`);
+				throw new Error('Empty response received from server');
+			}
 
 			// Parse response once (clone first to avoid consuming the body)
 			const responseClone = response.clone();
@@ -1140,7 +1159,7 @@ export class MfaAuthenticationServiceV8 {
 		const autoRenewalEnabled = config.workerToken.autoRenewal;
 		const renewalThreshold = config.workerToken.renewalThreshold; // seconds before expiry
 
-		const workerToken = await workerTokenServiceV8.getToken();
+		let workerToken = await workerTokenServiceV8.getToken();
 
 		// Decode JWT to check expiry
 		let tokenExpiry: number | null = null;
@@ -1849,29 +1868,6 @@ export class MfaAuthenticationServiceV8 {
 				);
 			}
 
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1724',
-					message: 'Assertion body structure check',
-					data: {
-						assertionType: typeof assertionBody.assertion,
-						isString: typeof assertionBody.assertion === 'string',
-						isObject: typeof assertionBody.assertion === 'object',
-						hasId: !!assertionBody.assertion?.id,
-						hasRawId: !!assertionBody.assertion?.rawId,
-						hasResponse: !!assertionBody.assertion?.response,
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'A',
-				}),
-			}).catch(() => {});
-			// #endregion
-
 			// Build request body for backend proxy
 			// The backend will transform this into the PingOne API format
 			const backendRequestBody: {
@@ -1906,34 +1902,6 @@ export class MfaAuthenticationServiceV8 {
 			// Content-Type: application/vnd.pingidentity.assertion.check+json
 			// Note: The Content-Type header indicates this is an assertion check, not the URL path
 			const actualPingOneUrl = `${authPath}/${finalEnvironmentId}/deviceAuthentications/${deviceAuthId}`;
-
-			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1774',
-					message: 'Request body before stringify',
-					data: {
-						requestBodyType: typeof backendRequestBody,
-						assertionType: typeof backendRequestBody.assertion,
-						isAssertionString: typeof backendRequestBody.assertion === 'string',
-						isAssertionObject:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null,
-						assertionKeys:
-							typeof backendRequestBody.assertion === 'object' &&
-							backendRequestBody.assertion !== null
-								? Object.keys(backendRequestBody.assertion)
-								: [],
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'B',
-				}),
-			}).catch(() => {});
-			// #endregion
 
 			// Build the request body that will be sent to PingOne (via backend proxy)
 			// This matches the PingOne API spec: { origin, assertion (as JSON string), compatibility }
@@ -1971,29 +1939,7 @@ export class MfaAuthenticationServiceV8 {
 				flowType: 'mfa',
 			});
 
-			// #region agent log
 			const stringifiedBody = JSON.stringify(backendRequestBody);
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({
-					location: 'mfaAuthenticationServiceV8.ts:1802',
-					message: 'Request body after stringify',
-					data: {
-						stringifiedLength: stringifiedBody.length,
-						stringifiedPreview: stringifiedBody.substring(0, 200),
-						hasAssertionString: stringifiedBody.includes('"assertion"'),
-						assertionIsStringified:
-							stringifiedBody.includes('"assertion":"') ||
-							stringifiedBody.includes('"assertion": "'),
-					},
-					timestamp: Date.now(),
-					sessionId: 'debug-session',
-					runId: 'run1',
-					hypothesisId: 'C',
-				}),
-			}).catch(() => {});
-			// #endregion
 
 			const response = await pingOneFetch('/api/pingone/mfa/check-fido2-assertion', {
 				method: 'POST',

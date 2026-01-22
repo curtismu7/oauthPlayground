@@ -149,8 +149,8 @@ export class AppDiscoveryServiceV8 {
 				return null;
 			}
 
-			// Try to get token from browser storage (service stores it there)
-			const stored = localStorage.getItem('v8:worker_token');
+			// Try to get token from browser storage (unified service stores it there)
+			const stored = localStorage.getItem('unified_worker_token');
 			if (!stored) {
 				return null;
 			}
@@ -241,22 +241,21 @@ export class AppDiscoveryServiceV8 {
 			const expiresAt = Date.now() + expiresIn;
 
 			// Save to browser storage directly (service will sync to IndexedDB on next access)
-			const stored = localStorage.getItem('v8:worker_token');
+			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
 				const data = JSON.parse(stored);
 				data.token = token;
 				data.expiresAt = expiresAt;
 				data.savedAt = Date.now();
-				localStorage.setItem('v8:worker_token', JSON.stringify(data));
+				localStorage.setItem('unified_worker_token', JSON.stringify(data));
 			} else {
 				// Create new entry
 				const data = {
-					...credentials,
 					token,
 					expiresAt,
 					savedAt: Date.now(),
 				};
-				localStorage.setItem('v8:worker_token', JSON.stringify(data));
+				localStorage.setItem('unified_worker_token', JSON.stringify(data));
 			}
 
 			console.log(`${MODULE_TAG} Worker token stored to browser storage (sync)`, {
@@ -654,7 +653,6 @@ export class AppDiscoveryServiceV8 {
 				secretValue: app.secret ? `${app.secret.substring(0, 10)}...` : (app.secret === null ? 'null' : 'none'),
 			});
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'appDiscoveryServiceV8.ts:543',message:'PingOne API response - checking field names',data:{hasTokenEndpointAuthMethod:'tokenEndpointAuthMethod' in app,hasTokenEndpointAuthMethodSnake:'token_endpoint_auth_method' in app,tokenEndpointAuthMethod:app.tokenEndpointAuthMethod||app.token_endpoint_auth_method,hasRedirectUris:'redirectUris' in app,hasRedirectUrisSnake:'redirect_uris' in app,redirectUris:app.redirectUris||app.redirect_uris,allKeys:Object.keys(app)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 			// #endregion
 
 			// Map to DiscoveredApplication format
@@ -749,7 +747,7 @@ export class AppDiscoveryServiceV8 {
 	} | null {
 		try {
 			// Read from global service storage
-			const stored = localStorage.getItem('v8:worker_token');
+			const stored = localStorage.getItem('unified_worker_token');
 			if (!stored) {
 				return null;
 			}

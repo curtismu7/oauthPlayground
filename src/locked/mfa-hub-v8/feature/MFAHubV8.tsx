@@ -97,20 +97,17 @@ export const MFAHubV8: React.FC = () => {
 		// Check worker token on mount and when token updates
 		useEffect(() => {
 			// #region agent log
-			fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:94',message:'useEffect triggered',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 			// #endregion
 			const checkToken = async () => {
 				const currentStatus = WorkerTokenStatusServiceV8.checkWorkerTokenStatus();
 				setTokenStatus(currentStatus);
 				// #region agent log
-				fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:98',message:'Token status checked',data:{isValid:currentStatus.isValid,hasToken:!!currentStatus.token},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
 				// #endregion
 
 				// If token is missing or expired, use helper to handle silent retrieval
 				// Pass Hub page checkbox values to override config (Hub page takes precedence)
 				if (!currentStatus.isValid) {
 					// #region agent log
-					fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MFAHubV8.tsx:102',message:'Calling handleShowWorkerTokenModal',data:{silentApiRetrieval,showTokenAtEnd},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
 					// #endregion
 					await handleShowWorkerTokenModal(
 						setShowWorkerTokenModal, 
