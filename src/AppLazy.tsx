@@ -14,7 +14,7 @@ const CredentialSetupModal = React.lazy(() => import('./components/CredentialSet
 const AuthorizationRequestModal = React.lazy(
 	() => import('./components/AuthorizationRequestModal')
 );
-const PageChangeSpinner = React.lazy(() => import('./components/PageChangeSpinner'));
+const LoadingSpinnerModalV8U = React.lazy(() => import('@/v8u/components/LoadingSpinnerModalV8U'));
 
 // Lazy load pages
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -386,7 +386,11 @@ const AppRoutes = () => {
 			</LazyRouteWrapper>
 
 			<LazyRouteWrapper fallbackMessage="Loading page spinner...">
-				<PageChangeSpinner isVisible={showPageSpinner} message="Loading page..." />
+				<LoadingSpinnerModalV8U
+					show={showPageSpinner}
+					message="Loading page..."
+					theme="blue"
+				/>
 			</LazyRouteWrapper>
 		</>
 	);
