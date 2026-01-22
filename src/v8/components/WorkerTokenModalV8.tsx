@@ -51,6 +51,7 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 	const [authMethod, setAuthMethod] = useState<AuthMethodV8>('client_secret_basic');
 	const [showSecret, setShowSecret] = useState(false);
 	const [isGenerating, setIsGenerating] = useState(false);
+	const [loadingMessage, setLoadingMessage] = useState('');
 	const [showRequestModal, setShowRequestModal] = useState(false);
 	const [requestDetails, setRequestDetails] = useState<{
 		tokenEndpoint: string;
@@ -186,74 +187,123 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 
 		setScopeInput(normalizedScopes.join(' '));
 
-		// Save credentials if checkbox is checked
-		// Use workerTokenServiceV8 to ensure credentials are saved to the correct location
-		// that silent API retrieval can find them
-		if (saveCredentials) {
-			try {
-				await workerTokenServiceV8.saveCredentials({
+		setIsGenerating(true);
+		setLoadingMessage('🔍 Validating credentials...');
+
+		try {
+			// Save credentials first
+			const credentials = {
+				environmentId: environmentId.trim(),
+				clientId: clientId.trim(),
+				clientSecret: clientSecret.trim(),
+				scopes: normalizedScopes,
+				region,
+				customDomain: customDomain.trim() || '',
+				tokenEndpointAuthMethod: authMethod,
+			};
+
+			await workerTokenServiceV8.saveCredentials(credentials);
+
+			// Run preflight validation
+			setLoadingMessage('✅ Validating configuration against PingOne...');
+			
+			const { PreFlightValidationServiceV8 } = await import('@/v8/services/preFlightValidationServiceV8');
+			const workerToken = await workerTokenServiceV8.getToken();
+			
+			if (!workerToken) {
+				throw new Error('No worker token available for preflight validation. Please ensure worker token credentials are properly saved.');
+			}
+
+			// For worker token generation, we only need to validate OAuth config (no redirect URI)
+			const oauthConfigResult = await PreFlightValidationServiceV8.validateOAuthConfig({
+				specVersion: 'oauth2.0' as const, // Worker tokens use OAuth 2.0
+				flowType: 'client-credentials' as const, // Worker tokens use client credentials flow
+				credentials: {
 					environmentId: environmentId.trim(),
 					clientId: clientId.trim(),
 					clientSecret: clientSecret.trim(),
-					scopes: normalizedScopes,
-					region,
-					customDomain: customDomain.trim() || undefined,
-					tokenEndpointAuthMethod: authMethod,
-				});
-				console.log(`${MODULE_TAG} Credentials saved to workerTokenServiceV8 (checkbox was checked)`);
-			} catch (error) {
-				console.error(`${MODULE_TAG} Failed to save credentials:`, error);
-				toastV8.error('Failed to save credentials. They will still be used for this token generation.');
+					redirectUri: '', // Not needed for worker tokens
+					postLogoutRedirectUri: '', // Not needed for worker tokens
+					scopes: normalizedScopes.join(' '), // Convert array to string
+					responseType: '', // Not needed for worker tokens
+					clientAuthMethod: authMethod,
+				},
+				workerToken,
+			});
+
+			if (!oauthConfigResult.passed) {
+				// Show validation errors
+				const errorMessage = oauthConfigResult.errors.join('; ');
+				throw new Error(`Pre-flight validation failed: ${errorMessage}`);
 			}
-		}
 
-		// Build token endpoint - use custom domain if provided, otherwise use region-based domain
-		const domain = customDomain.trim()
-			? customDomain.trim()
-			: (() => {
-					const regionDomains = {
-						us: 'auth.pingone.com',
-						eu: 'auth.pingone.eu',
-						ap: 'auth.pingone.asia',
-						ca: 'auth.pingone.ca',
-					};
-					return regionDomains[region];
-				})();
-		const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
+			// Show warnings if any
+			if (oauthConfigResult.warnings.length > 0) {
+				const warningMessage = oauthConfigResult.warnings.join('; ');
+				toastV8.warning(`Pre-flight warnings: ${warningMessage}`);
+			}
 
-		const params = new URLSearchParams({
-			grant_type: 'client_credentials',
-			client_id: clientId.trim(),
-			scope: normalizedScopes.join(' '),
-		});
+			setLoadingMessage('🔑 Preparing token request...');
 
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/x-www-form-urlencoded',
-		};
+			// Save credentials if checkbox is checked (already saved above, but keeping for consistency)
+			if (saveCredentials) {
+				console.log(`${MODULE_TAG} Credentials already saved to workerTokenServiceV8`);
+			}
 
-		if (authMethod === 'client_secret_post') {
-			params.set('client_secret', clientSecret.trim());
-		} else if (authMethod === 'client_secret_basic') {
-			const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
-			headers.Authorization = `Basic ${basicAuth}`;
-		}
+			// Build token endpoint - use custom domain if provided, otherwise use region-based domain
+			const domain = customDomain.trim()
+				? customDomain.trim()
+				: (() => {
+						const regionDomains = {
+							us: 'auth.pingone.com',
+							eu: 'auth.pingone.eu',
+							ap: 'auth.pingone.asia',
+							ca: 'auth.pingone.ca',
+						};
+						return regionDomains[region];
+					})();
+			const tokenEndpoint = `https://${domain}/${environmentId.trim()}/as/token`;
 
-		const details = {
-			tokenEndpoint,
-			requestParams: {
+			const params = new URLSearchParams({
 				grant_type: 'client_credentials',
 				client_id: clientId.trim(),
-				client_secret: clientSecret.trim(),
 				scope: normalizedScopes.join(' '),
-			},
-			authMethod,
-			region,
-			resolvedHeaders: headers,
-			resolvedBody: params.toString(),
-		};
+			});
 
-		setRequestDetails(details);
-		setShowRequestModal(true);
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			};
+
+			if (authMethod === 'client_secret_post') {
+				params.set('client_secret', clientSecret.trim());
+			} else if (authMethod === 'client_secret_basic') {
+				const basicAuth = btoa(`${clientId.trim()}:${clientSecret.trim()}`);
+				headers.Authorization = `Basic ${basicAuth}`;
+			}
+
+			const details = {
+				tokenEndpoint,
+				requestParams: {
+					grant_type: 'client_credentials',
+					client_id: clientId.trim(),
+					client_secret: clientSecret.trim(),
+					scope: normalizedScopes.join(' '),
+				},
+				authMethod,
+				region,
+				resolvedHeaders: headers,
+				resolvedBody: params.toString(),
+			};
+
+			setRequestDetails(details);
+			setShowRequestModal(true);
+		} catch (error) {
+			console.error(`${MODULE_TAG} Pre-flight validation error:`, error);
+			toastV8.error(error instanceof Error ? error.message : 'Pre-flight validation failed');
+		} finally {
+			setIsGenerating(false);
+			setLoadingMessage('');
+		}
 	};
 
 	const handleExecuteRequest = async (): Promise<string | null> => {
@@ -1244,6 +1294,22 @@ export const WorkerTokenModalV8: React.FC<WorkerTokenModalV8Props> = ({
 								Import
 							</button>
 						</div>
+
+						{/* Loading Message */}
+						{loadingMessage && (
+							<div style={{
+								marginTop: '12px',
+								padding: '8px 12px',
+								background: '#f0f9ff',
+								border: '1px solid #3b82f6',
+								borderRadius: '4px',
+								fontSize: '13px',
+								color: '#1e40af',
+								textAlign: 'center',
+							}}>
+								{loadingMessage}
+							</div>
+						)}
 
 						{/* Main action buttons */}
 						<div style={{ display: 'flex', gap: '8px' }}>
