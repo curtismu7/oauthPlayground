@@ -47,7 +47,6 @@ import { SuperSimpleApiDisplayV8 } from '@/v8/components/SuperSimpleApiDisplayV8
 import { UserSearchDropdownV8 } from '@/v8/components/UserSearchDropdownV8';
 import { WorkerTokenModalV8 } from '@/v8/components/WorkerTokenModalV8';
 import { PageHeaderV8, PageHeaderGradients, PageHeaderTextColors } from '@/v8/components/shared/PageHeaderV8';
-import { LoadingSpinnerModalV8U } from '@/v8u/components/LoadingSpinnerModalV8U';
 import { useApiDisplayPadding } from '@/v8/hooks/useApiDisplayPadding';
 import type { DeviceAuthenticationPolicy, DeviceType } from '@/v8/flows/shared/MFATypes';
 import { apiDisplayServiceV8 } from '@/v8/services/apiDisplayServiceV8';
@@ -1402,19 +1401,6 @@ export const MFAAuthenticationMainPageV8: React.FC = () => {
 		>
 			{/* Navigation Bar */}
 			<MFANavigationV8 currentPage="hub" showBackToMain={true} />
-
-			<LoadingSpinnerModalV8U
-				show={authState.isLoading && !!loadingMessage}
-				message={loadingMessage}
-				theme="blue"
-			/>
-
-			{/* Token Clearing Spinner */}
-			<LoadingSpinnerModalV8U
-				show={isClearingTokens}
-				message="Clearing tokens and ending session..."
-				theme="orange"
-			/>
 
 			<SuperSimpleApiDisplayV8 flowFilter="mfa" />
 
