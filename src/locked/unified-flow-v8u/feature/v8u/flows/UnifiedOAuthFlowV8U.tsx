@@ -1112,7 +1112,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 	const getApiDocsUrl = (flow: FlowType): string => {
 		const baseUrl = 'https://apidocs.pingidentity.com/pingone/platform/v1/api/';
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -1148,7 +1147,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 		}
 
 		// #region agent log
-		fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({
@@ -1416,7 +1414,6 @@ export const UnifiedOAuthFlowV8U: React.FC = () => {
 						// #region agent log (silently fail - analytics server not available)
 						// Suppress all errors to prevent console spam
 						try {
-							fetch('http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c', {
 								method: 'POST',
 								headers: { 'Content-Type': 'application/json' },
 								body: JSON.stringify({
