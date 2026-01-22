@@ -28,6 +28,7 @@ import {
 	FiChevronDown,
 	FiCode,
 	FiCpu,
+	FiDatabase,
 	FiEye,
 	FiFileText,
 	FiGitBranch,
@@ -407,18 +408,14 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 		const defaultGroups: MenuGroup[] = [
 			{
 				id: 'v8-flows-new',
-				label: 'V8 Flows - NEW',
-				icon: (
-					<ColoredIcon $color="#3b82f6">
-						<FiZap />
-					</ColoredIcon>
-				),
+				label: 'Production',
+				icon: <FiZap />,
 				isOpen: true,
 				items: [
 					{
 						id: 'unified-oauth-flow-v8u',
 						path: '/v8u/unified',
-						label: '🎯 Unified OAuth & OIDC',
+						label: 'Unified OAuth & OIDC',
 						icon: (
 							<ColoredIcon $color="#10b981">
 								<FiZap />
@@ -433,7 +430,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'spiffe-spire-flow-v8u',
 						path: '/v8u/spiffe-spire',
-						label: '🔐 SPIFFE/SPIRE Mock',
+						label: 'SPIFFE/SPIRE Mock',
 						icon: (
 							<ColoredIcon $color="#8b5cf6">
 								<FiShield />
@@ -463,7 +460,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'delete-all-devices-utility-v8',
 						path: '/v8/delete-all-devices',
-						label: '🗑️ Delete All Devices',
+						label: 'Delete All Devices',
 						icon: (
 							<ColoredIcon $color="#ef4444">
 								<FiTrash2 />
@@ -478,7 +475,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 					{
 						id: 'postman-collection-generator',
 						path: '/postman-collection-generator',
-						label: '📦 Postman Collection Generator',
+						label: 'Postman Collection Generator',
 						icon: (
 							<ColoredIcon $color="#10b981">
 								<FiPackage />
@@ -490,16 +487,56 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({
 							</MigrationBadge>
 						),
 					},
+					{
+						id: 'resources-api-v8',
+						path: '/v8/resources-api',
+						label: 'Resources API Tutorial',
+						icon: <FiBook />,
+						badge: (
+							<MigrationBadge title="PingOne resources API tutorial">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'enhanced-state-management',
+						path: '/v8u/enhanced-state-management',
+						label: 'Enhanced State Management (V2)',
+						icon: <FiDatabase />,
+						badge: (
+							<MigrationBadge title="Advanced state management with undo/redo, offline capabilities, and persistence">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'token-monitoring-dashboard',
+						path: '/v8u/token-monitoring',
+						label: 'Token Monitoring Dashboard',
+						icon: <FiEye />,
+						badge: (
+							<MigrationBadge title="Real-time token monitoring dashboard">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'flow-comparison-tool',
+						path: '/v8u/flow-comparison',
+						label: 'Flow Comparison Tool',
+						icon: <FiBarChart2 />,
+						badge: (
+							<MigrationBadge title="Compare OAuth flows with detailed metrics and recommendations">
+								NEW
+							</MigrationBadge>
+						),
+					},
 				],
 			},
 			{
 				id: 'v8-flows',
-				label: 'V8 Flows (Latest)',
-				icon: (
-					<ColoredIcon $color="#10b981">
-						<FiZap />
-					</ColoredIcon>
-				),
+				label: 'Production (Legacy)',
+				icon: <FiZap />,
 				isOpen: true,
 				items: [
 					{
