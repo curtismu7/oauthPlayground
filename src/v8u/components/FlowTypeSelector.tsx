@@ -41,15 +41,23 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 
 	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		const newFlowType = event.target.value as FlowType;
-		
+
 		// #region agent log
 		// #endregion
-		
+
 		console.log(`${MODULE_TAG} Flow type changed`, {
 			specVersion,
 			from: flowType,
 			to: newFlowType,
 		});
+
+		// Show warnings for problematic flow types
+		if (newFlowType === 'implicit') {
+			console.warn(
+				`${MODULE_TAG} ⚠️ Implicit Flow selected - This flow is deprecated in OAuth 2.1 and has security limitations`
+			);
+		}
+
 		onChange(newFlowType);
 	};
 
@@ -115,7 +123,11 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 					width: '100%',
 					opacity: disabled ? 0.6 : 1,
 				}}
-				title={disabled ? 'Flow type cannot be changed after starting the flow. Use "Restart Flow" to change flow type.' : undefined}
+				title={
+					disabled
+						? 'Flow type cannot be changed after starting the flow. Use "Restart Flow" to change flow type.'
+						: undefined
+				}
 			>
 				{availableFlows.map((flow) => (
 					<option key={flow} value={flow}>
@@ -132,6 +144,24 @@ export const FlowTypeSelector: React.FC<FlowTypeSelectorProps> = ({
 					}}
 				>
 					⚠️ No flows available for this spec version
+				</div>
+			)}
+
+			{/* Show warning for implicit flow */}
+			{effectiveFlowType === 'implicit' && (
+				<div
+					style={{
+						marginTop: '6px',
+						fontSize: '12px',
+						color: '#d97706',
+						background: '#fef3c7',
+						padding: '8px',
+						borderRadius: '4px',
+						border: '1px solid #fbbf24',
+					}}
+				>
+					⚠️ <strong>Implicit Flow</strong> is deprecated in OAuth 2.1 and has security limitations.
+					Consider using Authorization Code Flow with PKCE instead.
 				</div>
 			)}
 		</div>
