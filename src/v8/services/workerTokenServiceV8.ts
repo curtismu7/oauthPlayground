@@ -1,25 +1,21 @@
 /**
  * @file workerTokenServiceV8.ts
  * @module v8/services
- * @description Centralized Worker Token Service with IndexedDB backup storage
+ * @description V8 Worker Token Service - Wrapper for unified service
  * @version 8.0.0
  * @since 2025-01-20
- *
- * This service manages worker tokens globally across the entire application.
- * Users only need to enter worker token credentials once, and they're shared everywhere.
- *
- * Storage Strategy:
- * - Primary: Browser localStorage (fast, synchronous)
- * - Backup: IndexedDB (persistent, survives browser data clearing)
- * - Memory: In-memory cache for performance
+ * 
+ * This is a compatibility wrapper that delegates to the unified worker token service.
+ * All new code should use the unified service directly.
  */
 
-const MODULE_TAG = '[🔑 WORKER-TOKEN-V8]';
+import { unifiedWorkerTokenService } from '../../services/unifiedWorkerTokenService';
+import type { UnifiedWorkerTokenCredentials, UnifiedWorkerTokenData } from '../../services/unifiedWorkerTokenService';
 
-const BROWSER_STORAGE_KEY = 'v8:worker_token';
-const INDEXEDDB_STORE_NAME = 'worker_tokens';
-const INDEXEDDB_DB_NAME = 'oauth_playground_v8';
+// Re-export types for backward compatibility
+export type { WorkerTokenStatus } from '../../services/unifiedWorkerTokenTypes';
 
+// Legacy compatibility - map old interfaces to new ones
 export interface WorkerTokenData {
 	token: string;
 	environmentId: string;
@@ -53,394 +49,56 @@ export interface WorkerTokenCredentials {
 		| 'private_key_jwt';
 }
 
+/**
+ * V8 Worker Token Service - Compatibility Wrapper
+ * 
+ * This class provides backward compatibility for existing V8 code while
+ * delegating all operations to the unified worker token service.
+ */
 class WorkerTokenServiceV8 {
-	private memoryCache: WorkerTokenData | null = null;
-	private dbPromise: Promise<IDBDatabase> | null = null;
-
 	/**
-	 * Initialize IndexedDB database
-	 */
-	private async initDB(): Promise<IDBDatabase> {
-		if (this.dbPromise) {
-			return this.dbPromise;
-		}
-
-		this.dbPromise = new Promise((resolve, reject) => {
-			const request = indexedDB.open(INDEXEDDB_DB_NAME, 1);
-
-			request.onerror = () => {
-				console.error(`${MODULE_TAG} Failed to open IndexedDB`, request.error);
-				reject(request.error);
-			};
-
-			request.onsuccess = () => {
-				resolve(request.result);
-			};
-
-			request.onupgradeneeded = (event) => {
-				const db = (event.target as IDBOpenDBRequest).result;
-				if (!db.objectStoreNames.contains(INDEXEDDB_STORE_NAME)) {
-					const store = db.createObjectStore(INDEXEDDB_STORE_NAME, { keyPath: 'id' });
-					store.createIndex('environmentId', 'environmentId', { unique: false });
-					store.createIndex('savedAt', 'savedAt', { unique: false });
-				}
-			};
-		});
-
-		return this.dbPromise;
-	}
-
-	/**
-	 * Save worker token credentials to all storage layers
+	 * Save worker token credentials
 	 */
 	async saveCredentials(credentials: WorkerTokenCredentials): Promise<void> {
-		const data: WorkerTokenData = {
-			token: '', // Token will be fetched when needed
-			environmentId: credentials.environmentId,
-			clientId: credentials.clientId,
-			clientSecret: credentials.clientSecret,
-			scopes: credentials.scopes || [],
-			region: credentials.region || 'us',
-			customDomain: credentials.customDomain,
-			tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod || 'client_secret_post',
-			savedAt: Date.now(),
+		// Convert to unified format if needed
+		const unifiedCredentials: UnifiedWorkerTokenCredentials = {
+			...credentials,
+			appId: 'v8',
+			appName: 'OAuth Playground V8',
+			appVersion: '8.0.0',
 		};
-
-		// Save to memory cache
-		this.memoryCache = data;
-
-		// Save to browser storage (primary)
-		try {
-			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to browser storage`, error);
-		}
-
-		// Save to IndexedDB (backup)
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-
-			const record = {
-				id: 'worker_token',
-				...data,
-			};
-
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put(record);
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save to IndexedDB`, error);
-			// Don't throw - browser storage is primary
-		}
+		
+		await unifiedWorkerTokenService.saveCredentials(unifiedCredentials);
 	}
 
 	/**
-	 * Load worker token credentials from all storage layers (memory -> browser -> IndexedDB)
+	 * Load worker token credentials
 	 */
 	async loadCredentials(): Promise<WorkerTokenCredentials | null> {
-		// Import analytics utility once for this function
-		const { safeAnalyticsFetch } = await import('@/v8/utils/analyticsServerCheckV8');
+		const unifiedCredentials = await unifiedWorkerTokenService.loadCredentials();
 		
-		// #region agent log (only if analytics server is available)
-		safeAnalyticsFetch({location:'workerTokenServiceV8.ts:144',message:'loadCredentials called',data:{hasMemoryCache:!!this.memoryCache,storageKey:BROWSER_STORAGE_KEY},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-		// #endregion
-		// Try memory cache first
-		if (this.memoryCache) {
-			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:147',message:'Using memory cache',data:{hasEnvironmentId:!!this.memoryCache.environmentId,hasClientId:!!this.memoryCache.clientId,hasClientSecret:!!this.memoryCache.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-			// #endregion
-			return this.extractCredentials(this.memoryCache);
+		if (!unifiedCredentials) {
+			return null;
 		}
 
-		// Try browser storage (primary)
-		try {
-			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
-			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:152',message:'Checking browser storage',data:{hasStored:!!stored,storageKey:BROWSER_STORAGE_KEY,storedLength:stored?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-			// #endregion
-			if (stored) {
-				const data: WorkerTokenData = JSON.parse(stored);
-				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:155',message:'Parsed storage data',data:{hasEnvironmentId:!!data.environmentId,hasClientId:!!data.clientId,hasClientSecret:!!data.clientSecret,hasScopes:!!data.scopes},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-				// #endregion
-				this.memoryCache = data;
-				const extracted = this.extractCredentials(data);
-				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:157',message:'Extracted credentials',data:{hasExtracted:!!extracted,hasExtractedEnvId:!!extracted?.environmentId,hasExtractedClientId:!!extracted?.clientId,hasExtractedClientSecret:!!extracted?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-				// #endregion
-				return extracted;
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from browser storage`, error);
-			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:160',message:'Error loading from browser storage',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-			// #endregion
-		}
-
-		// Try IndexedDB (backup)
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readonly');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			const request = store.get('worker_token');
-
-			const data = await new Promise<WorkerTokenData | null>((resolve, reject) => {
-				request.onsuccess = () => resolve(request.result || null);
-				request.onerror = () => reject(request.error);
-			});
-
-			if (data) {
-				this.memoryCache = data;
-				// Restore to browser storage
-				try {
-					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to restore to browser storage`, error);
-				}
-				return this.extractCredentials(data);
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from IndexedDB`, error);
-		}
-
-		// Try legacy storage key as fallback (worker_credentials)
-		try {
-			const legacyStored = localStorage.getItem('worker_credentials');
-			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:188',message:'Checking legacy storage key',data:{hasLegacyStored:!!legacyStored},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-			// #endregion
-			if (legacyStored) {
-				const legacyData = JSON.parse(legacyStored);
-				// Convert legacy format to WorkerTokenData format
-				const convertedData: WorkerTokenData = {
-					token: '', // Token not in legacy format
-					environmentId: legacyData.environmentId,
-					clientId: legacyData.clientId,
-					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
-					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
-					savedAt: Date.now(),
-				};
-				// #region agent log (only if analytics server is available)
-				safeAnalyticsFetch({location:'workerTokenServiceV8.ts:200',message:'Found legacy credentials, converting',data:{hasEnvironmentId:!!convertedData.environmentId,hasClientId:!!convertedData.clientId,hasClientSecret:!!convertedData.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-				// #endregion
-				// Save to new format and cache
-				this.memoryCache = convertedData;
-				try {
-					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
-				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage`, error);
-				}
-				return this.extractCredentials(convertedData);
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from legacy storage`, error);
-			// #region agent log (only if analytics server is available)
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:212',message:'Error loading legacy credentials',data:{errorMessage:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-			// #endregion
-		}
-
-		return null;
+		// Convert back to V8 format (remove app-specific fields)
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { appId, appName, appVersion, ...v8Credentials } = unifiedCredentials;
+		return v8Credentials as WorkerTokenCredentials;
 	}
 
 	/**
-	 * Synchronous version for backwards compatibility (browser storage only)
-	 */
-	loadCredentialsSync(): WorkerTokenCredentials | null {
-		// Try memory cache
-		if (this.memoryCache) {
-			return this.extractCredentials(this.memoryCache);
-		}
-
-		// Try browser storage
-		try {
-			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
-			if (stored) {
-				const data: WorkerTokenData = JSON.parse(stored);
-				this.memoryCache = data;
-				return this.extractCredentials(data);
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from browser storage (sync)`, error);
-		}
-
-		// Try legacy storage key as fallback (worker_credentials)
-		try {
-			const legacyStored = localStorage.getItem('worker_credentials');
-			if (legacyStored) {
-				const legacyData = JSON.parse(legacyStored);
-				// Convert legacy format to WorkerTokenData format
-				const convertedData: WorkerTokenData = {
-					token: '', // Token not in legacy format
-					environmentId: legacyData.environmentId,
-					clientId: legacyData.clientId,
-					clientSecret: legacyData.clientSecret,
-					scopes: legacyData.scopes ? (Array.isArray(legacyData.scopes) ? legacyData.scopes : legacyData.scopes.split(/\s+/).filter(Boolean)) : [],
-					region: legacyData.region || 'us',
-					tokenEndpointAuthMethod: legacyData.authMethod || legacyData.tokenEndpointAuthMethod || 'client_secret_post',
-					savedAt: Date.now(),
-				};
-				// Save to new format and cache
-				this.memoryCache = convertedData;
-				try {
-					localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(convertedData));
-				} catch (error) {
-					console.warn(`${MODULE_TAG} Failed to migrate legacy credentials to new storage (sync)`, error);
-				}
-				return this.extractCredentials(convertedData);
-			}
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load from legacy storage (sync)`, error);
-		}
-
-		return null;
-	}
-
-	/**
-	 * Save worker token (access token) with expiration
+	 * Save worker token (access token)
 	 */
 	async saveToken(token: string, expiresAt?: number): Promise<void> {
-		const credentials = await this.loadCredentials();
-		if (!credentials) {
-			throw new Error('No worker token credentials found. Please save credentials first.');
-		}
-
-		const data: WorkerTokenData = {
-			...credentials,
-			token,
-			...(expiresAt !== undefined ? { expiresAt } : {}),
-			savedAt: Date.now(),
-		};
-
-		// Update memory cache
-		this.memoryCache = data;
-
-		// Save to browser storage
-		try {
-			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to browser storage`, error);
-		}
-
-		// Save to IndexedDB
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put({
-					id: 'worker_token',
-					...data,
-				});
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to save token to IndexedDB`, error);
-		}
+		await unifiedWorkerTokenService.saveToken(token, expiresAt);
 	}
 
 	/**
-	 * Get worker token (access token) if valid
+	 * Get worker token (access token)
 	 */
 	async getToken(): Promise<string | null> {
-		const data = await this.loadCredentials();
-		if (!data) {
-			return null;
-		}
-
-		// Check if we have a stored token
-		const stored = this.memoryCache || (await this.loadDataFromStorage());
-		if (!stored || !stored.token) {
-			return null;
-		}
-
-		// Check expiration
-		if (stored.expiresAt && Date.now() > stored.expiresAt) {
-			console.log(`${MODULE_TAG} Token expired, clearing`);
-			await this.clearToken();
-			return null;
-		}
-
-		return stored.token;
-	}
-
-	/**
-	 * Clear worker token credentials from all storage
-	 */
-	async clearCredentials(): Promise<void> {
-		this.memoryCache = null;
-
-		// Clear browser storage
-		try {
-			localStorage.removeItem(BROWSER_STORAGE_KEY);
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear browser storage`, error);
-		}
-
-		// Clear IndexedDB
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			await new Promise<void>((resolve, reject) => {
-				const request = store.delete('worker_token');
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear IndexedDB`, error);
-		}
-
-		console.log(`${MODULE_TAG} Cleared all credentials`);
-	}
-
-	/**
-	 * Clear only the access token (keep credentials)
-	 */
-	async clearToken(): Promise<void> {
-		const credentials = await this.loadCredentials();
-		if (!credentials) {
-			return;
-		}
-
-		const data: WorkerTokenData = {
-			...credentials,
-			token: '',
-			savedAt: Date.now(),
-		};
-
-		this.memoryCache = data;
-
-		// Update browser storage
-		try {
-			localStorage.setItem(BROWSER_STORAGE_KEY, JSON.stringify(data));
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from browser storage`, error);
-		}
-
-		// Update IndexedDB
-		try {
-			const db = await this.initDB();
-			const transaction = db.transaction([INDEXEDDB_STORE_NAME], 'readwrite');
-			const store = transaction.objectStore(INDEXEDDB_STORE_NAME);
-			await new Promise<void>((resolve, reject) => {
-				const request = store.put({
-					id: 'worker_token',
-					...data,
-				});
-				request.onsuccess = () => resolve();
-				request.onerror = () => reject(request.error);
-			});
-		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to clear token from IndexedDB`, error);
-		}
+		return await unifiedWorkerTokenService.getToken();
 	}
 
 	/**
@@ -459,53 +117,51 @@ class WorkerTokenServiceV8 {
 	}
 
 	/**
-	 * Extract credentials from data object
+	 * Clear credentials
 	 */
-	private extractCredentials(data: WorkerTokenData): WorkerTokenCredentials {
-		// #region agent log (only if analytics server is available)
-		// Note: This is a synchronous method, so we can't await the check
-		// Use fire-and-forget pattern to avoid blocking
-		import('@/v8/utils/analyticsServerCheckV8').then(({ safeAnalyticsFetch }) => {
-			safeAnalyticsFetch({location:'workerTokenServiceV8.ts:394',message:'extractCredentials called',data:{hasData:!!data,hasEnvironmentId:!!data?.environmentId,hasClientId:!!data?.clientId,hasClientSecret:!!data?.clientSecret},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'});
-		}).catch(() => {
-			// Silently ignore import or fetch errors
-		});
-		// #endregion
-		return {
-			environmentId: data.environmentId,
-			clientId: data.clientId,
-			clientSecret: data.clientSecret,
-			...(data.scopes && { scopes: data.scopes }),
-			...(data.region && { region: data.region }),
-			...(data.tokenEndpointAuthMethod && {
-				tokenEndpointAuthMethod: data.tokenEndpointAuthMethod,
-			}),
-		};
+	async clearCredentials(): Promise<void> {
+		await unifiedWorkerTokenService.clearCredentials();
 	}
 
 	/**
-	 * Load data from storage (helper)
+	 * Clear token only
 	 */
-	private async loadDataFromStorage(): Promise<WorkerTokenData | null> {
+	async clearToken(): Promise<void> {
+		await unifiedWorkerTokenService.clearToken();
+	}
+
+	/**
+	 * Get status
+	 */
+	async getStatus() {
+		return await unifiedWorkerTokenService.getStatus();
+	}
+
+	/**
+	 * Synchronous version for backwards compatibility (localStorage only)
+	 */
+	loadCredentialsSync(): WorkerTokenCredentials | null {
 		try {
-			const stored = localStorage.getItem(BROWSER_STORAGE_KEY);
+			const stored = localStorage.getItem('unified_worker_token');
 			if (stored) {
-				return JSON.parse(stored) as WorkerTokenData;
+				const data: UnifiedWorkerTokenData = JSON.parse(stored);
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				const { appId, appName, appVersion, ...v8Credentials } = data.credentials;
+				return v8Credentials as WorkerTokenCredentials;
 			}
 		} catch (error) {
-			console.error(`${MODULE_TAG} Failed to load data from storage`, error);
+			console.error('[WorkerTokenServiceV8] Failed to load credentials sync', error);
 		}
 		return null;
 	}
 }
 
-// Export singleton instance
+// Export singleton instance for backward compatibility
 export const workerTokenServiceV8 = new WorkerTokenServiceV8();
 
 // Make available globally for debugging
 if (typeof window !== 'undefined') {
-	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 =
-		workerTokenServiceV8;
+	(window as unknown as { workerTokenServiceV8: WorkerTokenServiceV8 }).workerTokenServiceV8 = workerTokenServiceV8;
 }
 
 export default workerTokenServiceV8;

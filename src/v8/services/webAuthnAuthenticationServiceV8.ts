@@ -50,6 +50,99 @@ export class WebAuthnAuthenticationServiceV8 {
 	}
 
 	/**
+	 * Get WebAuthn assertion from PublicKeyCredentialRequestOptions
+	 * This method performs the WebAuthn get() call with the provided options
+	 */
+	static async getWebAuthnAssertion(
+		publicKeyOptions: PublicKeyCredentialRequestOptions
+	): Promise<WebAuthnAuthenticationResult> {
+		console.log(`${MODULE_TAG} Getting WebAuthn assertion`, {
+			hasPublicKeyOptions: !!publicKeyOptions,
+			challengeType: publicKeyOptions.challenge?.constructor?.name,
+			rpId: publicKeyOptions.rpId,
+			timeout: publicKeyOptions.timeout,
+		});
+
+		try {
+			// Check WebAuthn support
+			if (!WebAuthnAuthenticationServiceV8.isWebAuthnSupported()) {
+				return {
+					success: false,
+					error: 'WebAuthn is not supported in this browser',
+				};
+			}
+
+			// Perform WebAuthn get() call
+			const credential = await navigator.credentials.get({
+				publicKey: publicKeyOptions,
+			}) as PublicKeyCredential;
+
+			console.log(`${MODULE_TAG} WebAuthn assertion successful`, {
+				credentialId: credential.id,
+				rawIdLength: credential.rawId.byteLength,
+				hasResponse: !!credential.response,
+				responseType: credential.response?.constructor?.name,
+			});
+
+			// Extract assertion data
+			const response = credential.response as AuthenticatorAssertionResponse;
+			
+			// Convert ArrayBuffer to base64 strings
+			const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+				const bytes = new Uint8Array(buffer);
+				let binary = '';
+				for (let i = 0; i < bytes.byteLength; i++) {
+					binary += String.fromCharCode(bytes[i]);
+				}
+				return btoa(binary);
+			};
+			
+			return {
+				success: true,
+				credentialId: credential.id,
+				rawId: arrayBufferToBase64(credential.rawId),
+				signature: arrayBufferToBase64(response.signature),
+				userHandle: response.userHandle ? arrayBufferToBase64(response.userHandle) : undefined,
+				clientDataJSON: arrayBufferToBase64(response.clientDataJSON),
+				authenticatorData: arrayBufferToBase64(response.authenticatorData),
+			};
+
+		} catch (error) {
+			console.error(`${MODULE_TAG} WebAuthn assertion failed:`, error);
+			
+			// Handle different error types
+			if (error instanceof Error) {
+				if (error.name === 'NotAllowedError') {
+					return {
+						success: false,
+						error: 'User cancelled the authentication or the authenticator was blocked',
+					};
+				} else if (error.name === 'SecurityError') {
+					return {
+						success: false,
+						error: 'Security error: The operation is not allowed',
+					};
+				} else if (error.name === 'InvalidStateError') {
+					return {
+						success: false,
+						error: 'The authenticator is already registered',
+					};
+				} else if (error.name === 'NotSupportedError') {
+					return {
+						success: false,
+						error: 'The authenticator does not support the requested operation',
+					};
+				}
+			}
+
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Unknown WebAuthn error',
+			};
+		}
+	}
+
+	/**
 	 * Authenticate with WebAuthn using challenge from PingOne
 	 * This method:
 	 * 1. Fetches the challenge data from PingOne using challengeId

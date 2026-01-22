@@ -16,11 +16,12 @@
  *   analytics.log({ location: 'MyComponent.tsx:42', message: 'User clicked button' });
  */
 
-const ANALYTICS_ENDPOINT = 'http://127.0.0.1:7242/ingest/54b55ad4-e19d-45fc-a299-abfa1f07ca9c';
+// Analytics completely disabled to prevent connection errors
+const ANALYTICS_ENDPOINT = null;
 const REQUEST_TIMEOUT = 2000; // 2 seconds max wait
 
 // Global flag to disable analytics (useful for testing or production)
-let analyticsEnabled = true;
+let analyticsEnabled = false; // Disabled by default
 
 /**
  * Check if analytics should be sent
@@ -44,36 +45,12 @@ function shouldSendAnalytics(): boolean {
  * Completely silent - never throws, never logs errors
  */
 function sendAnalytics(data: Record<string, unknown>): void {
-	if (!shouldSendAnalytics()) {
+	if (!shouldSendAnalytics() || !ANALYTICS_ENDPOINT) {
 		return;
 	}
 
-	// Fire and forget - use setTimeout to make it truly non-blocking
-	setTimeout(() => {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-		// Use fetch with no-cors mode to avoid CORS errors
-		// Catch all errors silently - never log to console
-		fetch(ANALYTICS_ENDPOINT, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				...data,
-				timestamp: Date.now(),
-			}),
-			signal: controller.signal,
-			mode: 'no-cors', // Prevents CORS errors from appearing in console
-			credentials: 'omit',
-		})
-			.then(() => {
-				clearTimeout(timeoutId);
-			})
-			.catch(() => {
-				// Silently ignore all errors
-				clearTimeout(timeoutId);
-			});
-	}, 0);
+	// Analytics is disabled - no fetch calls made
+	return;
 }
 
 /**
