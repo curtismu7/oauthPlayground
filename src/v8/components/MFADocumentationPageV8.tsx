@@ -7,7 +7,7 @@
  * Displays API calls, JSON bodies, rules, and allows download as PDF/MD
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
 	FiBook,
 	FiChevronDown,
@@ -19,12 +19,15 @@ import {
 	FiPackage,
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import type { DeviceType } from '../flows/shared/MFATypes';
 import {
-	generateMFAPostmanCollection,
+	apiCallTrackerService,
+	type ApiCall as TrackedApiCall,
+} from '@/services/apiCallTrackerService';
+import {
 	downloadPostmanCollectionWithEnvironment,
+	generateMFAPostmanCollection,
 } from '@/services/postmanCollectionGeneratorV8';
-import { apiCallTrackerService, type ApiCall as TrackedApiCall } from '@/services/apiCallTrackerService';
+import type { DeviceType } from '../flows/shared/MFATypes';
 
 interface MFADocumentationPageV8Props {
 	deviceType: DeviceType;
@@ -1328,53 +1331,55 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 	const navigate = useNavigate();
 	const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set()); // All collapsed by default to match Unified
 	const deviceInfo = DEVICE_DOCS[deviceType];
-	
+
 	// Get tracked API calls from the tracker service (real-time, live data)
 	const trackedCalls = apiCallTrackerService.getApiCalls();
-	
+
 	// Filter for MFA-related calls
 	const mfaApiCalls = useMemo(() => {
-		return trackedCalls.filter(call => 
-			call.flowType === 'mfa' || 
-			call.flowType === 'email-mfa-signon' ||
-			call.step?.toLowerCase().includes('mfa')
-		);
-	}, [trackedCalls]);
-	
-	// Group MFA API calls by category (like Unified)
-	const groupedCalls = useMemo(() => {
-		const allCalls = apiCallTrackerService.getApiCalls();
-		
-		return {
-			managementApi: allCalls.filter(call => 
-				call.flowType === 'management-api' || 
-				call.flowType === 'worker-token'
-			),
-			oidcMetadata: allCalls.filter(call => 
-				call.flowType === 'oidc-metadata'
-			),
-			preflightValidation: allCalls.filter(call => 
-				call.flowType === 'preflight-validation'
-			),
-			mfaFlow: allCalls.filter(call => 
+		return trackedCalls.filter(
+			(call) =>
 				call.flowType === 'mfa' ||
 				call.flowType === 'email-mfa-signon' ||
 				call.step?.toLowerCase().includes('mfa')
+		);
+	}, [trackedCalls]);
+
+	// Group MFA API calls by category (like Unified)
+	const groupedCalls = useMemo(() => {
+		const allCalls = apiCallTrackerService.getApiCalls();
+
+		return {
+			managementApi: allCalls.filter(
+				(call) => call.flowType === 'management-api' || call.flowType === 'worker-token'
+			),
+			oidcMetadata: allCalls.filter((call) => call.flowType === 'oidc-metadata'),
+			preflightValidation: allCalls.filter((call) => call.flowType === 'preflight-validation'),
+			mfaFlow: allCalls.filter(
+				(call) =>
+					call.flowType === 'mfa' ||
+					call.flowType === 'email-mfa-signon' ||
+					call.step?.toLowerCase().includes('mfa')
 			),
 		};
 	}, [trackedCalls]);
-	
+
 	// Fallback to static API calls if no tracked calls available (for documentation purposes)
 	const staticApiCalls = getApiCalls(deviceType, flowType, flowSpecificData);
-	const apiCalls = mfaApiCalls.length > 0 ? mfaApiCalls.map((call, index) => ({
-		step: `${index + 1}. ${call.step || 'API Call'}`,
-		method: call.method,
-		endpoint: call.actualPingOneUrl || call.url,
-		description: call.step || 'MFA API Call',
-		requestBody: (typeof call.body === 'object' ? call.body : {}) as Record<string, unknown>,
-		responseBody: (call.response?.data as Record<string, unknown>) || {},
-		notes: call.response ? [`Response Status: ${call.response.status} ${call.response.statusText}`] : undefined,
-	})) : staticApiCalls;
+	const apiCalls =
+		mfaApiCalls.length > 0
+			? mfaApiCalls.map((call, index) => ({
+					step: `${index + 1}. ${call.step || 'API Call'}`,
+					method: call.method,
+					endpoint: call.actualPingOneUrl || call.url,
+					description: call.step || 'MFA API Call',
+					requestBody: (typeof call.body === 'object' ? call.body : {}) as Record<string, unknown>,
+					responseBody: (call.response?.data as Record<string, unknown>) || {},
+					notes: call.response
+						? [`Response Status: ${call.response.status} ${call.response.statusText}`]
+						: undefined,
+				}))
+			: staticApiCalls;
 
 	const toggleSection = (index: number): void => {
 		setExpandedSections((prev) => {
@@ -1519,8 +1524,8 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 					</span>
 				</div>
 				<p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#1e40af', lineHeight: '1.5' }}>
-					This documentation shows all available fields in the request body, including optional fields with
-					default values. For the complete data model specification, see:
+					This documentation shows all available fields in the request body, including optional
+					fields with default values. For the complete data model specification, see:
 				</p>
 				<a
 					href={deviceInfo.registrationApiDocs}
@@ -1722,259 +1727,483 @@ export const MFADocumentationPageV8: React.FC<MFADocumentationPageV8Props> = ({
 				</div>
 			</div>
 
-		{/* API Calls by Category */}
-		{apiCalls.length > 0 && (
-			<div style={{ marginBottom: '32px' }}>
-				<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-					API Calls by Category
-				</h3>
-				<div style={{ 
-					display: 'grid', 
-					gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-					gap: '16px',
-					marginBottom: '32px'
-				}}>
-					{groupedCalls.managementApi.length > 0 && (
-						<div style={{
-							padding: '16px',
-							background: '#fef3c7',
-							borderRadius: '8px',
-							borderLeft: '4px solid #f59e0b',
-						}}>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: '#92400e', marginBottom: '4px' }}>
-								🔐 Management API
-							</div>
-							<div style={{ fontSize: '24px', fontWeight: '700', color: '#78350f' }}>
-								{groupedCalls.managementApi.length}
-							</div>
-							<div style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>
-								Worker Token, Users
-							</div>
-						</div>
-					)}
-					{groupedCalls.oidcMetadata.length > 0 && (
-						<div style={{
-							padding: '16px',
-							background: '#dbeafe',
-							borderRadius: '8px',
-							borderLeft: '4px solid #3b82f6',
-						}}>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: '#1e40af', marginBottom: '4px' }}>
-								📋 OIDC Metadata
-							</div>
-							<div style={{ fontSize: '24px', fontWeight: '700', color: '#1e3a8a' }}>
-								{groupedCalls.oidcMetadata.length}
-							</div>
-							<div style={{ fontSize: '12px', color: '#1e40af', marginTop: '4px' }}>
-								Discovery, JWKS
-							</div>
-						</div>
-					)}
-					{groupedCalls.preflightValidation.length > 0 && (
-						<div style={{
-							padding: '16px',
-							background: '#dcfce7',
-							borderRadius: '8px',
-							borderLeft: '4px solid #16a34a',
-						}}>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: '#15803d', marginBottom: '4px' }}>
-								✅ Pre-flight Validation
-							</div>
-							<div style={{ fontSize: '24px', fontWeight: '700', color: '#166534' }}>
-								{groupedCalls.preflightValidation.length}
-							</div>
-							<div style={{ fontSize: '12px', color: '#15803d', marginTop: '4px' }}>
-								Config Checks
-							</div>
-						</div>
-					)}
-					{groupedCalls.mfaFlow.length > 0 && (
-						<div style={{
-							padding: '16px',
-							background: '#f3e8ff',
-							borderRadius: '8px',
-							borderLeft: '4px solid #9333ea',
-						}}>
-							<div style={{ fontSize: '14px', fontWeight: '600', color: '#7e22ce', marginBottom: '4px' }}>
-								🔐 MFA Flow
-							</div>
-							<div style={{ fontSize: '24px', fontWeight: '700', color: '#6b21a8' }}>
-								{groupedCalls.mfaFlow.length}
-							</div>
-							<div style={{ fontSize: '12px', color: '#7e22ce', marginTop: '4px' }}>
-								Device Operations
-							</div>
-						</div>
-					)}
-				</div>
-			</div>
-		)}
-
-		{/* API Calls */}
-		<div style={{ marginBottom: '32px' }}>
-			<h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}>
-				Complete API Calls List
-			</h3>
-				<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-					{apiCalls.map((call, index) => {
-						const isExpanded = expandedSections.has(index);
-						return (
+			{/* API Calls by Category */}
+			{apiCalls.length > 0 && (
+				<div style={{ marginBottom: '32px' }}>
+					<h3
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
+						API Calls by Category
+					</h3>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+							gap: '16px',
+							marginBottom: '32px',
+						}}
+					>
+						{groupedCalls.managementApi.length > 0 && (
 							<div
-								key={index}
 								style={{
-									border: '1px solid #e5e7eb',
+									padding: '16px',
+									background: '#fef3c7',
 									borderRadius: '8px',
-									overflow: 'hidden',
+									borderLeft: '4px solid #f59e0b',
 								}}
 							>
-								<button
-									type="button"
-									onClick={() => toggleSection(index)}
+								<div
 									style={{
-										width: '100%',
-										padding: '16px 20px',
-										background: isExpanded ? '#f3f4f6' : 'white',
-										border: 'none',
-										borderRadius: '8px',
-										cursor: 'pointer',
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'space-between',
-										textAlign: 'left',
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#92400e',
+										marginBottom: '4px',
 									}}
 								>
-									<div style={{ flex: 1 }}>
-										<div
-											style={{
-												fontSize: '16px',
-												fontWeight: '600',
-												color: '#1f2937',
-												marginBottom: '4px',
-											}}
-										>
-											{call.step}
-										</div>
-										<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
-											<strong>{call.method}</strong>{' '}
-											<span style={{ color: '#f97316' }}>{call.endpoint}</span>
-										</div>
-									</div>
-									{isExpanded ? (
-										<FiChevronUp size={20} color="#6b7280" />
-									) : (
-										<FiChevronDown size={20} color="#6b7280" />
-									)}
-								</button>
-								{isExpanded && (
-									<div
-										style={{ padding: '20px', background: 'white', borderTop: '1px solid #e5e7eb' }}
-									>
-										<p style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '14px' }}>
-											{call.description}
-										</p>
+									🔐 Management API
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#78350f' }}>
+									{groupedCalls.managementApi.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#92400e', marginTop: '4px' }}>
+									Worker Token, Users
+								</div>
+							</div>
+						)}
+						{groupedCalls.oidcMetadata.length > 0 && (
+							<div
+								style={{
+									padding: '16px',
+									background: '#dbeafe',
+									borderRadius: '8px',
+									borderLeft: '4px solid #3b82f6',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#1e40af',
+										marginBottom: '4px',
+									}}
+								>
+									📋 OIDC Metadata
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#1e3a8a' }}>
+									{groupedCalls.oidcMetadata.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#1e40af', marginTop: '4px' }}>
+									Discovery, JWKS
+								</div>
+							</div>
+						)}
+						{groupedCalls.preflightValidation.length > 0 && (
+							<div
+								style={{
+									padding: '16px',
+									background: '#dcfce7',
+									borderRadius: '8px',
+									borderLeft: '4px solid #16a34a',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#15803d',
+										marginBottom: '4px',
+									}}
+								>
+									✅ Pre-flight Validation
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#166534' }}>
+									{groupedCalls.preflightValidation.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#15803d', marginTop: '4px' }}>
+									Config Checks
+								</div>
+							</div>
+						)}
+						{groupedCalls.mfaFlow.length > 0 && (
+							<div
+								style={{
+									padding: '16px',
+									background: '#f3e8ff',
+									borderRadius: '8px',
+									borderLeft: '4px solid #9333ea',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '14px',
+										fontWeight: '600',
+										color: '#7e22ce',
+										marginBottom: '4px',
+									}}
+								>
+									🔐 MFA Flow
+								</div>
+								<div style={{ fontSize: '24px', fontWeight: '700', color: '#6b21a8' }}>
+									{groupedCalls.mfaFlow.length}
+								</div>
+								<div style={{ fontSize: '12px', color: '#7e22ce', marginTop: '4px' }}>
+									Device Operations
+								</div>
+							</div>
+						)}
+					</div>
+				</div>
+			)}
 
-										{call.notes && call.notes.length > 0 && (
+			{/* MFA Flow API Calls */}
+			{groupedCalls.mfaFlow.length > 0 && (
+				<div style={{ marginBottom: '32px' }}>
+					<h3
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
+						🔐 MFA Flow API Calls
+					</h3>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						{groupedCalls.mfaFlow.map((call, index) => {
+							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const isExpanded = expandedSections.has(globalIndex);
+							return (
+								<div
+									key={index}
+									style={{
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										overflow: 'hidden',
+									}}
+								>
+									<button
+										type="button"
+										onClick={() => toggleSection(globalIndex)}
+										style={{
+											width: '100%',
+											padding: '16px 20px',
+											background: isExpanded ? '#f3f4f6' : 'white',
+											border: 'none',
+											borderRadius: '8px',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+											textAlign: 'left',
+										}}
+									>
+										<div style={{ flex: 1 }}>
 											<div
 												style={{
-													marginBottom: '16px',
-													padding: '12px',
-													background: '#eff6ff',
-													borderRadius: '6px',
-													border: '1px solid #93c5fd',
+													fontSize: '16px',
+													fontWeight: '600',
+													color: '#1f2937',
+													marginBottom: '4px',
 												}}
 											>
-												<div
-													style={{
-														fontSize: '12px',
-														fontWeight: '600',
-														color: '#1e40af',
-														marginBottom: '8px',
-													}}
-												>
-													Important Notes:
-												</div>
-												<ul
-													style={{
-														margin: 0,
-														paddingLeft: '20px',
-														fontSize: '13px',
-														color: '#1e40af',
-													}}
-												>
-													{call.notes.map((note, noteIndex) => (
-														<li key={noteIndex} style={{ marginBottom: '4px' }}>
-															{note}
-														</li>
-													))}
-												</ul>
+												{call.step}
 											</div>
+											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
+												<strong>{call.method}</strong>{' '}
+												<span style={{ color: '#f97316' }}>{call.endpoint}</span>
+											</div>
+										</div>
+										{isExpanded ? (
+											<FiChevronUp size={20} color="#6b7280" />
+										) : (
+											<FiChevronDown size={20} color="#6b7280" />
 										)}
+									</button>
+									{isExpanded && (
+										<div
+											style={{
+												padding: '20px',
+												background: 'white',
+												borderTop: '1px solid #e5e7eb',
+											}}
+										>
+											<p style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '14px' }}>
+												{call.description}
+											</p>
 
-										{Object.keys(call.requestBody).length > 0 && (
-											<div style={{ marginBottom: '16px' }}>
+											{call.notes && call.notes.length > 0 && (
 												<div
 													style={{
-														fontSize: '15px',
-														fontWeight: '700',
-														color: '#374151',
-														marginBottom: '12px',
-													}}
-												>
-													Request Body:
-												</div>
-												<pre
-													style={{
-														margin: 0,
-														padding: '16px',
-														background: '#f9fafb',
+														marginBottom: '16px',
+														padding: '12px',
+														background: '#eff6ff',
 														borderRadius: '6px',
-														border: '4px solid #f97316',
-														fontSize: '14px',
-														overflow: 'auto',
-														color: '#1f2937',
-														fontWeight: '500',
+														border: '1px solid #93c5fd',
 													}}
 												>
-													{JSON.stringify(call.requestBody, null, 2)}
-												</pre>
-											</div>
-										)}
+													<div
+														style={{
+															fontSize: '12px',
+															fontWeight: '600',
+															color: '#1e40af',
+															marginBottom: '8px',
+														}}
+													>
+														Important Notes:
+													</div>
+													<ul
+														style={{
+															margin: 0,
+															paddingLeft: '20px',
+															fontSize: '13px',
+															color: '#1e40af',
+														}}
+													>
+														{call.notes.map((note, noteIndex) => (
+															<li key={noteIndex} style={{ marginBottom: '4px' }}>
+																{note}
+															</li>
+														))}
+													</ul>
+												</div>
+											)}
 
-										{Object.keys(call.responseBody).length > 0 && (
-											<div>
-												<div
-													style={{
-														fontSize: '13px',
-														fontWeight: '600',
-														color: '#374151',
-														marginBottom: '8px',
-													}}
-												>
-													Response:
+											{Object.keys(call.requestBody).length > 0 && (
+												<div style={{ marginBottom: '16px' }}>
+													<div
+														style={{
+															fontSize: '15px',
+															fontWeight: '700',
+															color: '#374151',
+															marginBottom: '12px',
+														}}
+													>
+														Request Body:
+													</div>
+													<pre
+														style={{
+															margin: 0,
+															padding: '16px',
+															background: '#f9fafb',
+															borderRadius: '6px',
+															border: '4px solid #f97316',
+															fontSize: '14px',
+															overflow: 'auto',
+															color: '#1f2937',
+															fontWeight: '500',
+														}}
+													>
+														{JSON.stringify(call.requestBody, null, 2)}
+													</pre>
 												</div>
-												<pre
-													style={{
-														margin: 0,
-														padding: '16px',
-														background: '#f9fafb',
-														borderRadius: '6px',
-														border: '1px solid #e5e7eb',
-														fontSize: '13px',
-														overflow: 'auto',
-														color: '#1f2937',
-													}}
-												>
-													{JSON.stringify(call.responseBody, null, 2)}
-												</pre>
-											</div>
-										)}
-									</div>
-								)}
-							</div>
-						);
-					})}
+											)}
+
+											{Object.keys(call.responseBody).length > 0 && (
+												<div>
+													<div
+														style={{
+															fontSize: '13px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Response:
+													</div>
+													<pre
+														style={{
+															margin: 0,
+															padding: '16px',
+															background: '#f9fafb',
+															borderRadius: '6px',
+															border: '1px solid #e5e7eb',
+															fontSize: '13px',
+															overflow: 'auto',
+															color: '#1f2937',
+														}}
+													>
+														{JSON.stringify(call.responseBody, null, 2)}
+													</pre>
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							);
+						})}
+					</div>
 				</div>
-			</div>
+			)}
+
+			{/* Pre-flight Validation API Calls */}
+			{groupedCalls.preflightValidation.length > 0 && (
+				<div style={{ marginBottom: '32px' }}>
+					<h3
+						style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '600', color: '#1f2937' }}
+					>
+						✅ Pre-flight Validation API Calls
+					</h3>
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+						{groupedCalls.preflightValidation.map((call, index) => {
+							const globalIndex = apiCalls.findIndex((c) => c === call);
+							const isExpanded = expandedSections.has(globalIndex);
+							return (
+								<div
+									key={index}
+									style={{
+										border: '1px solid #e5e7eb',
+										borderRadius: '8px',
+										overflow: 'hidden',
+									}}
+								>
+									<button
+										type="button"
+										onClick={() => toggleSection(globalIndex)}
+										style={{
+											width: '100%',
+											padding: '16px 20px',
+											background: isExpanded ? '#f3f4f6' : 'white',
+											border: 'none',
+											borderRadius: '8px',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'space-between',
+											textAlign: 'left',
+										}}
+									>
+										<div style={{ flex: 1 }}>
+											<div
+												style={{
+													fontSize: '16px',
+													fontWeight: '600',
+													color: '#1f2937',
+													marginBottom: '4px',
+												}}
+											>
+												{call.step}
+											</div>
+											<div style={{ fontSize: '18px', color: '#1f2937', fontWeight: '600' }}>
+												<strong>{call.method}</strong>{' '}
+												<span style={{ color: '#f97316' }}>{call.endpoint}</span>
+											</div>
+										</div>
+										{isExpanded ? (
+											<FiChevronUp size={20} color="#6b7280" />
+										) : (
+											<FiChevronDown size={20} color="#6b7280" />
+										)}
+									</button>
+									{isExpanded && (
+										<div
+											style={{
+												padding: '20px',
+												background: 'white',
+												borderTop: '1px solid #e5e7eb',
+											}}
+										>
+											<p style={{ margin: '0 0 16px 0', color: '#374151', fontSize: '14px' }}>
+												{call.description}
+											</p>
+
+											{call.notes && call.notes.length > 0 && (
+												<div
+													style={{
+														marginBottom: '16px',
+														padding: '12px',
+														background: '#eff6ff',
+														borderRadius: '6px',
+														border: '1px solid #93c5fd',
+													}}
+												>
+													<div
+														style={{
+															fontSize: '12px',
+															fontWeight: '600',
+															color: '#1e40af',
+															marginBottom: '8px',
+														}}
+													>
+														Important Notes:
+													</div>
+													<ul
+														style={{
+															margin: 0,
+															paddingLeft: '20px',
+															fontSize: '13px',
+															color: '#1e40af',
+														}}
+													>
+														{call.notes.map((note, noteIndex) => (
+															<li key={noteIndex} style={{ marginBottom: '4px' }}>
+																{note}
+															</li>
+														))}
+													</ul>
+												</div>
+											)}
+
+											{Object.keys(call.requestBody).length > 0 && (
+												<div style={{ marginBottom: '16px' }}>
+													<div
+														style={{
+															fontSize: '15px',
+															fontWeight: '700',
+															color: '#374151',
+															marginBottom: '12px',
+														}}
+													>
+														Request Body:
+													</div>
+													<pre
+														style={{
+															margin: 0,
+															padding: '16px',
+															background: '#f9fafb',
+															borderRadius: '6px',
+															border: '4px solid #f97316',
+															fontSize: '14px',
+															overflow: 'auto',
+															color: '#1f2937',
+															fontWeight: '500',
+														}}
+													>
+														{JSON.stringify(call.requestBody, null, 2)}
+													</pre>
+												</div>
+											)}
+
+											{Object.keys(call.responseBody).length > 0 && (
+												<div>
+													<div
+														style={{
+															fontSize: '13px',
+															fontWeight: '600',
+															color: '#374151',
+															marginBottom: '8px',
+														}}
+													>
+														Response:
+													</div>
+													<pre
+														style={{
+															margin: 0,
+															padding: '16px',
+															background: '#f9fafb',
+															borderRadius: '6px',
+															border: '1px solid #e5e7eb',
+															fontSize: '13px',
+															overflow: 'auto',
+															color: '#1f2937',
+														}}
+													>
+														{JSON.stringify(call.responseBody, null, 2)}
+													</pre>
+												</div>
+											)}
+										</div>
+									)}
+								</div>
+							);
+						})}
+					</div>
+				</div>
+			)}
 
 			{/* UI Requirements */}
 			<div
